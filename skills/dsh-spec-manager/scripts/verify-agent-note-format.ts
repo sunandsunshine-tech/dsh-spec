@@ -4,12 +4,18 @@
  * marker rules. Classification and filenames belong to the sibling tree gate;
  * translation structure belongs to the pairing gate. Exact format and
  * grandfathering rules live in `.agents/dsh-spec/notes/README.md`.
+ *
+ * This gate reads exactly the paths it is handed: the tree walk belongs to classification, which
+ * asserts about the tree, and a check that only reads note bodies has no business enumerating one.
  */
 
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { agentNoteRoot, walkAgentNoteTree } from './agent-note-tree.ts'
+import { agentNoteRoot, isActiveNotePath, noteFromRel, type AgentNote } from './agent-note-tree.ts'
+import { readGateScope, refuseOutOfScope } from './gate-scope.ts'
 import { notesRootExists } from './notes-root.ts'
+
+const gate = 'verify-agent-note-format'
 
 /** The date these format rules took effect; the grandfather comment is valid only before it. */
 const FORMAT_ADOPTED = '2026-07-05'
@@ -37,18 +43,16 @@ const REQUIRED: Record<string, string[]> = {
 /** Headings banned in `implemented/` — proposal-era spec-speak per the slop checklist. */
 const BANNED_IMPLEMENTED = /^## (?:Proposal\b|Plan\b|Migration plan\b|Acceptance criteria\b)/i
 
-if (!notesRootExists(agentNoteRoot)) {
-  console.error(`verify-agent-note-format: no Agent Note tree at ${agentNoteRoot} — check --root or AGENT_NOTES_ROOT.`)
-  process.exit(1)
-}
-
-const { notes, errors } = walkAgentNoteTree()
-
-for (const note of notes) {
+/**
+ * Check one note's body against the format contract.
+ * @param note - the note the path names.
+ * @param lines - its text, split into lines.
+ * @param errors - the report this gate accumulates into.
+ */
+function checkNote(note: AgentNote, lines: string[], errors: string[]): void {
   const fail = (msg: string): void => {
     errors.push(`format: ${note.rel} — ${msg}`)
   }
-  const lines = readFileSync(resolve(agentNoteRoot, note.rel), 'utf8').split('\n')
   // Format tokens inside fenced examples are not document structure.
   let inFence = false
   const prose = lines.filter((l) => {
@@ -91,11 +95,40 @@ for (const note of notes) {
   if (prose.some(line => LEGACY_MARKERS.some(marker => line.includes(marker)))) fail('carries the retired legacy-format debt marker')
 }
 
+const scope = readGateScope(gate)
+refuseOutOfScope(gate, scope, isActiveNotePath)
+
+if (!notesRootExists(agentNoteRoot)) {
+  console.error(`${gate}: no Agent Note tree at ${agentNoteRoot} — check --root or AGENT_NOTES_ROOT.`)
+  process.exit(1)
+}
+
+const errors: string[] = []
+let checked = 0
+for (const entry of scope.entries) {
+  const absolute = resolve(scope.root, entry)
+  // A path the change reports as deleted has no body to read; its structural side belongs to the
+  // classification gate, which walks the tree.
+  if (!existsSync(absolute)) continue
+  const parsed = noteFromRel(entry)
+  if (!parsed.ok) {
+    errors.push(`format: ${entry} — ${parsed.error}`)
+    continue
+  }
+  checked += 1
+  checkNote(parsed.note, readFileSync(absolute, 'utf8').split('\n'), errors)
+}
+
+if (checked === 0) {
+  console.error(`${gate}: none of the ${scope.entries.length} path(s) handed in names an Agent Note that exists — check the scope the caller assembled`)
+  process.exit(1)
+}
+
 if (errors.length === 0) {
-  console.log(`verify-agent-note-format: ${notes.length} Agent Note(s) checked, all conform to .agents/dsh-spec/notes/README.md § The file format.`)
+  console.log(`${gate}: ${checked} Agent Note(s) checked, all conform to .agents/dsh-spec/notes/README.md § The file format.`)
   process.exit(0)
 }
 
-console.error('verify-agent-note-format: violations found:')
+console.error(`${gate}: violations found:`)
 for (const e of errors) console.error(`  ${e}`)
 process.exit(1)

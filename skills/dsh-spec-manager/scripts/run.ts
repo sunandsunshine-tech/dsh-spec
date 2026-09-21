@@ -28,11 +28,10 @@
 import { spawnSync } from 'node:child_process'
 import { readdirSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
-import { isTranslationScopeFile } from './i18n-scope.ts'
+import { expandScope, pathInGateScope } from './gate-scope.ts'
+import { resolveRepoRoot } from './repo-root.ts'
 import { manifestPathOf, readGateRecord, readGateScopes } from './manifest.ts'
-import { scopeReason } from './md-scope.ts'
-import { notesRootPrefixes } from './notes-root.ts'
-import type { GateScopeKey } from './manifest.ts'
+import type { GateScopeRecord } from './manifest.ts'
 
 /** Where this script lives: a skill's `scripts/`, the collection's one code home. */
 const scriptDir = dirname(resolve(process.argv[1] ?? __dirname))
@@ -136,17 +135,22 @@ function changedPaths(base: string): string[] | undefined {
 }
 
 /**
- * Does one path belong to the surface a scope key names?
+ * The arguments that hand one gate its scope.
  *
- * Each key is resolved through the module that already owns that surface — the notes root, the
- * Markdown scope the prose gates read, the pairing scope — so a path has one owner and this
- * selection cannot drift from what the gates themselves look at.
+ * A tree-selection gate takes `--all`; a file-selection gate takes the paths it owns, and a full
+ * run expands that surface through the module that defines it rather than through a second copy of
+ * the rule.
  */
-function pathInScope(key: GateScopeKey, path: string): boolean {
-  if (key === 'tracked') return true
-  if (key === 'notes') return notesRootPrefixes().some(prefix => path === prefix || path.startsWith(prefix))
-  if (key === 'markdown') return path.endsWith('.md') && scopeReason(path) === ''
-  return isTranslationScopeFile(path)
+function scopeArgsFor(gate: string, record: GateScopeRecord, root: string, changed: readonly string[] | undefined): string[] | undefined {
+  if (record.selection === 'root') {
+    // A tree-selection gate still owes nothing unless the change touched the tree it asserts about.
+    return changed === undefined || changed.some(path => pathInGateScope(record, path)) ? ['--all'] : undefined
+  }
+  const entries = changed === undefined
+    ? record.keys.flatMap(key => expandScope(root, key))
+    : changed.filter(path => pathInGateScope(record, path))
+  const unique = [...new Set(entries)]
+  return unique.length === 0 ? undefined : unique
 }
 
 const argv = process.argv.slice(2)
@@ -169,16 +173,22 @@ if (namedGate === undefined && changedFlag >= 0) {
   const scopeReading = readGateScopes(scriptDir)
   if (!scopeReading.ok) fail(scopeReading.error)
   const args = rest.filter((value, index) => value !== '--changed' && value !== '--base' && index !== baseFlag + 1)
-  const runs = gates.filter(gate => (scopeReading.scopes.get(gate) ?? ['tracked']).some(key => paths.some(path => pathInScope(key, path))))
-  const skipped = gates.filter(gate => !runs.includes(gate))
-  console.log(`run: ${paths.length} changed path(s) against ${base}; ${runs.length} of ${gates.length} recorded gate(s) own them`)
-  for (const gate of skipped) {
-    console.log(`run: skipped ${gate} — nothing changed under ${(scopeReading.scopes.get(gate) ?? ['tracked']).join(', ')}`)
+  const root = resolveRepoRoot()
+  const runs: { gate: string, scope: string[] }[] = []
+  const skipped: { gate: string, reason: string }[] = []
+  for (const gate of gates) {
+    const record = scopeReading.scopes.get(gate)
+    if (record === undefined) fail(`no scope is recorded for \`${gate}\``)
+    const scope = scopeArgsFor(gate, record, root, paths)
+    if (scope === undefined) skipped.push({ gate, reason: `nothing changed under ${record.keys.join(', ')}` })
+    else runs.push({ gate, scope })
   }
+  console.log(`run: ${paths.length} changed path(s) against ${base}; ${runs.length} of ${gates.length} recorded gate(s) own them`)
+  for (const entry of skipped) console.log(`run: skipped ${entry.gate} — ${entry.reason}`)
   let failed = 0
-  for (const gate of runs) {
-    const status = runGate(gate, args)
-    console.log(`run: ${status === 0 ? 'ok  ' : 'FAIL'} ${gate}`)
+  for (const entry of runs) {
+    const status = runGate(entry.gate, [...args, ...entry.scope])
+    console.log(`run: ${status === 0 ? 'ok  ' : 'FAIL'} ${entry.gate}`)
     if (status !== 0) failed += 1
   }
   console.log(`run: ${runs.length} of ${gates.length} gate(s) run, ${failed} failed`)
@@ -187,13 +197,24 @@ if (namedGate === undefined && changedFlag >= 0) {
 
 if (namedGate === undefined && rest.includes('--all')) {
   const args = rest.filter((a) => a !== '--all')
+  const scopeReading = readGateScopes(scriptDir)
+  if (!scopeReading.ok) fail(scopeReading.error)
   let failed = 0
+  let ran = 0
   for (const gate of gates) {
-    const status = runGate(gate, args)
+    const record = scopeReading.scopes.get(gate)
+    if (record === undefined) fail(`no scope is recorded for \`${gate}\``)
+    const scope = scopeArgsFor(gate, record, resolveRepoRoot(), undefined)
+    if (scope === undefined) {
+      console.log(`run: skipped ${gate} — its scope holds no file to hand it`)
+      continue
+    }
+    ran += 1
+    const status = runGate(gate, [...args, ...scope])
     console.log(`run: ${status === 0 ? 'ok  ' : 'FAIL'} ${gate}`)
     if (status !== 0) failed += 1
   }
-  console.log(`run: ${gates.length} gate(s), ${failed} failed`)
+  console.log(`run: ${ran} of ${gates.length} gate(s) run, ${failed} failed`)
   process.exit(failed === 0 ? 0 : 1)
 }
 

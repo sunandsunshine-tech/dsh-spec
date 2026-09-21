@@ -157,12 +157,24 @@ export function writeArchiveKindDirs(fixture: Fixture): void {
   fixture.write(`${NOTES}/archived/AGENTS.md`, '# Archived Agent Notes\n')
 }
 
-/** A complete archived triplet, unsealed. */
+/**
+ * A complete archived triplet, unsealed.
+ *
+ * The archive's own format is stricter than the active one: line 4 carries the archival date, line
+ * 6 the language switcher, and the sidecar must hold the current blob hashes of both sides — which
+ * is what a note moved from `implemented/` carries with it. The hashes are computed the way the
+ * gate computes them, so a sealing case exercises the real rule rather than a placeholder.
+ */
 export function writeArchivedTriplet(fixture: Fixture, name: string, cls = 'process'): string {
   const rel = `${NOTES}/archived/${cls}/${name}.md`
-  fixture.write(rel, noteText(name, 'implemented'))
-  fixture.write(`${NOTES}/archived/${cls}/${name}.zh.md`, noteText(name, 'implemented'))
-  fixture.write(`${NOTES}/archived/${cls}/${name}.i18n.yaml`, `${name}.md: 0000\n${name}.zh.md: 0000\n`)
+  const zh = `${NOTES}/archived/${cls}/${name}.zh.md`
+  const record = `${NOTES}/archived/${cls}/${name}.i18n.yaml`
+  const body = (switcher: string): string =>
+    `# Agent Note: ${name}\n\nStatus: implemented\nArchived: 2026-09-21\n\n${switcher}\n\n## Problem\n\nSomething needed deciding.\n\n## Decision\n\nIt was decided.\n\n## Alternatives considered\n\nThe other option lost.\n\n## Consequences\n\nThe decision holds.\n`
+  fixture.write(rel, body(`English | [中文](${name}.zh.md)`))
+  fixture.write(zh, body(`[English](${name}.md) | 中文`))
+  const hashOf = (path: string): string => fixture.git('hash-object', path).stdout.trim()
+  fixture.write(record, `${name}.md: ${hashOf(rel)}\n${name}.zh.md: ${hashOf(zh)}\n`)
   return rel
 }
 

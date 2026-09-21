@@ -13,7 +13,9 @@ This repository holds `skills/` — one skill package carrying the dsh developme
 ```
 skills/   the deliverable: eight skills, one per workflow, each with its own entry and references;
           every gate is code in dsh-spec-manager/scripts/, the collection's one home for it
-scripts/           this repository's own validation, not shipped — verify-skill-structure.ts
+scripts/           this repository's own validation, not shipped — verify-skill-structure.ts, the
+          provenance registry and gate (ports.json, verify-port-provenance.ts), and ports.ts
+tests/             the functional suite for the checks themselves — node --test 'tests/**/*.test.ts'
 submodules/dsh/    the extraction baseline, pinned to dsh-v0.1.6-alpha.2 — .gitmodules
 .agents/skills/    the installed package, tracked and updated only with gh — this file
 .agents/dsh-spec/  what this repository decided: the decision records — notes/README.md
@@ -28,27 +30,27 @@ The Agent Note gates are **not** in `.agents/dsh-spec/`: their code ships in the
 pnpm dlx --allow-build=esbuild tsx@4.22.4 scripts/verify-skill-structure.ts --root skills/<name>   # once per skill directory the diff touches
   # the entry conforms, resources are placed, every reference is reachable from it
 
-for gate in verify-agent-note-classification verify-agent-note-format verify-archived-agent-notes; do
+for gate in verify-agent-note-classification verify-archived-agent-notes; do
   pnpm dlx --allow-build=esbuild tsx@4.22.4 \
-    .agents/skills/dsh-spec-manager/scripts/run.ts $gate --root .
+    .agents/skills/dsh-spec-manager/scripts/run.ts $gate --root . --all
 done
-  # the Agent Note tree, the in-file format, and the frozen archive
+  # the Agent Note tree and the frozen archive — tree assertions, so they walk it
 
 pnpm dlx --allow-build=esbuild tsx@4.22.4 \
-  .agents/skills/dsh-spec-manager/scripts/run.ts verify-translation-pairing --root .
-  # every declared pair is complete, recorded, and structurally identical
+  .agents/skills/dsh-spec-manager/scripts/run.ts verify-agent-note-format --root . <note...>
+  # the in-file format of the notes the change touched
 
 pnpm dlx --allow-build=esbuild tsx@4.22.4 \
-  .agents/skills/dsh-spec-manager/scripts/run.ts verify-md-links --root .
+  .agents/skills/dsh-spec-manager/scripts/run.ts verify-translation-pairing --root . <pair...>
+  # every named pair is complete, recorded, and structurally identical
+
+pnpm dlx --allow-build=esbuild tsx@4.22.4 \
+  .agents/skills/dsh-spec-manager/scripts/run.ts verify-md-links --root . <markdown...>
   # a relative link, image or definition whose target, or `#fragment`, does not resolve
 
 pnpm dlx --allow-build=esbuild tsx@4.22.4 \
-  .agents/skills/dsh-spec-manager/scripts/run.ts verify-md-link-syntax --root .
+  .agents/skills/dsh-spec-manager/scripts/run.ts verify-md-link-syntax --root . <markdown...>
   # a link a bulk rewrite turned into prose: `[label (reference)`, or a link nested inside a link
-
-pnpm dlx --allow-build=esbuild tsx@4.22.4 \
-  .agents/skills/dsh-spec-manager/scripts/run.ts verify-no-secrets --root .
-  # a provider token prefix, a PEM private-key header, or a long value assigned to a credential name, in tracked text
 
 pnpm dlx --allow-build=esbuild tsx@4.22.4 \
   .agents/skills/dsh-spec-manager/scripts/run.ts --all --root .
@@ -59,7 +61,7 @@ pnpm dlx --allow-build=esbuild tsx@4.22.4 \
   # the gates whose recorded surface the change touches, with every skip printed and why — a subset, never a substitute for --all before a push
 ```
 
-Node ≥ 22.19 or ≥ 24 and pnpm ≥ 10 are required, and `--allow-build=esbuild` must follow `dlx` directly. There is no build step, no test suite, and no CI: a gate is a name the manifest records, backed by a `verify-*.ts` script in the engine directory, and the dispatcher reconciles the two before it runs anything, so the recorded set is every check that exists and the aggregate is what makes each one non-optional.
+Node ≥ 22.19 or ≥ 24 and pnpm ≥ 10 are required, and `--allow-build=esbuild` must follow `dlx` directly. There is no build step and no CI: a gate is a name the manifest records, backed by a `verify-*.ts` script in the engine directory, and the dispatcher reconciles the two before it runs anything, so the recorded set is every check that exists and the aggregate is what makes each one non-optional. The checks themselves are exercised by the suite above, which needs nothing beyond Node.
 
 ## Boundaries
 

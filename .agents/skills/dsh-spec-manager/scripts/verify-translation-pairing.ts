@@ -49,8 +49,32 @@ import { resolveRepoRoot } from './repo-root.ts'
 
 const root = resolveRepoRoot()
 /** Command-line arguments with `--root <path>` removed; resolveRepoRoot consumed that option. */
-const cliArgs = process.argv.slice(2)
-  .filter((argument, index, all) => argument !== '--root' && all[index - 1] !== '--root')
+const rawArgs = process.argv.slice(2)
+let cliArgs = rawArgs.filter((argument, index, all) => argument !== '--root' && all[index - 1] !== '--root')
+
+// `--files-from <file|->` is the scope form a dispatcher uses when the list is long or expanded
+// from a whole surface; the paths it names are pair paths like any other.
+const filesFromIndex = rawArgs.indexOf('--files-from')
+if (filesFromIndex !== -1) {
+  const source = rawArgs[filesFromIndex + 1]
+  if (source === undefined) {
+    console.error(`${'verify-translation-pairing'}: --files-from needs a file, or - for stdin`)
+    process.exit(2)
+  }
+  const listed = source === '-'
+    ? readFileSync(0, 'utf8')
+    : existsSync(source) ? readFileSync(source, 'utf8') : undefined
+  if (listed === undefined) {
+    console.error(`verify-translation-pairing: --files-from ${source} cannot be read`)
+    process.exit(1)
+  }
+  const paths = listed.split('\n').map(line => line.trim()).filter(line => line !== '')
+  if (paths.length === 0) {
+    console.error(`verify-translation-pairing: --files-from ${source} listed no path — an empty scope is not a clean run`)
+    process.exit(2)
+  }
+  cliArgs = [...cliArgs.filter(argument => argument !== '--files-from' && argument !== source), ...paths]
+}
 let request: ReturnType<typeof parseTranslationPairingCliArgs>
 try {
   request = parseTranslationPairingCliArgs(cliArgs)
@@ -80,6 +104,32 @@ function readRepositoryFile(file: string): Buffer | undefined {
 /** Whether one path exists in the selected content plane. */
 function repositoryFileExists(file: string): boolean {
   return indexMode ? indexFiles?.has(file) === true : readRepositoryFile(file) !== undefined
+}
+
+/**
+ * Whether one path belongs to this check's surface.
+ *
+ * The union is deliberate: a naming-family member declares a pair, and so does a document whose own
+ * content carries a language switcher. Content alone would be the weaker rule of the two — the
+ * English side that *lost* its switcher is precisely the violation this check exists to report,
+ * and judging by content alone it would not count as a pair at all and would pass.
+ */
+function inPairScope(path: string): boolean {
+  if (isTranslationScopeFile(path)) return true
+  if (!path.endsWith('.md')) return false
+  const content = readRepositoryFile(path)
+  return content !== undefined && hasLanguageSwitcher(content.toString('utf8'))
+}
+
+// A path that exists but belongs to neither declaration is a caller's mistake, not a skip.
+if (request.scope === 'pairs') {
+  const refused = request.anchors.filter(anchor => existsSync(join(root, anchor)) && !inPairScope(anchor))
+  if (refused.length > 0) {
+    console.error(`verify-translation-pairing: ${refused.length} path(s) outside this check's scope:`)
+    for (const entry of refused) console.error(`  ${entry}`)
+    console.error('verify-translation-pairing: a pair is declared by a `.zh.md` counterpart, an `.i18n.yaml` record, or a language switcher in the document itself')
+    process.exit(1)
+  }
 }
 
 /**

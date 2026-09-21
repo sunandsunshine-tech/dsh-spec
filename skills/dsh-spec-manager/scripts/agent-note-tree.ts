@@ -6,7 +6,7 @@
 
 import { globSync, readdirSync } from 'node:fs'
 import { sep } from 'node:path'
-import { resolveNotesRoot } from './notes-root.ts'
+import { notesRootPrefixes, resolveNotesRoot } from './notes-root.ts'
 
 export const agentNoteRoot = resolveNotesRoot()
 
@@ -90,4 +90,56 @@ export function walkAgentNoteTree(): { notes: AgentNote[]; errors: string[] } {
     }
   }
   return { notes, errors }
+}
+
+/**
+ * The lifecycle folders a note can live in, as the file side of the tree rule sees them.
+ *
+ * Exported so the scope module can answer "is this path an active note" without walking anything:
+ * a check handed a file list has to reject a path that is not one of the files it reads, and the
+ * rule for what a note path looks like belongs here rather than in a caller.
+ */
+export const ACTIVE_LIFECYCLES: readonly string[] = AGENT_NOTE_LIFECYCLES
+
+/**
+ * Whether one repository-relative path is an active Agent Note.
+ *
+ * The English side only: a `.zh.md` counterpart is the same note indexed by its English name, and
+ * the pairing gate owns its consistency. `README.md`, `AGENTS.md` and `CLAUDE.md` sit inside the
+ * notes tree without being notes, and the archive is not an active lifecycle.
+ *
+ * @param path - repository-relative POSIX path.
+ * @returns true when the path is `{lifecycles}/{class}/yyyy-mm-dd-topic.md` under a notes root.
+ */
+export function isActiveNotePath(path: string): boolean {
+  const prefix = notesRootPrefixes().find(candidate => path.startsWith(candidate))
+  if (prefix === undefined) return false
+  const segments = path.slice(prefix.length).split('/')
+  if (segments.length !== 3) return false
+  const [lifecycle, cls, base] = segments
+  if (lifecycle === undefined || cls === undefined || base === undefined) return false
+  if (!(AGENT_NOTE_LIFECYCLES as readonly string[]).includes(lifecycle)) return false
+  if (!(AGENT_NOTE_CLASSES as readonly string[]).includes(cls)) return false
+  return /^\d{4}-\d{2}-\d{2}-.+\.md$/.test(base)
+}
+
+/**
+ * Read one active note from its repository-relative path, for a check handed a file list.
+ *
+ * The same rule as the walker, from the other direction: the walker asks what a directory holds,
+ * and this asks whether one path the caller named is a note it may read.
+ *
+ * @param path - repository-relative POSIX path.
+ * @returns the note, or why the path is not one.
+ */
+export function noteFromRel(path: string): { ok: true, note: AgentNote } | { ok: false, error: string } {
+  if (!isActiveNotePath(path)) {
+    return { ok: false, error: `${path} is not an active Agent Note — the path is \`{proposed,implemented,rejected}/{class}/yyyy-mm-dd-topic.md\` under a notes root` }
+  }
+  const prefix = notesRootPrefixes().find(candidate => path.startsWith(candidate))
+  const rel = path.slice((prefix ?? '').length)
+  const segments = rel.split('/')
+  const lifecycle = segments[0] ?? ''
+  const base = segments[2] ?? ''
+  return { ok: true, note: { lifecycle, rel, date: base.slice(0, 10) } }
 }

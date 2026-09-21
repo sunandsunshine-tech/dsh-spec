@@ -14,19 +14,12 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { dirname, relative, resolve } from 'node:path'
 import type { Nodes } from './vendor-mdast-types.js'
+import { readGateScope, refuseOutOfScope } from './gate-scope.ts'
 import { markdownHeadingLines, parseMarkdown, visitMarkdown } from './markdown.ts'
+import { scopeReason } from './md-scope.ts'
 import { resolveRepoRoot } from './repo-root.ts'
-import { MARKDOWN_PATTERNS, scopedMarkdown } from './md-scope.ts'
 
 const root = resolveRepoRoot()
-
-/** A comma-separated `--patterns` list replaces the built-in globs; the scope exclusions still apply. */
-function resolvePatterns(): string[] {
-  const flagIndex = process.argv.indexOf('--patterns')
-  const configured = flagIndex === -1 ? undefined : process.argv[flagIndex + 1]
-  if (configured === undefined || configured === '') return [...MARKDOWN_PATTERNS]
-  return configured.split(',').map((pattern: string) => pattern.trim()).filter(Boolean)
-}
 
 /** A broken relative link: a missing target path or a missing anchor on it. */
 interface Violation {
@@ -195,15 +188,20 @@ export function findViolations(
 }
 
 if (process.argv[1] && import.meta.filename === resolve(process.argv[1])) {
-  const files = scopedMarkdown(root, resolvePatterns())
+  const gate = 'verify-md-links'
+  const scope = readGateScope(gate)
+  refuseOutOfScope(gate, scope, entry => entry.endsWith('.md') && scopeReason(entry) === '')
+  // A path the change reports as deleted has nothing to resolve; what it breaks elsewhere is the
+  // documented limit of a file selection, not something this gate can see.
+  const files = scope.entries.filter(entry => existsSync(resolve(scope.root, entry)))
   const anchorsOf = anchorCache()
-  const all = files.flatMap(file => findViolations(file.abs, anchorsOf))
+  const all = files.flatMap(entry => findViolations(resolve(scope.root, entry), anchorsOf))
   const checked = files.length
 
-  // An empty corpus means the patterns match nothing under --root: report it instead of
-  // passing on a repository the gate never read.
+  // An empty corpus means the caller handed nothing this repository has: report it instead of
+  // passing on a corpus the gate never read.
   if (checked === 0) {
-    console.error(`verify-md-links: no Markdown files matched under ${root} — check --root, or adapt MARKDOWN_PATTERNS in md-scope.ts to this repository's layout.`)
+    console.error(`verify-md-links: none of the ${scope.entries.length} path(s) handed in exists — check the scope the caller assembled.`)
     process.exit(1)
   }
 

@@ -17,30 +17,44 @@
     "verify-archived-agent-notes",
     "verify-translation-pairing",
     "verify-md-links",
-    "verify-md-link-syntax",
-    "verify-no-secrets"
+    "verify-md-link-syntax"
   ],
   "scopes": {
-    "verify-agent-note-classification": [
-      "notes"
-    ],
-    "verify-agent-note-format": [
-      "notes"
-    ],
-    "verify-archived-agent-notes": [
-      "notes"
-    ],
-    "verify-translation-pairing": [
-      "pairs"
-    ],
-    "verify-md-links": [
-      "markdown"
-    ],
-    "verify-md-link-syntax": [
-      "markdown"
-    ],
-    "verify-no-secrets": [
-      "tracked"
-    ]
+    "verify-agent-note-classification": {
+      "keys": [
+        "notes"
+      ],
+      "selection": "root"
+    },
+    "verify-agent-note-format": {
+      "keys": [
+        "notes"
+      ],
+      "selection": "files"
+    },
+    "verify-archived-agent-notes": {
+      "keys": [
+        "notes-archived"
+      ],
+      "selection": "root"
+    },
+    "verify-translation-pairing": {
+      "keys": [
+        "pairs"
+      ],
+      "selection": "files"
+    },
+    "verify-md-links": {
+      "keys": [
+        "markdown"
+      ],
+      "selection": "files"
+    },
+    "verify-md-link-syntax": {
+      "keys": [
+        "markdown"
+      ],
+      "selection": "files"
+    }
   }
 }

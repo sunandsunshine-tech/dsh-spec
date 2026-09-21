@@ -7,6 +7,7 @@ import { spawnSync } from 'node:child_process'
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { AGENT_NOTE_CLASSES, agentNoteRoot } from './agent-note-tree.ts'
+import { parseScopeArgs, readGateScope } from './gate-scope.ts'
 import { notesRootExists } from './notes-root.ts'
 import {
   extendArchiveManifest,
@@ -17,12 +18,17 @@ import {
   type ArchiveManifest,
 } from './archived-agent-notes.ts'
 
-const args = process.argv.slice(2)
-const writeMode = args.includes('--write')
-const unrecognizedArgs = args.filter(arg => arg !== '--write' && arg !== '--root' && arg !== process.argv[process.argv.indexOf('--root') + 1])
-if (unrecognizedArgs.length > 0 || (!writeMode && args.length > 0 && !args.includes('--root'))) {
-  console.error('verify-archived-agent-notes: usage: tsx verify-archived-agent-notes.ts [--root <repo>] [--write]')
-  process.exit(1)
+const gate = 'verify-archived-agent-notes'
+
+// The seal is a whole-archive assertion against a committed baseline, so this gate takes `--all`
+// and walks the archive; a file list cannot express "everything that is sealed".
+readGateScope(gate)
+const parsed = parseScopeArgs(process.argv.slice(2))
+const writeMode = parsed.rest.includes('--write')
+const unknown = parsed.rest.filter(argument => argument !== '--write')
+if (unknown.length > 0) {
+  console.error(`${gate}: unknown flag(s) ${unknown.join(', ')} — usage: node ${gate}.ts --root <project> --all [--write]`)
+  process.exit(2)
 }
 
 const archiveRoot = resolve(agentNoteRoot, 'archived')
@@ -34,7 +40,7 @@ const allowedRootFiles = new Set(['AGENTS.md', 'manifest.json'])
 const kinds = new Set<string>()
 
 if (!notesRootExists(agentNoteRoot)) {
-  console.error(`verify-archived-agent-notes: no Agent Note tree at ${agentNoteRoot} — check --root or AGENT_NOTES_ROOT.`)
+  console.error(`${gate}: no Agent Note tree at ${agentNoteRoot} — check --root or AGENT_NOTES_ROOT.`)
   process.exit(1)
 }
 

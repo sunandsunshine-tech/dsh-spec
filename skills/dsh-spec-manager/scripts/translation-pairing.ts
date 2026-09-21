@@ -198,10 +198,13 @@ export function parseTranslationPairingCliArgs(argv: string[]): TranslationPairi
     return { input: 'worktree', mode: 'write', scope: allMode ? 'corpus' : 'pairs', anchors }
   }
   if (listMode) return { input: 'worktree', mode: 'list', scope: 'corpus', anchors: [] }
+  if (anchors.length === 0) {
+    throw new Error('this check reads the pairs it is handed — name them (any file of a pair) or pass --files-from -; the corpus-wide form is --write --all')
+  }
   return {
     input: cachedMode ? 'index' : 'worktree',
     mode: 'check',
-    scope: anchors.length > 0 ? 'pairs' : 'corpus',
+    scope: 'pairs',
     anchors,
   }
 }
