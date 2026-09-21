@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-18-double-star-spans-any-depth.md
+2026-09-18-double-star-spans-any-depth.md: 80fa5f314c048bf36ea963ccb82ed252737954eb
+2026-09-18-double-star-spans-any-depth.zh.md: e9405c71fe5cfda9d7086501f2d0ffba01d7dc4c

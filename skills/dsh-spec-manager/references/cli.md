@@ -1,0 +1,327 @@
+# dsh-spec
+
+dsh-spec runs this collection's checks against a project: a verb acts, and a noun takes a verb.
+
+## Usage
+
+```sh
+node <engine>/dsh-spec.ts <command> [flags]
+```
+
+`<engine>` is the collection's engine directory — `.agents/skills/dsh-spec-manager/scripts` in a project, `skills/dsh-spec-manager/scripts` in the collection's own tree.
+
+## Management Commands
+
+| Command     | What it does                                       |
+|-------------|----------------------------------------------------|
+| `install`   | Install the collection into a project              |
+| `upgrade`   | Update the installed skills and the mechanism text |
+| `uninstall` | Remove the installed skills                        |
+| `status`    | Check the installed set against the manifest       |
+
+## Commands
+
+| Command            | Scope or verbs                               | What it does                                |
+|--------------------|----------------------------------------------|---------------------------------------------|
+| `check`            | `<path...> \| --base <ref> \| --all`         | Run the checks a selection owes             |
+| `notes`            | `check`                                      | Check the Agent Note tree and its notes     |
+| `notes-archived`   | `check \| write`                             | Check the frozen archive and its seal       |
+| `translation-pair` | `check \| list \| explain \| write \| brief` | Check a translated pair, or brief an update |
+| `md-links`         | `check`                                      | Check links in Markdown                     |
+
+## Flags
+
+| Flag                  | Meaning                                                                                       |
+|-----------------------|-----------------------------------------------------------------------------------------------|
+| `-h, --help [zh\|en]` | Print this help (zh or en; the default comes from DSH_SPEC_LANG, LC_ALL, LC_MESSAGES or LANG) |
+| `--jobs <n>`          | Checks to run at once (default min(availableParallelism(), 8); DSH_SPEC_JOBS wins)            |
+| `--markdown`          | Print this help as the reference page                                                         |
+| `--root <path>`       | Project to read or write (default: the current directory)                                     |
+
+## Exit codes
+
+0 clean   1 a check found something or an action failed   2 the invocation is wrong
+
+## Language
+
+The help speaks English or Chinese: `--help zh`, or a `DSH_SPEC_LANG`, `LC_ALL`, `LC_MESSAGES` or `LANG` whose language part starts with `zh`.
+
+## Commands in detail
+
+### install
+
+Install the collection into a project.
+
+Acts by default. `--dry-run` prints both plans — the skills it would deploy and the files it would create — and writes nothing.
+
+```sh
+# See what adopting this project would do
+node <engine>/dsh-spec.ts install --root . --dry-run
+```
+
+| Flag | Meaning |
+|---|---|
+| `--dry-run` | Print the plan and write nothing |
+
+The [global flags](#flags) apply to every command.
+
+### upgrade
+
+Update the installed skills and the mechanism text.
+
+Creates nothing: a file the project deleted on purpose stays deleted. `--reinstall` copies the skills again even when their content already matches.
+
+```sh
+# Refresh a project pinned to a new revision
+node <engine>/dsh-spec.ts upgrade --root .
+```
+
+| Flag | Meaning |
+|---|---|
+| `--dry-run` | Print the plan and write nothing |
+| `--reinstall` | Copy the skills again even when their content matches |
+
+The [global flags](#flags) apply to every command.
+
+### uninstall
+
+Remove the installed skills.
+
+Lists what it leaves behind — the marked block in `AGENTS.md`, the notes tree, `docs/` and `.rgignore` — because those are the project's own.
+
+```sh
+# See what removal would leave in place
+node <engine>/dsh-spec.ts uninstall --dry-run --root .
+```
+
+| Flag | Meaning |
+|---|---|
+| `--dry-run` | Print the plan and write nothing |
+
+The [global flags](#flags) apply to every command.
+
+### status
+
+Check the installed set against the manifest.
+
+Changes nothing, and exits non-zero when a skill is missing, unlisted, or not at the pinned revision.
+
+```sh
+# Report drift before pushing an instruction file
+node <engine>/dsh-spec.ts status --root .
+```
+
+### check
+
+Run the checks a selection owes.
+
+A path list runs the checks that claim those paths, `--base <ref>` computes that list from the change instead, and `--all` runs the two tree checks. With none of the three it prints the forms and reads nothing.
+
+```sh
+# Check what a branch changed
+node <engine>/dsh-spec.ts check --base main --root .
+```
+
+| Flag | Meaning |
+|---|---|
+| `--all` | Run the two checks asserted over a tree |
+| `--base <ref>` | Compute the path list from a change against this ref |
+| `--head <ref>` | The commit the change is measured to (default HEAD) |
+| `--files-from <file|->` | Read the path list from a file, or from stdin |
+
+The [global flags](#flags) apply to every command.
+
+### notes
+
+Check the Agent Note tree and its notes.
+
+The classification check asserts over the whole active tree; the format check reads only the notes it is handed. The frozen archive belongs to `notes-archived`.
+
+**Verbs:** `check`
+
+```sh
+# Check the whole active tree
+node <engine>/dsh-spec.ts notes check --all --root .
+```
+
+### notes check
+
+Check the whole tree, and the format of the notes handed in.
+
+The classification check asserts over the whole tree, so it takes `--all`; the format check reads only the notes it is handed. A path list is the narrow form and `--all` the explicit whole-tree one.
+
+```sh
+# Check one note
+node <engine>/dsh-spec.ts notes check <note...> --root .
+```
+
+| Flag | Meaning |
+|---|---|
+| `--all` | Read every active note |
+| `--files-from <file|->` | Read the path list from a file, or from stdin |
+
+The [global flags](#flags) apply to every command.
+
+### notes-archived
+
+Check the frozen archive and its seal.
+
+Neither verb takes a path list: the archive is one tree, and its seal is compared against a committed baseline.
+
+**Verbs:** `check`, `write`
+
+```sh
+# Verify the seal, then append what is new
+node <engine>/dsh-spec.ts notes-archived check --all --root .
+```
+
+### notes-archived check
+
+Verify the archive against its committed seal.
+
+A moved, edited or deleted frozen artifact fails here, which is what makes the archive evidence rather than a snapshot.
+
+```sh
+# Verify the seal
+node <engine>/dsh-spec.ts notes-archived check --all --root .
+```
+
+| Flag | Meaning |
+|---|---|
+| `--all` | Read the whole archive |
+
+The [global flags](#flags) apply to every command.
+
+### notes-archived write
+
+Append the hashes of newly archived notes.
+
+First proves every existing seal still matches, then appends only the new triplet hashes. The archive has no narrower form, so the whole tree is the scope.
+
+```sh
+# Seal what was just archived
+node <engine>/dsh-spec.ts notes-archived write --all --root .
+```
+
+| Flag | Meaning |
+|---|---|
+| `--all` | Read the whole archive |
+
+The [global flags](#flags) apply to every command.
+
+### translation-pair
+
+Check a translated pair, or brief an update.
+
+A pair is declared by a `.zh.md` counterpart, an `.i18n.yaml` record, or a language switcher in the document itself.
+
+**Verbs:** `check`, `list`, `explain`, `write`, `brief`
+
+```sh
+# Check one pair, then record it
+node <engine>/dsh-spec.ts translation-pair check docs/guide.md --root .
+```
+
+### translation-pair check
+
+Check the pairs handed in.
+
+A named pair must be complete, recorded, and structurally identical on both sides. There is no `--all`: name the pairs, or compute the list with `--files-from`.
+
+```sh
+# Check one pair
+node <engine>/dsh-spec.ts translation-pair check docs/guide.md --root .
+```
+
+| Flag | Meaning |
+|---|---|
+| `--cached` | Check the staged bytes instead of the working tree |
+| `--files-from <file|->` | Read the path list from a file, or from stdin |
+
+The [global flags](#flags) apply to every command.
+
+### translation-pair list
+
+Report every pair and its state.
+
+Prints one row per in-scope document — missing, out-of-sync or ok — and never fails. The `missing` and `out-of-sync` rows are what the check rejects.
+
+```sh
+# See the whole corpus
+node <engine>/dsh-spec.ts translation-pair list --root .
+```
+
+### translation-pair explain
+
+Say why a path is or is not a pair.
+
+Names the counterpart it looked for and whether it exists, without reading the rest of the corpus.
+
+```sh
+# Ask about one path
+node <engine>/dsh-spec.ts translation-pair explain docs/guide.md --root .
+```
+
+### translation-pair write
+
+Record the pairs you confirmed.
+
+The YAML record it writes is the reviewable act of confirming consistency, so it requires the pairs you confirmed. `--all` is the explicit corpus-wide form.
+
+```sh
+# Record a pair you brought back in line
+node <engine>/dsh-spec.ts translation-pair write docs/guide.md --root .
+```
+
+| Flag | Meaning |
+|---|---|
+| `--all` | Re-record every complete pair |
+
+The [global flags](#flags) apply to every command.
+
+### translation-pair brief
+
+Print the update briefing for a pair.
+
+Maps the change at the narrowest safely aligned granularity. With no paths it briefs every out-of-sync pair; with paths it briefs exactly those and fails loud on an in-sync one.
+
+```sh
+# Brief the translator on one pair
+node <engine>/dsh-spec.ts translation-pair brief --apply docs/guide.md --root .
+```
+
+| Flag | Meaning |
+|---|---|
+| `--apply` | Splice a code-fence-only change after structural validation |
+
+The [global flags](#flags) apply to every command.
+
+### md-links
+
+Check links in Markdown.
+
+The asking side of a link is decided per file, which is why this command takes a path list and never `--all`.
+
+**Verbs:** `check`
+
+```sh
+# Check the links the change touched
+node <engine>/dsh-spec.ts md-links check docs/guide.md --root .
+```
+
+### md-links check
+
+Check the files handed in.
+
+Resolves relative links, images and definitions, and rejects the two shapes a bulk rewrite leaves behind. No `--all`: a target deleted under a referrer nobody touched needs a separate scan of the whole corpus.
+
+```sh
+# Check one document
+node <engine>/dsh-spec.ts md-links check docs/guide.md --root .
+```
+
+| Flag | Meaning |
+|---|---|
+| `--files-from <file|->` | Read the path list from a file, or from stdin |
+
+The [global flags](#flags) apply to every command.

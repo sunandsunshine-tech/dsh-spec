@@ -1,0 +1,3 @@
+# Frozen Agent Notes are historical snapshots, not current search authority: a recursive
+# search must not mix them into active decisions. Name the directory explicitly to read one.
+/.agents/dsh-spec/notes/archived/

@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-21-an-empty-archive-cannot-ship-its-kind-directories.md
+2026-09-21-an-empty-archive-cannot-ship-its-kind-directories.md: b18cb2371c3a9035efd4bed706f43f12ae1fafe5
+2026-09-21-an-empty-archive-cannot-ship-its-kind-directories.zh.md: 079622da228903e75bbff6bc9196a501f21a6bca
