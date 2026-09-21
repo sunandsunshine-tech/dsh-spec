@@ -34,7 +34,7 @@ Source-oriented code gates consume an exact `.zh.md` fence sequence as a derivat
 
 `node <manager>/scripts/dsh-spec.ts translation-pair <pair...>` checks just the named pairs — any of a pair's three files (or its bare stem) names it — so an update loop verifies its own pair in seconds instead of re-scanning the corpus. `translation-pair list` reports every document in scope, and its non-`ok` rows are how a corpus-wide pass before a push finds the pairs to hand to the check; a scoped green with the rest of the corpus unread is not that pass.
 
-The practical rule this gate creates: **when a PR edits either side of a paired document, the same PR updates the counterpart directly in one terminology-guided pass and re-records the pair with `--write <pair>`**. A change that leaves a pair out of sync fails the gate.
+The practical rule this gate creates: **when a PR edits either side of a paired document, the same PR updates the counterpart directly in one terminology-guided pass and re-records the pair with `translation-pair write <pair>`**. A change that leaves a pair out of sync fails the gate.
 
 The gate's limit, stated plainly: **a green gate means the pair was confirmed consistent at these exact contents, not that the confirmation was sound.** It checks hashes and Markdown structure; it cannot judge whether the two sides say the same thing, or whether the wording is accurate, well-termed, and natural — that is the reviewer's half of the contract, per [translation-rules.md](translation-rules.md). A re-recorded pair with a sloppy counterpart passes the gate; it must not pass review.
 

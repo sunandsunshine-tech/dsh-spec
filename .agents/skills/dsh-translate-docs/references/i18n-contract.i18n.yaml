@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write skills/dsh-translate-docs/references/i18n-contract.md
-i18n-contract.md: 06fa7e4fc80890e5c5934cc92c271a6297213c9e
-i18n-contract.zh.md: 740ec560ea89d80e3a4216988d112d6a60dbe27f
+i18n-contract.md: 3068fe020b3325ab6d2db9348b2b2309148c7e8a
+i18n-contract.zh.md: e34d86120cc28c6635accd6a633b9b71271967cf

@@ -27,7 +27,8 @@ needs no dependency, no transform and no package manager — the same property t
 | `md-links.test.ts` | Link resolution and the two shapes a bulk rewrite leaves behind. |
 | `check.test.ts` | Which checks a selection owes — the three selections, including the documented limit. |
 | `parallel.test.ts` | Bounded dispatch: concurrency changes neither a verdict nor the report order. |
-| `management.test.ts` | `install`, `upgrade`, `uninstall` and `status`, offline (`--dry-run` only). |
+| `management.test.ts` | `install`, `upgrade`, `uninstall` and `status`, offline (`--dry-run` only), plus the initializer's sync and the command it re-records through. |
+| `rendered-commands.test.ts` | Every `node … dsh-spec.ts …` line the engine renders — the initializer's inventory, the record's recovery command, the briefing's Finish steps — is a command the entry point accepts. |
 | `ports.test.ts` | The provenance registry, the module headers, and the offline gate that reconciles them. |
 
 ## Rules this suite keeps
