@@ -4,7 +4,7 @@ metadata:
     github-path: skills/dsh-archive-agent-notes
     github-ref: refs/heads/extract
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: 2e946a9d5879647e58429aaf567eb8d61848801d
+    github-tree-sha: ba0a950d302baeccd63b8cb4631bb6971f15c694
 name: dsh-archive-agent-notes
 ---
 # Archive Agent Notes

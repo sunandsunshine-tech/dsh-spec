@@ -4,7 +4,7 @@ metadata:
     github-path: skills/dsh-find-simplifications
     github-ref: refs/heads/extract
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: b4c06c602a9c2a51c5f94bdf8be3b69e9f031988
+    github-tree-sha: 616701c47502d5843bf9c8d15018720b0981390c
 name: dsh-find-simplifications
 ---
 # Finding Simplifications

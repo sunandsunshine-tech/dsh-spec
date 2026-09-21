@@ -4,7 +4,7 @@ metadata:
     github-path: skills/dsh-code-review
     github-ref: refs/heads/extract
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: 4ad6cc0ebff25c54afe3e2111d58ab02e3abffa7
+    github-tree-sha: ea3ae85e6e4016d628c185f84dbf4c27a004741c
 name: dsh-code-review
 ---
 # Reviewing a pull request

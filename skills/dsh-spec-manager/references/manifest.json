@@ -19,5 +19,28 @@
     "verify-md-links",
     "verify-md-link-syntax",
     "verify-no-secrets"
-  ]
+  ],
+  "scopes": {
+    "verify-agent-note-classification": [
+      "notes"
+    ],
+    "verify-agent-note-format": [
+      "notes"
+    ],
+    "verify-archived-agent-notes": [
+      "notes"
+    ],
+    "verify-translation-pairing": [
+      "pairs"
+    ],
+    "verify-md-links": [
+      "markdown"
+    ],
+    "verify-md-link-syntax": [
+      "markdown"
+    ],
+    "verify-no-secrets": [
+      "tracked"
+    ]
+  }
 }

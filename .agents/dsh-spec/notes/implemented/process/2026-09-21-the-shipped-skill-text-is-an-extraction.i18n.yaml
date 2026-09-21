@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/verify-translation-pairing.ts --write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-shipped-skill-text-is-an-extraction.md
-2026-09-21-the-shipped-skill-text-is-an-extraction.md: 0ef96cba311780a87dd22d9ad7a47197295888a7
-2026-09-21-the-shipped-skill-text-is-an-extraction.zh.md: abd662dba69cf43c24d284ad6e6d0859683e1a33
+2026-09-21-the-shipped-skill-text-is-an-extraction.md: 26b2165c24c3daa107e889bda2253a9b450f9901
+2026-09-21-the-shipped-skill-text-is-an-extraction.zh.md: dad64d979c602308269a8bdaa06bd634f2cb2fa9

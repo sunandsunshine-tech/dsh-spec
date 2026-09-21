@@ -4,7 +4,7 @@ metadata:
     github-path: skills/dsh-trim-cot-leakage
     github-ref: refs/heads/extract
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: 63596767d56d42f62573756ce54e5006078e1b74
+    github-tree-sha: a6bb53305a55d2f5762d219cc0bcc47e12bb2dba
 name: dsh-trim-cot-leakage
 ---
 # Trimming Chain-of-Thought Leakage

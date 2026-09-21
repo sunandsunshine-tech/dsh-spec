@@ -17,6 +17,24 @@ import { resolve } from 'node:path'
 export const GATE_NAME = /^verify-[a-z0-9]+(?:-[a-z0-9]+)*$/
 
 /**
+ * The surfaces a gate may claim, each named by the module that already owns its paths.
+ *
+ * A scope is a key rather than a path so the path keeps one owner: `notes` resolves through
+ * `notes-root.ts`, `markdown` and `pairs` through the two scope modules the gates themselves read,
+ * and `tracked` is every path git reports — the credential scan's surface, because any file can
+ * carry one.
+ */
+export const GATE_SCOPE_KEYS = ['notes', 'markdown', 'pairs', 'tracked'] as const
+
+/** One scope key a gate may claim. */
+export type GateScopeKey = (typeof GATE_SCOPE_KEYS)[number]
+
+/** What one reading of the recorded gate scopes produced. */
+export type GateScopeReading =
+  | { ok: true, scopes: ReadonlyMap<string, readonly GateScopeKey[]> }
+  | { ok: false, error: string }
+
+/**
  * The manifest's path, derived from the engine directory it sits beside.
  *
  * One literal, one owner: the dispatcher, the initializer and the manager all read the record
@@ -74,4 +92,45 @@ export function readGateRecord(scriptDir: string): GateRecordReading {
     names.push(entry)
   }
   return { ok: true, names }
+}
+
+/**
+ * Read the surface each recorded gate claims, so a diff can select the gates it owes.
+ *
+ * Every recorded gate needs an entry: an absent one would silently widen a scoped run, and the
+ * record is the place a reader sees which check answers for which surface. A key outside
+ * {@link GATE_SCOPE_KEYS} is refused rather than ignored, because a scope nobody resolves would
+ * read as "no changed path belongs to this gate" and quietly drop the check.
+ *
+ * @param scriptDir - absolute path of the collection's engine directory, `scripts/`.
+ * @returns the scopes by gate name, or why the record could not be read.
+ */
+export function readGateScopes(scriptDir: string): GateScopeReading {
+  const path = manifestPathOf(scriptDir)
+  if (!existsSync(path)) {
+    return { ok: false, error: `no manifest at ${path} — the record of which gates exist is missing` }
+  }
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(readFileSync(path, 'utf8'))
+  } catch (error) {
+    return { ok: false, error: `${path} is not readable JSON: ${(error as Error).message}` }
+  }
+  const scopes = (parsed as { scopes?: unknown }).scopes
+  if (typeof scopes !== 'object' || scopes === null || Array.isArray(scopes)) {
+    return { ok: false, error: `${path} carries no \`scopes\` record — a diff-scoped run cannot tell which gate answers for which surface` }
+  }
+  const reading = new Map<string, readonly GateScopeKey[]>()
+  for (const [gate, keys] of Object.entries(scopes as Record<string, unknown>)) {
+    if (!Array.isArray(keys) || keys.length === 0) {
+      return { ok: false, error: `${path} gives \`${gate}\` no scope — every recorded gate names at least one surface` }
+    }
+    for (const key of keys) {
+      if (typeof key !== 'string' || !(GATE_SCOPE_KEYS as readonly string[]).includes(key)) {
+        return { ok: false, error: `${path} gives \`${gate}\` the unknown scope ${JSON.stringify(key)} — the keys are ${GATE_SCOPE_KEYS.join(', ')}` }
+      }
+    }
+    reading.set(gate, keys as GateScopeKey[])
+  }
+  return { ok: true, scopes: reading }
 }

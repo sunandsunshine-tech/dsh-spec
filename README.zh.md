@@ -27,6 +27,19 @@ gh skill install sunandsunshine-tech/dsh-spec dsh-spec-manager@latest --dir .age
 - **两种语言不会走散。** 每一对文档都带英文侧、中文侧和一份"上次确认一致"的记录,谁被改了却没同步,检查会直接报出来。
 - **评审和推送各有依据。** 评审照一份清单去看代码本身看不出的东西;推送前只跑真正覆盖这次改动的最小证据,不必把整个测试套件搬出来。
 
+## 八个技能
+
+| 技能 | 它管什么 |
+|---|---|
+| `dsh-spec-manager` | 管这一整套:初始化项目、按同一个修订安装与更新技能、让机制文本保持一致、跑聚合检查 |
+| `dsh-archive-agent-notes` | 管决策记录的成色:校验笔记树、检查取代关系、把已经完成使命的记录冻结 |
+| `dsh-translate-docs` | 让一份文档和它的译文保持同步,并记录这对配对 |
+| `dsh-prose-standard` | 各个位置该写什么——API 文档、注释、测试、README、诊断信息、用户可见文案 |
+| `dsh-trim-cot-leakage` | 删掉从写作会话视角写出来的散文 |
+| `dsh-code-review` | 评审一次改动的路径,以及代码本身看不出、需要人去问的东西 |
+| `dsh-pre-push-checks` | 覆盖一次外发改动的最小证据 |
+| `dsh-find-simplifications` | 把"找找能简化什么"变成有证据可依的提案 |
+
 ## 一次改动怎么走
 
 1. **先在笔记里定下来。** 够分量的改动从 `proposed/` 下的一条记录开始,写清问题、落选的方案、打算怎么验证;对话里谈成的结论也照此记录,否则它只活在那次对话里。
@@ -60,5 +73,4 @@ pnpm dlx --allow-build=esbuild tsx@4.22.4 \
 
 - [`AGENTS.md`](AGENTS.md) —— 每次会话都要遵守的规则,以及本仓库真正跑的命令。
 - [`skills/dsh-spec-manager/SKILL.md`](skills/dsh-spec-manager/SKILL.md) —— 集合的入口,另外七个技能就在它旁边。
-- [`skills/dsh-spec-manager/README.md`](skills/dsh-spec-manager/README.zh.md) —— 这个包自己的介绍:装什么、往项目里写什么、检查的行为怎么改。
 - [`.agents/dsh-spec/notes/README.md`](.agents/dsh-spec/notes/README.zh.md) —— 决策记录的约定,也是这套做法对自己的说明。

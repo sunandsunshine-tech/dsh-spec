@@ -5,7 +5,7 @@ metadata:
     github-path: skills/dsh-translate-docs
     github-ref: refs/heads/extract
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: 5c94b4c7d8156a25d7dbf4dbe62aa6bfa3c9d8db
+    github-tree-sha: 809425a188ed7861dbc0e5cb4b2bd2ad12869843
 name: dsh-translate-docs
 user-invocable: true
 ---

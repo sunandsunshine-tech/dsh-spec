@@ -19,13 +19,13 @@ A shipped skill file — and every template the collection installs — deviates
 1. **A reference change the shipped layout requires.** A check is addressed by name through the dispatcher instead of a package script, a contract moves into the skill's `references/`, a path names the notes tree or the engine directory.
 2. **A generalization that removes one project's specifics.** Its product name, package layout, linters, documentation tree, and private gates are replaced by what holds for any project that adopts the collection.
 
-Everything else was removed or repaired in this change. A rule that belongs to the collection moved to where its owner is — the README beside the skill, the manager, or a project's own instructions — rather than staying in a capability that ships to every project. The terminology-table rule moved into `docs/AGENTS.md` beside the table it governs. `dsh-translate-docs` regained the two frontmatter keys that make it user-invoked, which is the mechanism its added prose had been describing in words. Two reference files renamed for no reason went back to their source names, so a directory diff compares like with like.
+Everything else was removed or repaired in this change. A rule that belongs to the collection moved to where its owner is — the manager, a reference document, or a project's own instructions — rather than staying in a capability that ships to every project. The terminology-table rule moved into `docs/AGENTS.md` beside the table it governs. `dsh-translate-docs` regained the two frontmatter keys that make it user-invoked, which is the mechanism its added prose had been describing in words. Two reference files renamed for no reason went back to their source names, so a directory diff compares like with like.
 
 Defects were repaired rather than reverted. Prose was restored where a rewrite had destroyed it, every reference now resolves to something the collection ships or to a path a project owns, and no published command carries a workaround for this repository's environment.
 
 ## Alternatives considered
 
-**Keep the additions and record them.** The added rules were true, and each had been written because a reader needed it. It lost because a skill's text is what an agent loads, and one project's operating rule does not belong in a capability the collection ships to every project: the same material already sits in the README beside each skill, which is where a reader meets the package.
+**Keep the additions and record them.** The added rules were true, and each had been written because a reader needed it. It lost because a skill's text is what an agent loads, and one project's operating rule does not belong in a capability the collection ships to every project: the same material already sits in the collection's own documents, which is where a reader meets the package.
 
 **Treat the skills as this collection's own documents and rewrite them freely.** Each skill would read more clearly on its own terms. It lost because it destroys the cheap answer to "what changed in the extraction?": the pinned baseline in `submodules/dsh/` is what keeps a re-extraction and its review a matter of minutes rather than a full read.
 
@@ -34,7 +34,7 @@ Defects were repaired rather than reverted. Prose was restored where a rewrite h
 ## Consequences
 
 - A diff of any skill directory against `submodules/dsh/` shows reference changes and generalizations and nothing else, so a reviewer can attribute every remaining line to one of the two allowed causes.
-- The removed material is not lost: each README keeps the tables and contracts it already carried, the manager keeps the record and the engine, and the terminology rule lives in `docs/AGENTS.md`.
+- The removed material is not lost: the manager keeps the record and the engine, the project README introduces the set, and the terminology rule lives in `docs/AGENTS.md`.
 - No shipped skill names this repository's own gates, its sandbox workaround, or its vendored baseline any more; a consumer reads only paths it has, and the templates resolve the engine path as they are written instead of leaving a placeholder for a person.
 - What this costs is source fidelity of a different kind: wherever a sentence had to be generalized clause by clause, the skill's prose is further from the source's phrasing than a free rewrite would have left it.
 

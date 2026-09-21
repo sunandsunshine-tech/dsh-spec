@@ -4,7 +4,7 @@ metadata:
     github-path: skills/dsh-prose-standard
     github-ref: refs/heads/extract
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: 9414df5e8b0c821eb315c9df8e7b144e4f5682f0
+    github-tree-sha: 6061c4b7002b14ea4691b381d58646108671202b
 name: dsh-prose-standard
 ---
 # Prose Standard

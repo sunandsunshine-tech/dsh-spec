@@ -53,6 +53,10 @@ pnpm dlx --allow-build=esbuild tsx@4.22.4 \
 pnpm dlx --allow-build=esbuild tsx@4.22.4 \
   .agents/skills/dsh-spec-manager/scripts/run.ts --all --root .
   # every gate the manifest records; fails when one fails or when the record names none, and refuses before anything runs when the record and the scripts beside the dispatcher disagree — this is the whole check
+
+pnpm dlx --allow-build=esbuild tsx@4.22.4 \
+  .agents/skills/dsh-spec-manager/scripts/run.ts --changed --base <ref> --root .
+  # the gates whose recorded surface the change touches, with every skip printed and why — a subset, never a substitute for --all before a push
 ```
 
 Node ≥ 22.19 or ≥ 24 and pnpm ≥ 10 are required, and `--allow-build=esbuild` must follow `dlx` directly. There is no build step, no test suite, and no CI: a gate is a name the manifest records, backed by a `verify-*.ts` script in the engine directory, and the dispatcher reconciles the two before it runs anything, so the recorded set is every check that exists and the aggregate is what makes each one non-optional.
@@ -81,7 +85,7 @@ Node ≥ 22.19 or ≥ 24 and pnpm ≥ 10 are required, and `--allow-build=esbuil
 | Standing orders an agent needs in every session | this file |
 | Orders specific to one subtree | that subtree's `AGENTS.md` (the notes tree has its own three) |
 | Decision rationale: the why, and what was given up | `.agents/dsh-spec/notes/` |
-| The package's own contract and workflows | `skills/` — see [the manager README](skills/dsh-spec-manager/README.md) |
+| The package's own contract and workflows | `skills/` — see [the manager entry](skills/dsh-spec-manager/SKILL.md) |
 | What this repository decided about applying the pattern | the same notes tree, and the standing entries above |
 | A past incident's durable lesson | the notes tree, in its `bug-fix` class |
 | A human-facing page, and the terminology the pairs share | `docs/` — a folder nothing manages, with no tier, no budget and no gate; the table the translation briefing reads is [`docs/terminology.md`](docs/terminology.md) |

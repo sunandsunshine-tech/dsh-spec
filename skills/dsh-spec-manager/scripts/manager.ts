@@ -23,7 +23,8 @@
  * install; `init` is the half that creates those files.
  */
 
-import { spawnSync } from 'node:child_process'
+import { spawn, spawnSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import { existsSync, readFileSync, readdirSync, rmSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -138,31 +139,155 @@ function run(command: string, args: string[], dryRun: boolean): void {
   if ((result.status ?? 1) !== 0) fail(`\`${printable}\` exited ${result.status}`)
 }
 
+/** One child process's outcome, captured so parallel runs stay readable. */
+interface ChildResult {
+  label: string
+  status: number | null
+  error?: Error
+  output: string
+}
+
+/** Run one command, capturing both streams, and resolve rather than throwing. */
+function runCaptured(command: string, args: string[], label: string): Promise<ChildResult> {
+  return new Promise((resolve) => {
+    const child = spawn(command, args, { stdio: ['ignore', 'pipe', 'pipe'] })
+    let output = ''
+    child.stdout.on('data', (chunk: Buffer) => { output += chunk.toString('utf8') })
+    child.stderr.on('data', (chunk: Buffer) => { output += chunk.toString('utf8') })
+    child.on('error', (error: Error) => resolve({ label, status: null, error, output }))
+    child.on('close', (status: number | null) => resolve({ label, status, output }))
+  })
+}
+
 /**
- * The files one installed skill's revision ships, read from the tree its own metadata names.
+ * Run one command per item at the same time, and report each by its label.
  *
- * `gh skill install` injects `github-tree-sha` into the installed `SKILL.md`, and the tree API lists
- * that directory's blobs as paths relative to it — exactly the shape needed to compare an installed
- * directory against what the revision contains.
+ * A refresh is network-bound: one `gh skill install` takes about twelve seconds here, and eight of
+ * them in sequence is two minutes of waiting for work that has no order — each child writes its own
+ * skill directory and reads nothing the others write. Their output is kept per child and printed
+ * only when that child fails, so a failure is still readable and a success costs one line.
  *
- * @param repo - `owner/name` the skill came from.
- * @param skill - the skill directory name.
- * @param directory - the project's `.agents/skills/` directory.
- * @returns the revision's relative file paths, or `undefined` when they cannot be read.
+ * @param command - the binary to run.
+ * @param items - one label and argument list per child.
+ * @param dryRun - print the commands instead of running them.
  */
-function revisionFiles(repo: string, skill: string, directory: string): string[] | undefined {
-  const skillFile = join(directory, skill, 'SKILL.md')
-  if (!existsSync(skillFile)) return undefined
-  const treeSha = /github-tree-sha:\s*([0-9a-f]{40})/.exec(readFileSync(skillFile, 'utf8'))?.[1]
-  if (treeSha === undefined) return undefined
-  const listing = spawnSync(
+async function runAll(command: string, items: readonly { label: string, args: string[] }[], dryRun: boolean): Promise<void> {
+  if (dryRun) {
+    for (const item of items) console.log(`  would run: ${[command, ...item.args].join(' ')}`)
+    return
+  }
+  const results = await Promise.all(items.map(item => runCaptured(command, item.args, item.label)))
+  for (const result of results) {
+    if (result.error !== undefined) fail(`${command} could not be run for ${result.label}: ${result.error.message}`)
+  }
+  const failed = results.filter(result => (result.status ?? 1) !== 0)
+  for (const result of results) {
+    if ((result.status ?? 1) === 0) console.log(`  ok ${result.label}`)
+  }
+  if (failed.length === 0) return
+  for (const result of failed) {
+    console.error(`  FAILED ${result.label} — \`${command}\` exited ${String(result.status)}`)
+    const tail = result.output.trim()
+    if (tail !== '') console.error(tail.split('\n').map(line => `      ${line}`).join('\n'))
+  }
+  fail(`${failed.length} of ${results.length} \`${command}\` run(s) failed`)
+}
+
+/** The revision's own listing: each skill's tree sha, and every file's blob sha. */
+interface RevisionIndex {
+  /** Skill directory name → the tree sha GitHub records for `skills/<name>`. */
+  treeSha: Map<string, string>
+  /** Skill directory name → path relative to it → git blob sha. */
+  blobs: Map<string, Map<string, string>>
+}
+
+/**
+ * Read the revision's tree once, for every skill.
+ *
+ * One listing answers the three questions a refresh asks: whether an installed skill is already this
+ * revision's content (the tree sha `gh` recorded), which files it ships (their paths), and whether a
+ * file changed since it was installed (their blob shas). Asking per skill cost one API call each and
+ * could not answer the first question at all.
+ *
+ * @param repo - `owner/name` the skills come from.
+ * @param revision - the branch, tag or commit the manifest pins.
+ * @returns the listing, or `undefined` when it cannot be read.
+ */
+async function readRevisionIndex(repo: string, revision: string): Promise<RevisionIndex | undefined> {
+  const commit = await runCaptured('gh', ['api', `repos/${repo}/commits/${revision}`, '--jq', '.commit.tree.sha'], revision)
+  const treeSha = commit.output.trim()
+  if ((commit.status ?? 1) !== 0 || !/^[0-9a-f]{40}$/.test(treeSha)) return undefined
+  const listing = await runCaptured(
     'gh',
-    ['api', `repos/${repo}/git/trees/${treeSha}?recursive=1`, '--jq', '.tree[] | select(.type == "blob") | .path'],
-    { encoding: 'utf8' },
+    ['api', `repos/${repo}/git/trees/${treeSha}?recursive=1`, '--jq', '.tree[] | "\\(.type) \\(.sha) \\(.path)"'],
+    revision,
   )
   if ((listing.status ?? 1) !== 0) return undefined
-  const paths = listing.stdout.split('\n').map(line => line.trim()).filter(line => line !== '')
-  return paths.length === 0 ? undefined : paths
+  const index: RevisionIndex = { treeSha: new Map(), blobs: new Map() }
+  for (const line of listing.output.split('\n')) {
+    const trimmed = line.trim()
+    if (trimmed === '') continue
+    const [type, sha, ...rest] = trimmed.split(' ')
+    if (type === undefined || sha === undefined) continue
+    const path = rest.join(' ')
+    if (type === 'tree' && /^skills\/[^/]+$/.test(path)) {
+      index.treeSha.set(path.slice('skills/'.length), sha)
+      continue
+    }
+    if (type !== 'blob' || !path.startsWith('skills/')) continue
+    const relative = path.slice('skills/'.length)
+    const slash = relative.indexOf('/')
+    if (slash < 0) continue
+    const skill = relative.slice(0, slash)
+    const files = index.blobs.get(skill) ?? new Map<string, string>()
+    files.set(relative.slice(slash + 1), sha)
+    index.blobs.set(skill, files)
+  }
+  return index.treeSha.size === 0 ? undefined : index
+}
+
+/** The git blob sha of one file's content — the identifier the tree API reports. */
+function blobSha(content: Buffer): string {
+  return createHash('sha1').update(`blob ${content.byteLength}\0`).update(content).digest('hex')
+}
+
+/**
+ * Is the installed skill already the revision's content?
+ *
+ * The tree sha `gh` injected is the revision's own record for that directory, so a mismatch means
+ * the revision moved. A matching tree alone would not notice a hand edit, so the file list has to
+ * match exactly and every file is compared by blob sha — except `SKILL.md`, whose frontmatter `gh`
+ * re-serializes on install and which is therefore covered by the injected tree sha instead.
+ *
+ * @param directory - the project's `.agents/skills/` directory.
+ * @param skill - the skill directory name.
+ * @param index - the revision listing.
+ * @returns true when reinstalling this skill would write the same content.
+ */
+function isCurrent(directory: string, skill: string, index: RevisionIndex): boolean {
+  const expectedTree = index.treeSha.get(skill)
+  const expected = index.blobs.get(skill)
+  if (expectedTree === undefined || expected === undefined) return false
+  const root = join(directory, skill)
+  const skillFile = join(root, 'SKILL.md')
+  if (!existsSync(skillFile)) return false
+  if (/github-tree-sha:\s*([0-9a-f]{40})/.exec(readFileSync(skillFile, 'utf8'))?.[1] !== expectedTree) return false
+  const seen = new Set<string>()
+  const walk = (current: string, prefix: string): boolean => {
+    for (const entry of readdirSync(current, { withFileTypes: true })) {
+      const relative = prefix === '' ? entry.name : `${prefix}/${entry.name}`
+      if (entry.isDirectory()) {
+        if (!walk(join(current, entry.name), relative)) return false
+        continue
+      }
+      const sha = expected.get(relative)
+      if (sha === undefined) return false
+      seen.add(relative)
+      if (relative !== 'SKILL.md' && blobSha(readFileSync(join(current, entry.name))) !== sha) return false
+    }
+    return true
+  }
+  return walk(root, '') && seen.size === expected.size
 }
 
 /**
@@ -177,13 +302,12 @@ function revisionFiles(repo: string, skill: string, directory: string): string[]
  * Nothing is deleted when the listing cannot be read: a failed API call must not look like a
  * revision that ships nothing.
  *
- * @param repo - `owner/name` the skills came from.
  * @param skill - the skill directory name.
  * @param directory - the project's `.agents/skills/` directory.
+ * @param expected - the paths the revision ships, or `undefined` when the listing was unreadable.
  * @param dryRun - print the removals instead of making them.
  */
-function pruneToRevision(repo: string, skill: string, directory: string, dryRun: boolean): void {
-  const expected = revisionFiles(repo, skill, directory)
+function pruneToRevision(skill: string, directory: string, expected: string[] | undefined, dryRun: boolean): void {
   if (expected === undefined) {
     console.log(`  ${skill}: no revision listing read — nothing pruned`)
     return
@@ -218,6 +342,54 @@ function pruneToRevision(repo: string, skill: string, directory: string, dryRun:
   for (const dir of directories.reverse()) {
     if (existsSync(dir) && readdirSync(dir).length === 0) rmSync(dir, { recursive: true })
   }
+}
+
+/**
+ * Fetch what changed, reduce each installed directory to what the revision ships, then sync the
+ * files whose text the collection owns.
+ *
+ * The revision is read once, as a tree listing, and it decides three things: which skills are
+ * already that content (they are left alone), which files each skill ships (the prune), and whether
+ * a file changed since it was installed (a blob sha each). A refresh of an unchanged project is then
+ * one API call and a local walk, rather than eight network installs.
+ *
+ * @param repo - `owner/name` the skills come from.
+ * @param directory - the project's `.agents/skills/` directory.
+ * @param manifest - the pinned revision and the skills to install.
+ * @param dryRun - print the commands instead of running them.
+ * @param reinstall - install every skill even when it is already the revision's content.
+ */
+async function refresh(repo: string, directory: string, manifest: Manifest, dryRun: boolean, reinstall: boolean): Promise<void> {
+  const index = await readRevisionIndex(repo, manifest.revision)
+  if (index === undefined) {
+    console.log(`  could not read the tree for ${manifest.revision} — installing every skill and pruning nothing`)
+  }
+  const stale: string[] = []
+  const current: string[] = []
+  for (const skill of manifest.skills) {
+    if (!reinstall && index !== undefined && isCurrent(directory, skill, index)) current.push(skill)
+    else stale.push(skill)
+  }
+  if (current.length > 0) {
+    console.log(`  already at ${manifest.revision}: ${current.join(', ')}`)
+  }
+  await runAll('gh', stale.map(skill => ({
+    label: skill,
+    args: ['skill', 'install', repo, `${skill}@${manifest.revision}`, '--dir', directory, '--force'],
+  })), dryRun)
+  if (dryRun) {
+    for (const skill of manifest.skills) console.log(`  would prune ${skill} to the files ${manifest.revision} ships`)
+  } else {
+    for (const skill of manifest.skills) {
+      const expected = index?.blobs.get(skill)
+      pruneToRevision(skill, directory, expected === undefined ? undefined : [...expected.keys()], dryRun)
+    }
+  }
+  // The other half of a refresh: the files whose text the collection owns — the notes contract, the
+  // documentation orders, the search exclusion, the marked standing-orders section — are brought to
+  // this revision too, so every project's mechanism text is the same one. A terminology table keeps
+  // its rows and `AGENTS.md` keeps everything outside the marked section.
+  run('pnpm', ['dlx', '--allow-build=esbuild', 'tsx@4.22.4', initializerPath, '--root', root, '--sync', '--write'], dryRun)
 }
 
 /**
@@ -327,15 +499,9 @@ if (command === 'init') {
   const repo = flagValue('--repo') ?? manifest.repo
   const directory = skillsDirectory(root)
   console.log(`  ${command} ${manifest.skills.length} skill(s) from ${repo} at ${manifest.revision} into ${directory}`)
-  for (const skill of manifest.skills) {
-    run('gh', ['skill', 'install', repo, `${skill}@${manifest.revision}`, '--dir', directory, '--force'], dryRun)
-  }
-  for (const skill of manifest.skills) pruneToRevision(repo, skill, directory, dryRun)
-  // The other half of a refresh: the files whose text the collection owns — the notes contract, the
-  // documentation orders, the search exclusion, the marked standing-orders section — are brought to
-  // this revision too, so every project's mechanism text is the same one. A terminology table keeps
-  // its rows and `AGENTS.md` keeps everything outside the marked section.
-  run('pnpm', ['dlx', '--allow-build=esbuild', 'tsx@4.22.4', initializerPath, '--root', root, '--sync', '--write'], dryRun)
+  // The work is asynchronous so the fetches can run together; `runAll` keeps the process alive until
+  // they finish, and every failure path inside it exits non-zero.
+  void refresh(repo, directory, manifest, dryRun, hasFlag('--reinstall'))
 } else if (command === 'sync') {
   const args = ['dlx', '--allow-build=esbuild', 'tsx@4.22.4', initializerPath, '--root', root, '--sync']
   if (hasFlag('--write')) args.push('--write')

@@ -27,6 +27,19 @@ The manager does the rest: it installs and updates the whole set at one revision
 - **The two languages stay together.** Each pair carries its English side, its Chinese side and a record of the last agreed state, so a side edited without the other shows up as a failed check.
 - **Review and push have something to go on.** Review follows a list of what code alone cannot show; before a push you run the smallest evidence that covers the change, not the whole suite.
 
+## The eight skills
+
+| Skill | What it is for |
+|---|---|
+| `dsh-spec-manager` | Owning the set: initialize a project, install and update the skills at one revision, keep the mechanism text in step, run the aggregate check |
+| `dsh-archive-agent-notes` | Keeping the decision records honest: validate the tree, check supersession, freeze what has served its purpose |
+| `dsh-translate-docs` | Keeping a document and its translation in step, and recording the pair |
+| `dsh-prose-standard` | What prose each place owes — API documentation, comments, tests, READMEs, diagnostics, visible strings |
+| `dsh-trim-cot-leakage` | Cutting prose written from inside the session that produced it |
+| `dsh-code-review` | The reviewer's path through a change, and what code alone cannot show |
+| `dsh-pre-push-checks` | The smallest evidence that covers an outgoing change |
+| `dsh-find-simplifications` | Turning "find things to simplify" into evidence-backed proposals |
+
 ## How a change goes
 
 1. **Decide in a note first.** A change worth recording starts as a record under `proposed/`, with the problem, the options that lost and how it will be verified; a conclusion reached in conversation is recorded the same way, or it lives only in that conversation.
@@ -60,5 +73,4 @@ What that command does to each skill, and what `update`, `status` and `uninstall
 
 - [`AGENTS.md`](AGENTS.md) — the rules that hold in every session, and the commands this repository actually runs.
 - [`skills/dsh-spec-manager/SKILL.md`](skills/dsh-spec-manager/SKILL.md) — the collection's entry; the other seven skills sit beside it.
-- [`skills/dsh-spec-manager/README.md`](skills/dsh-spec-manager/README.md) — the package's own introduction: what it installs, what it writes into a project, and how to change what its checks do.
 - [`.agents/dsh-spec/notes/README.md`](.agents/dsh-spec/notes/README.md) — the decision-record contract, which is the pattern describing itself.
