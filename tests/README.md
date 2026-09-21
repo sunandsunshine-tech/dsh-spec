@@ -19,13 +19,13 @@ needs no dependency, no transform and no package manager — the same property t
 |---|---|
 | `helpers/fixtures.ts` | Scratch repositories: a temporary directory with its own `git init`, files, and a commit. Checks read a project through `--root`, so the archive seal, the pairing hashes and the change scope all need a real repository rather than a mock. |
 | `helpers/cli.ts` | Invoking the source engine, and parsing the dispatch report (`check <subject>: ok \| FAIL \| skipped — <reason>`). |
-| `cli.test.ts` | The command surface: subjects, operations, and the usage failures. |
+| `cli.test.ts` | The command surface: the verbs, the nouns with their verbs, and the usage failures. |
 | `scope.test.ts` | The gate input contract: exactly one scope, out-of-scope paths refused, deletions accepted, an empty list refused. |
-| `notes.test.ts` | `notes --check`: the active tree only. |
-| `notes-archived.test.ts` | `notes-archived --check`: the closed kind tree and the append-only seal. |
+| `notes.test.ts` | `notes check`: the active tree only. |
+| `notes-archived.test.ts` | `notes-archived check`: the closed kind tree and the append-only seal. |
 | `translation-pair.test.ts` | Pair detection as a union of switcher and naming family, and the consistency record. |
 | `md-links.test.ts` | Link resolution and the two shapes a bulk rewrite leaves behind. |
-| `commit.test.ts` | Which checks a change selects — the selection table, including the documented limit. |
+| `check.test.ts` | Which checks a selection owes — the three selections, including the documented limit. |
 | `parallel.test.ts` | Bounded dispatch: concurrency changes neither a verdict nor the report order. |
 | `management.test.ts` | `install`, `upgrade`, `uninstall` and `status`, offline (`--dry-run` only). |
 | `ports.test.ts` | The provenance registry, the module headers, and the offline gate that reconciles them. |

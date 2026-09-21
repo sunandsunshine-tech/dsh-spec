@@ -1,6 +1,6 @@
 # Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair --write .agents/dsh-spec/notes/implemented/process/2026-09-18-reference-gates-instead-of-releasing-them.md
+#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-18-reference-gates-instead-of-releasing-them.md
 2026-09-18-reference-gates-instead-of-releasing-them.md: 9c871fb11586e7f13e37ef57d0bb816973eb9e8b
 2026-09-18-reference-gates-instead-of-releasing-them.zh.md: 417f4f467560dadaa958e38796a7e0ac6709eae0

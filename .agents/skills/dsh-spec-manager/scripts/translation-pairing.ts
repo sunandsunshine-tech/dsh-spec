@@ -184,21 +184,21 @@ export function parseTranslationPairingCliArgs(argv: string[]): TranslationPairi
   const allMode = flags.includes('--all')
   const cachedMode = flags.includes('--cached')
   if (listMode && (writeMode || allMode || cachedMode || anchors.length > 0)) {
-    throw new Error('--list reports the whole corpus and takes no other flags or paths')
+    throw new Error('`translation-pair list` reports the whole corpus and takes no other flags or paths')
   }
-  if (allMode && !writeMode) throw new Error('--all only applies to --write')
-  if (cachedMode && writeMode) throw new Error('--cached is a read-only index check and cannot be combined with --write')
+  if (allMode && !writeMode) throw new Error('--all only applies to `translation-pair write`')
+  if (cachedMode && writeMode) throw new Error('--cached is a read-only index check and cannot be combined with `translation-pair write`')
   if (cachedMode && anchors.length === 0) throw new Error('--cached requires the staged pair paths to check')
   if (writeMode) {
-    if (anchors.length > 0 && allMode) throw new Error('--write takes either pair paths or --all, not both')
+    if (anchors.length > 0 && allMode) throw new Error('`translation-pair write` takes either pair paths or --all, not both')
     if (anchors.length === 0 && !allMode) {
-      throw new Error('--write requires the pair(s) you confirmed (any file of a pair), or --all to re-record every complete pair; recording pairs you did not review blesses unconfirmed content')
+      throw new Error('`translation-pair write` requires the pair(s) you confirmed (any file of a pair), or --all to re-record every complete pair; recording pairs you did not review blesses unconfirmed content')
     }
     return { input: 'worktree', mode: 'write', scope: allMode ? 'corpus' : 'pairs', anchors }
   }
   if (listMode) return { input: 'worktree', mode: 'list', scope: 'corpus', anchors: [] }
   if (anchors.length === 0) {
-    throw new Error('this check reads the pairs it is handed — name them (any file of a pair) or pass --files-from -; the corpus-wide form is --write --all')
+    throw new Error('this check reads the pairs it is handed — name them (any file of a pair) or pass --files-from -; the corpus-wide form is `translation-pair write --all`')
   }
   return {
     input: cachedMode ? 'index' : 'worktree',
@@ -340,15 +340,16 @@ export { isTranslationScopeFile }
  * copy each render the path their own commands resolve.
  *
  * @param name - the engine file name, for example `verify-translation-pairing.ts`.
+ * @param verb - the verb the rendered command runs, for example `check` or `write`.
  * @returns the project-relative command, without its arguments.
  */
-export function gateEntryPoint(name: string): string {
+export function gateEntryPoint(name: string, verb: string): string {
   const directory = relative(resolveRepoRoot(), import.meta.dirname).split(sep).join('/')
-  const subject = SUBJECT_OF[name] ?? name.replace(/\.ts$/, '')
-  return `${directory}/dsh-spec.ts ${subject}`
+  const noun = SUBJECT_OF[name] ?? name.replace(/\.ts$/, '')
+  return `${directory}/dsh-spec.ts ${noun} ${verb}`
 }
 
-/** The subject that owns each engine tool, so a rendered command names the entry point, not a file. */
+/** The noun that owns each engine tool, so a rendered command names the entry point with its verb. */
 const SUBJECT_OF: Record<string, string> = {
   'verify-translation-pairing.ts': 'translation-pair',
   'verify-agent-note-classification.ts': 'notes',
@@ -356,5 +357,5 @@ const SUBJECT_OF: Record<string, string> = {
   'verify-archived-agent-notes.ts': 'notes-archived',
   'verify-md-links.ts': 'md-links',
   'verify-md-link-syntax.ts': 'md-links',
-  'gen-translation-brief.ts': 'translation-pair --brief',
+  'gen-translation-brief.ts': 'translation-pair',
 }

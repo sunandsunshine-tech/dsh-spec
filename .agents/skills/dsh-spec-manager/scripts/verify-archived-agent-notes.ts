@@ -106,7 +106,7 @@ if (existsSync(manifestPath)) {
   // A manifest is required only once there is something to seal. A project that has archived
   // nothing yet is consistent with an absent seal, and demanding one would make this gate
   // unsatisfiable: `--write` refuses to record an empty archive by design.
-  errors.push('archived/manifest.json is required; seal new artifacts by re-running this gate with `--write`')
+  errors.push('archived/manifest.json is required; seal new artifacts with `notes-archived write --all`')
 }
 
 // The append-only seal compares against a committed baseline, so it needs a repository.

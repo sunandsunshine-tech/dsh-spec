@@ -37,7 +37,7 @@ Status: implemented
 - 每个项目的笔记约定、文档指令与搜索排除都是它所运行修订的文本,因此门禁执行的是同一份约定,评审者读到的也是同一份约定。
 - 项目对这些文档所做的自己的改动会被覆盖。这正是要点,也是 sync 逐条报告被重写路径、而不是笼统说一句"已是最新"的原因。
 - 术语表的行与标记小节之外的常设指令需要项目自己照看,因为 sync 会保留它们,而没有别的东西守着它们。
-- 验证:在一个探针项目里,约定被加过一行、术语表被加过一行、`AGENTS.md` 的开头已填写,执行 `sync --write` 得到 `updated .agents/dsh-spec/notes/README.md`、`updated docs/terminology.md`,约定里新增的那行消失、术语行保留、开头原样;再跑一次时过期的标记小节被替换(`updated AGENTS.md`)。`dsh-spec.ts all --check --root .` 在探针项目与本仓库都以 `run: 7 gate(s), 0 failed` 结束。
+- 验证:在一个探针项目里,约定被加过一行、术语表被加过一行、`AGENTS.md` 的开头已填写,执行 `sync --write` 得到 `updated .agents/dsh-spec/notes/README.md`、`updated docs/terminology.md`,约定里新增的那行消失、术语行保留、开头原样;再跑一次时过期的标记小节被替换(`updated AGENTS.md`)。`dsh-spec.ts check --all --root .` 在探针项目与本仓库都以 `run: 7 gate(s), 0 failed` 结束。
 
 ## 相关
 

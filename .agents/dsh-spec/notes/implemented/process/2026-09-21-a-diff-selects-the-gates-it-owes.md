@@ -12,11 +12,11 @@ Every check this collection runs was addressed by name, so a contributor who cha
 
 ## Decision
 
-Each recorded gate claims a **scope record** in the manifest: the surfaces it answers for — `notes`, `notes-archived`, `markdown` or `pairs` — and how it is handed them, `root` when its assertion is about a tree and `files` when it reads exactly the paths it is given. The entry point resolves a key through the module that already owns those paths: `notes-root.ts` for the note tree, `md-scope.ts` for the Markdown the prose gates read, `i18n-scope.ts` for the pairing scope. `dsh-spec.ts commit --check --base <ref>` then hands each subject the paths that fall inside its keys, runs the ones a change owes, and prints every subject it skipped with the reason.
+Each recorded gate claims a **scope record** in the manifest: the surfaces it answers for — `notes`, `notes-archived`, `markdown` or `pairs` — and how it is handed them, `root` when its assertion is about a tree and `files` when it reads exactly the paths it is given. The entry point resolves a key through the module that already owns those paths: `notes-root.ts` for the note tree, `md-scope.ts` for the Markdown the prose gates read, `i18n-scope.ts` for the pairing scope. `dsh-spec.ts check --base <ref>` then hands each subject the paths that fall inside its keys, runs the ones a change owes, and prints every subject it skipped with the reason.
 
 Keys rather than path literals keep one owner per path: the manifest says which *surface* a gate answers for, and the engine says where that surface is. A key outside the closed set is a refusal, because an unresolved scope would read as "nothing here belongs to this gate" and quietly drop the check; a recorded gate with no entry at all is also refused, so the record cannot be half-written.
 
-`--all` is unchanged and stays the whole check. `--changed` is a subset that says so in its own output, and never a substitute for the aggregate before a push.
+`check --all` stays the whole-tree form, and `check --base <ref>` is the subset that says so in its own output; a subset is never a substitute for the file scans before a push.
 
 ## Alternatives considered
 
@@ -33,7 +33,7 @@ Keys rather than path literals keep one owner per path: the manifest says which 
 - A change to the engine runs the credential scan and nothing else; a note change runs the four gates that read the note tree, the pairs and Markdown; and each run prints the gates it skipped.
 - The manifest now carries four facts, and adding a gate means recording its name, its scope and its script in the same change.
 - What this costs is a second record to keep in step with the gate list. The refusal covers the half-written case, and the closed key set keeps a typo from silently narrowing a run.
-- Verification: `dsh-spec.ts all --check --root .` reports the two tree checks; `dsh-spec.ts commit --check --base HEAD --root .` prints one line per subject — `check <subject>: ok`, `FAIL`, or `skipped — <reason>` — and a clean tree prints four skips.
+- Verification: `dsh-spec.ts check --all --root .` reports the two tree checks; `dsh-spec.ts check --base HEAD --root .` prints one line per subject — `check <subject>: ok`, `FAIL`, or `skipped — <reason>` — and a clean tree prints four skips.
 
 ## Related
 

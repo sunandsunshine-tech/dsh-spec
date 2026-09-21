@@ -16,20 +16,19 @@ This is the note that partly supersedes [A diff selects the gates it owes](2026-
 
 ### The command surface
 
-One entry point, subjects with an operation, and no bare subject: a check requires exactly one of `--all`, a path list, or `--files-from -`.
+One entry point, an action as a subcommand, and no operation spelled as a flag: a noun takes a verb, and a check requires exactly one scope — `--all`, a path list, `--files-from -`, or `--base <ref>` for the dispatch that derives the list from a change.
 
-| Subject | Operation | Input | Function |
+| Command | Verbs | Input | Function |
 |---|---|---|---|
 | `install` | — | `--dry-run`, `--jobs <n>` | Adopt: deploy the manifest's revision, create the missing project files, sync the managed text |
 | `upgrade` | — | `--reinstall`, `--dry-run`, `--jobs <n>` | Refresh the deployment and the managed text; never creates a missing project file |
 | `uninstall` | — | `--dry-run` | Remove the skill directories only, then name every artifact it left behind |
 | `status` | — | — | Installed set equals the manifest, every skill sits at the pinned revision, the dispatcher is present |
-| `notes` | `--check` | `--all` / `<path…>` / `--files-from -` | Classification and format over the active lifecycles |
-| `notes-archived` | `--check`, `--write` | `--all` / `<path…>` | The frozen archive; `--write` appends new seals |
-| `translation-pair` | `--check`, `--list`, `--explain <path>`, `--write` | `<path…>` / `--files-from -` | Pair completeness, structure parity and recorded hashes |
-| `md-links` | `--check` | `<path…>` / `--files-from -` | Link targets and the two shapes a bulk rewrite leaves behind |
-| `commit` | `--check` | `--base <ref>`, `--head <ref>`, `--jobs <n>` | Read the change, hand each check its scope, dispatch in parallel |
-| `all` | `--check` | `--jobs <n>` | Every check that reads a whole tree |
+| `check` | — | `<path…>` / `--base <ref>` / `--head <ref>` / `--all` / `--files-from -` | Run the checks a selection owes, and print every subject it skipped |
+| `notes` | `check` | `--all` / `<path…>` / `--files-from -` | Classification and format over the active lifecycles |
+| `notes-archived` | `check`, `write` | `--all` | The frozen archive; `write` appends new seals |
+| `translation-pair` | `check`, `list`, `explain <path>`, `write`, `brief` | `<path…>` / `--files-from -` | Pair completeness, structure parity and recorded hashes |
+| `md-links` | `check` | `<path…>` / `--files-from -` | Link targets and the two shapes a bulk rewrite leaves behind |
 
 Exit codes are `0` clean, `1` violations or failure, `2` usage.
 
@@ -43,7 +42,7 @@ A scope entry is a repository-relative path: a **directory** is walked under tha
 
 ### The dispatcher owns selection
 
-`commit --check` reads the change through a ported `change-scope.ts`, which resolves base, head and merge base and reports committed, staged, unstaged and untracked paths in a versioned record; the commit message is never read, because a check gated on prose would be guessing. Each check then receives its scope: a **file-selection** check gets the changed paths inside its keys, a **tree-selection** check gets its root, and a check whose keys no changed path matches is skipped with its reason printed. `all --check` hands every tree check its root. Every dispatch prints one line per check, in record order and with a stable shape — `check <subject>: ok`, `check <subject>: FAIL`, or `check <subject>: skipped — <reason>` — so the report is scriptable and the suite can assert which checks a change selected.
+`check --base <ref>` reads the change through a ported `change-scope.ts`, which resolves base, head and merge base and reports committed, staged, unstaged and untracked paths in a versioned record; the commit message is never read, because a check gated on prose would be guessing. Each check then receives its scope: a **file-selection** check gets the changed paths inside its keys, a **tree-selection** check gets its root, and a check whose keys no changed path matches is skipped with its reason printed. `check --all` hands every tree check its root. Every dispatch prints one line per check, in record order and with a stable shape — `check <subject>: ok`, `check <subject>: FAIL`, or `check <subject>: skipped — <reason>` — so the report is scriptable and the suite can assert which checks a change selected.
 
 Which kind a check is belongs to the mechanism, not to convenience. `md-links` decides the asking side per file, so a file selection is exact for the files it names and blind to a target someone else deleted; `notes-archived` asserts the seal over the whole archive; `notes` needs the directory tree for classification and only the text for format. Those differences are recorded per check rather than assumed.
 
@@ -94,8 +93,8 @@ The suite comes first because a check that is being rewritten needs its verdicts
 
 - Every check exits `2` with its usage when no scope is given, and `1` when a handed path exists outside its scope; a deleted path is accepted rather than refused.
 - Each check produces, on this repository, the same verdicts as the engine at `f14e91c`: full scans compared check by check, and each check re-run against seeded defects — a broken link, a mangled link, an out-of-sync pair, a malformed note, an unknown class folder, an unsealed archived triplet.
-- `commit --check` on a clean tree skips every check and prints why; a changed engine file selects no check at all; a changed active note selects `notes` and `md-links`; a changed archived file selects `notes-archived` alone; a changed paired document selects `translation-pair` and `md-links`; a changed unpaired document selects `md-links`; a renamed target selects `md-links` for the renamed paths and the break in its untouched referrer is not reported, which is the documented limit.
-- `all --check` and the sharded file checks report the same verdict as the unsharded form, at concurrency 1 and at the default.
+- `check` on a clean tree skips every check and prints why; a changed engine file selects no check at all; a changed active note selects `notes` and `md-links`; a changed archived file selects `notes-archived` alone; a changed paired document selects `translation-pair` and `md-links`; a changed unpaired document selects `md-links`; a renamed target selects `md-links` for the renamed paths and the break in its untouched referrer is not reported, which is the documented limit.
+- The tree checks read by `check --all` and the file checks read from a path list report the same verdict whether they run at concurrency 1 or through the default pool.
 - `install --dry-run` reports the plan and changes nothing; `upgrade` refreshes a stale installed copy; `status` exits non-zero on a revision mismatch; `uninstall --dry-run` names every artifact it would leave.
 - The aggregate is green from a fresh clone of this repository, and the installed copy is refreshed in the same change as every source change.
 - `node --test 'tests/**/*.test.ts'` is green, and every case in it was written before the implementation it exercises.
@@ -105,7 +104,7 @@ The suite comes first because a check that is being rewritten needs its verdicts
 
 - **A file selection is narrower than a full scan for `md-links`.** The invariant that a scoped green never substitutes for the aggregate now carries the deleted-target case, and the note that owns that invariant must say so.
 - **Two owners of one scope rule.** The dispatcher selects and the check re-applies, both through the same modules; a check that stops calling them, or a scope key resolved by hand, reintroduces the drift this design removes.
-- **Untracked files.** A file-selection check reads what it is handed, so `commit --check` scans an untracked file that an index-based aggregate would not — the direction a pre-push check wants, and a difference worth stating.
+- **Untracked files.** A file-selection check reads what it is handed, so `check <path...>` reads an untracked file that an index-based pass would not, and `check --base <ref>` lists one too — the direction a pre-push check wants, and a difference worth stating.
 - **Sharding multiplies processes.** Real CPU parallelism comes from the dispatcher's slices, not from one process; how much a check gains is a measurement, and a check that gains nothing is reported as gaining nothing.
 - **A provenance record rots unless something reads it.** The `--no-docs` flags that survived their own removal in two notes are the precedent; the offline gate is what keeps the registry and the headers from drifting apart.
 - **Dropping the credential scan** removes the only mechanical enforcement among the three rules, and no later check replaces it.

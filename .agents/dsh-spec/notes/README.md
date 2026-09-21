@@ -38,7 +38,7 @@ Archive an implemented Agent Note when the shipped decision is complete and its 
 
 The archive is path-encoded as `archived/{class}/yyyy-mm-dd-topic-title.md`; `implemented` is deliberately absent because only implemented notes can enter it. An archival change moves the complete English/Chinese/sidecar triplet, retains `Status: implemented`, inserts the same `Archived: YYYY-MM-DD` line immediately below that status in both language files, re-records the sidecar, and repairs or deletes inbound links. These are the only permitted content changes during archival.
 
-Once sealed, every archived triplet is permanently frozen. Do not edit, translate, reformat, update, move, or delete it, and do not treat it as authority for current behavior. Documentation gates skip archived sources, including their outbound links; active prose may still link into an archived note when it intentionally cites history. `.agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes-archived --check --all` enforces the closed class tree, complete triplets, archive metadata, sidecar hashes, and the append-only frozen-content manifest. The freeze is what makes the archive evidence: a snapshot anyone may edit proves nothing about what was decided. The root `.rgignore` keeps the archive out of recursive searches, so a historical query names the directory explicitly rather than meeting frozen facts among active ones.
+Once sealed, every archived triplet is permanently frozen. Do not edit, translate, reformat, update, move, or delete it, and do not treat it as authority for current behavior. Documentation gates skip archived sources, including their outbound links; active prose may still link into an archived note when it intentionally cites history. `.agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes-archived check --all` enforces the closed class tree, complete triplets, archive metadata, sidecar hashes, and the append-only frozen-content manifest. The freeze is what makes the archive evidence: a snapshot anyone may edit proves nothing about what was decided. The root `.rgignore` keeps the archive out of recursive searches, so a historical query names the directory explicitly rather than meeting frozen facts among active ones.
 
 ## When to write one
 
@@ -52,7 +52,7 @@ A feature-addition note may be consolidated into the later removal note only whe
 
 ## The file format
 
-Every active Agent Note follows one in-file format, enforced by `.agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes --check`; the format is uniform because retrieval must not depend on who wrote the note: one skeleton means a reader knows where the decision, the alternatives, and the verification sit before opening the file. Archived notes retain the format they had when sealed plus the archive-date line above.
+Every active Agent Note follows one in-file format, enforced by `.agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes check`; the format is uniform because retrieval must not depend on who wrote the note: one skeleton means a reader knows where the decision, the alternatives, and the verification sit before opening the file. Archived notes retain the format they had when sealed plus the archive-date line above.
 
 ### The header block
 
@@ -136,12 +136,12 @@ Three gates enforce what this file states. They ship with the skills collection 
 Every gate is a recorded name backed by a script in that one directory, reached through the collection's entry point `.agents/skills/dsh-spec-manager/scripts/dsh-spec.ts`, which resolves a name against the collection's `gates` record in its `references/manifest.json` and reconciles that record with the `verify-*.ts` scripts beside it: a recorded gate with no script, or a script the record does not name, is a refusal that names both sides and runs nothing. Neither the entry point nor a gate needs a `package.json` or `node_modules`; run each from the project root with `--root .`:
 
 ```sh
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes --check --all --root .
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes --check <note...> --root .
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes-archived --check --all --root .
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes-archived --write --all --root .
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes check --all --root .
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes check <note...> --root .
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes-archived check --all --root .
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes-archived write --all --root .
 ```
 
-The same dispatcher also runs `--all`, which runs every recorded gate and fails when one fails or when the record names none. Updating the collection updates all of them; a project that needs different behaviour changes its own files, never the gate.
+The same dispatcher also runs `check --all`, which runs the checks asserted over a tree and fails when one fails or when the record names none. Updating the collection updates all of them; a project that needs different behaviour changes its own files, never the gate.
 
 `AGENT_NOTES_ROOT` names the notes directory directly when a project keeps it outside `.agents/dsh-spec/notes`. A missing tree or an empty walk exits non-zero rather than reporting a pass it did not earn.

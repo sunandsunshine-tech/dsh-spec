@@ -30,8 +30,8 @@ That pair is what makes the hazard unreachable. With the record as the only list
 
 - `references/manifest.json` carries the `gates` array beside the repository, the revision and the skills, and `dsh-spec.ts` reconciles it against the `verify-*.ts` files in the engine directory at startup. A recorded name with no file, or a file the record does not name, is reported with both sides and exits non-zero before any gate runs.
 - Because that reconciliation is fatal rather than advisory, `install` and `update` reduce every installed skill directory to exactly what its revision ships — the tree the installer recorded in `github-tree-sha`, listed through the API — because `gh skill install --force` overwrites what a revision contains and never deletes what it dropped. A gate removed from the collection would otherwise leave the aggregate refusing to run in every project that refreshed.
-- `--all` runs exactly the recorded gates and its final line states how many ran and how many failed. A gate joins that run only once its name is recorded and its script sits beside the dispatcher, and both edits are required in the same change.
-- Verification: `dsh-spec.ts all --check --root .` ends `run: 8 gate(s), 0 failed`, and each of the four gates this change runs exits zero over the tree it leaves.
+- `check --all` runs the checks asserted over a tree, and every line of its report says which subject ran and how it ended. A gate joins that run only once its name is recorded and its script sits beside the dispatcher, and both edits are required in the same change.
+- Verification: `dsh-spec.ts check --all --root .` ends `check notes: ok` and `check notes-archived: ok`, and each gate this change runs exits zero over the tree it leaves.
 - What this bought is an aggregate whose list is a decision a reader can review: never again can a module that checks nothing print a green, because a file the record does not name is reported and refused instead of run. What it cost is a second edit whenever a gate is added or removed, and a manifest that can be wrong in a way the dispatcher must check at every invocation rather than trusting the directory.
 
 ## Related

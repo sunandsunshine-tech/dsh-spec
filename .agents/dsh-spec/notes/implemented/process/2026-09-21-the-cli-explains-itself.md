@@ -22,7 +22,7 @@ The help is also English-only, while every document a person reads here ships in
 
 **One owner per fact.** `manager-lifecycle.md` keeps the deployment model, the manifest and the boundaries and links to `cli.md` for usage instead of repeating the subject table, and `SKILL.md` lists `cli.md` as the first reference.
 
-**The shape of an operation name is a separate decision.** This note owns the help surface — where it is rendered from, which language it speaks, how it is tested. What the help prints a reader is a grammar: an action is a subcommand, a flag is a modifier, and the scope a command reads is the cheap one unless a flag widens it. That grammar is decided in [Actions are subcommands](../../proposed/process/2026-09-21-actions-are-subcommands.md), which partially supersedes this note's subject-and-flag spelling; the two are kept cross-linked.
+**The shape of an operation name is a separate decision.** This note owns the help surface — where it is rendered from, which language it speaks, how it is tested. What the help prints a reader is a grammar: an action is a subcommand, a flag is a modifier, and the scope a command reads is the cheap one unless a flag widens it. That grammar is recorded in [Actions are subcommands](2026-09-21-actions-are-subcommands.md), which partially supersedes this note's subject-and-flag spelling; the two are kept cross-linked.
 
 ## Required verification
 

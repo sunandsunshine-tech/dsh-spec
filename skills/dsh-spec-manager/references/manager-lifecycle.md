@@ -39,19 +39,19 @@ This skill's `scripts/` is the collection's engine, not this skill's private res
 
 One directory means one relative shape. A skill sits at `skills/<name>/` in the source tree and `.agents/skills/<name>/` in a project, and the engine sits at `scripts/` inside the manager's directory in both, so a check and the modules it imports are always siblings: a check imports a shared module as `./<module>.ts`, and the engine directory is derived from where the entry point sits, so there is no path for anything to record.
 
-A project reaches a check by subject, never by a script path:
+A project reaches a check by command, never by a script path:
 
 ```sh
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes --check --all --root .
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes check --all --root .
 ```
 
-Every subject, its operations, its scope forms and an example live in [`cli.md`](cli.md), which is the same text `--help` prints — `--help` for the list, `<subject> --help` for one subject, and `--help --markdown` to render that page. This file does not repeat them.
+Every command, its verbs, its scope forms and an example live in [`cli.md`](cli.md), which is the same text `--help` prints — `--help` for the list, `<command> --help` for one command, `<noun> <verb> --help` for one verb, and `--help --markdown` to render that page. This file does not repeat them.
 
-A scope is exactly one of `--all`, a path list, or `--files-from -`, and a check without one is a usage error rather than a full scan. A path that exists outside the check's scope is a violation, because a dispatcher that assembled the wrong list must be visible; a path the change reports as deleted is accepted, and what a missing file means is the check's decision. `--jobs <n>` (or `DSH_SPEC_JOBS`) bounds how many checks run at once; output is captured per check and printed in record order, so a dispatch reads the same at any width.
+A scope is exactly one of `--all`, a path list, `--files-from -`, or — for the dispatch — `--base <ref>`, and a command given none is a usage error rather than a full scan. A path that exists outside the check's scope is a violation, because a dispatcher that assembled the wrong list must be visible; a path the change reports as deleted is accepted, and what a missing file means is the check's decision. `--jobs <n>` (or `DSH_SPEC_JOBS`) bounds how many checks run at once; output is captured per check and printed in record order, so a dispatch reads the same at any width.
 
-`commit --check` reads the change through `change-scope.ts`, which resolves base, head and merge base and reports committed, staged, unstaged and untracked paths. It then hands each subject the scope its record says it reads and prints one line per subject — `check <subject>: ok`, `FAIL`, or `skipped — <reason>` — in record order. The commit message is never read: a check gated on prose would be guessing.
+`check --base <ref>` reads the change through `change-scope.ts`, which resolves base, head and merge base and reports committed, staged, unstaged and untracked paths. It then hands each check the scope its record says it reads and prints one line per check — `check <subject>: ok`, `FAIL`, or `skipped — <reason>` — in record order. The commit message is never read: a check gated on prose would be guessing.
 
-The entry point resolves a subject against the manifest's `gates` record, and before it runs anything it reconciles that record with the files beside it: a recorded gate with no `verify-*.ts` script, or a `verify-*.ts` file the record does not name, is a mismatch, and it prints both sides — the record's names and the directory's scripts — names each exact pair that failed to match, and exits non-zero without starting a check. That reconciliation is what lets the record be the authority without turning a stray file into a runnable gate: only a recorded name can run, and a file nobody recorded stops the run as the disagreement it is. A subject the record does not hold is an error, never a skip, and the refusal names what the record does hold.
+The entry point resolves a gate name against the manifest's `gates` record, and before it runs anything it reconciles that record with the files beside it: a recorded gate with no `verify-*.ts` script, or a `verify-*.ts` file the record does not name, is a mismatch, and it prints both sides — the record's names and the directory's scripts — names each exact pair that failed to match, and exits non-zero without starting a check. That reconciliation is what lets the record be the authority without turning a stray file into a runnable gate: only a recorded name can run, and a file nobody recorded stops the run as the disagreement it is. A gate the record does not hold is an error, never a skip, and the refusal names what the record does hold.
 
 ## Status and uninstall
 
@@ -73,11 +73,11 @@ The entry point resolves a subject against the manifest's `gates` record, and be
 
 ## Files
 
-- `scripts/dsh-spec.ts` — the one entry point. It reconciles the recorded gate names against the scripts beside it, resolves a subject and an operation, assembles each check's scope through the module that owns that surface, dispatches through a bounded pool, and reports one line per subject.
+- `scripts/dsh-spec.ts` — the one entry point. It reconciles the recorded gate names against the scripts beside it, resolves a command and its verb, assembles each check's scope through the module that owns that surface, dispatches through a bounded pool, and reports one line per check.
 - `scripts/manager.ts` — the deployment: `install`, `upgrade`, `uninstall` and `status`, plus the revision index, the incremental copy and the prune. Zero external dependencies, run through `node`.
 - `scripts/init-agents-md.ts` — the initializer `install` runs: what it creates, what it never overwrites, and the managed text it syncs. [`manager-install.md`](manager-install.md) is its subject.
 - `references/manifest.json` — the authority described above: the skills, the pinned revision, the gates, and each gate's scope.
 - `scripts/manifest.ts` — reads that file: its path, the recorded gate names with their grammar, and the per-gate scope record.
-- `scripts/gate-scope.ts` — the scope contract: the gate's own selection kind, the argument grammar, the dispatcher's expansion of a surface, and the ownership question `commit --check` asks of every changed path.
-- `scripts/change-scope.ts` — the ported change report behind `commit --check`.
+- `scripts/gate-scope.ts` — the scope contract: the gate's own selection kind, the argument grammar, the dispatcher's expansion of a surface, and the ownership question `check --base` asks of every changed path.
+- `scripts/change-scope.ts` — the ported change report behind `check --base`.
 - `scripts/` — the collection's engine: every check, the entry point, and the modules they import.

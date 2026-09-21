@@ -40,7 +40,7 @@ Status: implemented
 
 ## 验证
 
-`dsh-spec.ts all --check --root .` 报告 `run: 8 gate(s), 0 failed`，`scripts/verify-skill-structure.ts` 对本次改动触及的每个技能目录都通过，而逐文件与 `submodules/dsh/` 的 diff 就是本次改动自身的证据：余下的每一处差异都是引用变化或通用化。
+`dsh-spec.ts check --all --root .` 以 `check notes: ok` 与 `check notes-archived: ok` 结束，`scripts/verify-skill-structure.ts` 对本次改动触及的每个技能目录都通过，而逐文件与 `submodules/dsh/` 的 diff 就是本次改动自身的证据：余下的每一处差异都是引用变化或通用化。
 
 ## 相关
 

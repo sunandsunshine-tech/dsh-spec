@@ -27,7 +27,7 @@ dsh 在 `dsh-v0.1.6-alpha.2`(本集合现在钉住的发布)里把它收窄了:�
 - 每个项目的笔记约定都等于我们所钉修订上 dsh 的约定,`sync` 让它保持如此。
 - 我们自己以及每个采用者的规则,仍与 dsh 的常设指令一样宽:非平凡变更照旧应当带一份笔记。收窄后的约定管的是"这份笔记该为什么而写"。
 - 这里约定与常设指令确实不一致,与源项目一模一样。这条笔记把这处不一致记下来而不是抹平,下一个读者因此知道它被看见过。
-- 验证:`dsh-spec.ts all --check --root .` 以 `run: 7 gate(s), 0 failed` 结束;约定的"何时需要写一份"一节与 `submodules/dsh/.agents/notes/README.md` 携带同一条规则,只是把它的 `same PR` 换成了我们的 `same change`;向空项目 `install` 注入的常设指令与本次改动之前完全相同。
+- 验证:`dsh-spec.ts check --all --root .` 以 `check notes: ok` 与 `check notes-archived: ok` 结束;约定的"何时需要写一份"一节与 `submodules/dsh/.agents/notes/README.md` 携带同一条规则,只是把它的 `same PR` 换成了我们的 `same change`;向空项目 `install` 注入的常设指令与本次改动之前完全相同。
 
 ## 相关
 

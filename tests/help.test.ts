@@ -141,7 +141,7 @@ test('a verb documents its own flags', (t) => {
   }
 
   const brief = help(['translation-pair', 'brief'])
-  for (const flag of ['--apply', '--files-from']) {
+  for (const flag of ['--apply']) {
     assert.match(brief, new RegExp(flag), `translation-pair brief --help does not document ${flag}:\n${brief}`)
   }
 

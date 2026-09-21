@@ -4,7 +4,7 @@ metadata:
     github-path: skills/dsh-spec-manager
     github-ref: refs/heads/extract
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: 71137f9bbcc1740bd36282cf67bd741803f4fc23
+    github-tree-sha: b4345ac607f09d7aa8f744f3ab8ec4fba12c5c65
 name: dsh-spec-manager
 ---
 # Managing an adopted project
@@ -17,7 +17,7 @@ This is the one skill of the set that a project installs by hand. Everything els
 
 Three references carry the detail; this file does not restate them:
 
-- [`cli.md`](references/cli.md) — the tool's own reference: every subject, its operations, its scope, its flags and an example. It is rendered from `--help --markdown`, so it cannot drift from what a reader sees in a terminal.
+- [`cli.md`](references/cli.md) — the tool's own reference: every command, its verbs, its scope, its flags and an example. It is rendered from `--help --markdown`, so it cannot drift from what a reader sees in a terminal.
 - [`manager-install.md`](references/manager-install.md) — what adoption writes into a project, what the project keeps, and the initializer's own flags.
 - [`manager-lifecycle.md`](references/manager-lifecycle.md) — install, upgrade, uninstall and status, the manifest they read, the engine directory, the subjects the entry point answers to, and the boundaries this skill keeps.
 

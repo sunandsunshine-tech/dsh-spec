@@ -16,20 +16,19 @@ Status: implemented
 
 ### The command surface
 
-唯一入口,主语加操作,没有裸主语:一次 check 必须恰好给出 `--all`、一组路径或 `--files-from -` 之一。
+唯一入口,动作是子命令,没有把操作写成旗标的形式:名词后面跟动词,而一次检查必须恰好给出一个范围 —— `--all`、一组路径、`--files-from -`,或让 `--base <ref>` 从改动推出那份清单。
 
-| 主语 | 操作 | 输入 | 功能 |
+| 命令 | 动词 | 输入 | 功能 |
 |---|---|---|---|
 | `install` | — | `--dry-run`、`--jobs <n>` | 采用:按 manifest 的修订部署技能集、创建缺失的项目文件、同步受管文本 |
 | `upgrade` | — | `--reinstall`、`--dry-run`、`--jobs <n>` | 刷新部署与受管文本;绝不创建缺失的项目文件 |
 | `uninstall` | — | `--dry-run` | 只删技能目录,然后逐项点名它留下的产物 |
 | `status` | — | — | 安装集等于 manifest、每个技能坐落在钉住的修订上、分发器在位 |
-| `notes` | `--check` | `--all` / `<path…>` / `--files-from -` | 活跃生命周期上的分类与格式 |
-| `notes-archived` | `--check`、`--write` | `--all` / `<path…>` | 冻结归档;`--write` 追加新封存 |
-| `translation-pair` | `--check`、`--list`、`--explain <path>`、`--write` | `<path…>` / `--files-from -` | 配对完整、结构一致与已记录 hash |
-| `md-links` | `--check` | `<path…>` / `--files-from -` | 链接目标,以及批量改写留下的两种坏形状 |
-| `commit` | `--check` | `--base <ref>`、`--head <ref>`、`--jobs <n>` | 读取变更、把范围交给每道 check、并行分派 |
-| `all` | `--check` | `--jobs <n>` | 每一道读整棵树的 check |
+| `check` | — | `<path…>` / `--base <ref>` / `--head <ref>` / `--all` / `--files-from -` | 运行某个选区欠下的检查,并打印它跳过的每一个主语 |
+| `notes` | `check` | `--all` / `<path…>` / `--files-from -` | 活跃生命周期上的分类与格式 |
+| `notes-archived` | `check`、`write` | `--all` | 冻结归档;`write` 追加新封存 |
+| `translation-pair` | `check`、`list`、`explain <path>`、`write`、`brief` | `<path…>` / `--files-from -` | 配对完整、结构一致与已记录 hash |
+| `md-links` | `check` | `<path…>` / `--files-from -` | 链接目标,以及批量改写留下的两种坏形状 |
 
 退出码为 `0` 干净、`1` 违规或失败、`2` 用法错误。
 
@@ -43,7 +42,7 @@ dsh-spec <subject> <operation> --root <project> (--all | <path…> | --files-fro
 
 ### The dispatcher owns selection
 
-`commit --check` 经由移植来的 `change-scope.ts` 读取变更:它解析 base、head 与 merge base,并把已提交、已暂存、未暂存与未跟踪的路径写进一份带版本号的记录;commit message 从不被读取,因为用散文给检查划范围等于猜。随后每道 check 收到自己的范围:**文件选区**的 check 得到落在其键内的变更路径,**整树选区**的 check 得到它的根,而键没有匹配到任何变更路径的 check 被跳过并打印原因。`all --check` 把每道整树 check 的根交给它。每一次分派对每道 check 打印一行,按记录顺序、形状稳定 —— `check <subject>: ok`、`check <subject>: FAIL`,或 `check <subject>: skipped — <reason>` —— 于是报告可被脚本读取,套件也能断言一次改动选中了哪些 check。
+`check --base <ref>` 经由移植来的 `change-scope.ts` 读取变更:它解析 base、head 与 merge base,并把已提交、已暂存、未暂存与未跟踪的路径写进一份带版本号的记录;commit message 从不被读取,因为用散文给检查划范围等于猜。随后每道 check 收到自己的范围:**文件选区**的 check 得到落在其键内的变更路径,**整树选区**的 check 得到它的根,而键没有匹配到任何变更路径的 check 被跳过并打印原因。`check --all` 把每道整树 check 的根交给它。每一次分派对每道 check 打印一行,按记录顺序、形状稳定 —— `check <subject>: ok`、`check <subject>: FAIL`,或 `check <subject>: skipped — <reason>` —— 于是报告可被脚本读取,套件也能断言一次改动选中了哪些 check。
 
 一道 check 属于哪一类由机制决定,而不是由便利决定。`md-links` 按文件判定发起侧,所以文件选区对它点名的文件是精确的,对别人删掉的目标则是盲的;`notes-archived` 对整个归档断言封存;`notes` 的分类需要目录树,而格式只需要正文。这些差别按 check 记录在案,不靠假设。
 
@@ -94,8 +93,8 @@ dsh 的 `run-gates.ts` 不移植:它绑定 pnpm 调用与 dsh 自己的模式清
 
 - 每道 check 在没有给出范围时以 `2` 退出并打印自己的用法,在交来的路径存在于其范围之外时以 `1` 退出;被删除的路径被接受,而不是被拒绝。
 - 每道 check 在本仓库上产出的结论与 `f14e91c` 的引擎相同:全量扫描按 check 逐一比对,且每道 check 都对种子缺陷重跑 —— 坏链接、被改坏的链接、失去同步的配对、格式不合规的笔记、未知类别目录、未封存的归档三件套。
-- `commit --check` 在干净树上跳过每一道 check 并打印原因;一个改动的引擎文件什么 check 都不选中;一个改动的活跃笔记选中 `notes` 与 `md-links`;一个改动的归档文件只选中 `notes-archived`;一个改动的配对文档选中 `translation-pair` 与 `md-links`;一个改动的未配对文档选中 `md-links`;一个被改名的目标会为被改名的路径选中 `md-links`,而它未被触碰的引用者里的断裂不会被报告,这正是被记录的限度。
-- `all --check` 与分片后的文件检查在并发为 1 和默认并发下报告相同结论。
+- `check` 在干净树上跳过每一道 check 并打印原因;一个改动的引擎文件什么 check 都不选中;一个改动的活跃笔记选中 `notes` 与 `md-links`;一个改动的归档文件只选中 `notes-archived`;一个改动的配对文档选中 `translation-pair` 与 `md-links`;一个改动的未配对文档选中 `md-links`;一个被改名的目标会为被改名的路径选中 `md-links`,而它未被触碰的引用者里的断裂不会被报告,这正是被记录的限度。
+- `check --all` 读的整树检查与按路径清单读的文件检查，在并发为 1 与默认并发下报告相同结论。
 - `install --dry-run` 报告计划且不改变任何东西;`upgrade` 刷新一份陈旧的安装副本;`status` 在修订不匹配时以非零退出;`uninstall --dry-run` 点名它将要留下的每一件产物。
 - 本仓库的全新克隆上聚合为绿,且每一次源改动都在同一次改动里刷新安装副本。
 - `node --test 'tests/**/*.test.ts'` 为绿,且其中每个用例都在它所检验的实现之前写下。
@@ -105,7 +104,7 @@ dsh 的 `run-gates.ts` 不移植:它绑定 pnpm 调用与 dsh 自己的模式清
 
 - **对 `md-links` 来说,文件选区比全量扫描窄。** "限定范围的绿灯永远不能替代聚合"这条不变量现在要承担目标被删的情形,拥有该不变量的笔记必须说明这一点。
 - **同一条范围规则有两个所有者。** 调度器选择,check 再施加一次,两者经由同一批模块;某道 check 不再调用它们,或某个范围键被手工解析,就会重新引入本设计要消除的漂移。
-- **未跟踪文件。** 文件选区的 check 读取交给它的东西,所以 `commit --check` 会扫描一个基于索引的聚合扫不到的未跟踪文件 —— 正是推送前检查想要的方向,也是一个值得说明的差别。
+- **未跟踪文件。** 文件选区的 check 读取交给它的东西,所以 `check <path...>` 会读一个基于索引的检查扫不到的未跟踪文件,而 `check --base <ref>` 也会列出它 —— 正是推送前检查想要的方向,也是一个值得说明的差别。
 - **分片会放大进程数。** 真正的 CPU 并行来自调度器的分片,而不是单个进程;一道 check 能获益多少是一次测量,而没有获益的 check 会被如实报告为没有获益。
 - **出处记录无人读取就会腐烂。** 两条笔记里活过了自身删除的 `--no-docs` 旗标就是先例;离线门禁正是让登记表与文件头不彼此漂开的东西。
 - **去掉凭据扫描**移除了三条规则里唯一的机械执行,且此后没有任何检查接替它。

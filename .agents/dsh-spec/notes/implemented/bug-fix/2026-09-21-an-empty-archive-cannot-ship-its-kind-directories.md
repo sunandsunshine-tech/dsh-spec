@@ -6,7 +6,7 @@ English | [中文](2026-09-21-an-empty-archive-cannot-ship-its-kind-directories.
 
 ## Problem
 
-The archive gate required all six `archived/<kind>/` directories unconditionally. In a project that has archived nothing those directories are empty, and Git does not carry an empty directory: the six exist only in the working tree where the initializer created them. So this repository passed `dsh-spec.ts all --check --root .` on the machine that ran the initializer, while the same revision in a fresh `git clone` failed it:
+The archive gate required all six `archived/<kind>/` directories unconditionally. In a project that has archived nothing those directories are empty, and Git does not carry an empty directory: the six exist only in the working tree where the initializer created them. So this repository passed `dsh-spec.ts check --all --root .` on the machine that ran the initializer, while the same revision in a fresh `git clone` failed it:
 
 ```
 verify-archived-agent-notes: archive rules violated:
@@ -41,7 +41,7 @@ dsh carries the same unconditional loop. dsh's archive holds sealed notes, so no
 
 ## Required verification
 
-A scratch clone of the repository, which carries no kind directories, must pass the aggregate: `dsh-spec.ts all --check --root .` reports `7 gate(s), 0 failed`. The same tree with one archived artifact present and five kind directories absent must report those five as missing again, so the rule is proven to arm rather than to have been deleted. The installed copy in this repository stays green under both.
+A scratch clone of the repository, which carries no kind directories, must pass the aggregate: `dsh-spec.ts check --all --root .` reports `7 gate(s), 0 failed`. The same tree with one archived artifact present and five kind directories absent must report those five as missing again, so the rule is proven to arm rather than to have been deleted. The installed copy in this repository stays green under both.
 
 ## Consequences
 

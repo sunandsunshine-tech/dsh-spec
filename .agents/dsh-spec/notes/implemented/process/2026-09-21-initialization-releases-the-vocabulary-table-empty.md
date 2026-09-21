@@ -29,7 +29,7 @@ The rule moved with the table: `docs/AGENTS.md` is the project's own file beside
 - A project that translates has the table's columns and rules from its first commit; a project that does not translate carries the same table with no rows rather than a different layout.
 - The vocabulary rule now lives beside the table it governs, so the project can change it, and the shipped contract no longer states one project's process.
 - What this costs is two more paths init writes, two more templates to keep current with the contract they describe, and a project that deletes `docs/AGENTS.md` losing the rule's only home.
-- Verification: `dsh-spec.ts all --check --root .` reports the two tree checks green over this tree, and `install` into an empty repository creates both paths with no `{gate-dir}` left in either, over which `dsh-spec.ts md-links --check` reports every relative link resolving.
+- Verification: `dsh-spec.ts check --all --root .` reports the two tree checks green over this tree, and `install` into an empty repository creates both paths with no `{gate-dir}` left in either, over which `dsh-spec.ts md-links check` reports every relative link resolving.
 
 ## Related
 

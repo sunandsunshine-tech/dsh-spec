@@ -58,7 +58,7 @@ Status: implemented
 | `notes` | 固定路径 `.agents/dsh-spec/notes`，来自 `notes-root.ts` 拥有的那一个字面量 |
 | `notes-gates` | 固定路径本身：上面的笔记树，以及集合唯一的代码归属 `.agents/skills/dsh-spec-manager/scripts/`——每一道门禁都待在按名称寻址它的分发器旁边 |
 | `i18n-scope` | **自声明**：一个 `.md` 只要有 `.zh.md` 兄弟文件就是一个配对，且它的 `.i18n.yaml` sidecar 必须匹配。文件的存在即是声明，因此配对门禁不读任何键 |
-| `quality-gates` | manifest 记录门禁清单、与引擎目录对账，即 `references/manifest.json`，加上聚合检查 `dsh-spec.ts all --check` |
+| `quality-gates` | manifest 记录门禁清单、与引擎目录对账，即 `references/manifest.json`，加上聚合检查 `dsh-spec.ts check --all` |
 | `skill-refresh` | manager 的 [`manager-lifecycle.md`](../../../../../skills/dsh-spec-manager/references/manager-lifecycle.md)，命令原样写出 |
 | `code-review` | 根 [`AGENTS.md`](../../../../../AGENTS.md) 中的常驻条目 |
 | `_mode`、`_proposals` | 随「有人值守/无人值守」一起删除：初始化永远是先扫描再询问，这两个文件都不再写入 |
@@ -140,7 +140,7 @@ Status: implemented
 
 **一份文档回答「有什么」。** 根 `README.md` 陈述各个表面、每个表面的归属、一次改动如何流动，以及如何刷新已安装集合；根 `AGENTS.md` 承载常驻命令并负责路由；manager 的 README 仍是本集合面向安装者本人的介绍。一个新人读这三份，加上被改动目录的 README。
 
-**检查是一条命令，而且它就是全部检查。** `dsh-spec.ts all --check --root .` 运行记录在 `references/manifest.json` 中的每一道门禁，而这份记录列了八道：笔记分类、格式与归档门禁，配对门禁，`dsh-prose-standard` 分别检查链接目标、链接语法与 frontmatter 形态的三道门禁，以及密钥门禁。调度器在启动时把这份记录与它旁边的 `verify-*.ts` 文件对账，两者不一致就拒绝运行，因此新增一道门禁意味着在同一次改动中既记录它的名称、又加入它的脚本，而记录在案的门禁一旦文件丢失，就会让聚合检查失败，而不是从聚合检查中消失。
+**检查是一条命令，而记录决定它运行什么。** `dsh-spec.ts check --all --root .` 运行以整棵树为断言的那些检查——笔记分类、格式与归档门禁——而 `references/manifest.json` 一共记录六道门禁：这三道、配对门禁，以及检查链接目标与链接语法的两道 Markdown 门禁。调度器在启动时把这份记录与它旁边的 `verify-*.ts` 文件对账，两者不一致就拒绝运行，因此新增一道门禁意味着在同一次改动中既记录它的名称、又加入它的脚本，而记录在案的门禁一旦文件丢失，就会让这次运行失败，而不是从记录中消失。[动作是子命令](2026-09-21-actions-are-subcommands.zh.md)拥有这条命令本身的形状。
 
 **已安装的修订从已安装文件里读取。** `status` 把 `gh` 注入已安装 `SKILL.md` 的 ref 与 manifest 的钉定值比较，而没有该块的 `SKILL.md` 会被点名报告为不是一次安装，而不是被当作一致。没有任何东西拿已安装目录树与一份「复制了什么」的清单比对，因此后续修订删掉的文件对 `status` 不可见——同时也是惰性的，因为门禁是通过已安装分发器与它自己的引擎目录对账的那些记录名称来寻址的。
 

@@ -32,7 +32,7 @@ A gate cannot tell an asked-for row from an inferred one. It reads the table and
 
 - `docs/terminology.md` is one row shorter, and `docs/AGENTS.md` states who decides the rows that remain.
 - The rule's home is project-owned: it lives beside the table instead of inside the shipped pairing contract, which no longer states it.
-- Verification: `dsh-spec.ts all --check --root .` ends `run: 8 gate(s), 0 failed`, and `verify-md-links --root .` and `verify-translation-pairing --root .` both exit zero over the tree this change leaves.
+- Verification: `dsh-spec.ts check --all --root .` ends `check notes: ok` and `check notes-archived: ok`, and `md-links check` and `translation-pair check` exit zero over the files this change leaves.
 
 What the decision cost is a rule that no gate enforces: a row added without the maintainer's word passes every check, because the check is the conversation itself. What it bought is a table whose rows are decisions a maintainer made, with its next editor told so before adding one.
 

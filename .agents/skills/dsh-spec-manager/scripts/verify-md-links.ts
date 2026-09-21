@@ -8,7 +8,7 @@
  * symlinked instruction files are deduped.
  *
  * Run it from the project root:
- *   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts md-links --check <markdown...> --root .
+ *   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts md-links check <markdown...> --root .
  */
 
 import { existsSync, readFileSync } from 'node:fs'

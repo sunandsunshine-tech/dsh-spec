@@ -84,20 +84,20 @@ export function parseTranslationPairingRecord(
  *
  * @param paths - Pair paths written into the record and its recovery command.
  * @param record - Confirmed content hashes.
- * @param entryPoint - The gate's project-relative path, so the recovery command names a file that
- * exists where the collection is installed rather than where it was authored.
+ * @param entryPoint - The project-relative command, verb included, so the recovery command names an
+ * entry point that exists where the collection is installed rather than where it was authored.
  * @returns Canonical YAML text with exactly one trailing newline.
  */
 export function renderTranslationPairingRecord(
   paths: TranslationPairPaths,
   record: TranslationPairingRecord,
-  entryPoint = '{gate-dir}/dsh-spec.ts translation-pair',
+  entryPoint = '{gate-dir}/dsh-spec.ts translation-pair write',
 ): string {
   return [
     '# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each',
     '# side as of the last confirmed-consistent state. Both languages carry equal authority;',
     '# after editing either side, bring the other along and re-record with:',
-    `#   node ${entryPoint} --write ${paths.source}`,
+    `#   node ${entryPoint} ${paths.source}`,
     `${basename(paths.source)}: ${record.sourceHash}`,
     `${basename(paths.zh)}: ${record.zhHash}`,
     '',

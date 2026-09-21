@@ -30,7 +30,7 @@ Git answered "no such path in that tree"; the read came back empty, and the code
 
 ## Required verification
 
-This change requires the aggregate green under `dsh-spec.ts all --check --root .` — including from the **installed** copy under `.agents/skills/`, which is the copy the dispatcher runs.
+This change requires the aggregate green under `dsh-spec.ts check --all --root .` — including from the **installed** copy under `.agents/skills/`, which is the copy the dispatcher runs.
 
 It also requires a probe in a scratch repository, in two parts: a sealed artifact that is then deleted must fail the gate, and — the case that isolates this fix — a committed seal whose manifest entry the working tree no longer records must fail as a missing sealed entry, where before the fix the rewritten manifest reported a clean archive.
 

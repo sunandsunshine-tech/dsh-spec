@@ -438,7 +438,7 @@ function syncManagedFiles(): void {
       console.log(`  would re-record the pair ${path}`)
       continue
     }
-    const recorded = spawnSync(process.execPath, [resolve(root, dispatcher), 'translation-pair', '--write', path, '--root', root], { stdio: 'inherit' })
+    const recorded = spawnSync(process.execPath, [resolve(root, dispatcher), 'translation-pair', 'write', path, '--root', root], { stdio: 'inherit' })
     if ((recorded.status ?? 1) !== 0) {
       console.error(`dsh-spec-sync: the pair ${path} could not be re-recorded — run the pairing gate by hand`)
       process.exit(1)
@@ -603,16 +603,16 @@ console.log('    3. edit .agents/dsh-spec/notes/README.md for this project: poin
 console.log('       and mark or delete the source project\'s history it still describes')
 console.log('    4. fill docs/terminology.md as terms are decided — it ships empty on purpose, and every row')
 console.log('       binds both sides of a pair, so ask the maintainer before adding one (docs/AGENTS.md says why)')
-console.log('    5. run the gates from the collection and wire them into the project check. They are not')
-console.log(`       copied into the project; the layer sits at ${layerDirectory}, and`)
-console.log(`       every gate is addressed by name through ${dispatcher}:`)
+console.log('    5. run the checks from the collection and wire them into the project check. They are not')
+console.log(`       copied into the project; the layer sits at ${layerDirectory}, and every command is`)
+console.log(`       reached through ${dispatcher}:`)
 if (gates.length === 0) {
   console.log('         none — the record names no gate, so reinstall the collection')
 }
-for (const gate of gates) {
-  console.log(`         node ${dispatcher} ${gate} --root .`)
-}
-console.log(`         node ${dispatcher} --all --root .`)
-console.log('           this one is the whole check: it runs every recorded gate, and it refuses to run when')
-console.log('           the record and the `verify-*.ts` scripts beside the dispatcher disagree, so a gate that')
-console.log('           disappears, or a script nobody recorded, is reported instead of being run')
+console.log(`         node ${dispatcher} check --all --root .                    # the note tree and the frozen archive`)
+console.log(`         node ${dispatcher} notes check <note...> --root .          # the notes this change touched`)
+console.log(`         node ${dispatcher} md-links check <markdown...> --root .   # the links in the files named`)
+console.log(`         node ${dispatcher} translation-pair check <pair...> --root .  # the pairs named`)
+console.log(`         node ${dispatcher} check --base <ref> --root .             # the checks a change owes`)
+console.log('           the entry point refuses to run when the recorded gate names and the `verify-*.ts`')
+console.log('           scripts beside it disagree, so a gate whose script is gone is reported, not skipped')

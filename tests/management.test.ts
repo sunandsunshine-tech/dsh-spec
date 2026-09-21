@@ -8,7 +8,7 @@
 
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { runCli } from './helpers/cli.ts'
+import { runCli, runScript } from './helpers/cli.ts'
 import { NOTES, makeFixture, snapshot, writeNote } from './helpers/fixtures.ts'
 
 test('install --dry-run reports a plan and changes nothing', (t) => {
@@ -63,4 +63,27 @@ test('a check subject that is not a command flag still refuses an unknown operat
   const result = runCli(fixture.root, ['notes', '--frobnicate'])
 
   assert.equal(result.status, 2, result.output)
+})
+
+test('sync re-records a written pair through the entry point verb', (t) => {
+  const fixture = makeFixture()
+  t.after(() => fixture.dispose())
+  fixture.write(`${NOTES}/README.md`, '# Old contract\n')
+  fixture.write(`${NOTES}/README.zh.md`, '# 旧约定\n')
+  // The dispatcher a sync reaches is the project's, not this repository's: a stub records the
+  // command it was handed, so this case pins the verb the sync runs without re-recording a pair.
+  const scripts = '.agents/skills/dsh-spec-manager/scripts'
+  fixture.write(`${scripts}/dsh-spec.ts`, [
+    "import { appendFileSync } from 'node:fs'",
+    "appendFileSync(new URL('../../../../calls.txt', import.meta.url), `${process.argv.slice(2).join(' ')}\\n`)",
+    '',
+  ].join('\n'))
+
+  const result = runScript('skills/dsh-spec-manager/scripts/init-agents-md.ts', ['--root', fixture.root, '--sync', '--write'])
+
+  assert.equal(result.status, 0, result.output)
+  assert.deepEqual(
+    fixture.read('calls.txt').trim().split('\n'),
+    [`translation-pair write ${NOTES}/README.md --root ${fixture.root}`],
+  )
 })

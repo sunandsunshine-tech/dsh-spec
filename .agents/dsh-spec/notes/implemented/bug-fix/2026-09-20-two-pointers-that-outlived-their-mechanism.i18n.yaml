@@ -1,6 +1,6 @@
 # Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair --write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-20-two-pointers-that-outlived-their-mechanism.md
-2026-09-20-two-pointers-that-outlived-their-mechanism.md: 62170cc8d9bf051ce5340d1ef0e320cb8a94d334
-2026-09-20-two-pointers-that-outlived-their-mechanism.zh.md: a1697e6f10ab760e4955d02514fdf770b0d20d74
+#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-20-two-pointers-that-outlived-their-mechanism.md
+2026-09-20-two-pointers-that-outlived-their-mechanism.md: 9f67be20d1baa9349f13b10cf33dd9484da3935e
+2026-09-20-two-pointers-that-outlived-their-mechanism.zh.md: a8c8df9191c12fce9d21bb8d77f009023fd13411

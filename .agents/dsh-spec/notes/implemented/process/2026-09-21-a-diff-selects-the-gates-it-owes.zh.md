@@ -12,11 +12,11 @@ Status: implemented
 
 ## 决策
 
-manifest 里每道已记录的门禁现在都要声明一条**范围记录**:它为什么表面作答——`notes`、`notes-archived`、`markdown` 或 `pairs`——以及范围如何交给它,断言关于整棵树时为 `root`,只读交给它的文件时为 `files`。入口经由本来拥有这些路径的模块解析键:`notes-root.ts` 管笔记树,`md-scope.ts` 管散文门禁所读的 Markdown,`i18n-scope.ts` 管配对范围。随后 `dsh-spec.ts commit --check --base <ref>` 把落在各键内的路径交给对应主语,只跑这次改动欠下的检查,并把每一个被跳过的主语连同原因打印出来。
+manifest 里每道已记录的门禁现在都要声明一条**范围记录**:它为什么表面作答——`notes`、`notes-archived`、`markdown` 或 `pairs`——以及范围如何交给它,断言关于整棵树时为 `root`,只读交给它的文件时为 `files`。入口经由本来拥有这些路径的模块解析键:`notes-root.ts` 管笔记树,`md-scope.ts` 管散文门禁所读的 Markdown,`i18n-scope.ts` 管配对范围。随后 `dsh-spec.ts check --base <ref>` 把落在各键内的路径交给对应主语,只跑这次改动欠下的检查,并把每一个被跳过的主语连同原因打印出来。
 
 用键而不是路径字面量,是为了让每条路径只有一个归属者:manifest 说明一道门禁对哪块*面*负责,引擎说明那块面在哪里。集合外的键一律拒绝——无法解析的范围会被读成"这里没有属于该门禁的东西",从而悄悄丢掉检查;已记录的门禁若完全没有条目也拒绝,这样记录不会只写一半。
 
-`--all` 不变,仍是整套检查;`--changed` 是一个子集,并在自己的输出里说明这一点,永远不能替代推送前的聚合检查。
+`check --all` 仍是整树形式,`check --base <ref>` 是在自己的输出里说明这一点的子集;子集永远不能替代推送前的文件扫描。
 
 ## 曾考虑的替代方案
 
@@ -33,7 +33,7 @@ manifest 里每道已记录的门禁现在都要声明一条**范围记录**:它
 - 改引擎只会跑凭据扫描;改一条笔记会跑读笔记树、配对与 Markdown 的那四道检查;每次运行都会打印它跳过了哪些。
 - manifest 现在承载四条事实;新增一道门禁意味着在同一次改动里记录它的名称、范围与脚本。
 - 代价是多了一份要与门禁清单保持同步的记录。只写一半的情况由拒绝覆盖,而封闭的键集合让一个拼写错误无法悄悄缩小运行范围。
-- 验证:`dsh-spec.ts all --check --root .` 报告两道整树检查;`dsh-spec.ts commit --check --base HEAD --root .` 对每个主语打印一行 —— `check <subject>: ok`、`FAIL` 或 `skipped — <reason>` —— 干净树上打印四条跳过。
+- 验证:`dsh-spec.ts check --all --root .` 报告两道整树检查;`dsh-spec.ts check --base HEAD --root .` 对每个主语打印一行 —— `check <subject>: ok`、`FAIL` 或 `skipped — <reason>` —— 干净树上打印四条跳过。
 
 ## 相关
 

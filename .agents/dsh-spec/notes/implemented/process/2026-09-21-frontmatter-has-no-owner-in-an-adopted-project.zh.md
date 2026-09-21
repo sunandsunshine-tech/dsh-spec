@@ -24,10 +24,10 @@ Status: implemented
 
 ## 后果
 
-- 新项目 `install` 之后再跑 `dsh-spec.ts all --check` 不再因为一个没人写过的文件而失败；记录里的集合是七道门禁。
+- 新项目 `install` 之后再跑 `dsh-spec.ts check --all` 不再因为一个没人写过的文件而失败；记录里的集合是六道门禁。
 - 确实使用 frontmatter 的项目没有随包发布的形态检查。那属于评审职责，这样的项目可以自己接一道检查。
 - 本仓库保留自己的覆盖：结构门禁现在校验 `README.md` 与 `README.zh.md` 的 frontmatter，而这正是促使删除那道门禁的事故落地之处。
-- 验证：`dsh-spec.ts all --check --root .` 以 `run: 7 gate(s), 0 failed` 结束；向空仓库执行 `install`、提交后再运行 `dsh-spec.ts all --check --root <该项目>`，同样以 `run: 7 gate(s), 0 failed` 结束；`verify-skill-structure.ts` 在所运行的技能目录上通过。
+- 验证：`dsh-spec.ts check --all --root .` 以 `check notes: ok` 与 `check notes-archived: ok` 结束；向空仓库执行 `install`、提交后再运行 `dsh-spec.ts check --all --root <该项目>`，结果相同；`verify-skill-structure.ts` 在所运行的技能目录上通过。
 
 ## 相关
 

@@ -458,7 +458,7 @@ export function renderTranslationBrief(input: TranslationBriefInput): string {
     out.push('')
     out.push('## Mechanical update — no translation judgment involved')
     out.push('')
-    out.push(`Every change since the last confirmed state is inside fenced code blocks, which are byte-identical across the pair. Run \`node ${gateEntryPoint('gen-translation-brief.ts')} --apply ${input.sourcePath}\` to splice the updated fences into the counterpart (the result is structure-validated before writing), then record per the Finish steps.`)
+    out.push(`Every change since the last confirmed state is inside fenced code blocks, which are byte-identical across the pair. Run \`node ${gateEntryPoint('gen-translation-brief.ts', 'brief')} --apply ${input.sourcePath}\` to splice the updated fences into the counterpart (the result is structure-validated before writing), then record per the Finish steps.`)
   }
   out.push('')
   out.push(`## ${sourceLanguage} diff (last-confirmed → current)`)
@@ -507,8 +507,8 @@ export function renderTranslationBrief(input: TranslationBriefInput): string {
   out.push('## Finish')
   out.push('')
   out.push('1. Apply the smallest counterpart edit that covers the change, then verify the changed spans clause by clause against the source.')
-  out.push(`2. \`node ${gateEntryPoint('verify-translation-pairing.ts')} --write ${input.sourcePath.replace(/\.zh\.md$/, '.md')}\``)
-  out.push(`3. \`node ${gateEntryPoint('verify-translation-pairing.ts')} ${input.sourcePath.replace(/\.zh\.md$/, '.md')}\``)
+  out.push(`2. \`node ${gateEntryPoint('verify-translation-pairing.ts', 'write')} ${input.sourcePath.replace(/\.zh\.md$/, '.md')}\``)
+  out.push(`3. \`node ${gateEntryPoint('verify-translation-pairing.ts', 'check')} ${input.sourcePath.replace(/\.zh\.md$/, '.md')}\``)
   out.push('')
   return out.join('\n')
 }

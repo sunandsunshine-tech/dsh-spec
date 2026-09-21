@@ -234,7 +234,7 @@ if (writeMode) {
   // a git error inside the store rather than a statement about the tree, which reads as a crash.
   const insideRepository = spawnSync('git', ['rev-parse', '--git-dir'], { cwd: root, encoding: 'utf8' }).status === 0
   if (!insideRepository) {
-    console.error(`verify-translation-pairing: ${root} is not inside a git repository; --write stores each side as a Git blob so a recorded pair can be recovered. Run it from the project's working tree.`)
+    console.error(`verify-translation-pairing: ${root} is not inside a git repository; \`translation-pair write\` stores each side as a Git blob so a recorded pair can be recovered. Run it from the project's working tree.`)
     process.exit(1)
   }
   let written = 0
@@ -257,7 +257,7 @@ if (writeMode) {
     const record = renderTranslationPairingRecord(paths, {
       sourceHash: storeGitBlob(root, sourceContent),
       zhHash: storeGitBlob(root, zhContent),
-    }, gateEntryPoint('verify-translation-pairing.ts'))
+    }, gateEntryPoint('verify-translation-pairing.ts', 'write'))
     if (existsSync(join(root, meta)) && readFileSync(join(root, meta), 'utf8') === record) continue
     writeFileSync(join(root, meta), record)
     console.log(`verify-translation-pairing: recorded ${meta}`)
@@ -310,7 +310,7 @@ for (const source of [...pairAnchors].sort()) {
     const current = gitBlobHash(content)
     const recorded = file === source ? record.sourceHash : record.zhHash
     if (recorded !== current) {
-      errors.push(`${file}: out of sync — content no longer matches the pair's last confirmed-consistent state in ${meta} (bring the other side along, then re-record with --write)`)
+      errors.push(`${file}: out of sync — content no longer matches the pair's last confirmed-consistent state in ${meta} (bring the other side along, then re-record with \`translation-pair write\`)`)
       consistent = false
     }
   }

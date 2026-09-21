@@ -26,7 +26,7 @@ Status: implemented
 - 少了八对需要记录的配对,技能目录里只剩下 agent 加载的东西和它的参考材料。
 - 安装副本会在下次安装时失去这些 README:清理步骤会删掉修订不再交付的文件,这正是它被造出来要做的事。
 - 代价是深度:想弄清 `dsh-pre-push-checks` 到底做什么的读者,拿到的是表里的一行,而不是一整页。要深入仍然去入口和它的参考材料,而那一行本来就是这张表的用途。
-- 验证:`dsh-spec.ts all --check --root .` 以 `run: 7 gate(s), 0 failed` 结束;在没有 README 的情况下,`verify-skill-structure.ts` 对八个技能目录全部通过;`dsh-spec.ts upgrade` 会把这二十四个文件从 `.agents/skills/` 中移除。
+- 验证:`dsh-spec.ts check --all --root .` 以 `check notes: ok` 与 `check notes-archived: ok` 结束;在没有 README 的情况下,`verify-skill-structure.ts` 对八个技能目录全部通过;`dsh-spec.ts upgrade` 会把这二十四个文件从 `.agents/skills/` 中移除。
 
 ## 相关
 

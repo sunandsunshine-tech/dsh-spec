@@ -1,6 +1,6 @@
 # Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair --write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-mechanism-text-is-updated-by-overwrite.md
-2026-09-21-the-mechanism-text-is-updated-by-overwrite.md: e9980bf3d465f1499d0016f2e9209a68f1fa9eb0
-2026-09-21-the-mechanism-text-is-updated-by-overwrite.zh.md: cb7b303d7ac32e6514d9ac789c03d3a287b16339
+#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-mechanism-text-is-updated-by-overwrite.md
+2026-09-21-the-mechanism-text-is-updated-by-overwrite.md: 51eb759495d42e5da7843d09a7a53de200463509
+2026-09-21-the-mechanism-text-is-updated-by-overwrite.zh.md: 75c993dbc9a3b3493d9b830616c2891431d8c95a

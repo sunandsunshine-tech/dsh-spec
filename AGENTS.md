@@ -22,7 +22,7 @@ submodules/dsh/    the extraction baseline, pinned to dsh-v0.1.6-alpha.2 — .gi
 docs/              the documents a person reads; no tier, no budget, and no gate
 ```
 
-The Agent Note gates are **not** in `.agents/dsh-spec/`: their code ships in the collection's one code home, `.agents/skills/dsh-spec-manager/scripts/`, and each is reached through the entry point beside them, `dsh-spec.ts`, which resolves a subject against the `gates` record in the manager's `references/manifest.json`, refuses an unknown name, and refuses to run anything at all when that record and the `verify-*.ts` scripts in that same directory disagree. See `.agents/dsh-spec/notes/README.md` and [`2026-09-18-track-the-installed-skill-copy.md`](.agents/dsh-spec/notes/implemented/process/2026-09-18-track-the-installed-skill-copy.md).
+The Agent Note gates are **not** in `.agents/dsh-spec/`: their code ships in the collection's one code home, `.agents/skills/dsh-spec-manager/scripts/`, and each is reached through the entry point beside them, `dsh-spec.ts`, which resolves a gate name against the `gates` record in the manager's `references/manifest.json`, refuses an unknown name, and refuses to run anything at all when that record and the `verify-*.ts` scripts in that same directory disagree. See `.agents/dsh-spec/notes/README.md` and [`2026-09-18-track-the-installed-skill-copy.md`](.agents/dsh-spec/notes/implemented/process/2026-09-18-track-the-installed-skill-copy.md).
 
 ## Commands
 
@@ -36,27 +36,27 @@ node scripts/verify-port-provenance.ts
 node --test 'tests/**/*.test.ts'
   # the functional suite: what each check does with a scope, a seeded defect and a dispatch
 
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts all --check --root .
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts check --all --root .
   # the Agent Note tree and the frozen archive — tree assertions, so they walk their own root
 
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes --check <note...> --root .
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes check <note...> --root .
   # the in-file format of the notes the change touched
 
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair --check <pair...> --root .
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair check <pair...> --root .
   # every named pair is complete, recorded, and structurally identical
 
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts md-links --check <markdown...> --root .
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts md-links check <markdown...> --root .
   # a relative link, image or definition whose target or `#fragment` does not resolve, and the two
   # shapes a bulk rewrite leaves behind
 
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts commit --check --base <ref> --root .
-  # the subjects this change owes, with every skip printed and why — a subset, never a substitute
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts check --base <ref> --root .
+  # the checks this change owes, with every skip printed and why — a subset, never a substitute
   # for the file scans above before a push. A file selection decides the asking side of a link, so
-  # a target deleted under an untouched referrer is caught by `md-links` over the whole corpus, not
-  # by this.
+  # a target deleted under an untouched referrer is caught by `md-links check` over the whole
+  # corpus, not by this.
 ```
 
-Node ≥ 22.19 or ≥ 24 is the only requirement: the engine is TypeScript that Node strips by itself, and the suite runs on `node --test`. There is no build step and no CI: a gate is a name the manifest records, backed by a `verify-*.ts` script in the engine directory, and the entry point reconciles the two before it runs anything, so the recorded set is every check that exists and `all --check` is what makes the tree checks non-optional. `git` is needed for the archive seal, the pairing hashes and the change scope; `gh` only for installing and for reading the revision index.
+Node ≥ 22.19 or ≥ 24 is the only requirement: the engine is TypeScript that Node strips by itself, and the suite runs on `node --test`. There is no build step and no CI: a gate is a name the manifest records, backed by a `verify-*.ts` script in the engine directory, and the entry point reconciles the two before it runs anything, so the recorded set is every check that exists and `check --all` is what makes the tree checks non-optional. `git` is needed for the archive seal, the pairing hashes and the change scope; `gh` only for installing and for reading the revision index.
 
 ## Boundaries
 

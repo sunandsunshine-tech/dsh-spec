@@ -24,10 +24,10 @@ An adopted project has no such file. The notes mechanism uses its own header blo
 
 ## Consequences
 
-- A fresh `init` followed by `dsh-spec.ts all --check` no longer fails on a file nobody wrote; the recorded set is seven gates.
+- A fresh `init` followed by `dsh-spec.ts check --all` no longer fails on a file nobody wrote; the recorded set is six gates.
 - A project that does use frontmatter has no shipped check for its shape. That is review's job, and such a project can wire its own.
 - This repository keeps its own coverage: the structure gate now validates `README.md` and `README.zh.md` frontmatter, which is exactly where the incident that motivated the removed gate had landed.
-- Verification: `dsh-spec.ts all --check --root .` ends `run: 7 gate(s), 0 failed`; a fresh `install` into an empty repository, committed, then `dsh-spec.ts all --check --root <that project>` ends `run: 7 gate(s), 0 failed`; and `verify-skill-structure.ts` passes for the skill directories it is run over.
+- Verification: `dsh-spec.ts check --all --root .` ends `check notes: ok` and `check notes-archived: ok`; a fresh `install` into an empty repository, committed, then `dsh-spec.ts check --all --root <that project>` ends the same way; and `verify-skill-structure.ts` passes for the skill directories it is run over.
 
 ## Related
 

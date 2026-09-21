@@ -1,6 +1,6 @@
 # Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair --write .agents/dsh-spec/notes/implemented/process/2026-09-21-frontmatter-has-no-owner-in-an-adopted-project.md
-2026-09-21-frontmatter-has-no-owner-in-an-adopted-project.md: 4e93b92f4f7417dceaaceab033182bad28788cc0
-2026-09-21-frontmatter-has-no-owner-in-an-adopted-project.zh.md: 44305432398a8fb240cef7f857691bbf09f4b700
+#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-frontmatter-has-no-owner-in-an-adopted-project.md
+2026-09-21-frontmatter-has-no-owner-in-an-adopted-project.md: d3b30dc4cf2002db26cca9fe8dfcb22d133a7108
+2026-09-21-frontmatter-has-no-owner-in-an-adopted-project.zh.md: a9db523ecf9b09a656643566bdfc7af35d017ba3
