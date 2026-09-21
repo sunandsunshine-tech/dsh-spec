@@ -51,7 +51,6 @@ const SUBJECTS = [
   'md-links',
   'commit',
   'all',
-  'brief',
 ] as const
 
 /** A subject that reads the project rather than managing the skill set. */
@@ -325,13 +324,6 @@ async function main(): Promise<void> {
 
   // ------------------------------------------------------------------ management
 
-  if (subject === 'brief') {
-    const forwarded = rest.filter((argument, index, all) => argument !== '--root' && all[index - 1] !== '--root')
-    const [result] = await runJobs([{ subject: 'brief', gate: 'gen-translation-brief', args: forwarded }], 1)
-    process.stdout.write(result?.output ?? '')
-    process.exit(result?.status ?? 1)
-  }
-
   if (subject === 'install' || subject === 'upgrade' || subject === 'uninstall' || subject === 'status') {
     // `--root` and its value belong to the dispatcher, not to the subject's own flags.
     const flags = rest.filter((argument, index, all) => argument !== '--root' && all[index - 1] !== '--root')
@@ -398,6 +390,14 @@ async function main(): Promise<void> {
   }
 
   if (subject === 'translation-pair') {
+    // The briefing is an operation of this subject rather than a subject of its own: it answers the
+    // same question — what does this pair need — with the update a translator works from.
+    if (rest.includes('--brief')) {
+      const forwarded = rest.filter((argument, index, all) => argument !== '--brief' && argument !== '--root' && all[index - 1] !== '--root')
+      const [result] = await runJobs([{ subject: 'translation-pair', gate: 'gen-translation-brief', args: forwarded }], 1)
+      process.stdout.write(result?.output ?? '')
+      process.exit(result?.status ?? 1)
+    }
     const operations = ['--check', '--write', '--list', '--explain', '--cached'].filter(operation => rest.includes(operation))
     if (operations.length !== 1) usage('translation-pair needs exactly one of --check, --write, --list, --explain, --cached')
     if (operations[0] === '--check') {

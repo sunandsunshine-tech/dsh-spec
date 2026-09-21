@@ -26,7 +26,6 @@ const SUBJECTS = [
   'md-links',
   'commit',
   'all',
-  'brief',
 ]
 
 /** An environment with every language variable decided, so a case is independent of the machine. */
@@ -111,6 +110,25 @@ test('every subject answers --help with its operations', (t) => {
 
   const commit = runCli(fixture.root, ['commit', '--help'], { env: locale({ LANG: 'en_US.UTF-8' }) })
   assert.match(commit.output, /--base/)
+
+  // A subject documents the flags that are its own, beside the global ones.
+  const install = runCli(fixture.root, ['install', '--help'], { env: locale({ LANG: 'en_US.UTF-8' }) })
+  assert.match(install.output, /--dry-run/)
+  const upgrade = runCli(fixture.root, ['upgrade', '--help'], { env: locale({ LANG: 'en_US.UTF-8' }) })
+  assert.match(upgrade.output, /--reinstall/)
+  const pair = runCli(fixture.root, ['translation-pair', '--help'], { env: locale({ LANG: 'en_US.UTF-8' }) })
+  for (const flag of ['--brief', '--apply', '--cached', '--list', '--write']) {
+    assert.match(pair.output, new RegExp(flag), `translation-pair --help does not document ${flag}:\n${pair.output}`)
+  }
+})
+
+test('the briefing is an operation of translation-pair, not a subject', (t) => {
+  const fixture = makeFixture()
+  t.after(() => fixture.dispose())
+
+  const result = runCli(fixture.root, ['brief', '--help'], { env: locale({ LANG: 'en_US.UTF-8' }) })
+
+  assert.equal(result.status, 2, result.output)
 })
 
 test('the reference is the English help, rendered', () => {

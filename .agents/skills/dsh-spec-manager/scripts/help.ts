@@ -47,7 +47,7 @@ const SUBJECT_HELP: readonly SubjectHelp[] = [
       example: 'install --root . --dry-run',
     },
     zh: {
-      summary: '把集合安装到项目',
+      summary: '把技能集合安装到项目',
       detail: '默认执行。`--dry-run` 只打印两半计划——要部署哪些技能、要建哪些文件——不写任何东西。',
       comment: '先看采用这个项目会做什么',
       example: 'install --root . --dry-run',
@@ -149,14 +149,14 @@ const SUBJECT_HELP: readonly SubjectHelp[] = [
     operation: '--check | --list | --explain <path> | --write',
     scope: '<pair...> | --files-from -',
     en: {
-      summary: 'Check a translated pair and its record',
-      detail: 'A pair is declared by a `.zh.md` counterpart, an `.i18n.yaml` record, or a language switcher in the document itself. `--list` reports every pair, and `--write` records the ones you confirmed.',
+      summary: 'Check a translated pair, or brief an update',
+      detail: 'A pair is declared by a `.zh.md` counterpart, an `.i18n.yaml` record, or a language switcher in the document itself. `--list` reports every pair, `--write` records the ones you confirmed, and `--brief` prints what a translator needs to bring one side along.',
       comment: 'Check one pair, then record it',
       example: 'translation-pair --check docs/guide.md --root .',
     },
     zh: {
-      summary: '检查一对翻译文档及其记录',
-      detail: '配对由对手文件 `.zh.md`、记录 `.i18n.yaml`,或文档里的语言切换器声明。`--list` 报告所有配对,`--write` 记录你确认过的那几对。',
+      summary: '检查一对翻译文档,或生成更新简报',
+      detail: '配对由对手文件 `.zh.md`、记录 `.i18n.yaml`,或文档里的语言切换器声明。`--list` 报告所有配对,`--write` 记录你确认过的那几对,`--brief` 打印把一侧补上来所需的简报。',
       comment: '检查一对,然后记下它',
       example: 'translation-pair --check docs/guide.md --root .',
     },
@@ -215,24 +215,6 @@ const SUBJECT_HELP: readonly SubjectHelp[] = [
       example: 'all --check --root .',
     },
   },
-  {
-    subject: 'brief',
-    group: 'checks',
-    operation: '[--apply]',
-    scope: '<pair...>',
-    en: {
-      summary: 'Print the update briefing for a pair',
-      detail: 'The briefing maps what changed at the narrowest safe granularity. `--apply` splices a change that lives only inside code fences into the counterpart.',
-      comment: 'Brief a translator for one out-of-sync pair',
-      example: 'brief docs/guide.md --root .',
-    },
-    zh: {
-      summary: '打印一对文档的更新简报',
-      detail: '简报以能安全对齐的最窄粒度映射改动。`--apply` 把只发生在围栏代码块里的改动拼进对手文件。',
-      comment: '为失去同步的一对文档生成简报',
-      example: 'brief docs/guide.md --root .',
-    },
-  },
 ]
 
 /** The flag list, which is the same for every subject, in the order a reader scans it. */
@@ -248,6 +230,60 @@ const FLAGS: Record<HelpLanguage, ReadonlyArray<readonly [string, string]>> = {
     ['--jobs <n>', '同时运行的检查数(默认 min(availableParallelism(), 8);DSH_SPEC_JOBS 优先)'],
     ['--markdown', '以参考页的形式打印本帮助'],
     ['--root <path>', '要读写的项目(默认当前目录)'],
+  ],
+}
+
+/**
+ * The flags each subject adds to the global ones.
+ *
+ * A subject's help documents what a reader can pass to *it*, which is how `kubectl get --help` and
+ * `mise install --help` read: the operations, the scope forms and the flags that only this subject
+ * has, then the global ones. The reference lists a subject's own flags and points at the global
+ * table rather than repeating it ten times.
+ */
+const SUBJECT_FLAGS: Record<string, ReadonlyArray<readonly [string, string, string]>> = {
+  install: [
+    ['--dry-run', 'Print the plan and write nothing', '只打印计划,不写任何东西'],
+  ],
+  upgrade: [
+    ['--dry-run', 'Print the plan and write nothing', '只打印计划,不写任何东西'],
+    ['--reinstall', 'Copy the skills again even when their content matches', '内容已一致时也重新拷贝技能'],
+  ],
+  uninstall: [
+    ['--dry-run', 'Print the plan and write nothing', '只打印计划,不写任何东西'],
+  ],
+  status: [],
+  notes: [
+    ['--check', 'Check the tree and the notes handed in', '检查整棵树,以及交给它的那些笔记'],
+    ['--all', 'Read every active note', '读取所有活跃笔记'],
+    ['--files-from <file|->', 'Read the path list from a file, or from stdin', '从文件或 stdin 读取路径清单'],
+  ],
+  'notes-archived': [
+    ['--check', 'Verify the archive against its committed seal', '按已提交的封存校验归档'],
+    ['--write', 'Append the hashes of newly archived notes', '追加新归档笔记的 hash'],
+    ['--all', 'Read the whole archive', '读取整份归档'],
+  ],
+  'translation-pair': [
+    ['--check', 'Check the pairs handed in', '检查交给它的那些配对'],
+    ['--list', 'Report every pair and its state; never fails', '报告所有配对及其状态;从不失败'],
+    ['--explain <path>', 'Say why a path is or is not a pair', '说明一条路径为何算或不算配对'],
+    ['--write', 'Record the pairs you confirmed', '记录你确认过的那几对'],
+    ['--brief', 'Print the update briefing for a pair', '打印一对文档的更新简报'],
+    ['--apply', 'With --brief: splice a code-fence-only change', '配合 --brief:拼进仅涉及围栏代码块的改动'],
+    ['--cached', 'Check the staged bytes instead of the working tree', '检查已暂存的字节,而不是工作区'],
+    ['--files-from <file|->', 'Read the path list from a file, or from stdin', '从文件或 stdin 读取路径清单'],
+  ],
+  'md-links': [
+    ['--check', 'Check the files handed in', '检查交给它的那些文件'],
+    ['--files-from <file|->', 'Read the path list from a file, or from stdin', '从文件或 stdin 读取路径清单'],
+  ],
+  commit: [
+    ['--check', 'Dispatch the checks this change owes', '分派这次改动欠下的检查'],
+    ['--base <ref>', 'Measure the change against this ref (default HEAD)', '相对这个 ref 度量改动(默认 HEAD)'],
+    ['--head <ref>', 'The commit the change is measured to (default HEAD)', '改动的头部提交(默认 HEAD)'],
+  ],
+  all: [
+    ['--check', 'Run every tree check', '运行所有整树检查'],
   ],
 }
 
@@ -274,7 +310,7 @@ const LABELS = {
     oneSubject: 'One subject in detail',
   },
   zh: {
-    purpose: 'dsh-spec 把集合里的检查跑在项目上,一次一个主语。',
+    purpose: 'dsh-spec 把技能集合里的检查跑在项目上,一次一个主语。',
     usage: '用法',
     metavars: '<主语> <操作> [旗标]',
     period: '。',
@@ -290,7 +326,7 @@ const LABELS = {
     languageBody: '帮助说英文或中文:`--help zh`,或 `DSH_SPEC_LANG`、`LC_ALL`、`LC_MESSAGES`、`LANG` 中语言部分以 `zh` 开头的那个。',
     subjectHint: '用 "<invocation> <主语> --help" 看某个主语的用法与示例。',
     backHint: '用 "<invocation> --help" 看全部主语。',
-    engine: '`<engine>` 是集合的引擎目录 —— 在项目里是 `.agents/skills/dsh-spec-manager/scripts`,在集合自己的源码树里是 `skills/dsh-spec-manager/scripts`。',
+    engine: '`<engine>` 是技能集合的引擎目录 —— 在项目里是 `.agents/skills/dsh-spec-manager/scripts`,在技能集合自己的源码树里是 `skills/dsh-spec-manager/scripts`。',
     oneSubject: '逐个主语',
   },
 } as const
@@ -333,10 +369,17 @@ function groupOf(group: SubjectHelp['group'], language: HelpLanguage): string[] 
   return subjects.map(entry => `  ${entry.subject.padEnd(width)}  ${entry[language].summary}`)
 }
 
-/** The flag block, aligned like every other list here. */
-function flagLines(language: HelpLanguage): string[] {
-  const width = Math.max(...FLAGS[language].map(([flag]) => flag.length))
-  return FLAGS[language].map(([flag, meaning]) => `  ${flag.padEnd(width)}  ${meaning}`)
+/** The long name of a flag, which is what the list is sorted by. */
+function longName(flag: string): string {
+  return flag.split(', ').find(part => part.startsWith('--')) ?? flag
+}
+
+/** The flag block, aligned like every other list here; a subject's own flags come first by name. */
+function flagLines(language: HelpLanguage, subject?: string): string[] {
+  const own = (subject === undefined ? [] : SUBJECT_FLAGS[subject] ?? []).map(([flag, en, zh]) => [flag, language === 'en' ? en : zh] as const)
+  const merged = [...own, ...FLAGS[language]].sort((a, b) => longName(a[0]).localeCompare(longName(b[0])))
+  const width = Math.max(...merged.map(([flag]) => flag.length))
+  return merged.map(([flag, meaning]) => `  ${flag.padEnd(width)}  ${meaning}`)
 }
 
 /**
@@ -393,7 +436,7 @@ export function subjectHelp(subject: string, language: HelpLanguage, invocation:
     `  node ${invocation} ${entry[language].example}`,
     '',
     `${labels.flags}:`,
-    ...flagLines(language),
+    ...flagLines(language, entry.subject),
     '',
     labels.backHint.replace('<invocation>', `node ${invocation}`),
     '',
@@ -457,6 +500,16 @@ export function markdownHelp(language: HelpLanguage, invocation: string): string
       `node ${invocation} ${entry[language].example}`,
       '```',
       '',
+      ...((SUBJECT_FLAGS[entry.subject] ?? []).length === 0
+        ? []
+        : [
+            '| Flag | Meaning |',
+            '|---|---|',
+            ...(SUBJECT_FLAGS[entry.subject] ?? []).map(([flag, en, zh]) => `| \`${flag}\` | ${language === 'en' ? en : zh} |`),
+            '',
+            'The [global flags](#flags) apply to every subject.',
+            '',
+          ]),
     ]),
   ].join('\n')}`
 }

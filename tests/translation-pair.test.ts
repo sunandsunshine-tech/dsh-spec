@@ -104,6 +104,21 @@ test('--list reports without failing', (t) => {
   assert.equal(result.status, 0, result.output)
 })
 
+test('--brief prints the update briefing instead of checking', (t) => {
+  const fixture = makeFixture()
+  t.after(() => fixture.dispose())
+  fixture.write('docs/terminology.md', '# Vocabulary\n\n| English | 中文 | 首次出现 | 不要译作 | 备注 |\n|---|---|---|---|---|\n')
+  writePair(fixture, 'docs/guide.md')
+  fixture.commit('add the pair')
+  runCli(fixture.root, ['translation-pair', '--write', 'docs/guide.md'])
+  fixture.write('docs/guide.md', '# Guide\n\nEnglish | [中文](guide.zh.md)\n\nA new sentence.\n')
+
+  const result = runCli(fixture.root, ['translation-pair', '--brief', 'docs/guide.md'])
+
+  assert.equal(result.status, 0, result.output)
+  assert.match(result.output, /Translation update briefing/)
+})
+
 test('checking refuses --all', (t) => {
   const fixture = makeFixture()
   t.after(() => fixture.dispose())

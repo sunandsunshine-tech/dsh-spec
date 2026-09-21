@@ -1,7 +1,7 @@
 /**
  * Ported from dsh scripts/gen-translation-brief.ts @ ddefc45fbc7f8e46dd73185e68295696d1297887 (submodules/dsh). Relation: adapted.
  * Print the minimal-update briefing for out-of-sync translation pairs:
- * `node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts brief [--apply] [pair paths...]`. With no
+ * `node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair --brief [--apply] [pair paths...]`. With no
  * arguments it discovers every out-of-sync pair; with arguments (any file
  * of a pair) it briefs exactly those pairs and fails loud on in-sync,
  * incomplete, or out-of-scope requests. Each briefing maps the change at

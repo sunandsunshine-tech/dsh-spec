@@ -21,15 +21,14 @@ node <engine>/dsh-spec.ts <subject> <operation> [flags]
 
 ## Check Commands
 
-| Subject            | Operations                                      | Scope                                | What it does                            |
-|--------------------|-------------------------------------------------|--------------------------------------|-----------------------------------------|
-| `notes`            | `--check`                                       | `--all | <note...> | --files-from -` | Check the Agent Note tree and its notes |
-| `notes-archived`   | `--check | --write`                             | `--all`                              | Check the frozen archive and its seal   |
-| `translation-pair` | `--check | --list | --explain <path> | --write` | `<pair...> | --files-from -`         | Check a translated pair and its record  |
-| `md-links`         | `--check`                                       | `<markdown...> | --files-from -`     | Check links in Markdown                 |
-| `commit`           | `--check`                                       | `--base <ref> | --head <ref>`        | Check what a change owes                |
-| `all`              | `--check`                                       | —                                    | Check everything asserted over a tree   |
-| `brief`            | `[--apply]`                                     | `<pair...>`                          | Print the update briefing for a pair    |
+| Subject            | Operations                                      | Scope                                | What it does                                |
+|--------------------|-------------------------------------------------|--------------------------------------|---------------------------------------------|
+| `notes`            | `--check`                                       | `--all | <note...> | --files-from -` | Check the Agent Note tree and its notes     |
+| `notes-archived`   | `--check | --write`                             | `--all`                              | Check the frozen archive and its seal       |
+| `translation-pair` | `--check | --list | --explain <path> | --write` | `<pair...> | --files-from -`         | Check a translated pair, or brief an update |
+| `md-links`         | `--check`                                       | `<markdown...> | --files-from -`     | Check links in Markdown                     |
+| `commit`           | `--check`                                       | `--base <ref> | --head <ref>`        | Check what a change owes                    |
+| `all`              | `--check`                                       | —                                    | Check everything asserted over a tree       |
 
 ## Flags
 
@@ -61,6 +60,12 @@ Acts by default. `--dry-run` prints both plans — the skills it would deploy an
 node <engine>/dsh-spec.ts install --root . --dry-run
 ```
 
+| Flag | Meaning |
+|---|---|
+| `--dry-run` | Print the plan and write nothing |
+
+The [global flags](#flags) apply to every subject.
+
 ### upgrade
 
 Update the installed skills and the mechanism text.
@@ -72,6 +77,13 @@ Creates nothing: a file the project deleted on purpose stays deleted. `--reinsta
 node <engine>/dsh-spec.ts upgrade --root .
 ```
 
+| Flag | Meaning |
+|---|---|
+| `--dry-run` | Print the plan and write nothing |
+| `--reinstall` | Copy the skills again even when their content matches |
+
+The [global flags](#flags) apply to every subject.
+
 ### uninstall
 
 Remove the installed skills.
@@ -82,6 +94,12 @@ Lists what it leaves behind — the marked block in `AGENTS.md`, the notes tree,
 # See what removal would leave in place
 node <engine>/dsh-spec.ts uninstall --dry-run --root .
 ```
+
+| Flag | Meaning |
+|---|---|
+| `--dry-run` | Print the plan and write nothing |
+
+The [global flags](#flags) apply to every subject.
 
 ### status
 
@@ -105,6 +123,14 @@ Classification asserts over the whole tree, so it takes `--all`; the format chec
 node <engine>/dsh-spec.ts notes --check --all --root .
 ```
 
+| Flag | Meaning |
+|---|---|
+| `--check` | Check the tree and the notes handed in |
+| `--all` | Read every active note |
+| `--files-from <file|->` | Read the path list from a file, or from stdin |
+
+The [global flags](#flags) apply to every subject.
+
 ### notes-archived
 
 Check the frozen archive and its seal.
@@ -116,16 +142,37 @@ The seal is compared against a committed baseline, and `--write` appends the has
 node <engine>/dsh-spec.ts notes-archived --check --all --root .
 ```
 
+| Flag | Meaning |
+|---|---|
+| `--check` | Verify the archive against its committed seal |
+| `--write` | Append the hashes of newly archived notes |
+| `--all` | Read the whole archive |
+
+The [global flags](#flags) apply to every subject.
+
 ### translation-pair
 
-Check a translated pair and its record.
+Check a translated pair, or brief an update.
 
-A pair is declared by a `.zh.md` counterpart, an `.i18n.yaml` record, or a language switcher in the document itself. `--list` reports every pair, and `--write` records the ones you confirmed.
+A pair is declared by a `.zh.md` counterpart, an `.i18n.yaml` record, or a language switcher in the document itself. `--list` reports every pair, `--write` records the ones you confirmed, and `--brief` prints what a translator needs to bring one side along.
 
 ```sh
 # Check one pair, then record it
 node <engine>/dsh-spec.ts translation-pair --check docs/guide.md --root .
 ```
+
+| Flag | Meaning |
+|---|---|
+| `--check` | Check the pairs handed in |
+| `--list` | Report every pair and its state; never fails |
+| `--explain <path>` | Say why a path is or is not a pair |
+| `--write` | Record the pairs you confirmed |
+| `--brief` | Print the update briefing for a pair |
+| `--apply` | With --brief: splice a code-fence-only change |
+| `--cached` | Check the staged bytes instead of the working tree |
+| `--files-from <file|->` | Read the path list from a file, or from stdin |
+
+The [global flags](#flags) apply to every subject.
 
 ### md-links
 
@@ -138,6 +185,13 @@ No `--all`: the asking side of a link is decided per file, so a target deleted u
 node <engine>/dsh-spec.ts md-links --check docs/guide.md --root .
 ```
 
+| Flag | Meaning |
+|---|---|
+| `--check` | Check the files handed in |
+| `--files-from <file|->` | Read the path list from a file, or from stdin |
+
+The [global flags](#flags) apply to every subject.
+
 ### commit
 
 Check what a change owes.
@@ -148,6 +202,14 @@ Hands each subject the paths its record owns and prints one line per subject, in
 # Check a branch against its base
 node <engine>/dsh-spec.ts commit --check --base main --root .
 ```
+
+| Flag | Meaning |
+|---|---|
+| `--check` | Dispatch the checks this change owes |
+| `--base <ref>` | Measure the change against this ref (default HEAD) |
+| `--head <ref>` | The commit the change is measured to (default HEAD) |
+
+The [global flags](#flags) apply to every subject.
 
 ### all
 
@@ -160,13 +222,8 @@ The file-selection checks are not part of it: they take a path list, and `md-lin
 node <engine>/dsh-spec.ts all --check --root .
 ```
 
-### brief
+| Flag | Meaning |
+|---|---|
+| `--check` | Run every tree check |
 
-Print the update briefing for a pair.
-
-The briefing maps what changed at the narrowest safe granularity. `--apply` splices a change that lives only inside code fences into the counterpart.
-
-```sh
-# Brief a translator for one out-of-sync pair
-node <engine>/dsh-spec.ts brief docs/guide.md --root .
-```
+The [global flags](#flags) apply to every subject.

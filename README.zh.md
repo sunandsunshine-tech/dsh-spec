@@ -79,7 +79,7 @@ node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts install --root .
 
 ## 刷新安装集
 
-集合钉在 manifest 的 `revision` 上,而安装读的是那个修订、不是工作树,所以先把源码推上去:
+技能集合钉在 manifest 的 `revision` 上,而安装读的是那个修订、不是工作树,所以先把源码推上去:
 
 ```sh
 node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts upgrade --root .
@@ -90,5 +90,5 @@ node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts upgrade --root .
 ## 接下来读
 
 - [`AGENTS.md`](AGENTS.md) —— 每次会话都要遵守的规则,以及本仓库真正跑的命令。
-- [`skills/dsh-spec-manager/SKILL.md`](skills/dsh-spec-manager/SKILL.md) —— 集合的入口,另外七个技能就在它旁边。
+- [`skills/dsh-spec-manager/SKILL.md`](skills/dsh-spec-manager/SKILL.md) —— 技能集合的入口,另外七个技能就在它旁边。
 - [`.agents/dsh-spec/notes/README.md`](.agents/dsh-spec/notes/README.zh.md) —— 决策记录的约定,也是这套做法对自己的说明。

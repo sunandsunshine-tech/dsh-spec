@@ -3,4 +3,4 @@
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair --write README.md
 README.md: e607db340b7096deb62db1d82b45a6618fcd4b2f
-README.zh.md: d2cf82d060e53fe4330812d51cb704d4638b9708
+README.zh.md: 8dc4f6a1c646d71717013399795dc47c509f7b7c

@@ -356,5 +356,5 @@ const SUBJECT_OF: Record<string, string> = {
   'verify-archived-agent-notes.ts': 'notes-archived',
   'verify-md-links.ts': 'md-links',
   'verify-md-link-syntax.ts': 'md-links',
-  'gen-translation-brief.ts': 'brief',
+  'gen-translation-brief.ts': 'translation-pair --brief',
 }
