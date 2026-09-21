@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-20-terminology-rows-are-the-maintainers-decision.md
+2026-09-20-terminology-rows-are-the-maintainers-decision.md: ed81cdd3a637feffb49242da3fb55275ec13a7b0
+2026-09-20-terminology-rows-are-the-maintainers-decision.zh.md: c4805b39bea724e194e682f82b3716b14527dfc5

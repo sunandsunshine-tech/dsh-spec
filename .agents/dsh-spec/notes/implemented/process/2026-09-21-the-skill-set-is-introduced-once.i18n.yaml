@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-skill-set-is-introduced-once.md
+2026-09-21-the-skill-set-is-introduced-once.md: 07fc7e1b4d0dadcd2ecc379e5ecaaec1f67471d7
+2026-09-21-the-skill-set-is-introduced-once.zh.md: 30d2b294faa3d9d44658a4410dd84cc2aba16f23

@@ -1,0 +1,60 @@
+{
+  "repo": "sunandsunshine-tech/dsh-spec",
+  "revision": "main",
+  "skills": [
+    "dsh-spec-manager",
+    "dsh-archive-agent-notes",
+    "dsh-translate-docs",
+    "dsh-prose-standard",
+    "dsh-trim-cot-leakage",
+    "dsh-code-review",
+    "dsh-pre-push-checks",
+    "dsh-find-simplifications"
+  ],
+  "gates": [
+    "verify-agent-note-classification",
+    "verify-agent-note-format",
+    "verify-archived-agent-notes",
+    "verify-translation-pairing",
+    "verify-md-links",
+    "verify-md-link-syntax"
+  ],
+  "scopes": {
+    "verify-agent-note-classification": {
+      "keys": [
+        "notes"
+      ],
+      "selection": "root"
+    },
+    "verify-agent-note-format": {
+      "keys": [
+        "notes"
+      ],
+      "selection": "files"
+    },
+    "verify-archived-agent-notes": {
+      "keys": [
+        "notes-archived"
+      ],
+      "selection": "root"
+    },
+    "verify-translation-pairing": {
+      "keys": [
+        "pairs"
+      ],
+      "selection": "files"
+    },
+    "verify-md-links": {
+      "keys": [
+        "markdown"
+      ],
+      "selection": "files"
+    },
+    "verify-md-link-syntax": {
+      "keys": [
+        "markdown"
+      ],
+      "selection": "files"
+    }
+  }
+}
