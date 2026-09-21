@@ -17,7 +17,7 @@
 
 import { spawnSync } from 'node:child_process'
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
-import { basename, dirname, join, relative, resolve, sep } from 'node:path'
+import { dirname, join, relative, resolve, sep } from 'node:path'
 import { readGateRecord } from './manifest.ts'
 
 /**
@@ -191,17 +191,13 @@ if (!reading.ok) {
 const gates = reading.names
 
 /**
- * Where the collection is installed for this project, and the dispatcher inside it.
+ * The skill directory this script runs from, the layer it carries, and the dispatcher.
  *
- * The managed text names the *installed* engine directory, not the directory this script happens to
- * run from: the same text is written into every project, a project reads it after the collection is
- * installed, and this repository keeps both an authored tree and an installed copy — deriving the
- * path from the running copy wrote `skills/dsh-spec-manager/scripts` into a project whose commands
- * then resolved nowhere. The skill's own name is the one thing taken from the running copy, because
- * the name is the same in both trees.
+ * The gates are referenced where they ship, never copied into the project, and a documented command
+ * resolves a gate name through the dispatcher rather than spelling a gate's path. Both are derived
+ * from where this script runs, because only the initializer knows where the collection landed.
  */
-const skillsDirectory = flagValue('--dir') ?? join('.agents', 'skills')
-const skillDirectory = present(`${skillsDirectory}/${basename(resolve(import.meta.dirname, '..'))}`)
+const skillDirectory = present(relative(root, resolve(import.meta.dirname, '..')))
 const layerDirectory = `${skillDirectory}/scripts`
 const dispatcher = `${layerDirectory}/run.ts`
 
@@ -370,8 +366,6 @@ function mergeManaged(existing: string | undefined, rendered: string, merge: Mer
 function syncManagedFiles(): void {
   const updated: string[] = []
   const created: string[] = []
-  /** Managed documents whose counterpart exists, so their pair has to be re-recorded. */
-  const pairs: string[] = []
   let unchanged = 0
   for (const file of managedFiles(notesDir, docsDir)) {
     const absolute = resolve(root, file.path)
@@ -382,20 +376,9 @@ function syncManagedFiles(): void {
     }
     const rendered = substitute(readFileSync(template, 'utf8'))
     const existing = existsSync(absolute) ? readFileSync(absolute, 'utf8') : undefined
-    let merged = file.merge === 'section' && existing === undefined
+    const merged = file.merge === 'section' && existing === undefined
       ? `${rendered.trimEnd()}\n\n${notesSection(notesDir).trimEnd()}\n`
       : mergeManaged(existing, rendered, file.merge)
-    // A managed document a project translated has two sides. The English side carries its half of
-    // the switcher the moment the counterpart exists, so the text this loop compares is the merged
-    // text *with* that switcher — computing it here is what keeps a no-op sync from reporting a
-    // change it does not make, and keeps the file from passing through a switcher-less state.
-    const counterpart = file.path.endsWith('.md') && file.counterpartTemplate !== undefined
-      ? `${file.path.slice(0, -'.md'.length)}.zh.md`
-      : undefined
-    if (counterpart !== undefined && existsSync(resolve(root, counterpart))) {
-      merged = withSwitcher(merged, counterpart.split('/').pop() ?? counterpart)
-      pairs.push(file.path)
-    }
     if (existing === merged) {
       unchanged += 1
       continue
@@ -407,23 +390,41 @@ function syncManagedFiles(): void {
       writeFileSync(absolute, merged)
     }
   }
-  // The counterpart side of every pair the loop above found: replaced from its shipped template
-  // when it differs, and the pair re-recorded afterwards. Where the collection ships no counterpart
-  // template, the pair is named so a person can bring that side along instead.
+  // A managed document a project translated has two sides, and replacing one of them would leave
+  // the pair out of sync. Where the collection ships the counterpart's template, both sides are
+  // replaced and the pair is re-recorded — the mechanical act the archive flow also performs, and
+  // sound because both sides are the shipped templates. Where it ships none, the pair is named so a
+  // person can bring the counterpart along.
+  const pairs: string[] = []
   for (const file of managedFiles(notesDir, docsDir)) {
-    if (!file.path.endsWith('.md') || file.counterpartTemplate === undefined) continue
-    const counterpart = `${file.path.slice(0, -'.md'.length)}.zh.md`
-    if (!existsSync(resolve(root, counterpart))) continue
+    if (!file.path.endsWith('.md')) continue
+    const counterpart = `${file.path.slice(0, -3)}.zh.md`
+    const absolute = resolve(root, counterpart)
+    if (!existsSync(absolute)) continue
+    if (file.counterpartTemplate === undefined) {
+      console.log(`  ${counterpart}: its English side is managed and it has no shipped template — update it and record the pair`)
+      continue
+    }
     const template = findTemplate(file.counterpartTemplate)
     if (template === undefined) {
       console.error(`dsh-spec-init: template ${file.counterpartTemplate} not found beside this skill — restore it and re-run.`)
       process.exit(1)
     }
     const rendered = substitute(readFileSync(template, 'utf8'))
-    const existing = readFileSync(resolve(root, counterpart), 'utf8')
-    if (existing === rendered) continue
-    updated.push(counterpart)
-    if (write) writeFileSync(resolve(root, counterpart), rendered)
+    const existing = readFileSync(absolute, 'utf8')
+    // The English side gains its half of the switcher the moment the pair exists.
+    const english = resolve(root, file.path)
+    const englishText = readFileSync(english, 'utf8')
+    const linked = withSwitcher(englishText, counterpart.split('/').pop() ?? counterpart)
+    if (linked !== englishText) {
+      updated.push(file.path)
+      if (write) writeFileSync(english, linked)
+    }
+    if (existing !== rendered) {
+      updated.push(counterpart)
+      if (write) writeFileSync(absolute, rendered)
+    }
+    pairs.push(file.path)
   }
 
   console.log(`dsh-spec-sync: project root ${root}`)
@@ -432,8 +433,6 @@ function syncManagedFiles(): void {
   for (const path of created) console.log(`  ${write ? 'created' : 'would create'} ${path}`)
   console.log(`  ${unchanged} managed file(s) already match the installed revision`)
   for (const path of pairs) {
-    const counterpart = `${path.slice(0, -'.md'.length)}.zh.md`
-    if (!updated.includes(path) && !updated.includes(counterpart)) continue
     if (!write) {
       console.log(`  would re-record the pair ${path}`)
       continue

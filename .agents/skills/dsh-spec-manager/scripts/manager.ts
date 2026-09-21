@@ -406,8 +406,8 @@ async function refresh(root: string, repo: string, directory: string, manifest: 
   // Adoption creates the project files that are missing and never overwrites one it did not
   // create; a refresh only brings the managed text up to this revision, so a file a project
   // deliberately deleted stays deleted.
-  if (create) run(process.execPath, initializerArgs(root, ['--write']), dryRun)
-  run(process.execPath, initializerArgs(root, ['--sync', '--write']), dryRun)
+  if (create) run(process.execPath, [initializerPath, '--root', root, '--write'], dryRun)
+  run(process.execPath, [initializerPath, '--root', root, '--sync', '--write'], dryRun)
 }
 
 /** Adopt the collection: deploy the pinned set, create the missing project files, sync the text. */
@@ -527,17 +527,6 @@ function uninstall(root: string, manifest: Manifest, dryRun: boolean): void {
   }
 }
 
-/**
- * The initializer's arguments, carrying a `.agents/skills` override when the caller gave one.
- *
- * The initializer writes the installed engine directory into the managed text, so an install at a
- * non-default directory has to tell it where the skills actually went.
- */
-function initializerArgs(root: string, extra: readonly string[]): string[] {
-  const directory = flagValue('--dir')
-  return [initializerPath, '--root', root, ...extra, ...(directory === undefined ? [] : ['--dir', directory])]
-}
-
 /** The dispatch width for installer calls; the environment may override it. */
 function jobWidth(): number {
   const requested = flagValue('--jobs') ?? process.env.DSH_SPEC_JOBS
@@ -558,9 +547,13 @@ function manage(): void {
     void upgradeProject(root, { dryRun, reinstall: hasFlag('--reinstall'), jobs: jobWidth() })
   } else if (command === 'init') {
     if (!existsSync(initializerPath)) fail(`the initializer is missing at ${initializerPath}`)
-    run(process.execPath, initializerArgs(root, hasFlag('--write') ? ['--write'] : []), dryRun)
+    const args = [initializerPath, '--root', root]
+    if (hasFlag('--write')) args.push('--write')
+    run(process.execPath, args, dryRun)
   } else if (command === 'sync') {
-    run(process.execPath, initializerArgs(root, hasFlag('--write') ? ['--sync', '--write'] : ['--sync']), dryRun)
+    const args = [initializerPath, '--root', root, '--sync']
+    if (hasFlag('--write')) args.push('--write')
+    run(process.execPath, args, dryRun)
   } else if (command === 'status') {
     statusProject(root)
   } else if (command === 'uninstall') {
