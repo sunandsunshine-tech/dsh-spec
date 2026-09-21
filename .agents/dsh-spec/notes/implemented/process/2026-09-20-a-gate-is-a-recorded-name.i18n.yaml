@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/verify-translation-pairing.ts --write .agents/dsh-spec/notes/implemented/process/2026-09-20-a-gate-is-a-recorded-name.md
+2026-09-20-a-gate-is-a-recorded-name.md: 6ff34196e8672bddabc35ab5341c58553b093c4d
+2026-09-20-a-gate-is-a-recorded-name.zh.md: 3134627682f29a7874eff22e28041abe21f7c698

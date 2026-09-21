@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/verify-translation-pairing.ts --write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-20-two-pointers-that-outlived-their-mechanism.md
+2026-09-20-two-pointers-that-outlived-their-mechanism.md: 6b5630c375cab1b8be0fa9f92ffe5afdcf4ca018
+2026-09-20-two-pointers-that-outlived-their-mechanism.zh.md: b837bf6f5e2c3edc030f0beb9a0bb9f905fd2fab

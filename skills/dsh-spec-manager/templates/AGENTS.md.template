@@ -1,0 +1,73 @@
+# AGENTS.md
+
+<One sentence: what this project is, in a reader's terms, and the one thing an agent must read before changing anything. Link the single highest-value document here.>
+
+## Reading order
+
+<Name the files an agent reads, in order, before changing code. Keep it to the files that change decisions, not every document in the repository.>
+
+- `<path/to/architecture or overview doc>` — <what it settles>.
+- `<path/to/contribution or testing doc>` — <what it settles>.
+
+## Repository layout
+
+<A short annotated tree. One line per top-level entry: its name, its job, and the owner file that explains it. Keep every line under about twelve words.>
+
+```
+<top-level-dir>/     <its job> — <owner file>
+  <subdir>/            <its job>
+<another-dir>/       <its job>
+<entry-file>         <its job>
+```
+
+## Commands
+
+<The commands an agent actually runs, one per line with a trailing comment. Include install, test, lint, typecheck or compile, build, and the project's own aggregate gate. Do not list a command the project does not have.>
+
+```sh
+<install command>          # <toolchain and version the project expects>
+<focused test command>     # <the smallest runnable evidence for one behavior>
+<full test command>        # <owned by CI; run only on request or for a cross-cutting change>
+<lint command>
+<typecheck command>
+<build command>
+<aggregate gate command>   # <everything a change must pass before review>
+```
+
+## Boundaries
+
+<What an agent must not do, and what it must ask about first. State each as a rule with its reason in one clause. These are the rules whose violation is not caught by a gate.>
+
+- <Never do X> — <why, or what it breaks>.
+- <Ask before Y> — <why it is not an agent decision>.
+- <Keep Z out of the repository> — <what it would leak>.
+
+## Secrets and environment
+
+<Name every environment variable or credential file the project reads, what it enables, and what happens when it is absent. State the rule for committing them. Delete this section only when the project reads no secret at all.>
+
+## Conventions
+
+<The standing orders: one to three lines each, phrased as a rule, linking the document that owns its rationale. These are what an agent needs in context in every session. Move any rule that needs a worked example into a linked document instead of expanding it here.>
+
+- **<Rule name>.** <The rule.> — link its rationale as `[rationale](<path/to/owner.md>)`.
+- **<Rule name>.** <The rule.> — link its rationale as `[rationale](<path/to/owner.md>)`.
+
+## Documentation
+
+<State where each kind of fact lives, so a writer knows where to put a new one. One line per kind of fact. Delete this section when the project has none of them.>
+
+Replace the paths with this project's, and keep a count, a ceiling or a tier out of this table: this file states where a fact lives, and a parameter a check reads belongs to the file that check owns.
+
+| Fact | Home |
+|---|---|
+| Standing orders an agent needs in every session | root `AGENTS.md` |
+| Orders specific to one subtree | that subtree's `AGENTS.md` |
+| Decision rationale: the why, and what was given up | `<decision-record-directory>` |
+| A component's contract: configuration, behavior, failures, limits | that component's `README.md` |
+| Cross-component learning, tutorials, and guides | `<documentation-tree>` |
+| Incident stories | `<decision-record-directory>/<class>` — the `bug-fix` class |
+
+## Editing these instructions
+
+Keep each rule self-contained while linking the document that owns its rationale. Add a rule when its absence caused a real mistake, not when it is merely true. Condense when clarity survives; move detail to the owner document rather than letting this file grow. If a subtree needs its own orders, give that subtree its own `AGENTS.md` instead of adding a section here.

@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/verify-translation-pairing.ts --write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-shipped-skill-text-is-an-extraction.md
+2026-09-21-the-shipped-skill-text-is-an-extraction.md: e2f7bae4577a6351f0bd60d1c0f88988b771ef6c
+2026-09-21-the-shipped-skill-text-is-an-extraction.zh.md: 53a263a09c22dd9d6215a85fedb3e7e956b751e6

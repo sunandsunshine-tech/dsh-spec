@@ -25,3 +25,11 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### pnpm scratch (never committed) ###
+.pnpm-store/
+.probe-store/
+.probe-cache/
+
+### Installed skills are tracked: every collaborator runs the same revision. ###
+### Update them with `gh skill install --force`, never by editing in place. ###

@@ -1,0 +1,24 @@
+{
+  "repo": "sunandsunshine-tech/dsh-spec",
+  "revision": "split-skills",
+  "skills": [
+    "dsh-spec-manager",
+    "dsh-archive-agent-notes",
+    "dsh-translate-docs",
+    "dsh-prose-standard",
+    "dsh-trim-cot-leakage",
+    "dsh-code-review",
+    "dsh-pre-push-checks",
+    "dsh-find-simplifications"
+  ],
+  "gates": [
+    "verify-agent-note-classification",
+    "verify-agent-note-format",
+    "verify-archived-agent-notes",
+    "verify-translation-pairing",
+    "verify-md-links",
+    "verify-md-link-syntax",
+    "verify-md-metadata",
+    "verify-no-secrets"
+  ]
+}

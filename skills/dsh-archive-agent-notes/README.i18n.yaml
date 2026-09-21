@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/verify-translation-pairing.ts --write skills/dsh-archive-agent-notes/README.md
+README.md: f14a8dc43e41c3511d396c6d78d458aa882ef56e
+README.zh.md: 7c0ed94e96e86951c04848b919c924e02fe78be7

@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/run.ts verify-translation-pairing --write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-18-never-overwrite-a-file-the-initializer-did-not-create.md
+2026-09-18-never-overwrite-a-file-the-initializer-did-not-create.md: d5b9f708bfa0a2cb42af04a4cf2f47c45c5d3ab0
+2026-09-18-never-overwrite-a-file-the-initializer-did-not-create.zh.md: 801a0a09ba2533875a8c1db0561137955c547692
