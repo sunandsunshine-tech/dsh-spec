@@ -40,7 +40,7 @@
 
 归档路径编码为 `archived/{class}/yyyy-mm-dd-topic-title.md`；其中有意省略 `implemented`，因为只有 implemented Agent Note 可以进入归档。归档变更会移动完整的英文、中文和伴随记录三个文件，保留 `Status: implemented`，在两种语言的文件中紧接该状态行插入相同的 `Archived: YYYY-MM-DD` 行，重新记录伴随记录，并修复或删除入站链接。归档时只允许对内容做这些更改。
 
-封存后，每组归档文件都永久冻结。禁止编辑、翻译、重新格式化、更新、移动或删除，也不得将其视为当前行为的权威依据。文档门禁会跳过归档源文件，包括其中的出站链接；当活跃文档有意引用历史时，仍可链接到归档 Agent Note。`{gate-dir}/run.ts verify-archived-agent-notes` 强制执行封闭的类别目录树、完整的三文件配对、归档元数据、伴随记录 hash，以及仅追加的冻结内容 manifest（元数据清单）。冻结正是归档之所以构成证据的原因：一份谁都能改的快照，证明不了当初决定了什么。根目录的 `.rgignore` 让归档不进入递归搜索，因此一次历史查询会显式点名该目录，而不会在活跃记录之间撞见冻结的事实。
+封存后，每组归档文件都永久冻结。禁止编辑、翻译、重新格式化、更新、移动或删除，也不得将其视为当前行为的权威依据。文档门禁会跳过归档源文件，包括其中的出站链接；当活跃文档有意引用历史时，仍可链接到归档 Agent Note。`{gate-dir}/dsh-spec.ts notes-archived --check --all` 强制执行封闭的类别目录树、完整的三文件配对、归档元数据、伴随记录 hash，以及仅追加的冻结内容 manifest（元数据清单）。冻结正是归档之所以构成证据的原因：一份谁都能改的快照，证明不了当初决定了什么。根目录的 `.rgignore` 让归档不进入递归搜索，因此一次历史查询会显式点名该目录，而不会在活跃记录之间撞见冻结的事实。
 
 <a id="when-to-write-one"></a>
 
@@ -58,7 +58,7 @@
 
 ## 文件格式
 
-每份活跃 Agent Note 遵循统一的文件内格式，由 `{gate-dir}/run.ts verify-agent-note-format` 强制执行；格式统一，是因为检索不能取决于笔记由谁撰写：同一套骨架意味着读者在打开文件之前就知道决策、替代方案与验证各自在哪里。归档记录保留封存时的格式，并增加上述归档日期行。
+每份活跃 Agent Note 遵循统一的文件内格式，由 `{gate-dir}/dsh-spec.ts notes --check` 强制执行；格式统一，是因为检索不能取决于笔记由谁撰写：同一套骨架意味着读者在打开文件之前就知道决策、替代方案与验证各自在哪里。归档记录保留封存时的格式，并增加上述归档日期行。
 
 ### 头部块
 
@@ -137,15 +137,15 @@ Status: <status>
 
 ## 本集合中的门禁
 
-有三个门禁强制执行本文件陈述的内容。它们随初始化本项目的技能集合一同发布，项目对它们是**引用**而非释放副本：释放出去的副本永远无法更新，因为 `init` 不会覆盖不是它创建的文件，而集合自身的更新器只作用于集合。它们都住在 `{gate-dir}`。
+有三个门禁强制执行本文件陈述的内容。它们随初始化本项目的技能集合一同发布，项目对它们是**引用**而非释放副本：释放出去的副本永远无法更新，因为初始化器不会覆盖不是它创建的文件，而一次刷新只作用于集合。它们都住在 `{gate-dir}`。
 
-每一道门禁都是一个记录在案的名字加上支撑它的脚本，二者都在那个目录里，通过分发器 `{gate-dir}/run.ts` 按名称寻址：分发器按集合 `references/manifest.json` 里的 `gates` 记录解析名称，并把该记录与紧邻它的 `verify-*.ts` 脚本相核对——某道已记录的门禁没有脚本，或某个脚本不在记录里，都是一次点名两侧、且什么都不运行的拒绝。分发器和门禁都不需要 `package.json`，也不需要 `node_modules`；每条都从项目根目录以 `--root .` 运行：
+每一道门禁都是一个记录在案的名字加上支撑它的脚本，二者都在那个目录里，经由集合的入口 `{gate-dir}/dsh-spec.ts` 抵达：入口按集合 `references/manifest.json` 里的 `gates` 记录解析名称，并把该记录与紧邻它的 `verify-*.ts` 脚本相核对——某道已记录的门禁没有脚本，或某个脚本不在记录里，都是一次点名两侧、且什么都不运行的拒绝。入口与门禁都不需要 `package.json`，也不需要 `node_modules`；每条都从项目根目录以 `--root .` 运行：
 
 ```sh
-pnpm dlx --allow-build=esbuild tsx@4.22.4 {gate-dir}/run.ts verify-agent-note-classification --root .
-pnpm dlx --allow-build=esbuild tsx@4.22.4 {gate-dir}/run.ts verify-agent-note-format --root .
-pnpm dlx --allow-build=esbuild tsx@4.22.4 {gate-dir}/run.ts verify-archived-agent-notes --root .
-pnpm dlx --allow-build=esbuild tsx@4.22.4 {gate-dir}/run.ts verify-archived-agent-notes --root . --write
+node {gate-dir}/dsh-spec.ts notes --check --all --root .
+node {gate-dir}/dsh-spec.ts notes --check <note...> --root .
+node {gate-dir}/dsh-spec.ts notes-archived --check --all --root .
+node {gate-dir}/dsh-spec.ts notes-archived --write --all --root .
 ```
 
 同一个分发器还运行 `--all`：它运行记录中的每一道门禁，并在某道失败或记录里一道都没有时失败。更新集合即更新它们全部；需要不同行为的项目应改自己的文件，而不是改门禁。

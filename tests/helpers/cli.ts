@@ -28,11 +28,13 @@ export interface CliResult {
  * Run the CLI against a fixture.
  * @param root - the project root the command audits.
  * @param args - arguments before the `--root` the runner appends.
- * @param stdin - the path list `--files-from -` reads, when the case uses it.
+ * @param options - `stdin` for the path list `--files-from -` reads, and `env` for the variables a
+ * case needs to control; a variable set to `undefined` is removed rather than inherited, which is
+ * what makes a locale case independent of the machine the suite runs on.
  * @returns the exit status and both streams.
  */
-export function runCli(root: string, args: string[], stdin?: string): CliResult {
-  return run(CLI, root, args, stdin)
+export function runCli(root: string, args: string[], options: { stdin?: string, env?: Record<string, string | undefined> } = {}): CliResult {
+  return run(CLI, root, args, options)
 }
 
 /**
@@ -46,14 +48,20 @@ export function runScript(script: string, args: string[] = [], cwd: string = REP
   return run(join(REPO_ROOT, script), cwd, args)
 }
 
-function run(entry: string, cwd: string, args: string[], stdin?: string): CliResult {
+function run(entry: string, cwd: string, args: string[], options: { stdin?: string, env?: Record<string, string | undefined> } = {}): CliResult {
   if (!existsSync(entry)) {
     return { status: -1, stdout: '', stderr: `missing entry point ${entry}`, output: `MISSING ENTRY POINT: ${entry}` }
+  }
+  const env: NodeJS.ProcessEnv = { ...process.env }
+  for (const [name, value] of Object.entries(options.env ?? {})) {
+    if (value === undefined) delete env[name]
+    else env[name] = value
   }
   const result = spawnSync(process.execPath, [entry, ...args], {
     cwd,
     encoding: 'utf8',
-    input: stdin,
+    input: options.stdin,
+    env,
   })
   const stdout = result.stdout ?? ''
   const stderr = result.stderr ?? ''

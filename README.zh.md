@@ -2,23 +2,41 @@
 
 [English](README.md) | 中文
 
-把 dsh 的开发方式抽出来,做成八个技能,由 agent 按需加载。
+让项目里每个重要的改动都留下决策记录,漏了会被检查出来,中英文文档不会走散。
 
 它管的是团队里最容易散掉的那部分:一个决定当初为什么这么定、别的选择为什么没选、这次改动该拿出什么证据、中英文两份文档怎么不走丢。这些都写下来、放在该在的地方,并且有一条命令能查出有没有漏。
 
+## 先决条件
+
+| 需要 | 用来做什么 |
+|---|---|
+| [Node.js](https://nodejs.org/) 22.19 或更新 | 运行检查脚本 |
+| [Git](https://git-scm.com/) | 管理技能;需要读提交的检查 |
+| [GitHub CLI](https://github.com/cli/cli)(`gh`,含 `skill` 命令) | 安装和更新技能 |
+| [ripgrep](https://github.com/BurntSushi/ripgrep) | `dsh-trim-cot-leakage` 的检索探针 |
+
+GitHub CLI 也自带 agent 技能,去[它的仓库](https://github.com/cli/cli)装一个即可。
+
 ## 安装
 
-人只手工装一个技能,其余的交给 agent。
+装到项目里,不要装到家目录,并把结果提交进 git。装在项目里,技能集由项目的 manifest 钉住修订,每个协作者、每个 agent、CI 用的都是同一套;装到用户级则只存在于各自机器上,下一次 `gh skill update` 就各走各的。首次安装后请提交 `AGENTS.md`、`.agents/`、`docs/` 和 `.rgignore`。
+
+manager 需要你亲手装,其余七个由它装。
+
+### 手动安装
 
 ```sh
 gh skill install sunandsunshine-tech/dsh-spec dsh-spec-manager@latest --dir .agents/skills
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts install --root .
 ```
 
-然后告诉你的 agent 去完成后续安装:
+第一条命令取回 manager;第二条按同一个修订装上其余技能,并在项目里建起需要的文件——常设指令、决策记录树、术语表。想先看计划就加 `--dry-run`;装完可以用 `status` 确认。
 
-> /dsh-spec-manager 完成初始化
+### 让 agent 安装
 
-剩下的事归 manager:它按同一个修订把整套技能装齐、更新,给项目做初始化(项目自己已经写过的内容不动),并让项目里的机制文本始终跟这个修订一致。
+把下面这段交给你的 agent:
+
+> 用 GitHub CLI 从 `sunandsunshine-tech/dsh-spec` 装上 `dsh-spec-manager` 技能,然后按本 README 的「手动安装」一节操作。动手前先确认上面列的依赖都已就绪,缺哪一样就问我。
 
 ## 装上以后有什么用
 

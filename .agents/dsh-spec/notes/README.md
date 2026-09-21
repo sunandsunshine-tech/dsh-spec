@@ -52,7 +52,7 @@ A feature-addition note may be consolidated into the later removal note only whe
 
 ## The file format
 
-Every active Agent Note follows one in-file format, enforced by `.agents/skills/dsh-spec-manager/scripts/run.ts verify-agent-note-format`; the format is uniform because retrieval must not depend on who wrote the note: one skeleton means a reader knows where the decision, the alternatives, and the verification sit before opening the file. Archived notes retain the format they had when sealed plus the archive-date line above.
+Every active Agent Note follows one in-file format, enforced by `.agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes --check`; the format is uniform because retrieval must not depend on who wrote the note: one skeleton means a reader knows where the decision, the alternatives, and the verification sit before opening the file. Archived notes retain the format they had when sealed plus the archive-date line above.
 
 ### The header block
 
@@ -131,15 +131,15 @@ A `.zh.md` counterpart mirrors its English sibling's structure section-for-secti
 
 ## Gates in this collection
 
-Three gates enforce what this file states. They ship with the skills collection that initialized this project, and the project **references** them rather than releasing a copy: a released copy can never be updated, because `init` will not overwrite a file it did not create and the collection's own updater only touches the collection. They live in `.agents/skills/dsh-spec-manager/scripts`.
+Three gates enforce what this file states. They ship with the skills collection that initialized this project, and the project **references** them rather than releasing a copy: a released copy can never be updated, because the initializer will not overwrite a file it did not create and a refresh only touches the collection. They live in `.agents/skills/dsh-spec-manager/scripts`.
 
-Every gate is a recorded name backed by a script in that one directory, addressed through the dispatcher `.agents/skills/dsh-spec-manager/scripts/run.ts`, which resolves the name against the collection's `gates` record in its `references/manifest.json` and reconciles that record with the `verify-*.ts` scripts beside it: a recorded gate with no script, or a script the record does not name, is a refusal that names both sides and runs nothing. Neither the dispatcher nor a gate needs a `package.json` or `node_modules`; run each from the project root with `--root .`:
+Every gate is a recorded name backed by a script in that one directory, reached through the collection's entry point `.agents/skills/dsh-spec-manager/scripts/dsh-spec.ts`, which resolves a name against the collection's `gates` record in its `references/manifest.json` and reconciles that record with the `verify-*.ts` scripts beside it: a recorded gate with no script, or a script the record does not name, is a refusal that names both sides and runs nothing. Neither the entry point nor a gate needs a `package.json` or `node_modules`; run each from the project root with `--root .`:
 
 ```sh
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts verify-agent-note-classification --root .
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts verify-agent-note-format --root .
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts verify-archived-agent-notes --root .
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts verify-archived-agent-notes --root . --write
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes --check --all --root .
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes --check <note...> --root .
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes-archived --check --all --root .
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes-archived --write --all --root .
 ```
 
 The same dispatcher also runs `--all`, which runs every recorded gate and fails when one fails or when the record names none. Updating the collection updates all of them; a project that needs different behaviour changes its own files, never the gate.

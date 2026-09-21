@@ -8,17 +8,15 @@ English | [中文](2026-09-21-the-note-trigger-follows-dsh.zh.md)
 
 The contract this collection ships said that **every non-trivial change** must add or update an Agent Note, with non-trivial defined as a list: behavior, architecture, a contract shared across files, process or tooling, testing strategy, a stored, wire or configuration format, or any decision a maintainer might revisit.
 
-dsh narrowed that in `dsh-v0.1.6-alpha.2`, the release this collection now pins: a note is for **lasting decision rationale that code, tests and existing documentation do not explain**, and mechanical or local edits are exempt. Nothing else in the mechanism moved between the old pin and that release — no gate script, no note instruction file, no search exclusion.
+dsh narrowed that in `dsh-v0.1.6-alpha.2`, the release this collection now pins: a note is for **lasting decision rationale that code, tests and existing documentation do not explain**, and mechanical or local edits are exempt. The standing-orders bullet in its root `AGENTS.md` changed with it — the previous pin required a note for every non-trivial change — while the mechanism's code, its note instruction file and its search exclusion did not move.
 
 ## Decision
 
-The narrowed text is ported exactly where dsh changed it: the notes contract template and its Chinese counterpart, which `sync` then rewrites into every project's copy, this repository's included.
+The narrowed text is ported everywhere dsh changed it: the notes contract template and its Chinese counterpart, and the section adoption injects into a project's `AGENTS.md`. `sync` rewrites all of them into every project's copy, this repository's included, so the sentence an agent reads every session and the contract it writes a note against say the same thing.
 
-**Nothing else in the collection changes.** dsh left its own standing orders alone — its root `AGENTS.md` still says a non-trivial change must carry a note — so the section `init` injects into a project's `AGENTS.md` keeps that rule, and the manager README's summary keeps it too. We mirror the source's state, including the disagreement between its contract and its standing orders: settling that disagreement is dsh's to do, not ours.
+One sentence in the injected section is this collection's own: **a decision agreed in conversation counts**, and the contract carries it too. Everything else mirrors the pin.
 
 ## Alternatives considered
-
-**Port the narrowing to the standing orders as well.** It is the tidier state — the sentence an agent reads every session and the contract it writes a note against would say the same thing. It lost because it is not alignment: the source project did not change its `AGENTS.md`, and a collection that settles an upstream disagreement on its own has quietly authored a rule the source never made, which the next re-extraction would find as a difference nobody asked for. This option was implemented first and reverted on the maintainer's instruction.
 
 **Keep the broad trigger and record a deviation.** More decisions get written down, and this repository's own history shows the habit catching things. It lost because the trigger is the notes mechanism itself: a collection shipping a different trigger from dsh's leaves two versions of one contract in the world.
 

@@ -86,6 +86,7 @@ Node ≥ 22.19 or ≥ 24 is the only requirement: the engine is TypeScript that 
 | What this repository decided about applying the pattern | the same notes tree, and the standing entries above |
 | A past incident's durable lesson | the notes tree, in its `bug-fix` class |
 | A human-facing page, and the terminology the pairs share | `docs/` — a folder nothing manages, with no tier, no budget and no gate; the table the translation briefing reads is [`docs/terminology.md`](docs/terminology.md) |
+| What each kind of prose owes, READMEs included | the `dsh-prose-standard` skill — read it before writing a README, because the failure it names is writing one for the maintainer instead of the installer ([the incident](.agents/dsh-spec/notes/implemented/process/2026-09-18-scan-scope-and-the-package-readme.md)) |
 
 ## Editing these instructions
 
@@ -94,8 +95,8 @@ Keep each rule self-contained while linking the document that owns its rationale
 <!-- dsh-spec:agent-notes -->
 ## Decision records
 
-Non-trivial changes add or update one Agent Note in the same change — a proposed, implemented, or rejected record under `.agents/dsh-spec/notes/`, carrying the rationale, the alternatives that lost, and the required verification. Only mechanical or local edits are exempt. **A decision agreed in conversation counts**: record it as a `proposed` note before the change exists, because a conclusion that lives only in a transcript is invisible to the next session, the next collaborator, and the next device. Update that note as the design moves; move it to `implemented` when it ships.
+Add or update an Agent Note in the same change only for lasting decision rationale that code, tests, and existing documentation do not explain; mechanical or local edits are exempt. **A decision agreed in conversation counts**: record it as a `proposed` note before the change exists, because a conclusion that lives only in a transcript is invisible to the next session, the next collaborator, and the next device. Update that note as the design moves, and move it to `implemented` when it ships.
 
-Read `.agents/dsh-spec/notes/README.md` for the layout, the classes, and the in-file format, and keep every note inside the closed lifecycle and class folders the gates check. The gates are not copied into this project: they ship inside the installed skills and are addressed by name through the dispatcher beside `.agents/skills/dsh-spec-manager/scripts/`. Run a gate through the dispatcher after adding a note.
+Read `.agents/dsh-spec/notes/README.md` for the layout, the classes, and the in-file format, and keep every note inside the closed lifecycle and class folders the checks enforce. The checks are not copied into this project: they ship inside the installed skills and are reached through the entry point in `.agents/skills/dsh-spec-manager/scripts/`. Run a check through it after adding a note.
 
 <!-- /dsh-spec:agent-notes -->

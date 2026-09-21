@@ -8,7 +8,7 @@
  * symlinked instruction files are deduped.
  *
  * Run it from the project root:
- *   pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/verify-md-links.ts --root .
+ *   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts md-links --check <markdown...> --root .
  */
 
 import { existsSync, readFileSync } from 'node:fs'

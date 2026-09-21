@@ -168,9 +168,9 @@ function notesSection(notesDir: string): string {
   return `${NOTES_SECTION_START}
 ## Decision records
 
-Non-trivial changes add or update one Agent Note in the same change — a proposed, implemented, or rejected record under \`${notesDir}/\`, carrying the rationale, the alternatives that lost, and the required verification. Only mechanical or local edits are exempt. **A decision agreed in conversation counts**: record it as a \`proposed\` note before the change exists, because a conclusion that lives only in a transcript is invisible to the next session, the next collaborator, and the next device. Update that note as the design moves; move it to \`implemented\` when it ships.
+Add or update an Agent Note in the same change only for lasting decision rationale that code, tests, and existing documentation do not explain; mechanical or local edits are exempt. **A decision agreed in conversation counts**: record it as a \`proposed\` note before the change exists, because a conclusion that lives only in a transcript is invisible to the next session, the next collaborator, and the next device. Update that note as the design moves, and move it to \`implemented\` when it ships.
 
-Read \`${notesDir}/README.md\` for the layout, the classes, and the in-file format, and keep every note inside the closed lifecycle and class folders the gates check. The gates are not copied into this project: they ship inside the installed skills and are addressed by name through the dispatcher beside \`${skillDirectory}/scripts/\`. Run a gate through the dispatcher after adding a note.
+Read \`${notesDir}/README.md\` for the layout, the classes, and the in-file format, and keep every note inside the closed lifecycle and class folders the checks enforce. The checks are not copied into this project: they ship inside the installed skills and are reached through the entry point in \`${skillDirectory}/scripts/\`. Run a check through it after adding a note.
 
 ${NOTES_SECTION_END}
 `

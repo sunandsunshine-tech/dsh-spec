@@ -465,12 +465,14 @@ function status(root: string, manifest: Manifest): void {
         .map((entry) => entry.name)
     : []
 
+  let installedHere = 0
   for (const skill of manifest.skills) {
     const entry = join(directory, skill, 'SKILL.md')
     if (!existsSync(entry)) {
       findings.push(`${skill}: not installed (expected ${entry})`)
       continue
     }
+    installedHere += 1
     const revision = installedRevision(entry)
     if (revision === undefined) {
       findings.push(
@@ -490,6 +492,12 @@ function status(root: string, manifest: Manifest): void {
     if (!manifest.skills.includes(name)) findings.push(`${name}: installed but not named in the manifest`)
   }
   if (!existsSync(dispatcherPath)) findings.push(`${dispatcherPath}: the entry point dsh-spec.ts is missing`)
+
+  // A set installed at user scope is not installed *here*: this collection is project-scoped, and
+  // saying so is the difference between a reader's mistake and a mysteriously empty project.
+  if (installedHere === 0) {
+    console.error(`dsh-spec-manager: no skill of this set is installed in ${directory} — the collection is installed per project, so run \`dsh-spec.ts install --root ${root}\` here.`)
+  }
 
   if (findings.length > 0) {
     console.error(`dsh-spec-manager: status found ${findings.length} problem(s):`)

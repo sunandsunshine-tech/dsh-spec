@@ -2,23 +2,41 @@
 
 English | [中文](README.zh.md)
 
-The way dsh builds software, pulled out into eight skills an agent loads as it needs them.
+Give your project a decision record for every change that matters, a check that notices when one is missing, and English and Chinese documents that stay in step.
 
 It looks after the parts a team loses first: why a decision went the way it did, which other options lost, what a change owes as evidence, and how the English and Chinese versions of a document stay together. All of that gets written down, kept where it belongs, and checked by one command.
 
+## Prerequisites
+
+| You need | Used for |
+|---|---|
+| [Node.js](https://nodejs.org/) 22.19 or newer | Running the check scripts |
+| [Git](https://git-scm.com/) | Managing the skills, and the checks that read commits |
+| [GitHub CLI](https://github.com/cli/cli) (`gh`), with its `skill` command | Installing and updating the skills |
+| [ripgrep](https://github.com/BurntSushi/ripgrep) | The recall probes in `dsh-trim-cot-leakage` |
+
+The GitHub CLI ships an agent skill of its own; browse [its repository](https://github.com/cli/cli) to install one.
+
 ## Install
 
-A person installs one skill by hand. The rest is the agent's job.
+Install into the project, not into your home directory, and commit the result. A project-scoped copy is pinned by the project's manifest, so every collaborator, every agent and CI run the same revision; a user-scoped one stays on each machine and moves with the next `gh skill update`. Commit `AGENTS.md`, `.agents/`, `docs/` and `.rgignore` after the first install.
+
+You install the manager yourself; it installs the other seven.
+
+### Install by hand
 
 ```sh
 gh skill install sunandsunshine-tech/dsh-spec dsh-spec-manager@latest --dir .agents/skills
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts install --root .
 ```
 
-Then tell your agent to finish the install:
+The first command fetches the manager. The second installs the rest of the set at the same revision and creates the files this project needs — the standing orders, the decision-record tree, and the vocabulary table. Add `--dry-run` to see the plan first; run `status` afterwards to confirm the set.
 
-> /dsh-spec-manager finish the initialization
+### Install with an agent
 
-The manager does the rest: it installs and updates the whole set at one revision, initializes the project without touching what the project has already written, and keeps the mechanism text in the project identical to that revision.
+Give your agent these instructions:
+
+> Install the `dsh-spec-manager` skill from `sunandsunshine-tech/dsh-spec` with the GitHub CLI, then follow the "Install by hand" steps in this README. Check that the prerequisites above are present first, and ask me if any of them is missing.
 
 ## What you get
 

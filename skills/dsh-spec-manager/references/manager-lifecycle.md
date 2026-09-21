@@ -45,16 +45,7 @@ A project reaches a check by subject, never by a script path:
 node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes --check --all --root .
 ```
 
-| Subject | Operation | Scope |
-|---|---|---|
-| `notes` | `--check` | `--all`, `<note...>`, or `--files-from -` |
-| `notes-archived` | `--check`, `--write` | `--all` |
-| `translation-pair` | `--check`, `--list`, `--explain <path>`, `--write` | `<pair...>` or `--files-from -`; `--write --all` is the corpus form |
-| `md-links` | `--check` | `<markdown...>` or `--files-from -` |
-| `commit` | `--check` | `--base <ref>`, `--head <ref>` |
-| `all` | `--check` | the checks whose assertion is about a tree |
-| `brief` | `[--apply]` | `<pair...>` |
-| `install`, `upgrade`, `uninstall`, `status` | — | the project |
+Every subject, its operations, its scope forms and an example live in [`cli.md`](cli.md), which is the same text `--help` prints — `--help` for the list, `<subject> --help` for one subject, and `--help --markdown` to render that page. This file does not repeat them.
 
 A scope is exactly one of `--all`, a path list, or `--files-from -`, and a check without one is a usage error rather than a full scan. A path that exists outside the check's scope is a violation, because a dispatcher that assembled the wrong list must be visible; a path the change reports as deleted is accepted, and what a missing file means is the check's decision. `--jobs <n>` (or `DSH_SPEC_JOBS`) bounds how many checks run at once; output is captured per check and printed in record order, so a dispatch reads the same at any width.
 

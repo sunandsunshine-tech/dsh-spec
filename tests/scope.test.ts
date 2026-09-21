@@ -35,7 +35,7 @@ test('--files-from reads the list from stdin', (t) => {
   t.after(() => fixture.dispose())
   const note = writeNote(fixture, '2026-01-01-a-first-decision.md')
 
-  const result = runCli(fixture.root, ['notes', '--check', '--files-from', '-'], `${note}\n`)
+  const result = runCli(fixture.root, ['notes', '--check', '--files-from', '-'], { stdin: `${note}\n` })
 
   assert.equal(result.status, 0, result.output)
 })

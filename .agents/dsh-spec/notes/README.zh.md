@@ -58,7 +58,7 @@
 
 ## 文件格式
 
-每份活跃 Agent Note 遵循统一的文件内格式，由 `.agents/skills/dsh-spec-manager/scripts/run.ts verify-agent-note-format` 强制执行；格式统一，是因为检索不能取决于笔记由谁撰写：同一套骨架意味着读者在打开文件之前就知道决策、替代方案与验证各自在哪里。归档记录保留封存时的格式，并增加上述归档日期行。
+每份活跃 Agent Note 遵循统一的文件内格式，由 `.agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes --check` 强制执行；格式统一，是因为检索不能取决于笔记由谁撰写：同一套骨架意味着读者在打开文件之前就知道决策、替代方案与验证各自在哪里。归档记录保留封存时的格式，并增加上述归档日期行。
 
 ### 头部块
 
@@ -137,15 +137,15 @@ Status: <status>
 
 ## 本集合中的门禁
 
-有三个门禁强制执行本文件陈述的内容。它们随初始化本项目的技能集合一同发布，项目对它们是**引用**而非释放副本：释放出去的副本永远无法更新，因为 `init` 不会覆盖不是它创建的文件，而集合自身的更新器只作用于集合。它们都住在 `.agents/skills/dsh-spec-manager/scripts`。
+有三个门禁强制执行本文件陈述的内容。它们随初始化本项目的技能集合一同发布，项目对它们是**引用**而非释放副本：释放出去的副本永远无法更新，因为初始化器不会覆盖不是它创建的文件，而一次刷新只作用于集合。它们都住在 `.agents/skills/dsh-spec-manager/scripts`。
 
-每一道门禁都是一个记录在案的名字加上支撑它的脚本，二者都在那个目录里，通过分发器 `.agents/skills/dsh-spec-manager/scripts/run.ts` 按名称寻址：分发器按集合 `references/manifest.json` 里的 `gates` 记录解析名称，并把该记录与紧邻它的 `verify-*.ts` 脚本相核对——某道已记录的门禁没有脚本，或某个脚本不在记录里，都是一次点名两侧、且什么都不运行的拒绝。分发器和门禁都不需要 `package.json`，也不需要 `node_modules`；每条都从项目根目录以 `--root .` 运行：
+每一道门禁都是一个记录在案的名字加上支撑它的脚本，二者都在那个目录里，经由集合的入口 `.agents/skills/dsh-spec-manager/scripts/dsh-spec.ts` 抵达：入口按集合 `references/manifest.json` 里的 `gates` 记录解析名称，并把该记录与紧邻它的 `verify-*.ts` 脚本相核对——某道已记录的门禁没有脚本，或某个脚本不在记录里，都是一次点名两侧、且什么都不运行的拒绝。入口与门禁都不需要 `package.json`，也不需要 `node_modules`；每条都从项目根目录以 `--root .` 运行：
 
 ```sh
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts verify-agent-note-classification --root .
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts verify-agent-note-format --root .
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts verify-archived-agent-notes --root .
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts verify-archived-agent-notes --root . --write
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes --check --all --root .
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes --check <note...> --root .
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes-archived --check --all --root .
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes-archived --write --all --root .
 ```
 
 同一个分发器还运行 `--all`：它运行记录中的每一道门禁，并在某道失败或记录里一道都没有时失败。更新集合即更新它们全部；需要不同行为的项目应改自己的文件，而不是改门禁。

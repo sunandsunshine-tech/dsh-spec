@@ -11,8 +11,8 @@
  * installed revision: the contract documents are replaced, a terminology table keeps its rows, and
  * the standing orders keep everything outside the marked section.
  *
- * Zero external dependencies by design: it runs under `pnpm dlx tsx` in a project that has no
- * `node_modules`.
+ * Zero external dependencies by design: it runs under `node` in a project that has no
+ * `node_modules` — Node 22.19 strips the types itself.
  */
 
 import { spawnSync } from 'node:child_process'
@@ -168,9 +168,9 @@ function notesSection(notesDir: string): string {
   return `${NOTES_SECTION_START}
 ## Decision records
 
-Non-trivial changes add or update one Agent Note in the same change — a proposed, implemented, or rejected record under \`${notesDir}/\`, carrying the rationale, the alternatives that lost, and the required verification. Only mechanical or local edits are exempt. **A decision agreed in conversation counts**: record it as a \`proposed\` note before the change exists, because a conclusion that lives only in a transcript is invisible to the next session, the next collaborator, and the next device. Update that note as the design moves; move it to \`implemented\` when it ships.
+Add or update an Agent Note in the same change only for lasting decision rationale that code, tests, and existing documentation do not explain; mechanical or local edits are exempt. **A decision agreed in conversation counts**: record it as a \`proposed\` note before the change exists, because a conclusion that lives only in a transcript is invisible to the next session, the next collaborator, and the next device. Update that note as the design moves, and move it to \`implemented\` when it ships.
 
-Read \`${notesDir}/README.md\` for the layout, the classes, and the in-file format, and keep every note inside the closed lifecycle and class folders the gates check. The gates are not copied into this project: they ship inside the installed skills and are addressed by name through the dispatcher beside \`${skillDirectory}/scripts/\`. Run a gate through the dispatcher after adding a note.
+Read \`${notesDir}/README.md\` for the layout, the classes, and the in-file format, and keep every note inside the closed lifecycle and class folders the checks enforce. The checks are not copied into this project: they ship inside the installed skills and are reached through the entry point in \`${skillDirectory}/scripts/\`. Run a check through it after adding a note.
 
 ${NOTES_SECTION_END}
 `
@@ -203,7 +203,7 @@ const gates = reading.names
 const skillsDirectory = flagValue('--dir') ?? join('.agents', 'skills')
 const skillDirectory = present(`${skillsDirectory}/${basename(resolve(import.meta.dirname, '..'))}`)
 const layerDirectory = `${skillDirectory}/scripts`
-const dispatcher = `${layerDirectory}/run.ts`
+const dispatcher = `${layerDirectory}/dsh-spec.ts`
 
 /** A path outside the project is written absolute, so the recorded value still resolves. */
 function present(candidate: string): string {
@@ -438,7 +438,7 @@ function syncManagedFiles(): void {
       console.log(`  would re-record the pair ${path}`)
       continue
     }
-    const recorded = spawnSync(process.execPath, [resolve(root, dispatcher), 'verify-translation-pairing', '--root', root, '--write', path], { stdio: 'inherit' })
+    const recorded = spawnSync(process.execPath, [resolve(root, dispatcher), 'translation-pair', '--write', path, '--root', root], { stdio: 'inherit' })
     if ((recorded.status ?? 1) !== 0) {
       console.error(`dsh-spec-sync: the pair ${path} could not be re-recorded — run the pairing gate by hand`)
       process.exit(1)

@@ -22,9 +22,10 @@
 import { spawn } from 'node:child_process'
 import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { availableParallelism, tmpdir } from 'node:os'
-import { dirname, join, resolve } from 'node:path'
+import { dirname, join, relative, resolve, sep } from 'node:path'
 import { renderChangeScope } from './change-scope.ts'
 import { expandScope, parseScopeArgs, pathInGateScope } from './gate-scope.ts'
+import { globalHelp, helpLanguage, markdownHelp, subjectHelp } from './help.ts'
 import { installProject, statusProject, uninstallProject, upgradeProject } from './manager.ts'
 import { readGateRecord, readGateScopes } from './manifest.ts'
 import { resolveRepoRoot } from './repo-root.ts'
@@ -84,26 +85,42 @@ function usage(message?: string): never {
   process.exit(2)
 }
 
-/** Print the reference for this entry point and exit 0. */
-function printHelp(): never {
-  console.log('dsh-spec — the collected checks, one subject at a time')
-  console.log('')
-  console.log('  install | upgrade | uninstall | status      the skill set and the project files')
-  console.log('  notes            --check [--all | <path...>]  the active Agent Note tree')
-  console.log('  notes-archived   --check | --write --all      the frozen archive')
-  console.log('  translation-pair --check | --list | --explain <path> | --write')
-  console.log('  md-links         --check <path...>            links and rewritten link shapes')
-  console.log('  commit           --check [--base <ref>]       the checks this change owes')
-  console.log('  all              --check                      every check that reads a tree')
-  console.log('  brief            [--apply] <pair...>          the minimal-update briefing for a pair')
-  console.log('')
-  console.log('  --jobs <n>   dispatch width (default min(availableParallelism(), 8); DSH_SPEC_JOBS wins)')
+/**
+ * The command as this installation spells it, for the help's usage line.
+ *
+ * The engine sits inside the project it audits, so the path is derived from where this file is. When
+ * it does not — a script run against a foreign root — the help names the file alone rather than
+ * printing a path that climbs out of the project.
+ */
+function invocationPath(): string {
+  const engine = relative(root, scriptDir).split(sep).join('/')
+  return engine.startsWith('..') ? 'dsh-spec.ts' : `${engine}/dsh-spec.ts`
+}
+
+// Help is answered before anything else: it must work even when the record beside it is broken, and
+// it needs no manifest, scope or git repository.
+if (argv.includes('--help') || argv.includes('-h')) {
+  const named = argv[0]
+  const language = helpLanguage(argv)
+  if (typeof language !== 'string') usage(language.error)
+  const bare = named === '--help' || named === '-h'
+  if (!bare && (named === undefined || !(SUBJECTS as readonly string[]).includes(named))) {
+    usage(`unknown subject \`${named ?? ''}\``)
+  }
+  // The screen names this installation's path, because a reader copies it. The reference names the
+  // engine directory instead: it ships into projects whose path differs from the one it was rendered
+  // in, so a resolved path would be wrong wherever it landed.
+  const invocation = argv.includes('--markdown') ? '<engine>/dsh-spec.ts' : invocationPath()
+  process.stdout.write(
+    argv.includes('--markdown')
+      ? markdownHelp(language, invocation)
+      : bare ? globalHelp(language, invocation) : subjectHelp(named as string, language, invocation),
+  )
   process.exit(0)
 }
 
 const subject = argv[0]
 if (subject === undefined) usage('name a subject')
-if (subject === '--help' || subject === '-h') printHelp()
 if (!(SUBJECTS as readonly string[]).includes(subject)) {
   usage(`unknown subject \`${subject}\``)
 }

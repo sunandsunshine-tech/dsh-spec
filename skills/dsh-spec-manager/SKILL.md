@@ -11,8 +11,9 @@ This is the one skill of the set that a project installs by hand. Everything els
 
 **`scripts/` here is the collection's engine, not this skill's private resources.** The other skills ship their `SKILL.md` and `references/` and no code at all, so a gate's bug is a bug in the collection rather than in the workflow this file describes; file it against the gate, and change it where every skill's checks already live.
 
-Two references carry the detail; this file does not restate them:
+Three references carry the detail; this file does not restate them:
 
+- [`cli.md`](references/cli.md) — the tool's own reference: every subject, its operations, its scope, its flags and an example. It is rendered from `--help --markdown`, so it cannot drift from what a reader sees in a terminal.
 - [`manager-install.md`](references/manager-install.md) — what adoption writes into a project, what the project keeps, and the initializer's own flags.
 - [`manager-lifecycle.md`](references/manager-lifecycle.md) — install, upgrade, uninstall and status, the manifest they read, the engine directory, the subjects the entry point answers to, and the boundaries this skill keeps.
 
