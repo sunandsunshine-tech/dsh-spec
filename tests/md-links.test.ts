@@ -1,5 +1,5 @@
 /**
- * `md-links --check`: one subject over both link checks — the resolver and the shapes a bulk
+ * `md-links check`: one subject over both link checks — the resolver and the shapes a bulk
  * rewrite leaves behind that a parser cannot see.
  *
  * This subject takes a path list and never `--all`, because it decides the asking side per file:
@@ -19,7 +19,7 @@ test('a resolving link passes', (t) => {
   })
   t.after(() => fixture.dispose())
 
-  const result = runCli(fixture.root, ['md-links', '--check', 'docs/a.md'])
+  const result = runCli(fixture.root, ['md-links', 'check', 'docs/a.md'])
 
   assert.equal(result.status, 0, result.output)
 })
@@ -28,7 +28,7 @@ test('a link to a missing target fails', (t) => {
   const fixture = makeFixture({ 'docs/a.md': '# A\n\nSee [B](b.md).\n' })
   t.after(() => fixture.dispose())
 
-  const result = runCli(fixture.root, ['md-links', '--check', 'docs/a.md'])
+  const result = runCli(fixture.root, ['md-links', 'check', 'docs/a.md'])
 
   assert.equal(result.status, 1, result.output)
 })
@@ -40,7 +40,7 @@ test('a fragment that names no heading fails', (t) => {
   })
   t.after(() => fixture.dispose())
 
-  const result = runCli(fixture.root, ['md-links', '--check', 'docs/a.md'])
+  const result = runCli(fixture.root, ['md-links', 'check', 'docs/a.md'])
 
   assert.equal(result.status, 1, result.output)
 })
@@ -49,7 +49,7 @@ test('a link a bulk rewrite turned into prose fails', (t) => {
   const fixture = makeFixture({ 'docs/a.md': '# A\n\nSee [the guide (reference).\n' })
   t.after(() => fixture.dispose())
 
-  const result = runCli(fixture.root, ['md-links', '--check', 'docs/a.md'])
+  const result = runCli(fixture.root, ['md-links', 'check', 'docs/a.md'])
 
   assert.equal(result.status, 1, result.output)
 })
@@ -61,7 +61,7 @@ test('a nested link fails', (t) => {
   })
   t.after(() => fixture.dispose())
 
-  const result = runCli(fixture.root, ['md-links', '--check', 'docs/a.md'])
+  const result = runCli(fixture.root, ['md-links', 'check', 'docs/a.md'])
 
   assert.equal(result.status, 1, result.output)
 })
@@ -70,7 +70,7 @@ test('a path outside the markdown scope is a violation', (t) => {
   const fixture = makeFixture({ 'docs/notes.txt': 'Not Markdown.\n' })
   t.after(() => fixture.dispose())
 
-  const result = runCli(fixture.root, ['md-links', '--check', 'docs/notes.txt'])
+  const result = runCli(fixture.root, ['md-links', 'check', 'docs/notes.txt'])
 
   assert.equal(result.status, 1, result.output)
 })
@@ -79,7 +79,19 @@ test('checking refuses --all', (t) => {
   const fixture = makeFixture()
   t.after(() => fixture.dispose())
 
-  const result = runCli(fixture.root, ['md-links', '--check', '--all'])
+  const result = runCli(fixture.root, ['md-links', 'check', '--all'])
 
   assert.equal(result.status, 2, result.output)
+})
+
+test('a global flag is not read as a scope entry', (t) => {
+  const fixture = makeFixture({
+    'docs/a.md': '# A\n\nSee [B](b.md).\n',
+    'docs/b.md': '# B\n',
+  })
+  t.after(() => fixture.dispose())
+
+  const result = runCli(fixture.root, ['md-links', 'check', 'docs/a.md', '--jobs', '1'])
+
+  assert.equal(result.status, 0, result.output)
 })

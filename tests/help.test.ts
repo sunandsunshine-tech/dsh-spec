@@ -14,18 +14,30 @@ import { test } from 'node:test'
 import { runCli } from './helpers/cli.ts'
 import { REPO_ROOT, makeFixture } from './helpers/fixtures.ts'
 
-/** The subjects the design defines. */
-const SUBJECTS = [
+/** Every command the design defines, at either level. */
+const COMMANDS = [
   'install',
   'upgrade',
   'uninstall',
   'status',
+  'check',
   'notes',
   'notes-archived',
   'translation-pair',
   'md-links',
-  'commit',
-  'all',
+]
+
+/** Every verb of every noun, so a verb without help fails rather than printing nothing. */
+const VERBS: ReadonlyArray<readonly [string, string]> = [
+  ['notes', 'check'],
+  ['notes-archived', 'check'],
+  ['notes-archived', 'write'],
+  ['translation-pair', 'check'],
+  ['translation-pair', 'list'],
+  ['translation-pair', 'explain'],
+  ['translation-pair', 'write'],
+  ['translation-pair', 'brief'],
+  ['md-links', 'check'],
 ]
 
 /** An environment with every language variable decided, so a case is independent of the machine. */
@@ -33,15 +45,15 @@ function locale(overrides: Record<string, string | undefined>): Record<string, s
   return { DSH_SPEC_LANG: undefined, LC_ALL: undefined, LC_MESSAGES: undefined, LANG: undefined, ...overrides }
 }
 
-test('--help names every subject', (t) => {
+test('--help names every command', (t) => {
   const fixture = makeFixture()
   t.after(() => fixture.dispose())
 
   const result = runCli(fixture.root, ['--help'], { env: locale({ LANG: 'en_US.UTF-8' }) })
 
   assert.equal(result.status, 0, result.output)
-  for (const subject of SUBJECTS) {
-    assert.match(result.output, new RegExp(`\\b${subject}\\b`), `--help does not name ${subject}:\n${result.output}`)
+  for (const command of COMMANDS) {
+    assert.match(result.output, new RegExp(`\\b${command}\\b`), `--help does not name ${command}:\n${result.output}`)
   }
 })
 
@@ -91,44 +103,65 @@ test('the flag beats the environment, and the value is an enum', (t) => {
   assert.match(unknown.output, /en/)
 })
 
-test('every subject answers --help with its operations', (t) => {
+test('every command answers --help', (t) => {
   const fixture = makeFixture()
   t.after(() => fixture.dispose())
 
-  for (const subject of SUBJECTS) {
-    const result = runCli(fixture.root, [subject, '--help'], { env: locale({ LANG: 'en_US.UTF-8' }) })
-    assert.equal(result.status, 0, `${subject} --help exited ${result.status}:\n${result.output}`)
-    assert.match(result.output, new RegExp(subject), `${subject} --help does not name itself:\n${result.output}`)
-  }
-
-  const notes = runCli(fixture.root, ['notes', '--help'], { env: locale({ LANG: 'en_US.UTF-8' }) })
-  assert.match(notes.output, /--check/)
-  assert.match(notes.output, /--all/)
-
-  const links = runCli(fixture.root, ['md-links', '--help'], { env: locale({ LANG: 'en_US.UTF-8' }) })
-  assert.match(links.output, /--files-from/)
-
-  const commit = runCli(fixture.root, ['commit', '--help'], { env: locale({ LANG: 'en_US.UTF-8' }) })
-  assert.match(commit.output, /--base/)
-
-  // A subject documents the flags that are its own, beside the global ones.
-  const install = runCli(fixture.root, ['install', '--help'], { env: locale({ LANG: 'en_US.UTF-8' }) })
-  assert.match(install.output, /--dry-run/)
-  const upgrade = runCli(fixture.root, ['upgrade', '--help'], { env: locale({ LANG: 'en_US.UTF-8' }) })
-  assert.match(upgrade.output, /--reinstall/)
-  const pair = runCli(fixture.root, ['translation-pair', '--help'], { env: locale({ LANG: 'en_US.UTF-8' }) })
-  for (const flag of ['--brief', '--apply', '--cached', '--list', '--write']) {
-    assert.match(pair.output, new RegExp(flag), `translation-pair --help does not document ${flag}:\n${pair.output}`)
+  for (const command of COMMANDS) {
+    const result = runCli(fixture.root, [command, '--help'], { env: locale({ LANG: 'en_US.UTF-8' }) })
+    assert.equal(result.status, 0, `${command} --help exited ${result.status}:\n${result.output}`)
+    assert.match(result.output, new RegExp(command), `${command} --help does not name itself:\n${result.output}`)
   }
 })
 
-test('the briefing is an operation of translation-pair, not a subject', (t) => {
+test('every verb answers --help beside its noun', (t) => {
   const fixture = makeFixture()
   t.after(() => fixture.dispose())
 
-  const result = runCli(fixture.root, ['brief', '--help'], { env: locale({ LANG: 'en_US.UTF-8' }) })
+  for (const [noun, verb] of VERBS) {
+    const result = runCli(fixture.root, [noun, verb, '--help'], { env: locale({ LANG: 'en_US.UTF-8' }) })
+    assert.equal(result.status, 0, `${noun} ${verb} --help exited ${result.status}:\n${result.output}`)
+    assert.match(result.output, new RegExp(`${noun} ${verb}`), `${noun} ${verb} --help does not name itself:\n${result.output}`)
+  }
+})
 
-  assert.equal(result.status, 2, result.output)
+test('a verb documents its own flags', (t) => {
+  const fixture = makeFixture()
+  t.after(() => fixture.dispose())
+  const help = (args: string[]): string => runCli(fixture.root, [...args, '--help'], { env: locale({ LANG: 'en_US.UTF-8' }) }).output
+
+  for (const flag of ['--all', '--files-from']) {
+    assert.match(help(['notes', 'check']), new RegExp(flag), `notes check --help does not document ${flag}`)
+  }
+  assert.match(help(['md-links', 'check']), /--files-from/)
+
+  const check = help(['check'])
+  for (const flag of ['--all', '--base', '--files-from']) {
+    assert.match(check, new RegExp(flag), `check --help does not document ${flag}:\n${check}`)
+  }
+
+  const brief = help(['translation-pair', 'brief'])
+  for (const flag of ['--apply', '--files-from']) {
+    assert.match(brief, new RegExp(flag), `translation-pair brief --help does not document ${flag}:\n${brief}`)
+  }
+
+  const write = help(['translation-pair', 'write'])
+  assert.match(write, /--all/)
+
+  const install = help(['install'])
+  assert.match(install, /--dry-run/)
+  const upgrade = help(['upgrade'])
+  assert.match(upgrade, /--reinstall/)
+})
+
+test('a command the grammar removed has no help', (t) => {
+  const fixture = makeFixture()
+  t.after(() => fixture.dispose())
+
+  for (const args of [['brief', '--help'], ['commit', '--help'], ['all', '--help']]) {
+    const result = runCli(fixture.root, args, { env: locale({ LANG: 'en_US.UTF-8' }) })
+    assert.equal(result.status, 2, `${args.join(' ')} was accepted:\n${result.output}`)
+  }
 })
 
 test('the reference is the English help, rendered', () => {

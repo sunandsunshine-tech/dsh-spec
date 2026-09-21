@@ -15,7 +15,7 @@ test('--all checks the whole active tree', (t) => {
   t.after(() => fixture.dispose())
   writeNote(fixture, '2026-01-01-a-first-decision.md')
 
-  const result = runCli(fixture.root, ['notes', '--check', '--all'])
+  const result = runCli(fixture.root, ['notes', 'check', '--all'])
 
   assert.equal(result.status, 0, result.output)
 })
@@ -25,7 +25,7 @@ test('an explicit path list checks exactly those files', (t) => {
   t.after(() => fixture.dispose())
   const note = writeNote(fixture, '2026-01-01-a-first-decision.md')
 
-  const result = runCli(fixture.root, ['notes', '--check', note])
+  const result = runCli(fixture.root, ['notes', 'check', note])
 
   assert.equal(result.status, 0, result.output)
 })
@@ -35,7 +35,7 @@ test('--files-from reads the list from stdin', (t) => {
   t.after(() => fixture.dispose())
   const note = writeNote(fixture, '2026-01-01-a-first-decision.md')
 
-  const result = runCli(fixture.root, ['notes', '--check', '--files-from', '-'], { stdin: `${note}\n` })
+  const result = runCli(fixture.root, ['notes', 'check', '--files-from', '-'], { stdin: `${note}\n` })
 
   assert.equal(result.status, 0, result.output)
 })
@@ -45,7 +45,7 @@ test('an empty --files-from list is a usage error, never a clean run', (t) => {
   t.after(() => fixture.dispose())
   writeNote(fixture, '2026-01-01-a-first-decision.md')
 
-  const result = runCli(fixture.root, ['notes', '--check', '--files-from', '-'], '\n')
+  const result = runCli(fixture.root, ['notes', 'check', '--files-from', '-'], { stdin: '\n' })
 
   assert.equal(result.status, 2, result.output)
 })
@@ -54,7 +54,7 @@ test('a path outside the check scope is a violation, not a skip', (t) => {
   const fixture = makeFixture({ 'README.md': '# A project\n' })
   t.after(() => fixture.dispose())
 
-  const result = runCli(fixture.root, ['notes', '--check', 'README.md'])
+  const result = runCli(fixture.root, ['notes', 'check', 'README.md'])
 
   assert.equal(result.status, 1, result.output)
 })
@@ -66,7 +66,7 @@ test('a deleted path is accepted, not refused', (t) => {
   fixture.commit('add the note')
   fixture.remove(note)
 
-  const result = runCli(fixture.root, ['notes', '--check', note])
+  const result = runCli(fixture.root, ['notes', 'check', note])
 
   assert.equal(result.status, 0, result.output)
 })
