@@ -43,8 +43,15 @@ test('editing one side without the other fails', (t) => {
 test('an English side that lost its switcher is still a pair, and fails', (t) => {
   const fixture = makeFixture()
   t.after(() => fixture.dispose())
-  writePair(fixture, 'docs/guide.md', { switcher: false })
+  writePair(fixture, 'docs/guide.md')
+  fixture.commit('add the pair')
+  runCli(fixture.root, ['translation-pair', '--write', 'docs/guide.md'])
 
+  // The English side loses its switcher, and the record is brought along so the hash check passes:
+  // what is left is exactly the violation a content-only declaration would not even see, because
+  // the file no longer declares itself a pair.
+  fixture.write('docs/guide.md', '# Guide\n\nA sentence with no switcher.\n')
+  runCli(fixture.root, ['translation-pair', '--write', 'docs/guide.md'])
   const result = runCli(fixture.root, ['translation-pair', '--check', 'docs/guide.md'])
 
   assert.equal(result.status, 1, result.output)

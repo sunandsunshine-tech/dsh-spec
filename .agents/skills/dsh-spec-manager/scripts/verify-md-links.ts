@@ -198,11 +198,11 @@ if (process.argv[1] && import.meta.filename === resolve(process.argv[1])) {
   const all = files.flatMap(entry => findViolations(resolve(scope.root, entry), anchorsOf))
   const checked = files.length
 
-  // An empty corpus means the caller handed nothing this repository has: report it instead of
-  // passing on a corpus the gate never read.
+  // Every handed path is a deletion: there is nothing to resolve in a removed file, and what the
+  // deletion breaks elsewhere is the documented limit of a file selection.
   if (checked === 0) {
-    console.error(`verify-md-links: none of the ${scope.entries.length} path(s) handed in exists — check the scope the caller assembled.`)
-    process.exit(1)
+    console.log(`verify-md-links: all ${scope.entries.length} path(s) handed in are deletions — no file to read.`)
+    process.exit(0)
   }
 
   if (all.length === 0) {

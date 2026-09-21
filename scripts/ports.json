@@ -21,6 +21,13 @@
       "note": ""
     },
     {
+      "local": "change-scope.ts",
+      "upstream": "scripts/change-scope.ts",
+      "sha": "ddefc45fbc7f8e46dd73185e68295696d1297887",
+      "relation": "verbatim",
+      "note": "Identical to the original apart from this entry's provenance header; the caller supplies the default --base."
+    },
+    {
       "local": "gen-translation-brief.ts",
       "upstream": "scripts/gen-translation-brief.ts",
       "sha": "ddefc45fbc7f8e46dd73185e68295696d1297887",

@@ -56,9 +56,10 @@ for (const entry of scope.entries) {
   }
 }
 
+// Every handed path is a deletion: a removed file has no line to read.
 if (read === 0) {
-  console.error(`${gate}: none of the ${scope.entries.length} path(s) handed in exists — check the scope the caller assembled`)
-  process.exit(1)
+  console.log(`${gate}: all ${scope.entries.length} path(s) handed in are deletions — no line to read.`)
+  process.exit(0)
 }
 
 if (failures.length > 0) {

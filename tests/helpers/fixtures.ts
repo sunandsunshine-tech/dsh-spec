@@ -121,10 +121,15 @@ export function exists(root: string, rel: string): boolean {
 
 /** A note body the format gate accepts, for the lifecycle it sits in. */
 export function noteText(title: string, lifecycle: string): string {
-  const body = lifecycle === 'proposed'
-    ? '## Proposal\n\nIt should be done this way.\n\n## Acceptance criteria\n\nThe behavior is observable.\n\n## Risks\n\nA risk is named.\n'
-    : '## Decision\n\nIt was decided.\n\n## Alternatives considered\n\nThe other option lost because it was worse.\n\n## Consequences\n\nThe decision holds.\n'
-  return `# Agent Note: ${title}\n\nStatus: ${lifecycle}\n\n## Problem\n\nSomething needed deciding.\n\n${body}`
+  // Each lifecycle has its own status grammar and its own required sections; a fixture that used
+  // the implemented skeleton for all three would fail the format gate for the wrong reason.
+  if (lifecycle === 'proposed') {
+    return `# Agent Note: ${title}\n\nStatus: proposed\n\n## Problem\n\nSomething needed deciding.\n\n## Proposal\n\nIt should be done this way.\n\n## Acceptance criteria\n\nThe behavior is observable.\n\n## Risks\n\nA risk is named.\n\n## Alternatives considered\n\nThe other option lost because it was worse.\n`
+  }
+  if (lifecycle === 'rejected') {
+    return `# Agent Note: ${title}\n\nStatus: rejected — it solved the wrong problem\n\n## Problem\n\nSomething needed deciding.\n\n## Proposal\n\nIt should be done this way.\n\n## Alternatives considered\n\nThe other option lost because it was worse.\n`
+  }
+  return `# Agent Note: ${title}\n\nStatus: implemented\n\n## Problem\n\nSomething needed deciding.\n\n## Decision\n\nIt was decided.\n\n## Alternatives considered\n\nThe other option lost because it was worse.\n\n## Consequences\n\nThe decision holds.\n`
 }
 
 /** Write one note at a path built from its lifecycle, class and name. */

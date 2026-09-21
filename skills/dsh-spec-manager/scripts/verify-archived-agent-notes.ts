@@ -123,7 +123,13 @@ const baselineRef = process.env.ARCHIVE_BASE_REF ?? 'HEAD'
 // gets its own diagnosis — which baseline was unreadable, and how to supply one — and stays non-zero,
 // because a freeze this gate could not compare is not a freeze it may report as intact.
 let unreadableBaseline: string | undefined
-try {
+// A baseline is the precondition of the append-only *comparison*, not of an empty tree: an archive
+// that holds neither an artifact nor a seal has nothing to compare, and demanding a commit for it
+// would fail a project that runs this check before its first commit.
+const nothingToSeal = artifacts.size === 0 && !existsSync(manifestPath)
+if (nothingToSeal) {
+  unreadableBaseline = undefined
+} else try {
   const baseline = readBaselineManifest(baselineRef)
   errors.push(...validateArchiveManifestExtension(baseline, manifest))
 } catch (error: unknown) {

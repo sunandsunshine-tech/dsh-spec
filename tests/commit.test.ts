@@ -42,8 +42,9 @@ test('a changed active note selects notes and md-links', (t) => {
   t.after(() => fixture.dispose())
   writeNote(fixture, '2026-01-01-a-first-decision.md')
   fixture.commit('init')
+  // Left uncommitted on purpose: `--base` defaults to HEAD, so the default scope is the working
+  // tree against the last commit, and `--base HEAD~1` is how a committed change is reached.
   fixture.write(`${NOTES}/implemented/process/2026-01-01-a-first-decision.md`, '# Agent Note: A first decision\n')
-  fixture.commit('break the note')
 
   const result = runCli(fixture.root, ['commit', '--check'])
 

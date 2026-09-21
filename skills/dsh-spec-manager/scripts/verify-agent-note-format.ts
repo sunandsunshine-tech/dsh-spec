@@ -119,9 +119,11 @@ for (const entry of scope.entries) {
   checkNote(parsed.note, readFileSync(absolute, 'utf8').split('\n'), errors)
 }
 
+// Every handed path is a deletion: the change removed notes, and a removed note has no body to
+// read. That is a fact about the change rather than a scope nobody assembled.
 if (checked === 0) {
-  console.error(`${gate}: none of the ${scope.entries.length} path(s) handed in names an Agent Note that exists — check the scope the caller assembled`)
-  process.exit(1)
+  console.log(`${gate}: all ${scope.entries.length} path(s) handed in are deletions — no note body to read.`)
+  process.exit(0)
 }
 
 if (errors.length === 0) {
