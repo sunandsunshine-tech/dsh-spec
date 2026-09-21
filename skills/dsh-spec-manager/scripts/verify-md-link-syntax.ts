@@ -12,7 +12,7 @@
  * This gate reads the source lines rather than the parsed tree.
  *
  * Run it from the project root:
- *   pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-prose-standard/scripts/verify-md-link-syntax.ts --root .
+ *   pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/verify-md-link-syntax.ts --root .
  */
 
 import { readFileSync } from 'node:fs'

@@ -60,8 +60,15 @@ for (const entry of readdirSync(archiveRoot, { withFileTypes: true })) {
     artifacts.set(rel, readFileSync(resolve(archiveRoot, rel)))
   }
 }
-for (const kind of AGENT_NOTE_CLASSES) {
-  if (!kinds.has(kind)) errors.push(`archived/${kind}/: required kind directory is missing`)
+// The six kind directories are required once the archive holds something, and not before: an
+// empty directory is not a thing Git can carry, so requiring all six unconditionally made every
+// fresh clone of a project that has archived nothing yet fail this gate — the exact state this
+// gate's own empty-archive report below describes as consistent. No artifact can hide in a kind
+// directory that does not exist, so nothing this rule protects is lost by waiting.
+if (artifacts.size > 0) {
+  for (const kind of AGENT_NOTE_CLASSES) {
+    if (!kinds.has(kind)) errors.push(`archived/${kind}/: required kind directory is missing`)
+  }
 }
 errors.push(...validateArchiveArtifacts(artifacts))
 
@@ -143,7 +150,7 @@ if (writeMode) {
   }
   console.log(`verify-archived-agent-notes: sealed ${extended.added.length} new artifact(s); existing seals unchanged.`)
 } else if (artifacts.size === 0) {
-  console.log(`verify-archived-agent-notes: the archive is empty — 0 frozen artifact(s) to check; ${kinds.size} kind(s) present and no seal recorded yet.`)
+  console.log(`verify-archived-agent-notes: the archive is empty — 0 frozen artifact(s) to check and no seal recorded yet; all ${AGENT_NOTE_CLASSES.length} kind directories are required once a note is archived.`)
 } else {
   console.log(`verify-archived-agent-notes: ${artifacts.size} frozen artifact(s) checked across ${kinds.size} kind(s).`)
 }

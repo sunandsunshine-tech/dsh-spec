@@ -12,7 +12,7 @@
 
 import type { Nodes } from './vendor-mdast-types.js'
 import { TERMINOLOGY_TABLE } from './i18n-scope.ts'
-import { parseTranslationMarkdown } from './translation-pairing.ts'
+import { gateEntryPoint, parseTranslationMarkdown } from './translation-pairing.ts'
 
 /** One block-level span of a Markdown document, in document order. */
 export interface MarkdownSpan {
@@ -457,7 +457,7 @@ export function renderTranslationBrief(input: TranslationBriefInput): string {
     out.push('')
     out.push('## Mechanical update — no translation judgment involved')
     out.push('')
-    out.push(`Every change since the last confirmed state is inside fenced code blocks, which are byte-identical across the pair. Run \`pnpm dlx --allow-build=esbuild tsx scripts/gen-translation-brief.ts --apply ${input.sourcePath}\` to splice the updated fences into the counterpart (the result is structure-validated before writing), then record per the Finish steps.`)
+    out.push(`Every change since the last confirmed state is inside fenced code blocks, which are byte-identical across the pair. Run \`pnpm dlx --allow-build=esbuild tsx@4.22.4 ${gateEntryPoint('gen-translation-brief.ts')} --apply ${input.sourcePath}\` to splice the updated fences into the counterpart (the result is structure-validated before writing), then record per the Finish steps.`)
   }
   out.push('')
   out.push(`## ${sourceLanguage} diff (last-confirmed → current)`)
@@ -506,8 +506,8 @@ export function renderTranslationBrief(input: TranslationBriefInput): string {
   out.push('## Finish')
   out.push('')
   out.push('1. Apply the smallest counterpart edit that covers the change, then verify the changed spans clause by clause against the source.')
-  out.push(`2. \`pnpm dlx --allow-build=esbuild tsx scripts/verify-translation-pairing.ts --write ${input.sourcePath.replace(/\.zh\.md$/, '.md')}\``)
-  out.push(`3. \`pnpm dlx --allow-build=esbuild tsx scripts/verify-translation-pairing.ts ${input.sourcePath.replace(/\.zh\.md$/, '.md')}\``)
+  out.push(`2. \`pnpm dlx --allow-build=esbuild tsx@4.22.4 ${gateEntryPoint('verify-translation-pairing.ts')} --write ${input.sourcePath.replace(/\.zh\.md$/, '.md')}\``)
+  out.push(`3. \`pnpm dlx --allow-build=esbuild tsx@4.22.4 ${gateEntryPoint('verify-translation-pairing.ts')} ${input.sourcePath.replace(/\.zh\.md$/, '.md')}\``)
   out.push('')
   return out.join('\n')
 }
