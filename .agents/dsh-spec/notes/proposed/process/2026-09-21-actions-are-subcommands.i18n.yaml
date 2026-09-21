@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair --write .agents/dsh-spec/notes/proposed/process/2026-09-21-actions-are-subcommands.md
+2026-09-21-actions-are-subcommands.md: be50752008066948c8726a9e158ee0a8fb045db1
+2026-09-21-actions-are-subcommands.zh.md: 7a007ee103c3c2c798a698033aef3a596f0e063d
