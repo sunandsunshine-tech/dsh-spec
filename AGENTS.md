@@ -14,7 +14,7 @@ This repository holds `skills/` — one skill package carrying the dsh developme
 skills/   the deliverable: eight skills, one per workflow, each with its own entry and references;
           every gate is code in dsh-spec-manager/scripts/, the collection's one home for it
 scripts/           this repository's own validation, not shipped — verify-skill-structure.ts
-submodules/dsh/    the extraction baseline, pinned to dsh-v0.1.5-rc.2 — .gitmodules
+submodules/dsh/    the extraction baseline, pinned to dsh-v0.1.6-alpha.2 — .gitmodules
 .agents/skills/    the installed package, tracked and updated only with gh — this file
 .agents/dsh-spec/  what this repository decided: the decision records — notes/README.md
 docs/              the documents a person reads; no tier, no budget, and no gate
