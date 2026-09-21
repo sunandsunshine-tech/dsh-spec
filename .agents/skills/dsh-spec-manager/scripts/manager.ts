@@ -35,7 +35,7 @@ const scriptDir = dirname(fileURLToPath(import.meta.url))
 /** The manifest: the skills the collection installs, the pin they come from, and the gates it publishes. */
 const manifestPath = manifestPathOf(scriptDir)
 /** The dispatcher, which sits in the code home beside every gate and resolves a name against the record. */
-const dispatcherPath = join(scriptDir, 'run.ts')
+const dispatcherPath = join(scriptDir, 'dsh-spec.ts')
 const initializerPath = join(scriptDir, 'init-agents-md.ts')
 /** The grammar a skill name must match before it becomes a path. */
 const NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
@@ -170,13 +170,25 @@ function runCaptured(command: string, args: string[], label: string): Promise<Ch
  * @param command - the binary to run.
  * @param items - one label and argument list per child.
  * @param dryRun - print the commands instead of running them.
+ * @param limit - the most children alive at once; the work is network-bound, so the pool is bounded.
  */
-async function runAll(command: string, items: readonly { label: string, args: string[] }[], dryRun: boolean): Promise<void> {
+async function runAll(command: string, items: readonly { label: string, args: string[] }[], dryRun: boolean, limit = 8): Promise<void> {
   if (dryRun) {
     for (const item of items) console.log(`  would run: ${[command, ...item.args].join(' ')}`)
     return
   }
-  const results = await Promise.all(items.map(item => runCaptured(command, item.args, item.label)))
+  const results: ChildResult[] = new Array(items.length)
+  let next = 0
+  const workers = Array.from({ length: Math.max(1, Math.min(limit, items.length)) }, async () => {
+    for (;;) {
+      const index = next
+      next += 1
+      const item = items[index]
+      if (item === undefined) return
+      results[index] = await runCaptured(command, item.args, item.label)
+    }
+  })
+  await Promise.all(workers)
   for (const result of results) {
     if (result.error !== undefined) fail(`${command} could not be run for ${result.label}: ${result.error.message}`)
   }
@@ -359,9 +371,11 @@ function pruneToRevision(skill: string, directory: string, expected: string[] | 
  * @param dryRun - print the commands instead of running them.
  * @param reinstall - install every skill even when it is already the revision's content.
  */
-async function refresh(repo: string, directory: string, manifest: Manifest, dryRun: boolean, reinstall: boolean): Promise<void> {
-  const index = await readRevisionIndex(repo, manifest.revision)
-  if (index === undefined) {
+async function refresh(root: string, repo: string, directory: string, manifest: Manifest, dryRun: boolean, reinstall: boolean, create: boolean, limit: number): Promise<void> {
+  // A dry run is a local plan: reading the revision index costs a network round trip, and a preview
+  // that needs the network is not a preview anybody can run offline.
+  const index = dryRun ? undefined : await readRevisionIndex(repo, manifest.revision)
+  if (!dryRun && index === undefined) {
     console.log(`  could not read the tree for ${manifest.revision} — installing every skill and pruning nothing`)
   }
   const stale: string[] = []
@@ -376,7 +390,7 @@ async function refresh(repo: string, directory: string, manifest: Manifest, dryR
   await runAll('gh', stale.map(skill => ({
     label: skill,
     args: ['skill', 'install', repo, `${skill}@${manifest.revision}`, '--dir', directory, '--force'],
-  })), dryRun)
+  })), dryRun, limit)
   if (dryRun) {
     for (const skill of manifest.skills) console.log(`  would prune ${skill} to the files ${manifest.revision} ships`)
   } else {
@@ -389,7 +403,27 @@ async function refresh(repo: string, directory: string, manifest: Manifest, dryR
   // documentation orders, the search exclusion, the marked standing-orders section — are brought to
   // this revision too, so every project's mechanism text is the same one. A terminology table keeps
   // its rows and `AGENTS.md` keeps everything outside the marked section.
-  run(process.execPath, [initializerPath, '--root', root, '--sync', '--write'], dryRun)
+  // Adoption creates the project files that are missing and never overwrites one it did not
+  // create; a refresh only brings the managed text up to this revision, so a file a project
+  // deliberately deleted stays deleted.
+  if (create) run(process.execPath, initializerArgs(root, ['--write']), dryRun)
+  run(process.execPath, initializerArgs(root, ['--sync', '--write']), dryRun)
+}
+
+/** Adopt the collection: deploy the pinned set, create the missing project files, sync the text. */
+export async function installProject(root: string, options: { dryRun: boolean, jobs: number }): Promise<void> {
+  const manifest = readManifest()
+  console.log(`  install ${manifest.skills.length} skill(s) from ${manifest.repo} at ${manifest.revision} into ${skillsDirectory(root)}`)
+  if (options.dryRun) console.log('  dry run — nothing is written; drop --dry-run to apply')
+  await refresh(root, manifest.repo, skillsDirectory(root), manifest, options.dryRun, false, true, options.jobs)
+}
+
+/** Refresh the deployment and the managed text, creating nothing the project does not already have. */
+export async function upgradeProject(root: string, options: { dryRun: boolean, reinstall: boolean, jobs: number }): Promise<void> {
+  const manifest = readManifest()
+  console.log(`  upgrade ${manifest.skills.length} skill(s) from ${manifest.repo} at ${manifest.revision} into ${skillsDirectory(root)}`)
+  if (options.dryRun) console.log('  dry run — nothing is written; drop --dry-run to apply')
+  await refresh(root, manifest.repo, skillsDirectory(root), manifest, options.dryRun, options.reinstall, false, options.jobs)
 }
 
 /**
@@ -418,6 +452,10 @@ function installedRevision(path: string): string | undefined {
 }
 
 /** Report the installed set and each skill's revision, read from the installed file; change nothing. */
+export function statusProject(root: string): void {
+  status(root, readManifest())
+}
+
 function status(root: string, manifest: Manifest): void {
   const directory = skillsDirectory(root)
   const findings: string[] = []
@@ -451,7 +489,7 @@ function status(root: string, manifest: Manifest): void {
   for (const name of installed) {
     if (!manifest.skills.includes(name)) findings.push(`${name}: installed but not named in the manifest`)
   }
-  if (!existsSync(dispatcherPath)) findings.push(`${dispatcherPath}: the dispatcher run.ts is missing`)
+  if (!existsSync(dispatcherPath)) findings.push(`${dispatcherPath}: the entry point dsh-spec.ts is missing`)
 
   if (findings.length > 0) {
     console.error(`dsh-spec-manager: status found ${findings.length} problem(s):`)
@@ -462,6 +500,10 @@ function status(root: string, manifest: Manifest): void {
 }
 
 /** Remove the installed skills. */
+export function uninstallProject(root: string, dryRun: boolean): void {
+  uninstall(root, readManifest(), dryRun)
+}
+
 function uninstall(root: string, manifest: Manifest, dryRun: boolean): void {
   const directory = skillsDirectory(root)
   for (const skill of manifest.skills) {
@@ -477,39 +519,57 @@ function uninstall(root: string, manifest: Manifest, dryRun: boolean): void {
     }
   }
   // The layer and the manifest live inside the manager skill's own directory, so removing that
-  // directory removes them; nothing outside it was ever written.
-}
-
-const command = subcommand()
-const root = projectRoot()
-const dryRun = hasFlag('--dry-run')
-
-if (command === 'init') {
-  if (!existsSync(initializerPath)) fail(`the initializer is missing at ${initializerPath}`)
-  const args = [initializerPath, '--root', root]
-  if (hasFlag('--write')) args.push('--write')
-  if (hasFlag('--no-notes')) args.push('--no-notes')
-  run(process.execPath, args, dryRun)
-} else if (command === 'install' || command === 'update') {
-  const manifest = readManifest()
-  const requested = flagValue('--rev')
-  if (requested !== undefined && requested !== manifest.revision) {
-    fail(`--rev ${requested} contradicts the manifest's pinned revision ${manifest.revision}`)
+  // directory removes them; nothing outside it was ever written. What is left is the project's own,
+  // and an uninstall that took it would delete decisions and standing orders the project made.
+  console.log('  left in place — delete these yourself if the project is leaving the pattern:')
+  for (const path of ['AGENTS.md (its dsh-spec:agent-notes block)', '.agents/dsh-spec/notes/', 'docs/', '.rgignore']) {
+    console.log(`    ${path}`)
   }
-  const repo = flagValue('--repo') ?? manifest.repo
-  const directory = skillsDirectory(root)
-  console.log(`  ${command} ${manifest.skills.length} skill(s) from ${repo} at ${manifest.revision} into ${directory}`)
-  // The work is asynchronous so the fetches can run together; `runAll` keeps the process alive until
-  // they finish, and every failure path inside it exits non-zero.
-  void refresh(repo, directory, manifest, dryRun, hasFlag('--reinstall'))
-} else if (command === 'sync') {
-  const args = [initializerPath, '--root', root, '--sync']
-  if (hasFlag('--write')) args.push('--write')
-  run(process.execPath, args, dryRun)
-} else if (command === 'status') {
-  status(root, readManifest())
-} else if (command === 'uninstall') {
-  uninstall(root, readManifest(), dryRun)
-} else {
-  fail(`unknown subcommand ${command === '' ? '(none given)' : `\`${command}\``} — expected init, install, update, sync, uninstall or status`)
 }
+
+/**
+ * The initializer's arguments, carrying a `.agents/skills` override when the caller gave one.
+ *
+ * The initializer writes the installed engine directory into the managed text, so an install at a
+ * non-default directory has to tell it where the skills actually went.
+ */
+function initializerArgs(root: string, extra: readonly string[]): string[] {
+  const directory = flagValue('--dir')
+  return [initializerPath, '--root', root, ...extra, ...(directory === undefined ? [] : ['--dir', directory])]
+}
+
+/** The dispatch width for installer calls; the environment may override it. */
+function jobWidth(): number {
+  const requested = flagValue('--jobs') ?? process.env.DSH_SPEC_JOBS
+  if (requested === undefined || requested === '') return 8
+  const width = Number.parseInt(requested, 10)
+  if (!Number.isFinite(width) || width < 1) fail(`--jobs needs a positive integer, got ${JSON.stringify(requested)}`)
+  return width
+}
+
+/** This file's own CLI: kept so the deployment can be driven without the entry point beside it. */
+function manage(): void {
+  const command = subcommand()
+  const root = projectRoot()
+  const dryRun = hasFlag('--dry-run')
+  if (command === 'install') {
+    void installProject(root, { dryRun, jobs: jobWidth() })
+  } else if (command === 'upgrade' || command === 'update') {
+    void upgradeProject(root, { dryRun, reinstall: hasFlag('--reinstall'), jobs: jobWidth() })
+  } else if (command === 'init') {
+    if (!existsSync(initializerPath)) fail(`the initializer is missing at ${initializerPath}`)
+    run(process.execPath, initializerArgs(root, hasFlag('--write') ? ['--write'] : []), dryRun)
+  } else if (command === 'sync') {
+    run(process.execPath, initializerArgs(root, hasFlag('--write') ? ['--sync', '--write'] : ['--sync']), dryRun)
+  } else if (command === 'status') {
+    statusProject(root)
+  } else if (command === 'uninstall') {
+    uninstallProject(root, dryRun)
+  } else {
+    fail(`unknown subcommand ${command === '' ? '(none given)' : `\`${command}\``} — expected install, upgrade, sync, uninstall or status`)
+  }
+}
+
+// Importing this module must not run the CLI: the entry point beside it imports these functions.
+const invokedDirectly = process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+if (invokedDirectly) manage()

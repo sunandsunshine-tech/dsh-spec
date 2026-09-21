@@ -19,12 +19,13 @@
  * Zero external dependencies.
  */
 
-import { spawn, spawnSync } from 'node:child_process'
+import { spawn } from 'node:child_process'
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { availableParallelism, tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { renderChangeScope } from './change-scope.ts'
 import { expandScope, parseScopeArgs, pathInGateScope } from './gate-scope.ts'
+import { installProject, statusProject, uninstallProject, upgradeProject } from './manager.ts'
 import { readGateScopes } from './manifest.ts'
 import { resolveRepoRoot } from './repo-root.ts'
 import type { GateScopeRecord } from './manifest.ts'
@@ -53,14 +54,6 @@ const SUBJECTS = [
 
 /** A subject that reads the project rather than managing the skill set. */
 type CheckSubject = 'notes' | 'notes-archived' | 'translation-pair' | 'md-links'
-
-/** The management verbs, and the manager subcommand each one is. */
-const MANAGEMENT: Record<string, string> = {
-  install: 'install',
-  upgrade: 'update',
-  uninstall: 'uninstall',
-  status: 'status',
-}
 
 /** One gate invocation: which subject it answers for, which gate, and its arguments. */
 interface Job {
@@ -261,14 +254,6 @@ function recordOf(gate: string): GateScopeRecord {
   return record
 }
 
-// ------------------------------------------------------------------ management
-
-if (subject in MANAGEMENT) {
-  const mapped = MANAGEMENT[subject] ?? subject
-  const child = spawnSync(process.execPath, [join(scriptDir, 'manager.ts'), mapped, ...rest, '--root', root], { stdio: 'inherit' })
-  process.exit(child.status ?? 1)
-}
-
 // ------------------------------------------------------------------ the checks
 
 const NOTES_GATE = 'verify-agent-note-classification'
@@ -289,6 +274,41 @@ function notesJobs(handed: { all: boolean, paths: string[] }): { jobs: Job[], cl
 
 async function main(): Promise<void> {
   const width = dispatchWidth(rest)
+
+  // ------------------------------------------------------------------ management
+
+  if (subject === 'install' || subject === 'upgrade' || subject === 'uninstall' || subject === 'status') {
+    // `--root` and its value belong to the dispatcher, not to the subject's own flags.
+    const flags = rest.filter((argument, index, all) => argument !== '--root' && all[index - 1] !== '--root')
+    for (let index = 0; index < flags.length; index += 1) {
+      const argument = flags[index] ?? ''
+      if (argument === '--dry-run') continue
+      if (argument === '--reinstall') {
+        if (subject === 'upgrade') continue
+        usage(`${subject} does not take --reinstall`)
+      }
+      if (argument === '--jobs') {
+        index += 1
+        continue
+      }
+      usage(`${subject} does not take ${argument}`)
+    }
+    const dryRun = flags.includes('--dry-run')
+    if (subject === 'install') {
+      await installProject(root, { dryRun, jobs: width })
+      process.exit(0)
+    }
+    if (subject === 'upgrade') {
+      await upgradeProject(root, { dryRun, reinstall: flags.includes('--reinstall'), jobs: width })
+      process.exit(0)
+    }
+    if (subject === 'uninstall') {
+      uninstallProject(root, dryRun)
+      process.exit(0)
+    }
+    statusProject(root)
+    process.exit(0)
+  }
 
   if (subject === 'notes') {
     const op = rest.includes('--check')
