@@ -389,7 +389,7 @@ async function refresh(repo: string, directory: string, manifest: Manifest, dryR
   // documentation orders, the search exclusion, the marked standing-orders section — are brought to
   // this revision too, so every project's mechanism text is the same one. A terminology table keeps
   // its rows and `AGENTS.md` keeps everything outside the marked section.
-  run('pnpm', ['dlx', '--allow-build=esbuild', 'tsx@4.22.4', initializerPath, '--root', root, '--sync', '--write'], dryRun)
+  run(process.execPath, [initializerPath, '--root', root, '--sync', '--write'], dryRun)
 }
 
 /**
@@ -486,10 +486,10 @@ const dryRun = hasFlag('--dry-run')
 
 if (command === 'init') {
   if (!existsSync(initializerPath)) fail(`the initializer is missing at ${initializerPath}`)
-  const args = ['dlx', '--allow-build=esbuild', 'tsx@4.22.4', initializerPath, '--root', root]
+  const args = [initializerPath, '--root', root]
   if (hasFlag('--write')) args.push('--write')
   if (hasFlag('--no-notes')) args.push('--no-notes')
-  run('pnpm', args, dryRun)
+  run(process.execPath, args, dryRun)
 } else if (command === 'install' || command === 'update') {
   const manifest = readManifest()
   const requested = flagValue('--rev')
@@ -503,9 +503,9 @@ if (command === 'init') {
   // they finish, and every failure path inside it exits non-zero.
   void refresh(repo, directory, manifest, dryRun, hasFlag('--reinstall'))
 } else if (command === 'sync') {
-  const args = ['dlx', '--allow-build=esbuild', 'tsx@4.22.4', initializerPath, '--root', root, '--sync']
+  const args = [initializerPath, '--root', root, '--sync']
   if (hasFlag('--write')) args.push('--write')
-  run('pnpm', args, dryRun)
+  run(process.execPath, args, dryRun)
 } else if (command === 'status') {
   status(root, readManifest())
 } else if (command === 'uninstall') {

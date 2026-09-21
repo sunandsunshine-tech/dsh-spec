@@ -1,4 +1,5 @@
 /**
+ * Ported from dsh scripts/verify-translation-pairing.ts @ ddefc45fbc7f8e46dd73185e68295696d1297887 (submodules/dsh). Relation: adapted.
  * Enforce complete English/Chinese pairs, matching structure, and recorded git
  * blob hashes for every document that declares a pair. A pair is declared by
  * the file itself: a `.md` with a `.zh.md` counterpart or an `.i18n.yaml`

@@ -1,3 +1,6 @@
+/**
+ * Ported from dsh scripts/repo-files.ts @ ddefc45fbc7f8e46dd73185e68295696d1297887 (submodules/dsh). Relation: split.
+ */
 /** Shared repository file discovery, for the prose gates that walk Markdown. */
 
 import { globSync, realpathSync, statSync } from 'node:fs'

@@ -1,0 +1,115 @@
+{
+  "baseline": {
+    "repo": "https://github.com/deepseek-ai/deepseek-harness",
+    "ref": "dsh-v0.1.6-alpha.2",
+    "sha": "ddefc45fbc7f8e46dd73185e68295696d1297887",
+    "submodule": "submodules/dsh"
+  },
+  "ports": [
+    {
+      "local": "agent-note-tree.ts",
+      "upstream": "scripts/agent-note-tree.ts",
+      "sha": "ddefc45fbc7f8e46dd73185e68295696d1297887",
+      "relation": "adapted",
+      "note": "The notes root resolves through notes-root.ts, so this pattern's own path and the un-namespaced layout it was extracted from are both honoured."
+    },
+    {
+      "local": "archived-agent-notes.ts",
+      "upstream": "scripts/archived-agent-notes.ts",
+      "sha": "ddefc45fbc7f8e46dd73185e68295696d1297887",
+      "relation": "verbatim",
+      "note": ""
+    },
+    {
+      "local": "gen-translation-brief.ts",
+      "upstream": "scripts/gen-translation-brief.ts",
+      "sha": "ddefc45fbc7f8e46dd73185e68295696d1297887",
+      "relation": "adapted",
+      "note": "Reads --root instead of the authored layout, and the commands it prints name the installed engine."
+    },
+    {
+      "local": "markdown.ts",
+      "upstream": "scripts/markdown.ts",
+      "sha": "ddefc45fbc7f8e46dd73185e68295696d1297887",
+      "relation": "adapted",
+      "note": "Parses with the vendored mdast bundle rather than the npm packages."
+    },
+    {
+      "local": "repo-files.ts",
+      "upstream": "scripts/repo-files.ts",
+      "sha": "ddefc45fbc7f8e46dd73185e68295696d1297887",
+      "relation": "split",
+      "note": "Keeps the glob expansion and symlink deduplication; dsh's line-oriented reference scanner is not ported."
+    },
+    {
+      "local": "translation-brief.ts",
+      "upstream": "scripts/translation-brief.ts",
+      "sha": "ddefc45fbc7f8e46dd73185e68295696d1297887",
+      "relation": "adapted",
+      "note": "The commands it renders resolve through gateEntryPoint, so they name the installed engine."
+    },
+    {
+      "local": "translation-links.ts",
+      "upstream": "scripts/translation-links.ts",
+      "sha": "ddefc45fbc7f8e46dd73185e68295696d1297887",
+      "relation": "adapted",
+      "note": "Imports the vendored parser."
+    },
+    {
+      "local": "translation-pairing-git.ts",
+      "upstream": "scripts/translation-pairing-git.ts",
+      "sha": "ddefc45fbc7f8e46dd73185e68295696d1297887",
+      "relation": "adapted",
+      "note": "Drops the DSH_ environment prefix from the snapshot ref."
+    },
+    {
+      "local": "translation-pairing-record.ts",
+      "upstream": "scripts/translation-pairing-record.ts",
+      "sha": "ddefc45fbc7f8e46dd73185e68295696d1297887",
+      "relation": "adapted",
+      "note": "The record renderer, split out of dsh's translation-pairing.ts; the recorded command is project-relative."
+    },
+    {
+      "local": "translation-pairing.ts",
+      "upstream": "scripts/translation-pairing.ts",
+      "sha": "ddefc45fbc7f8e46dd73185e68295696d1297887",
+      "relation": "split",
+      "note": "The record renderer moved to translation-pairing-record.ts and scope questions live in i18n-scope.ts; what remains is the parsing and structure comparison."
+    },
+    {
+      "local": "verify-agent-note-classification.ts",
+      "upstream": "scripts/verify-agent-note-classification.ts",
+      "sha": "ddefc45fbc7f8e46dd73185e68295696d1297887",
+      "relation": "adapted",
+      "note": "Reads --root and reports through the collection's dispatcher."
+    },
+    {
+      "local": "verify-agent-note-format.ts",
+      "upstream": "scripts/verify-agent-note-format.ts",
+      "sha": "ddefc45fbc7f8e46dd73185e68295696d1297887",
+      "relation": "adapted",
+      "note": "Reads --root and reports through the collection's dispatcher."
+    },
+    {
+      "local": "verify-archived-agent-notes.ts",
+      "upstream": "scripts/verify-archived-agent-notes.ts",
+      "sha": "ddefc45fbc7f8e46dd73185e68295696d1297887",
+      "relation": "adapted",
+      "note": "Reads --root, seals against ARCHIVE_BASE_REF, and requires the six kind directories only once the archive holds an artifact."
+    },
+    {
+      "local": "verify-md-links.ts",
+      "upstream": "scripts/verify-md-links.ts",
+      "sha": "ddefc45fbc7f8e46dd73185e68295696d1297887",
+      "relation": "adapted",
+      "note": "Reads --root and takes its corpus from md-scope.ts instead of the authored pattern list."
+    },
+    {
+      "local": "verify-translation-pairing.ts",
+      "upstream": "scripts/verify-translation-pairing.ts",
+      "sha": "ddefc45fbc7f8e46dd73185e68295696d1297887",
+      "relation": "adapted",
+      "note": "The corpus is the file tree rather than a pairing manifest, and the gate reads --root."
+    }
+  ]
+}

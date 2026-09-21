@@ -1,4 +1,5 @@
 /**
+ * Ported from dsh scripts/agent-note-tree.ts @ ddefc45fbc7f8e46dd73185e68295696d1297887 (submodules/dsh). Relation: adapted.
  * Shared structural source of truth for the Agent Note tree. Lifecycle and class
  * sets are closed under `.agents/dsh-spec/notes/README.md`; importing this module is pure.
  */

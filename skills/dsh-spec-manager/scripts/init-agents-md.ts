@@ -437,7 +437,7 @@ function syncManagedFiles(): void {
       console.log(`  would re-record the pair ${path}`)
       continue
     }
-    const recorded = spawnSync('pnpm', ['dlx', '--allow-build=esbuild', 'tsx@4.22.4', resolve(root, dispatcher), 'verify-translation-pairing', '--root', root, '--write', path], { stdio: 'inherit' })
+    const recorded = spawnSync(process.execPath, [resolve(root, dispatcher), 'verify-translation-pairing', '--root', root, '--write', path], { stdio: 'inherit' })
     if ((recorded.status ?? 1) !== 0) {
       console.error(`dsh-spec-sync: the pair ${path} could not be re-recorded — run the pairing gate by hand`)
       process.exit(1)
@@ -613,9 +613,9 @@ if (gates.length === 0) {
   console.log('         none — the record names no gate, so reinstall the collection')
 }
 for (const gate of gates) {
-  console.log(`         pnpm dlx --allow-build=esbuild tsx@4.22.4 ${dispatcher} ${gate} --root .`)
+  console.log(`         node ${dispatcher} ${gate} --root .`)
 }
-console.log(`         pnpm dlx --allow-build=esbuild tsx@4.22.4 ${dispatcher} --all --root .`)
+console.log(`         node ${dispatcher} --all --root .`)
 console.log('           this one is the whole check: it runs every recorded gate, and it refuses to run when')
 console.log('           the record and the `verify-*.ts` scripts beside the dispatcher disagree, so a gate that')
 console.log('           disappears, or a script nobody recorded, is reported instead of being run')

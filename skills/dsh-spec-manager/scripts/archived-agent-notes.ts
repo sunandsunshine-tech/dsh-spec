@@ -1,3 +1,6 @@
+/**
+ * Ported from dsh scripts/archived-agent-notes.ts @ ddefc45fbc7f8e46dd73185e68295696d1297887 (submodules/dsh). Relation: verbatim.
+ */
 /** Pure archive-format, triplet, and immutable-manifest helpers. */
 
 import { createHash } from 'node:crypto'

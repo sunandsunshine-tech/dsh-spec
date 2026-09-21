@@ -1,3 +1,6 @@
+/**
+ * Ported from dsh scripts/translation-links.ts @ ddefc45fbc7f8e46dd73185e68295696d1297887 (submodules/dsh). Relation: adapted.
+ */
 /** Locale-aware resolution and byte-preserving rewrites for bilingual Markdown links. */
 
 import { existsSync, statSync } from 'node:fs'

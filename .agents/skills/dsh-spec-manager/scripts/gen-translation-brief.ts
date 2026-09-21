@@ -1,4 +1,5 @@
 /**
+ * Ported from dsh scripts/gen-translation-brief.ts @ ddefc45fbc7f8e46dd73185e68295696d1297887 (submodules/dsh). Relation: adapted.
  * Print the minimal-update briefing for out-of-sync translation pairs:
  * `pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/gen-translation-brief.ts [--apply] [pair paths...]`. With no
  * arguments it discovers every out-of-sync pair; with arguments (any file

@@ -113,8 +113,8 @@ function runGate(gate: string, args: string[]): number {
     return 1
   }
   const result = spawnSync(
-    'pnpm',
-    ['dlx', '--allow-build=esbuild', 'tsx@4.22.4', resolved.path, ...args],
+    process.execPath,
+    [resolved.path, ...args],
     // A gate resolves `--root .` against the process it runs in, so it must run where the
     // caller stands: the climb above lands one level short in the source tree and one level
     // long in the installed copy, and either way a relative root would point outside the project.

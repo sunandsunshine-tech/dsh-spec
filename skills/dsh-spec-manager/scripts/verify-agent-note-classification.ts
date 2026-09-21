@@ -1,4 +1,5 @@
 /**
+ * Ported from dsh scripts/verify-agent-note-classification.ts @ ddefc45fbc7f8e46dd73185e68295696d1297887 (submodules/dsh). Relation: adapted.
  * Enforce Agent Note lifecycle/class paths and dated filenames. Structural rules
  * are shared with `agent-note-tree.ts`; the closed classification rules live
  * in `.agents/dsh-spec/notes/README.md`.

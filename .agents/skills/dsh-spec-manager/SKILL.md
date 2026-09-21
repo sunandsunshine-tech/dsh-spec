@@ -4,7 +4,7 @@ metadata:
     github-path: skills/dsh-spec-manager
     github-ref: refs/heads/extract
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: 5930af37dd10e51634a49a82a0c7159ebcd0163d
+    github-tree-sha: 3db92810a74f7d8c80ffc7cabfc7d3a4c60a79fe
 name: dsh-spec-manager
 ---
 # Managing an adopted project
