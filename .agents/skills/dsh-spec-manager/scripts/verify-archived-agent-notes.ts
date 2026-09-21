@@ -24,7 +24,7 @@ if (unrecognizedArgs.length > 0 || (!writeMode && args.length > 0 && !args.inclu
 
 const archiveRoot = resolve(agentNoteRoot, 'archived')
 const manifestPath = resolve(archiveRoot, 'manifest.json')
-const repositoryRoot = resolve(agentNoteRoot, '../..')
+const repositoryRoot = resolve(agentNoteRoot, '../../..')
 const manifestRepoPath = '.agents/dsh-spec/notes/archived/manifest.json'
 const errors: string[] = []
 const allowedRootFiles = new Set(['AGENTS.md', 'manifest.json'])

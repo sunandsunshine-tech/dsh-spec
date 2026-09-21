@@ -2,14 +2,14 @@
 description: Use when auditing or fixing prose that reads like a leaked reasoning transcript — dead design-session citations such as (decision N), audit item codes, or §N of uncommitted drafts; change narration such as "used to", "no longer", "this cut"; stack or review vantage ("a later PR in this stack", "rejected in review"); reviewer-addressed justifications; control-flow narration; or hedged planning residue in comments, API documentation, docs, or decision records.
 metadata:
     github-path: skills/dsh-trim-cot-leakage
-    github-ref: refs/heads/split-skills
+    github-ref: refs/heads/extract
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: f3ab5ef21b8d668e607271444ae26f9ff0f1c21d
+    github-tree-sha: ea949a1c3df010d1154a88affdd6e133b8880672
 name: dsh-trim-cot-leakage
 ---
 # Trimming Chain-of-Thought Leakage
 
-Chain-of-thought leakage is prose whose vantage is the authoring session rather than the repository: it cites artifacts only that session could see, narrates the change instead of the state, or argues with a reviewer who has left. The fix is never deletion alone when a passage carries factual clauses — restate each so it stands at HEAD, then delete the transcript around it; a passage carrying none (an audit code, control-flow narration) is deleted outright. **REQUIRED BACKGROUND:** [dsh-prose-standard](../dsh-prose-standard/SKILL.md) owns the complete-proposition rule this skill applies; the `agent-notes/implemented/process/2026-08-09-committed-artifact-citations.md` owns the citation rule's rationale. It is guidance, not a script.
+Chain-of-thought leakage is prose whose vantage is the authoring session rather than the repository: it cites artifacts only that session could see, narrates the change instead of the state, or argues with a reviewer who has left. The fix is never deletion alone when a passage carries factual clauses — restate each so it stands at HEAD, then delete the transcript around it; a passage carrying none (an audit code, control-flow narration) is deleted outright. **REQUIRED BACKGROUND:** [dsh-prose-standard](../dsh-prose-standard/SKILL.md) owns the complete-proposition rule this skill applies. It is guidance, not a script.
 
 ## The one test
 
@@ -28,10 +28,10 @@ For every suspect passage ask: **could a reader at HEAD, with no access to any s
 
 ## What is not leakage
 
-Unaided citation passes fail in both directions by deleting durable references and keeping dead ones. Apply these keep rules as written; [leakage-examples](references/leakage-examples.md) calibrates each:
+Unaided citation passes fail in both directions by deleting durable references and keeping dead ones. Apply these keep rules as written; [examples](references/examples.md) calibrates each:
 
 - **Issue references** — `#1470`, `TODO(name):`, "issue #N owns the follow-up" resolve at HEAD; keep them on any surface, including READMEs. Do not relocate them to Agent Notes.
-- **Merged-PR and issue citations inside Agent Notes** — sanctioned evidence when the note cites a merged change as the evidence for a claim, per [dsh-prose-standard](../dsh-prose-standard/SKILL.md).
+- **Merged-PR and issue citations inside Agent Notes** — sanctioned evidence when the note cites a merged change as the evidence for a claim.
 - **Suppression justifications** — a linter-disable reason, a coverage-ignore reason, an empty-catch explanation: each is required prose; fix a false reason, never delete it.
 - **Counterfactual-present regression pins** — "without X, Y happens", "a naive X would…".
 - **Measured bounds** — "(measured: 512 nests ≈ 0.15s)" calibrating a constant; the provenance word "measured" is load-bearing.
@@ -44,6 +44,6 @@ Unaided citation passes fail in both directions by deleting durable references a
 
 1. Scope and exclusions per [dsh-prose-standard](../dsh-prose-standard/SKILL.md): require an explicit scope; never touch `vendor/` or `.agents/dsh-spec/notes/archived/`. Recorded fixtures and snapshots are derivatives, not prose targets: change the owning source or scenario and regenerate them only when an authorized behavior change requires new evidence.
 2. Audit read-only first: run the [recall batteries](references/recall-batteries.md) (with `--hidden` so `.agents/` is searched), calibrating each probe against a known positive and a near-miss negative before trusting its output, then judge every hit semantically. The batteries are probes, not the definition — each review round of the original purge found cases the batteries missed, so also read the densest prose in scope (module API documentation, READMEs, decision records) without a pattern in hand.
-3. Fix owner-first per surface: generated catalogs → trace every consumer, fix the source documentation comment or generator template, then regenerate all derivatives; type-equivalence fences → fix the source documentation comment, then re-paste both bilingual pages (`verify-type-equiv` pins them); bilingual prose → update the counterpart minimally and re-record it through the [pairing contract](../dsh-translate-docs/references/i18n-contract.md); bilingual fences → copy the corrected verbatim block byte-for-byte into both sides, then re-record the pair; model- or user-visible strings → route through [dsh-prose-standard](../dsh-prose-standard/SKILL.md) and change only with owning behavior evidence, otherwise leave unchanged and report the deferral.
-4. Before deleting anything, enumerate the passage's propositions (prose-standard) and check the [leakage-examples](references/leakage-examples.md): trims that flip an obligation into an endorsement, promote a hypothetical to a shipped feature, delete a true fact, or drop provenance.
+3. Fix owner-first per surface: generated catalogs → trace every consumer, fix the source documentation comment or generator template, then regenerate all derivatives; type-equivalence fences → fix the source documentation comment, then re-paste both bilingual pages; bilingual prose → update the counterpart minimally and re-record it through the [pairing contract](../dsh-translate-docs/references/i18n-contract.md); bilingual fences → copy the corrected verbatim block byte-for-byte into both sides, then re-record the pair; model- or user-visible strings → route through [dsh-prose-standard](../dsh-prose-standard/SKILL.md) and change only with owning behavior evidence, otherwise leave unchanged and report the deferral.
+4. Before deleting anything, enumerate the passage's propositions (prose-standard) and check the [overcorrection traps](references/examples.md#overcorrection-traps): trims that flip an obligation into an endorsement, promote a hypothetical to a shipped feature, delete a true fact, or drop provenance.
 5. Verify: re-run the batteries expecting only sanctioned keeps, this skill's own directory, and the owning note's quoted evidence; confirm every remaining citation resolves at HEAD; run the project's aggregate check and, for a pair, `verify-translation-pairing`.

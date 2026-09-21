@@ -11,6 +11,7 @@
  */
 
 import type { Nodes } from './vendor-mdast-types.js'
+import { TERMINOLOGY_TABLE } from './i18n-scope.ts'
 import { parseTranslationMarkdown } from './translation-pairing.ts'
 
 /** One block-level span of a Markdown document, in document order. */
@@ -220,7 +221,7 @@ function plainTerm(cell: string): string {
 /**
  * Parse the data rows of the terminology table.
  *
- * @param terminology - Full `docs/i18n/terminology.md` contents.
+ * @param terminology - Full `docs/terminology.md` contents.
  * @returns Rows in table order.
  */
 export function parseTerminologyRows(terminology: string): TerminologyRow[] {
@@ -272,7 +273,7 @@ function rowOccurs(row: TerminologyRow, direction: BriefDirection, text: string)
  * Select the terminology rows whose source-language term occurs in the
  * changed text (old and new states combined).
  *
- * @param terminology - Full `docs/i18n/terminology.md` contents.
+ * @param terminology - Full `docs/terminology.md` contents.
  * @param direction - Update direction; decides which columns to match.
  * @param changedText - Concatenated old and new text of the changed spans.
  * @returns Matched rows in table order.
@@ -482,14 +483,14 @@ export function renderTranslationBrief(input: TranslationBriefInput): string {
       out.push('')
       out.push('## Whole-document update required')
       out.push('')
-      out.push(`${input.scope.reason} Open \`${input.counterpartPath}\` directly, locate the affected regions yourself, and reconcile under docs/i18n/translation-rules.md.`)
+      out.push(`${input.scope.reason} Open \`${input.counterpartPath}\` directly, locate the affected regions yourself, and reconcile under the rules the \`dsh-translate-docs\` skill ships in \`references/translation-rules.md\`.`)
       break
     default:
       input.scope satisfies never
   }
   if (input.terminology.length > 0) {
     out.push('')
-    out.push('## Binding terminology rows matching this change (docs/i18n/terminology.md)')
+    out.push(`## Binding terminology rows matching this change (${TERMINOLOGY_TABLE})`)
     out.push('')
     out.push('| English | 中文 | 首次出现 | 不要译作 | 备注 |')
     out.push('|---|---|---|---|---|')
@@ -498,7 +499,7 @@ export function renderTranslationBrief(input: TranslationBriefInput): string {
     out.push('For any term you introduce that is not listed above, consult the full table before inventing a rendering.')
   }
   out.push('')
-  out.push('## Rules digest (full rules: docs/i18n/translation-rules.md)')
+  out.push('## Rules digest (full rules: the `dsh-translate-docs` skill\'s `references/translation-rules.md`)')
   out.push('')
   out.push(...(input.direction === 'en-to-zh' ? ZH_TARGET_DIGEST : EN_TARGET_DIGEST))
   out.push('')

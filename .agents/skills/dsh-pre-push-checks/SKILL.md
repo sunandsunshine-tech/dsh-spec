@@ -2,18 +2,14 @@
 description: Use before pushing, force-pushing, marking ready for review, or claiming checks pass on a branch, and immediately after gh stack sync publishes rewritten branches, to select the smallest tests and checks that cover the outgoing or just-published diff without reflexively running the full repository suite.
 metadata:
     github-path: skills/dsh-pre-push-checks
-    github-ref: refs/heads/split-skills
+    github-ref: refs/heads/extract
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: 11a7fdd06dcb7d875b577783a1c0a54a2ff254fd
+    github-tree-sha: 6e116465659a30dcc836dbdab15c2335cc81a193
 name: dsh-pre-push-checks
 ---
-# DSH Pre-Push Checks
+# Pre-Push Checks
 
 Use this skill to run relevant local evidence once before a push. The sole ordering exception is `gh stack sync`, which may publish a cascading rebase before the rewritten layers can be validated; validate them immediately afterward and do not merge until the evidence passes. Git hooks are intentionally narrow: pre-commit fixes staged lint, checks staged whitespace, and guards vendored-source metadata; pre-push runs only the incremental repository typecheck. CI owns exhaustive coverage and the platform matrix.
-
-**Which checks this project requires is the record in the manifest**, `references/manifest.json` in the installed `dsh-spec-manager`: a gate is a name that record holds, backed by a `verify-*.ts` script beside the dispatcher, and the two must agree or the dispatcher refuses to run anything. This part says how to choose evidence; that record says which evidence exists here. Read it before selecting, and never treat a name it does not hold as available.
-
-**What proof an author owes, and the form it takes in the change description, is the human half**: one entry per testing method, the command and what it printed rather than an assurance, and the honest state of everything not run. This skill selects the commands; the change description is where their results belong.
 
 ## Inspect the outgoing change
 
@@ -31,7 +27,7 @@ git diff --name-only <verified-base-ref>...HEAD    # committed scope
 git status --short                                 # staged, unstaged, untracked
 ```
 
-Neither command guesses or fetches a base: supply the ref you verified from current remote or stack state. Scope is what decides the evidence below — committed paths relative to the merge base plus whatever the worktree still holds. A project that wants the scope classified by layer, rather than listed, writes its own tool for it. After merging a changed base, rerun the report, reassess which behavior the combined scope can affect, and rerun only checks invalidated by the merge.
+Neither command guesses or fetches a base: supply the ref you verified from current remote or stack state. Scope is what decides the evidence below — committed paths relative to the merge base plus whatever the worktree still holds. After merging a changed base, rerun the report, reassess which behavior the combined scope can affect, and rerun only checks invalidated by the merge.
 
 ## Select relevant evidence
 
@@ -40,21 +36,7 @@ There is no universal local baseline beyond the hooks. Every behavior change nee
 When the outgoing change adds or changes a resource-owning or asynchronous test, fixture, helper, or CI execution path, apply the project's test-reliability rules first to decide whether restoration, negative-control, quiescent-teardown, or concurrent-process evidence applies. This skill still selects the commands and avoids repeating evidence that already passed.
 
 - **Module or script behavior:** run the owning test file, or the focused test name inside it. Add adjacent module tests when a shared contract changes; leave repository-wide coverage to CI unless the change is genuinely cross-cutting or the user requests it.
-- **Documentation, decision records, or doc-linked comments:** run the gates the diff's paths select, by name through the collection's dispatcher. The mapping below is the derived default; the engine directory is the authority on which gates exist here.
-
-  | The diff touches | Run |
-  |---|---|
-  | `.agents/dsh-spec/notes/` | `verify-agent-note-classification`, `verify-agent-note-format`, `verify-archived-agent-notes` |
-  | a paired document or the translation beside it | `verify-translation-pairing` |
-  | `skills/` | the gates that cover the skill the diff touches — every gate lives in the manager's `scripts/`, so select by name and let the engine directory say which exist — plus the skill-directory shape check (`scripts/verify-skill-structure.ts` in this repository) |
-  | prose a reader arrives at | `verify-md-links`, `verify-md-link-syntax`, `verify-md-metadata`; document length and the module-contract kinds have no gate, so those stay a review responsibility |
-
-  ```sh
-  pnpm dlx --store-dir /tmp/dshstore --allow-build=esbuild tsx@4.22.4 \
-    .agents/skills/dsh-spec-manager/scripts/run.ts verify-agent-note-format --root .
-  ```
-
-  A gate is addressed by name, never by path: the dispatcher resolves it against the record in the manifest, reconciles that record with the scripts beside it, and treats an unknown name as an error rather than a skip. One gate has no row above on purpose: the credential scan is not selected by path, because every change can introduce a credential, so it rides the aggregate rather than the per-diff subset. `run.ts --all --root .` is what "the whole check" means — every gate the record names, failing when one fails or when the record names none — so run the aggregate before a push or at a milestone, and the selected subset continuously as the work proceeds. Wire the same selection into a `pre-push` hook so it is automatic.
+- **Documentation, decision records, catalogs, or doc-linked comments:** run the project's aggregate check and the gates the diff's paths select, addressed by name through the dispatcher the collection installs; run full lint when the documentation workflow requires it.
 - **Model-, editor-, CLI-, or terminal-visible output:** run the focused recorded-output scenario or real runnable example that owns the output.
 - **Expected-output placement:** a recorded expectation that replays through the shipped runtime belongs in the project's top-level recording tree, and a unit, generator, or geometry expectation that needs no such round trip stays beside its owning test. Do not duplicate one expectation into both places, and do not give a file in the recording tree a local test owner. Run the lane that owns the expectation.
 - **Profile and configuration placement:** a test of a shipped end-to-end profile belongs where that profile is assembled; a component-specific composition belongs with that component. A user-facing optional configuration overlay pairs with a guide in the documentation tree.

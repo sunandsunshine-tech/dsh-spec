@@ -36,7 +36,7 @@ Status: implemented
 
 | 被移除的技能 | 原因 |
 |---|---|
-| `dsh-doc` | 它的主题**就是**本次决策要删除的文档机制；分层表、预算策略以及 `verify-doc-*`、`verify-readme-shape` 门禁随它一起离开，而 `verify-md-links`、`verify-md-link-syntax`、`verify-md-metadata` 存留在 `dsh-prose-standard`。**维护者基于这一理由确认了删除：一个主题就是被删机制本身的技能，已无物可拥有。** |
+| `dsh-doc` | 它的主题**就是**本次决策要删除的文档机制；分层表、预算策略以及 `verify-doc-*`、`verify-readme-shape` 门禁随它一起离开，而 `verify-md-links`、`verify-md-link-syntax` 存留在 `dsh-prose-standard`。**维护者基于这一理由确认了删除：一个主题就是被删机制本身的技能，已无物可拥有。** |
 | `dsh-ci-test-reliability` | 它的参数来自 `test-lanes` 键，而该键记录的是 `none`：本仓库没有 CI、没有构建步骤、也没有测试运行器，因此这个技能在这里不描述任何工作 |
 | `dsh-speed-up-perf` | `perf-baseline` 键记录这里没有任何被测量的东西：交付物是按需运行的 Markdown 和无依赖 TypeScript |
 | `dsh-merging-stacked-prs` | 堆叠拉取请求是宿主平台的能力，不是仓库纪律，该能力已由 `gh` 技能承接 |
@@ -152,4 +152,4 @@ Status: implemented
 
 **删掉某个 `.zh.md` 就能丢掉一个配对。** 自声明配对意味着纯英文文档是正当的，因此没有任何东西能区分「有意取消配对」与「丢失译文」；配对门禁报告什么没有声明配对，而由评审决定那是否出于本意。
 
-**抓到 frontmatter 重排和 glob 塌缩的那些检查存留在 `dsh-prose-standard`。** `verify-md-metadata` 拒绝塌缩成一段的 frontmatter 块，`verify-md-links` 拒绝因 glob 塌缩而不再指向任何文件的链接目标，因此这两类缺陷都不依赖评审是否注意到；记录这两起事件的 bug-fix 笔记仍是长存的记述。
+**抓到 glob 塌缩的那道检查存留在 `dsh-prose-standard`。** `verify-md-links` 拒绝因 glob 塌缩而不再指向任何文件的链接目标，因此这类缺陷不依赖评审是否注意到。frontmatter 这一类后来退出了随包集合，因为[执行它的那道门禁在采用者项目中并无归属者](2026-09-21-frontmatter-has-no-owner-in-an-adopted-project.zh.md)；本仓库把自己的检查留在 `scripts/verify-skill-structure.ts` 里。记录这两起事件的 bug-fix 笔记仍是长存的记述。

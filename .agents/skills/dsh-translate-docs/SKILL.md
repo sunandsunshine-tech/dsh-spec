@@ -1,27 +1,21 @@
 ---
-description: Run the extended bilingual-document workflow — generated briefings, delegated prose translation, whole-document translation, and scoped pairing verification. Apply it only when the user asks for it; when you judge it warranted, ask the user before starting.
+description: Manually run the extended bilingual-document workflow — generated briefings, delegated prose translation, whole-document translation, and scoped pairing verification.
+disable-model-invocation: true
 metadata:
     github-path: skills/dsh-translate-docs
-    github-ref: refs/heads/split-skills
+    github-ref: refs/heads/extract
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: 20e5c6e81704d558671a117c0a6f91c6075d6e96
+    github-tree-sha: 5c94b4c7d8156a25d7dbf4dbe62aa6bfa3c9d8db
 name: dsh-translate-docs
+user-invocable: true
 ---
 # Translating docs
 
-## When this runs: an approval gate
+## Invocation boundary
 
-This workflow is expensive and it writes files — it spawns the translation work, edits the counterpart, and re-records the pair's sidecar. Treat it as gated on the user, in both directions:
+Run this extended workflow only when the user explicitly invokes `dsh-translate-docs` by name, and never select or load it for ordinary documentation work, from another skill, or from an inferred translation need. Routine translation is not this workflow: a counterpart update the pairing gate demands follows the project's own lightweight rule — one pass, smallest edit, re-record — and needs no briefing machinery.
 
-- **The user asks for it.** Run it.
-- **You judge that it is warranted** — a pair drifted, a new page needs a counterpart, a reviewer asked for the other language — **stop and ask the user first.** State what would be translated, which pairs are involved, and what it would write. Start only on their approval.
-- **Nobody asked.** Do not run it. A documentation task that merely touches a paired file is not a translation task: make the smallest edit the change needs and let the pairing gate report drift.
-
-Never run this workflow as a side effect of another task, and never infer a translation request from a bilingual file simply being present.
-
-**Routine translation is not this workflow.** A one-line counterpart update that the pairing gate demands follows the project's own lightweight rule — one pass, smallest edit, re-record — and does not need the briefing machinery below.
-
-The bilingual contracts this workflow applies live in `references/` beside this file: [i18n-contract.md](references/i18n-contract.md) is the pairing contract, and [translation-rules.md](references/translation-rules.md) is how to translate. The commands below write `<manager>/scripts/` for the collection's one code home, where the manager skill installs every gate and the dispatcher beside it — `.agents/skills/dsh-spec-manager/scripts/` in a project.
+The bilingual contracts this workflow applies live in `references/` beside this file: [i18n-contract.md](references/i18n-contract.md) is the pairing contract, and [translation-rules.md](references/translation-rules.md) is how to translate. Below, `<manager>/scripts/` is the collection's one code home, where the manager skill installs every gate and the dispatcher beside it — `.agents/skills/dsh-spec-manager/scripts/` in a project.
 
 ## What this skill is
 
@@ -37,7 +31,7 @@ Frozen Agent Notes under `.agents/dsh-spec/notes/archived/` are not translation 
 
 ## The update path (briefing-driven)
 
-The briefing-driven path matches guidance-corpus quality at a fraction of the cost; the archived `../../notes/archived/process/2026-07-26-briefed-minimal-translation-updates.md` records the benchmark evidence.
+The briefing-driven path matches guidance-corpus quality at a fraction of the cost, because the briefing carries each changed unit's three-way context and the rules digest inline.
 
 1. **Generate the briefing**: `pnpm dlx --allow-build=esbuild tsx@4.22.4 <manager>/scripts/gen-translation-brief.ts <any file of the pair>` (no arguments briefs every out-of-sync pair). The briefing maps the change at the narrowest safely aligned granularity — changed Markdown units (paragraph, table row, list item, heading), then whole heading sections, then whole document — and contains the authored side's diff since the last confirmed-consistent state, each changed unit's last-confirmed source, current source, and current counterpart text (with line numbers), the terminology rows the change touches, first-occurrence movement notes, and a digest of the binding update rules.
 2. **Mechanical-only diff? `--apply` it.** When every change lies inside code fences that the pair shares byte-identically, the briefing says so; `pnpm dlx --allow-build=esbuild tsx@4.22.4 <manager>/scripts/gen-translation-brief.ts --apply <pair>` splices the edited fences into the counterpart and structure-validates the result before writing — no subagent, no hand-editing.
@@ -55,11 +49,11 @@ When translations need to be written from scratch, the orchestrating agent does 
 - **[translation-rules.md](references/translation-rules.md)** — how to translate: faithfulness, structure preservation, terminology discipline, typography (MUST/SHOULD levels).
 - **`docs/terminology.md`** — the terminology table, binding in both directions. The path is fixed: the briefing generator reads that one file, and a project that keeps its table elsewhere does not get one. Load it BEFORE translating, not when a term feels uncertain; the terms you don't notice are the ones that drift.
 - **[translation-prompt.md](references/translation-prompt.md)** — the automated pipeline's calibrated machine-consumed template. Agents using this skill do not render it; the terminology table is the only repository file the automated renderer injects, while this skill and [translation-rules.md](references/translation-rules.md) remain binding for agent-authored translations.
-- **[dsh-prose-standard.md](../dsh-prose-standard/SKILL.md)** — required prose coverage and editorial judgment. Apply it to both sides without adding or dropping source propositions.
+- **[dsh-prose-standard](../dsh-prose-standard/SKILL.md)** — required prose coverage and editorial judgment. Apply it to both sides without adding or dropping source propositions.
 
 ### Translate
 
-- **Pass 1 — write, don't transpose.** Read a semantic unit, then restate it as a native technical author in the nearest [style-samples.md](references/style-samples.md) register. Preserve the required frame without forcing sentence-by-sentence correspondence.
+- **Pass 1 — write, don't transpose.** Read a semantic unit, then restate it as a native technical author in the nearest [style sample's](references/style-samples.md) register. Preserve the required frame without forcing sentence-by-sentence correspondence.
 - **Pass 2 — verify against the source, clause by clause.** Fidelity is checked here, not written in: confirm nothing was added or dropped, every term follows the table, and each code span survived verbatim. Fix by rewriting the sentence natively, not by patching words into it.
 - **Read the completed counterpart alone.** After the source comparison, read the translated file without the source beside it and rewrite phrasing whose awkwardness only becomes visible in isolation.
 - Write only the final text to the file, never drafts or notes.
@@ -75,12 +69,12 @@ When translations need to be written from scratch, the orchestrating agent does 
 
 ## Finish the pair
 
-1. Switcher: ``foo.md` | 中文` immediately after the Chinese file's H1, `English | `foo.zh.md`` after the English file's H1 — add both if this is a new pair, except that a generator-owned English source stays byte-identical to generator output and omits its switcher while the Chinese counterpart still links back.
+1. Switcher: `[English](foo.md) | 中文` immediately after the Chinese file's H1, `English | [中文](foo.zh.md)` after the English file's H1 — add both if this is a new pair, except that a generator-owned English source stays byte-identical to generator output and omits its switcher while the Chinese counterpart still links back.
 2. Record consistency: `pnpm dlx --allow-build=esbuild tsx@4.22.4 <manager>/scripts/verify-translation-pairing.ts --write <pair>` recomputes and records both sides' full blob hashes in `foo.i18n.yaml`. The yaml diff in your PR is the reviewable statement "I confirmed these two say the same thing" — only run it after you actually have.
 3. No registration is needed for an ordinary document: adding the `.zh.md` counterpart is what declares the pair, and leaving it out is what declares the document English-only. `verify-translation-pairing.ts --explain <path>` names the counterpart it looked for and whether it exists.
-4. Before the push: the touched pairs are green under the scoped check, and the corpus-wide pairing check runs once per `../dsh-pre-push-checks/SKILL.md`, not inside each translation task.
+4. Before the push: the touched pairs are green under the scoped check, and the corpus-wide pairing check runs once before a push, selected through [dsh-pre-push-checks](../dsh-pre-push-checks/SKILL.md), not inside each translation task.
 5. Keep the PR reviewable: state which pairs are new versus minimally updated and list 「待定术语」 prominently.
 
 ## How to respond to translation review
 
-Follow the [dsh-code-review.md](../dsh-code-review/SKILL.md): evaluate each comment on its merits, and for terminology comments, remember the terminology table is the contract — apply a reviewer's rendering decision to `docs/terminology.md`, not only to one file.
+Follow the [code-review reporting guidance](../dsh-code-review/SKILL.md#reporting-findings): evaluate each comment on its merits, and for terminology comments, remember the terminology table is the contract — apply a reviewer's rendering decision to `docs/terminology.md`, not only to one file.

@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   pnpm dlx --allow-build=esbuild tsx@4.22.4 skills/dsh-spec-manager/scripts/verify-translation-pairing.ts --write .agents/dsh-spec/notes/implemented/process/2026-09-21-frontmatter-has-no-owner-in-an-adopted-project.md
+2026-09-21-frontmatter-has-no-owner-in-an-adopted-project.md: b6940b4166b7e012e5e058e47ef249fa478e5bdc
+2026-09-21-frontmatter-has-no-owner-in-an-adopted-project.zh.md: 4a44602aabbe4f69051543cfd89473358740a0e1

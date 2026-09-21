@@ -45,7 +45,7 @@ pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/script
 pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/manager.ts init --root . --write
 ```
 
-It extends an existing `AGENTS.md` rather than replacing it, creates the decision-record tree once, and lists the facts only you can supply. Then let the manager install the rest of the set:
+It extends an existing `AGENTS.md` rather than replacing it, creates the decision-record tree and the documentation folder's two paths once, and lists the facts only you can supply. Then let the manager install the rest of the set:
 
 ```sh
 pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/manager.ts install --root .
@@ -53,13 +53,17 @@ pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/script
 
 `install` runs one `gh skill install` per manifest entry, every one of them at the revision the manifest pins; the installer's injected metadata is what records that revision, and nothing else is written. `update` installs the whole set again at one revision, `status` reports anything that drifted from the manifest or from the revision an installed entry carries, and `uninstall` removes the set. Never edit the installed copy in place, because the next install overwrites it.
 
+An install has two halves. The second one reaches **your** tree: `install` and `update` also run the initializer's `sync` mode, which brings the files whose text the collection owns — the notes contract and its three `AGENTS.md` files, the documentation orders, `.rgignore`, and the marked standing-orders block — up to the same revision, so every project's mechanism text is identical. Two things you own survive by rule: the rows of `docs/terminology.md`, and everything in `AGENTS.md` outside the marked block. `sync` does that half alone, and without `--write` it only reports what would change.
+
 ## What it writes into your project
 
-The one directory belongs to the project and is yours to change.
+These paths belong to the project, and the mechanism text among them is kept identical to the installed revision by `sync`: the notes files and the documentation orders are replaced, while a terminology row and the standing orders outside the marked block are yours and stay.
 
 | Path | Holds |
 |---|---|
 | `.agents/dsh-spec/notes/` | The decision records, the contract that governs their layout and in-file format, and the lifecycle and class folders they live in |
+| `docs/terminology.md` | The vocabulary every bilingual pair obeys, released empty: a row is the maintainer's decision, so the initializer never writes one |
+| `docs/AGENTS.md` | The orders for that folder, including who may add a row to the table and that the table itself declares no pair |
 
 The collection has one code home: `.agents/skills/dsh-spec-manager/scripts/` holds every gate, the dispatcher that resolves one by name, and the modules they share. That directory is **the collection's engine, not this skill's private resources** — the other skills ship prose and references and no code at all, so a gate's defect belongs to the collection rather than to one workflow.
 

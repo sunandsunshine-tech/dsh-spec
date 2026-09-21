@@ -22,8 +22,8 @@ Confirm the checkout and branch, verify the live PR base or stack parent, fetch 
 | Module or script behavior | The owning test file, or the focused test inside it; adjacent module tests when a shared contract moved |
 | Decision records or doc-linked comments | The note gates, selected by name through the dispatcher |
 | A paired document or its translation | `verify-translation-pairing` |
-| `skills/` | The gates covering the touched skill, plus this repository's `scripts/verify-skill-structure.ts` |
-| Prose a reader arrives at | `verify-md-links`, `verify-md-link-syntax`, `verify-md-metadata` |
+| `skills/` | The gates covering the touched skill, selected by name through the dispatcher |
+| Prose a reader arrives at | `verify-md-links`, `verify-md-link-syntax` |
 | Model-, editor-, CLI- or terminal-visible output | The focused recorded-output scenario or real runnable example that owns the output |
 | Manifests, exports, build configuration or entry points | The build gate, the relevant hygiene checks, and a smoke test of the built artifact |
 | Real provider or agent behavior | The end-to-end target, when credentials are available — and never print secrets |
@@ -40,14 +40,14 @@ When unit coverage is relevant, name both the owning tests and the source scope 
 
 ## How its checks are run
 
-A gate is code in the collection's one code home, `../dsh-spec-manager/scripts/`; this skill ships prose and no code. It is addressed by name through the dispatcher `run.ts` beside it — never by path — and the dispatcher resolves the name against the gate scripts in that directory, refusing an unknown name instead of skipping it. One gate has no row in the table above on purpose: the credential scan is not selected by path, because any change can introduce a credential, so it rides the aggregate.
+A gate is code in the collection's one code home, `../dsh-spec-manager/scripts/`; this skill ships prose and no code. It is addressed by name through the dispatcher `run.ts` beside it — never by path — and the dispatcher reconciles the record in the manifest with the gate scripts in that directory, refusing an unknown name instead of skipping it and refusing to run at all when the two disagree. One gate has no row in the table above on purpose: the credential scan is not selected by path, because any change can introduce a credential, so it rides the aggregate.
 
 ```sh
 pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/run.ts verify-agent-note-format --root .
 pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/run.ts --all --root .
 ```
 
-`--all` runs every gate the engine directory holds, fails when one fails, and fails when it holds none — so it is what "the whole check" means, and it belongs before a push or at a milestone while the selected subset runs continuously.
+`--all` runs every gate the record names, fails when one fails, and fails when it names none — so it is what "the whole check" means, and it belongs before a push or at a milestone while the selected subset runs continuously.
 
 ## Read next
 

@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/verify-translation-pairing.ts --write skills/dsh-translate-docs/references/i18n-contract.md
-i18n-contract.md: 852b866f2f4a4a2fee2f1cf83a3d877190d0f917
-i18n-contract.zh.md: f6cb04080b52020a56bbbfe1315bac630391dc9f
+i18n-contract.md: 01fee03bb150a254b1f2cb85828f99a8b53801c9
+i18n-contract.zh.md: fbcd49d98eae2764ed1e8f5e6afea773756a319f

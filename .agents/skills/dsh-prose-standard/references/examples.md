@@ -26,7 +26,7 @@ Keep the explicit limitation because it changes how an agent applies the workflo
 
 **Over-trimmed:** “Add tests for the tool.”
 
-**Balanced:** “Test registration and disposal at unit level, exercise the tool through the real loader path, and add a snapshot when its rendered output changes. Verify the assertion observes the external result rather than the model's report.”
+**Balanced:** “Test registration and disposal at unit level, exercise the tool through the real entry path, and add a recorded-output check when its rendered output changes. Verify the assertion observes the external result rather than the model's report.”
 
 **Over-detailed:** A walkthrough of every fixture file and assertion already visible in the example code.
 
@@ -96,7 +96,7 @@ Keep the behavior and completion guarantee where callers need them. Link aggress
 
 **Over-trimmed:** Deleting the entire Testing section because the Agent Note has already shipped.
 
-**Balanced:** “Unit tests cover cancellation before and after publication, disposal quiescence, and provider reload. A built-entry smoke covers the real loader path; snapshot coverage is deferred because the transport is process-specific.”
+**Balanced:** “Unit tests cover cancellation before and after publication, disposal quiescence, and provider reload. A built-entry smoke covers the real entry path; recorded-output coverage is deferred because the transport is process-specific.”
 
 **Over-detailed:** A file-by-file walkthrough of fixtures and assertions with no additional behavioral distinction.
 

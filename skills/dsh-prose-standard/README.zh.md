@@ -31,15 +31,14 @@ description: "散文在哪些位置是必需的、一次编辑必须保留什么
 
 ## 它的检查如何运行
 
-三道门禁检查 Markdown 的机械形态，而不是它的编辑内容；本技能只交付散文，不含任何代码：这些门禁位于整个集合唯一的代码归属 `../dsh-spec-manager/scripts/`，并按名称通过它们旁边的分发器 `run.ts` 寻址。
+两道门禁检查 Markdown 的机械形态，而不是它的编辑内容；本技能只交付散文，不含任何代码：这些门禁位于整个集合唯一的代码归属 `../dsh-spec-manager/scripts/`，并按名称通过它们旁边的分发器 `run.ts` 寻址。
 
 ```sh
 pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/run.ts verify-md-links --root .
 pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/run.ts verify-md-link-syntax --root .
-pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/run.ts verify-md-metadata --root .
 ```
 
-`verify-md-links` 拒绝目标不存在的相对链接、图片或定义，也拒绝落在 Markdown 文件上却对不上标题 slug 或显式 `<a id>` 的 `#fragment`。`verify-md-link-syntax` 拒绝被一次批量改写变成散文的链接——方括号标签后面跟着括号引用，或者链接套链接——因为两者都解析不出链接，于是解析器什么也不会报告。`verify-md-metadata` 拒绝被并进一行的 frontmatter 块、永不闭合的块，以及不是 `key: value` 映射的块。语料是本仓库撰写的每一个 Markdown 文件——包含 `.zh.md` 对侧文件——减去 [`md-scope.ts`](../dsh-spec-manager/scripts/md-scope.ts) 点名的目录树：冻结封存区、安装副本、`submodules/`，以及依赖或构建产物。文档长度与模块契约类型没有门禁，因此由评审负责。
+`verify-md-links` 拒绝目标不存在的相对链接、图片或定义，也拒绝落在 Markdown 文件上却对不上标题 slug 或显式 `<a id>` 的 `#fragment`。`verify-md-link-syntax` 拒绝被一次批量改写变成散文的链接——方括号标签后面跟着括号引用，或者链接套链接——因为两者都解析不出链接，于是解析器什么也不会报告。语料是本仓库撰写的每一个 Markdown 文件——包含 `.zh.md` 对侧文件——减去 [`md-scope.ts`](../dsh-spec-manager/scripts/md-scope.ts) 点名的目录树：冻结封存区、安装副本、`submodules/`，以及依赖或构建产物。文档长度、模块契约类型，以及格式错误的 frontmatter 块都没有门禁，因此由评审负责。
 
 ## 接着读
 

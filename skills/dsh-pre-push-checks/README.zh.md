@@ -23,7 +23,7 @@ description: "覆盖一次外发改动的最小本地证据，以及它失败时
 | 决策记录或与文档相连的注释 | 笔记门禁，按名称通过分发器选择 |
 | 配对文档或其译文 | `verify-translation-pairing` |
 | `skills/` | 覆盖所触及技能的各道门禁，按名称通过分发器选择 |
-| 读者会到达的散文 | `verify-md-links`、`verify-md-link-syntax`、`verify-md-metadata` |
+| 读者会到达的散文 | `verify-md-links`、`verify-md-link-syntax` |
 | 模型、编辑器、CLI（命令行界面）或终端可见的输出 | 拥有该输出的聚焦记录输出场景，或真实可运行的示例 |
 | manifest、导出、构建配置或入口点 | 构建门禁、相关的卫生检查，以及针对构建产物的冒烟测试 |
 | 真实 provider 或 agent（智能体）行为 | 凭据可用时跑相关的端到端目标——并且绝不打印密钥 |

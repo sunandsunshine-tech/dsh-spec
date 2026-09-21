@@ -1,4 +1,4 @@
-# Installing, updating, removing and inspecting the set
+# Installing, updating, syncing, removing and inspecting the set
 
 A project receives this package as a set of skills at one revision, and this mode is the only thing that decides what that set contains. The filesystem does not: skill discovery is repository-wide, and the vendored baseline in this repository carries another project's skills, so `--all` would install entries this package does not own. The manifest is the authority.
 
@@ -51,11 +51,13 @@ pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/script
 
 A change that alters `skills/` therefore lands in two commits — the source, then the refreshed copy — and the installed copy is never hand-edited, because the next install overwrites an edit.
 
+An install has two halves, and the second one reaches the project's own tree. After the skills are in place, `install` and `update` run the initializer's `sync` mode, which brings the files whose **text** the collection owns up to the same revision: the notes contract and its three `AGENTS.md` files, `docs/AGENTS.md`, `.rgignore`, and the marked `dsh-spec:agent-notes` block inside the root `AGENTS.md`. Two things a project owns survive by rule — the rows of `docs/terminology.md`, and everything in `AGENTS.md` outside the marked block — and the notes files are synced only where the notes tree exists, so `--no-notes` is not undone. Run `manager sync --root .` to do the same work without a network install; without `--write` it only reports what would change, which is how a project checks its drift.
+
 ## Update
 
 `update` installs the whole manifest again at one revision — `--rev` when given, the manifest's `revision` otherwise. It never updates one skill on its own: a set whose members sit at different revisions is the drift `status` exists to report, not a state to create.
 
-A forced reinstall does not delete a file that a later revision removed. Nothing reads an installed file except through the manifest the install replaced, so a leftover is inert rather than misleading; the revision the project carries is the one the installer injected into each `SKILL.md`.
+A forced reinstall does not delete a file that a later revision removed, so `install` and `update` reduce each installed directory to exactly what the revision ships: the tree the installer recorded in `github-tree-sha` is listed through the API, and any file the installed copy holds that the tree does not name is removed. Most leftovers would be inert, but one class is fatal — a `verify-*.ts` script the gate record does not name makes the dispatcher refuse to run anything — and the project cannot tell the classes apart by looking. When the listing cannot be read, nothing is deleted: a failed API call must not be mistaken for a revision that ships nothing. The revision the project carries is still the one the installer injected into each `SKILL.md`.
 
 ## Status
 

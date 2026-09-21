@@ -1,28 +1,15 @@
 ---
-description: 'Use when auditing, validating, pruning, archiving, or reviewing Agent Notes in a project that adopted the pattern: verifies the notes tree obeys its contract and the format gates pass, checks every new note for superseded active records, classifies implemented notes by future decision value, deletes rejected notes that no longer prevent a tempting fallacy, and applies the frozen archived/{kind} triplet and manifest rules. Creating a tree is dsh-spec-init''s job.'
+description: 'Use when adding, auditing, pruning, archiving, restoring, or reviewing Agent Notes in a project that adopted the pattern: validates the tree against its contract and the format gates, checks every new note for superseded active records, classifies implemented notes by future decision value, deletes rejected notes that no longer prevent a tempting fallacy, and applies the frozen archived/{kind} triplet and manifest rules. Creating a tree is the manager initializer''s job.'
 metadata:
     github-path: skills/dsh-archive-agent-notes
-    github-ref: refs/heads/split-skills
+    github-ref: refs/heads/extract
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: 96eb2e1735f14e9c6cb51cd690e8f9edf5ebdb60
+    github-tree-sha: 2e946a9d5879647e58429aaf567eb8d61848801d
 name: dsh-archive-agent-notes
 ---
-# Validate and archive Agent Notes
+# Archive Agent Notes
 
-Two jobs: keep the notes tree conformant to its own contract, and reduce the active decision corpus without erasing history that can still guide work. Judge every note semantically; word count and age are discovery aids, never archive criteria.
-
-**This skill assumes the tree exists.** Creating it — the lifecycles, the classes, the contract, the gates, and the note guidance inside `AGENTS.md` — is [`dsh-spec-init`](../dsh-spec-manager/references/manager-init.md)'s job. When the tree is missing or half-created, run that skill instead of repairing it by hand.
-
-## Validate the tree against its contract
-
-Run this before auditing content, and after any change that moves, adds, or renames notes.
-
-1. **Structure.** `verify-agent-note-classification` rejects an unknown lifecycle or class folder, a bad depth, a non-dated filename, a forbidden `INDEX.md`, and a note filed under a legacy path.
-2. **Format.** `verify-agent-note-format` rejects a missing or malformed header block, a `Status:` line that disagrees with the lifecycle folder, a missing lifecycle-required section, a proposal-era heading inside `implemented/`, and a body that carries neither `## Alternatives considered` nor the grandfather comment.
-3. **Archive seal.** `verify-archived-agent-notes` rejects a changed or missing sealed artifact, an incomplete triplet, an unknown class folder, invalid archive metadata, and an unsealed addition.
-4. **Report, do not repair silently.** Name each violation with its path and the rule it breaks. A structural violation is usually a decision about where a note belongs, so fix it only after the author agrees or the contract makes the answer mechanical.
-
-The three gates live in the collection's one code home, `.agents/skills/dsh-spec-manager/scripts/` — `{gate-dir}` below — and each is addressed by name through the dispatcher `{gate-dir}/run.ts` beside it, never by path; run them from the project root with `--root .`. Their commands are in [dsh-spec-init](../dsh-spec-manager/references/manager-init.md) and in `.agents/dsh-spec/notes/README.md`.
+Validate the tree against its contract first, then reduce the active decision corpus without erasing history that can still guide work. Judge every note semantically; word count and age are discovery aids, never archive criteria.
 
 ## Read the contracts
 
@@ -50,13 +37,13 @@ These examples set the bar; the word counts demonstrate that size is not the tes
 
 Archive implemented notes such as:
 
-- collapsed sidebar control rail — 533 words: closed, minor UI behavior;
-- Commander argument adapter — 1,498 words: substantial implementation detail with little future design leverage;
+- collapsed UI control rail — 533 words: closed, minor presentation behavior;
+- CLI argument adapter — 1,498 words: substantial implementation detail with little future design leverage;
 - documentation graph atlas — 920 words: completed documentation machinery whose current generators are authoritative.
 
 Keep implemented notes such as:
 
-- event-sourced sessions — 248 words: foundational authority and durability boundary;
+- event-sourced session state — 248 words: foundational authority and durability boundary;
 - single configuration-home resolver — 596 words: cross-product ownership rule;
 - project session directories — 628 words: durable storage and identity policy;
 - parallel pre-push gates — 400 words: borderline, but still guides gate scheduling and resource tuning;
@@ -64,9 +51,9 @@ Keep implemented notes such as:
 
 For rejected notes:
 
-- keep folding the compaction package split — 426 words: the temptation to merge the packages remains meaningful;
-- delete streaming workflow progress through tool calls — 972 words: its ACP/UI premise is obsolete;
-- delete dropping ACP terminal metadata — 362 words: the later automation-only ACP decision resolved the question.
+- keep merging two deliberately split packages — 426 words: the temptation to merge them remains meaningful;
+- delete streaming workflow progress through tool calls — 972 words: its protocol/UI premise is obsolete;
+- delete dropping terminal metadata from the protocol — 362 words: the later automation-only protocol decision resolved the question.
 
 ## Archive one implemented triplet
 
@@ -74,12 +61,12 @@ For rejected notes:
 2. Make no body edits. Insert only `Archived: YYYY-MM-DD` immediately below `Status: implemented` in both language files, using the archival date and the same value on both sides.
 3. Re-record the sidecar hashes mechanically for the two metadata-only edits. Do not translate, reformat, update facts, or repair links inside the note.
 4. Search for inbound links from active prose. Redirect them to current authority, retarget them to the archived path only when the historical snapshot is intentionally cited, or delete them. Never verify or repair links out of the archived note.
-5. Run `pnpm dlx --allow-build=esbuild tsx@4.22.4 {gate-dir}/run.ts verify-archived-agent-notes --write`. Its append-only mode first proves every existing seal still matches, then adds only the new triplet hashes. Run the normal verifier afterward.
+5. Run the archive verifier — one of the note gates in the collection's engine directory, addressed by name through the dispatcher beside it: `pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/run.ts verify-archived-agent-notes --root . --write`. Its append-only mode first proves every existing seal still matches, then adds only the new triplet hashes. Run the normal verifier afterward.
 
 After the triplet is sealed, never edit, move, translate, reformat, or delete it. Archived notes remain valid inbound-link targets but are historical snapshots, not authority for current behavior.
 
 ## Validate and report
 
-Run the archive verifier's focused test, `pnpm dlx --allow-build=esbuild tsx@4.22.4 {gate-dir}/run.ts verify-archived-agent-notes`, the project's aggregate check, and `git diff --check`; select any additional evidence through [dsh-pre-push-checks](../dsh-pre-push-checks/SKILL.md).
+Run the archive verifier, `pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/run.ts verify-archived-agent-notes --root .`, the project's aggregate check, and `git diff --check`; select any additional evidence through [dsh-pre-push-checks](../dsh-pre-push-checks/SKILL.md).
 
 Report active implemented notes kept, implemented notes archived, rejected notes kept/deleted, proposed notes rejected if any, and every genuinely borderline case with its word count and chosen outcome. Do not claim archived outbound links are valid: the archive verifier intentionally never checks them.

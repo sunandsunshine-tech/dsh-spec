@@ -45,7 +45,7 @@ pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/script
 pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/manager.ts init --root . --write
 ```
 
-它扩展而不是替换既有的 `AGENTS.md`，只创建一次决策记录树，并列出只有你能提供的事实。接着让 manager 安装集合的其余部分：
+它扩展而不是替换既有的 `AGENTS.md`，只创建一次决策记录树与文档目录下的两个路径，并列出只有你能提供的事实。接着让 manager 安装集合的其余部分：
 
 ```sh
 pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/manager.ts install --root .
@@ -53,13 +53,17 @@ pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/script
 
 `install` 为 manifest 的每个条目运行一次 `gh skill install`，全部取自 manifest 固定的同一个版本；记录这个版本的是安装器注入的元数据，除此之外不写任何东西。`update` 以同一个版本重新安装整个集合，`status` 报告与 manifest 或与某个已安装条目自身所载版本不一致的任何东西，`uninstall` 移除整个集合。绝不就地编辑安装副本，因为下一次安装会覆盖它。
 
+一次安装有两半。第二半会进入**你的**目录树：`install` 与 `update` 还会运行初始化器的 `sync` 模式，把文本属于集合的那些文件——笔记约定及其三个 `AGENTS.md`、文档目录的常设指令、`.rgignore`，以及常设指令里被标记的小节——更新到同一个修订，因此每个项目的机制文本完全一致。有两样属于你的东西按规则保留：`docs/terminology.md` 的行，以及 `AGENTS.md` 中标记小节之外的全部内容。`sync` 单独执行这一半；不带 `--write` 时它只报告将会发生什么。
+
 ## 它会往你的项目里写什么
 
-这一个目录属于项目，随你改动。
+这些路径属于项目；其中的机制文本由 `sync` 保持与安装修订完全一致：笔记文件与文档指令会被替换，而术语表的行与标记小节之外的常设指令属于你，会被保留。
 
 | 路径 | 保存什么 |
 |---|---|
 | `.agents/dsh-spec/notes/` | 决策记录、管束其布局与文件内格式的契约，以及它们所在的生命周期与分类目录 |
+| `docs/terminology.md` | 每一对双语文档共同遵守的词汇表，且刻意以空表发布：一行就是一个决定，所以初始化器绝不写任何一行 |
+| `docs/AGENTS.md` | 该目录的常设指令，包括谁可以向表中加行，以及这张表本身不声明配对 |
 
 整个集合只有一个代码归属：`.agents/skills/dsh-spec-manager/scripts/` 承载每一道门禁、按名称解析门禁的分发器，以及它们共享的模块。这个目录是**集合的引擎，而不是本技能的私有资源**——其余技能只交付散文与参考文档，不含任何代码，因此门禁的缺陷属于集合，而不属于某一个工作流。
 

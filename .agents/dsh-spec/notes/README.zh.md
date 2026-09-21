@@ -4,6 +4,8 @@
 
 这里存放一类设计文档。**Agent Note** 记录影响本代码库的决策或提案：代码和文档无法承载的*为什么*以及*放弃了什么*。本文件规定 Agent Note 存放在哪里、何时需要写一份，以及[文件内格式](#the-file-format)。
 
+下文的 `.agents/skills/dsh-spec-manager/scripts` 是集合的引擎目录：安装 manager 技能时，每一道门禁、分发器，以及它们导入的模块都落在这里。
+
 ## 布局与命名
 
 每份 Agent Note 有两个维度，都编码在其**路径**中：`{lifecycle}/{class}/yyyy-mm-dd-topic-title.md`。
@@ -19,7 +21,7 @@
 
 ## 分类
 
-每份 Agent Note 属于 `scripts/agent-note-tree.ts` 中封闭集合里的一个路径编码类别；分类门禁拒绝其他文件夹。新增类别需要同时更新规范集合与本节。
+每份 Agent Note 属于 `.agents/skills/dsh-spec-manager/scripts/agent-note-tree.ts` 中封闭集合里的一个路径编码类别；分类门禁拒绝其他文件夹。新增类别需要同时更新规范集合与本节。
 
 | 类别 | 覆盖范围 |
 |---|---|
@@ -38,7 +40,7 @@
 
 归档路径编码为 `archived/{class}/yyyy-mm-dd-topic-title.md`；其中有意省略 `implemented`，因为只有 implemented Agent Note 可以进入归档。归档变更会移动完整的英文、中文和伴随记录三个文件，保留 `Status: implemented`，在两种语言的文件中紧接该状态行插入相同的 `Archived: YYYY-MM-DD` 行，重新记录伴随记录，并修复或删除入站链接。归档时只允许对内容做这些更改。
 
-封存后，每组归档文件都永久冻结。禁止编辑、翻译、重新格式化、更新、移动或删除，也不得将其视为当前行为的权威依据。文档门禁会跳过归档源文件，包括其中的出站链接；当活跃文档有意引用历史时，仍可链接到归档 Agent Note。`scripts/verify-archived-agent-notes.ts` 强制执行封闭的类别目录树、完整的三文件配对、归档元数据、伴随记录 hash，以及仅追加的冻结内容 manifest（元数据清单）。冻结正是归档之所以构成证据的原因：一份谁都能改的快照，证明不了当初决定了什么。
+封存后，每组归档文件都永久冻结。禁止编辑、翻译、重新格式化、更新、移动或删除，也不得将其视为当前行为的权威依据。文档门禁会跳过归档源文件，包括其中的出站链接；当活跃文档有意引用历史时，仍可链接到归档 Agent Note。`.agents/skills/dsh-spec-manager/scripts/run.ts verify-archived-agent-notes` 强制执行封闭的类别目录树、完整的三文件配对、归档元数据、伴随记录 hash，以及仅追加的冻结内容 manifest（元数据清单）。冻结正是归档之所以构成证据的原因：一份谁都能改的快照，证明不了当初决定了什么。根目录的 `.rgignore` 让归档不进入递归搜索，因此一次历史查询会显式点名该目录，而不会在活跃记录之间撞见冻结的事实。
 
 <a id="when-to-write-one"></a>
 
@@ -103,7 +105,7 @@ Status: <status>
 ## Consequences
 ```
 
-`## Decision` 以现在时态描述已交付的现实，整个文件按 `implemented/AGENTS.md` 的要求与之保持同步。`## Consequences` 记录权衡的代价**与**收益。提案阶段的标题在此属于规格用语，门禁会拒绝它们：`## Proposal`、`## Plan`、`## Migration plan` 和 `## Acceptance criteria` 不得出现在 implemented Agent Note 中（原因见 slop 检查清单，本集合已不再以页面形式发布它）。`## Testing`、`## Deferred` 或 `## Related` 章节在陈述现在时态的事实时是允许的。
+`## Decision` 以现在时态描述已交付的现实，整个文件按 `implemented/AGENTS.md` 的要求与之保持同步。`## Consequences` 记录权衡的代价**与**收益。提案阶段的标题在此属于规格用语，门禁会拒绝它们：`## Proposal`、`## Plan`、`## Migration plan` 和 `## Acceptance criteria` 不得出现在 implemented Agent Note 中。`## Testing`、`## Deferred` 或 `## Related` 章节在陈述现在时态的事实时是允许的。
 
 #### `rejected/`
 
@@ -135,9 +137,9 @@ Status: <status>
 
 ## 本集合中的门禁
 
-有三个门禁强制执行本文件陈述的内容。它们随初始化本项目的技能集合一同发布，项目对它们是**引用**而非释放副本：释放出去的副本永远无法更新，因为 `init` 不会覆盖不是它创建的文件，而集合自身的更新器只作用于集合。下文的 `{gate-dir}` 就是 `.agents/skills/dsh-spec-manager/scripts`——安装 manager 技能时，集合的引擎就落在那里：每一道门禁、分发器，以及它们导入的模块。
+有三个门禁强制执行本文件陈述的内容。它们随初始化本项目的技能集合一同发布，项目对它们是**引用**而非释放副本：释放出去的副本永远无法更新，因为 `init` 不会覆盖不是它创建的文件，而集合自身的更新器只作用于集合。它们都住在 `.agents/skills/dsh-spec-manager/scripts`。
 
-每一道门禁都是那个目录里的一个脚本，通过分发器 `.agents/skills/dsh-spec-manager/scripts/run.ts` 按名称寻址：分发器按 manifest 里的记录解析名称，然后运行该名称对应的脚本。分发器和门禁都不需要 `package.json`，也不需要 `node_modules`；每条都从项目根目录以 `--root .` 运行：
+每一道门禁都是一个记录在案的名字加上支撑它的脚本，二者都在那个目录里，通过分发器 `.agents/skills/dsh-spec-manager/scripts/run.ts` 按名称寻址：分发器按集合 `references/manifest.json` 里的 `gates` 记录解析名称，并把该记录与紧邻它的 `verify-*.ts` 脚本相核对——某道已记录的门禁没有脚本，或某个脚本不在记录里，都是一次点名两侧、且什么都不运行的拒绝。分发器和门禁都不需要 `package.json`，也不需要 `node_modules`；每条都从项目根目录以 `--root .` 运行：
 
 ```sh
 pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/run.ts verify-agent-note-classification --root .
@@ -146,6 +148,6 @@ pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/script
 pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/run.ts verify-archived-agent-notes --root . --write
 ```
 
-同一个分发器还运行 `--all`：它运行记录里的每一道门禁，并在某道失败或记录里一道都没有时失败。更新集合即更新它们全部；需要不同行为的项目应改自己的文件，而不是改门禁。
+同一个分发器还运行 `--all`：它运行记录中的每一道门禁，并在某道失败或记录里一道都没有时失败。更新集合即更新它们全部；需要不同行为的项目应改自己的文件，而不是改门禁。
 
 `AGENT_NOTES_ROOT` 在项目把笔记目录放在 `.agents/dsh-spec/notes` 之外时直接指定该目录。目录缺失或遍历为空都会以非零退出，而不是报告一个它并未挣得的通过。

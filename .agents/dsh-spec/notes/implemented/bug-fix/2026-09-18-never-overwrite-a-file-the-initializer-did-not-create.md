@@ -14,7 +14,7 @@ Every gate in this collection validates the shape of a tree; none of them execut
 
 **The initializer overwrites nothing it did not write.** Every path it plans is tested for existence first and recorded as kept when it is already there, whether the plan is a template or a directory. A write added beside existing writes inherits that rule from them: the surrounding writes are the specification, and a new block that does not read them inherits none of it.
 
-**The initializer writes the project's agent instructions and the Agent Note tree, and no documentation tree.** The contract this block installed belonged to the documentation mechanism, which is deleted; the standing orders, the note contract, the class folders and the note templates are what remain.
+**The initializer writes the project's agent instructions, the Agent Note tree, and the two documentation paths whose text the collection owns.** The contract this block installed belonged to the documentation mechanism, which is deleted; what remains is the standing orders, the note contract, the class folders, the note templates, and the vocabulary table's empty shell.
 
 ## Alternatives considered
 
@@ -26,6 +26,12 @@ Every gate in this collection validates the shape of a tree; none of them execut
 
 ## Consequences
 
-The initializer is safe to re-run, and its report distinguishes what it wrote from what it left alone, so a maintainer sees which case the run was in. A template change upstream no longer reaches a project that has already adopted it: the project edits its own copy, which is the correct owner for a file the collection does not enforce.
+The initializer is safe to re-run, and its report distinguishes what it wrote from what it left alone, so a maintainer sees which case the run was in. That rule governs creation: a file the project wrote is never touched by `init`.
+
+A template change upstream does reach a project, through a second operation with its own licence: [the mechanism text is updated by overwrite](../process/2026-09-21-the-mechanism-text-is-updated-by-overwrite.md) rewrites the documents the collection owns and preserves what the project owns inside them — the terminology rows, and the standing orders outside the marked block.
+
+## Related
+
+- [The mechanism text is updated by overwrite](../process/2026-09-21-the-mechanism-text-is-updated-by-overwrite.md) — the sync operation that brings the collection's documents up to a revision, and the lines a project still owns inside them.
 
 The rule is invisible to every gate. Nothing here executes the initializer against a repository that is already initialized, so the guard is held by reading the code, and a future write added without it is caught in review rather than by a command.

@@ -1,6 +1,6 @@
 {
   "repo": "sunandsunshine-tech/dsh-spec",
-  "revision": "split-skills",
+  "revision": "extract",
   "skills": [
     "dsh-spec-manager",
     "dsh-archive-agent-notes",
@@ -18,7 +18,6 @@
     "verify-translation-pairing",
     "verify-md-links",
     "verify-md-link-syntax",
-    "verify-md-metadata",
     "verify-no-secrets"
   ]
 }

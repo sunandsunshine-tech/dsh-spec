@@ -1,6 +1,6 @@
 # Few-shot leakage examples
 
-Distilled from the 2026-08 repo-wide purge and its review rounds. Use them to identify the governing principle, not as text templates. This file deliberately quotes leaked wording as calibration material — the `recall-batteries.md` exclude the skill's directory, and its wording is not a license elsewhere.
+Distilled from the 2026-08 repo-wide purge and its review rounds. Use them to identify the governing principle, not as text templates. This file deliberately quotes leaked wording as calibration material — the [recall batteries](recall-batteries.md) exclude the skill's directory, and its wording is not a license elsewhere.
 
 ## Dead citations
 
@@ -8,7 +8,7 @@ Distilled from the 2026-08 repo-wide purge and its review rounds. Use them to id
 
 **Leaked:** "Slash input resolves against the visible catalog (decision 21)."
 
-**Fixed:** "Slash input resolves against the visible catalog — the plain-text-reference decision, owned by `agent-notes/archived/architecture/2026-07-25-web-input-machine-and-slash-pipeline.md`."
+**Fixed:** "Slash input resolves against the visible catalog — the plain-text-reference decision, owned by `<notes-root>/archived/architecture/2026-07-25-web-input-machine-and-slash-pipeline.md`."
 
 The ordinal resolves nowhere at HEAD; the decision's name and owning note path do. Name the owning note's path at least once per file — as a link where the surface supports one — and later mentions may use the searchable name alone.
 
@@ -208,7 +208,7 @@ An unaided pass kept this as "naming the owning document by topic". The test is 
 
 ### Suppression justifications
 
-**Keep (after fixing):** `// lint-disable-next-line no-forced-unwrap -- the one-element literal guarantees index 0.`
+**Keep (after fixing):** `// lint-disable-next-line <rule> -- the one-element literal guarantees index 0.`
 
 The justification clause is required prose. When the stated reason is false (the original said "the loop guard above proves a frame exists" with no loop in sight), fix the reason; never delete it.
 

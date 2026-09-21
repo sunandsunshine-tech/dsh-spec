@@ -2,9 +2,9 @@
 description: Use when working in this repository to find non-obvious simplification candidates, remove redundant comments or implementation-heavy documentation, write proposed Agent Notes or inline TODO/FIXME/XXX notes, audit or coalesce superseded Agent Notes, or fold worthwhile simplification ideas from another PR; especially for dead, duplicated, speculative, over-built, added-then-removed, or hand-rolled-where-a-dependency-exists surfaces.
 metadata:
     github-path: skills/dsh-find-simplifications
-    github-ref: refs/heads/split-skills
+    github-ref: refs/heads/extract
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: 57d7bb63722921d0df0ae3103649405ca6b0fe91
+    github-tree-sha: b4c06c602a9c2a51c5f94bdf8be3b69e9f031988
 name: dsh-find-simplifications
 ---
 # Finding Simplifications
@@ -13,9 +13,9 @@ This skill helps turn a broad "find things to simplify" request into evidence-ba
 
 ## Start With Repo Context
 
-- Read `AGENTS.md`, especially the pre-release stance and the conventions (including the tests-are-not-golden-truth and Agent Notes-are-not-golden-truth doctrines), plus `docs/defensive-patterns.md` and `docs/testing.md`.
+- Read `AGENTS.md`, especially its conventions (including the tests-are-not-golden-truth and decision-records-are-not-golden-truth doctrines), plus the project's defensive-patterns and testing guides where it keeps them.
 - Read the project's architecture page before judging anything under its source directories; a simplification that fights the documented component map or event taxonomy needs extra evidence.
-- Use the Agent Note tree and its [rules](../dsh-spec-manager/templates/notes-README.md.template) to understand intentional architecture. The source project's most relevant implemented examples are `archived/simplification/2026-06-19-drop-mutable-session-summary.md`, `agent-notes/implemented/architecture/2026-08-27-handle-based-session-persistence.md`, `agent-notes/implemented/simplification/2026-08-30-jsonl-only-session-persistence.md`, `agent-notes/implemented/architecture/2026-06-13-capability-seams.md`, and the twin-adapter Agent Notes.
+- Use the Agent Note tree and its [rules](../dsh-spec-manager/templates/notes-README.md.template) to understand intentional architecture: the implemented notes are the record of what was deliberately built, and the ones filed under `simplification` are the closest prior art.
 - Treat a deliberately duplicated adapter pair as intentional by default, and a backend-neutral interface with one first-party implementation as a recorded decision rather than dead abstraction. Do not propose deleting either as "low effort" unless the user explicitly overrides that constraint. Removing an unused method or hook inside a protected boundary can still be valid when it does not collapse the protected design.
 
 ## What Counts As A Strong Candidate
@@ -29,23 +29,23 @@ A strong simplification removes, folds, or demotes something real and has clear 
 - A separate package exists only for test/demo/support code and adds publish or dependency overhead.
 - A feature implements speculative product generality: a background job roster, live registry invalidation, mid-turn steering, component-owned rendering, and similar designs with no product owner.
 - An invariant, rollback path, set of expected outputs, or special-case test exists only to protect an unused API.
-- Hand-rolled code reimplements what a well-maintained external package or a Node builtin at the engine floor already provides, and the swap would delete the implementation plus its dedicated tests (`agent-notes/implemented/process/2026-07-26-dependencies-over-hand-rolling.md`).
+- Hand-rolled code reimplements what a well-maintained external package or a builtin of the runtime the project already requires provides, and the swap would delete the implementation plus its dedicated tests (the project's dependency policy, where one is recorded).
 - The simplified behavior may differ slightly, but the new behavior is still reasonable and easier to explain.
 
-Thin candidates are not enough for an Agent Note: deleting one typo, running `knip` once, removing an intentionally documented backend/adapter, or flagging "this looks complex" without call-site proof.
+Thin candidates are not enough for an Agent Note: deleting one typo, running a dead-code scan once, removing an intentionally documented backend/adapter, or flagging "this looks complex" without call-site proof.
 
 ### Audit invariant companions
 
-Treat an invariant companion as useful only when it compares independently produced observations that can diverge. Remove empty installers and checks that merely inspect service presence, plugin metadata, fixed examples, or the result of calling the same mutation they claim to verify. For every omission, remove the export, build entry, invariant-only compiler reference or dependency, and companion-only test, then record the package-specific reason in both package READMEs. Keep a companion when it compares distinct event producers, durable history, or independently mutable data, even if the package also validates inputs synchronously.
+Treat an invariant companion as useful only when it compares independently produced observations that can diverge. Remove empty installers and checks that merely inspect service presence, plugin metadata, fixed examples, or the result of calling the same mutation they claim to verify. For every omission, remove the export, build entry, invariant-only compiler reference or dependency, and companion-only test, then record the module's own reason in its README — and in the counterpart too where the project pairs them. Keep a companion when it compares distinct event producers, durable history, or independently mutable data, even if the package also validates inputs synchronously.
 
 ## Survey Broadly
 
 Use parallel subagents when the user asks for breadth or many candidates. Give each agent a domain and require evidence, not guesses. Useful domains:
 
 - Request lifecycle and durable log: turn or step boundaries, cancellation, durable events, replay, load and resume.
-- ACP automation and human UI APIs: prompt settlement and teardown on the protocol side; transcript rendering and interaction state on the UI side.
-- LLM/tools/system prompt: stream/generate APIs, assemblers, registries, tool schema defaults, presentation hooks.
-- Bash and tool execution: foreground/background split, job ownership, output spill files, executor methods.
+- Protocol automation and human-facing UI APIs, where the project has them: prompt settlement and teardown on the protocol side; transcript rendering and interaction state on the UI side.
+- Model-facing prompt and tool surfaces, where the project has them: stream/generate APIs, assemblers, registries, tool schema defaults, presentation hooks.
+- Shell and tool execution, where the project has them: foreground/background split, job ownership, output spill files, executor methods.
 - Module layout, examples, scripts, and tests: module splits, static inventories, redundant recorded expectations, support packages.
 
 If subagents are unavailable, simulate the same breadth yourself. Do not let the first good candidate stop the survey.
@@ -67,12 +67,12 @@ For complex asynchronous code, draw the ownership graph and map each sentinel, r
 
 ## Hand-Rolled Code Versus A Dependency
 
-Introducing a dependency is a valid simplification move, not a policy exception: the `agent-notes/implemented/process/2026-07-26-dependencies-over-hand-rolling.md` owns the bar. When surveying, ask of protocol parsers, framers, retry/backoff loops, glob matchers, diff engines, and similar infrastructure: does a well-maintained npm package or a Node builtin at the repo's engine floor already do this?
+Introducing a dependency is a valid simplification move, not a policy exception: the project's dependency policy, where one is recorded, owns the bar. When surveying, ask of protocol parsers, framers, retry/backoff loops, glob matchers, diff engines, and similar infrastructure: does a well-maintained external package or a builtin of the runtime the project already requires already do this?
 
 Prove a dependency-swap candidate like any other, plus:
 
 - Read the hand-rolled implementation and name the exact surface the package covers; residual semantics the package does not cover count against the swap and stay in the Agent Note.
-- Check the package's health honestly (maintenance, adoption, transitive footprint) and prefer builtins when the engine floor has them.
+- Check the package's health honestly (maintenance, adoption, transitive footprint) and prefer builtins when the runtime the project already requires has them.
 - Check the decision records first: vendored dependencies, deliberately duplicated adapters, and other recorded boundaries are settled — a swap that collapses one needs to beat the recorded rationale, not just cite the policy.
 - Weigh net deletion: implementation plus dedicated tests plus docs, minus the glue that remains. A wrapper that relocates the same complexity is not a win.
 
@@ -84,14 +84,14 @@ For every symbol or behavior, classify consumers before writing:
 - Non-production corpus: tests, READMEs and docs, decision records, recorded expectations, generated outputs, and comments.
 - Ambiguous corpus: examples and scripts that may be product smoke paths. Inspect usage before classifying.
 
-Use a fast recursive search first. Good searches include the exact symbol, event name, module name, config key, method name with both `.name(` and `name(`, and any wire strings. Then read the call sites, public interfaces, dynamic event names, tests, docs, and Cordis loader paths.
+Use a fast recursive search first. Good searches include the exact symbol, event name, module name, config key, method name with both `.name(` and `name(`, and any wire strings. Then read the call sites, public interfaces, dynamic event names, tests, docs, and dynamic loader paths.
 
 Reject or downgrade a candidate when:
 
 - A production caller exists and the simplification would be a feature decision rather than a cleanup.
 - The API is explicitly justified by an implemented Agent Note or a hard-won defensive pattern, and the new evidence does not beat that reason.
 - The removal would force unrelated churn without actually reducing the public API or required behavior.
-- The idea is correct but tiny. Add a targeted TODO/FIXME/XXX instead, using the urgency semantics in `docs/development.md`.
+- The idea is correct but tiny. Add a targeted TODO/FIXME/XXX instead, following the project's convention for their urgency.
 
 ## Coalesce Superseded Agent Notes
 
@@ -120,8 +120,8 @@ Prefer this structure, adjusting when the idea needs it:
 - `# Agent Note: <action-oriented title>`
 - `Status: proposed`
 - `## Problem`: name the current API, cite the relevant files, and state the consumer evidence. Separate production callers from tests/docs.
-- `## Proposal`: say exactly what to remove, fold, demote, or rehome. Include tests, docs, READMEs, comments, event-taxonomy, recorded-expectation, and generated-file cleanup when relevant.
-- `## Why not keep it?` or `## What we give up`: make the strongest counterargument legible.
+- `## Proposal`: say exactly what to remove, fold, demote, or rehome. Include tests, docs, READMEs, comments, event or protocol vocabulary, recorded-expectation, and generated-file cleanup when relevant.
+- `## Alternatives considered`: the alternatives that lost and why. Every Agent Note carries this section — the format gate rejects a note without it — and it is where a "why not keep it?" argument belongs.
 - `## Acceptance criteria`: observable end state and gates.
 - `## Risks`: public API changes, behavior changes, future product wants, and why the tradeoff is still reasonable.
 
@@ -137,7 +137,7 @@ Use inline TODO/FIXME/XXX only for small, local cleanups that are clearly useful
 
 ## When Folding Another PR Or Branch
 
-Diff the sibling branch against `origin/master`, not against the current PR branch, so you see its independent contribution. For each item:
+Diff the sibling branch against the branch it targets, not against the current PR branch, so you see its independent contribution. For each item:
 
 - Port non-overlapping Agent Notes or TODOs that meet the quality bar.
 - Consolidate overlapping material into the existing Agent Note that owns the topic.

@@ -19,7 +19,7 @@ description: "找出并修复视角在撰写会话、而不在仓库的散文。
 
 ## 修剪之后留下什么
 
-不带辅助的引用清理在两个方向都会出错，因此保留规则按原文执行：议题引用（`#1470`、`TODO(name):`）在任何表面上都保留；Agent Note 里对已合并 PR 和议题的引用是受认可的证据；抑制说明——linter 禁用理由、覆盖率忽略理由、空 catch 的解释——是必需的散文，其错误的理由要修正而不是删除；现在时反事实的回归钉子、实测边界与运行时的旧/新状态保留；带自己 § 编号的外部标准保留；项目口吻和笔记的「替代方案」小节保留。[`leakage-examples.md`](references/leakage-examples.md) 逐类校准。
+不带辅助的引用清理在两个方向都会出错，因此保留规则按原文执行：议题引用（`#1470`、`TODO(name):`）在任何表面上都保留；Agent Note 里对已合并 PR 和议题的引用是受认可的证据；抑制说明——linter 禁用理由、覆盖率忽略理由、空 catch 的解释——是必需的散文，其错误的理由要修正而不是删除；现在时反事实的回归钉子、实测边界与运行时的旧/新状态保留；带自己 § 编号的外部标准保留；项目口吻和笔记的「替代方案」小节保留。[`examples.md`](references/examples.md) 逐类校准。
 
 ## 它拒绝做什么
 
@@ -41,6 +41,6 @@ pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/script
 ## 接着读
 
 - [`SKILL.md`](SKILL.md) —— agent（智能体）遵循的工作流：分类、保留规则，以及先改归属方的修复顺序。
-- [`leakage-examples.md`](references/leakage-examples.md) —— 少量泄漏/修复对照示例，作为校准素材引用，而不是当作可照抄的措辞。
+- [`examples.md`](references/examples.md) —— 少量泄漏/修复对照示例，作为校准素材引用，而不是当作可照抄的措辞。
 - [`recall-batteries.md`](references/recall-batteries.md) —— 这些探针、它们的调用规则，以及如何在信任一个探针之前先校准它。
 - [`dsh-prose-standard`](../dsh-prose-standard/SKILL.md) —— 本技能所应用的完整命题规则，以及它继承的范围与排除项。

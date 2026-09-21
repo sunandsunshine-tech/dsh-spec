@@ -22,8 +22,8 @@ description: "覆盖一次外发改动的最小本地证据，以及它失败时
 | 模块或脚本行为 | 归属的测试文件，或其中聚焦的测试；共享约定变动时加上相邻模块的测试 |
 | 决策记录或与文档相连的注释 | 笔记门禁，按名称通过分发器选择 |
 | 配对文档或其译文 | `verify-translation-pairing` |
-| `skills/` | 覆盖所触及技能的各道门禁，加上本仓库的 `scripts/verify-skill-structure.ts` |
-| 读者会到达的散文 | `verify-md-links`、`verify-md-link-syntax`、`verify-md-metadata` |
+| `skills/` | 覆盖所触及技能的各道门禁，按名称通过分发器选择 |
+| 读者会到达的散文 | `verify-md-links`、`verify-md-link-syntax` |
 | 模型、编辑器、CLI（命令行界面）或终端可见的输出 | 拥有该输出的聚焦记录输出场景，或真实可运行的示例 |
 | manifest、导出、构建配置或入口点 | 构建门禁、相关的卫生检查，以及针对构建产物的冒烟测试 |
 | 真实 provider 或 agent（智能体）行为 | 凭据可用时跑相关的端到端目标——并且绝不打印密钥 |
@@ -40,14 +40,14 @@ description: "覆盖一次外发改动的最小本地证据，以及它失败时
 
 ## 它的检查如何运行
 
-门禁是代码，位于整个集合唯一的代码归属 `../dsh-spec-manager/scripts/`；本技能只交付散文，不含任何代码。它按名称通过旁边的分发器 `run.ts` 寻址，从不按路径，而分发器用该目录里的门禁脚本解析名称，遇到未知名称就拒绝，而不是跳过。有一道门禁有意不在上表占一行：凭据扫描不按路径选择，因为任何改动都可能引入凭据，所以它随聚合检查一起跑。
+门禁是代码，位于整个集合唯一的代码归属 `../dsh-spec-manager/scripts/`；本技能只交付散文，不含任何代码。它按名称通过旁边的分发器 `run.ts` 寻址，从不按路径，而分发器会把 manifest 中的记录与该目录里的门禁脚本相互核对：遇到未知名称就拒绝，而不是跳过；两者不一致时则拒绝运行任何东西。有一道门禁有意不在上表占一行：凭据扫描不按路径选择，因为任何改动都可能引入凭据，所以它随聚合检查一起跑。
 
 ```sh
 pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/run.ts verify-agent-note-format --root .
 pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/run.ts --all --root .
 ```
 
-`--all` 运行引擎目录里的每一道门禁，某一道失败时失败，一道都没有时也失败——因此它就是「整套检查」的含义，属于推送前或里程碑节点，而所选子集则持续运行。
+`--all` 运行记录点名的每一道门禁，某一道失败时失败，一道都没点名时也失败——因此它就是「整套检查」的含义，属于推送前或里程碑节点，而所选子集则持续运行。
 
 ## 接着读
 

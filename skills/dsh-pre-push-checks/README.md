@@ -23,7 +23,7 @@ Confirm the checkout and branch, verify the live PR base or stack parent, fetch 
 | Decision records or doc-linked comments | The note gates, selected by name through the dispatcher |
 | A paired document or its translation | `verify-translation-pairing` |
 | `skills/` | The gates covering the touched skill, selected by name through the dispatcher |
-| Prose a reader arrives at | `verify-md-links`, `verify-md-link-syntax`, `verify-md-metadata` |
+| Prose a reader arrives at | `verify-md-links`, `verify-md-link-syntax` |
 | Model-, editor-, CLI- or terminal-visible output | The focused recorded-output scenario or real runnable example that owns the output |
 | Manifests, exports, build configuration or entry points | The build gate, the relevant hygiene checks, and a smoke test of the built artifact |
 | Real provider or agent behavior | The end-to-end target, when credentials are available — and never print secrets |

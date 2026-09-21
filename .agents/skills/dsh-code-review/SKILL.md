@@ -1,10 +1,10 @@
 ---
-description: Use when reviewing a pull request in this repository — orients the reviewer to this codebase's standards (AGENTS.md conventions, defensive patterns, ADRs, quality gates) and the review-specific checks that code alone can't show
+description: Use when reviewing a pull request in this repository — orients the reviewer to this codebase's standards (AGENTS.md conventions, defensive patterns, decision records, quality gates) and the review-specific checks that code alone can't show
 metadata:
     github-path: skills/dsh-code-review
-    github-ref: refs/heads/split-skills
+    github-ref: refs/heads/extract
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: 5bd906ffe533d6d99d9709e08bb69a4e3464946d
+    github-tree-sha: 4ad6cc0ebff25c54afe3e2111d58ab02e3abffa7
 name: dsh-code-review
 ---
 # Reviewing a pull request
@@ -12,8 +12,6 @@ name: dsh-code-review
 **This skill is guidance, not a complete checklist.** Verify and fetch the PR's live base and exact head, then establish the changed scope with `git diff --name-only <verified-base-ref>...<verified-head-ref>` before reading the diff and enough surrounding code to understand the design. The report identifies paths and dirty layers but does not replace semantic review. Re-establish the base and rerun it after a retarget or merge. Prioritize correctness, lifecycle, security, and broken required behavior over style; a short review with one substantiated blocker is better than a list of nits.
 
 ## Sources of truth
-
-**The rules this project reviews against are standing entries in the root [`AGENTS.md`](../../AGENTS.md)**, and its `Conventions` and `Boundaries` sections are the ones review enforces. The checks below say what to look for and why; that file says what this repository requires. Read both before starting a review, and when a check here has no entry there, ask the maintainer rather than inventing a rule.
 
 - `<root>/AGENTS.md` and each subtree `AGENTS.md`: standing repository, package, or module authoring rules.
 - The project's defensive-patterns guide, if it has one: subprocess, callback, async-state, and disposal bug classes.
@@ -36,7 +34,7 @@ name: dsh-code-review
 ## Manual checks
 
 - **Intent and interface contracts:** trace both sides of every changed interface. Confirm the implementation matches the PR and any Agent Note, including errors, cancellation, ownership, and disposal.
-- **Lifecycle and concurrency:** for async setup, callbacks, processes, or teardown, apply `docs/defensive-patterns.md`. Check races before publication, cancellation during awaits, independent error reporting, callback containment, ownership before reentry, complete detach cleanup, and quiescent disposal.
+- **Lifecycle and concurrency:** for async setup, callbacks, processes, or teardown, apply the project's defensive-patterns guide where it has one. Check races before publication, cancellation during awaits, independent error reporting, callback containment, ownership before reentry, complete detach cleanup, and quiescent disposal.
 - **Capability and consumer fit:** trace every current consumer, then flag consumer-specific behavior leaking into the interface under the project's package or module rules. Flag the inverse too: a new public method on a generic service (registry, session, agent) whose only caller is one internal consumer is an unnecessary API expansion — require a private capability closure handed to that consumer at construction instead.
 - **Scope, ownership, and necessity:** map each abstraction, state machine, option, defensive copy, and compatibility path to its current contract, production consumer, and owning plugin or service. Challenge unrelated features and speculative generality, then test the PR against the root `AGENTS.md` conventions section.
 - **Configuration and public choices:** ask what current-consumer evidence or prior art supports each default, public operation set, format, or imported external concept. Require an explicit choice or deferral when that evidence is absent.

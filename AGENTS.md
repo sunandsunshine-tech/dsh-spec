@@ -47,10 +47,6 @@ pnpm dlx --allow-build=esbuild tsx@4.22.4 \
   # a link a bulk rewrite turned into prose: `[label (reference)`, or a link nested inside a link
 
 pnpm dlx --allow-build=esbuild tsx@4.22.4 \
-  .agents/skills/dsh-spec-manager/scripts/run.ts verify-md-metadata --root .
-  # a frontmatter block whose `---` fence is joined onto another line, is never closed, or is not a `key: value` mapping
-
-pnpm dlx --allow-build=esbuild tsx@4.22.4 \
   .agents/skills/dsh-spec-manager/scripts/run.ts verify-no-secrets --root .
   # a provider token prefix, a PEM private-key header, or a long value assigned to a credential name, in tracked text
 
@@ -99,6 +95,6 @@ Keep each rule self-contained while linking the document that owns its rationale
 
 Non-trivial changes add or update one Agent Note in the same change — a proposed, implemented, or rejected record under `.agents/dsh-spec/notes/`, carrying the rationale, the alternatives that lost, and the required verification. Only mechanical or local edits are exempt. **A decision agreed in conversation counts**: record it as a `proposed` note before the change exists, because a conclusion that lives only in a transcript is invisible to the next session, the next collaborator, and the next device. Update that note as the design moves; move it to `implemented` when it ships.
 
-Read `.agents/dsh-spec/notes/README.md` for the layout, the classes, and the in-file format, and keep every note inside the closed lifecycle and class folders the gates check. The gates are not copied into this project: they ship with the collection that initialized it and are addressed by name through `.agents/skills/dsh-spec-manager/scripts/run.ts`. Run them from there after adding a note.
+Read `.agents/dsh-spec/notes/README.md` for the layout, the classes, and the in-file format, and keep every note inside the closed lifecycle and class folders the gates check. The gates are not copied into this project: they ship inside the installed skills and are addressed by name through the dispatcher beside `.agents/skills/dsh-spec-manager/scripts/`. Run a gate through the dispatcher after adding a note.
 
 <!-- /dsh-spec:agent-notes -->

@@ -15,6 +15,12 @@
  * itself, and nothing beside it can disagree with the file the dispatcher runs.
  * The gates themselves travel inside this skill, which is the collection's one code
  * home, so there is no second copy of the engine either.
+ *
+ * An install is two halves: the skills under `.agents/skills/`, and the mechanism text a project
+ * holds in its own tree — the notes contract, the documentation orders, the search exclusion, and
+ * the marked standing-orders section. `sync` rewrites the second half from the installed templates
+ * and is also exposed on its own, because a project may want to see the diff without a network
+ * install; `init` is the half that creates those files.
  */
 
 import { spawnSync } from 'node:child_process'
@@ -133,6 +139,88 @@ function run(command: string, args: string[], dryRun: boolean): void {
 }
 
 /**
+ * The files one installed skill's revision ships, read from the tree its own metadata names.
+ *
+ * `gh skill install` injects `github-tree-sha` into the installed `SKILL.md`, and the tree API lists
+ * that directory's blobs as paths relative to it — exactly the shape needed to compare an installed
+ * directory against what the revision contains.
+ *
+ * @param repo - `owner/name` the skill came from.
+ * @param skill - the skill directory name.
+ * @param directory - the project's `.agents/skills/` directory.
+ * @returns the revision's relative file paths, or `undefined` when they cannot be read.
+ */
+function revisionFiles(repo: string, skill: string, directory: string): string[] | undefined {
+  const skillFile = join(directory, skill, 'SKILL.md')
+  if (!existsSync(skillFile)) return undefined
+  const treeSha = /github-tree-sha:\s*([0-9a-f]{40})/.exec(readFileSync(skillFile, 'utf8'))?.[1]
+  if (treeSha === undefined) return undefined
+  const listing = spawnSync(
+    'gh',
+    ['api', `repos/${repo}/git/trees/${treeSha}?recursive=1`, '--jq', '.tree[] | select(.type == "blob") | .path'],
+    { encoding: 'utf8' },
+  )
+  if ((listing.status ?? 1) !== 0) return undefined
+  const paths = listing.stdout.split('\n').map(line => line.trim()).filter(line => line !== '')
+  return paths.length === 0 ? undefined : paths
+}
+
+/**
+ * Delete what the installed revision no longer ships.
+ *
+ * `gh skill install --force` overwrites the files a revision contains and never deletes one it has
+ * dropped, so a rename or a removal leaves the old file behind. Most leftovers are inert, but one
+ * class is fatal — a `verify-*.ts` script the gate record does not name makes the dispatcher refuse
+ * to run anything — and a project cannot tell the two classes apart by looking. The revision's own
+ * tree is the authority, so the installed directory is reduced to exactly what that tree lists.
+ *
+ * Nothing is deleted when the listing cannot be read: a failed API call must not look like a
+ * revision that ships nothing.
+ *
+ * @param repo - `owner/name` the skills came from.
+ * @param skill - the skill directory name.
+ * @param directory - the project's `.agents/skills/` directory.
+ * @param dryRun - print the removals instead of making them.
+ */
+function pruneToRevision(repo: string, skill: string, directory: string, dryRun: boolean): void {
+  const expected = revisionFiles(repo, skill, directory)
+  if (expected === undefined) {
+    console.log(`  ${skill}: no revision listing read — nothing pruned`)
+    return
+  }
+  const shipped = new Set(expected)
+  const root = join(directory, skill)
+  const doomed: string[] = []
+  const directories: string[] = []
+  const walk = (current: string, prefix: string): void => {
+    for (const entry of readdirSync(current, { withFileTypes: true })) {
+      const relative = prefix === '' ? entry.name : `${prefix}/${entry.name}`
+      if (entry.isDirectory()) {
+        directories.push(join(current, entry.name))
+        walk(join(current, entry.name), relative)
+      } else if (!shipped.has(relative)) {
+        doomed.push(relative)
+      }
+    }
+  }
+  walk(root, '')
+  for (const relative of doomed) {
+    const path = join(root, relative)
+    if (dryRun) {
+      console.log(`  would remove ${path} — the revision does not ship it`)
+      continue
+    }
+    rmSync(path)
+    console.log(`  removed ${path} — the revision does not ship it`)
+  }
+  if (dryRun) return
+  // A directory that held only removed files is debris of the same kind, so it goes too.
+  for (const dir of directories.reverse()) {
+    if (existsSync(dir) && readdirSync(dir).length === 0) rmSync(dir, { recursive: true })
+  }
+}
+
+/**
  * The revision `gh skill install` injected into an installed `SKILL.md`, or `undefined` when the
  * file carries no `metadata:` block at all.
  *
@@ -242,10 +330,20 @@ if (command === 'init') {
   for (const skill of manifest.skills) {
     run('gh', ['skill', 'install', repo, `${skill}@${manifest.revision}`, '--dir', directory, '--force'], dryRun)
   }
+  for (const skill of manifest.skills) pruneToRevision(repo, skill, directory, dryRun)
+  // The other half of a refresh: the files whose text the collection owns — the notes contract, the
+  // documentation orders, the search exclusion, the marked standing-orders section — are brought to
+  // this revision too, so every project's mechanism text is the same one. A terminology table keeps
+  // its rows and `AGENTS.md` keeps everything outside the marked section.
+  run('pnpm', ['dlx', '--allow-build=esbuild', 'tsx@4.22.4', initializerPath, '--root', root, '--sync', '--write'], dryRun)
+} else if (command === 'sync') {
+  const args = ['dlx', '--allow-build=esbuild', 'tsx@4.22.4', initializerPath, '--root', root, '--sync']
+  if (hasFlag('--write')) args.push('--write')
+  run('pnpm', args, dryRun)
 } else if (command === 'status') {
   status(root, readManifest())
 } else if (command === 'uninstall') {
   uninstall(root, readManifest(), dryRun)
 } else {
-  fail(`unknown subcommand ${command === '' ? '(none given)' : `\`${command}\``} — expected init, install, update, uninstall or status`)
+  fail(`unknown subcommand ${command === '' ? '(none given)' : `\`${command}\``} — expected init, install, update, sync, uninstall or status`)
 }

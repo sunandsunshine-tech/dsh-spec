@@ -31,20 +31,19 @@ Beside an agent-facing entry, the README is the human door: one page that says w
 
 ## How its checks are run
 
-Three gates check the mechanics of Markdown rather than its editorial content, and this skill ships prose and no code: they live in the collection's one code home, `../dsh-spec-manager/scripts/`, and are addressed by name through the dispatcher `run.ts` beside them.
+Two gates check the mechanics of Markdown rather than its editorial content, and this skill ships prose and no code: they live in the collection's one code home, `../dsh-spec-manager/scripts/`, and are addressed by name through the dispatcher `run.ts` beside them.
 
 ```sh
 pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/run.ts verify-md-links --root .
 pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/run.ts verify-md-link-syntax --root .
-pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/run.ts verify-md-metadata --root .
 ```
 
-`verify-md-links` rejects a relative link, image or definition whose target, or whose `#fragment` onto a Markdown file, does not resolve. `verify-md-link-syntax` rejects a link a bulk rewrite turned into prose — a bracketed label followed by a parenthesised reference, or a link nested inside a link — because neither parses, so the resolver reports nothing. `verify-md-metadata` rejects a frontmatter block joined onto one line, never closed, or not a `key: value` mapping. The corpus is every Markdown file this repository authors — `.zh.md` counterparts included — minus the trees [`md-scope.ts`](../dsh-spec-manager/scripts/md-scope.ts) names: the frozen archive, the installed copy, `submodules/`, and dependency or build output. Document length and the module-contract kinds have no gate, so those stay a review responsibility.
+`verify-md-links` rejects a relative link, image or definition whose target, or whose `#fragment` onto a Markdown file, does not resolve. `verify-md-link-syntax` rejects a link a bulk rewrite turned into prose — a bracketed label followed by a parenthesised reference, or a link nested inside a link — because neither parses, so the resolver reports nothing. The corpus is every Markdown file this repository authors — `.zh.md` counterparts included — minus the trees [`md-scope.ts`](../dsh-spec-manager/scripts/md-scope.ts) names: the frozen archive, the installed copy, `submodules/`, and dependency or build output. Document length, the module-contract kinds, and a malformed frontmatter block have no gate, so those stay a review responsibility.
 
 ## Read next
 
 - [`SKILL.md`](SKILL.md) — the workflow an agent follows: inputs, required coverage by location, borderline decisions, and the report it owes.
-- [`prose-examples.md`](references/prose-examples.md) — distilled before-and-after examples that identify the governing principle rather than a text template.
+- [`examples.md`](references/examples.md) — distilled before-and-after examples that identify the governing principle rather than a text template.
 - [`dsh-trim-cot-leakage`](../dsh-trim-cot-leakage/SKILL.md) — the workflow for prose whose vantage is the authoring session rather than the repository.
 - [`dsh-translate-docs`](../dsh-translate-docs/SKILL.md) — the bilingual workflow, and the pair that must be re-recorded when this skill edits an authored side.
 - [`dsh-code-review`](../dsh-code-review/SKILL.md) — the review that requires new prose to receive semantic judgement rather than a green gate.

@@ -1,6 +1,6 @@
 # 翻译语体样例（style samples）
 
-本文件是翻译语体的校准锚点：每组样例是一段英文原文与一段人工定稿的中文译文，覆盖本项目文档的主要文体。样例取自源项目，采用方应按自己的文体补齐或替换——类别与校准方式保留，具体段落换成自己项目的金标译文。**译文的语体以这些样例为准**——文体样例的效力高于对语气的文字描述，但术语表、忠实性与结构规则仍然优先。翻译或评审时对照最接近的文体样例。本文件中英对照、自成双语，不参与配对（见 `i18n-contract.md` 排除清单）。
+本文件是翻译语体的校准锚点：每组样例是一段英文原文与一段人工定稿的中文译文，覆盖本项目文档的主要文体。样例取自源项目，采用方应按自己的文体补齐或替换——类别与校准方式保留，具体段落换成自己项目的金标译文。**译文的语体以这些样例为准**——文体样例的效力高于对语气的文字描述，但术语表、忠实性与结构规则仍然优先。翻译或评审时对照最接近的文体样例。本文件中英对照、自成双语，没有 `.zh.md` 对侧，因此不声明配对（见 [i18n-contract.md](i18n-contract.md)）。
 
 维护方式：人工评审校准出新的金标段落后追加到对应文体；发现语义、结构或术语错误时直接修正。新增或修正样例都需经过 PR 评审。
 
@@ -14,9 +14,9 @@
 
 依赖约束规范：各类扩展插件仅依赖抽象接口，严禁直接依赖 `<loop-package>`（该主循环支持替换实现）；`<core-package>` 与 `<sdk-package>` 等组合包可以组装具体循环。
 
-> This document covers **behavior**; type definitions live in the owning reference page, the per-event/service reference lives in the generated regions of `subsystems/core.md`, and package contracts in the package READMEs state each package's required configuration and behavior (`packages/README.md`).
+> This document covers **behavior**; type definitions live in the owning reference page, the per-event/service reference lives in the generated regions of `<generated-reference>.md`, and package contracts in the package READMEs state each package's required configuration and behavior (`<modules>/README.md`).
 
-本文档描述整体行为逻辑；类型定义存放于对应的参考页；各类事件、服务的详细参考见 `subsystems/core.zh.md` 中的生成区块；相应的 README 说明每个包（package）要求的配置和行为（`packages/README.zh.md`）。
+本文档描述整体行为逻辑；类型定义存放于对应的参考页；各类事件、服务的详细参考见 `<generated-reference>.zh.md` 中的生成区块；相应的 README 说明每个包（package）要求的配置和行为（`<modules>/README.zh.md`）。
 
 ## ② 防御模式规则
 

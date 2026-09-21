@@ -10,9 +10,11 @@ English | [中文](2026-09-21-the-shipped-skill-text-is-an-extraction.zh.md)
 
 A derived text that drifts for no recorded reason stops being reviewable. A diff against the source no longer answers "what did this collection change on purpose?", which is the only question the extraction exists to make cheap, and a reader who cannot tell a deliberate generalization from an accident re-reads every line.
 
+The same class of defect lived one layer down. The templates `init` installs carried two paths from the source project's engine directory, an engine placeholder that survived into every initialized project because nothing replaced it, and a switcher line pointing at a Chinese counterpart `init` deliberately does not create — so a fresh project's own contract failed the link gate on its first run.
+
 ## Decision
 
-A shipped skill file deviates from the text it came from for exactly two reasons; a change that has neither is a defect to repair or a decision to record elsewhere.
+A shipped skill file — and every template the collection installs — deviates from the text it came from for exactly two reasons; a change that has neither is a defect to repair or a decision to record elsewhere.
 
 1. **A reference change the shipped layout requires.** A check is addressed by name through the dispatcher instead of a package script, a contract moves into the skill's `references/`, a path names the notes tree or the engine directory.
 2. **A generalization that removes one project's specifics.** Its product name, package layout, linters, documentation tree, and private gates are replaced by what holds for any project that adopts the collection.
@@ -33,7 +35,7 @@ Defects were repaired rather than reverted. Prose was restored where a rewrite h
 
 - A diff of any skill directory against `submodules/dsh/` shows reference changes and generalizations and nothing else, so a reviewer can attribute every remaining line to one of the two allowed causes.
 - The removed material is not lost: each README keeps the tables and contracts it already carried, the manager keeps the record and the engine, and the terminology rule lives in `docs/AGENTS.md`.
-- No shipped skill names this repository's own gates, its sandbox workaround, or its vendored baseline any more; a consumer reads only paths it has.
+- No shipped skill names this repository's own gates, its sandbox workaround, or its vendored baseline any more; a consumer reads only paths it has, and the templates resolve the engine path as they are written instead of leaving a placeholder for a person.
 - What this costs is source fidelity of a different kind: wherever a sentence had to be generalized clause by clause, the skill's prose is further from the source's phrasing than a free rewrite would have left it.
 
 ## Verification

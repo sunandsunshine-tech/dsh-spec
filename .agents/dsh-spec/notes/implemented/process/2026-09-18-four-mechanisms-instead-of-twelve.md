@@ -36,7 +36,7 @@ Two causes stand separately. Most of the weight was machinery this repository in
 
 | Removed skill | Reason |
 |---|---|
-| `dsh-doc` | Its subject **is** the documentation mechanism this decision deletes; the tier table, the budget policy and the `verify-doc-*` and `verify-readme-shape` gates leave with it, while `verify-md-links`, `verify-md-link-syntax` and `verify-md-metadata` survive in `dsh-prose-standard`. **The maintainer confirmed the removal on that ground: a skill whose whole subject is the mechanism being deleted has nothing left to own.** |
+| `dsh-doc` | Its subject **is** the documentation mechanism this decision deletes; the tier table, the budget policy and the `verify-doc-*` and `verify-readme-shape` gates leave with it, while `verify-md-links` and `verify-md-link-syntax` survive in `dsh-prose-standard`. **The maintainer confirmed the removal on that ground: a skill whose whole subject is the mechanism being deleted has nothing left to own.** |
 | `dsh-ci-test-reliability` | It was parameterized from the `test-lanes` key, and that key recorded `none`: this repository has no CI, no build step and no test runner, so the skill described no work here |
 | `dsh-speed-up-perf` | The `perf-baseline` key recorded that nothing here is measured: the deliverable is Markdown and dependency-free TypeScript run on demand |
 | `dsh-merging-stacked-prs` | Stacked pull requests are a capability of the host, not a repository discipline, and the `gh` skill covers the capability |
@@ -152,4 +152,4 @@ The tier table and its targets, ceilings and ratchet; the placement, tier, compo
 
 **A pair can be dropped by deleting its `.zh.md`.** Self-declaring pairs mean an English-only document is legitimate, so nothing distinguishes a deliberate un-pairing from a lost translation; the pairing gate reports what declares no pair, and review decides whether that was intended.
 
-**The checks that caught the frontmatter reflow and the collapsed glob survive in `dsh-prose-standard`.** `verify-md-metadata` rejects a collapsed frontmatter block and `verify-md-links` rejects the target a collapsed glob stops naming, so neither defect depends on review noticing it; the bug-fix notes that record the two incidents stay the durable account.
+**The check that caught the collapsed glob survives in `dsh-prose-standard`.** `verify-md-links` rejects the target a collapsed glob stops naming, so that defect does not depend on review noticing it. The frontmatter class left the shipped set later, when [the gate that enforced it turned out to have no owner in an adopted project](2026-09-21-frontmatter-has-no-owner-in-an-adopted-project.md); this repository keeps its own check inside `scripts/verify-skill-structure.ts`. The bug-fix notes that record the two incidents stay the durable account.

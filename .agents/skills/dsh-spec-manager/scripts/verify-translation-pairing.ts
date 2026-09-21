@@ -11,6 +11,7 @@
  * See `references/i18n-contract.md` for the owning contract.
  */
 
+import { spawnSync } from 'node:child_process'
 import { existsSync, globSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { basename, join, resolve, sep } from 'node:path'
 import {
@@ -178,6 +179,13 @@ if (request.scope === 'pairs') {
 // missing records. A named pair that cannot be recorded (missing counterpart)
 // fails loud; corpus scope (--all) records every complete pair.
 if (writeMode) {
+  // Recording stores both sides as Git blobs, so it needs a repository: without one the failure is
+  // a git error inside the store rather than a statement about the tree, which reads as a crash.
+  const insideRepository = spawnSync('git', ['rev-parse', '--git-dir'], { cwd: root, encoding: 'utf8' }).status === 0
+  if (!insideRepository) {
+    console.error(`verify-translation-pairing: ${root} is not inside a git repository; --write stores each side as a Git blob so a recorded pair can be recovered. Run it from the project's working tree.`)
+    process.exit(1)
+  }
   let written = 0
   for (const source of sources) {
     const paths = translationPairPaths(source)

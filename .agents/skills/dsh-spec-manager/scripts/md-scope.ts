@@ -41,7 +41,7 @@ const DEPENDENCY_TREES: readonly string[] = [
 
 /** Repository-relative prefixes outside the prose gates' scope, each with the reason it is out. */
 const EXCLUDED_PREFIXES: ReadonlyArray<readonly [prefix: string, reason: string]> = [
-  ['submodules/', 'the pinned extraction baseline is not this repository’s prose'],
+  ['submodules/', 'a nested repository, whose Markdown belongs to its own owner'],
   ['.agents/skills/', 'the installed collection is a deployment of `skills/`, not a second source'],
 ]
 

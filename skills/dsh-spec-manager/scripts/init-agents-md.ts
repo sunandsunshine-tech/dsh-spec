@@ -1,12 +1,18 @@
 /**
- * Initialize a project's agent instructions: the root `AGENTS.md`, and the Agent Note tree
- * with the contract and gates that govern it.
+ * Initialize a project's agent instructions, and sync the files whose text the collection owns.
+ *
+ * `init` writes the root `AGENTS.md`, the Agent Note tree with the contract that governs it, and the
+ * documentation folder's standing orders with an empty terminology table. It writes nothing until
+ * `--write` is passed, so the default run is a safe inventory, and it never overwrites content it did
+ * not create: an existing `AGENTS.md` keeps every line and gains only the marked Agent Note section,
+ * and an existing notes tree or terminology table is left alone.
+ *
+ * `--sync` is the other half, and it is what keeps every project's mechanism text identical to the
+ * installed revision: the contract documents are replaced, a terminology table keeps its rows, and
+ * the standing orders keep everything outside the marked section.
  *
  * Zero external dependencies by design: it runs under `pnpm dlx tsx` in a project that has no
- * `node_modules`. The script writes nothing until `--write` is passed, so the default run is a
- * safe inventory. It never overwrites content it did not create: an existing `AGENTS.md` keeps
- * every line and gains only the marked Agent Note section, and an existing notes tree is left
- * alone.
+ * `node_modules`.
  */
 
 import { spawnSync } from 'node:child_process'
@@ -58,6 +64,7 @@ function hasFlag(name: string): boolean {
 const root = resolve(flagValue('--root') ?? process.cwd())
 const write = hasFlag('--write')
 const skipNotes = hasFlag('--no-notes')
+const syncMode = hasFlag('--sync')
 
 if (!existsSync(root) || !statSync(root).isDirectory()) {
   console.error(`dsh-spec-init: ${root} is not a directory — pass --root <project>.`)
@@ -162,7 +169,7 @@ function notesSection(notesDir: string): string {
   return `${NOTES_SECTION_START}
 ## Decision records
 
-Non-trivial changes add or update one Agent Note in the same change — a proposed, implemented, or rejected record under \`${notesDir}/\`, carrying the rationale, the alternatives that lost, and the required verification. Only mechanical or local edits are exempt.
+Non-trivial changes add or update one Agent Note in the same change — a proposed, implemented, or rejected record under \`${notesDir}/\`, carrying the rationale, the alternatives that lost, and the required verification. Only mechanical or local edits are exempt. **A decision agreed in conversation counts**: record it as a \`proposed\` note before the change exists, because a conclusion that lives only in a transcript is invisible to the next session, the next collaborator, and the next device. Update that note as the design moves; move it to \`implemented\` when it ships.
 
 Read \`${notesDir}/README.md\` for the layout, the classes, and the in-file format, and keep every note inside the closed lifecycle and class folders the gates check. The gates are not copied into this project: they ship inside the installed skills and are addressed by name through the dispatcher beside \`${skillDirectory}/scripts/\`. Run a gate through the dispatcher after adding a note.
 
@@ -206,10 +213,8 @@ function present(candidate: string): string {
 interface PlannedFile {
   /** Path relative to the project root. */
   path: string
-  /** Template file name, or undefined for a path this script writes directly. */
+  /** Template file name, or undefined for a directory this script creates. */
   template?: string
-  /** Literal text to write when no template supplies it. */
-  content?: string
 }
 
 function planNotesTree(notesDir: string): PlannedFile[] {
@@ -220,6 +225,9 @@ function planNotesTree(notesDir: string): PlannedFile[] {
     { path: `${notesDir}/AGENTS.md`, template: 'notes-AGENTS.md.template' },
     { path: `${notesDir}/implemented/AGENTS.md`, template: 'notes-implemented-AGENTS.md.template' },
     { path: `${notesDir}/archived/AGENTS.md`, template: 'notes-archived-AGENTS.md.template' },
+    // The archive's search exclusion belongs to the notes tree: it exists because a frozen note is
+    // history rather than current authority, and `--no-notes` is the one switch that removes both.
+    { path: '.rgignore', template: 'rgignore.template' },
   ]
   // The gates are deliberately absent: they stay in the collection, which the project references
   // through the dispatcher beside the manager skill, so there is exactly one copy to keep current.
@@ -230,6 +238,213 @@ function planNotesTree(notesDir: string): PlannedFile[] {
   return planned
 }
 
+/**
+ * The two paths init writes into the documentation folder.
+ *
+ * The vocabulary table is released empty: every row binds both sides of a bilingual pair, so a row
+ * copied from the collection or invented by the initializer would be a decision nobody made. The
+ * orders beside it state that, and are what a project's own editor reads before adding a row.
+ */
+function planDocsTree(docsDir: string): PlannedFile[] {
+  return [
+    { path: `${docsDir}/terminology.md`, template: 'terminology.md.template' },
+    { path: `${docsDir}/AGENTS.md`, template: 'docs-AGENTS.md.template' },
+  ]
+}
+
+/**
+ * How a managed file's existing content merges with the text the collection ships.
+ *
+ * `replace` is a contract document: the mechanism's wording has to be identical in every project,
+ * and a project's own decisions live in notes rather than in the contract's prose. `rows` keeps
+ * everything below the terminology table's header, because a row is the maintainer's decision.
+ * `section` keeps everything outside the marked Agent Note block — the project's standing orders.
+ */
+type Merge = 'replace' | 'rows' | 'section'
+
+/** One file whose text the collection owns, and how it merges with what the project holds. */
+interface ManagedFile {
+  path: string
+  template: string
+  merge: Merge
+  /** Template for the `.zh.md` counterpart, where the collection ships one. */
+  counterpartTemplate?: string
+}
+
+/**
+ * The files a sync brings up to the installed revision, in the order they are reported.
+ *
+ * The notes contract and its three `AGENTS.md` files exist only where the notes tree does, so a
+ * project initialized with `--no-notes` is not given them back; the search exclusion belongs to
+ * that tree for the same reason. The documentation files always exist: the vocabulary table is
+ * what every pair obeys, and the orders beside it are where that rule lives.
+ */
+function managedFiles(notesDir: string, docsDir: string): ManagedFile[] {
+  const notes: ManagedFile[] = [
+    { path: `${notesDir}/README.md`, template: 'notes-README.md.template', merge: 'replace', counterpartTemplate: 'notes-README.zh.md.template' },
+    { path: `${notesDir}/AGENTS.md`, template: 'notes-AGENTS.md.template', merge: 'replace' },
+    { path: `${notesDir}/implemented/AGENTS.md`, template: 'notes-implemented-AGENTS.md.template', merge: 'replace' },
+    { path: `${notesDir}/archived/AGENTS.md`, template: 'notes-archived-AGENTS.md.template', merge: 'replace' },
+    { path: '.rgignore', template: 'rgignore.template', merge: 'replace' },
+  ]
+  const docs: ManagedFile[] = [
+    { path: `${docsDir}/terminology.md`, template: 'terminology.md.template', merge: 'rows' },
+    { path: `${docsDir}/AGENTS.md`, template: 'docs-AGENTS.md.template', merge: 'replace' },
+  ]
+  // The standing orders are the project's; only the marked block inside them is the collection's.
+  const orders: ManagedFile[] = [
+    { path: 'AGENTS.md', template: 'AGENTS.md.template', merge: 'section' },
+  ]
+  return existsSync(resolve(root, notesDir)) ? [...notes, ...docs, ...orders] : [...docs, ...orders]
+}
+
+/** The template text with the placeholders only this script can fill. */
+function substitute(text: string): string {
+  return text.split('{gate-dir}').join(layerDirectory).split('{notes-dir}').join(notesDir)
+}
+
+/** The lines below a Markdown table's header separator, which a project owns. */
+function tableRows(source: string): string {
+  const lines = source.split('\n')
+  const separator = lines.findIndex(line => /^\|(?:\s*:?-+:?\s*\|)+$/.test(line.trim()))
+  if (separator < 0) return ''
+  return lines.slice(separator + 1).join('\n').replace(/^\n+/, '').replace(/\s+$/, '')
+}
+
+/**
+ * The reciprocal language switcher a paired document needs, added to the English side.
+ *
+ * The shipped templates are English-only, because init writes the contract alone; a project that
+ * adds the Chinese counterpart declares a pair, and a pair is complete only when both sides link to
+ * each other. The Chinese template already carries its half, so the English side gets its half here.
+ *
+ * @param source - the English document's text.
+ * @param counterpart - the counterpart's file name, as the link target.
+ * @returns the text with a switcher after its first heading.
+ */
+function withSwitcher(source: string, counterpart: string): string {
+  const lines = source.split('\n')
+  if (lines.some(line => /^English \| \[中文\]\(/.test(line))) return source
+  const heading = lines.findIndex(line => line.startsWith('# '))
+  if (heading < 0) return source
+  lines.splice(heading + 1, 0, '', `English | [中文](${counterpart})`)
+  return lines.join('\n')
+}
+
+/**
+ * Merge what a project holds with the text the installed revision ships.
+ *
+ * A `replace` file keeps none of the project's copy: it is the mechanism's own text, and a project
+ * expresses itself in notes rather than by editing it. A `rows` file keeps the project's data rows
+ * under the fresh header, because a terminology row is a maintainer's decision. A `section` file
+ * keeps everything outside the marked block, because those are the project's standing orders.
+ */
+function mergeManaged(existing: string | undefined, rendered: string, merge: Merge): string {
+  if (existing === undefined || merge === 'replace') return rendered
+  if (merge === 'rows') {
+    const rows = tableRows(existing)
+    return rows === '' ? rendered : `${rendered.trimEnd()}\n${rows}\n`
+  }
+  const start = existing.indexOf(NOTES_SECTION_START)
+  const end = existing.indexOf(NOTES_SECTION_END)
+  const before = (start < 0 ? existing : existing.slice(0, start)).replace(/\s+$/, '')
+  const after = start < 0 || end < 0 ? '' : existing.slice(end + NOTES_SECTION_END.length).replace(/^\n+/, '').replace(/\s+$/, '')
+  const head = before === '' ? '' : `${before}\n\n`
+  const tail = after === '' ? '' : `\n${after}`
+  return `${head}${notesSection(notesDir).trimEnd()}${tail}\n`
+}
+
+/**
+ * Bring the files whose text the collection owns up to the installed revision.
+ *
+ * This is the half of a refresh that reaches the project's own tree: `init` creates these files
+ * once, and a project that edits the contract's prose, or keeps an older revision's copy, drifts
+ * from every other project. The merge rules keep the two things a project owns — the vocabulary
+ * rows and its standing orders outside the marked block — while the mechanism's text is identical
+ * everywhere. Nothing outside the managed list is read or written.
+ */
+function syncManagedFiles(): void {
+  const updated: string[] = []
+  const created: string[] = []
+  let unchanged = 0
+  for (const file of managedFiles(notesDir, docsDir)) {
+    const absolute = resolve(root, file.path)
+    const template = findTemplate(file.template)
+    if (template === undefined) {
+      console.error(`dsh-spec-init: template ${file.template} not found beside this skill — restore it and re-run.`)
+      process.exit(1)
+    }
+    const rendered = substitute(readFileSync(template, 'utf8'))
+    const existing = existsSync(absolute) ? readFileSync(absolute, 'utf8') : undefined
+    const merged = file.merge === 'section' && existing === undefined
+      ? `${rendered.trimEnd()}${skipNotes ? '' : `\n\n${notesSection(notesDir).trimEnd()}`}\n`
+      : mergeManaged(existing, rendered, file.merge)
+    if (existing === merged) {
+      unchanged += 1
+      continue
+    }
+    if (existing === undefined) created.push(file.path)
+    else updated.push(file.path)
+    if (write) {
+      ensureDirectory(dirname(absolute))
+      writeFileSync(absolute, merged)
+    }
+  }
+  // A managed document a project translated has two sides, and replacing one of them would leave
+  // the pair out of sync. Where the collection ships the counterpart's template, both sides are
+  // replaced and the pair is re-recorded — the mechanical act the archive flow also performs, and
+  // sound because both sides are the shipped templates. Where it ships none, the pair is named so a
+  // person can bring the counterpart along.
+  const pairs: string[] = []
+  for (const file of managedFiles(notesDir, docsDir)) {
+    if (!file.path.endsWith('.md')) continue
+    const counterpart = `${file.path.slice(0, -3)}.zh.md`
+    const absolute = resolve(root, counterpart)
+    if (!existsSync(absolute)) continue
+    if (file.counterpartTemplate === undefined) {
+      console.log(`  ${counterpart}: its English side is managed and it has no shipped template — update it and record the pair`)
+      continue
+    }
+    const template = findTemplate(file.counterpartTemplate)
+    if (template === undefined) {
+      console.error(`dsh-spec-init: template ${file.counterpartTemplate} not found beside this skill — restore it and re-run.`)
+      process.exit(1)
+    }
+    const rendered = substitute(readFileSync(template, 'utf8'))
+    const existing = readFileSync(absolute, 'utf8')
+    // The English side gains its half of the switcher the moment the pair exists.
+    const english = resolve(root, file.path)
+    const englishText = readFileSync(english, 'utf8')
+    const linked = withSwitcher(englishText, counterpart.split('/').pop() ?? counterpart)
+    if (linked !== englishText) {
+      updated.push(file.path)
+      if (write) writeFileSync(english, linked)
+    }
+    if (existing !== rendered) {
+      updated.push(counterpart)
+      if (write) writeFileSync(absolute, rendered)
+    }
+    pairs.push(file.path)
+  }
+
+  console.log(`dsh-spec-sync: project root ${root}`)
+  if (!write) console.log('  dry run — pass --write to apply')
+  for (const path of updated) console.log(`  ${write ? 'updated' : 'would update'} ${path}`)
+  for (const path of created) console.log(`  ${write ? 'created' : 'would create'} ${path}`)
+  console.log(`  ${unchanged} managed file(s) already match the installed revision`)
+  for (const path of pairs) {
+    if (!write) {
+      console.log(`  would re-record the pair ${path}`)
+      continue
+    }
+    const recorded = spawnSync('pnpm', ['dlx', '--allow-build=esbuild', 'tsx@4.22.4', resolve(root, dispatcher), 'verify-translation-pairing', '--root', root, '--write', path], { stdio: 'inherit' })
+    if ((recorded.status ?? 1) !== 0) {
+      console.error(`dsh-spec-sync: the pair ${path} could not be re-recorded — run the pairing gate by hand`)
+      process.exit(1)
+    }
+  }
+}
+
 // ---------------------------------------------------------------- inventory
 
 const target = resolve(root, 'AGENTS.md')
@@ -237,13 +452,21 @@ const reported = findInstructions(root, 0)
 const rootInstruction = reported.find(entry => entry.path === 'AGENTS.md')
 const subtreeInstructions = reported.filter(entry => entry.path !== 'AGENTS.md')
 const notesDir = '.agents/dsh-spec/notes'
+const docsDir = 'docs'
 const existingRoot = rootInstruction === undefined ? undefined : readFileSync(target, 'utf8')
+
+// Sync is the other half of the same contract: init writes what is missing and never touches what
+// it finds, and sync then brings the files whose text the collection owns up to this revision.
+if (syncMode) {
+  syncManagedFiles()
+  process.exit(0)
+}
 
 console.log(`dsh-spec-init: project root ${root}`)
 console.log('')
 console.log('  Agent instructions')
 if (rootInstruction === undefined) {
-  console.log('    root AGENTS.md: missing — will be created from the template')
+  console.log(`    root AGENTS.md: missing — will be created from the template${skipNotes ? '' : ', with the Agent Note section'}`)
 } else if (existingRoot?.includes(NOTES_SECTION_START) === true) {
   console.log(`    root AGENTS.md: present (${rootInstruction.lines} lines), already carries the Agent Note section`)
 } else {
@@ -281,6 +504,15 @@ if (skipNotes) {
   }
 }
 
+console.log('')
+console.log('  Documentation')
+{
+  const planned = planDocsTree(docsDir)
+  const missing = planned.filter(entry => !existsSync(resolve(root, entry.path)))
+  console.log(`    ${docsDir}/: ${planned.length - missing.length}/${planned.length} planned path(s) exist`)
+  for (const entry of missing) console.log(`      missing: ${entry.path}`)
+}
+
 if (!write) {
   console.log('')
   console.log('  dry run — pass --write to apply, then fill every <placeholder> by hand')
@@ -298,19 +530,31 @@ function ensureDirectory(absolutePath: string): void {
   mkdirSync(absolutePath, { recursive: true })
 }
 
-function copyTemplate(templateName: string, absoluteTarget: string): void {
+/**
+ * Write one template into the project, resolving `{gate-dir}` to this script's engine directory and
+ * `{notes-dir}` to the notes tree it is creating, and appending any suffix the caller supplies.
+ *
+ * Only the initializer knows where the collection landed, so the engine path is filled here rather
+ * than left for a person to complete: a placeholder that survives into the project points nowhere.
+ */
+function copyTemplate(templateName: string, absoluteTarget: string, suffix = ''): void {
   const template = findTemplate(templateName)
   if (template === undefined) {
     console.error(`dsh-spec-init: template ${templateName} not found beside this skill — restore it and re-run.`)
     process.exit(1)
   }
   ensureDirectory(dirname(absoluteTarget))
-  writeFileSync(absoluteTarget, readFileSync(template, 'utf8'))
+  const rendered = readFileSync(template, 'utf8')
+    .split('{gate-dir}').join(layerDirectory)
+    .split('{notes-dir}').join(notesDir) + suffix
+  writeFileSync(absoluteTarget, rendered)
   written.push(relative(root, absoluteTarget).split(sep).join('/'))
 }
 
 if (rootInstruction === undefined) {
-  copyTemplate('AGENTS.md.template', target)
+  copyTemplate('AGENTS.md.template', target, skipNotes ? '' : `\n${notesSection(notesDir)}`)
+} else if (skipNotes) {
+  kept.push('AGENTS.md (left alone; --no-notes)')
 } else if (existingRoot?.includes(NOTES_SECTION_START) !== true) {
   const separator = existingRoot?.endsWith('\n') === true ? '' : '\n'
   writeFileSync(target, `${existingRoot ?? ''}${separator}\n${notesSection(notesDir)}`)
@@ -335,6 +579,16 @@ if (!skipNotes) {
   }
 }
 
+for (const entry of planDocsTree(docsDir)) {
+  const absolute = resolve(root, entry.path)
+  if (existsSync(absolute)) {
+    kept.push(entry.path)
+    continue
+  }
+  if (entry.template === undefined) continue
+  copyTemplate(entry.template, absolute)
+}
+
 // ---------------------------------------------------------------- report
 
 console.log('')
@@ -350,7 +604,9 @@ console.log('       with facts you read from this project, or ask the maintainer
 console.log('    2. never fill a placeholder by guessing: an invented command, path, or rule is worse than an empty section')
 console.log('    3. edit .agents/dsh-spec/notes/README.md for this project: point it at this project\'s lifecycle and class set,')
 console.log('       and mark or delete the source project\'s history it still describes')
-console.log('    4. run the gates from the collection and wire them into the project check. They are not')
+console.log('    4. fill docs/terminology.md as terms are decided — it ships empty on purpose, and every row')
+console.log('       binds both sides of a pair, so ask the maintainer before adding one (docs/AGENTS.md says why)')
+console.log('    5. run the gates from the collection and wire them into the project check. They are not')
 console.log(`       copied into the project; the layer sits at ${layerDirectory}, and`)
 console.log(`       every gate is addressed by name through ${dispatcher}:`)
 if (gates.length === 0) {

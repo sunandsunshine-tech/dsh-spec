@@ -19,7 +19,7 @@ For every suspect passage: could a reader at HEAD, with no access to any session
 
 ## What survives the trim
 
-Unaided citation passes fail in both directions, so the keep rules are applied as written: issue references (`#1470`, `TODO(name):`) stay on any surface; merged-PR and issue citations inside an Agent Note are sanctioned evidence; a suppression justification — a linter-disable reason, a coverage-ignore reason, an empty-catch explanation — is required prose whose false reason is fixed rather than deleted; counterfactual-present regression pins, measured bounds and runtime old/new states stay; external standards with their own §-numbering stay; project voice and a note's Alternatives-considered section stay. [`leakage-examples.md`](references/leakage-examples.md) calibrates each case.
+Unaided citation passes fail in both directions, so the keep rules are applied as written: issue references (`#1470`, `TODO(name):`) stay on any surface; merged-PR and issue citations inside an Agent Note are sanctioned evidence; a suppression justification — a linter-disable reason, a coverage-ignore reason, an empty-catch explanation — is required prose whose false reason is fixed rather than deleted; counterfactual-present regression pins, measured bounds and runtime old/new states stay; external standards with their own §-numbering stay; project voice and a note's Alternatives-considered section stay. [`examples.md`](references/examples.md) calibrates each case.
 
 ## What it refuses to do
 
@@ -41,6 +41,6 @@ A trim can break a link it moved or a pair it corrected, so a bilingual fence is
 ## Read next
 
 - [`SKILL.md`](SKILL.md) — the workflow an agent follows: the taxonomy, the keep rules, and the owner-first fix order.
-- [`leakage-examples.md`](references/leakage-examples.md) — few-shot leaked/fixed pairs, quoted as calibration material rather than as wording to copy.
+- [`examples.md`](references/examples.md) — few-shot leaked/fixed pairs, quoted as calibration material rather than as wording to copy.
 - [`recall-batteries.md`](references/recall-batteries.md) — the probes, their invocation rules, and how to calibrate one before trusting it.
 - [`dsh-prose-standard`](../dsh-prose-standard/SKILL.md) — the complete-proposition rule this skill applies, and the scope and exclusions it inherits.
