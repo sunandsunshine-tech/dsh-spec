@@ -38,7 +38,7 @@ Archive an implemented Agent Note when the shipped decision is complete and its 
 
 The archive is path-encoded as `archived/{class}/yyyy-mm-dd-topic-title.md`; `implemented` is deliberately absent because only implemented notes can enter it. An archival change moves the complete English/Chinese/sidecar triplet, retains `Status: implemented`, inserts the same `Archived: YYYY-MM-DD` line immediately below that status in both language files, re-records the sidecar, and repairs or deletes inbound links. These are the only permitted content changes during archival.
 
-Once sealed, every archived triplet is permanently frozen. Do not edit, translate, reformat, update, move, or delete it, and do not treat it as authority for current behavior. Documentation gates skip archived sources, including their outbound links; active prose may still link into an archived note when it intentionally cites history. `.agents/skills/dsh-spec-manager/scripts/run.ts verify-archived-agent-notes` enforces the closed class tree, complete triplets, archive metadata, sidecar hashes, and the append-only frozen-content manifest. The freeze is what makes the archive evidence: a snapshot anyone may edit proves nothing about what was decided. The root `.rgignore` keeps the archive out of recursive searches, so a historical query names the directory explicitly rather than meeting frozen facts among active ones.
+Once sealed, every archived triplet is permanently frozen. Do not edit, translate, reformat, update, move, or delete it, and do not treat it as authority for current behavior. Documentation gates skip archived sources, including their outbound links; active prose may still link into an archived note when it intentionally cites history. `.agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes-archived --check --all` enforces the closed class tree, complete triplets, archive metadata, sidecar hashes, and the append-only frozen-content manifest. The freeze is what makes the archive evidence: a snapshot anyone may edit proves nothing about what was decided. The root `.rgignore` keeps the archive out of recursive searches, so a historical query names the directory explicitly rather than meeting frozen facts among active ones.
 
 ## When to write one
 
@@ -136,10 +136,10 @@ Three gates enforce what this file states. They ship with the skills collection 
 Every gate is a recorded name backed by a script in that one directory, addressed through the dispatcher `.agents/skills/dsh-spec-manager/scripts/run.ts`, which resolves the name against the collection's `gates` record in its `references/manifest.json` and reconciles that record with the `verify-*.ts` scripts beside it: a recorded gate with no script, or a script the record does not name, is a refusal that names both sides and runs nothing. Neither the dispatcher nor a gate needs a `package.json` or `node_modules`; run each from the project root with `--root .`:
 
 ```sh
-pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/run.ts verify-agent-note-classification --root .
-pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/run.ts verify-agent-note-format --root .
-pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/run.ts verify-archived-agent-notes --root .
-pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/run.ts verify-archived-agent-notes --root . --write
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts verify-agent-note-classification --root .
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts verify-agent-note-format --root .
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts verify-archived-agent-notes --root .
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts verify-archived-agent-notes --root . --write
 ```
 
 The same dispatcher also runs `--all`, which runs every recorded gate and fails when one fails or when the record names none. Updating the collection updates all of them; a project that needs different behaviour changes its own files, never the gate.

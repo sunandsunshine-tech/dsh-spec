@@ -29,7 +29,7 @@ The narrowed text is ported exactly where dsh changed it: the notes contract tem
 - Every project's notes contract says what dsh's says at the revision we pin, and `sync` keeps it that way.
 - Our own rule, and every adopter's, stays as broad as dsh's standing orders: a non-trivial change is still expected to carry a note. The narrowed contract governs what a note is *for* when one is written.
 - The contract and the standing orders disagree here, exactly as they do in the source project. This note records the disagreement instead of smoothing it over, so the next reader knows it was seen.
-- Verification: `run.ts --all --root .` ends `run: 7 gate(s), 0 failed`; the contract's "When to write one" section carries the same rule as `submodules/dsh/.agents/notes/README.md`, with our `same change` wording in place of its `same PR`; `init --write` into an empty project injects the standing orders unchanged from before this change.
+- Verification: `dsh-spec.ts all --check --root .` ends `run: 7 gate(s), 0 failed`; the contract's "When to write one" section carries the same rule as `submodules/dsh/.agents/notes/README.md`, with our `same change` wording in place of its `same PR`; `install` into an empty project injects the standing orders unchanged from before this change.
 
 ## Related
 

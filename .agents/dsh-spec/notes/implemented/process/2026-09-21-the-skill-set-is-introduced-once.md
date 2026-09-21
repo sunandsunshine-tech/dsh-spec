@@ -26,7 +26,7 @@ The per-skill READMEs are removed, and the root README carries one table naming 
 - Eight pairs fewer to record, and a skill directory that contains only what its agent loads plus its references.
 - The installed copy loses the READMEs on the next install: the prune removes files the revision no longer ships, which is what that mechanism was built for.
 - What this costs is depth: a reader who wants to know what `dsh-pre-push-checks` does gets one line in a table rather than a page. The entry and its references remain the place to go deeper, and the line is what the table is for.
-- Verification: `run.ts --all --root .` ends `run: 7 gate(s), 0 failed`; `verify-skill-structure.ts` conforms for all eight skill directories with no README present; `manager install` removes the twenty-four files from `.agents/skills/`.
+- Verification: `dsh-spec.ts all --check --root .` ends `run: 7 gate(s), 0 failed`; `verify-skill-structure.ts` conforms for all eight skill directories with no README present; `dsh-spec.ts upgrade` removes the twenty-four files from `.agents/skills/`.
 
 ## Related
 

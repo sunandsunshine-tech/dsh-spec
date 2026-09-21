@@ -59,6 +59,27 @@ function flagValue(name: string): string | undefined {
 const packageRoot = resolve(flagValue('--root') ?? process.cwd())
 const violations: string[] = []
 
+/**
+ * Why a quoted frontmatter value cannot be read as YAML, or an empty string when it can.
+ *
+ * The loader the catalog uses is a strict YAML parser, and a single-quoted scalar escapes an inner
+ * quote by doubling it: `'the project's checks'` ends the scalar at `project` and the line stops
+ * being valid YAML. One shipped description broke exactly there and nothing in this repository
+ * noticed — the frontmatter parsed here as `key: value`, and only `gh skill install` refused it.
+ *
+ * @param value - the raw value as written after the colon.
+ * @returns the reason, or an empty string.
+ */
+function unreadableQuotedValue(value: string): string {
+  const quote = value.startsWith("'") ? "'" : value.startsWith('"') ? '"' : undefined
+  if (quote === undefined) return ''
+  if (!value.endsWith(quote) || value.length < 2) return `the ${quote} it opens is never closed`
+  const inner = value.slice(1, -1)
+  const quotes = [...inner].filter(character => character === quote).length
+  if (quotes % 2 !== 0) return `an unescaped ${quote} inside the scalar ends it early (write ${quote}${quote} for a literal one)`
+  return ''
+}
+
 /** Parse a `key: value` frontmatter block, reporting why it is unusable instead of throwing. */
 function parseFrontmatter(source: string): { data: Map<string, string>; body: string } | string {
   const lines = source.split('\n')
@@ -76,7 +97,10 @@ function parseFrontmatter(source: string): { data: Map<string, string>; body: st
     const colon = line.indexOf(':')
     if (colon < 0) return `frontmatter line is not \`key: value\`: ${JSON.stringify(line.slice(0, 60))}`
     key = line.slice(0, colon).trim()
-    data.set(key, line.slice(colon + 1).trim())
+    const raw = line.slice(colon + 1).trim()
+    const unreadable = unreadableQuotedValue(raw)
+    if (unreadable !== '') return `frontmatter \`${key}\` is not valid YAML: ${unreadable}`
+    data.set(key, raw)
   }
   return { data, body: lines.slice(end + 1).join('\n') }
 }

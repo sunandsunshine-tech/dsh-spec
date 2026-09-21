@@ -1,6 +1,6 @@
 # Agent Note: A gate reads the scope the dispatcher hands it
 
-Status: proposed
+Status: implemented
 
 English | [中文](2026-09-21-a-gate-reads-the-scope-it-is-handed.zh.md)
 
@@ -8,11 +8,11 @@ English | [中文](2026-09-21-a-gate-reads-the-scope-it-is-handed.zh.md)
 
 Every gate discovers its own corpus. `verify-no-secrets` lists git's index, the prose gates glob `**/*.md` through `md-scope.ts`, the note gates enumerate the notes tree through `agent-note-tree.ts`, and the pairing gate derives its corpus from the file tree. Selection therefore lives in seven entry points, `--changed` can only decide *whether to run a whole gate*, and a scoped run repeats each selected gate's full walk. A gate can only be exercised against a whole repository, which is why none of them has ever run on a fixed input.
 
-Every documented command also carries a tool prefix that belongs to neither the gate nor the project — `pnpm dlx --allow-build=esbuild tsx@4.22.4` — so each of the repository's commands depends on a package manager, a registry store, and a postinstall build allowance. Node 22.19 runs these files directly: `node <gate>.ts --root .` passes, `process.features.typescript` reports `strip`, and a scan of the engine finds no `enum`, no `namespace`, no parameter property and no `import =`, which is the whole set of syntax type stripping rejects.
+Every documented command also carries a tool prefix that belongs to neither the gate nor the project — `node` — so each of the repository's commands depends on a package manager, a registry store, and a postinstall build allowance. Node 22.19 runs these files directly: `node <gate>.ts --root .` passes, `process.features.typescript` reports `strip`, and a scan of the engine finds no `enum`, no `namespace`, no parameter property and no `import =`, which is the whole set of syntax type stripping rejects.
 
-This is the note that partly supersedes [A diff selects the gates it owes](../../implemented/process/2026-09-21-a-diff-selects-the-gates-it-owes.md). That note's rationale — a diff chooses which gates it owes, and a scoped green never substitutes for the aggregate — still owns the behavior, and it stays active with its command facts updated. What changes here is where the selection is computed and what a gate is handed.
+This is the note that partly supersedes [A diff selects the gates it owes](2026-09-21-a-diff-selects-the-gates-it-owes.md). That note's rationale — a diff chooses which gates it owes, and a scoped green never substitutes for the aggregate — still owns the behavior, and it stays active with its command facts updated. What changes here is where the selection is computed and what a gate is handed.
 
-## Proposal
+## Decision
 
 ### The command surface
 
@@ -63,7 +63,7 @@ Every command becomes `node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts 
 
 ### The credential scan is dropped
 
-The gate is removed with its script, because a `verify-*.ts` file the record does not name makes the dispatcher refuse every run; its `tracked` scope key goes with it. That removes the only mechanical check among the three rules in [Three rules from a memory pipeline](../../implemented/process/2026-09-20-three-rules-from-a-memory-pipeline.md), so that note's factual claims and its consequence are updated in the same change, and the rule stays a standing order rather than a gate.
+The gate is removed with its script, because a `verify-*.ts` file the record does not name makes the dispatcher refuse every run; its `tracked` scope key goes with it. That removes the only mechanical check among the three rules in [Three rules from a memory pipeline](2026-09-20-three-rules-from-a-memory-pipeline.md), so that note's factual claims and its consequence are updated in the same change, and the rule stays a standing order rather than a gate.
 
 ### Check logic borrowed, interaction ours
 
@@ -88,9 +88,9 @@ Seven steps, each with its own commit and its own evidence, in an order that kee
 6. **Documentation and references.** Every shipped command, template and reference rewritten to the new surface; the dead entry-point branch removed; the notes that state changed mechanisms corrected in place and cross-linked. Evidence: the reference checker finds no dangling path and the aggregate is green.
 7. **Publication.** The installed copy refreshed in the same change as each source change, a fresh clone green, and the pull request description.
 
-The suite comes first because a check that is being rewritten needs its verdicts pinned before the rewrite, and steps 2 and 3 come before the command surface so each can be compared against the previous behavior; documentation comes last so no command is written twice. This note moves to `implemented` when step 7 lands, and the partial supersession of [A diff selects the gates it owes](../../implemented/process/2026-09-21-a-diff-selects-the-gates-it-owes.md) is recorded there rather than here.
+The suite comes first because a check that is being rewritten needs its verdicts pinned before the rewrite, and steps 2 and 3 come before the command surface so each can be compared against the previous behavior; documentation comes last so no command is written twice. Every step above landed, and the partial supersession of [A diff selects the gates it owes](2026-09-21-a-diff-selects-the-gates-it-owes.md) is recorded there rather than here.
 
-## Acceptance criteria
+## Required verification
 
 - Every check exits `2` with its usage when no scope is given, and `1` when a handed path exists outside its scope; a deleted path is accepted rather than refused.
 - Each check produces, on this repository, the same verdicts as the engine at `f14e91c`: full scans compared check by check, and each check re-run against seeded defects — a broken link, a mangled link, an out-of-sync pair, a malformed note, an unknown class folder, an unsealed archived triplet.

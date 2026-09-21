@@ -8,7 +8,6 @@
  */
 
 import { createHash } from 'node:crypto'
-import { existsSync } from 'node:fs'
 import { basename, dirname, relative, resolve, sep } from 'node:path'
 import { DEFAULT_I18N_EXCLUDES, isTranslationScopeFile } from './i18n-scope.ts'
 import { resolveRepoRoot } from './repo-root.ts'
@@ -333,22 +332,29 @@ export function translationStructureDiff(
 export { isTranslationScopeFile }
 
 /**
- * Locate one entry point in the collection, so a rendered command names a path that exists.
+ * The command that reaches one engine tool, as a project writes it.
  *
- * The dispatcher sits beside this script's own skill, at `../../dsh-spec-manager/scripts/run.ts`,
- * and that relative path is the same wherever the collection is installed — a skill directory is
- * `<root>/skills/<name>/` in the authored tree and `<root>/.agents/skills/<name>/` in a project.
- * A gate owned by another skill is addressed by name through that dispatcher; a gate whose file
- * sits in the dispatcher's own directory is honoured by its path, because the shorter command is
- * the one a reader can act on.
+ * The collection is addressed through its entry point, never by a script path: a project reads the
+ * managed text after the collection is installed, and the entry point is the only name that stays
+ * true. The directory is derived from where this script sits, so the authored tree and an installed
+ * copy each render the path their own commands resolve.
  *
- * @param name - the entry-point file name.
- * @returns the project-relative command.
+ * @param name - the engine file name, for example `verify-translation-pairing.ts`.
+ * @returns the project-relative command, without its arguments.
  */
 export function gateEntryPoint(name: string): string {
-  const gate = name.replace(/\.ts$/, '')
-  const directory = relative(resolveRepoRoot(), resolve(import.meta.dirname, '..', '..', 'dsh-spec-manager', 'scripts'))
-    .split(sep).join('/')
-  if (existsSync(resolve(resolveRepoRoot(), directory, name))) return `${directory}/${name}`
-  return `${directory}/run.ts ${gate}`
+  const directory = relative(resolveRepoRoot(), import.meta.dirname).split(sep).join('/')
+  const subject = SUBJECT_OF[name] ?? name.replace(/\.ts$/, '')
+  return `${directory}/dsh-spec.ts ${subject}`
+}
+
+/** The subject that owns each engine tool, so a rendered command names the entry point, not a file. */
+const SUBJECT_OF: Record<string, string> = {
+  'verify-translation-pairing.ts': 'translation-pair',
+  'verify-agent-note-classification.ts': 'notes',
+  'verify-agent-note-format.ts': 'notes',
+  'verify-archived-agent-notes.ts': 'notes-archived',
+  'verify-md-links.ts': 'md-links',
+  'verify-md-link-syntax.ts': 'md-links',
+  'gen-translation-brief.ts': 'brief',
 }

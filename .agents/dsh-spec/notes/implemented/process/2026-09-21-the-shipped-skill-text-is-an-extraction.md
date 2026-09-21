@@ -40,7 +40,7 @@ Defects were repaired rather than reverted. Prose was restored where a rewrite h
 
 ## Verification
 
-`run.ts --all --root .` reports `run: 8 gate(s), 0 failed`, `scripts/verify-skill-structure.ts` passes for every skill directory this change touches, and the per-file diff against `submodules/dsh/` is the change's own evidence: each remaining difference is a reference change or a generalization.
+`dsh-spec.ts all --check --root .` reports `run: 8 gate(s), 0 failed`, `scripts/verify-skill-structure.ts` passes for every skill directory this change touches, and the per-file diff against `submodules/dsh/` is the change's own evidence: each remaining difference is a reference change or a generalization.
 
 ## Related
 

@@ -32,7 +32,7 @@ Status: implemented
 
 - `docs/terminology.md` 少了一行，由 `docs/AGENTS.md` 说明余下的行由谁决定。
 - 这条规则的归属是项目自己的：它随表同处一个目录，而不再写在随包发布的配对约定里，约定也不再陈述它。
-- 验证：`run.ts --all --root .` 以 `run: 8 gate(s), 0 failed` 结束，`verify-md-links --root .` 与 `verify-translation-pairing --root .` 在本次改动留下的这棵目录树上都以零退出。
+- 验证：`dsh-spec.ts all --check --root .` 以 `run: 8 gate(s), 0 failed` 结束，`verify-md-links --root .` 与 `verify-translation-pairing --root .` 在本次改动留下的这棵目录树上都以零退出。
 
 这一决定的代价是一条没有门禁执行的规则：未经维护者首肯而添加的一行能通过所有检查，因为这项检查就是对话本身。它换来的是：这张表的每一行都是维护者做出的决定，而它的下一位编辑在添加之前会被告知这一点。
 

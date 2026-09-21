@@ -4,7 +4,7 @@ metadata:
     github-path: skills/dsh-pre-push-checks
     github-ref: refs/heads/extract
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: d4944a9bca29c7913192d01386b4f20c381352c9
+    github-tree-sha: 6038b423bd541218bcfba8750b6e6b36c9158918
 name: dsh-pre-push-checks
 ---
 # Pre-Push Checks
@@ -36,7 +36,7 @@ There is no universal local baseline beyond the hooks. Every behavior change nee
 When the outgoing change adds or changes a resource-owning or asynchronous test, fixture, helper, or CI execution path, apply the project's test-reliability rules first to decide whether restoration, negative-control, quiescent-teardown, or concurrent-process evidence applies. This skill still selects the commands and avoids repeating evidence that already passed.
 
 - **Module or script behavior:** run the owning test file, or the focused test name inside it. Add adjacent module tests when a shared contract changes; leave repository-wide coverage to CI unless the change is genuinely cross-cutting or the user requests it.
-- **Documentation, decision records, catalogs, or doc-linked comments:** run the project's aggregate check, or let the dispatcher select from it — `run.ts --changed --base <ref>` runs the gates whose recorded surface the change touches and prints every gate it skipped and why; run full lint when the documentation workflow requires it.
+- **Documentation, decision records, catalogs, or doc-linked comments:** run the project's aggregate check, or let the entry point select from it — `dsh-spec.ts commit --check --base <ref>` runs the subjects whose recorded surface the change touches and prints every one it skipped and why. It decides the asking side of a link, so a target deleted under an untouched referrer belongs to `md-links --check` over the whole corpus; run full lint when the documentation workflow requires it.
 - **Model-, editor-, CLI-, or terminal-visible output:** run the focused recorded-output scenario or real runnable example that owns the output.
 - **Expected-output placement:** a recorded expectation that replays through the shipped runtime belongs in the project's top-level recording tree, and a unit, generator, or geometry expectation that needs no such round trip stays beside its owning test. Do not duplicate one expectation into both places, and do not give a file in the recording tree a local test owner. Run the lane that owns the expectation.
 - **Profile and configuration placement:** a test of a shipped end-to-end profile belongs where that profile is assembled; a component-specific composition belongs with that component. A user-facing optional configuration overlay pairs with a guide in the documentation tree.

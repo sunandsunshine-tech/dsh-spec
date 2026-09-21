@@ -17,7 +17,7 @@ Status: implemented
 门禁**在它们发布的地方被引用**，绝不释放。`init` 不复制任何门禁；它记录自己运行所在的分发器路径，而初始化后的项目在其文档化的命令里点名该路径：
 
 ```sh
-pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/run.ts verify-agent-note-format --root .
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts verify-agent-note-format --root .
 ```
 
 `.agents/dsh-spec/notes/` 保留项目自己拥有的东西——契约文档、生命周期与类别文件夹、笔记——并且不含任何代码。

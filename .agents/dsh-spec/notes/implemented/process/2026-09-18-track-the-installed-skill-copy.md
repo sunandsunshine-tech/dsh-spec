@@ -13,7 +13,7 @@ English | [中文](2026-09-18-track-the-installed-skill-copy.zh.md)
 The package is installed at **project scope** into `.agents/skills/`, and that copy is tracked in git:
 
 ```sh
-pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/manager.ts install --root .
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts upgrade --root .
 ```
 
 Three rules follow, and `AGENTS.md` carries them:

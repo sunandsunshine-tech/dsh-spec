@@ -6,7 +6,7 @@ Status: implemented
 
 ## Problem
 
-归档门禁无条件要求 `archived/<kind>/` 六个目录全部存在。在一条笔记都还没归档的项目里,这些目录是空的,而 Git 不携带空目录:那六个目录只存在于初始化器创建它们的那个工作区里。于是本仓库在跑过初始化器的那台机器上 `run.ts --all --root .` 通过,而同一修订在全新的 `git clone` 里失败:
+归档门禁无条件要求 `archived/<kind>/` 六个目录全部存在。在一条笔记都还没归档的项目里,这些目录是空的,而 Git 不携带空目录:那六个目录只存在于初始化器创建它们的那个工作区里。于是本仓库在跑过初始化器的那台机器上 `dsh-spec.ts all --check --root .` 通过,而同一修订在全新的 `git clone` 里失败:
 
 ```
 verify-archived-agent-notes: archive rules violated:
@@ -41,7 +41,7 @@ dsh 带着同一个无条件循环。dsh 的归档里有封存好的笔记,因�
 
 ## Required verification
 
-一个不含任何类别目录的仓库临时克隆必须通过聚合:`run.ts --all --root .` 报告 `7 gate(s), 0 failed`。同一棵树上放一件归档产物、并让五个类别目录缺席时,那五行 `required kind directory is missing` 必须重新出现,以证明这条规则是重新生效而不是被删除。本仓库里的安装副本在两种情形下都保持绿色。
+一个不含任何类别目录的仓库临时克隆必须通过聚合:`dsh-spec.ts all --check --root .` 报告 `7 gate(s), 0 failed`。同一棵树上放一件归档产物、并让五个类别目录缺席时,那五行 `required kind directory is missing` 必须重新出现,以证明这条规则是重新生效而不是被删除。本仓库里的安装副本在两种情形下都保持绿色。
 
 ## Consequences
 

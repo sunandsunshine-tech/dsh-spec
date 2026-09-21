@@ -11,8 +11,8 @@
  * installed revision: the contract documents are replaced, a terminology table keeps its rows, and
  * the standing orders keep everything outside the marked section.
  *
- * Zero external dependencies by design: it runs under `pnpm dlx tsx` in a project that has no
- * `node_modules`.
+ * Zero external dependencies by design: it runs under `node` in a project that has no
+ * `node_modules` — Node 22.19 strips the types itself.
  */
 
 import { spawnSync } from 'node:child_process'
@@ -203,7 +203,7 @@ const gates = reading.names
 const skillsDirectory = flagValue('--dir') ?? join('.agents', 'skills')
 const skillDirectory = present(`${skillsDirectory}/${basename(resolve(import.meta.dirname, '..'))}`)
 const layerDirectory = `${skillDirectory}/scripts`
-const dispatcher = `${layerDirectory}/run.ts`
+const dispatcher = `${layerDirectory}/dsh-spec.ts`
 
 /** A path outside the project is written absolute, so the recorded value still resolves. */
 function present(candidate: string): string {
@@ -438,7 +438,7 @@ function syncManagedFiles(): void {
       console.log(`  would re-record the pair ${path}`)
       continue
     }
-    const recorded = spawnSync(process.execPath, [resolve(root, dispatcher), 'verify-translation-pairing', '--root', root, '--write', path], { stdio: 'inherit' })
+    const recorded = spawnSync(process.execPath, [resolve(root, dispatcher), 'translation-pair', '--write', path, '--root', root], { stdio: 'inherit' })
     if ((recorded.status ?? 1) !== 0) {
       console.error(`dsh-spec-sync: the pair ${path} could not be re-recorded — run the pairing gate by hand`)
       process.exit(1)

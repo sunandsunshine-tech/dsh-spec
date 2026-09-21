@@ -2,7 +2,7 @@
 
 The checks this collection publishes decide whether a project's prose, notes, pairs and links are
 sound. This suite is what says the checks themselves behave: it was written against the design in
-[`2026-09-21-a-gate-reads-the-scope-it-is-handed`](../.agents/dsh-spec/notes/proposed/process/2026-09-21-a-gate-reads-the-scope-it-is-handed.md)
+[`2026-09-21-a-gate-reads-the-scope-it-is-handed`](../.agents/dsh-spec/notes/implemented/process/2026-09-21-a-gate-reads-the-scope-it-is-handed.md)
 **before** that design was implemented, so its cases fail where the design is not built yet and turn
 green as each migration step lands.
 

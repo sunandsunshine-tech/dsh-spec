@@ -1,6 +1,6 @@
 # Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
-#   pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/verify-translation-pairing.ts --write .agents/dsh-spec/notes/implemented/process/2026-09-21-initialization-releases-the-vocabulary-table-empty.md
-2026-09-21-initialization-releases-the-vocabulary-table-empty.md: b5bf52c2986ae6e29bc922d865b961945aa0cbc8
-2026-09-21-initialization-releases-the-vocabulary-table-empty.zh.md: 12e033a5aad9ff134b4823588a45754cca5b800a
+#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair --write .agents/dsh-spec/notes/implemented/process/2026-09-21-initialization-releases-the-vocabulary-table-empty.md
+2026-09-21-initialization-releases-the-vocabulary-table-empty.md: 9b9788958ee1ebb537f8d7024ed97cff94114122
+2026-09-21-initialization-releases-the-vocabulary-table-empty.zh.md: ae6b1eb10e42a8e3f3337213ad32d2310e3c4705

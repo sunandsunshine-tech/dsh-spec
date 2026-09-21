@@ -20,13 +20,13 @@
  */
 
 import { spawn } from 'node:child_process'
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { availableParallelism, tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { renderChangeScope } from './change-scope.ts'
 import { expandScope, parseScopeArgs, pathInGateScope } from './gate-scope.ts'
 import { installProject, statusProject, uninstallProject, upgradeProject } from './manager.ts'
-import { readGateScopes } from './manifest.ts'
+import { readGateRecord, readGateScopes } from './manifest.ts'
 import { resolveRepoRoot } from './repo-root.ts'
 import type { GateScopeRecord } from './manifest.ts'
 
@@ -50,6 +50,7 @@ const SUBJECTS = [
   'md-links',
   'commit',
   'all',
+  'brief',
 ] as const
 
 /** A subject that reads the project rather than managing the skill set. */
@@ -94,6 +95,7 @@ function printHelp(): never {
   console.log('  md-links         --check <path...>            links and rewritten link shapes')
   console.log('  commit           --check [--base <ref>]       the checks this change owes')
   console.log('  all              --check                      every check that reads a tree')
+  console.log('  brief            [--apply] <pair...>          the minimal-update briefing for a pair')
   console.log('')
   console.log('  --jobs <n>   dispatch width (default min(availableParallelism(), 8); DSH_SPEC_JOBS wins)')
   process.exit(0)
@@ -243,6 +245,35 @@ function scopeForFiles(paths: readonly string[]): { args: string[], cleanup: () 
 
 // ------------------------------------------------------------------ the records
 
+/**
+ * Refuse to run anything unless the recorded gate names and the scripts beside them agree.
+ *
+ * The record is the authority, but it is only half of a gate: the other half is a `verify-*.ts`
+ * file in this directory. A recorded name with no script, and a script the record does not name,
+ * are both refusals — printed with both sides named, before a single check starts — because a
+ * helper module that happens to be named `verify-*` must never become runnable, and a recorded gate
+ * that lost its script must never be silently reported as green.
+ */
+function reconcile(): void {
+  const record = readGateRecord(scriptDir)
+  if (!record.ok) fail(record.error)
+  const beside = readdirSync(scriptDir, { withFileTypes: true })
+    .filter(entry => entry.isFile() && entry.name.startsWith('verify-') && entry.name.endsWith('.ts'))
+    .map(entry => entry.name.slice(0, -'.ts'.length))
+    .sort()
+  const unbacked = record.names.filter(name => !beside.includes(name))
+  const unrecorded = beside.filter(name => !record.names.includes(name))
+  if (unbacked.length === 0 && unrecorded.length === 0) return
+  console.error('dsh-spec: refusing to run anything — the gate record and the scripts beside it disagree')
+  console.error(`dsh-spec:   the record names ${record.names.length} gate(s): ${record.names.join(', ') || 'none'}`)
+  console.error(`dsh-spec:   ${scriptDir} holds ${beside.length} \`verify-*.ts\` script(s): ${beside.join(', ') || 'none'}`)
+  for (const name of unbacked) console.error(`dsh-spec:   recorded but no \`${name}.ts\` beside the entry point`)
+  for (const name of unrecorded) console.error(`dsh-spec:   \`${name}.ts\` is beside the entry point but the record does not name it`)
+  process.exit(1)
+}
+
+reconcile()
+
 const scopeReading = readGateScopes(scriptDir)
 if (!scopeReading.ok) fail(scopeReading.error)
 const scopes = scopeReading.scopes
@@ -276,6 +307,13 @@ async function main(): Promise<void> {
   const width = dispatchWidth(rest)
 
   // ------------------------------------------------------------------ management
+
+  if (subject === 'brief') {
+    const forwarded = rest.filter((argument, index, all) => argument !== '--root' && all[index - 1] !== '--root')
+    const [result] = await runJobs([{ subject: 'brief', gate: 'gen-translation-brief', args: forwarded }], 1)
+    process.stdout.write(result?.output ?? '')
+    process.exit(result?.status ?? 1)
+  }
 
   if (subject === 'install' || subject === 'upgrade' || subject === 'uninstall' || subject === 'status') {
     // `--root` and its value belong to the dispatcher, not to the subject's own flags.

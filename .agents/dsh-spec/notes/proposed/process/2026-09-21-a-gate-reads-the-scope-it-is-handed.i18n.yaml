@@ -1,6 +1,0 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
-#   pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/verify-translation-pairing.ts --write .agents/dsh-spec/notes/proposed/process/2026-09-21-a-gate-reads-the-scope-it-is-handed.md
-2026-09-21-a-gate-reads-the-scope-it-is-handed.md: b69290f0c9cafd31ba3c92217a13ce747495683d
-2026-09-21-a-gate-reads-the-scope-it-is-handed.zh.md: d10d107db927d21d4bc9ac83e93248b7803b4831

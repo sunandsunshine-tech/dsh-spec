@@ -3,8 +3,8 @@
  *
  * It decides which skills a project installs, the revision they all come from, and which gates
  * this collection publishes. The gate field is a record rather than a reading of the engine
- * directory: a name written down is reviewable in a diff, and `run.ts` resolves a gate against it
- * and reconciles it with the `verify-*.ts` scripts beside the dispatcher before anything runs, so
+ * directory: a name written down is reviewable in a diff, and `dsh-spec.ts` resolves a gate against it
+ * and the entry point reconciles it with the `verify-*.ts` scripts beside it before anything runs, so
  * a recorded name and its file have to agree or nothing is dispatched at all.
  *
  * The scope record answers the two questions a dispatcher asks about one gate: **which surface**

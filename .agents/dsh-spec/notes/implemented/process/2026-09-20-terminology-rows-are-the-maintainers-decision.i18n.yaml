@@ -1,6 +1,6 @@
 # Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
-#   pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/verify-translation-pairing.ts --write .agents/dsh-spec/notes/implemented/process/2026-09-20-terminology-rows-are-the-maintainers-decision.md
-2026-09-20-terminology-rows-are-the-maintainers-decision.md: 966e02065ca04d12e59913c228a8e1f6dd13d778
-2026-09-20-terminology-rows-are-the-maintainers-decision.zh.md: 1ce95d185c03cb1bfbb6aa228f820a06b0c1ea71
+#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair --write .agents/dsh-spec/notes/implemented/process/2026-09-20-terminology-rows-are-the-maintainers-decision.md
+2026-09-20-terminology-rows-are-the-maintainers-decision.md: 295c8bdd631b85f8ff98f6561df2c6aa9ba23aa0
+2026-09-20-terminology-rows-are-the-maintainers-decision.zh.md: d9cf9941243c809be158a83f16845736dee6ef7c

@@ -91,13 +91,13 @@ export function parseTranslationPairingRecord(
 export function renderTranslationPairingRecord(
   paths: TranslationPairPaths,
   record: TranslationPairingRecord,
-  entryPoint = '{gate-dir}/run.ts verify-translation-pairing',
+  entryPoint = '{gate-dir}/dsh-spec.ts translation-pair',
 ): string {
   return [
     '# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each',
     '# side as of the last confirmed-consistent state. Both languages carry equal authority;',
     '# after editing either side, bring the other along and re-record with:',
-    `#   pnpm dlx --allow-build=esbuild tsx@4.22.4 ${entryPoint} --write ${paths.source}`,
+    `#   node ${entryPoint} --write ${paths.source}`,
     `${basename(paths.source)}: ${record.sourceHash}`,
     `${basename(paths.zh)}: ${record.zhHash}`,
     '',

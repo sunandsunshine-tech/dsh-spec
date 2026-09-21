@@ -55,7 +55,8 @@ gh skill install sunandsunshine-tech/dsh-spec dsh-spec-manager@latest --dir .age
 | `.agents/skills/` | 本项目正在用的那一份,随 git 一起走,保证每个人加载同一个修订;只有安装命令会写这里 |
 | `.agents/dsh-spec/notes/` | 决策记录:决定了什么、什么落选、放弃了什么。格式见 [`notes/README.md`](.agents/dsh-spec/notes/README.zh.md) |
 | `docs/` | 写给人看的页面,包括两种语言共用的术语表;这个目录不受任何机制管辖 |
-| `scripts/` | 只属于本仓库、不随包发布的那道检查:[`verify-skill-structure.ts`](scripts/verify-skill-structure.ts) |
+| `scripts/` | 只属于本仓库、不随包发布的东西:[`verify-skill-structure.ts`](scripts/verify-skill-structure.ts)、出处登记表与出处门禁,以及 `ports` 对照命令 |
+| `tests/` | 检验这些检查自身的功能套件 —— `node --test 'tests/**/*.test.ts'` |
 | `submodules/dsh/` | 这套做法的来源,钉住作为对照基线:可以读,不要改 |
 
 ## 刷新安装集
@@ -63,11 +64,10 @@ gh skill install sunandsunshine-tech/dsh-spec dsh-spec-manager@latest --dir .age
 集合钉在 manifest 的 `revision` 上,而安装读的是那个修订、不是工作树,所以先把源码推上去:
 
 ```sh
-pnpm dlx --allow-build=esbuild tsx@4.22.4 \
-  .agents/skills/dsh-spec-manager/scripts/manager.ts install --root .
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts upgrade --root .
 ```
 
-这条命令对每个技能做了什么,`update`、`status`、`uninstall` 又各管什么,见 [`manager-lifecycle.md`](skills/dsh-spec-manager/references/manager-lifecycle.md)。
+这条命令对每个技能做了什么,`install`、`status`、`uninstall` 又各管什么,见 [`manager-lifecycle.md`](skills/dsh-spec-manager/references/manager-lifecycle.md)。
 
 ## 接下来读
 

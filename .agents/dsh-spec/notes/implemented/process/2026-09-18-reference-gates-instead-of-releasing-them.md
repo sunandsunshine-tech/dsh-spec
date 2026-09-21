@@ -17,7 +17,7 @@ A released gate also has two owners. Nothing said whether the collection's copy 
 The gates are **referenced where they ship**, never released. `init` copies no gate; it records the path of the dispatcher it runs from, and an initialized project's documented commands name that path:
 
 ```sh
-pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/run.ts verify-agent-note-format --root .
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts verify-agent-note-format --root .
 ```
 
 `.agents/dsh-spec/notes/` keeps what the project owns — the contract documents, the lifecycle and class folders, the notes — and holds no code.

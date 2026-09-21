@@ -1,6 +1,6 @@
 # Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
-#   pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/verify-translation-pairing.ts --write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-skill-set-is-introduced-once.md
-2026-09-21-the-skill-set-is-introduced-once.md: 46927cbfd64f21bb56c2571f4c3cced21c030a51
-2026-09-21-the-skill-set-is-introduced-once.zh.md: 69dd88fbb2b02a70a23e9f4ec3fbd1e353449b06
+#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair --write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-skill-set-is-introduced-once.md
+2026-09-21-the-skill-set-is-introduced-once.md: b937f3d7209ce5ef6f5d11148bd6d675362adeb1
+2026-09-21-the-skill-set-is-introduced-once.zh.md: 1b600a5c98f7297f8125ebebe63033b399e9b844

@@ -55,7 +55,8 @@ The manager does the rest: it installs and updates the whole set at one revision
 | `.agents/skills/` | The copy this project runs, tracked in git so everyone loads one revision; only an install writes here |
 | `.agents/dsh-spec/notes/` | The decision records: what was decided, what lost, what was given up. The format is [`notes/README.md`](.agents/dsh-spec/notes/README.md) |
 | `docs/` | Pages written for people, including the vocabulary both languages share; nothing governs this folder |
-| `scripts/` | The one check that belongs to this repository and is not shipped: [`verify-skill-structure.ts`](scripts/verify-skill-structure.ts) |
+| `scripts/` | What belongs to this repository and is not shipped: [`verify-skill-structure.ts`](scripts/verify-skill-structure.ts), the provenance registry and gate, and the `ports` comparison |
+| `tests/` | The functional suite for the checks themselves — `node --test 'tests/**/*.test.ts'` |
 | `submodules/dsh/` | Where the pattern came from, pinned as a comparison baseline: read it, never edit it |
 
 ## Refreshing the installed set
@@ -63,11 +64,10 @@ The manager does the rest: it installs and updates the whole set at one revision
 The set is pinned by the manifest's `revision`, and an install reads that revision rather than the working tree, so push the source change first:
 
 ```sh
-pnpm dlx --allow-build=esbuild tsx@4.22.4 \
-  .agents/skills/dsh-spec-manager/scripts/manager.ts install --root .
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts upgrade --root .
 ```
 
-What that command does to each skill, and what `update`, `status` and `uninstall` add, is in [`manager-lifecycle.md`](skills/dsh-spec-manager/references/manager-lifecycle.md).
+What that command does to each skill, and what `install`, `status` and `uninstall` add, is in [`manager-lifecycle.md`](skills/dsh-spec-manager/references/manager-lifecycle.md).
 
 ## Read next
 

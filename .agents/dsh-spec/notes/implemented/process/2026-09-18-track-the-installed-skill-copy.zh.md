@@ -13,7 +13,7 @@ Status: implemented
 该包以**项目级**安装到 `.agents/skills/`，并且该副本纳入 git 跟踪：
 
 ```sh
-pnpm dlx --allow-build=esbuild tsx@4.22.4 .agents/skills/dsh-spec-manager/scripts/manager.ts install --root .
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts upgrade --root .
 ```
 
 由此产生三条规则，`AGENTS.md` 承载它们：

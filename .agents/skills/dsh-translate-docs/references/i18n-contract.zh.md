@@ -17,14 +17,14 @@
   foo.zh.md: 89e6c98d92887913cadf06b2adb97f26cde4849b
   ```
 
-  用 blob hash 而不是 commit hash，这样同一个 PR 里改动的文件也能算出记录（`git hash-object foo.md`），一致性是纯内容比较。`--write` 会先把这些快照存入本地 Git 对象库再写下记录，未提交的 worktree 内容也不例外；它还会在内容寻址的 `refs/dsh/translation-pairing/snapshots/` ref 下固定每个不同的已存 blob，使垃圾回收无法让已记录的恢复指针失效。记录的 hash 能还原任一侧上次确认时的确切文本，所以失去同步的配对是「按被改一侧的 diff 最小化地修补另一侧」，从不整篇重译。日常工作会直接完成这份修补；用户显式调用扩展工作流时，可改由 `pnpm dlx --allow-build=esbuild tsx@4.22.4 <manager>/scripts/gen-translation-brief.ts <pair>` 以能安全对齐的最窄粒度汇集这次更新，并由 `--apply` 在结构校验后拼接仅涉及围栏代码块的改动。两侧对齐后，`pnpm dlx --allow-build=esbuild tsx@4.22.4 <manager>/scripts/verify-translation-pairing.ts --write <pair>` 重新记录两个 hash；那份 YAML diff 就是「确认一致」这个动作本身，可以被评审，也正因如此，`--write` 要求点名你确认过的配对（`--write --all` 是显式的全语料形式）。
+  用 blob hash 而不是 commit hash，这样同一个 PR 里改动的文件也能算出记录（`git hash-object foo.md`），一致性是纯内容比较。`--write` 会先把这些快照存入本地 Git 对象库再写下记录，未提交的 worktree 内容也不例外；它还会在内容寻址的 `refs/dsh/translation-pairing/snapshots/` ref 下固定每个不同的已存 blob，使垃圾回收无法让已记录的恢复指针失效。记录的 hash 能还原任一侧上次确认时的确切文本，所以失去同步的配对是「按被改一侧的 diff 最小化地修补另一侧」，从不整篇重译。日常工作会直接完成这份修补；用户显式调用扩展工作流时，可改由 `node <manager>/scripts/dsh-spec.ts brief <pair>` 以能安全对齐的最窄粒度汇集这次更新，并由 `--apply` 在结构校验后拼接仅涉及围栏代码块的改动。两侧对齐后，`node <manager>/scripts/dsh-spec.ts translation-pair --write <pair>` 重新记录两个 hash；那份 YAML diff 就是「确认一致」这个动作本身，可以被评审，也正因如此，`--write` 要求点名你确认过的配对（`--write --all` 是显式的全语料形式）。
 
 - **语言切换行。** 中文文件一律在 H1 标题后立即以 `[English](foo.md) | 中文` 链回英文，英文文件也在同一位置以 `English | [中文](foo.zh.md)` 互链。没有例外：生成器无法带上这一行的文档就不该声明配对。
 - **结构与另一侧一一对应。** 标题深度与顺序、列表类型、有序列表起始编号、列表项数量、表格行列数、保留原样 query/fragment 后缀的语义链接目标，以及逐字节一致的代码块在配对两侧一一对应。相对文档链接的目标属于活跃双语语料时，英文侧使用其 `.md` 路径，中文侧使用其 `.zh.md` 路径。范围外的目标保留原路径。完整保持规则见 [translation-rules.md](translation-rules.zh.md)。
 
 ## 门禁：verify-translation-pairing
 
-`pnpm dlx --allow-build=esbuild tsx@4.22.4 <manager>/scripts/verify-translation-pairing.ts`（改动配对之前应运行的全语料检查）机械地强制执行这份约定：
+`node <manager>/scripts/dsh-spec.ts translation-pair`（改动配对之前应运行的全语料检查）机械地强制执行这份约定：
 
 1. 文档自己声明是否配对：`.md` 旁边有 `.zh.md` 对侧或 `.i18n.yaml` 记录，它就属于配对的一侧；两者都没有的文档不受约束。没有任何清单列出必须配对的文档，因此也没有清单会与文件树脱节。
 2. 任何已存在的配对产物都完整且一致：三个文件齐全、每一侧的当前 blob hash 等于记录值（改了任一侧而没重新确认配对就变红）、两侧都带语言切换行、每条普通相对文档链接都使用源文件一侧对应的目标 locale，且结构签名按序一致：标题深度、逐字节一致的代码块（信息字符串与内容）、表格行列数、列表类型、有序列表起始编号、列表项数量，以及除切换行之外保留原样 query/fragment 后缀的语义链接目标。
@@ -32,9 +32,9 @@
 
 面向源码的代码门禁会把精确的 `.zh.md` 围栏序列视为其无后缀兄弟文件的派生内容，而不会再次编译相同代码或在 manifest（元数据清单）中重复登记。该序列必须在长度、顺序、围栏类型和按字节精确的正文上一致；否则两份副本仍会独立受检，配对门禁也会报告结构不匹配。
 
-`pnpm dlx --allow-build=esbuild tsx@4.22.4 <manager>/scripts/verify-translation-pairing.ts --list` 打印范围内每篇文档的当前配对状态（missing、out-of-sync 或 ok）。它从不失败；其中 missing 与 out-of-sync 行指出普通检查会拒绝的违规。
+`node <manager>/scripts/dsh-spec.ts translation-pair --list` 打印范围内每篇文档的当前配对状态（missing、out-of-sync 或 ok）。它从不失败；其中 missing 与 out-of-sync 行指出普通检查会拒绝的违规。
 
-`pnpm dlx --allow-build=esbuild tsx@4.22.4 <manager>/scripts/verify-translation-pairing.ts <pair...>` 只检查被点名的配对——配对的三个文件中的任意一个（或其裸词干）都能点名它——因此更新循环几秒内就能验证自己的配对，而不必重新扫描全语料。推送前应运行的是无参数的全语料形式；限定范围的绿灯永远不能替代它。
+`node <manager>/scripts/dsh-spec.ts translation-pair <pair...>` 只检查被点名的配对——配对的三个文件中的任意一个（或其裸词干）都能点名它——因此更新循环几秒内就能验证自己的配对，而不必重新扫描全语料。推送前应运行的是无参数的全语料形式；限定范围的绿灯永远不能替代它。
 
 这个门禁带来的实际规则是：**当一个 PR 修改了已配对文档的任一侧时，同一个 PR 在术语指导下直接一次完成对侧文件的更新，并用 `--write <pair>` 重新记录配对**。让配对保持失去同步的改动会让门禁失败。
 

@@ -1,6 +1,6 @@
 # Agent Note: 门禁只读调度器交给它的范围
 
-Status: proposed
+Status: implemented
 
 [English](2026-09-21-a-gate-reads-the-scope-it-is-handed.md) | 中文
 
@@ -8,11 +8,11 @@ Status: proposed
 
 每个门禁自己发现语料。`verify-no-secrets` 列 git 索引,散文门禁经由 `md-scope.ts` glob `**/*.md`,笔记门禁经由 `agent-note-tree.ts` 枚举笔记树,配对门禁从文件树推导自己的语料。于是选区散落在七个入口里,`--changed` 只能决定**要不要跑整道门禁**,一次限定范围的运行仍要付每道被选中门禁的整树遍历。门禁只能对着一个完整仓库被行使,这正是它们从未在固定输入上跑过的原因。
 
-每条被记录下来的命令还带着一个既不属于门禁、也不属于项目的工具前缀 —— `pnpm dlx --allow-build=esbuild tsx@4.22.4` —— 于是本仓库的每条命令都依赖一个包管理器、一个注册表存储和一项 postinstall 构建许可。Node 22.19 可以直接运行这些文件:`node <gate>.ts --root .` 通过,`process.features.typescript` 报告 `strip`,而对引擎的扫描找不到任何 `enum`、`namespace`、参数属性或 `import =`,也就是类型擦除会拒绝的全部语法。
+每条被记录下来的命令还带着一个既不属于门禁、也不属于项目的工具前缀 —— `node` —— 于是本仓库的每条命令都依赖一个包管理器、一个注册表存储和一项 postinstall 构建许可。Node 22.19 可以直接运行这些文件:`node <gate>.ts --root .` 通过,`process.features.typescript` 报告 `strip`,而对引擎的扫描找不到任何 `enum`、`namespace`、参数属性或 `import =`,也就是类型擦除会拒绝的全部语法。
 
-本笔记部分取代 [一次改动只跑它该跑的门禁](../../implemented/process/2026-09-21-a-diff-selects-the-gates-it-owes.zh.md)。那条笔记的理由 —— 一次改动只欠它该跑的门禁,而限定范围的绿灯永远不能替代聚合 —— 仍然拥有这个行为,它保持活跃,只是命令事实随之更新。这里改变的是选区在何处计算,以及门禁被交到手里的东西是什么。
+本笔记部分取代 [一次改动只跑它该跑的门禁](2026-09-21-a-diff-selects-the-gates-it-owes.zh.md)。那条笔记的理由 —— 一次改动只欠它该跑的门禁,而限定范围的绿灯永远不能替代聚合 —— 仍然拥有这个行为,它保持活跃,只是命令事实随之更新。这里改变的是选区在何处计算,以及门禁被交到手里的东西是什么。
 
-## Proposal
+## Decision
 
 ### The command surface
 
@@ -63,7 +63,7 @@ dsh-spec <subject> <operation> --root <project> (--all | <path…> | --files-fro
 
 ### The credential scan is dropped
 
-这道门禁连同它的脚本一起移除,因为一个记录没有点名的 `verify-*.ts` 文件会让分发器拒绝每一次运行;它的 `tracked` 范围键随之而去。这移除了 [来自记忆管线的三条规则](../../implemented/process/2026-09-20-three-rules-from-a-memory-pipeline.zh.md) 里三条规则中唯一机械化的一道检查,所以那条笔记的事实陈述与它的后果在同一次改动里更新,而这条规则退回常备指令,不再是门禁。
+这道门禁连同它的脚本一起移除,因为一个记录没有点名的 `verify-*.ts` 文件会让分发器拒绝每一次运行;它的 `tracked` 范围键随之而去。这移除了 [来自记忆管线的三条规则](2026-09-20-three-rules-from-a-memory-pipeline.zh.md) 里三条规则中唯一机械化的一道检查,所以那条笔记的事实陈述与它的后果在同一次改动里更新,而这条规则退回常备指令,不再是门禁。
 
 ### Check logic borrowed, interaction ours
 
@@ -88,9 +88,9 @@ dsh 的 `run-gates.ts` 不移植:它绑定 pnpm 调用与 dsh 自己的模式清
 6. **文档与引用。** 每一条交付的命令、模板与引用改写为新命令面;死掉的入口分支移除;陈述了已变机制的笔记就地修正并交叉链接。证据:引用检查器找不到悬空路径,聚合为绿。
 7. **发布。** 每一次源改动都在同一次改动里刷新安装副本,全新克隆为绿,以及 PR 描述。
 
-套件排在最前,因为一道正在被重写的 check 需要在重写之前把它的结论钉住;第 2、3 步在命令面之前,好让每一步都能与前一步的行为对照;文档在最后,好让没有任何命令被写两遍。本笔记在第 7 步落地时转为 `implemented`,而对 [一次改动只跑它该跑的门禁](../../implemented/process/2026-09-21-a-diff-selects-the-gates-it-owes.zh.md) 的部分取代记在那里,而不是这里。
+套件排在最前,因为一道正在被重写的 check 需要在重写之前把它的结论钉住;第 2、3 步在命令面之前,好让每一步都能与前一步的行为对照;文档在最后,好让没有任何命令被写两遍。上面每一步都已落地,而对 [一次改动只跑它该跑的门禁](2026-09-21-a-diff-selects-the-gates-it-owes.zh.md) 的部分取代记在那里,而不是这里。
 
-## Acceptance criteria
+## Required verification
 
 - 每道 check 在没有给出范围时以 `2` 退出并打印自己的用法,在交来的路径存在于其范围之外时以 `1` 退出;被删除的路径被接受,而不是被拒绝。
 - 每道 check 在本仓库上产出的结论与 `f14e91c` 的引擎相同:全量扫描按 check 逐一比对,且每道 check 都对种子缺陷重跑 —— 坏链接、被改坏的链接、失去同步的配对、格式不合规的笔记、未知类别目录、未封存的归档三件套。

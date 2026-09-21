@@ -22,46 +22,41 @@ submodules/dsh/    the extraction baseline, pinned to dsh-v0.1.6-alpha.2 — .gi
 docs/              the documents a person reads; no tier, no budget, and no gate
 ```
 
-The Agent Note gates are **not** in `.agents/dsh-spec/`: their code ships in the collection's one code home, `.agents/skills/dsh-spec-manager/scripts/`, and each is addressed by name through the dispatcher beside it, which resolves the name against the `gates` record in the manager's `references/manifest.json`, refuses an unknown name, and refuses to run anything at all when that record and the `verify-*.ts` scripts in that same directory disagree. See `.agents/dsh-spec/notes/README.md` and [`2026-09-18-track-the-installed-skill-copy.md`](.agents/dsh-spec/notes/implemented/process/2026-09-18-track-the-installed-skill-copy.md).
+The Agent Note gates are **not** in `.agents/dsh-spec/`: their code ships in the collection's one code home, `.agents/skills/dsh-spec-manager/scripts/`, and each is reached through the entry point beside them, `dsh-spec.ts`, which resolves a subject against the `gates` record in the manager's `references/manifest.json`, refuses an unknown name, and refuses to run anything at all when that record and the `verify-*.ts` scripts in that same directory disagree. See `.agents/dsh-spec/notes/README.md` and [`2026-09-18-track-the-installed-skill-copy.md`](.agents/dsh-spec/notes/implemented/process/2026-09-18-track-the-installed-skill-copy.md).
 
 ## Commands
 
 ```sh
-pnpm dlx --allow-build=esbuild tsx@4.22.4 scripts/verify-skill-structure.ts --root skills/<name>   # once per skill directory the diff touches
+node scripts/verify-skill-structure.ts --root skills/<name>   # once per skill directory the diff touches
   # the entry conforms, resources are placed, every reference is reachable from it
 
-for gate in verify-agent-note-classification verify-archived-agent-notes; do
-  pnpm dlx --allow-build=esbuild tsx@4.22.4 \
-    .agents/skills/dsh-spec-manager/scripts/run.ts $gate --root . --all
-done
-  # the Agent Note tree and the frozen archive — tree assertions, so they walk it
+node scripts/verify-port-provenance.ts
+  # every ported file names its dsh origin, and the registry agrees with the pinned submodule
 
-pnpm dlx --allow-build=esbuild tsx@4.22.4 \
-  .agents/skills/dsh-spec-manager/scripts/run.ts verify-agent-note-format --root . <note...>
+node --test 'tests/**/*.test.ts'
+  # the functional suite: what each check does with a scope, a seeded defect and a dispatch
+
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts all --check --root .
+  # the Agent Note tree and the frozen archive — tree assertions, so they walk their own root
+
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes --check <note...> --root .
   # the in-file format of the notes the change touched
 
-pnpm dlx --allow-build=esbuild tsx@4.22.4 \
-  .agents/skills/dsh-spec-manager/scripts/run.ts verify-translation-pairing --root . <pair...>
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair --check <pair...> --root .
   # every named pair is complete, recorded, and structurally identical
 
-pnpm dlx --allow-build=esbuild tsx@4.22.4 \
-  .agents/skills/dsh-spec-manager/scripts/run.ts verify-md-links --root . <markdown...>
-  # a relative link, image or definition whose target, or `#fragment`, does not resolve
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts md-links --check <markdown...> --root .
+  # a relative link, image or definition whose target or `#fragment` does not resolve, and the two
+  # shapes a bulk rewrite leaves behind
 
-pnpm dlx --allow-build=esbuild tsx@4.22.4 \
-  .agents/skills/dsh-spec-manager/scripts/run.ts verify-md-link-syntax --root . <markdown...>
-  # a link a bulk rewrite turned into prose: `[label (reference)`, or a link nested inside a link
-
-pnpm dlx --allow-build=esbuild tsx@4.22.4 \
-  .agents/skills/dsh-spec-manager/scripts/run.ts --all --root .
-  # every gate the manifest records; fails when one fails or when the record names none, and refuses before anything runs when the record and the scripts beside the dispatcher disagree — this is the whole check
-
-pnpm dlx --allow-build=esbuild tsx@4.22.4 \
-  .agents/skills/dsh-spec-manager/scripts/run.ts --changed --base <ref> --root .
-  # the gates whose recorded surface the change touches, with every skip printed and why — a subset, never a substitute for --all before a push
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts commit --check --base <ref> --root .
+  # the subjects this change owes, with every skip printed and why — a subset, never a substitute
+  # for the file scans above before a push. A file selection decides the asking side of a link, so
+  # a target deleted under an untouched referrer is caught by `md-links` over the whole corpus, not
+  # by this.
 ```
 
-Node ≥ 22.19 or ≥ 24 and pnpm ≥ 10 are required, and `--allow-build=esbuild` must follow `dlx` directly. There is no build step and no CI: a gate is a name the manifest records, backed by a `verify-*.ts` script in the engine directory, and the dispatcher reconciles the two before it runs anything, so the recorded set is every check that exists and the aggregate is what makes each one non-optional. The checks themselves are exercised by the suite above, which needs nothing beyond Node.
+Node ≥ 22.19 or ≥ 24 is the only requirement: the engine is TypeScript that Node strips by itself, and the suite runs on `node --test`. There is no build step and no CI: a gate is a name the manifest records, backed by a `verify-*.ts` script in the engine directory, and the entry point reconciles the two before it runs anything, so the recorded set is every check that exists and `all --check` is what makes the tree checks non-optional. `git` is needed for the archive seal, the pairing hashes and the change scope; `gh` only for installing and for reading the revision index.
 
 ## Boundaries
 

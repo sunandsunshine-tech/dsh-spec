@@ -12,7 +12,7 @@ The rule that produced this is real and stays: an initializer must be safe to re
 
 ## Decision
 
-`install` and `update` end with the initializer's `sync` mode, and `sync` is also a subcommand of its own, dry run by default and `--write` to apply. It rewrites exactly the files whose **text** the collection owns, to the revision just installed:
+`install` and `upgrade` end with the initializer's `sync` mode, which is also reachable on its own: the initializer is a dry run by default, and `--write` applies it. It rewrites exactly the files whose **text** the collection owns, to the revision just installed:
 
 | File | Merge |
 |---|---|
@@ -20,7 +20,7 @@ The rule that produced this is real and stays: an initializer must be safe to re
 | `docs/terminology.md` | header replaced, the project's rows kept |
 | the root `AGENTS.md` | only the marked `dsh-spec:agent-notes` block is replaced |
 
-Two things a project owns survive by construction. A terminology row is a decision, so the rows are preserved verbatim under the fresh header; and the standing orders outside the marked block are the project's own writing. The notes files are synced only where the notes tree exists, so `--no-notes` is not undone, and nothing outside that table is read or written. Every rewritten path is reported, and a dry run reports it without applying.
+Two things a project owns survive by construction. A terminology row is a decision, so the rows are preserved verbatim under the fresh header; and the standing orders outside the marked block are the project's own writing. The notes files are synced only where the notes tree exists, so a project that removed it is not given it back, and nothing outside that list is read or written. Every rewritten path is reported, and a dry run reports it without applying.
 
 A project that wants different rules for its own tree expresses them in notes and in files sync does not manage — not by editing the contract's prose, which the next sync replaces.
 
@@ -37,7 +37,7 @@ A project that wants different rules for its own tree expresses them in notes an
 - Every project's notes contract, documentation orders and search exclusion are the text of the revision it runs, so the gates enforce one contract and a reviewer reads one contract.
 - A project's own edits inside those documents are overwritten. That is the point, and it is why sync reports each path it rewrites instead of saying "up to date".
 - The terminology rows and the standing orders outside the marked block need care from the project, because sync preserves them and nothing else guards them.
-- Verification: in a probe, a project whose contract had an added line, whose terminology table had an added row, and whose `AGENTS.md` had a filled introduction ran `sync --write` → `updated .agents/dsh-spec/notes/README.md`, `updated docs/terminology.md`, the added contract line gone, the row preserved, the introduction intact; a stale marked section was replaced on the next run (`updated AGENTS.md`). `run.ts --all --root .` ends `run: 7 gate(s), 0 failed` in the probe and in this repository.
+- Verification: in a probe, a project whose contract had an added line, whose terminology table had an added row, and whose `AGENTS.md` had a filled introduction ran `sync --write` → `updated .agents/dsh-spec/notes/README.md`, `updated docs/terminology.md`, the added contract line gone, the row preserved, the introduction intact; a stale marked section was replaced on the next run (`updated AGENTS.md`). `dsh-spec.ts all --check --root .` reports both tree checks green in the probe and in this repository.
 
 ## Related
 

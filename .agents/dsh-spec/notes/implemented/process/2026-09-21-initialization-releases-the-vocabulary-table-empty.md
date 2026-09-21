@@ -10,7 +10,7 @@ The pairing contract told a project that `docs/terminology.md` was the vocabular
 
 ## Decision
 
-`init` writes two paths into `docs/`: `terminology.md` from a template carrying the column meanings, the usage rules and an empty table, and `AGENTS.md` with the orders that govern it — that a row binds both sides of every pair, that adding, changing or removing one is the maintainer's decision asked for in the conversation, and that the table declares no pair of its own. `--no-docs` skips both, the same judgement `--no-notes` makes for the decision tree, and neither path is overwritten once it exists.
+`install` writes two paths into `docs/`: `terminology.md` from a template carrying the column meanings, the usage rules and an empty table, and `AGENTS.md` with the orders that govern it — that a row binds both sides of every pair, that adding, changing or removing one is the maintainer's decision asked for in the conversation, and that the table declares no pair of its own. There is no switch that skips them: a project that adopts the collection takes the table and the orders beside it, and a project that does not translate carries the same table with no rows. Neither path is overwritten once it exists.
 
 The table is released with no rows on purpose. A row fixes a word both sides write, so a row is a decision; an example row copied from this collection, or one invented by the initializer, would be a decision nobody made that every later translation follows. The template therefore carries the rules and the column headers, and the project fills the rows as its maintainer decides them.
 
@@ -26,10 +26,10 @@ The rule moved with the table: `docs/AGENTS.md` is the project's own file beside
 
 ## Consequences
 
-- A project that translates has the table's columns and rules from its first commit, and a project that does not translate passes `--no-docs` instead of carrying an empty table.
+- A project that translates has the table's columns and rules from its first commit; a project that does not translate carries the same table with no rows rather than a different layout.
 - The vocabulary rule now lives beside the table it governs, so the project can change it, and the shipped contract no longer states one project's process.
 - What this costs is two more paths init writes, two more templates to keep current with the contract they describe, and a project that deletes `docs/AGENTS.md` losing the rule's only home.
-- Verification: `run.ts --all --root .` ends `run: 8 gate(s), 0 failed` over this tree, and `init --write` into an empty repository creates both paths with no `{gate-dir}` left in either, over which `verify-md-links` reports every relative link resolving.
+- Verification: `dsh-spec.ts all --check --root .` reports the two tree checks green over this tree, and `install` into an empty repository creates both paths with no `{gate-dir}` left in either, over which `dsh-spec.ts md-links --check` reports every relative link resolving.
 
 ## Related
 
