@@ -32,7 +32,7 @@ import { manifestPathOf } from './manifest.ts'
 
 /** Where this script lives. */
 const scriptDir = dirname(fileURLToPath(import.meta.url))
-/** The manifest: the skills the collection installs, the pin they come from, and the gates it publishes. */
+/** The manifest: the skills the collection installs and the gates it publishes. */
 const manifestPath = manifestPathOf(scriptDir)
 /** The dispatcher, which sits in the code home beside every gate and resolves a name against the record. */
 const dispatcherPath = join(scriptDir, 'dsh-spec.ts')
@@ -43,7 +43,6 @@ const NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 /** The manifest this script reads and never writes. */
 interface Manifest {
   repo: string
-  revision: string
   skills: string[]
 }
 
@@ -51,6 +50,12 @@ interface Manifest {
 function fail(message: string): never {
   console.error(`dsh-spec-manager: ${message}`)
   process.exit(1)
+}
+
+/** Refuse the invocation itself, with exit 2; the caller can fix it by naming what is missing. */
+function refuse(message: string): never {
+  console.error(`dsh-spec-manager: ${message}`)
+  process.exit(2)
 }
 
 /** Value of `--flag value`, when present. */
@@ -71,7 +76,7 @@ function subcommand(): string {
   const args = process.argv.slice(2)
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index]
-    if (arg === '--root' || arg === '--rev' || arg === '--repo' || arg === '--dir') {
+    if (arg === '--root' || arg === '--dir' || arg === '--revision') {
       index += 1
       continue
     }
@@ -98,33 +103,73 @@ function skillsDirectory(root: string): string {
   return resolve(root, flagValue('--dir') ?? join('.agents', 'skills'))
 }
 
-/** Read and validate the manifest; a missing or empty one is a failure. */
-function readManifest(): Manifest {
-  if (!existsSync(manifestPath)) {
-    fail(`no manifest at ${manifestPath} — the skill is incomplete, so it cannot say what to install`)
+/**
+ * Read and validate a manifest; a missing or empty one is a failure.
+ *
+ * The default is this copy's own manifest, which is the one a verb installs from. An upgrade that
+ * replaces the manager passes the replacement's path instead: from then on the replacement is the
+ * copy in the project, so it is the one whose skill list the install owes.
+ *
+ * @param path - the manifest to read; this copy's by default.
+ * @returns the repo and the skill names it names.
+ */
+function readManifest(path: string = manifestPath): Manifest {
+  if (!existsSync(path)) {
+    fail(`no manifest at ${path} — the skill is incomplete, so it cannot say what to install`)
   }
   let parsed: unknown
   try {
-    parsed = JSON.parse(readFileSync(manifestPath, 'utf8'))
+    parsed = JSON.parse(readFileSync(path, 'utf8'))
   } catch (error) {
-    fail(`${manifestPath} is not readable JSON: ${(error as Error).message}`)
+    fail(`${path} is not readable JSON: ${(error as Error).message}`)
   }
   const candidate = parsed as Partial<Manifest>
-  for (const field of ['repo', 'revision'] as const) {
-    const value = candidate[field]
-    if (typeof value !== 'string' || value === '') fail(`${manifestPath} names no \`${field}\``)
-  }
+  const repo = candidate.repo
+  if (typeof repo !== 'string' || repo === '') fail(`${path} names no \`repo\``)
   if (!Array.isArray(candidate.skills) || candidate.skills.length === 0) {
-    fail(`${manifestPath} names no skills — an empty manifest would install nothing and report success`)
+    fail(`${path} names no skills — an empty manifest would install nothing and report success`)
   }
   const skills = candidate.skills.map((entry) => {
-    if (typeof entry !== 'string' || entry === '') fail(`${manifestPath} has a skill entry with no name`)
+    if (typeof entry !== 'string' || entry === '') fail(`${path} has a skill entry with no name`)
     if (!NAME.test(entry)) {
-      fail(`${manifestPath} names the skill \`${entry}\`, which is not a skill name — a name becomes a path under the skills directory, so only ${NAME} is accepted`)
+      fail(`${path} names the skill \`${entry}\`, which is not a skill name — a name becomes a path under the skills directory, so only ${NAME} is accepted`)
     }
     return entry
   })
-  return { repo: candidate.repo as string, revision: candidate.revision as string, skills }
+  return { repo, skills }
+}
+
+/**
+ * The revision a command acts on: the explicit ref, else the newest published release.
+ *
+ * Drafts are not published, so the first `draft: false` entry of the release list is the newest
+ * revision a consumer can install. With neither source there is no honest default, so the
+ * invocation is refused with exit 2 and the message names the flag that supplies one.
+ *
+ * @param explicit - the value of `--revision`, when the caller gave one.
+ * @returns the ref to install from.
+ */
+async function resolveTargetRef(explicit: string | undefined): Promise<string> {
+  if (explicit !== undefined && explicit !== '') return explicit
+  const manifest = readManifest()
+  const listed = await runCaptured('gh', ['api', `repos/${manifest.repo}/releases`], 'releases')
+  if ((listed.status ?? 1) !== 0) {
+    fail(`could not list the releases of ${manifest.repo}: \`gh api repos/${manifest.repo}/releases\` exited ${String(listed.status)}${listed.output.trim() === '' ? '' : ` — ${listed.output.trim()}`}`)
+  }
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(listed.output)
+  } catch (error) {
+    fail(`the release list of ${manifest.repo} is not readable JSON: ${(error as Error).message}`)
+  }
+  const published = Array.isArray(parsed)
+    ? parsed.find(entry => (entry as { draft?: unknown }).draft === false)
+    : undefined
+  const tag = (published as { tag_name?: unknown } | undefined)?.tag_name
+  if (typeof tag !== 'string' || tag === '') {
+    refuse(`no published release of ${manifest.repo} to install from — pass \`--revision <ref>\` to name the branch, tag or commit yourself`)
+  }
+  return tag
 }
 
 /** Run a command with inherited output; a missing binary is a failure, not a status. */
@@ -205,8 +250,10 @@ async function runAll(command: string, items: readonly { label: string, args: st
   fail(`${failed.length} of ${results.length} \`${command}\` run(s) failed`)
 }
 
-/** The revision's own listing: each skill's tree sha, and every file's blob sha. */
+/** The revision's own listing: the short ref, each skill's tree sha, and every file's blob sha. */
 interface RevisionIndex {
+  /** The ref as a short name, so it can be compared with an injected `refs/heads/…`. */
+  ref: string
   /** Skill directory name → the tree sha GitHub records for `skills/<name>`. */
   treeSha: Map<string, string>
   /** Skill directory name → path relative to it → git blob sha. */
@@ -222,7 +269,7 @@ interface RevisionIndex {
  * could not answer the first question at all.
  *
  * @param repo - `owner/name` the skills come from.
- * @param revision - the branch, tag or commit the manifest pins.
+ * @param revision - the branch, tag or commit to read.
  * @returns the listing, or `undefined` when it cannot be read.
  */
 async function readRevisionIndex(repo: string, revision: string): Promise<RevisionIndex | undefined> {
@@ -235,7 +282,7 @@ async function readRevisionIndex(repo: string, revision: string): Promise<Revisi
     revision,
   )
   if ((listing.status ?? 1) !== 0) return undefined
-  const index: RevisionIndex = { treeSha: new Map(), blobs: new Map() }
+  const index: RevisionIndex = { ref: shortRef(revision), treeSha: new Map(), blobs: new Map() }
   for (const line of listing.output.split('\n')) {
     const trimmed = line.trim()
     if (trimmed === '') continue
@@ -258,48 +305,177 @@ async function readRevisionIndex(repo: string, revision: string): Promise<Revisi
   return index.treeSha.size === 0 ? undefined : index
 }
 
+/** The short name of a ref: `refs/heads/main` and `refs/tags/v1.0.0` are spelled `main` and `v1.0.0`. */
+function shortRef(ref: string): string {
+  return ref.replace(/^refs\/(heads|tags)\//, '')
+}
+
 /** The git blob sha of one file's content — the identifier the tree API reports. */
 function blobSha(content: Buffer): string {
   return createHash('sha1').update(`blob ${content.byteLength}\0`).update(content).digest('hex')
 }
 
 /**
- * Is the installed skill already the revision's content?
+ * The injected ref a skill carries, when it differs from the revision being planned.
  *
- * The tree sha `gh` injected is the revision's own record for that directory, so a mismatch means
- * the revision moved. A matching tree alone would not notice a hand edit, so the file list has to
- * match exactly and every file is compared by blob sha — except `SKILL.md`, whose frontmatter `gh`
- * re-serializes on install and which is therefore covered by the injected tree sha instead.
+ * `SKILL.md` is not compared by content — `gh` re-serializes its frontmatter on every install — so
+ * the ref that install would inject is stated on its own line instead: it is the one difference a
+ * reader cannot see in a file list.
+ */
+interface RefDelta {
+  from: string
+  to: string
+}
+
+/** What one skill's plan or application touches, file by file, relative to the skill directory. */
+interface SkillDelta {
+  /** Shipped files the project does not hold. */
+  added: string[]
+  /** Held files whose blob sha is not the revision's. */
+  modified: string[]
+  /** Held files the revision does not ship, which `gh skill install` never deletes. */
+  removed: string[]
+  /** The injected ref, when the skill was installed from a different revision. */
+  ref?: RefDelta
+}
+
+/** One skill's plan: nothing to do, the revision does not ship it, or the files a refresh touches. */
+type SkillReading =
+  | { kind: 'current' }
+  | { kind: 'absent' }
+  | { kind: 'delta', delta: SkillDelta }
+
+/**
+ * What reinstalling one skill would change.
+ *
+ * The tree sha `gh` injected is the revision's own record for that directory, so it answers the
+ * cheap question — is this skill already this revision? — and a matching one ends the walk, because
+ * the sha already states what the per-file comparison would recompute. When it does not match, the
+ * walk answers what a plan needs: which files are new, which were edited, which the revision no
+ * longer ships. `SKILL.md` is the one file whose content is compared as a last resort: `gh`
+ * re-serializes its frontmatter on install, so an injected ref that differs says the skill moved
+ * rather than that a person edited it, and the plan reports that as a ref line of its own.
  *
  * @param directory - the project's `.agents/skills/` directory.
  * @param skill - the skill directory name.
  * @param index - the revision listing.
- * @returns true when reinstalling this skill would write the same content.
+ * @returns nothing to do, the skill's absence from the revision, or the delta.
  */
-function isCurrent(directory: string, skill: string, index: RevisionIndex): boolean {
+function classifySkill(directory: string, skill: string, index: RevisionIndex): SkillReading {
   const expectedTree = index.treeSha.get(skill)
   const expected = index.blobs.get(skill)
-  if (expectedTree === undefined || expected === undefined) return false
+  if (expectedTree === undefined || expected === undefined) return { kind: 'absent' }
   const root = join(directory, skill)
   const skillFile = join(root, 'SKILL.md')
-  if (!existsSync(skillFile)) return false
-  if (/github-tree-sha:\s*([0-9a-f]{40})/.exec(readFileSync(skillFile, 'utf8'))?.[1] !== expectedTree) return false
+  // A skill the project does not hold at all is every shipped file, added; there is nothing to walk.
+  if (!existsSync(skillFile)) {
+    return {
+      kind: 'delta',
+      delta: { added: [...expected.keys()].sort(), modified: [], removed: [] },
+    }
+  }
+  const injectedTree = /github-tree-sha:\s*([0-9a-f]{40})/.exec(readFileSync(skillFile, 'utf8'))?.[1]
+  const current = installedRevision(skillFile)
+  const ref = current !== undefined && current !== '' && !current.startsWith('local:') && current !== index.ref
+    ? { from: current, to: index.ref }
+    : undefined
+  // A matching tree sha is the revision's own record that every file is its content, so the plan is
+  // that one line. Walking the directory instead would recompute what the sha already states, and a
+  // file list is only a difference from the installed revision when the revision itself moved.
+  if (injectedTree === expectedTree) {
+    return ref === undefined ? { kind: 'current' } : { kind: 'delta', delta: { added: [], modified: [], removed: [], ref } }
+  }
+  const added: string[] = []
+  const modified: string[] = []
+  const removed: string[] = []
   const seen = new Set<string>()
-  const walk = (current: string, prefix: string): boolean => {
-    for (const entry of readdirSync(current, { withFileTypes: true })) {
+  const walk = (location: string, prefix: string): void => {
+    for (const entry of readdirSync(location, { withFileTypes: true })) {
       const relative = prefix === '' ? entry.name : `${prefix}/${entry.name}`
       if (entry.isDirectory()) {
-        if (!walk(join(current, entry.name), relative)) return false
+        walk(join(location, entry.name), relative)
         continue
       }
       const sha = expected.get(relative)
-      if (sha === undefined) return false
+      if (sha === undefined) {
+        removed.push(relative)
+        continue
+      }
       seen.add(relative)
-      if (relative !== 'SKILL.md' && blobSha(readFileSync(join(current, entry.name))) !== sha) return false
+      // `SKILL.md` is compared by content only when its injected ref already matches: `gh` writes
+      // that frontmatter in its own order, so a differing blob at a differing ref says the revision
+      // moved rather than that a person edited the file, and the ref line below says so on its own.
+      const comparedByContent = relative !== 'SKILL.md' || ref === undefined
+      if (comparedByContent && blobSha(readFileSync(join(location, entry.name))) !== sha) modified.push(relative)
     }
-    return true
   }
-  return walk(root, '') && seen.size === expected.size
+  walk(root, '')
+  for (const relative of expected.keys()) {
+    if (!seen.has(relative)) added.push(relative)
+  }
+  if (added.length === 0 && modified.length === 0 && removed.length === 0 && ref === undefined) return { kind: 'current' }
+  return { kind: 'delta', delta: { added: added.sort(), modified: modified.sort(), removed: removed.sort(), ref } }
+}
+
+/** The install plan for every skill of the set. */
+interface Plan {
+  /** The ref the plan is against, so `already at <ref>` names the revision rather than a placeholder. */
+  ref: string
+  current: string[]
+  fresh: string[]
+  deltas: Map<string, SkillDelta>
+  /** Skill → the paths the revision ships, which is what the applied prune reduces a directory to. */
+  shipped: Map<string, string[]>
+}
+
+/**
+ * Read the revision index and classify every skill against it.
+ *
+ * One reading answers the whole plan, so it happens once per command however many skills the set
+ * holds. `undefined` means the listing could not be read: the plan then installs every skill, which
+ * is what `gh skill install` would do anyway, and prunes nothing, because a failed API call must
+ * not look like a revision that ships nothing.
+ *
+ * @param directory - the project's `.agents/skills/` directory.
+ * @param manifest - the skills to plan.
+ * @param repo - `owner/name` the skills come from.
+ * @param ref - the branch, tag or commit to read.
+ * @param reinstall - plan every skill even when its content already matches.
+ * @returns the plan.
+ */
+async function planRefresh(directory: string, manifest: Manifest, repo: string, ref: string, reinstall: boolean): Promise<Plan | undefined> {
+  const index = await readRevisionIndex(repo, ref)
+  if (index === undefined) return undefined
+  const plan: Plan = { ref, current: [], fresh: [], deltas: new Map(), shipped: new Map() }
+  for (const skill of manifest.skills) {
+    const paths = index.blobs.get(skill)
+    if (paths !== undefined) plan.shipped.set(skill, [...paths.keys()])
+    if (reinstall) {
+      plan.fresh.push(skill)
+      continue
+    }
+    const reading = classifySkill(directory, skill, index)
+    if (reading.kind === 'current') plan.current.push(skill)
+    else if (reading.kind === 'absent') plan.fresh.push(skill)
+    else {
+      plan.fresh.push(skill)
+      plan.deltas.set(skill, reading.delta)
+    }
+  }
+  return plan
+}
+
+/** Print the file-level half of a plan: one line per path a refresh touches, and the ref change. */
+function printPlan(plan: Plan): void {
+  if (plan.current.length > 0) console.log(`  already at ${plan.ref}: ${plan.current.join(', ')}`)
+  for (const [skill, delta] of plan.deltas) {
+    for (const path of delta.added) console.log(`  + ${skill}/${path}`)
+    for (const path of delta.modified) console.log(`  ~ ${skill}/${path}`)
+    for (const path of delta.removed) console.log(`  - ${skill}/${path} (the revision does not ship it)`)
+    if (delta.ref !== undefined) {
+      console.log(`  ~ ${skill}/SKILL.md — injected metadata github-ref ${delta.ref.from} → ${delta.ref.to} (compared by the injected tree sha, not by content)`)
+    }
+  }
 }
 
 /**
@@ -326,6 +502,9 @@ function pruneToRevision(skill: string, directory: string, expected: string[] | 
   }
   const shipped = new Set(expected)
   const root = join(directory, skill)
+  // An absent directory has nothing to prune, and a page of "removed" lines for a skill that was
+  // never installed would read as a change rather than the absence it is.
+  if (!existsSync(root)) return
   const doomed: string[] = []
   const directories: string[] = []
   const walk = (current: string, prefix: string): void => {
@@ -357,47 +536,47 @@ function pruneToRevision(skill: string, directory: string, expected: string[] | 
 }
 
 /**
- * Fetch what changed, reduce each installed directory to what the revision ships, then sync the
- * files whose text the collection owns.
+ * Read the revision, print or apply the skill plan, then sync the files whose text the collection owns.
  *
- * The revision is read once, as a tree listing, and it decides three things: which skills are
- * already that content (they are left alone), which files each skill ships (the prune), and whether
- * a file changed since it was installed (a blob sha each). A refresh of an unchanged project is then
+ * The revision is read once, as a tree listing, and it decides three things: which skills are already
+ * that content (they are left alone), which files a skill gained, lost or edited, and which files the
+ * revision no longer ships (removed afterwards — `gh skill install --force` overwrites what it
+ * installs and never deletes what the revision dropped). A refresh of an unchanged project is then
  * one API call and a local walk, rather than eight network installs.
+ *
+ * A dry run reads the same listing and prints the same plan: the header it prints says `would` where
+ * an applied run says nothing, and nothing is written. Reading the network is what makes
+ * `already at <ref>` in the plan true rather than assumed.
  *
  * @param repo - `owner/name` the skills come from.
  * @param directory - the project's `.agents/skills/` directory.
- * @param manifest - the pinned revision and the skills to install.
+ * @param manifest - the skills to install.
+ * @param ref - the branch, tag or commit to install at.
  * @param dryRun - print the commands instead of running them.
  * @param reinstall - install every skill even when it is already the revision's content.
+ * @param create - also run the initializer that creates the project's missing files.
+ * @param limit - the most `gh` children alive at once.
  */
-async function refresh(root: string, repo: string, directory: string, manifest: Manifest, dryRun: boolean, reinstall: boolean, create: boolean, limit: number): Promise<void> {
-  // A dry run is a local plan: reading the revision index costs a network round trip, and a preview
-  // that needs the network is not a preview anybody can run offline.
-  const index = dryRun ? undefined : await readRevisionIndex(repo, manifest.revision)
-  if (!dryRun && index === undefined) {
-    console.log(`  could not read the tree for ${manifest.revision} — installing every skill and pruning nothing`)
-  }
-  const stale: string[] = []
-  const current: string[] = []
-  for (const skill of manifest.skills) {
-    if (!reinstall && index !== undefined && isCurrent(directory, skill, index)) current.push(skill)
-    else stale.push(skill)
-  }
-  if (current.length > 0) {
-    console.log(`  already at ${manifest.revision}: ${current.join(', ')}`)
+async function refresh(root: string, repo: string, directory: string, manifest: Manifest, ref: string, dryRun: boolean, reinstall: boolean, create: boolean, limit: number): Promise<void> {
+  const plan = await planRefresh(directory, manifest, repo, ref, reinstall)
+  const stale = plan?.fresh ?? [...manifest.skills]
+  if (plan === undefined) {
+    console.log(`  could not read the tree for ${ref} — installing every skill and pruning nothing`)
+  } else {
+    printPlan(plan)
   }
   await runAll('gh', stale.map(skill => ({
     label: skill,
-    args: ['skill', 'install', repo, `${skill}@${manifest.revision}`, '--dir', directory, '--force'],
+    args: ['skill', 'install', repo, `${skill}@${ref}`, '--dir', directory, '--force'],
   })), dryRun, limit)
-  if (dryRun) {
-    for (const skill of manifest.skills) console.log(`  would prune ${skill} to the files ${manifest.revision} ships`)
-  } else {
-    for (const skill of manifest.skills) {
-      const expected = index?.blobs.get(skill)
-      pruneToRevision(skill, directory, expected === undefined ? undefined : [...expected.keys()], dryRun)
+  for (const skill of manifest.skills) {
+    // Without a listing there is nothing to prune to, and an unread API call must not look like a
+    // revision that ships nothing.
+    if (plan === undefined) {
+      pruneToRevision(skill, directory, undefined, dryRun)
+      continue
     }
+    pruneToRevision(skill, directory, plan.shipped.get(skill), dryRun)
   }
   // The other half of a refresh: the files whose text the collection owns — the notes contract, the
   // documentation orders, the search exclusion, the marked standing-orders section — are brought to
@@ -406,24 +585,107 @@ async function refresh(root: string, repo: string, directory: string, manifest: 
   // Adoption creates the project files that are missing and never overwrites one it did not
   // create; a refresh only brings the managed text up to this revision, so a file a project
   // deliberately deleted stays deleted.
-  if (create) run(process.execPath, initializerArgs(root, ['--write']), dryRun)
-  run(process.execPath, initializerArgs(root, ['--sync', '--write']), dryRun)
+  //
+  // The initializer is its own preview: without `--write` it prints the same plan an apply would
+  // carry out — the files it would create, the managed text it would rewrite, with the diff — and
+  // writes nothing. So a dry run runs it, rather than printing the command that would have rendered
+  // the plan; `--write` is the whole difference between the two, which is what keeps a preview and
+  // an apply comparing the same two texts.
+  if (create) run(process.execPath, initializerArgs(root, dryRun ? [] : ['--write']), false)
+  run(process.execPath, initializerArgs(root, dryRun ? ['--sync'] : ['--sync', '--write']), false)
 }
 
-/** Adopt the collection: deploy the pinned set, create the missing project files, sync the text. */
-export async function installProject(root: string, options: { dryRun: boolean, jobs: number }): Promise<void> {
+/** Adopt the collection: deploy the set at the manager's own ref, create the missing project files, sync the text. */
+export async function installProject(root: string, options: { dryRun: boolean, jobs: number, revision?: string }): Promise<void> {
   const manifest = readManifest()
-  console.log(`  install ${manifest.skills.length} skill(s) from ${manifest.repo} at ${manifest.revision} into ${skillsDirectory(root)}`)
+  const explicit = options.revision === '' ? undefined : options.revision
+  const ref = explicit ?? managerRef(root) ?? await resolveTargetRef(undefined)
+  console.log(`  install ${manifest.skills.length} skill(s) from ${manifest.repo} at ${ref} into ${skillsDirectory(root)}`)
   if (options.dryRun) console.log('  dry run — nothing is written; drop --dry-run to apply')
-  await refresh(root, manifest.repo, skillsDirectory(root), manifest, options.dryRun, false, true, options.jobs)
+  await refresh(root, manifest.repo, skillsDirectory(root), manifest, ref, options.dryRun, false, true, options.jobs)
 }
 
-/** Refresh the deployment and the managed text, creating nothing the project does not already have. */
-export async function upgradeProject(root: string, options: { dryRun: boolean, reinstall: boolean, jobs: number }): Promise<void> {
+/**
+ * Refresh the deployment and the managed text at the resolved revision, creating nothing the project
+ * does not already have.
+ *
+ * The whole verb is two halves against one ref. The manager is the first half: a manager older than
+ * the ref is replaced by that ref's copy of itself, and the new copy is then run once — re-executed —
+ * so the second half, installing the set, is decided by the revision being installed rather than by
+ * the code that was already on disk. `--only-skill-set` skips the first half, which is what makes
+ * this a way to install the set at the manager's own ref. A replacement copy older than that flag
+ * cannot be told the target at all, so it is not run: the invoker installs the set instead, from the
+ * skill list the replacement ships, because the invoker is the copy that can be told the ref.
+ *
+ * @param root - the project root.
+ * @param options - the dry-run, reinstall, dispatch width, revision and half selection.
+ */
+export async function upgradeProject(root: string, options: { dryRun: boolean, reinstall: boolean, jobs: number, revision?: string, skillSetOnly?: boolean }): Promise<void> {
   const manifest = readManifest()
-  console.log(`  upgrade ${manifest.skills.length} skill(s) from ${manifest.repo} at ${manifest.revision} into ${skillsDirectory(root)}`)
+  const directory = skillsDirectory(root)
+  const current = managerRef(root)
+  // A full upgrade targets the two-level resolution: an explicit revision, or the newest published
+  // release. `--only-skill-set` installs at the manager's own injected ref instead, because it is the
+  // same install `install` performs, minus the self-update half.
+  const requested = options.revision === undefined || options.revision === '' ? undefined : options.revision
+  const ref = options.skillSetOnly && requested === undefined
+    ? (current ?? refuse('this manager carries no injected `github-ref`, so `--only-skill-set` has no ref to install from — pass `--revision <ref>`'))
+    : await resolveTargetRef(requested)
+  console.log(`  upgrade ${manifest.skills.length} skill(s) from ${manifest.repo} at ${ref} into ${directory}`)
   if (options.dryRun) console.log('  dry run — nothing is written; drop --dry-run to apply')
-  await refresh(root, manifest.repo, skillsDirectory(root), manifest, options.dryRun, options.reinstall, false, options.jobs)
+  if (!options.skillSetOnly && current !== ref) {
+    const install: string[] = ['skill', 'install', manifest.repo, `dsh-spec-manager@${ref}`, '--dir', directory, '--force']
+    run('gh', install, options.dryRun)
+    if (!options.dryRun) {
+      // The manager just changed: the copy that decides the rest is the one now on disk, so the
+      // second half runs in a new process carrying `--only-skill-set` rather than mixing revisions.
+      // A copy older than the flag — a downgrade, or a ref that has not merged it — cannot be told
+      // the target: run on its own it would install the set at the ref it pins, a different
+      // revision than the one this invocation resolved. That copy is not run. The set is installed
+      // here instead, from the skill list the replacement ships — so one ref still governs both
+      // halves and the project is never left half-applied.
+      const dispatcher = join(directory, 'dsh-spec-manager', 'scripts', 'dsh-spec.ts')
+      if (existsSync(dispatcher) && !readFileSync(dispatcher, 'utf8').includes('only-skill-set')) {
+        const replacement = readManifest(manifestPathOf(join(directory, 'dsh-spec-manager', 'scripts')))
+        console.log(`  the replacement at ${ref} predates \`--only-skill-set\`, so it cannot be told a target; installing the set here, from the manifest it ships`)
+        console.log(`  at ${ref}: installing the skill set only`)
+        await refresh(root, replacement.repo, directory, replacement, ref, false, options.reinstall, false, options.jobs)
+        return
+      }
+      console.log(`  re-exec ${dispatcher} upgrade --only-skill-set --revision ${ref} --root ${root}`)
+      const result = spawnSync(process.execPath, [dispatcher, 'upgrade', '--only-skill-set', '--revision', ref, '--root', root], { stdio: 'inherit' })
+      if (result.error) fail(`${dispatcher} could not be run: ${result.error.message}`)
+      process.exit(result.status ?? 1)
+    }
+  } else if (!options.skillSetOnly) {
+    console.log(`  the manager is already at ${current ?? 'a revision that cannot be read'}`)
+  }
+  console.log(`  at ${ref}: installing the skill set only`)
+  await refresh(root, manifest.repo, directory, manifest, ref, options.dryRun, options.reinstall, false, options.jobs)
+}
+
+/**
+ * The ref the manager itself was installed from, read out of its own installed `SKILL.md`.
+ *
+ * The manager file is the pin: the ref `gh skill install` injected into it is the revision every
+ * other skill of the set is installed at, so no field in the manifest declares one. A source tree
+ * whose manager was never installed carries no `github-ref`, which is a state the caller reports
+ * rather than reads as agreement.
+ *
+ * @param project - the project root whose skills directory is read.
+ * @returns the short ref, or `undefined` when the manager carries no `metadata.github-ref`.
+ */
+function managerRef(project: string): string | undefined {
+  const path = join(skillsDirectory(project), 'dsh-spec-manager', 'SKILL.md')
+  if (!existsSync(path)) return undefined
+  const lines = readFileSync(path, 'utf8').split('\n')
+  if (lines[0] !== '---') return undefined
+  const end = lines.indexOf('---', 1)
+  if (end === -1) return undefined
+  const frontmatter = lines.slice(1, end).join('\n')
+  if (!/^metadata:\s*$/m.test(frontmatter)) return undefined
+  const ref = /^\s*github-ref:\s*(.+)$/m.exec(frontmatter)?.[1]?.trim() ?? ''
+  return shortRef(ref) || undefined
 }
 
 /**
@@ -443,15 +705,15 @@ function installedRevision(path: string): string | undefined {
   if (!/^metadata:\s*$/m.test(frontmatter)) return undefined
   const ref = /^\s*github-ref:\s*(.+)$/m.exec(frontmatter)?.[1]?.trim() ?? ''
   const tree = /^\s*github-tree-sha:\s*(.+)$/m.exec(frontmatter)?.[1]?.trim() ?? ''
-  const revision = ref.replace(/^refs\/(heads|tags)\//, '') || tree
+  const revision = shortRef(ref) || tree
   if (revision !== '') return revision
   // A local install carries a path instead of a ref: its revision cannot be compared against the
-  // pin, and saying so is different from reading a missing field as agreement.
+  // manager's ref, and saying so is different from reading a missing field as agreement.
   const local = /^\s*local-path:\s*(.+)$/m.exec(frontmatter)?.[1]?.trim() ?? ''
   return local === '' ? '' : `local:${local}`
 }
 
-/** Report the installed set and each skill's revision, read from the installed file; change nothing. */
+/** Report the installed set and each skill's revision, each compared with the manager's own; change nothing. */
 export function statusProject(root: string): void {
   status(root, readManifest())
 }
@@ -465,6 +727,17 @@ function status(root: string, manifest: Manifest): void {
         .map((entry) => entry.name)
     : []
 
+  // The manager's own ref is the pin every other skill is held against, and it is read from the
+  // manager's installed file like every other revision here — nothing is compared with the manifest,
+  // which no longer declares one.
+  const managerPath = join(directory, 'dsh-spec-manager', 'SKILL.md')
+  const manager = managerRef(root)
+  if (manager === undefined) {
+    findings.push(
+      `${managerPath}: no \`metadata.github-ref\` injected by \`gh skill install\`, so the manager's own ref cannot be read and no skill can be compared with it — reinstall dsh-spec-manager`,
+    )
+  }
+
   let installedHere = 0
   for (const skill of manifest.skills) {
     const entry = join(directory, skill, 'SKILL.md')
@@ -476,14 +749,14 @@ function status(root: string, manifest: Manifest): void {
     const revision = installedRevision(entry)
     if (revision === undefined) {
       findings.push(
-        `${skill}: ${entry} has no metadata block injected by \`gh skill install\`, so it is not an install of ${manifest.revision} — reinstall the skill`,
+        `${skill}: ${entry} has no metadata block injected by \`gh skill install\`, so it is not an install of the manager's ref — reinstall the skill`,
       )
     } else if (revision === '') {
       findings.push(`${skill}: the injected metadata names no github-ref and no github-tree-sha, so no revision can be read from it`)
     } else if (revision.startsWith('local:')) {
-      findings.push(`${skill}: installed from the local path ${revision.slice('local:'.length)}, which carries no revision to compare with the manifest's ${manifest.revision}`)
-    } else if (revision !== manifest.revision) {
-      findings.push(`${skill}: at ${revision}, manifest pins ${manifest.revision}`)
+      findings.push(`${skill}: installed from the local path ${revision.slice('local:'.length)}, which carries no revision to compare with the manager's${manager === undefined ? '' : ` ${manager}`}`)
+    } else if (manager !== undefined && revision !== manager) {
+      findings.push(`${skill}: at ${revision}, the manager is at ${manager}`)
     } else {
       console.log(`  ok        ${skill}  ${revision}`)
     }
@@ -504,7 +777,7 @@ function status(root: string, manifest: Manifest): void {
     for (const finding of findings) console.error(`  ${finding}`)
     process.exit(1)
   }
-  console.log(`  ok        ${manifest.skills.length} skill(s) at ${manifest.revision}, each revision read from its installed metadata`)
+  console.log(`  ok        ${manifest.skills.length} skill(s) at ${manager}, each revision compared with the manager's own injected ref`)
 }
 
 /** Remove the installed skills. */
@@ -561,9 +834,9 @@ function manage(): void {
   const root = projectRoot()
   const dryRun = hasFlag('--dry-run')
   if (command === 'install') {
-    void installProject(root, { dryRun, jobs: jobWidth() })
+    void installProject(root, { dryRun, jobs: jobWidth(), revision: flagValue('--revision') })
   } else if (command === 'upgrade' || command === 'update') {
-    void upgradeProject(root, { dryRun, reinstall: hasFlag('--reinstall'), jobs: jobWidth() })
+    void upgradeProject(root, { dryRun, reinstall: hasFlag('--reinstall'), skillSetOnly: hasFlag('--only-skill-set'), jobs: jobWidth(), revision: flagValue('--revision') })
   } else if (command === 'init') {
     if (!existsSync(initializerPath)) fail(`the initializer is missing at ${initializerPath}`)
     run(process.execPath, initializerArgs(root, hasFlag('--write') ? ['--write'] : []), dryRun)

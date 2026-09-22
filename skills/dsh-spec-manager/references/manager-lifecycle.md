@@ -4,12 +4,13 @@ A project receives this package as a set of skills at one revision, and this mod
 
 ## The manifest
 
-The manifest lives in this skill's `references/`. It is the one list the manager reads and writes nothing into, and it holds four facts: the skills to install, the revision every one of them comes from, the gates this collection publishes, and each gate's scope — the surfaces it answers for and how it is handed them. A gate is a recorded name backed by a file, and the two must agree: `gates` is the record a reader reviews in a diff, while the `verify-*.ts` script beside the entry point is what makes that name runnable. A recorded name with no script, and a `verify-*.ts` script the record does not name, are both refusals — the entry point reconciles the two before it runs anything.
+The manifest lives in this skill's `references/`. It is the one list the manager reads and writes nothing into, and it holds three facts: the skills to install, the gates this collection publishes, and each gate's scope — the surfaces it answers for and how it is handed them. It declares no revision: a manifest ships inside the installed manager, so a revision written there would be a declaration the project can neither change nor check against what it actually installed. The pin is the ref the installer wrote into the manager's own installed `SKILL.md`, and [the manager's own install is the pin](../../../.agents/dsh-spec/notes/implemented/process/2026-09-21-the-manager-s-own-install-is-the-pin.md) owns why.
+
+A gate is a recorded name backed by a file, and the two must agree: `gates` is the record a reader reviews in a diff, while the `verify-*.ts` script beside the entry point is what makes that name runnable. A recorded name with no script, and a `verify-*.ts` script the record does not name, are both refusals — the entry point reconciles the two before it runs anything.
 
 | Field | Holds | Absent |
 |---|---|---|
 | `repo` | The `owner/name` the skills are installed from | Fail, naming the field |
-| `revision` | The pinned commit, branch or tag every skill is installed at | Fail, naming the field |
 | `skills` | The names to install, one string each | Fail when the array is missing or empty |
 | `gates` | The gate names this collection publishes, one `verify-*` string each, every one backed by a script beside the entry point | The entry point refuses, naming the field |
 | `scopes` | One record per gate: `keys` (which surfaces it answers for) and `selection` (`root` when its assertion is about a tree, `files` when it reads exactly the paths it is handed) | The entry point refuses, because it would have to guess what the gate reads |
@@ -25,9 +26,11 @@ gh skill install <repo> dsh-spec-manager@<ref> --dir <project>/.agents/skills --
 node <project>/.agents/skills/dsh-spec-manager/scripts/dsh-spec.ts install --root <project>
 ```
 
-The first line is the only place a revision is named, and it fetches the manager alone — whose manifest then pins the revision for everything else. `install` deploys every skill in the manifest at that revision, creates the project files that are missing, and syncs the text the collection owns. `upgrade` refreshes the deployment and the managed text and **creates nothing**, so a file a project deliberately deleted stays deleted. Neither verb takes a revision: a set whose members sit at different revisions is the drift `status` exists to report, not a state a flag may create.
+The first line is the only place a revision is named, and it fetches the manager alone. Every skill after that comes from the ref the manager was installed at: `install` and `upgrade --only-skill-set` read `metadata.github-ref` out of the installed `dsh-spec-manager/SKILL.md`, strip the `refs/heads/` or `refs/tags/` prefix, and deploy the rest of the set at that short name. A source tree that was never installed has no such metadata, and the pair then resolves a target instead — an explicit `--revision <ref>` wins, and without it the manager reads the latest **published** release from the repository and uses its `tag_name`; a draft release is not a release. When neither exists the command exits 2 and names `--revision`.
 
-Both act by default and `--dry-run` prints the plan first; a dry run touches nothing and reads nothing over the network.
+`install` deploys every skill in the manifest at that revision, creates the project files that are missing, and syncs the text the collection owns. `upgrade` refreshes the deployment and the managed text and **creates nothing**, so a file a project deliberately deleted stays deleted. `upgrade` also has a half of its own: it resolves the target ref, refreshes the manager through `gh skill install <repo> dsh-spec-manager@<target> --dir <skillsDir> --force` when the manager's current ref differs from it, and re-executes the freshly installed dispatcher as `upgrade --only-skill-set --revision <target> --root <root>`, exiting with that run's code so the old manager does not finish the work the new one owns. A replacement older than `--only-skill-set` cannot be told the target at all — it would install the set at the ref it pins instead — so it is not run: the copy that was invoked finishes the set itself, from the manifest the replacement ships, and both halves still land on one revision. `--only-skill-set` is the half without the self-update: it installs the set at the manager's current ref and runs no `gh skill install` for the manager itself.
+
+Both act by default; `--dry-run` prints the plan first and writes nothing. A dry run still resolves the target over the network, so the plan it prints is the plan it would run: `already at <ref>` is a fact, every file the target revision ships is listed as `+ added`, `~ modified` or `- removed` with `SKILL.md` compared only by its injected ref, and the text the collection owns is rendered, diffed against the file on disk and printed as `would update <path>` with about 40 lines of that diff. Skill bodies are not diffed.
 
 The installer is what records the revision: it injects a `metadata:` block into the installed `SKILL.md` naming the repository (`github-repo`), the ref it resolved (`github-ref`) and the tree it copied (`github-tree-sha`). Nothing else is written — the installed files are the record.
 
@@ -58,7 +61,7 @@ The entry point resolves a gate name against the manifest's `gates` record, and 
 `status` reports and exits non-zero when any of these is untrue:
 
 1. **The installed set equals the manifest.** A manifest skill with no directory is missing; a directory with a `SKILL.md` that no manifest entry names is unlisted.
-2. **Each skill sits at the pinned revision, read from the installed file.** The manager reads the `metadata:` block out of the installed `SKILL.md` and compares the ref it names against the manifest's `revision`. A file with no such block was not put there by an install, so it is reported by name as not being an install of the pin rather than passed as agreement.
+2. **Each skill sits at the manager's revision, read from the installed file.** The manager reads the `metadata:` block out of every installed `SKILL.md` and compares the ref it names against the ref the manager's own installed `SKILL.md` carries. The comparison is local and reads no network. A skill with no such block was not put there by an install, so it is reported by name as not being an install of the pin rather than passed as agreement, and a manager with no metadata is itself a finding — the set then has no pin to compare against.
 3. **The entry point is present**, so a documented command resolves at all.
 
 `status` changes nothing. It is the check to run before a push that touches an instruction file, and the reason a stale deployment is a finding rather than a silent condition.
@@ -74,9 +77,9 @@ The entry point resolves a gate name against the manifest's `gates` record, and 
 ## Files
 
 - `scripts/dsh-spec.ts` — the one entry point. It reconciles the recorded gate names against the scripts beside it, resolves a command and its verb, assembles each check's scope through the module that owns that surface, dispatches through a bounded pool, and reports one line per check.
-- `scripts/manager.ts` — the deployment: `install`, `upgrade`, `uninstall` and `status`, plus the revision index, the incremental copy and the prune. Zero external dependencies, run through `node`.
+- `scripts/manager.ts` — the deployment: `install`, `upgrade`, `uninstall` and `status`, plus the target-ref resolution, the self-update and re-execution behind `upgrade`, the incremental copy and the prune. Zero external dependencies, run through `node`.
 - `scripts/init-agents-md.ts` — the initializer `install` runs: what it creates, what it never overwrites, and the managed text it syncs. [`manager-install.md`](manager-install.md) is its subject.
-- `references/manifest.json` — the authority described above: the skills, the pinned revision, the gates, and each gate's scope.
+- `references/manifest.json` — the authority described above: the skills, the gates, and each gate's scope. It names no revision.
 - `scripts/manifest.ts` — reads that file: its path, the recorded gate names with their grammar, and the per-gate scope record.
 - `scripts/gate-scope.ts` — the scope contract: the gate's own selection kind, the argument grammar, the dispatcher's expansion of a surface, and the ownership question `check --base` asks of every changed path.
 - `scripts/change-scope.ts` — the ported change report behind `check --base`.

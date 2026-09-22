@@ -19,9 +19,9 @@ The GitHub CLI ships an agent skill of its own; browse [its repository](https://
 
 ## Install
 
-Install into the project, not into your home directory, and commit the result. A project-scoped copy is pinned by the project's manifest, so every collaborator, every agent and CI run the same revision; a user-scoped one stays on each machine and moves with the next `gh skill update`. Commit `AGENTS.md`, `.agents/`, `docs/` and `.rgignore` after the first install.
+Install into the project, not into your home directory, and commit the result. The ref you install the manager from becomes the pin for every other skill, so a project-scoped copy puts every collaborator, every agent and CI run on that one revision; a user-scoped one stays on each machine and moves with the next `gh skill update`. Commit `AGENTS.md`, `.agents/`, `docs/` and `.rgignore` after the first install.
 
-You install the manager yourself; it installs the other seven.
+You install the manager yourself; it installs the other seven. Pass `--revision <ref>` to install the manager at a branch or an older release instead of its latest published one.
 
 ### Install by hand
 
@@ -30,7 +30,7 @@ gh skill install sunandsunshine-tech/dsh-spec dsh-spec-manager@latest --dir .age
 node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts install --root .
 ```
 
-The first command fetches the manager. The second installs the rest of the set at the same revision and creates the files this project needs — the standing orders, the decision-record tree, and the vocabulary table. Add `--dry-run` to see the plan first; run `status` afterwards to confirm the set.
+The first command fetches the manager at the revision you name — `latest`, a branch, or a tag. The second installs the rest of the set at the ref the manager was installed from, and creates the files this project needs: the standing orders, the decision-record tree, and the vocabulary table. Add `--dry-run` to see the plan first, including which files would be added, changed or removed; run `status` afterwards to confirm the set.
 
 ### Install with an agent
 
@@ -79,18 +79,20 @@ Give your agent these instructions:
 
 ## Refreshing the installed set
 
-The set is pinned by the manifest's `revision`, and an install reads that revision rather than the working tree, so push the source change first:
+The set follows the manager: every skill carries the ref the manager itself was installed from, and an install reads the remote ref rather than the working tree, so push the source change first. `upgrade` resolves the target revision, refreshes the manager when it names a different ref, and then re-runs the freshly installed copy to deploy the set at it:
 
 ```sh
 node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts upgrade --root .
 ```
+
+`upgrade --only-skill-set` is the half without the self-update: it installs the set at the manager's current ref. In a source tree, such as this repository, run `upgrade --revision <current-branch>`: a bare `upgrade` there has no installed manager ref to read and resolves the latest published release instead.
 
 What that command does to each skill, and what `install`, `status` and `uninstall` add, is in [`manager-lifecycle.md`](skills/dsh-spec-manager/references/manager-lifecycle.md).
 
 ## Read next
 
 - [`AGENTS.md`](AGENTS.md) — the rules that hold in every session, and the commands this repository actually runs.
-- [`skills/dsh-spec-manager/SKILL.md`](skills/dsh-spec-manager/SKILL.md) — the collection's entry; the other seven skills sit beside it.
+- [`skills/dsh-spec-manager/SKILL.md`](skills/dsh-spec-manager/SKILL.md) — the skill set's entry; the other seven skills sit beside it.
 - [`.agents/dsh-spec/notes/README.md`](.agents/dsh-spec/notes/README.md) — the decision-record contract, which is the pattern describing itself.
 
 ## License

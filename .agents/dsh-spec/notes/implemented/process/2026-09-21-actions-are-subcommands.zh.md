@@ -41,7 +41,7 @@ Status: implemented
 
 ## Testing
 
-功能套件按动词选择,并把紧随其后的拒绝一并钉住:名词缺动词、`check` 缺选区、操作旗标、以及文法移除的命令都以 2 退出并给出提示,而每个动词自己的帮助点名它自己的旗标。`references/cli.md` 由 `--help en --markdown` 渲染,参考页与屏幕因此不可能各走各的。
+功能套件按动词选择,并把紧随其后的拒绝一并 pin 住:名词缺动词、`check` 缺选区、操作旗标、以及文法移除的命令都以 2 退出并给出提示,而每个动词自己的帮助点名它自己的旗标。`references/cli.md` 由 `--help en --markdown` 渲染,参考页与屏幕因此不可能各走各的。
 
 ## Alternatives considered
 

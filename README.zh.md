@@ -19,9 +19,9 @@ GitHub CLI 也自带 agent 技能,去[它的仓库](https://github.com/cli/cli)�
 
 ## 安装
 
-装到项目里,不要装到家目录,并把结果提交进 git。装在项目里,技能集由项目的 manifest 钉住修订,每个协作者、每个 agent、CI 用的都是同一套;装到用户级则只存在于各自机器上,下一次 `gh skill update` 就各走各的。首次安装后请提交 `AGENTS.md`、`.agents/`、`docs/` 和 `.rgignore`。
+装到项目里,不要装到家目录,并把结果提交进 git。你装 manager 用的那个 ref,就是其余每个技能的 pin;装在项目里因此让每个协作者、每个 agent、CI 都停在那同一个修订上;装到用户级则只存在于各自机器上,下一次 `gh skill update` 就各走各的。首次安装后请提交 `AGENTS.md`、`.agents/`、`docs/` 和 `.rgignore`。
 
-manager 需要你亲手装,其余七个由它装。
+manager 需要你亲手装,其余七个由它装。想装某条分支或某个旧版本而不是最新已发布版本,给 `gh skill install` 传 `--revision <ref>`。
 
 ### 手动安装
 
@@ -30,7 +30,7 @@ gh skill install sunandsunshine-tech/dsh-spec dsh-spec-manager@latest --dir .age
 node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts install --root .
 ```
 
-第一条命令取回 manager;第二条按同一个修订装上其余技能,并在项目里建起需要的文件——常设指令、决策记录树、术语表。想先看计划就加 `--dry-run`;装完可以用 `status` 确认。
+第一条命令按你给的修订取回 manager —— `latest`、某条分支或某个 tag。第二条按 manager 被安装时所用的 ref 装上其余技能,并在项目里建起需要的文件:常驻指令(standing orders)、决策记录树、术语表。想先看计划就加 `--dry-run`,它会列出哪些文件会新增、修改或删除;装完可以用 `status` 确认。
 
 ### 让 agent 安装
 
@@ -75,15 +75,17 @@ node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts install --root .
 | `docs/` | 写给人看的页面,包括两种语言共用的术语表;这个目录不受任何机制管辖 |
 | `scripts/` | 只属于本仓库、不随包发布的东西:[`verify-skill-structure.ts`](scripts/verify-skill-structure.ts)、出处登记表与出处门禁,以及 `ports` 对照命令 |
 | `tests/` | 检验这些检查自身的功能套件 —— `node --test 'tests/**/*.test.ts'` |
-| `submodules/dsh/` | 这套做法的来源,钉住作为对照基线:可以读,不要改 |
+| `submodules/dsh/` | 这套做法的来源,pin 作为对照基线:可以读,不要改 |
 
 ## 刷新安装集
 
-技能集合钉在 manifest 的 `revision` 上,而安装读的是那个修订、不是工作树,所以先把源码推上去:
+技能集合跟随 manager:每个技能都带着 manager 自己被安装时所用的 ref,而安装读的是远端 ref、不是工作树,所以先把源码推上去。`upgrade` 解析目标修订,在它命名了不同的 ref 时先刷新 manager,然后重新运行刚装好的那份,把技能集合装到该修订上:
 
 ```sh
 node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts upgrade --root .
 ```
+
+`upgrade --only-skill-set` 是不带自更新的那一半:它按 manager 当前的 ref 安装技能集合。在源码树里(比如本仓库)要跑 `upgrade --revision <当前分支>`:那里跑裸 `upgrade` 没有可读的 manager 已安装 ref,会退而解析最新已发布 release。
 
 这条命令对每个技能做了什么,`install`、`status`、`uninstall` 又各管什么,见 [`manager-lifecycle.md`](skills/dsh-spec-manager/references/manager-lifecycle.md)。
 

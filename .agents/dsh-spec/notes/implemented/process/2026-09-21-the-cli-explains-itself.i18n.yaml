@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-cli-explains-itself.md
-2026-09-21-the-cli-explains-itself.md: ecd249e075dc4bb0caeeba8c3b232461fd4caed0
-2026-09-21-the-cli-explains-itself.zh.md: cfdf60156b461202f857b5ac30ef52ad93e3a97d
+2026-09-21-the-cli-explains-itself.md: a46be5049c52a45bdeba27ac1d983355a3dc3685
+2026-09-21-the-cli-explains-itself.zh.md: b9316d996f2f640c1563a8042cc7ea0929b3b2f0

@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-frontmatter-has-no-owner-in-an-adopted-project.md
-2026-09-21-frontmatter-has-no-owner-in-an-adopted-project.md: d3b30dc4cf2002db26cca9fe8dfcb22d133a7108
-2026-09-21-frontmatter-has-no-owner-in-an-adopted-project.zh.md: a9db523ecf9b09a656643566bdfc7af35d017ba3
+2026-09-21-frontmatter-has-no-owner-in-an-adopted-project.md: 83598ac0ef1d8079ed0a2eee4a5cbfe37fd8769c
+2026-09-21-frontmatter-has-no-owner-in-an-adopted-project.zh.md: 953eaf42bed81eabb186ecfbf0d92a6ceeccdcdf

@@ -16,7 +16,7 @@ The initializer now **stops at a nested repository**: a directory holding `.git`
 
 Running it here wrote exactly one thing — the marked Agent Note section appended to `AGENTS.md` — and the now-duplicated bullet in `## Conventions` was deleted in the same change, so the rule has one home. A re-run is a no-op: the marker suppresses the append.
 
-The injected section itself was corrected. It had told a project to run the gates from `.agents/dsh-spec/notes/scripts/`, a directory that no longer receives them; it now names the dispatcher under `.agents/skills/`, which is where an installed collection puts the command that resolves a gate by name.
+The injected section itself was corrected. It had told a project to run the gates from `.agents/dsh-spec/notes/scripts/`, a directory that no longer receives them; it now names the dispatcher under `.agents/skills/`, which is where an installed skill set puts the command that resolves a gate by name.
 
 `dsh-spec-init.md` and `SKILL.md` carried the same stale model — gates created under the notes tree, and three template names that do not exist. Both are corrected.
 
@@ -34,4 +34,4 @@ The initializer's report on this repository is one line about the root file and 
 
 Its scan no longer reaches into any nested repository, which also means a project that vendors a second checkout will not see that checkout's instructions. That is the intent: those files are read by whoever owns that repository, in that repository.
 
-Step 5 of the initializer's workflow — adapting the deployed Agent Note contract, which still points at three decision records that exist only upstream — is **not** done. It needs a maintainer's decision between writing equivalents here and pointing at the collection, and inventing either would put a rationale in the contract that nobody wrote. The documentation tree it also named is no longer part of the initializer's job at all: [Four mechanisms instead of twelve](2026-09-18-four-mechanisms-instead-of-twelve.md) deletes the mechanism, so `docs/` is a folder nothing manages.
+Step 5 of the initializer's workflow — adapting the deployed Agent Note contract, which still points at three decision records that exist only upstream — is **not** done. It needs a maintainer's decision between writing equivalents here and pointing at the skill set, and inventing either would put a rationale in the contract that nobody wrote. The documentation tree it also named is no longer part of the initializer's job at all: [Four mechanisms instead of twelve](2026-09-18-four-mechanisms-instead-of-twelve.md) deletes the mechanism, so `docs/` is a folder nothing manages.

@@ -16,9 +16,9 @@ The per-skill READMEs are removed, and the root README carries one table naming 
 
 **Keep them, and accept the duplication.** They were the human door: a person who opened one skill directory could judge it without reading the repository. It lost because the overview's home is the set, not the skill — a reader comparing skills needs them side by side, and eight copies of that comparison drift.
 
-**Keep only the manager's README.** That is the source project's shape, and the manager is the entry to the collection. It lost because the manager introduces the *package*, not the eight workflows: a reader asking "which of these does review evidence?" learns nothing from it, and its own contents were mostly the root README's material a second time.
+**Keep only the manager's README.** That is the source project's shape, and the manager is the entry to the skill set. It lost because the manager introduces the *package*, not the eight workflows: a reader asking "which of these does review evidence?" learns nothing from it, and its own contents were mostly the root README's material a second time.
 
-**Move the per-skill introduction into each `SKILL.md`.** One file per skill, no extra document. It lost because `SKILL.md` is written for an agent deciding whether to load the skill, and a person deciding whether the collection is worth adopting reads a different document; the entry also already has a job — routing and triggering.
+**Move the per-skill introduction into each `SKILL.md`.** One file per skill, no extra document. It lost because `SKILL.md` is written for an agent deciding whether to load the skill, and a person deciding whether the skill set is worth adopting reads a different document; the entry also already has a job — routing and triggering.
 
 ## Consequences
 

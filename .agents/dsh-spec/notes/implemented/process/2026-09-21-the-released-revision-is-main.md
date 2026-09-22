@@ -12,7 +12,7 @@ Releasing 0.1.0 raised the question the pin had deferred: should the released li
 
 ## Decision
 
-**The manifest pins `main`.** `"revision": "main"` is what a project installs from, what a refresh fetches, and what `status` compares an installed `refs/heads/main` against.
+**The manifest pins `main`.** `"revision": "main"` is what a project installs from, what a refresh fetches, and what `status` compares an installed `refs/heads/main` against. [The manager's own install is the pin](2026-09-21-the-manager-s-own-install-is-the-pin.md) later removed that field and moved the pin to the ref the installer wrote into the manager, which keeps this decision's answer — the released line is `main` — while a project names a branch with `--revision` instead of editing a manifest it does not own.
 
 **The tag is the human-facing marker, not the pin.** `v0.1.0` names the release — the tag, its notes and the draft release — while installs follow the released line. The two answer different questions: a tag says which commit was released, the branch says where the released line is.
 
@@ -20,7 +20,7 @@ Releasing 0.1.0 raised the question the pin had deferred: should the released li
 
 ## Alternatives considered
 
-**Pin the tag, `v0.1.0`, the way dsh pins `dsh-v0.1.6-alpha.2`.** The extraction's own baseline does exactly this, and an immutable pin is the stronger guarantee: a tag cannot move under an installer. It lost because it turns every release into a manifest change plus a re-install in every project, while this collection is young enough that the released line is still the trunk. The tag stays as the release marker, and moving the pin to it later is one line and one refresh.
+**Pin the tag, `v0.1.0`, the way dsh pins `dsh-v0.1.6-alpha.2`.** The extraction's own baseline does exactly this, and an immutable pin is the stronger guarantee: a tag cannot move under an installer. It lost because it turns every release into a manifest change plus a re-install in every project, while this skill set is young enough that the released line is still the trunk. The tag stays as the release marker, and moving the pin to it later is one line and one refresh.
 
 **Pin the commit the release targets.** The most reproducible of the three, and what dsh records in `targetCommitish`. It lost for the same reason as the tag, and it costs readability: a project reading its own instruction file cannot tell what a bare sha names, while `main` says which line it follows.
 
@@ -30,7 +30,7 @@ Releasing 0.1.0 raised the question the pin had deferred: should the released li
 
 **What it bought.** One name answers "where does an install come from", and it is the branch a reader already treats as current. The release becomes a marker rather than a migration, so tagging 0.1.0 changes no install.
 
-**What it costs.** The pin moves: a project that refreshes after an unreleased change lands on `main` takes that change, where a tag pin would not have. That is the trade this decision makes deliberately while the collection is young, and the alternatives above are the escape hatch.
+**What it costs.** The pin moves: a project that refreshes after an unreleased change lands on `main` takes that change, where a tag pin would not have. That is the trade this decision makes deliberately while the skill set is young, and the alternatives above are the escape hatch.
 
 **What it obliges.** The installed copy in this repository must be refreshed from `main` after the merge, because its injected `github-ref` still names `extract`. Until that refresh lands, `status` reports the drift it is designed to report.
 

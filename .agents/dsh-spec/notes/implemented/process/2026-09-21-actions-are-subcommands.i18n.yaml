@@ -3,4 +3,4 @@
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-actions-are-subcommands.md
 2026-09-21-actions-are-subcommands.md: 39136c519da056bcf89ce72d9c2eea2d606aaeff
-2026-09-21-actions-are-subcommands.zh.md: a191f010477e92e47aac053d8dfe9cb2e0a1c541
+2026-09-21-actions-are-subcommands.zh.md: c06ef11c012b7c92afbe41bebec187a3188f2cc6

@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-note-trigger-follows-dsh.md
-2026-09-21-the-note-trigger-follows-dsh.md: 99a1a14ec9720702fe63d01dbbb04f8502cbbe7e
-2026-09-21-the-note-trigger-follows-dsh.zh.md: a8e36f071a3b63d64f3f43588e33c9058b9ff81e
+2026-09-21-the-note-trigger-follows-dsh.md: 39a6a5cc0189edba8d0fe72147f48889077ad806
+2026-09-21-the-note-trigger-follows-dsh.zh.md: e31aa0f60bb7b1b2c414edb4992ff0e3bd3b754d
