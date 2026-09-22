@@ -17,7 +17,7 @@ node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts install --root <project
 | `.agents/dsh-spec/notes/archived/{class}/` | The frozen archive's kind directories |
 | `docs/terminology.md` | The vocabulary table the translation briefing reads, released with its columns and rules and **no rows** |
 | `docs/AGENTS.md` | The orders that govern that table |
-| `.rgignore` | The archive's search exclusion |
+| `.rgignore` | The search exclusions: the frozen archive, and the vendored bundle a search should not read as prose |
 
 `upgrade` syncs the same files' text and creates none of them, so what a project deleted on purpose stays deleted.
 

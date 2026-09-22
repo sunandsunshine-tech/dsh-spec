@@ -1,3 +1,7 @@
 # Frozen Agent Notes are historical snapshots, not current search authority: a recursive
 # search must not mix them into active decisions. Name the directory explicitly to read one.
 /.agents/dsh-spec/notes/archived/
+
+# The vendored Markdown parser is generated code, not authored prose. Read it only when
+# changing what a gate parses; a search that wants it can name the file.
+vendor-mdast*
