@@ -2,9 +2,9 @@
 description: Use when auditing or fixing prose that reads like a leaked reasoning transcript — dead design-session citations such as (decision N), audit item codes, or §N of uncommitted drafts; change narration such as "used to", "no longer", "this cut"; stack or review vantage ("a later PR in this stack", "rejected in review"); reviewer-addressed justifications; control-flow narration; or hedged planning residue in comments, API documentation, docs, or decision records.
 metadata:
     github-path: skills/dsh-trim-cot-leakage
-    github-ref: refs/heads/fix/zh-counterpart-format
+    github-ref: refs/heads/refactor/no-rg-dependency
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: a6bb53305a55d2f5762d219cc0bcc47e12bb2dba
+    github-tree-sha: 297d604f2c6993e3a42a9c60eef91bbaf03ae4ef
 name: dsh-trim-cot-leakage
 ---
 # Trimming Chain-of-Thought Leakage
