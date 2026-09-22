@@ -2,6 +2,8 @@
 
 [English](README.md) | 中文
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) ![Node](https://img.shields.io/badge/node-%E2%89%A5%2022.19-339933)
+
 给项目一个固定的地方,存放每次改动都得交代的东西:当初为什么这么定、放弃了什么、拿什么来证明。本仓库把 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 团队日常遵循的这套做法抽取出来,做成八个技能加一个引擎:项目装上它,从同一个修订运行它、更新它。
 
 其中两个技能会伸进项目自己的树里:一份决策记录的约定,和一份由项目挑着用的开发规范目录。其余几个是改动要经过的工作流:散文、评审、推送前检查、翻译。
