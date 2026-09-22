@@ -81,6 +81,11 @@ Node ≥ 22.19 or ≥ 24 is the only requirement: the engine is TypeScript that 
 
 - **Every skill change traces to dsh.** The package is an extraction, so a change either mirrors a change upstream or is recorded as a deliberate deviation.
 - **This file holds what an agent needs every session; the document that owns a rationale holds the rest.** A rule that needs a scan or a person to establish is linked, never restated here.
+- **Write each side of a pair in its own language's idiom.** The pairing gate checks structure; it
+  cannot check that a sentence was carried over with the other side's syntax, and such a sentence
+  reads as machine translation to the reader it was written for. Say it the way that language
+  says it, and let the structure be the constraint rather than the wording.
+  [The prose standard](skills/dsh-prose-standard/SKILL.md) owns what each kind of prose owes.
 - **Derive a path from its owner; never hardcode it twice.** Two regressions in this package came from a path that had one owner and two literals.
 
 ## Documentation
