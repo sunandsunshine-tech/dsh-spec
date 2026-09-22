@@ -66,6 +66,22 @@ test('a note missing a required section fails', (t) => {
   assert.equal(result.status, 1, result.output)
 })
 
+test('a Chinese counterpart is skipped by the format grammar', (t) => {
+  const fixture = makeFixture()
+  t.after(() => fixture.dispose())
+  writeNote(fixture, '2026-01-01-a-first-decision.md')
+  // The counterpart carries its own section names, and here it is missing the ones the English
+  // grammar requires: the pairing gate owns its structure, so this gate must read neither.
+  const counterpart = `${NOTES}/implemented/process/2026-01-01-a-first-decision.zh.md`
+  fixture.write(counterpart, '# Agent Note: 一个决定\n\nStatus: implemented\n\n## 问题\n\n某件事需要决定。\n\n## 决策\n\n就这样定了。\n')
+
+  const result = runCli(fixture.root, ['notes', 'check', counterpart])
+
+  assert.equal(result.status, 0, result.output)
+  assert.match(result.output, /Chinese counterpart\(s\) skipped/)
+  assert.match(result.output, /pairing gate checks the pair's structure/)
+})
+
 test('a status that contradicts its lifecycle folder fails', (t) => {
   const fixture = makeFixture()
   t.after(() => fixture.dispose())
