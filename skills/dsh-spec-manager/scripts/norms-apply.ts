@@ -29,7 +29,7 @@ import type { NormsCatalog, NormsLanguage } from './norms.ts'
 
 /** The file a project reads, and the record beside it. */
 export const NORMS_DIR = join('.agents', 'dsh-spec', 'norms')
-export const NORMS_FILE = join(NORMS_DIR, 'README.md')
+export const NORMS_FILE = join(NORMS_DIR, 'norms.md')
 export const NORMS_RECORD = join(NORMS_DIR, 'applied.yaml')
 
 /** The end marker of one block; the start marker is built from the id. */
@@ -454,9 +454,9 @@ export const NORMS_HOOK_END = '<!-- /dsh-spec:norms -->'
 /**
  * The `AGENTS.md` section a project carries only while it applies norms.
  *
- * A hook is not a rule: it says where the rules are and what keeps them honest, so a session that
- * starts long after the install still finds them. It is rendered from the same place a rule is, so
- * there is one statement of it rather than two.
+ * A hook is not a rule: it says that the rules exist, where they are, and how far they reach, so
+ * a session that starts long after the install still reads them. It is rendered from the same place
+ * a rule is, so there is one statement of it rather than two.
  *
  * @returns the section text, markers included, newline-terminated.
  */
@@ -464,7 +464,7 @@ export function normsHookSection(): string {
   return `${NORMS_HOOK_START}
 ## Norms this project applies
 
-\`${NORMS_FILE}\` holds the norms this project chose from the skill set: one section per group, one rule per marked block. Read the ones covering the work in hand before changing code, tests or prose. \`norms list\` shows what the set offers, \`norms update\` brings the applied rules up to the installed revision, and \`norms explain <id>\` reads why one exists. A rule this project edited is kept and reported rather than overwritten.
+\`${NORMS_FILE}\` holds the norms this project applies: one section per group, one rule per marked block. They govern every task here, not only changes to files — read the ones covering the work in hand before starting it.
 
 ${NORMS_HOOK_END}
 `
