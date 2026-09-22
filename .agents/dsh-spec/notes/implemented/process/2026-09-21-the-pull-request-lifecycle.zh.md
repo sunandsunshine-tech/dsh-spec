@@ -16,7 +16,7 @@ Status: implemented
 
 一个 PR 按顺序走过五个阶段——WIP、开发、收尾、评审与合并前收尾、合并——每个阶段有一条规则。
 
-**WIP 期是自由的。** 在做的工作是一个 GitHub 草稿 PR，或者在草稿不可用时标题带 `WIP:` 前缀——在一个检查通过就随时可合并的项目里，这是标记未完成 PR 的两种机制（[kubernetes/community：pull-requests.md](https://github.com/kubernetes/community/blob/main/contributors/guide/pull-requests.md)）。这个阶段的提交就是工作态：rebase、改写、丢弃、强推分支。还没有任何东西依赖它们的形状。
+**WIP 期是自由的，标题要写明。** 在做的工作是草稿 PR，**并且**标题带 `WIP:` 前缀：草稿是机制，前缀让扫列表的人一眼看到（[kubernetes/community：pull-requests.md](https://github.com/kubernetes/community/blob/main/contributors/guide/pull-requests.md)会往标题加上或去掉 `WIP` 或 `[WIP]` 前缀；[GitLab 的 draft merge requests](https://docs.gitlab.com/user/project/merge_requests/drafts/)只认前缀，而且必须在标题开头）。wrap-up 时这个前缀要删掉，因为标题会变成 squash 提交的 subject。这个阶段的提交就是工作态：rebase、改写、丢弃、强推分支。还没有任何东西依赖它们的形式。
 
 **开发在收尾结束。** 进入评审之前，分支被交互式rebase 成里程碑——一个连贯的工作单元一个提交，顺序让评审者能读下去——并且留下的每个提交都是自己就能构建、能通过检查的状态，于是没有评审者会落到一个坏掉的中间态上。
 
