@@ -7,7 +7,7 @@
  */
 
 import assert from 'node:assert/strict'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { test } from 'node:test'
 import { spawnSync } from 'node:child_process'
@@ -65,6 +65,20 @@ test('every ported file names its upstream path and sha in its header', () => {
     const header = readFileSync(path, 'utf8').split('\n').slice(0, 40).join('\n')
     assert.match(header, new RegExp(entry.upstream.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `${entry.local} does not name ${entry.upstream} in its header`)
     assert.match(header, new RegExp(entry.sha), `${entry.local} does not name ${entry.sha} in its header`)
+  }
+})
+
+test('every provenance header in the engine directory is recorded', () => {
+  const ports = readPorts()
+  const recorded = new Set(ports.ports.map(entry => entry.local))
+  const engineDirectory = join(REPO_ROOT, 'skills', 'dsh-spec-manager', 'scripts')
+  const claimants = readdirSync(engineDirectory)
+    .filter(name => name.endsWith('.ts'))
+    .filter(name => /\bPorted from dsh\b/.test(readFileSync(join(engineDirectory, name), 'utf8').split('\n').slice(0, 40).join('\n')))
+
+  assert.ok(claimants.length > 0, 'no engine file names a dsh origin — this case would pass on an empty corpus')
+  for (const name of claimants) {
+    assert.ok(recorded.has(name), `${name} claims a dsh origin in its header but scripts/ports.json does not record it`)
   }
 })
 
