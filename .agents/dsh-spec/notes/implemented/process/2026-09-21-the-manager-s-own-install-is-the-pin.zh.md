@@ -18,7 +18,7 @@ manifest 声明了每个技能来自哪个修订,而项目改不了它:`manifest
 
 **技能集合按 manager 自己的 ref 安装。** `install` 与 `upgrade --only-skill-set` 从已安装的 `dsh-spec-manager/SKILL.md` 读出 `metadata.github-ref`,按它安装其余技能,并把 `refs/heads/` 或 `refs/tags/` 前缀去掉作为短名。这就是一次安装已经交付的那个 ref。从未安装过的源码树没有这份元数据,在那里这一对动作回退到上面的两级解析。
 
-**`upgrade` 是一次自更新,后面接技能集合。** 它先解析目标;manager 当前的 ref 与目标不同时,用 `gh skill install <repo> dsh-spec-manager@<target> --dir <skillsDir> --force` 自更新 manager;然后以 `upgrade --only-skill-set --revision <target> --root <root>` 重新执行刚安装好的分发器;退出码用的是那次重新执行的退出码,所以旧代码不会把新 manager 该做的活干完。比 `--only-skill-set` 更老的替换副本没法被指定目标——它自己跑就会按它 pin 的 ref 装集合,那不是本次解析出的修订——所以不跑它:改由被调用的这份副本装集合,技能清单取自替换副本随包发布的 manifest,两半都不会落空。
+**`upgrade` 是一次自更新,后面接技能集合。** 它先解析目标;manager 当前的 ref 与目标不同时,用 `gh skill install <repo> dsh-spec-manager@<target> --dir <skillsDir> --force` 自更新 manager;然后以 `upgrade --only-skill-set --revision <target> --root <root>` 重新执行刚安装好的分发器;退出码用的是那次重新执行的退出码,所以旧代码不会把新 manager 该做的活干完。比 `--only-skill-set` 更老的替换副本没法被指定目标——它自己跑就会按它 pin 的 ref 装技能集合,那不是本次解析出的修订——所以不跑它:改由被调用的这份副本装技能集合,技能清单取自替换副本随包发布的 manifest,两半都不会落空。
 
 **`--only-skill-set` 是不带自更新的那一半。** 它按 manager 当前注入的 ref 安装技能集合,不为 manager 自身跑 `gh skill install`。
 

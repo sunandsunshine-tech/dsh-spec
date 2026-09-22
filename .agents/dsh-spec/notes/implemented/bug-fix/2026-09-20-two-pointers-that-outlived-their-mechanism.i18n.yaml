@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-20-two-pointers-that-outlived-their-mechanism.md
-2026-09-20-two-pointers-that-outlived-their-mechanism.md: 9f67be20d1baa9349f13b10cf33dd9484da3935e
-2026-09-20-two-pointers-that-outlived-their-mechanism.zh.md: a8c8df9191c12fce9d21bb8d77f009023fd13411
+2026-09-20-two-pointers-that-outlived-their-mechanism.md: 423049b4fd60d0727143161486cabe03d5cae8c3
+2026-09-20-two-pointers-that-outlived-their-mechanism.zh.md: 8a71009320c3b3b04aeefcb13d6a8399172cb23e

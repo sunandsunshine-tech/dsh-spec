@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-18-reference-gates-instead-of-releasing-them.md
-2026-09-18-reference-gates-instead-of-releasing-them.md: 55cfae6377de3a4862db90c6be4ee1b1f5eef960
-2026-09-18-reference-gates-instead-of-releasing-them.zh.md: 011208c11b3e04bdcb50e09b4d53fe096c8e6772
+2026-09-18-reference-gates-instead-of-releasing-them.md: bcc13d04e2958e4bc063b9448d15223a12ccda1e
+2026-09-18-reference-gates-instead-of-releasing-them.zh.md: 5ca74c23d6a91589a6c3dfb1fb0e648ab2bdec9a

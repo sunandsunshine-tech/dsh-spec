@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-18-drop-the-work-record.md
-2026-09-18-drop-the-work-record.md: 76fd068efe0f32830c2e58b3c247b4d52cd27050
-2026-09-18-drop-the-work-record.zh.md: 278defb87c9e5e00aab32495df24b0dc5e15ed4d
+2026-09-18-drop-the-work-record.md: d1b4ee874a024bf13a2a7e9cb146165e7521ba08
+2026-09-18-drop-the-work-record.zh.md: e4606d8e99c7fe98e1f6ef2de56856eab0c9448c

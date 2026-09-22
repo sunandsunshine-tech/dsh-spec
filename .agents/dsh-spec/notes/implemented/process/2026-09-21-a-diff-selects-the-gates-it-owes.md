@@ -8,7 +8,7 @@ English | [中文](2026-09-21-a-diff-selects-the-gates-it-owes.zh.md)
 
 ## Problem
 
-Every check this collection runs was addressed by name, so a contributor who changed one note had to know that three note gates exist, that the pairing gate reads the note too, and that the three Markdown gates do as well — or run the aggregate and wait through gates that cannot see the change. The pre-push skill carried that mapping as prose, which is a second statement of what each gate reads and drifts the moment a gate's scope changes.
+Every check this skill set runs was addressed by name, so a contributor who changed one note had to know that three note gates exist, that the pairing gate reads the note too, and that the three Markdown gates do as well — or run the aggregate and wait through gates that cannot see the change. The pre-push skill carried that mapping as prose, which is a second statement of what each gate reads and drifts the moment a gate's scope changes.
 
 ## Decision
 

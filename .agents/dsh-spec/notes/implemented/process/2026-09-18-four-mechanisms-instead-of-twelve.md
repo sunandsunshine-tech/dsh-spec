@@ -6,13 +6,13 @@ English | [中文](2026-09-18-four-mechanisms-instead-of-twelve.zh.md)
 
 ## Problem
 
-The collection's mechanisms had multiplied past what one person can hold: a document tier system with targets, ceilings and a ratchet; fifteen gates; a dispatcher, a manifest and a release record with per-file hashes; a thirteen-key ledger; bilingual triples for every note; postmortems; a diagram set. The maintainer reported that he could no longer see the design as a whole and that this blocked his decisions. That is itself the defect rather than a report about one: a mechanism nobody can hold in their head gets bypassed, and a bypassed mechanism still counts as coverage.
+The skill set's mechanisms had multiplied past what one person can hold: a document tier system with targets, ceilings and a ratchet; fifteen gates; a dispatcher, a manifest and a release record with per-file hashes; a thirteen-key ledger; bilingual triples for every note; postmortems; a diagram set. The maintainer reported that he could no longer see the design as a whole and that this blocked his decisions. That is itself the defect rather than a report about one: a mechanism nobody can hold in their head gets bypassed, and a bypassed mechanism still counts as coverage.
 
-Two causes stand separately. Most of the weight was machinery this repository invented rather than discipline it borrowed: dsh keeps its gates in the project and runs them from CI, while this collection ships generic gates into projects and therefore needs a dispatcher and a manifest to deliver them. And this repository has been bootstrapping — designing the mechanism and using it on itself in the same weeks, against its own source — which is the worst sample for judging weight, because much of what was visible was scaffolding rather than structure.
+Two causes stand separately. Most of the weight was machinery this repository invented rather than discipline it borrowed: dsh keeps its gates in the project and runs them from CI, while this skill set ships generic gates into projects and therefore needs a dispatcher and a manifest to deliver them. And this repository has been bootstrapping — designing the mechanism and using it on itself in the same weeks, against its own source — which is the worst sample for judging weight, because much of what was visible was scaffolding rather than structure.
 
 ## Decision
 
-**The collection keeps four mechanisms and cuts the rest.**
+**The skill set keeps four mechanisms and cuts the rest.**
 
 1. **Notes are the only decision record.** The tree, the classes, the lifecycle, the in-file format and the three gates that keep them honest stay. A postmortem folds into the notes' `bug-fix` class rather than remaining a second narrative tier.
 2. **Code architecture bounds perception.** A module directory is a bounded context: its README states its contract, its tests state its behavior, and nothing else needs reading to change it.
@@ -23,7 +23,7 @@ Two causes stand separately. Most of the weight was machinery this repository in
 
 | Skill | What it owns |
 |---|---|
-| [`dsh-spec-manager`](../../../../../skills/dsh-spec-manager/SKILL.md) | Project initialization, the manifest, install/update/uninstall at one revision, the collection's one code home — every gate and the dispatcher that resolves one recorded name against the engine directory beside it — and the aggregate command that runs every recorded gate |
+| [`dsh-spec-manager`](../../../../../skills/dsh-spec-manager/SKILL.md) | Project initialization, the manifest, install/update/uninstall at one revision, the skill set's one code home — every gate and the dispatcher that resolves one recorded name against the engine directory beside it — and the aggregate command that runs every recorded gate |
 | [`dsh-archive-agent-notes`](../../../../../skills/dsh-archive-agent-notes/SKILL.md) | The note contract and its three gates: classification, in-file format, and the frozen archive |
 | [`dsh-translate-docs`](../../../../../skills/dsh-translate-docs/SKILL.md) | The bilingual pairing contract and its gate, on the self-declaring pair rule |
 | [`dsh-pre-push-checks`](../../../../../skills/dsh-pre-push-checks/SKILL.md) | Which evidence an outgoing diff must carry, selected from the recorded gates |
@@ -43,20 +43,20 @@ Two causes stand separately. Most of the weight was machinery this repository in
 
 **Eight is a decision, not a remainder.** Every skill that stays keeps its name and its trigger description, because each still owns a distinct subject; the four above each owned a mechanism this decision removes.
 
-### One code home for the collection
+### One code home for the skill set
 
 **Every gate lives in `dsh-spec-manager/scripts/`, and the other skills ship no code at all.** The three skills that used to carry their own gates — `dsh-archive-agent-notes`, `dsh-prose-standard` and `dsh-translate-docs` — keep their `SKILL.md` and their `references/`, and their scripts moved into the manager with no change but the import specifiers the move itself required. One directory now holds every gate, the dispatcher that resolves a recorded gate name, and the modules they all import, and `references/manifest.json` shrank to match: it decides the skills to install and the recorded list of gate names, and nothing else. It no longer maps a gate to an owner, because with one code home a gate has exactly one possible owner.
 
-**This trades per-skill self-containment for one place to change.** The trade is deliberate. The dependency on the manager was already strong — every gate imported its repository walker, notes root, i18n scope and Markdown parser, and the dispatcher that ran them sat in its directory — so the self-containment was only apparent: a skill could not be read, run or repaired on its own while the layout still implied it could, and every new gate paid for the appearance with another path to reason about. What is given up is the claim that a skill directory can be lifted out of the set. **The premise is that the set installs together: installing one skill alone is not supported.** A project takes the whole manifest at one revision through the manager, and a skill separated from the collection loses its checks rather than keeping them.
+**This trades per-skill self-containment for one place to change.** The trade is deliberate. The dependency on the manager was already strong — every gate imported its repository walker, notes root, i18n scope and Markdown parser, and the dispatcher that ran them sat in its directory — so the self-containment was only apparent: a skill could not be read, run or repaired on its own while the layout still implied it could, and every new gate paid for the appearance with another path to reason about. What is given up is the claim that a skill directory can be lifted out of the set. **The premise is that the set installs together: installing one skill alone is not supported.** A project takes the whole manifest at one revision through the manager, and a skill separated from the skill set loses its checks rather than keeping them.
 
-**A gate's defect is the collection's defect.** The engine directory is not the manager's own workflow, and a bug in a gate belongs to that gate's subject rather than to project setup; the manager's `SKILL.md` and README say so where a reader meets the directory.
+**A gate's defect is the skill set's defect.** The engine directory is not the manager's own workflow, and a bug in a gate belongs to that gate's subject rather than to project setup; the manager's `SKILL.md` and README say so where a reader meets the directory.
 
 **Three fewer mechanisms, and the facts they held have owners that already exist.** The ledger is deleted with the templates that created it, the reader every gate imported and the gate that reported its open questions; a second key-value store beside the filesystem was a second place for one fact to live. The table below names every ledger question and where it is answered now:
 
 | Ledger question | Where it is answered |
 |---|---|
 | `notes` | The fixed path `.agents/dsh-spec/notes`, from the one literal `notes-root.ts` owns |
-| `notes-gates` | The fixed paths themselves: the notes tree above, and the collection's one code home, `.agents/skills/dsh-spec-manager/scripts/`, where every gate sits beside the dispatcher that addresses it by name |
+| `notes-gates` | The fixed paths themselves: the notes tree above, and the skill set's one code home, `.agents/skills/dsh-spec-manager/scripts/`, where every gate sits beside the dispatcher that addresses it by name |
 | `i18n-scope` | **Self-declaring**: a `.md` with a `.zh.md` sibling is a pair and its `.i18n.yaml` sidecar must match. The file's existence is the declaration, so the pairing gate reads no key |
 | `quality-gates` | The manifest, `references/manifest.json`, plus the aggregate `dsh-spec.ts check --all` |
 | `skill-refresh` | The manager's [`manager-lifecycle.md`](../../../../../skills/dsh-spec-manager/references/manager-lifecycle.md), with the command written out |
@@ -76,7 +76,7 @@ The tier table and its targets, ceilings and ratchet; the placement, tier, compo
 
 **`docs/` survives as an unmanaged folder.** What remains there is what a person wrote for people to read: no tier, no budget, no gate, and no instruction file of its own. Nothing is required to be there, and nothing there is checked.
 
-**`docs/terminology.md` keeps its consumer, and its path has one owner.** The translation briefing still matches changed spans against its rows, and that matching is what makes a briefing worth generating. The path is one literal in `i18n-scope.ts` that the briefing generator imports, so the table is read at its decided home and nowhere else, and the collection no longer ships a copy of it as a template.
+**`docs/terminology.md` keeps its consumer, and its path has one owner.** The translation briefing still matches changed spans against its rows, and that matching is what makes a briefing worth generating. The path is one literal in `i18n-scope.ts` that the briefing generator imports, so the table is read at its decided home and nowhere else, and the skill set no longer ships a copy of it as a template.
 
 **The initializer writes the agent instructions and the note tree, and no documentation tree.** The tier directories it used to create, the `docs-AGENTS.md` template it used to install, and the tier sentence in `AGENTS.md.template` are deleted with the mechanism. The rule that made the difference is recorded in [Never overwrite a file the initializer did not create](../bug-fix/2026-09-18-never-overwrite-a-file-the-initializer-did-not-create.md): the initializer overwrites nothing it did not write, and a write added beside existing writes inherits that rule from them.
 
@@ -98,7 +98,7 @@ The tier table and its targets, ceilings and ratchet; the placement, tier, compo
 | `Configure the gates from the ledger` | A gate's scope is a decision: documentation cannot fail, so a fixed path with a reason beats a configurable literal nobody re-reads; a gate reports what it skipped, grouped by the rule that skipped it |
 | `Human documentation is not agent material` | Prose written for a person and prose written for an agent obey different rules; imposing one on the other turns a deliberate design into a permanent violation, and the audience of a file is a decision rather than something a glob guesses |
 | `Read the frontmatter block` | Metadata is data to a parser and prose to a text pass; a corpus-wide edit must treat a fenced region as opaque, and its own lesson is recorded in [Treat frontmatter as a block, not as a paragraph](../bug-fix/2026-09-18-frontmatter-is-a-block-not-a-paragraph.md) |
-| `Extract the remaining workflow skills` | A skill is extracted when its subject is general, not when its code is; the collection's own workflow skills exist because a workflow with no owner becomes nobody's job |
+| `Extract the remaining workflow skills` | A skill is extracted when its subject is general, not when its code is; the skill set's own workflow skills exist because a workflow with no owner becomes nobody's job |
 | `Install a terminology table` | A template's rows are examples and a table's rows are decisions; a table full of another project's terms teaches a translator to reach for terms this project never writes; one lookup table per subject is a document with one owner |
 | `Restore the module-contract kind system` | A module README is the one document a reader arrives at without being sent there, which is why the surviving architecture mechanism requires one per module directory; a summary ceiling and a total ceiling answer different questions, and the kind derivation is separable from the templates that carried it |
 
@@ -112,9 +112,9 @@ The tier table and its targets, ceilings and ratchet; the placement, tier, compo
 
 **Keep the present shape.** The smallest change is no change, and every mechanism in the inventory worked. It lost on the evidence that produced this decision: the present shape is the state in which the maintainer cannot decide, so its cost is measured rather than projected.
 
-**Cut only the invented machinery and keep the document mechanism.** This keeps the part of the collection a reader is most likely to want and removes only what the repository built for itself. It lost because the document mechanism is the largest remaining second copy of facts the code already owns: the tier table, the placement check and the budget rows all restate what the file tree and the prose already say.
+**Cut only the invented machinery and keep the document mechanism.** This keeps the part of the skill set a reader is most likely to want and removes only what the repository built for itself. It lost because the document mechanism is the largest remaining second copy of facts the code already owns: the tier table, the placement check and the budget rows all restate what the file tree and the prose already say.
 
-**Return to dsh's exact shape, with the gates in the project and CI running them.** This is the shape the pattern was extracted from, and it needs no dispatcher, no manifest and no release record. It lost because this collection ships generic gates into other projects and cannot adopt it while it does — though it is the destination if the collection ever becomes one project's own tooling.
+**Return to dsh's exact shape, with the gates in the project and CI running them.** This is the shape the pattern was extracted from, and it needs no dispatcher, no manifest and no release record. It lost because this skill set ships generic gates into other projects and cannot adopt it while it does — though it is the destination if the skill set ever becomes one project's own tooling.
 
 **Keep the ledger and delete only the keys nothing reads.** This is the smallest cut that removes the dead weight, and it keeps one home for project facts. It lost because the surviving keys all had an owner already — a path, the manifest, a reference document, the standing orders — so the ledger would have become a copy of facts stated elsewhere, which is the failure the tier table demonstrates.
 
@@ -138,7 +138,7 @@ The tier table and its targets, ceilings and ratchet; the placement, tier, compo
 
 ## Consequences
 
-**One document answers what exists.** The root `README.md` states the surfaces, the owner of each, how a change flows and how to refresh the installed set; the root `AGENTS.md` carries the standing orders and routes; the manager's README stays the collection's introduction for the person who installs it. A newcomer reads those three and the README of the directory being changed.
+**One document answers what exists.** The root `README.md` states the surfaces, the owner of each, how a change flows and how to refresh the installed set; the root `AGENTS.md` carries the standing orders and routes; the manager's README stays the skill set's introduction for the person who installs it. A newcomer reads those three and the README of the directory being changed.
 
 **The check is one command, and the record decides what it runs.** `dsh-spec.ts check --all --root .` runs the checks asserted over a tree — the note classification, format and archive gates — and `references/manifest.json` records six gates in all: those three, the pairing gate, and the two Markdown gates for link targets and link syntax. The dispatcher reconciles the record against the `verify-*.ts` files beside it at startup and refuses to run when they disagree, so adding a gate means recording its name and adding its script in the same change, and a recorded gate whose file is gone fails the run instead of disappearing from it. [Actions are subcommands](2026-09-21-actions-are-subcommands.md) owns the shape of the command itself.
 

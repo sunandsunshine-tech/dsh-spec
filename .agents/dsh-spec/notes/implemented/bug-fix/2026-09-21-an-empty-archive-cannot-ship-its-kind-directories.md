@@ -21,7 +21,7 @@ run: 7 gate(s), 1 failed
 
 The gate's own empty-archive report says the opposite of its check: it prints `the archive is empty — 0 frozen artifact(s) to check ... no seal recorded yet` and exits 0 whenever the directories happen to be present, so the state it describes as consistent is exactly the state a clone cannot reproduce. The gap has no workaround a project can commit — `git add` cannot record the missing directories — so every fresh checkout, which is every collaborator and every CI job, would meet a failing aggregate until someone ran the initializer again.
 
-dsh carries the same unconditional loop. dsh's archive holds sealed notes, so no kind directory is ever empty there and the defect never surfaces; this collection is the first project to adopt the mechanism with an empty archive, which is what exposed it.
+dsh carries the same unconditional loop. dsh's archive holds sealed notes, so no kind directory is ever empty there and the defect never surfaces; this skill set is the first project to adopt the mechanism with an empty archive, which is what exposed it.
 
 ## Decision
 
@@ -33,11 +33,11 @@ dsh carries the same unconditional loop. dsh's archive holds sealed notes, so no
 
 **Track a placeholder file in each kind directory and teach the gate to ignore it.** The directories would survive a clone, and `.gitkeep` is the conventional spelling of that intent. It lost because the gate reads every regular file inside a kind directory as an archived artifact, so the placeholder would need a named exemption in the artifact reader, a second one in the seal, and a statement in the archive contract — three places to keep in step for a directory that carries no information when it is empty.
 
-**Have the initializer's `sync` mode recreate the missing directories.** One command already knows the six names, and running it after a clone would restore them. It lost because it moves the failure rather than removing it: the aggregate still fails on a fresh clone until someone runs the manager, and the documented promise is that a clone can run `--all` as it stands. It also puts a directory the gates require under a mode whose contract is to synchronize the text the collection owns.
+**Have the initializer's `sync` mode recreate the missing directories.** One command already knows the six names, and running it after a clone would restore them. It lost because it moves the failure rather than removing it: the aggregate still fails on a fresh clone until someone runs the manager, and the documented promise is that a clone can run `--all` as it stands. It also puts a directory the gates require under a mode whose contract is to synchronize the text the skill set owns.
 
 **Drop the requirement and accept whichever kind directories exist.** The smallest gate, and an empty archive would never fail. It lost because the requirement is what catches a class folder spelled `bugfix/` instead of `bug-fix/`: once notes exist, a note inside an unlisted directory is invisible to the seal, and the manifest would record an archive that omits it.
 
-**Keep parity with dsh and record the failure as a known condition.** The collection's rule is that a change either mirrors dsh or is recorded as a deliberate deviation. It lost because the condition is a defect rather than a difference of opinion: it fails every fresh clone of every project that has archived nothing, and reproducing a bug is not alignment. This note is the recorded deviation.
+**Keep parity with dsh and record the failure as a known condition.** The skill set's rule is that a change either mirrors dsh or is recorded as a deliberate deviation. It lost because the condition is a defect rather than a difference of opinion: it fails every fresh clone of every project that has archived nothing, and reproducing a bug is not alignment. This note is the recorded deviation.
 
 ## Required verification
 

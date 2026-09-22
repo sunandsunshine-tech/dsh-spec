@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-a-gate-reads-the-scope-it-is-handed.md
-2026-09-21-a-gate-reads-the-scope-it-is-handed.md: b281c1f76e003f31ca9fd3f8fd5d90d19c8f5fef
-2026-09-21-a-gate-reads-the-scope-it-is-handed.zh.md: 6f568fab76cbd2373b8ad47e6cd7a03a86f5bd6d
+2026-09-21-a-gate-reads-the-scope-it-is-handed.md: 221c2fc485ffd2b68a0c2dc488f39c6febe5d37a
+2026-09-21-a-gate-reads-the-scope-it-is-handed.zh.md: 3fe014ba6dbc48e2d891dc25aa13e98b3c48c3fb

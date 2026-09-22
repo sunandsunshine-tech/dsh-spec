@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-21-an-empty-archive-cannot-ship-its-kind-directories.md
-2026-09-21-an-empty-archive-cannot-ship-its-kind-directories.md: b18cb2371c3a9035efd4bed706f43f12ae1fafe5
-2026-09-21-an-empty-archive-cannot-ship-its-kind-directories.zh.md: 079622da228903e75bbff6bc9196a501f21a6bca
+2026-09-21-an-empty-archive-cannot-ship-its-kind-directories.md: be0e830ca7f8157919ad22c56ef2c372840a9d48
+2026-09-21-an-empty-archive-cannot-ship-its-kind-directories.zh.md: 6b1fbdde2421d25163b1a0925ec2c8aa8318e431

@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-18-four-mechanisms-instead-of-twelve.md
-2026-09-18-four-mechanisms-instead-of-twelve.md: 9ef5010d88e21581e421cd2e2ba72ca91f971268
-2026-09-18-four-mechanisms-instead-of-twelve.zh.md: 3426354903b816f787b6a4eab44895313bd0697a
+2026-09-18-four-mechanisms-instead-of-twelve.md: 613573c74df8f6dbb958b949c14b6195930e435c
+2026-09-18-four-mechanisms-instead-of-twelve.zh.md: 13fa508545b145c8cd91e8976d2e39d884e56a63

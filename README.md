@@ -92,7 +92,7 @@ What that command does to each skill, and what `install`, `status` and `uninstal
 ## Read next
 
 - [`AGENTS.md`](AGENTS.md) — the rules that hold in every session, and the commands this repository actually runs.
-- [`skills/dsh-spec-manager/SKILL.md`](skills/dsh-spec-manager/SKILL.md) — the collection's entry; the other seven skills sit beside it.
+- [`skills/dsh-spec-manager/SKILL.md`](skills/dsh-spec-manager/SKILL.md) — the skill set's entry; the other seven skills sit beside it.
 - [`.agents/dsh-spec/notes/README.md`](.agents/dsh-spec/notes/README.md) — the decision-record contract, which is the pattern describing itself.
 
 ## License

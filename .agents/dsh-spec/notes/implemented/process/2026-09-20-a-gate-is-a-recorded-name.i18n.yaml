@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-20-a-gate-is-a-recorded-name.md
-2026-09-20-a-gate-is-a-recorded-name.md: 8081859513f6bc8569361f410dc896aa3a4561f1
-2026-09-20-a-gate-is-a-recorded-name.zh.md: 2587855dc45d5d452dae782107fd62ffafecf45f
+2026-09-20-a-gate-is-a-recorded-name.md: 6a31fe9d4cf1f391ff2d8cb6391a8aa47a9f599f
+2026-09-20-a-gate-is-a-recorded-name.zh.md: bbef1dfb17679cce4699101de01c841e3fc48fb4

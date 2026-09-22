@@ -8,7 +8,7 @@ English | [中文](2026-09-21-frontmatter-has-no-owner-in-an-adopted-project.zh.
 
 `verify-md-metadata` rejected a malformed YAML frontmatter block anywhere in a project's Markdown. It was written after a bulk reflow collapsed nine of this repository's frontmatter blocks onto one line, and here it earned its place: the skill READMEs carry frontmatter, and nothing else read it.
 
-An adopted project has no such file. The notes mechanism uses its own header block — `# Agent Note:` plus `Status:` — and the format gate owns that; the documentation mechanism, whose pages carried the `kind:` taxonomy this frontmatter came from, is deleted; and the installed skills sit outside every prose gate's scope, so their READMEs are never read there. The only frontmatter a project has is its own, and no mechanism the collection ships requires any. So the gate enforced a rule with no owner, and it failed the first run of every fresh project: `init` writes six Markdown files, none with a frontmatter block, and the gate treats "nothing to check" as a failure — correctly, by the rule that a gate must not pass over an empty corpus.
+An adopted project has no such file. The notes mechanism uses its own header block — `# Agent Note:` plus `Status:` — and the format gate owns that; the documentation mechanism, whose pages carried the `kind:` taxonomy this frontmatter came from, is deleted; and the installed skills sit outside every prose gate's scope, so their READMEs are never read there. The only frontmatter a project has is its own, and no mechanism the skill set ships requires any. So the gate enforced a rule with no owner, and it failed the first run of every fresh project: `init` writes six Markdown files, none with a frontmatter block, and the gate treats "nothing to check" as a failure — correctly, by the rule that a gate must not pass over an empty corpus.
 
 ## Decision
 
@@ -20,7 +20,7 @@ An adopted project has no such file. The notes mechanism uses its own header blo
 
 **Ship a frontmatter block in an `init` template.** One written file would carry frontmatter, so the gate would have something to check and a fresh project would go green. It lost because it invents a convention to satisfy a check: the block would exist to keep a gate busy, and every project would then have to keep it.
 
-**Keep the gate and let a project without frontmatter omit it.** The gate is addressed by name, so a project could simply not run it. It lost because the aggregate runs every recorded gate, and a gate a project has to exclude is a defect in the collection rather than a choice the project made.
+**Keep the gate and let a project without frontmatter omit it.** The gate is addressed by name, so a project could simply not run it. It lost because the aggregate runs every recorded gate, and a gate a project has to exclude is a defect in the skill set rather than a choice the project made.
 
 ## Consequences
 

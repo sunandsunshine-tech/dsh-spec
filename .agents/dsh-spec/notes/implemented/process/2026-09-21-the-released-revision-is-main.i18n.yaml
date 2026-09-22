@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-released-revision-is-main.md
-2026-09-21-the-released-revision-is-main.md: e5c988e55bb314db760e3d8fb49cef7562e60c32
-2026-09-21-the-released-revision-is-main.zh.md: 506df4ed73218f0aceb0efc0b19a20fd64336b1e
+2026-09-21-the-released-revision-is-main.md: ada99dce7178397ed054f759735f8d6a552c4aee
+2026-09-21-the-released-revision-is-main.zh.md: 101d6c77d90cf3ca8b031b853bd2419b7640a492
