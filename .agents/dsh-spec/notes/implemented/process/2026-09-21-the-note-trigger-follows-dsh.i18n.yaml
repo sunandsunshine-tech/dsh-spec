@@ -3,4 +3,4 @@
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-note-trigger-follows-dsh.md
 2026-09-21-the-note-trigger-follows-dsh.md: 39a6a5cc0189edba8d0fe72147f48889077ad806
-2026-09-21-the-note-trigger-follows-dsh.zh.md: 3e62c5a211fd1d0a230363b4bc6c02e0642ec15d
+2026-09-21-the-note-trigger-follows-dsh.zh.md: e31aa0f60bb7b1b2c414edb4992ff0e3bd3b754d

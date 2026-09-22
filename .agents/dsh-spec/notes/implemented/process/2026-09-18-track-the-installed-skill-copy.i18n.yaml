@@ -3,4 +3,4 @@
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-18-track-the-installed-skill-copy.md
 2026-09-18-track-the-installed-skill-copy.md: 85af8d0af65938333bc83e12a6fa6ddd952a8b7d
-2026-09-18-track-the-installed-skill-copy.zh.md: 992e04b0d34b716435f54f541742a3d75bd1c511
+2026-09-18-track-the-installed-skill-copy.zh.md: 71a73000b2fc3c6a91156dfb38dbdeb5597d3a0c

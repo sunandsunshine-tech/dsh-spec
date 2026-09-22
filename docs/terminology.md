@@ -34,6 +34,13 @@
 | prompt | 提示词 |  |  |  |
 | monorepo | monorepo |  |  |  |
 | lint | lint |  |  |  |
+| dry run | dry run |  | 试运行、空跑 | `--dry-run` 的模式 |
+| half-apply | half-apply |  | 半应用 | 一次操作只做了一半 |
+| pin | pin |  | 钉子、钉住、钉定 | 把一个安装固定在某个 ref 上 |
+| rebase | rebase |  | 变基 |  |
+| release | release |  | 发行版 | 名词；动词「发布」照常用 |
+| squash | squash |  | 压缩提交 | 合并 PR 时的提交折叠 |
+| tag | tag |  | 标签 | git 的 tag；界面标签不受此限 |
 
 ## 双语类（中英文文本各自使用中英文）
 

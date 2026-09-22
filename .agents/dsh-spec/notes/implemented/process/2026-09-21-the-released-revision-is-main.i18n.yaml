@@ -3,4 +3,4 @@
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-released-revision-is-main.md
 2026-09-21-the-released-revision-is-main.md: ada99dce7178397ed054f759735f8d6a552c4aee
-2026-09-21-the-released-revision-is-main.zh.md: 101d6c77d90cf3ca8b031b853bd2419b7640a492
+2026-09-21-the-released-revision-is-main.zh.md: ca91a5b4f4b662fea231cedede1bd84099fe5ddc

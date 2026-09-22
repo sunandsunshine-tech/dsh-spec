@@ -3,4 +3,4 @@
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-manager-s-own-install-is-the-pin.md
 2026-09-21-the-manager-s-own-install-is-the-pin.md: 1f802dede9a9ca69c40b2449c84b3b71b8daaf28
-2026-09-21-the-manager-s-own-install-is-the-pin.zh.md: 2672b6ea51fba05e3cc440297cc58a2445946a48
+2026-09-21-the-manager-s-own-install-is-the-pin.zh.md: bc741461b0826c16ef4af831b07da63558c80c31

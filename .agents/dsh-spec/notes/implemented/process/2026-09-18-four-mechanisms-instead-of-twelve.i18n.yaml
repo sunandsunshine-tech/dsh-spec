@@ -3,4 +3,4 @@
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-18-four-mechanisms-instead-of-twelve.md
 2026-09-18-four-mechanisms-instead-of-twelve.md: 613573c74df8f6dbb958b949c14b6195930e435c
-2026-09-18-four-mechanisms-instead-of-twelve.zh.md: 13fa508545b145c8cd91e8976d2e39d884e56a63
+2026-09-18-four-mechanisms-instead-of-twelve.zh.md: 822b3aab39c670b75d523a3ff8a7d3dacd7f7b1c

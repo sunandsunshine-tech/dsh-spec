@@ -3,4 +3,4 @@
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-20-three-rules-from-a-memory-pipeline.md
 2026-09-20-three-rules-from-a-memory-pipeline.md: dd4c99fe2ff56a28ed454d415847663512e7d6b6
-2026-09-20-three-rules-from-a-memory-pipeline.zh.md: 313592900d39b1b63ce09bc7179e969998e07e78
+2026-09-20-three-rules-from-a-memory-pipeline.zh.md: 4ea0cb82a0878be5fd5e27a6c972ee7f2540103d

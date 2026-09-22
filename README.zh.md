@@ -19,7 +19,7 @@ GitHub CLI 也自带 agent 技能,去[它的仓库](https://github.com/cli/cli)�
 
 ## 安装
 
-装到项目里,不要装到家目录,并把结果提交进 git。你装 manager 用的那个 ref,就是其余每个技能的钉子;装在项目里因此让每个协作者、每个 agent、CI 都停在那同一个修订上;装到用户级则只存在于各自机器上,下一次 `gh skill update` 就各走各的。首次安装后请提交 `AGENTS.md`、`.agents/`、`docs/` 和 `.rgignore`。
+装到项目里,不要装到家目录,并把结果提交进 git。你装 manager 用的那个 ref,就是其余每个技能的 pin;装在项目里因此让每个协作者、每个 agent、CI 都停在那同一个修订上;装到用户级则只存在于各自机器上,下一次 `gh skill update` 就各走各的。首次安装后请提交 `AGENTS.md`、`.agents/`、`docs/` 和 `.rgignore`。
 
 manager 需要你亲手装,其余七个由它装。想装某条分支或某个旧版本而不是最新已发布版本,给 `gh skill install` 传 `--revision <ref>`。
 
@@ -75,7 +75,7 @@ node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts install --root .
 | `docs/` | 写给人看的页面,包括两种语言共用的术语表;这个目录不受任何机制管辖 |
 | `scripts/` | 只属于本仓库、不随包发布的东西:[`verify-skill-structure.ts`](scripts/verify-skill-structure.ts)、出处登记表与出处门禁,以及 `ports` 对照命令 |
 | `tests/` | 检验这些检查自身的功能套件 —— `node --test 'tests/**/*.test.ts'` |
-| `submodules/dsh/` | 这套做法的来源,钉住作为对照基线:可以读,不要改 |
+| `submodules/dsh/` | 这套做法的来源,pin 作为对照基线:可以读,不要改 |
 
 ## 刷新安装集
 

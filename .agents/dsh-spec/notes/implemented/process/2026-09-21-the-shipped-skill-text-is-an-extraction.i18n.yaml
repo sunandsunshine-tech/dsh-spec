@@ -3,4 +3,4 @@
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-shipped-skill-text-is-an-extraction.md
 2026-09-21-the-shipped-skill-text-is-an-extraction.md: cc05364f55aa61765850f6abd4009bb0dae8b2fb
-2026-09-21-the-shipped-skill-text-is-an-extraction.zh.md: 32bd043b015a1f357d7239eb50552c394043fffa
+2026-09-21-the-shipped-skill-text-is-an-extraction.zh.md: 47f053f2781105130fbed9c675bcc00cce7cdb3d

@@ -3,4 +3,4 @@
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-mechanism-text-is-updated-by-overwrite.md
 2026-09-21-the-mechanism-text-is-updated-by-overwrite.md: 44fc99c15f41efc4ede1d9af7b2ffec572baf252
-2026-09-21-the-mechanism-text-is-updated-by-overwrite.zh.md: e35fb6fd5f9aa45f97753eaf09fe5e2857a3abff
+2026-09-21-the-mechanism-text-is-updated-by-overwrite.zh.md: 0921856ee684e89f2a27d13b7ab6b05b5377689f
