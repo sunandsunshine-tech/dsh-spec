@@ -1,6 +1,0 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-22-the-roles-an-agent-acts-by.md
-2026-09-22-the-roles-an-agent-acts-by.md: c606ff2d3e66c855e57ed737d0d5a09e74eca2b3
-2026-09-22-the-roles-an-agent-acts-by.zh.md: 9f94e2016f046d291945c1043cc833f2a2294862
