@@ -18,12 +18,13 @@ Ship the rules as a catalog, and let a project apply the ones it chooses, by gro
 
 **The applied text is one managed file with one section per group.** Each rule is one list item wrapped in `<!-- dsh-norm: <id> -->` … `<!-- /dsh-norm -->`, so a rule can be located, hashed and personalized on its own; the markers are HTML comments, which Claude Code strips before injecting a file into context. Beside the file, a sidecar records the ids the project applied and the hash of each rule as the collection last wrote it — the same idea as the `.i18n.yaml` that records a bilingual pair's confirmed state.
 
-**Install and update compare three states per id.** The project's text still hashes to the recorded base and the revision changed the rule: overwrite with the revision's text, silently, because nobody had touched it. The project's text moved and the revision did not: keep it and report it as personalized, once. Both moved: print the three-way difference — base, revision, project — keep the project's text, and leave the decision to the project, or to the agent acting for it, which asks its user. `--write` remains the whole difference between a preview and an apply, and the preview renders the same comparison.
+**Install and update compare three states per id.** The project's text still hashes to the recorded base and the revision changed the rule: overwrite with the revision's text, silently, because nobody had touched it. The project's text moved and the revision did not: keep it and report it as personalized. Both moved: keep the project's text and print both versions — the revision's and the project's, since the record holds the base as a hash rather than as text. The decision the report asks for is carried out explicitly: `norms update --take <id...>` takes the revision's text, and `norms update --keep <id...>` records the project's text as deliberate, after which no update overwrites it. `--dry-run` is the whole difference between a preview and an apply, and the preview renders the same comparison.
 
 ## Delivery in two rounds
 
-- **This round:** the catalog, `norms list` (with `--group` and `--json`), and the tests that keep the catalog renderable and the surface stable. No write path.
-- **Next round:** the managed file and its sidecar, a `rules` merge mode in the initializer's managed-file list, the three-way comparison, `norms install | update | remove | write`, the pointer line in `AGENTS.md`, and `norms explain <id>` — the full body, the record URL, and whether this project applied the norm. The URL points at the ref the manager itself was installed from, which is the revision this project holds, and falls back to the path alone when no ref can be read.
+- **Landed first:** the catalog, `norms list` (with `--group` and `--json`), and the tests that keep the catalog renderable and the surface stable.
+- **Landed second:** `docs/norms.md` and `docs/norms.yaml`, the three states, `norms install | update | remove`, the `--take`/`--keep` decisions, and `norms explain <id>` — the full body, the record URL at the ref the manager itself was installed from, and whether this project applied the norm. A tree with no installed ref prints the record's path instead of a URL.
+- **Still open:** the pointer line in `AGENTS.md`, and a `rules` merge mode in the initializer's managed-file list so a manager `install`/`upgrade` refreshes the applied norms with the rest of the mechanism text instead of leaving it to `norms update`.
 
 ## Alternatives considered
 
@@ -38,7 +39,8 @@ Ship the rules as a catalog, and let a project apply the ones it chooses, by gro
 ## Acceptance criteria
 
 - `norms list` prints every shipped norm; `--group` narrows to one group and refuses a group the catalog does not declare; the locale selects Chinese titles; `--json` carries both titles, the body and the record. A catalog that cannot be rendered — the nine ways the tests seed — is refused by name. (Met by this round's tests.)
-- Install writes the selected rules into the managed file and the sidecar; update overwrites only rules whose text still hashes to the base, keeps and reports a personalized one, and prints a three-way difference for a conflict; `--dry-run` renders all of it and writes nothing. (Recorded here so the next round can be judged against it.)
+- Install writes the selected norms into `docs/norms.md` as one section per group and one marked block per norm, and records each base hash beside them; update overwrites only a block whose text still hashes to its base, keeps and names a personalized one, prints both versions for a conflict, and never writes outside a marked block; `--take` and `--keep` carry out the decision; `--dry-run` renders all of it and writes nothing. (Met by the write-path tests.)
+- Still open: a manager `install`/`upgrade` reaches the applied norms without a second command, and `AGENTS.md` points at the file. (Recorded here so the next round can be judged against it.)
 
 ## Risks
 

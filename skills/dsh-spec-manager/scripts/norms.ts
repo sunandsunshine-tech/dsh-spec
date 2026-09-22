@@ -49,6 +49,40 @@ export function normsPathOf(scriptDir: string): string {
   return resolve(scriptDir, '..', 'references', 'norms.json')
 }
 
+/**
+ * The repository the catalog was published from.
+ *
+ * The manifest beside the catalog owns that fact, so it is read from there rather than copied into
+ * the catalog: two copies of "which repository this is" would be two things to keep in step.
+ *
+ * @param catalogPath - the catalog whose repository is wanted.
+ * @returns `owner/name`.
+ * @throws when the manifest is missing or names no repository.
+ */
+export function readNormsRepo(catalogPath: string): string {
+  const path = resolve(resolve(catalogPath, '..'), 'manifest.json')
+  if (!existsSync(path)) throw new Error(`no manifest at ${path} — it owns the repository the norms record links back to`)
+  const parsed = JSON.parse(readFileSync(path, 'utf8')) as { repo?: unknown }
+  if (typeof parsed.repo !== 'string' || parsed.repo === '') throw new Error(`${path} names no \`repo\``)
+  return parsed.repo
+}
+
+/**
+ * The URL of the decision record a norm came from.
+ *
+ * A record path exists only in the repository that publishes the catalog, so an adopter is given a
+ * URL instead. The ref is the one the manager itself was installed from, which is the revision the
+ * project holds; without one a caller prints the path alone rather than guessing a revision.
+ *
+ * @param repo - `owner/name`.
+ * @param ref - the branch, tag or commit to read at.
+ * @param source - the record's repository-relative path.
+ * @returns the URL.
+ */
+export function recordUrlOf(repo: string, ref: string, source: string): string {
+  return `https://github.com/${repo}/blob/${ref}/${source}`
+}
+
 /** A group id is a path segment and an id's first half; both halves are names. */
 const NAME = /^[a-z][a-z0-9-]*$/
 const ID = /^[a-z][a-z0-9-]*\.[a-z][a-z0-9-]*$/
@@ -180,8 +214,53 @@ export function renderNormsList(catalog: NormsCatalog, options: { language: Norm
  * @returns the JSON text, newline-terminated.
  * @throws when the named group is not one the catalog declares.
  */
-export function renderNormsJson(catalog: NormsCatalog, options: { group?: string }): string {
+export function renderNormsJson(catalog: NormsCatalog, options: { group?: string, url?: (norm: Norm) => string }): string {
   const groups = selectedGroups(catalog, options.group)
   const ids = new Set(groups.map(entry => entry.id))
-  return `${JSON.stringify({ groups, norms: catalog.norms.filter(norm => ids.has(norm.group)) }, null, 2)}\n`
+  const norms = catalog.norms
+    .filter(norm => ids.has(norm.group))
+    // The record is published as a URL because a repository path exists only in the repository that
+    // publishes the catalog; the path stays beside it for anyone comparing the two.
+    .map(norm => (options.url === undefined ? norm : { ...norm, sourceUrl: options.url(norm) }))
+  return `${JSON.stringify({ groups, norms }, null, 2)}\n`
+}
+
+/**
+ * One norm explained: what it says, where its rationale lives, and whether this project applied it.
+ *
+ * @param catalog - the catalog to read from.
+ * @param ids - the norms to explain; every one of them must be in the catalog.
+ * @param options - the language, this project's record, the URL builder, and whether to print JSON.
+ * @returns the report, newline-terminated.
+ * @throws when an id is not one the catalog ships.
+ */
+export function renderNormsExplain(
+  catalog: NormsCatalog,
+  ids: readonly string[],
+  options: { language: NormsLanguage, applied: readonly string[], url?: (norm: Norm) => string, json: boolean },
+): string {
+  if (ids.length === 0) throw new Error('name the norms to explain — run `norms list` for the ids the catalog ships')
+  const known = new Map(catalog.norms.map(norm => [norm.id, norm]))
+  const unknown = ids.filter(id => !known.has(id))
+  if (unknown.length > 0) throw new Error(`no norm ${unknown.map(id => `\`${id}\``).join(', ')} in the catalog — run \`norms list\` for the ids it ships`)
+  const chosen = ids.map(id => known.get(id) as Norm)
+  if (options.json) {
+    return `${JSON.stringify(chosen.map(norm => ({
+      ...norm,
+      applied: options.applied.includes(norm.id),
+      ...(options.url === undefined ? {} : { sourceUrl: options.url(norm) }),
+    })), null, 2)}\n`
+  }
+  const zh = options.language === 'zh'
+  const lines: string[] = []
+  for (const norm of chosen) {
+    const group = catalog.groups.find(entry => entry.id === norm.group)
+    lines.push(`  ${norm.id}   ${zh ? norm.titleZh : norm.title}   (${group === undefined ? norm.group : (zh ? group.titleZh : group.title)})`)
+    lines.push(`  ${zh ? '本项目' : 'applied'}: ${options.applied.includes(norm.id) ? (zh ? '已应用' : 'yes') : (zh ? '未应用' : 'no')}`)
+    lines.push(`  ${zh ? '记录' : 'record'}: ${options.url === undefined ? norm.source : options.url(norm)}`)
+    lines.push('')
+    for (const row of norm.body.split('\n')) lines.push(`  ${row}`)
+    lines.push('')
+  }
+  return `${lines.join('\n').trimEnd()}\n`
 }

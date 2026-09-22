@@ -27,15 +27,18 @@
  */
 
 import { spawn } from 'node:child_process'
-import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { availableParallelism, tmpdir } from 'node:os'
 import { dirname, join, relative, resolve, sep } from 'node:path'
 import { renderChangeScope } from './change-scope.ts'
 import { expandScope, parseScopeArgs, pathInGateScope } from './gate-scope.ts'
 import { globalHelp, helpLanguage, markdownHelp, subjectHelp } from './help.ts'
-import { installProject, statusProject, uninstallProject, upgradeProject } from './manager.ts'
+import { installProject, managerRef, statusProject, uninstallProject, upgradeProject } from './manager.ts'
 import { readGateRecord, readGateScopes } from './manifest.ts'
-import { normsPathOf, readNorms, renderNormsJson, renderNormsList } from './norms.ts'
+import { normsPathOf, readNorms, readNormsRepo, recordUrlOf, renderNormsExplain, renderNormsJson, renderNormsList } from './norms.ts'
+import { applyNormsPlan, filePathOf, normsPlan, readNormsRecord, recordPathOf, renderNormsPlan, resolveNormsIds } from './norms-apply.ts'
+import type { Norm, NormsCatalog } from './norms.ts'
+import type { NormsPlan, NormsRecord } from './norms-apply.ts'
 import { resolveRepoRoot } from './repo-root.ts'
 import type { GateScopeKey, GateScopeRecord } from './manifest.ts'
 
@@ -56,7 +59,7 @@ const NOUN_VERBS: Readonly<Record<string, readonly string[]>> = {
   'notes-archived': ['check', 'write'],
   'translation-pair': ['check', 'list', 'explain', 'write', 'brief'],
   'md-links': ['check'],
-  norms: ['list'],
+  norms: ['list', 'explain', 'install', 'update', 'remove'],
 }
 
 /** Every command the entry point answers to at the top level. */
@@ -87,7 +90,7 @@ function usage(message?: string): never {
   if (message !== undefined) console.error(`dsh-spec: ${message}`)
   console.error('dsh-spec: usage: node dsh-spec.ts <command> [flags]')
   console.error('dsh-spec:   a verb acts: install, upgrade, uninstall, status, check [<path...> | --base <ref> | --all]')
-  console.error('dsh-spec:   a noun takes a verb: notes check | notes-archived check|write | translation-pair check|list|explain|write|brief | md-links check | norms list')
+  console.error('dsh-spec:   a noun takes a verb: notes check | notes-archived check|write | translation-pair check|list|explain|write|brief | md-links check | norms list | norms explain|install|update|remove')
   console.error(`dsh-spec: see \`node ${invocationPath()} --help\` for the commands and their flags`)
   process.exit(2)
 }
@@ -555,28 +558,102 @@ async function main(): Promise<void> {
 
   if (command === 'norms') {
     // The catalog is read here rather than by a gate: a project applies the norms it chooses, so
-    // what it holds is a selection and not a tree assertion. `--json` is the form an agent renders
-    // the choice from; the plain form is what a person picks from, in their own language.
-    const group = extractValue(verbArgs, '--group')
-    const json = group.rest.includes('--json')
-    const unknown = group.rest.filter(argument => argument !== '--json')
-    if (unknown.length > 0) usage(`norms ${verb} does not take ${unknown.join(', ')}`)
-    const language = helpLanguage(verbArgs)
+    // what it holds is a selection and not a tree assertion — drift is reported, never failed.
+    // `norms list`/`explain` are the reading surface; the verbs below are the write path, and they
+    // decide per norm between overwrite, keep and conflict, exactly as a managed file does.
+    // Help is intercepted before this point, so the language here comes from the environment
+    // alone; passing the verb's own arguments would let a norm id be read as `--help`'s value.
+    const language = helpLanguage([])
     if (typeof language !== 'string') fail(language.error)
-    let catalog
+    let catalog: NormsCatalog
+    let repo: string
     try {
       catalog = readNorms(normsPathOf(scriptDir))
+      repo = readNormsRepo(normsPathOf(scriptDir))
     } catch (error) {
       fail((error as Error).message)
     }
+    // The record each norm came from is published as a URL at the revision this project installed;
+    // a source tree that was never installed has no ref to link at, so the path is shown instead.
+    const ref = managerRef(root)
+    const url = ref === undefined ? undefined : (norm: Norm): string => recordUrlOf(repo, ref, norm.source)
+
+    if (verb === 'list' || verb === 'explain') {
+      const group = extractValue(verbArgs, '--group')
+      const json = group.rest.includes('--json')
+      const paths = group.rest.filter(argument => argument !== '--json')
+      const unknown = paths.filter(argument => argument.startsWith('-'))
+      if (unknown.length > 0) usage(`norms ${verb} does not take ${unknown.join(', ')}`)
+      try {
+        if (verb === 'list') {
+          process.stdout.write(json
+            ? renderNormsJson(catalog, { group: group.values.at(-1), url })
+            : renderNormsList(catalog, { language, group: group.values.at(-1) }))
+        } else {
+          const record = readNormsRecord(recordPathOf(root))
+          process.stdout.write(renderNormsExplain(catalog, paths, {
+            language, applied: record.norms.map(entry => entry.id), url, json,
+          }))
+        }
+      } catch (error) {
+        usage((error as Error).message)
+      }
+      process.exit(0)
+    }
+
+    // `update` means the norms this project applied, so it needs no selection of its own; the other
+    // verbs name one, and `--group` narrows any of them. `--take` and `--keep` are how the decision
+    // about a personalized norm is carried out, so they belong to `update` alone.
+    const takeFlag = extractValue(verbArgs, '--take')
+    const keepFlag = extractValue(takeFlag.rest, '--keep')
+    const group = extractValue(keepFlag.rest, '--group')
+    const decisions = [...takeFlag.values, ...keepFlag.values]
+    if (decisions.length > 0 && verb !== 'update') {
+      usage(`norms ${verb} does not take --take or --keep — a decision about a personalized norm is made by \`norms update\``)
+    }
+    const all = group.rest.includes('--all') || verb === 'update'
+    const dryRun = group.rest.includes('--dry-run')
+    const ids = group.rest.filter(argument => !argument.startsWith('-'))
+    const unknown = group.rest.filter(argument => argument.startsWith('-') && argument !== '--all' && argument !== '--dry-run')
+    if (unknown.length > 0) usage(`norms ${verb} does not take ${unknown.join(', ')}`)
+    let record: NormsRecord
     try {
-      process.stdout.write(json
-        ? renderNormsJson(catalog, { group: group.values.at(-1) })
-        : renderNormsList(catalog, { language, group: group.values.at(-1) }))
+      record = readNormsRecord(recordPathOf(root))
+    } catch (error) {
+      fail((error as Error).message)
+    }
+    let chosen: string[]
+    try {
+      chosen = resolveNormsIds(catalog, {
+        ids,
+        group: group.values.at(-1),
+        all,
+        applied: verb === 'install' ? undefined : record.norms.map(entry => entry.id),
+      })
     } catch (error) {
       usage((error as Error).message)
     }
-    process.exit(0)
+    const unapplied = decisions.filter(id => !record.norms.some(entry => entry.id === id))
+    if (unapplied.length > 0) {
+      usage(`${unapplied.map(id => `\`${id}\``).join(', ')} is not applied in this project — \`norms update\` decides about the norms it applies`)
+    }
+    const file = existsSync(filePathOf(root)) ? readFileSync(filePathOf(root), 'utf8') : undefined
+    let plan: NormsPlan
+    try {
+      plan = normsPlan(catalog, record, file, { verb, ids: [...new Set([...chosen, ...decisions])], take: takeFlag.values, keep: keepFlag.values }, language)
+    } catch (error) {
+      fail((error as Error).message)
+    }
+    process.stdout.write(renderNormsPlan(plan, language))
+    // A removal that was refused did not happen, and a script has to be able to tell: an update
+    // only reports what it kept, but `remove` that removed nothing exits non-zero.
+    const refused = verb === 'remove' && plan.outcomes.some(outcome => outcome.state !== 'removed')
+    if (dryRun) {
+      console.log(language === 'zh' ? '  dry run — 什么都没写;去掉 --dry-run 落盘' : '  dry run — nothing is written; drop --dry-run to apply')
+      process.exit(refused ? 1 : 0)
+    }
+    applyNormsPlan(root, plan)
+    process.exit(refused ? 1 : 0)
   }
 
   if (command === 'md-links') {

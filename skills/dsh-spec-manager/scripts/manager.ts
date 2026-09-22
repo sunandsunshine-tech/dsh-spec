@@ -675,7 +675,7 @@ export async function upgradeProject(root: string, options: { dryRun: boolean, r
  * @param project - the project root whose skills directory is read.
  * @returns the short ref, or `undefined` when the manager carries no `metadata.github-ref`.
  */
-function managerRef(project: string): string | undefined {
+export function managerRef(project: string): string | undefined {
   const path = join(skillsDirectory(project), 'dsh-spec-manager', 'SKILL.md')
   if (!existsSync(path)) return undefined
   const lines = readFileSync(path, 'utf8').split('\n')

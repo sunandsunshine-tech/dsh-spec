@@ -21,14 +21,14 @@ node <engine>/dsh-spec.ts <command> [flags]
 
 ## Commands
 
-| Command            | Scope or verbs                               | What it does                                |
-|--------------------|----------------------------------------------|---------------------------------------------|
-| `check`            | `<path...> \| --base <ref> \| --all`         | Run the checks a selection owes             |
-| `norms`            | `list`                                       | List the norms a project may apply          |
-| `notes`            | `check`                                      | Check the Agent Note tree and its notes     |
-| `notes-archived`   | `check \| write`                             | Check the frozen archive and its seal       |
-| `translation-pair` | `check \| list \| explain \| write \| brief` | Check a translated pair, or brief an update |
-| `md-links`         | `check`                                      | Check links in Markdown                     |
+| Command            | Scope or verbs                                   | What it does                                        |
+|--------------------|--------------------------------------------------|-----------------------------------------------------|
+| `check`            | `<path...> \| --base <ref> \| --all`             | Run the checks a selection owes                     |
+| `norms`            | `list \| explain \| install \| update \| remove` | List, explain and apply the norms a project chooses |
+| `notes`            | `check`                                          | Check the Agent Note tree and its notes             |
+| `notes-archived`   | `check \| write`                                 | Check the frozen archive and its seal               |
+| `translation-pair` | `check \| list \| explain \| write \| brief`     | Check a translated pair, or brief an update         |
+| `md-links`         | `check`                                          | Check links in Markdown                             |
 
 ## Flags
 
@@ -137,11 +137,11 @@ The [global flags](#flags) apply to every command.
 
 ### norms
 
-List the norms a project may apply.
+List, explain and apply the norms a project chooses.
 
-The catalog is data: every norm has a stable id, the group a project chooses it by, an English title and body, and a Chinese title for this surface. Rendering a chosen norm into a project belongs to the manager and is not wired yet.
+The catalog is data: every norm has a stable id, the group a project chooses it by, an English title and body, and a Chinese title for this surface. A project applies the ones it chooses into `docs/norms.md`, with `docs/norms.yaml` recording the selection and the hash of each block as the skill set last wrote it — which is what lets an update tell an untouched block from a personalized one.
 
-**Verbs:** `list`
+**Verbs:** `list`, `explain`, `install`, `update`, `remove`
 
 ```sh
 # List the whole catalog
@@ -328,6 +328,81 @@ node <engine>/dsh-spec.ts translation-pair brief --apply docs/guide.md --root .
 | Flag | Meaning |
 |---|---|
 | `--apply` | Splice a code-fence-only change after structural validation |
+
+The [global flags](#flags) apply to every command.
+
+### norms explain
+
+Read one norm: its text, its record and whether this project applied it.
+
+The record is a URL at the revision the manager itself was installed from, because a repository path exists only in the repository that publishes the catalog; a tree with no installed ref prints the path instead.
+
+```sh
+# Read why a norm exists
+node <engine>/dsh-spec.ts norms explain test.behaviour --root .
+```
+
+| Flag | Meaning |
+|---|---|
+| `--json` | Print the norms as data, applied state included |
+
+The [global flags](#flags) apply to every command.
+
+### norms install
+
+Apply norms into docs/norms.md.
+
+A norm the project already applied is compared, not re-applied: one whose text still matches the record is left alone, one whose text moved is kept and reported, and one where both moved is reported with both versions for the project to decide.
+
+```sh
+# Apply the prose group
+node <engine>/dsh-spec.ts norms install --group prose --root .
+```
+
+| Flag | Meaning |
+|---|---|
+| `--group <id>` | Apply every norm in this group |
+| `--all` | Apply every norm the catalog ships |
+| `--dry-run` | Print the plan and write nothing |
+
+The [global flags](#flags) apply to every command.
+
+### norms update
+
+Bring the applied norms up to the installed revision.
+
+Nothing is overwritten that the project has touched: an untouched block takes the revision's text, a personalized one is kept and named, and a conflict prints both versions. `--take` and `--keep` carry out the decision the report asks for.
+
+```sh
+# Refresh what this project applies
+node <engine>/dsh-spec.ts norms update --root .
+```
+
+| Flag | Meaning |
+|---|---|
+| `--take <id...>` | Take the revision's text for these norms |
+| `--keep <id...>` | Confirm this project's text as deliberate |
+| `--group <id>` | Only the applied norms in this group |
+| `--dry-run` | Print the plan and write nothing |
+
+The [global flags](#flags) apply to every command.
+
+### norms remove
+
+Stop applying norms, and drop them from the record.
+
+A norm the project personalized is refused rather than deleted with its text: `norms update --take <id>` first, then remove.
+
+```sh
+# Stop applying a norm
+node <engine>/dsh-spec.ts norms remove test.fast-subset --root .
+```
+
+| Flag | Meaning |
+|---|---|
+| `--group <id>` | Remove the applied norms in this group |
+| `--all` | Remove every applied norm |
+| `--dry-run` | Print the plan and write nothing |
 
 The [global flags](#flags) apply to every command.
 
