@@ -2,7 +2,7 @@
 description: Use when writing, reviewing, restoring, trimming, or auditing prose in this repository, including deciding where documentation or comments are required across Markdown, public API documentation (JSDoc, Javadoc, docstrings — whichever form the ecosystem uses), code and test comments, prompts, descriptions, diagnostics, and command-line or UI strings.
 metadata:
     github-path: skills/dsh-prose-standard
-    github-ref: refs/heads/chore/withdraw-delegation
+    github-ref: refs/tags/v0.1.0
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
     github-tree-sha: 203dc08faa99cfe8dd7f6d4c9edda533f97f5dcc
 name: dsh-prose-standard
