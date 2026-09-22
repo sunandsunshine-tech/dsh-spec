@@ -69,7 +69,7 @@ node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts norms install --group p
 node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts norms update --root .
 ```
 
-它们落在 `.agents/dsh-spec/norms/README.md`,旁边的 `applied.yaml` 记着项目应用了哪些 id,以及每个块上次由技能集合写入时的哈希。靠这份记录,更新才分得清三种情况:没人动过的块直接换上修订的正文;项目改过的块保留并报出来;两边都改过的,把两份都打印出来等你定 —— `norms update --keep <id>` 留你那份,`norms update --take <id>` 取修订那份。只要项目还应用着规范,它的 `AGENTS.md` 里就有一节指向这个文件。
+它们落在 `.agents/dsh-spec/norms/norms.md`,旁边的 `applied.yaml` 记着项目应用了哪些 id,以及每个块上次由技能集合写入时的哈希。靠这份记录,更新才分得清三种情况:没人动过的块直接换上修订的正文;项目改过的块保留并报出来;两边都改过的,把两份都打印出来等你定 —— `norms update --keep <id>` 留你那份,`norms update --take <id>` 取修订那份。只要项目还应用着规范,它的 `AGENTS.md` 里就有一节指向这个文件。
 
 `install` 和 `upgrade` 从不写这些文件:它们只报告这次修订会移动哪几条,就像 `apt update` 报告哪些包可以升级;真正动手写的是 `norms update`。
 

@@ -16,7 +16,7 @@ Status: proposed
 
 **选择界面是 `norms list`。** 每个分组一个标题,每条规范一行;用哪种语言打印,由 `--help zh|en` 或 locale 决定。正文用英文:读它的是 agent,而整套技能集合本身就是英文;中文标题是为了让中文读者不必读英文正文,也能挑、也能认。`--json` 会把两个标题、正文和记录一起带出来,这正是 agent 拿来渲染选择的形态——CLI 没法到处都渲染出选择器,但它可以把渲染需要的数据交给 agent。记录以 URL 给出,因为仓库相对路径只存在于本仓库;路径留在旁边供对照。列表本身保持干净:它是用来挑的,一条规范要到「有人问起它」的地方去解释。规范**刻意不做成门禁**:项目有权个性化某条规范,所以漂移由 install 和 update 报告,绝不让检查因此失败。
 
-**文件放在项目的 agent 记录旁边,不在 `docs/` 下。** `.agents/dsh-spec/norms/README.md` 和它旁边的记录,跟 agent 要读的文本放在一起 —— 笔记树里的那份契约就是同一类文件 —— 而 `docs/` 放的是给人读的文档。做成目录而不是单个文件,是因为目录早晚会一页装不下:日后按分组拆分,就是要在它们旁边多出 `pr.md`、`prose.md` 这些文件,入口和记录都不用动 —— 这正是[迁移成本是一项设计约束](../../implemented/process/2026-09-22-migration-cost-is-a-design-constraint.zh.md)管的事,只不过隔了一层目录。入口叫 `README.md`,因为这里一个目录的入口就叫这个名字:笔记树里的契约也是同一类文件。
+**文件放在项目的 agent 记录旁边,不在 `docs/` 下。** `.agents/dsh-spec/norms/norms.md` 和它旁边的记录,跟 agent 要读的文本放在一起 —— 笔记树里的那份契约就是同一类文件 —— 而 `docs/` 放的是给人读的文档。做成目录而不是单个文件,是因为目录早晚会一页装不下:日后按分组拆分,就是要在它们旁边多出 `pr.md`、`prose.md` 这些文件,入口和记录都不用动 —— 这正是[迁移成本是一项设计约束](../../implemented/process/2026-09-22-migration-cost-is-a-design-constraint.zh.md)管的事,只不过隔了一层目录。入口按内容叫 `norms.md`,不叫 `README.md` —— 打开 README 的人期待的是目录说明,不是要遵守的规则。
 
 **写进项目的正文是一个受管文件,每个分组一节。** 每条规则是一个列表项,外面包着 `<!-- dsh-norm: <id> -->` … `<!-- /dsh-norm -->`,这样单条规则能被定位、被哈希、被单独个性化;这些标记是 HTML 注释,Claude Code 在把文件注入上下文之前会把它们剥掉。文件旁边另有一份记录,记下这个项目应用了哪些 id,以及每条规则上次由技能集合写入时的哈希 —— 和记录双语配对确认状态的 `.i18n.yaml` 是同一个思路。
 
@@ -27,10 +27,10 @@ Status: proposed
 ## Delivery in two rounds
 
 - **第一批落地:** 目录、`norms list`(带 `--group` 与 `--json`),以及让目录始终可渲染、让选择面保持稳定的测试。
-- **第二批落地:** `.agents/dsh-spec/norms/README.md` 与 `.agents/dsh-spec/norms/applied.yaml`、三种状态、`norms install | update | remove`、`--take`/`--keep` 两个决定,以及 `norms explain <id>` —— 正文全文、指向 manager 自己被安装时所用 ref 的记录 URL、以及这个项目应用了没有。读不出已安装 ref 的树里,只打印记录路径。
+- **第二批落地:** `.agents/dsh-spec/norms/norms.md` 与 `.agents/dsh-spec/norms/applied.yaml`、三种状态、`norms install | update | remove`、`--take`/`--keep` 两个决定,以及 `norms explain <id>` —— 正文全文、指向 manager 自己被安装时所用 ref 的记录 URL、以及这个项目应用了没有。读不出已安装 ref 的树里,只打印记录路径。
 - **第三批落地:** 条件式的 `AGENTS.md` 钩子,由动词和初始化器的 sync 加入与移除。
 - **刻意不做:** 初始化器受管文件表里的 `rules` merge 模式。刷新负责的是机制文本,而规范是项目自己挑的、也可能被项目改过;合成一条命令,就意味着 upgrade 会覆盖项目写下的文本 —— 这正是「创建与更新」那条规范要防的失败。报告给出与 `apt update` 同等的发现能力,而不做这次写。
-- **本仓库不应用自己的目录。** 这些规范就是从本仓库提炼出来的,本来就住在它的 `AGENTS.md` 和决策记录里;再装回来就是把同一份指导写两遍,而两份说法早晚会分叉。测试守着这条线:本仓库没有 `.agents/dsh-spec/norms/README.md`,`AGENTS.md` 里也没有钩子;机制则在夹具里演练。
+- **本仓库不应用自己的目录。** 这些规范就是从本仓库提炼出来的,本来就住在它的 `AGENTS.md` 和决策记录里;再装回来就是把同一份指导写两遍,而两份说法早晚会分叉。测试守着这条线:本仓库没有 `.agents/dsh-spec/norms/norms.md`,`AGENTS.md` 里也没有钩子;机制则在夹具里演练。
 
 ## Alternatives considered
 
@@ -47,8 +47,8 @@ Status: proposed
 ## Acceptance criteria
 
 - `norms list` 打印每一条随包发布的规范;`--group` 收窄到一个分组,并拒绝目录没有声明的分组;locale 决定中文标题;`--json` 同时带两个标题、正文和记录。渲染不出来的目录 —— 测试种下的九种 —— 被点名拒绝。(由第一批的测试满足。)
-- install 把选中的规范写进 `.agents/dsh-spec/norms/README.md`:每个分组一节、每条规范一个标记块,并把每条的基础哈希记在旁边;update 只覆盖文本哈希仍等于 base 的块,保留并点名已个性化的那块,冲突时把两份版本都打印出来,而且永不写标记块之外的内容;`--take` 与 `--keep` 执行那个决定;`--dry-run` 渲染全部,一个字节都不写。(由写盘路径的测试满足。)
-- `install` 和 `upgrade` 点名这次修订会移动的已应用规范,或者说明一条都没应用、以及去哪里看它们;两者都不写 `.agents/dsh-spec/norms/README.md` 与 `.agents/dsh-spec/norms/applied.yaml`。(由刷新的测试满足。)
+- install 把选中的规范写进 `.agents/dsh-spec/norms/norms.md`:每个分组一节、每条规范一个标记块,并把每条的基础哈希记在旁边;update 只覆盖文本哈希仍等于 base 的块,保留并点名已个性化的那块,冲突时把两份版本都打印出来,而且永不写标记块之外的内容;`--take` 与 `--keep` 执行那个决定;`--dry-run` 渲染全部,一个字节都不写。(由写盘路径的测试满足。)
+- `install` 和 `upgrade` 点名这次修订会移动的已应用规范,或者说明一条都没应用、以及去哪里看它们;两者都不写 `.agents/dsh-spec/norms/norms.md` 与 `.agents/dsh-spec/norms/applied.yaml`。(由刷新的测试满足。)
 - 项目只在应用规范期间带着 `AGENTS.md` 钩子:动词加入、刷新、移除它,初始化器的 sync 按记录把它补回,而本仓库一个都不带。(由钩子的测试满足。)
 
 ## Risks
