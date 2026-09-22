@@ -444,6 +444,35 @@ test('--only-skill-set without --revision stays at the manager ref and reads no 
   assert.deepEqual(calls().filter(call => call.endsWith('/releases')), [], '--only-skill-set read the release list')
 })
 
+/** An installed `SKILL.md` whose injected ref is a tag rather than a branch. */
+function installedTagged(ref: string): string {
+  return `---\nname: probe\nmetadata:\n    github-ref: refs/tags/${ref}\n---\n# Probe\n`
+}
+
+test('a set installed from a tag is read, reported and reinstalled at the short tag', (t) => {
+  const fixture = makeFixture({ 'README.md': '# A project\n' })
+  t.after(() => fixture.dispose())
+  // What a released revision looks like on disk: `gh` injects the tag form, while the ref every
+  // command speaks is the short name. Installing the set and reporting drift both read it.
+  for (const skill of SKILLS) fixture.write(`.agents/skills/${skill}/SKILL.md`, installedTagged('v1.2.3'))
+  stubDispatcher(fixture)
+  withTree(fixture, oneFilePerSkill(skill => digest(`tag-${skill}`)))
+  const calls = stubGh(fixture, { releases: [{ draft: false, tag_name: 'v9.9.9' }] })
+
+  const result = runCli(fixture.root, ['upgrade', '--only-skill-set', '--root', fixture.root], { env: stubPath(fixture) })
+
+  assert.equal(result.status, 0, result.output)
+  assert.match(result.output, /at v1\.2\.3: installing the skill set only/, result.output)
+  assert.doesNotMatch(result.output, /v9\.9\.9/, `a tag pin fell back to the newest release:\n${result.output}`)
+  assert.deepEqual(installCalls(calls()), SKILLS.map(skill =>
+    `skill install sunandsunshine-tech/dsh-spec ${skill}@v1.2.3 --dir ${fixture.root}/.agents/skills --force`,
+  ), `the set was not installed at the tag:\n${result.output}`)
+
+  const status = runCli(fixture.root, ['status', '--root', fixture.root])
+  assert.equal(status.status, 0, status.output)
+  assert.match(status.output, /8 skill\(s\) at v1\.2\.3/, status.output)
+})
+
 test('upgrade --dry-run prints the self-update it would run and runs nothing', (t) => {
   const fixture = makeFixture({ 'README.md': '# A project\n' })
   t.after(() => fixture.dispose())
