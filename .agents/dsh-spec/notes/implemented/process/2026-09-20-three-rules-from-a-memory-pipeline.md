@@ -24,7 +24,7 @@ Neither rule can be checked by a script, because both are judgements about meani
 
 The evidence rule has one instance in that file: a commit that changes a documented command carries that command's real output in its message. That instance stays, and the entry around it states the rule once, with the instance as its example, because the two are one decision rather than a general principle and a special case of it.
 
-A second instance sits beside it, because the same thing happens in a second place: a delegated result is a claim like any other, so whoever commits runs the acceptance command itself rather than trusting the report of the run, and a file copied by hand into an installed tree is an edit rather than an install. Both cases are one thing — a verification claim is a claim about one execution, and only the execution the committer performed is evidence for the commit. Who may delegate, what a brief owes its holder and what a holder owes back is the other half of the same subject, and [the roles an agent acts by](2026-09-22-the-roles-an-agent-acts-by.md) owns it.
+A second instance sits beside it, because the same thing happens in a second place: a delegated result is a claim like any other, so whoever commits runs the acceptance command itself rather than trusting the report of the run, and a file copied by hand into an installed tree is an edit rather than an install. Both cases are one thing — a verification claim is a claim about one execution, and only the execution the committer performed is evidence for the commit.
 
 ### The third rule gets a gate
 
