@@ -35,6 +35,7 @@ import { expandScope, parseScopeArgs, pathInGateScope } from './gate-scope.ts'
 import { globalHelp, helpLanguage, markdownHelp, subjectHelp } from './help.ts'
 import { installProject, statusProject, uninstallProject, upgradeProject } from './manager.ts'
 import { readGateRecord, readGateScopes } from './manifest.ts'
+import { normsPathOf, readNorms, renderNormsJson, renderNormsList } from './norms.ts'
 import { resolveRepoRoot } from './repo-root.ts'
 import type { GateScopeKey, GateScopeRecord } from './manifest.ts'
 
@@ -55,6 +56,7 @@ const NOUN_VERBS: Readonly<Record<string, readonly string[]>> = {
   'notes-archived': ['check', 'write'],
   'translation-pair': ['check', 'list', 'explain', 'write', 'brief'],
   'md-links': ['check'],
+  norms: ['list'],
 }
 
 /** Every command the entry point answers to at the top level. */
@@ -85,7 +87,7 @@ function usage(message?: string): never {
   if (message !== undefined) console.error(`dsh-spec: ${message}`)
   console.error('dsh-spec: usage: node dsh-spec.ts <command> [flags]')
   console.error('dsh-spec:   a verb acts: install, upgrade, uninstall, status, check [<path...> | --base <ref> | --all]')
-  console.error('dsh-spec:   a noun takes a verb: notes check | notes-archived check|write | translation-pair check|list|explain|write|brief | md-links check')
+  console.error('dsh-spec:   a noun takes a verb: notes check | notes-archived check|write | translation-pair check|list|explain|write|brief | md-links check | norms list')
   console.error(`dsh-spec: see \`node ${invocationPath()} --help\` for the commands and their flags`)
   process.exit(2)
 }
@@ -549,6 +551,32 @@ async function main(): Promise<void> {
     const gateArgs = ['--all', ...(verb === 'write' ? ['--write'] : [])]
     const results = await runJobs([{ subject: 'notes-archived', gate: ARCHIVE_GATE, args: gateArgs }], width)
     finish(results, [])
+  }
+
+  if (command === 'norms') {
+    // The catalog is read here rather than by a gate: a project applies the norms it chooses, so
+    // what it holds is a selection and not a tree assertion. `--json` is the form an agent renders
+    // the choice from; the plain form is what a person picks from, in their own language.
+    const group = extractValue(verbArgs, '--group')
+    const json = group.rest.includes('--json')
+    const unknown = group.rest.filter(argument => argument !== '--json')
+    if (unknown.length > 0) usage(`norms ${verb} does not take ${unknown.join(', ')}`)
+    const language = helpLanguage(verbArgs)
+    if (typeof language !== 'string') fail(language.error)
+    let catalog
+    try {
+      catalog = readNorms(normsPathOf(scriptDir))
+    } catch (error) {
+      fail((error as Error).message)
+    }
+    try {
+      process.stdout.write(json
+        ? renderNormsJson(catalog, { group: group.values.at(-1) })
+        : renderNormsList(catalog, { language, group: group.values.at(-1) }))
+    } catch (error) {
+      usage((error as Error).message)
+    }
+    process.exit(0)
   }
 
   if (command === 'md-links') {

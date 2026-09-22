@@ -156,6 +156,47 @@ const COMMAND_HELP: readonly CommandHelp[] = [
     },
   },
   {
+    command: 'norms',
+    group: 'checks',
+    verbs: ['list'],
+    scope: '—',
+    flags: [],
+    en: {
+      summary: 'List the norms a project may apply',
+      detail: 'The catalog is data: every norm has a stable id, the group a project chooses it by, an English title and body, and a Chinese title for this surface. Rendering a chosen norm into a project belongs to the manager and is not wired yet.',
+      comment: 'List the whole catalog',
+      example: 'norms list --root .',
+    },
+    zh: {
+      summary: '列出项目可以应用的规范',
+      detail: '目录是数据:每条规范有稳定的 id、用来选择的分组、英文标题与正文,以及供这个界面使用的中文标题。把选中的规范写进项目属于 manager 的职责,尚未接线。',
+      comment: '列出整个目录',
+      example: 'norms list --root .',
+    },
+  },
+  {
+    command: 'norms list',
+    group: 'checks',
+    verbs: [],
+    scope: '—',
+    flags: [
+      ['--group <id>', 'Only the norms in this group', '只列这个分组里的规范'],
+      ['--json', 'Print the catalog as data, for an agent to render the choice from', '以数据形式打印目录,供 agent 渲染选择'],
+    ],
+    en: {
+      summary: 'Print the catalog, in the reader’s language',
+      detail: 'One heading per group and one line per norm, in the language `--help zh|en` or the locale selects; `--json` carries both titles, the body that would be written, and the record the rationale lives in.',
+      comment: 'Pick a group to look at',
+      example: 'norms list --group prose --root .',
+    },
+    zh: {
+      summary: '按读者的语言打印目录',
+      detail: '每个分组一个标题、每条规范一行,语言由 `--help zh|en` 或 locale 决定;`--json` 同时带两个标题、会写进项目的正文,以及理由所在的记录。',
+      comment: '只看一个分组',
+      example: 'norms list --group prose --root .',
+    },
+  },
+  {
     command: 'notes',
     group: 'checks',
     verbs: ['check'],

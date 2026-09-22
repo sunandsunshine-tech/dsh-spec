@@ -24,6 +24,7 @@ node <engine>/dsh-spec.ts <command> [flags]
 | Command            | Scope or verbs                               | What it does                                |
 |--------------------|----------------------------------------------|---------------------------------------------|
 | `check`            | `<path...> \| --base <ref> \| --all`         | Run the checks a selection owes             |
+| `norms`            | `list`                                       | List the norms a project may apply          |
 | `notes`            | `check`                                      | Check the Agent Note tree and its notes     |
 | `notes-archived`   | `check \| write`                             | Check the frozen archive and its seal       |
 | `translation-pair` | `check \| list \| explain \| write \| brief` | Check a translated pair, or brief an update |
@@ -131,6 +132,37 @@ node <engine>/dsh-spec.ts check --base main --root .
 | `--base <ref>` | Compute the path list from a change against this ref |
 | `--head <ref>` | The commit the change is measured to (default HEAD) |
 | `--files-from <file|->` | Read the path list from a file, or from stdin |
+
+The [global flags](#flags) apply to every command.
+
+### norms
+
+List the norms a project may apply.
+
+The catalog is data: every norm has a stable id, the group a project chooses it by, an English title and body, and a Chinese title for this surface. Rendering a chosen norm into a project belongs to the manager and is not wired yet.
+
+**Verbs:** `list`
+
+```sh
+# List the whole catalog
+node <engine>/dsh-spec.ts norms list --root .
+```
+
+### norms list
+
+Print the catalog, in the reader’s language.
+
+One heading per group and one line per norm, in the language `--help zh|en` or the locale selects; `--json` carries both titles, the body that would be written, and the record the rationale lives in.
+
+```sh
+# Pick a group to look at
+node <engine>/dsh-spec.ts norms list --group prose --root .
+```
+
+| Flag | Meaning |
+|---|---|
+| `--group <id>` | Only the norms in this group |
+| `--json` | Print the catalog as data, for an agent to render the choice from |
 
 The [global flags](#flags) apply to every command.
 
