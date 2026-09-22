@@ -1,6 +1,7 @@
 # Agent Note: The released revision is the main branch
 
 Status: implemented
+Archived: 2026-09-22
 
 English | [中文](2026-09-21-the-released-revision-is-main.zh.md)
 

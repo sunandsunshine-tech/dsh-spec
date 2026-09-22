@@ -16,9 +16,11 @@
  */
 
 import { spawnSync } from 'node:child_process'
-import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { basename, dirname, join, relative, resolve, sep } from 'node:path'
 import { readGateRecord } from './manifest.ts'
+import { applyNormsHook, readNormsRecord, recordPathOf } from './norms-apply.ts'
 
 /**
  * Directories never descended into when looking for existing instruction files.
@@ -358,6 +360,49 @@ function mergeManaged(existing: string | undefined, rendered: string, merge: Mer
   return `${head}${notesSection(notesDir).trimEnd()}${tail}\n`
 }
 
+/** How many lines of one managed file's diff a dry run prints before it truncates. */
+const DIFF_LINE_LIMIT = 40
+
+/**
+ * The unified diff between the file a project holds and the text a sync would write.
+ *
+ * The two texts go to a temporary directory and `git diff --no-index` compares them there, so no
+ * repository is read and no index is written: the comparison is local to this process and works in a
+ * project without git. `git diff --no-index` exits 1 when the inputs differ, which is the expected
+ * outcome here rather than an error.
+ *
+ * @param path - the project-relative path, for the header line.
+ * @param existing - the file as the project holds it.
+ * @param rendered - the text a sync would write.
+ * @returns the diff, or a description of why it could not be produced.
+ */
+function unifiedDiff(path: string, existing: string, rendered: string): string {
+  const scratch = mkdtempSync(join(tmpdir(), 'dsh-spec-diff-'))
+  try {
+    const before = join(scratch, 'before')
+    const after = join(scratch, 'after')
+    writeFileSync(before, existing)
+    writeFileSync(after, rendered)
+    const result = spawnSync('git', ['diff', '--no-index', '--unified=3', '--', before, after], { encoding: 'utf8' })
+    if (result.error !== undefined) return `  (no diff: git could not be run — ${result.error.message})`
+    if (result.status === 0) return ''
+    if (result.status !== 1) return `  (no diff: git diff exited ${String(result.status)})`
+    const lines = (result.stdout ?? '').split('\n').filter(line => !line.startsWith('diff --git ') && !line.startsWith('index '))
+    // `@@ -0,0 +1,7 @@` is not what a maintainer reads; the two labels are. Everything from the first
+    // hunk marker is kept as it came, blank context lines included — a dropped blank line is a
+    // diff that no longer reads as the file.
+    const header = [`--- ${path} (as it is)`, `+++ ${path} (as sync would write it)`]
+    const hunk = lines.findIndex(line => line.startsWith('@@'))
+    const body = lines.slice(hunk < 0 ? 0 : hunk)
+    const kept = body.slice(0, DIFF_LINE_LIMIT)
+    const rest = body.length - kept.length
+    const suffix = rest > 0 ? [`  … ${rest} more line(s) of the diff`] : []
+    return [...header, ...kept, ...suffix].join('\n').trimEnd()
+  } finally {
+    rmSync(scratch, { recursive: true, force: true })
+  }
+}
+
 /**
  * Bring the files whose text the collection owns up to the installed revision.
  *
@@ -368,8 +413,20 @@ function mergeManaged(existing: string | undefined, rendered: string, merge: Mer
  * everywhere. Nothing outside the managed list is read or written.
  */
 function syncManagedFiles(): void {
+  /** Whether this project applies any norm, which is what the `AGENTS.md` hook reports. A record
+   * that cannot be read is treated as none: a project's norms must not fail a sync. */
+  const appliesNorms = (): boolean => {
+    try {
+      return readNormsRecord(recordPathOf(root)).norms.length > 0
+    } catch {
+      return false
+    }
+  }
+  const applied = appliesNorms()
   const updated: string[] = []
   const created: string[] = []
+  /** The `(existing, rendered)` text of each updated file, so a dry run can show what changes. */
+  const updates: { path: string, existing: string, rendered: string }[] = []
   /** Managed documents whose counterpart exists, so their pair has to be re-recorded. */
   const pairs: string[] = []
   let unchanged = 0
@@ -385,6 +442,8 @@ function syncManagedFiles(): void {
     let merged = file.merge === 'section' && existing === undefined
       ? `${rendered.trimEnd()}\n\n${notesSection(notesDir).trimEnd()}\n`
       : mergeManaged(existing, rendered, file.merge)
+    // The one other dynamic region of `AGENTS.md`: a project carries it only while it applies norms.
+    if (file.merge === 'section') merged = applyNormsHook(merged, applied)
     // A managed document a project translated has two sides. The English side carries its half of
     // the switcher the moment the counterpart exists, so the text this loop compares is the merged
     // text *with* that switcher — computing it here is what keeps a no-op sync from reporting a
@@ -401,7 +460,10 @@ function syncManagedFiles(): void {
       continue
     }
     if (existing === undefined) created.push(file.path)
-    else updated.push(file.path)
+    else {
+      updated.push(file.path)
+      updates.push({ path: file.path, existing, rendered: merged })
+    }
     if (write) {
       ensureDirectory(dirname(absolute))
       writeFileSync(absolute, merged)
@@ -423,6 +485,7 @@ function syncManagedFiles(): void {
     const existing = readFileSync(resolve(root, counterpart), 'utf8')
     if (existing === rendered) continue
     updated.push(counterpart)
+    updates.push({ path: counterpart, existing, rendered })
     if (write) writeFileSync(resolve(root, counterpart), rendered)
   }
 
@@ -431,6 +494,12 @@ function syncManagedFiles(): void {
   for (const path of updated) console.log(`  ${write ? 'updated' : 'would update'} ${path}`)
   for (const path of created) console.log(`  ${write ? 'created' : 'would create'} ${path}`)
   console.log(`  ${unchanged} managed file(s) already match the installed revision`)
+  // What a sync would change, line by line: a plan that names files leaves a maintainer to compute
+  // the difference by hand, and this is the half where a project's own rows and standing orders are
+  // merged, so the interesting question is exactly which lines move.
+  if (!write) {
+    for (const update of updates) console.log(unifiedDiff(update.path, update.existing, update.rendered))
+  }
   for (const path of pairs) {
     const counterpart = `${path.slice(0, -'.md'.length)}.zh.md`
     if (!updated.includes(path) && !updated.includes(counterpart)) continue

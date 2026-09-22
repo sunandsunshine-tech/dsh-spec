@@ -8,7 +8,7 @@ English | [中文](2026-09-21-the-manager-s-own-install-is-the-pin.zh.md)
 
 The manifest declared the revision every skill came from, and a project could not change it: `manifest.json` ships inside the installed manager, so the declaration is written by the skill set and read back by the manager that the same install put in place. A project that needed a branch or an older release had no supported way to say so, and the one file that named the pin was the one file the project may not edit.
 
-The declaration also had no check behind it. `status` compared each installed ref against the manifest's literal, so a manifest that named a revision nobody had installed passed as long as the installed copies agreed with each other — the skill set could not notice that its own declared pin and its own installations had drifted apart. [The released revision is the main branch](2026-09-21-the-released-revision-is-main.md) left that shape in place and changed only its value.
+The declaration also had no check behind it. `status` compared each installed ref against the manifest's literal, so a manifest that named a revision nobody had installed passed as long as the installed copies agreed with each other — the skill set could not notice that its own declared pin and its own installations had drifted apart. [The released revision is the main branch](../../archived/process/2026-09-21-the-released-revision-is-main.md) left that shape in place and changed only its value.
 
 ## Decision
 

@@ -1,6 +1,7 @@
 # Agent Note: 发布的修订是 main 分支
 
 Status: implemented
+Archived: 2026-09-22
 
 [English](2026-09-21-the-released-revision-is-main.md) | 中文
 
