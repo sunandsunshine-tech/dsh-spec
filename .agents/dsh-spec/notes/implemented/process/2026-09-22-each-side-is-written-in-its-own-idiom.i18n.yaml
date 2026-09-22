@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-22-each-side-is-written-in-its-own-idiom.md
-2026-09-22-each-side-is-written-in-its-own-idiom.md: 82f15534284859aea5027aba367a8689cfbbb9b5
-2026-09-22-each-side-is-written-in-its-own-idiom.zh.md: 96a93417fec123202fd8d471d6f77d459088cb15
+2026-09-22-each-side-is-written-in-its-own-idiom.md: 135a45e56472435ce223d4909b6955004409f611
+2026-09-22-each-side-is-written-in-its-own-idiom.zh.md: bfd75593c45afb92644de72a17a077d7bbe11ad8

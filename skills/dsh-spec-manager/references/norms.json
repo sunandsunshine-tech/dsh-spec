@@ -92,6 +92,14 @@
       "source": ".agents/dsh-spec/notes/implemented/process/2026-09-20-terminology-rows-are-the-maintainers-decision.md"
     },
     {
+      "id": "prose.idiom",
+      "group": "prose",
+      "title": "Write each side of a pair in its own idiom",
+      "titleZh": "双语的两侧各按自己的语感写",
+      "body": "- **Write each side of a pair in its own idiom.** A bilingual pair carries one meaning in two documents; say it the way each language says it, and let the structure — headings, lists, links, code — be the contract rather than the wording.\n  - Why: a sentence carried over with the other side's syntax reads as machine translation to the reader it was written for. They have to translate it back to understand, which is the cost the second language exists to avoid.\n  - Self-check: read the side you speak, aloud. Does it stop you anywhere? That sentence came from the other side: rewrite it from the meaning — reorder it, split it, drop the image.",
+      "source": ".agents/dsh-spec/notes/implemented/process/2026-09-22-each-side-is-written-in-its-own-idiom.md"
+    },
+    {
       "id": "owner.one-home",
       "group": "owner",
       "title": "One fact, one home, and everything else derives from it",

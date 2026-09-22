@@ -12,7 +12,7 @@ This repository produced the failure on its own notes. A first draft of one Chin
 
 ## Decision
 
-**Write each side in the idiom of its own language; let the structure be the contract, not the wording.** The pair's job is that both sides say the same thing, and saying it is not the same as translating it. A sentence whose shape came from the other side is rewritten from its meaning: reorder it, split it, drop the image, use the construction that language reaches for. Terms are governed separately, by the terminology table, which is where a deliberately shared vocabulary lives.
+**Write each side in the idiom of its own language; let the structure be the contract, not the wording.** The pair's job is that both sides say the same thing, and saying it is not the same as translating it. A sentence whose shape came from the other side is rewritten from its meaning: reorder it, split it, drop the image, use the construction that language reaches for. Terms are governed separately, by the terminology table, which is where a deliberately shared vocabulary lives. The rule ships to adopters as `prose.idiom` in the norm catalogue, so a project can apply it without reading this record.
 
 ## Alternatives considered
 
