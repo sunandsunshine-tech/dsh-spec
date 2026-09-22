@@ -19,7 +19,7 @@ node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts upgrade --root .
 Three rules follow, and `AGENTS.md` carries them:
 
 - **Never hand-edit the copy.** It is overwritten by the next install. Change `skills/`, then refresh the copy in the same change.
-- **Refresh through the manager, never by copying files.** One command installs every skill the manifest names at the revision the manifest pins, and [`manager-lifecycle.md`](../../../../../skills/dsh-spec-manager/references/manager-lifecycle.md) writes it out. The install resolves the remote ref, so it follows a push, and the manager's `status` compares the copy against the manifest and against the revision the installer injected into each installed `SKILL.md`, rather than against a tree hash a reader has to know.
+- **Refresh through the manager, never by copying files.** One command installs every skill the manifest names at the revision the manager's own installed metadata carries, and [`manager-lifecycle.md`](../../../../../skills/dsh-spec-manager/references/manager-lifecycle.md) writes it out. The install resolves the remote ref, so it follows a push, and the manager's `status` compares the ref the installer injected into each installed `SKILL.md` against the manager's own — no manifest field declares the pin, which [The manager's own install is the pin](2026-09-21-the-manager-s-own-install-is-the-pin.md) owns.
 - **The copy is a deployment artifact, not a second source.** Where the two disagree, `skills/` wins and the copy is the defect.
 
 ### The copy is not byte-identical to the source
@@ -28,7 +28,7 @@ Three rules follow, and `AGENTS.md` carries them:
 
 ### A refresh follows a push
 
-The install resolves the remote ref, so a source edit reaches the copy only after it is pushed. A change that alters the package therefore lands in two commits: the source, then the refreshed copy. [Four mechanisms instead of twelve](2026-09-18-four-mechanisms-instead-of-twelve.md) keeps this decision and narrows it: eight skills are installed by name from the manifest at one pinned revision, and the manager owns install, update and removal.
+The install resolves the remote ref, so a source edit reaches the copy only after it is pushed. A change that alters the package therefore lands in two commits: the source, then the refreshed copy. [Four mechanisms instead of twelve](2026-09-18-four-mechanisms-instead-of-twelve.md) keeps this decision and narrows it: eight skills are installed by explicit name, all at the manager's own ref, and the manager owns install, update and removal.
 
 ## Alternatives considered
 

@@ -16,7 +16,7 @@ Git answered "no such path in that tree"; the read came back empty, and the code
 
 ## Decision
 
-**The two pointers name what exists.** The slop checklist is described as something the collection no longer ships as a page, and the archive instruction names the fixed engine directory `.agents/skills/dsh-spec-manager/scripts` as where the gates are. **The same two sentences are corrected in the templates that install them**, so a new project never receives the broken form.
+**The two pointers name what exists.** The slop checklist is described as something the skill set no longer ships as a page, and the archive instruction names the fixed engine directory `.agents/skills/dsh-spec-manager/scripts` as where the gates are. **The same two sentences are corrected in the templates that install them**, so a new project never receives the broken form.
 
 **The archive gate climbs to the repository root and reads the seal.** The notes root sits three levels below it, `.agents/dsh-spec/notes`, and the climb is written at that depth; the committed manifest read now returns content, so an artifact the committed seal names and the working tree no longer records is reported as a missing sealed entry instead of a clean archive.
 

@@ -12,7 +12,7 @@ This repository holds `skills/` — one skill package carrying the dsh developme
 
 ```
 skills/   the deliverable: eight skills, one per workflow, each with its own entry and references;
-          every gate is code in dsh-spec-manager/scripts/, the collection's one home for it
+          every gate is code in dsh-spec-manager/scripts/, the skill set's one home for it
 scripts/           this repository's own validation, not shipped — verify-skill-structure.ts, the
           provenance registry and gate (ports.json, verify-port-provenance.ts), and ports.ts
 tests/             the functional suite for the checks themselves — node --test 'tests/**/*.test.ts'
@@ -22,7 +22,7 @@ submodules/dsh/    the extraction baseline, pinned to dsh-v0.1.6-alpha.2 — .gi
 docs/              the documents a person reads; no tier, no budget, and no gate
 ```
 
-The Agent Note gates are **not** in `.agents/dsh-spec/`: their code ships in the collection's one code home, `.agents/skills/dsh-spec-manager/scripts/`, and each is reached through the entry point beside them, `dsh-spec.ts`, which resolves a gate name against the `gates` record in the manager's `references/manifest.json`, refuses an unknown name, and refuses to run anything at all when that record and the `verify-*.ts` scripts in that same directory disagree. See `.agents/dsh-spec/notes/README.md` and [`2026-09-18-track-the-installed-skill-copy.md`](.agents/dsh-spec/notes/implemented/process/2026-09-18-track-the-installed-skill-copy.md).
+The Agent Note gates are **not** in `.agents/dsh-spec/`: their code ships in the skill set's one code home, `.agents/skills/dsh-spec-manager/scripts/`, and each is reached through the entry point beside them, `dsh-spec.ts`, which resolves a gate name against the `gates` record in the manager's `references/manifest.json`, refuses an unknown name, and refuses to run anything at all when that record and the `verify-*.ts` scripts in that same directory disagree. See `.agents/dsh-spec/notes/README.md` and [`2026-09-18-track-the-installed-skill-copy.md`](.agents/dsh-spec/notes/implemented/process/2026-09-18-track-the-installed-skill-copy.md).
 
 ## Commands
 
@@ -60,7 +60,7 @@ Node ≥ 22.19 or ≥ 24 is the only requirement: the engine is TypeScript that 
 
 ## Boundaries
 
-- **Never edit `.agents/skills/`.** It is tracked so every collaborator runs the same revision, and it is overwritten on the next install. Change `skills/`, push, then refresh the copy in the same change with the command in [`manager-lifecycle.md`](skills/dsh-spec-manager/references/manager-lifecycle.md).
+- **Never edit `.agents/skills/`.** It is tracked so every collaborator runs the same revision, and it is overwritten on the next install. Change `skills/`, push, then refresh the copy in the same change with the command in [`manager-lifecycle.md`](skills/dsh-spec-manager/references/manager-lifecycle.md). In this repository that command is `upgrade --revision <current-branch>`: a bare `upgrade` targets the newest published release, which is not the branch under work. The note [The manager's own install is the pin](.agents/dsh-spec/notes/implemented/process/2026-09-21-the-manager-s-own-install-is-the-pin.md) owns the rule and its alternative.
 - **Ask before changing what the package claims to be generic.** A part that assumes one ecosystem is the defect this package exists to avoid.
 - **A gate that passes on an empty corpus is worse than no gate.** Every gate here exits non-zero when it finds nothing to check; keep it that way.
 - **Never edit `submodules/dsh/`.** It is the pinned baseline a re-extraction diffs against, and its content is not ours.

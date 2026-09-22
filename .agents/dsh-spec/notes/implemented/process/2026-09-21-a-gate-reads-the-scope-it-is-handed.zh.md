@@ -20,10 +20,10 @@ Status: implemented
 
 | 命令 | 动词 | 输入 | 功能 |
 |---|---|---|---|
-| `install` | — | `--dry-run`、`--jobs <n>` | 采用:按 manifest 的修订部署技能集、创建缺失的项目文件、同步受管文本 |
-| `upgrade` | — | `--reinstall`、`--dry-run`、`--jobs <n>` | 刷新部署与受管文本;绝不创建缺失的项目文件 |
+| `install` | — | `--dry-run`、`--jobs <n>`、`--revision <ref>` | 采用:按 manager 的 ref 或点名的修订部署技能集合、创建缺失的项目文件、同步受管文本 |
+| `upgrade` | — | `--reinstall`、`--dry-run`、`--jobs <n>`、`--revision <ref>`、`--only-skill-set` | 先自更新 manager,再重新执行它来刷新部署与受管文本;绝不创建缺失的项目文件 |
 | `uninstall` | — | `--dry-run` | 只删技能目录,然后逐项点名它留下的产物 |
-| `status` | — | — | 安装集等于 manifest、每个技能坐落在钉住的修订上、分发器在位 |
+| `status` | — | — | 安装集等于 manifest、每个技能坐落在 manager 的修订上、分发器在位 |
 | `check` | — | `<path…>` / `--base <ref>` / `--head <ref>` / `--all` / `--files-from -` | 运行某个选区欠下的检查,并打印它跳过的每一个主语 |
 | `notes` | `check` | `--all` / `<path…>` / `--files-from -` | 活跃生命周期上的分类与格式 |
 | `notes-archived` | `check`、`write` | `--all` | 冻结归档;`write` 追加新封存 |
@@ -52,7 +52,7 @@ dsh-spec <subject> <operation> --root <project> (--all | <path…> | --files-fro
 
 ### Management
 
-`install` 是采用的动词:按 manifest 的修订部署技能集、创建缺失的项目文件、同步集合拥有的文本。它默认执行,`--dry-run` 打印计划。`upgrade` 刷新部署与受管文本,绝不创建缺失的项目文件,所以被有意删掉的 `docs/AGENTS.md` 保持被删。两者都不接受修订:`references/manifest.json` 是惟一的钉子,而唯一点名修订的地方是引导命令 `gh skill install <repo> dsh-spec-manager@<ref>`。`status` 报告三项漂移事实。`uninstall` 删除技能目录并点名它留下的东西 —— 笔记树、`docs/`、根 `AGENTS.md` 里的标记块,以及 `.rgignore` —— 因为一次把它们一起带走的卸载会删除项目自己的决定。
+`install` 是采用的动词:按 manager 自己的 ref、或 `--revision <ref>` 点名的修订部署技能集合、创建缺失的项目文件、同步技能集合拥有的文本。它默认执行,`--dry-run` 打印计划。`upgrade` 刷新部署与受管文本,绝不创建缺失的项目文件,所以被有意删掉的 `docs/AGENTS.md` 保持被删。目标修订按两级解析 —— `--revision <ref>` 优先,没有它则由最新已发布 release 顶上 —— 而且只有完全没有已安装 manager 元数据的树才需要解析:`install` 与 `upgrade --only-skill-set` 从 manager 注入的 ref 取修订。目标与当前不同时,`upgrade` 自更新 manager 并重新执行新副本,[`manager-lifecycle.md`](../../../../../skills/dsh-spec-manager/references/manager-lifecycle.md) 把做法原样写出,[manager 自己的安装就是那个 pin](2026-09-21-the-manager-s-own-install-is-the-pin.zh.md)拥有其中的理由。`status` 报告三项漂移事实,第一项如今对着 manager 自己注入的 ref。`uninstall` 删除技能目录并点名它留下的东西 —— 笔记树、`docs/`、根 `AGENTS.md` 里的标记块,以及 `.rgignore` —— 因为一次把它们一起带走的卸载会删除项目自己的决定。
 
 `--no-notes` 与 `--no-docs` 都已移除。一个让采用过程跳过它所采用的机制的旗标,会产出一个项目:常备指令描述着一棵不存在的树,文档里的路径解析不到任何东西,聚合在第一次检查上就失败。两条仍把 `--no-docs` 描述为活旗标的笔记在同一次改动里修正,这正是这类旗标招来的下场。
 
@@ -68,9 +68,9 @@ dsh-spec <subject> <operation> --root <project> (--all | <path…> | --files-fro
 
 每道 check 被切成两部分:一个尽量贴近 dsh 的纯函数 `check(input)`,以及一个我们自己的壳 —— 旗标、范围解析、报告、退出码。这条缝让未来的上游跟进保持便宜:检查判定方式的改动落在移植来的函数里,而项目如何调用它的改动属于我们,没有上游可比较。出处被记录下来,好让比较是机械的:
 
-- `scripts/ports.json` —— 本仓库自己的记录(它不发布,因为它要读钉住的 submodule):本地文件、上游路径、上游 sha,以及 `verbatim`、`adapted`、`split` 或 `rewrite` 的 `relation`,后者正是告诉未来读者一个 diff 是信号还是噪音的东西。
+- `scripts/ports.json` —— 本仓库自己的记录(它不发布,因为它要读 pin 的 submodule):本地文件、上游路径、上游 sha,以及 `verbatim`、`adapted`、`split` 或 `rewrite` 的 `relation`,后者正是告诉未来读者一个 diff 是信号还是噪音的东西。
 - 每个移植模块里的一行文件头,点名同样的三项事实。
-- `scripts/verify-port-provenance.ts` —— 一道离线门禁,核对这两者,证明每个上游路径在记录的 sha 上确实存在于 `submodules/dsh`,拿基线钉子与根 `AGENTS.md` 对照,并对空登记表直接失败。
+- `scripts/verify-port-provenance.ts` —— 一道离线门禁,核对这两者,证明每个上游路径在记录的 sha 上确实存在于 `submodules/dsh`,拿基线 pin 与根 `AGENTS.md` 对照,并对空登记表直接失败。
 - `scripts/ports.ts` —— `--list`、`--diff <local>` 与 `--status`,产出上游对照,以及自记录的 sha 以来上游已经移动过的移植路径清单。
 
 dsh 的 `run-gates.ts` 不移植:它绑定 pnpm 调用与 dsh 自己的模式清单,导入它等于把 pnpm 拖回来。我们的调度器**镜像**它的形状 —— 有界池、按确定顺序缓冲输出、逐 check 状态 —— 它的登记条目写 `mirrors` 而不是 `port`。
@@ -87,7 +87,7 @@ dsh 的 `run-gates.ts` 不移植:它绑定 pnpm 调用与 dsh 自己的模式清
 6. **文档与引用。** 每一条交付的命令、模板与引用改写为新命令面;死掉的入口分支移除;陈述了已变机制的笔记就地修正并交叉链接。证据:引用检查器找不到悬空路径,聚合为绿。
 7. **发布。** 每一次源改动都在同一次改动里刷新安装副本,全新克隆为绿,以及 PR 描述。
 
-套件排在最前,因为一道正在被重写的 check 需要在重写之前把它的结论钉住;第 2、3 步在命令面之前,好让每一步都能与前一步的行为对照;文档在最后,好让没有任何命令被写两遍。上面每一步都已落地,而对 [一次改动只跑它该跑的门禁](2026-09-21-a-diff-selects-the-gates-it-owes.zh.md) 的部分取代记在那里,而不是这里。
+套件排在最前,因为一道正在被重写的 check 需要在重写之前把它的结论 pin 住;第 2、3 步在命令面之前,好让每一步都能与前一步的行为对照;文档在最后,好让没有任何命令被写两遍。上面每一步都已落地,而对 [一次改动只跑它该跑的门禁](2026-09-21-a-diff-selects-the-gates-it-owes.zh.md) 的部分取代记在那里,而不是这里。
 
 ## Required verification
 
@@ -119,7 +119,7 @@ dsh 的 `run-gates.ts` 不移植:它绑定 pnpm 调用与 dsh 自己的模式清
 
 **两个输入旗标,`--files` 与 `--scan`。** 意图毫无歧义。它落选是因为种类已经由路径本身携带,而旗标无法覆盖的那一种情形 —— 长到装不进参数向量的清单 —— 由 `--files-from -` 覆盖。
 
-**在 install 与 upgrade 上保留 `--rev`。** 一个旗标,项目就能钉住任何它喜欢的修订。它落选是因为 manifest 之外选定的修订会把一套技能与另一个修订的脚本和引用混在一起,这正是 `status` 存在要报告的错配,本集合绝不能自己造出它。
+**在 install 与 upgrade 上保留 `--rev`。** 一个旗标,项目就能 pin 任何它喜欢的修订。它当时落选是因为 manifest 之外选定的修订会把一套技能与另一个修订的脚本和引用混在一起,这正是 `status` 存在要报告的错配,技能集合绝不能自己造出它。[manager 自己的安装就是那个 pin](2026-09-21-the-manager-s-own-install-is-the-pin.zh.md)后来从相反方向抵达了同一个表面:旗标存在,而它点名的修订就是整套技能安装所用的那个,因为它曾与之矛盾的那个 manifest 字段已经消失。
 
 **保留 `--no-notes`。** 不要决策树也能采用。它落选是因为采用过程写下的其余部分都假定那棵树存在,于是这个旗标买给项目的是一份它无法满足的契约。
 
@@ -127,7 +127,7 @@ dsh 的 `run-gates.ts` 不移植:它绑定 pnpm 调用与 dsh 自己的模式清
 
 **无界并发。** 在小仓库上最快。它像 dsh 自己的调度器记录的那样落选:进程数、内存压力与可读日志正是无界池拿来赌博的东西,而服务提供方的速率限制会惩罚它。
 
-**把出处记成 manifest 里的 glob,或代码里的行锚点。** 自我描述且就地。它们落选是因为 manifest 描述的是发布的集合而不是本仓库的 submodule,而行号被上游的一次插入就作废;文件加 sha 这一对才是稳定的锚点。
+**把出处记成 manifest 里的 glob,或代码里的行锚点。** 自我描述且就地。它们落选是因为 manifest 描述的是发布的技能集合而不是本仓库的 submodule,而行号被上游的一次插入就作废;文件加 sha 这一对才是稳定的锚点。
 
 ## Consequences
 

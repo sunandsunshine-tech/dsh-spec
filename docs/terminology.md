@@ -34,6 +34,13 @@
 | prompt | 提示词 |  |  |  |
 | monorepo | monorepo |  |  |  |
 | lint | lint |  |  |  |
+| dry run | dry run |  | 试运行、空跑 | `--dry-run` 的模式 |
+| half-apply | half-apply |  | 半应用 | 一次操作只做了一半 |
+| pin | pin |  | 钉子、钉住、钉定 | 把一个安装固定在某个 ref 上 |
+| rebase | rebase |  | 变基 |  |
+| release | release |  | 发行版 | 名词；动词「发布」照常用 |
+| squash | squash |  | 压缩提交 | 合并 PR 时的提交折叠 |
+| tag | tag |  | 标签 | git 的 tag；界面标签不受此限 |
 
 ## 双语类（中英文文本各自使用中英文）
 
@@ -75,7 +82,8 @@
 | corpus | 语料 | | 文档集 | 一道门禁实际读取的文件集合；空语料使门禁失败 |
 | aggregate | 聚合检查 | | 汇总门禁 | `run.ts --all`：manifest 所列的每一道门禁 |
 | installed copy | 安装副本 | | 已安装拷贝 | `.agents/skills/` 下的部署产物 |
-| refresh | 刷新 | | 更新、同步 | 用 `gh` 把集合更新到新版本 |
-| extraction | 抽取 | | 提取 | 从源项目得到本集合的过程 |
+| skill set | 技能集合 | | 集合、套件 | 本技能集合的自称 |
+| refresh | 刷新 | | 更新、同步 | 用 `gh` 把技能集合更新到新版本 |
+| extraction | 抽取 | | 提取 | 从源项目得到本技能集合的过程 |
 | baseline | 基线 | | 基准 | `submodules/dsh/`，固定的抽取来源 |
 | deviation | 偏离 | | 偏差、差异 | 与源项目不同且被记录下来的地方 |

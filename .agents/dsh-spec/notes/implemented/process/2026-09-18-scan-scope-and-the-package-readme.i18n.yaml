@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-18-scan-scope-and-the-package-readme.md
-2026-09-18-scan-scope-and-the-package-readme.md: ce1bec57dc6d9cf3621aa984cbd03618f74b3161
-2026-09-18-scan-scope-and-the-package-readme.zh.md: 40b8c4841209649980fb1bece4ae2d3930b6f53c
+2026-09-18-scan-scope-and-the-package-readme.md: 1d5f3f6549a59bd048f031df47d5d474d8921b93
+2026-09-18-scan-scope-and-the-package-readme.zh.md: d35189d58fd4d9e5508285537caabe60772bdc45

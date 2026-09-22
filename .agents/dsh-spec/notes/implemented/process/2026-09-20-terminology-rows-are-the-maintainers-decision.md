@@ -18,7 +18,7 @@ The `architecture map` row is deleted: no document links to it, and nothing else
 
 ### Why no gate
 
-A gate cannot tell an asked-for row from an inferred one. It reads the table and not the conversation that produced it, so the only mechanical check available would be a list of approved rows — a second inventory of the table, drifting from it and then certifying the drift. This collection leaves a judgement about meaning to the reader who can make it, and a gate that guessed would report green over exactly the entries it cannot see.
+A gate cannot tell an asked-for row from an inferred one. It reads the table and not the conversation that produced it, so the only mechanical check available would be a list of approved rows — a second inventory of the table, drifting from it and then certifying the drift. This skill set leaves a judgement about meaning to the reader who can make it, and a gate that guessed would report green over exactly the entries it cannot see.
 
 ## Alternatives considered
 

@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-skill-set-is-introduced-once.md
-2026-09-21-the-skill-set-is-introduced-once.md: 07fc7e1b4d0dadcd2ecc379e5ecaaec1f67471d7
-2026-09-21-the-skill-set-is-introduced-once.zh.md: 30d2b294faa3d9d44658a4410dd84cc2aba16f23
+2026-09-21-the-skill-set-is-introduced-once.md: cc60fb0787943419449d2bb13657afca4b6f5f45
+2026-09-21-the-skill-set-is-introduced-once.zh.md: caa5b61b51054a39ce1b3c9fc060bb98cef346e4

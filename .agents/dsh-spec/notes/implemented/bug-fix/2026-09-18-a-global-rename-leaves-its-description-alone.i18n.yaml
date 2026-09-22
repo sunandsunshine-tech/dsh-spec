@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-18-a-global-rename-leaves-its-description-alone.md
-2026-09-18-a-global-rename-leaves-its-description-alone.md: a281f03af29f7680b4c04240d66727a503deccd9
-2026-09-18-a-global-rename-leaves-its-description-alone.zh.md: ead299c09f89278fc725337f0e5299abb312b69a
+2026-09-18-a-global-rename-leaves-its-description-alone.md: 60ecc862722642ac5f64d87cad83901d623b2276
+2026-09-18-a-global-rename-leaves-its-description-alone.zh.md: 4e9c9172561079656766a73464ba511f72c10164

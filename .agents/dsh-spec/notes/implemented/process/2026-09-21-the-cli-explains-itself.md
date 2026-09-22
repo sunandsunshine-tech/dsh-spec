@@ -6,9 +6,9 @@ English | [中文](2026-09-21-the-cli-explains-itself.zh.md)
 
 ## Problem
 
-The collection's whole mechanical path now runs through one entry point — `install`, `upgrade`, `uninstall` and `status`, six checks, and the change-scope dispatch — and its only usage text is a one-line subject list printed by `--help`. A reader who wants a flag, the scope grammar, an exit code or an example has nowhere to look: the subject table is duplicated in `manager-lifecycle.md`, and the mapping from "this kind of change" to "the checks it owes" is prose inside a shipped workflow skill rather than a fact the CLI states.
+The skill set's whole mechanical path now runs through one entry point — `install`, `upgrade`, `uninstall` and `status`, six checks, and the change-scope dispatch — and its only usage text is a one-line subject list printed by `--help`. A reader who wants a flag, the scope grammar, an exit code or an example has nowhere to look: the subject table is duplicated in `manager-lifecycle.md`, and the mapping from "this kind of change" to "the checks it owes" is prose inside a shipped workflow skill rather than a fact the CLI states.
 
-Two things follow. An agent that loads this collection has no page it can read to learn the tool the collection is driven by, and anything written by hand beside the CLI drifts from it — a fact in two places is the failure this repository has paid for twice already.
+Two things follow. An agent that loads this skill set has no page it can read to learn the tool the skill set is driven by, and anything written by hand beside the CLI drifts from it — a fact in two places is the failure this repository has paid for twice already.
 
 The help is also English-only, while every document a person reads here ships in both languages.
 
@@ -45,10 +45,10 @@ The help is also English-only, while every document a person reads here ships in
 
 **Localize every message, the checks included.** One language everywhere, decided once. It lost because the checks' reports are evidence — a commit message quotes them, a note records what a gate printed — and because it would turn the suite's English assertions into structural ones for no gain a reader asked for.
 
-**Add `--lang zh` beside `--help zh`.** Two ways to say one thing, and `--help` already has to read the language to print itself. It lost on the same rule the collection applies everywhere else: one owner, one spelling.
+**Add `--lang zh` beside `--help zh`.** Two ways to say one thing, and `--help` already has to read the language to print itself. It lost on the same rule the skill set applies everywhere else: one owner, one spelling.
 
 **Keep the subject table in `manager-lifecycle.md`.** It is already written there. It lost because the usage facts would then have two owners, and the one a reader finds first would be whichever they opened.
 
 ## Consequences
 
-The collection gains one page that answers "how do I drive this", reachable from the skill an agent loads, and it is the CLI's own output rather than a description of it. `--help` becomes the short form a person reads in a terminal and `cli.md` the long form a reader searches, both rendered from one table in the entry point. The cost is that the help data is now a maintained surface: a subject without help fails the suite, and the language switch is exercised for both values.
+The skill set gains one page that answers "how do I drive this", reachable from the skill an agent loads, and it is the CLI's own output rather than a description of it. `--help` becomes the short form a person reads in a terminal and `cli.md` the long form a reader searches, both rendered from one table in the entry point. The cost is that the help data is now a maintained surface: a subject without help fails the suite, and the language switch is exercised for both values.

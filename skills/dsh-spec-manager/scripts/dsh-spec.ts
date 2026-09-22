@@ -382,18 +382,31 @@ async function main(): Promise<void> {
   // ------------------------------------------------------------------ management
 
   if ((MANAGEMENT as readonly string[]).includes(command)) {
-    for (const argument of args) {
+    const revisionFlag = extractValue(args, '--revision')
+    if (revisionFlag.values.length > 1) usage(`${command} takes --revision once`)
+    const revision = revisionFlag.values.at(-1)
+    if (revision !== undefined && command !== 'install' && command !== 'upgrade') {
+      usage(`${command} does not take --revision`)
+    }
+    for (const argument of revisionFlag.rest) {
       if (argument === '--dry-run' && command !== 'status') continue
       if (argument === '--reinstall' && command === 'upgrade') continue
+      if (argument === '--only-skill-set' && command === 'upgrade') continue
       usage(`${command} does not take ${argument}`)
     }
-    const dryRun = args.includes('--dry-run')
+    const dryRun = revisionFlag.rest.includes('--dry-run')
     if (command === 'install') {
-      await installProject(root, { dryRun, jobs: width })
+      await installProject(root, { dryRun, jobs: width, revision })
       process.exit(0)
     }
     if (command === 'upgrade') {
-      await upgradeProject(root, { dryRun, reinstall: args.includes('--reinstall'), jobs: width })
+      await upgradeProject(root, {
+        dryRun,
+        reinstall: revisionFlag.rest.includes('--reinstall'),
+        skillSetOnly: revisionFlag.rest.includes('--only-skill-set'),
+        jobs: width,
+        revision,
+      })
       process.exit(0)
     }
     if (command === 'uninstall') {

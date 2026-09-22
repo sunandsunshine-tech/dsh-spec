@@ -12,12 +12,12 @@ node <engine>/dsh-spec.ts <command> [flags]
 
 ## Management Commands
 
-| Command     | What it does                                       |
-|-------------|----------------------------------------------------|
-| `install`   | Install the collection into a project              |
-| `upgrade`   | Update the installed skills and the mechanism text |
-| `uninstall` | Remove the installed skills                        |
-| `status`    | Check the installed set against the manifest       |
+| Command     | What it does                                               |
+|-------------|------------------------------------------------------------|
+| `install`   | Install the collection into a project                      |
+| `upgrade`   | Update the installed skills and the mechanism text         |
+| `uninstall` | Remove the installed skills                                |
+| `status`    | Check the installed set against the manager's own revision |
 
 ## Commands
 
@@ -52,7 +52,7 @@ The help speaks English or Chinese: `--help zh`, or a `DSH_SPEC_LANG`, `LC_ALL`,
 
 Install the collection into a project.
 
-Acts by default. `--dry-run` prints both plans — the skills it would deploy and the files it would create — and writes nothing.
+Acts by default. The set is installed at the ref `gh skill install` injected into this manager, or at `--revision <ref>`. `--dry-run` prints both plans — the skills it would deploy and the files it would create — and writes nothing.
 
 ```sh
 # See what adopting this project would do
@@ -62,6 +62,7 @@ node <engine>/dsh-spec.ts install --root . --dry-run
 | Flag | Meaning |
 |---|---|
 | `--dry-run` | Print the plan and write nothing |
+| `--revision <ref>` | Install at this ref instead of the manager's own |
 
 The [global flags](#flags) apply to every command.
 
@@ -69,7 +70,7 @@ The [global flags](#flags) apply to every command.
 
 Update the installed skills and the mechanism text.
 
-Creates nothing: a file the project deleted on purpose stays deleted. `--reinstall` copies the skills again even when their content already matches.
+Self-updates the manager first, re-executes that new copy, and then installs the skill set at the ref it was updated to. A replacement too old to know `--only-skill-set` is not re-executed: the invoked copy installs the set itself from the replacement's manifest, so the manager and the set still end on one revision. `--only-skill-set` skips the first half and installs the set at the manager's own ref. Creates nothing: a file the project deleted on purpose stays deleted. `--reinstall` copies the skills again even when their content already matches.
 
 ```sh
 # Refresh a project pinned to a new revision
@@ -79,7 +80,9 @@ node <engine>/dsh-spec.ts upgrade --root .
 | Flag | Meaning |
 |---|---|
 | `--dry-run` | Print the plan and write nothing |
+| `--only-skill-set` | Skip the manager self-update and install only the skill set |
 | `--reinstall` | Copy the skills again even when their content matches |
+| `--revision <ref>` | Update to this ref instead of the newest published release |
 
 The [global flags](#flags) apply to every command.
 
@@ -102,9 +105,9 @@ The [global flags](#flags) apply to every command.
 
 ### status
 
-Check the installed set against the manifest.
+Check the installed set against the manager's own revision.
 
-Changes nothing, and exits non-zero when a skill is missing, unlisted, or not at the pinned revision.
+Changes nothing, and exits non-zero when a skill is missing, unlisted, or not at the revision the manager itself was installed from.
 
 ```sh
 # Report drift before pushing an instruction file

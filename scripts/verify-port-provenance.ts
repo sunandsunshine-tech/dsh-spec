@@ -13,10 +13,14 @@
  *
  *   node scripts/verify-port-provenance.ts
  *
- * Four things must hold, and an empty registry is the first failure rather than a clean run:
+ * Five things must hold, and an empty registry is the first failure rather than a clean run:
  * every recorded port exists and names its upstream path and sha in its header; every recorded
- * upstream path exists at that sha; the baseline ref is the pin the root `AGENTS.md` states; and
- * every engine file that exists upstream is recorded, so a new port cannot be forgotten.
+ * upstream path exists at that sha; the baseline ref is the pin the root `AGENTS.md` states; every
+ * engine file that exists upstream is recorded, so a new port cannot be forgotten; and every engine
+ * file whose header claims a dsh origin is recorded, so a provenance line cannot name an origin
+ * nobody can enumerate. The last two are the two directions of one reconciliation, and the second
+ * of them is what the first cannot see: a fabricated header points at an upstream path that never
+ * existed, so "the upstream file is missing" never fires.
  */
 
 import { execFileSync } from 'node:child_process'
@@ -124,6 +128,18 @@ for (const entry of readdirSync(engineDirectory, { withFileTypes: true })) {
   if (recorded.has(entry.name)) continue
   if (git(submodulePath, ['cat-file', '-e', `${registry.baseline.sha}:scripts/${entry.name}`]) !== undefined) {
     errors.push(`${entry.name}: exists upstream at ${registry.baseline.sha} but the registry does not record it — add it, or rename the file so it is honestly ours`)
+  }
+}
+
+// The same completeness in the other direction: a header claiming a dsh origin is a statement this
+// registry must be able to enumerate. A fabricated path is invisible above — nothing recorded it,
+// and the upstream never held it — so the claim itself is what is checked here.
+for (const entry of readdirSync(engineDirectory, { withFileTypes: true })) {
+  if (!entry.isFile()) continue
+  if (recorded.has(entry.name)) continue
+  const header = readFileSync(join(engineDirectory, entry.name), 'utf8').split('\n').slice(0, 40).join('\n')
+  if (/\bPorted from dsh\b/.test(header)) {
+    errors.push(`${entry.name}: its header claims a dsh origin but ${registryPath} does not record it — record it, or drop the claim`)
   }
 }
 

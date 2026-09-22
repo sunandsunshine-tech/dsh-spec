@@ -20,7 +20,7 @@ The record also cost something every change: a file to keep current, a tier in t
 
 **Keep an append-only work log.** No rewriting, and a journal is easy to append to. It lost because it becomes a second history that drifts from git, and every entry outlives the work it describes — the implementation-status narration the slop checklist removes.
 
-**Keep it and systematise it into the collection.** The pattern could ship the artifact, so every adopting project gets the same continuity. It lost because the maintainer's test is the source project: it did not need one, so shipping one would make the collection claim a requirement its own origin disproves.
+**Keep it and systematise it into the skill set.** The pattern could ship the artifact, so every adopting project gets the same continuity. It lost because the maintainer's test is the source project: it did not need one, so shipping one would make the skill set claim a requirement its own origin disproves.
 
 **Keep it for this repository only.** It was already scoped that way and cost nothing outside this repository. It lost because that is where most of the cost was anyway — a tier, a standing order, and a map section exist for this repository alone.
 

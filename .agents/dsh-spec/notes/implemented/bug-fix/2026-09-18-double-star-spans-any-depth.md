@@ -8,7 +8,7 @@ English | [中文](2026-09-18-double-star-spans-any-depth.zh.md)
 
 One matcher decides whether a scope entry covers a path, and it treated `*` and `**` as the same operator: "any characters inside one segment". `**/README.md` therefore matched a two-segment path and nothing deeper, so a README one level further down fell outside every scope that named it — the documentation scope and the bilingual pairing scope both read a corpus smaller than the one their entries described.
 
-No gate reported it. Every gate in this collection validates the files it finds, and none of them claims how many files there should be, so a scope that silently keeps a fraction of its paths produces a green report computed from the fraction. A count with no expected value is not evidence.
+No gate reported it. Every gate in this skill set validates the files it finds, and none of them claims how many files there should be, so a scope that silently keeps a fraction of its paths produces a green report computed from the fraction. A count with no expected value is not evidence.
 
 ## Decision
 

@@ -22,7 +22,7 @@ Every gate stayed green. The gates read structure — headings, links, class fol
 
 **Run the pass over everything and grep the result for contradictions.** Automated and complete. It lost because the contradiction is semantic: no pattern states "this sentence now disagrees with the one after it", and the grep would need the very understanding the pass lacked.
 
-**Add a gate that reads prose for self-consistency.** The only check that could have caught it. It lost because such a gate needs a model of the subject, which is the reasoning-transcript problem this collection refuses to solve with a script; the reading it would replace is cheaper than the gate would be.
+**Add a gate that reads prose for self-consistency.** The only check that could have caught it. It lost because such a gate needs a model of the subject, which is the reasoning-transcript problem this skill set refuses to solve with a script; the reading it would replace is cheaper than the gate would be.
 
 ## Consequences
 

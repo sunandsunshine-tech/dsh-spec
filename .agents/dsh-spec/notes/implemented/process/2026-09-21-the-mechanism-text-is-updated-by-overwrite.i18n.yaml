@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-mechanism-text-is-updated-by-overwrite.md
-2026-09-21-the-mechanism-text-is-updated-by-overwrite.md: 51eb759495d42e5da7843d09a7a53de200463509
-2026-09-21-the-mechanism-text-is-updated-by-overwrite.zh.md: 75c993dbc9a3b3493d9b830616c2891431d8c95a
+2026-09-21-the-mechanism-text-is-updated-by-overwrite.md: 44fc99c15f41efc4ede1d9af7b2ffec572baf252
+2026-09-21-the-mechanism-text-is-updated-by-overwrite.zh.md: 0921856ee684e89f2a27d13b7ab6b05b5377689f

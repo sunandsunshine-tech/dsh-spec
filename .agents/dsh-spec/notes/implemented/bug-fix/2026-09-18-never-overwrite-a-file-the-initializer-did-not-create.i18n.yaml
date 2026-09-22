@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-18-never-overwrite-a-file-the-initializer-did-not-create.md
-2026-09-18-never-overwrite-a-file-the-initializer-did-not-create.md: 38691919d55bd832d1fc33d62fd719aee013399c
-2026-09-18-never-overwrite-a-file-the-initializer-did-not-create.zh.md: 8aa87bfc33e47a6085c1122e08d5d9d084893283
+2026-09-18-never-overwrite-a-file-the-initializer-did-not-create.md: 31712666ea4199d2b45a29337c28b4c4dfdc1f7d
+2026-09-18-never-overwrite-a-file-the-initializer-did-not-create.zh.md: 5f7c01c2ed8b7b2cd67fd81f88f71df5a5db26e6
