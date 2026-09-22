@@ -85,7 +85,7 @@ Node ≥ 22.19 or ≥ 24 is the only requirement: the engine is TypeScript that 
   cannot check that a sentence was carried over with the other side's syntax, and such a sentence
   reads as machine translation to the reader it was written for. Say it the way that language
   says it, and let the structure be the constraint rather than the wording.
-  [The prose standard](skills/dsh-prose-standard/SKILL.md) owns what each kind of prose owes.
+  [Each side is written in its own idiom](.agents/dsh-spec/notes/implemented/process/2026-09-22-each-side-is-written-in-its-own-idiom.md).
 - **Derive a path from its owner; never hardcode it twice.** Two regressions in this package came from a path that had one owner and two literals.
 
 ## Documentation
