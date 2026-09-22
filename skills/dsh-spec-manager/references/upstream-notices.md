@@ -26,4 +26,60 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-Every engine file carried over from that project states it in its own header, next to its `SPDX-License-Identifier: MIT` line: the upstream path, the sha it was taken at, and whether it is verbatim, adapted or split. The full licence text, the copyright line, and the bundled packages this set inlines are in the repository's [`THIRD_PARTY_NOTICES.md`](../../../THIRD_PARTY_NOTICES.md); the registry behind those headers is [`scripts/ports.json`](../../../scripts/ports.json).
+Every engine file carried over from that project states it in its own header, next to its `SPDX-License-Identifier: MIT` line: the upstream path, the sha it was taken at, and whether it is verbatim, adapted or split. The registry behind those headers, and the same notices in the repository's own words, are in [`THIRD_PARTY_NOTICES.md`](../../../THIRD_PARTY_NOTICES.md) and [`scripts/ports.json`](../../../scripts/ports.json).
+
+## Bundled npm packages
+
+The documentation gates import the Markdown parser bundled in `scripts/vendor-mdast.mjs`, so a project needs no `node_modules` of its own. It inlines these MIT-licensed packages, and this list is the bundle's own record of them — every `node_modules/.pnpm/<name>@<version>` path it carries:
+
+| Package | Version |
+|---|---|
+| `ccount` | 2.0.1 |
+| `character-entities` | 2.0.2 |
+| `decode-named-character-reference` | 1.3.0 |
+| `devlop` | 1.1.0 |
+| `escape-string-regexp` | 5.0.0 |
+| `longest-streak` | 3.1.0 |
+| `markdown-table` | 3.0.4 |
+| `mdast-util-find-and-replace` | 3.0.2 |
+| `mdast-util-from-markdown` | 2.0.3 |
+| `mdast-util-gfm` | 3.1.0 |
+| `mdast-util-gfm-autolink-literal` | 2.0.1 |
+| `mdast-util-gfm-footnote` | 2.1.0 |
+| `mdast-util-gfm-strikethrough` | 2.0.0 |
+| `mdast-util-gfm-table` | 2.0.0 |
+| `mdast-util-gfm-task-list-item` | 2.0.0 |
+| `mdast-util-phrasing` | 4.1.0 |
+| `mdast-util-to-markdown` | 2.1.2 |
+| `mdast-util-to-string` | 4.0.0 |
+| `micromark` | 4.0.2 |
+| `micromark-core-commonmark` | 2.0.3 |
+| `micromark-extension-gfm` | 3.0.0 |
+| `micromark-extension-gfm-autolink-literal` | 2.1.0 |
+| `micromark-extension-gfm-footnote` | 2.1.0 |
+| `micromark-extension-gfm-strikethrough` | 2.1.0 |
+| `micromark-extension-gfm-table` | 2.1.2 |
+| `micromark-extension-gfm-tagfilter` | 2.0.0 |
+| `micromark-extension-gfm-task-list-item` | 2.1.0 |
+| `micromark-factory-destination` | 2.0.1 |
+| `micromark-factory-label` | 2.0.1 |
+| `micromark-factory-space` | 2.0.1 |
+| `micromark-factory-title` | 2.0.1 |
+| `micromark-factory-whitespace` | 2.0.1 |
+| `micromark-util-character` | 2.1.1 |
+| `micromark-util-chunked` | 2.0.1 |
+| `micromark-util-classify-character` | 2.0.1 |
+| `micromark-util-combine-extensions` | 2.0.1 |
+| `micromark-util-decode-numeric-character-reference` | 2.0.2 |
+| `micromark-util-decode-string` | 2.0.1 |
+| `micromark-util-encode` | 2.0.1 |
+| `micromark-util-html-tag-name` | 2.0.1 |
+| `micromark-util-normalize-identifier` | 2.0.1 |
+| `micromark-util-resolve-all` | 2.0.1 |
+| `micromark-util-sanitize-uri` | 2.0.1 |
+| `micromark-util-subtokenize` | 2.1.0 |
+| `unist-util-is` | 6.0.1 |
+| `unist-util-stringify-position` | 4.0.0 |
+| `unist-util-visit` | 5.1.0 |
+| `unist-util-visit-parents` | 6.0.2 |
+
