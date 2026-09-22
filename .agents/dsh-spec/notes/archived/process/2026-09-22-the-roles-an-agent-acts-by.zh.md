@@ -1,6 +1,7 @@
 # Agent Note: agent 按什么角色行事
 
 Status: implemented
+Archived: 2026-09-23
 
 [English](2026-09-22-the-roles-an-agent-acts-by.md) | 中文
 

@@ -1,6 +1,7 @@
 # Agent Note: The roles an agent acts by
 
 Status: implemented
+Archived: 2026-09-23
 
 English | [中文](2026-09-22-the-roles-an-agent-acts-by.zh.md)
 
