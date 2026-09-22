@@ -11,13 +11,13 @@ import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { normsStatusFor, recordPathOf, filePathOf, normHash, renderNormsRecord } from '../skills/dsh-spec-manager/scripts/norms-apply.ts'
+import { NORMS_FILE, NORMS_RECORD, normsStatusFor, recordPathOf, filePathOf, normHash, renderNormsRecord } from '../skills/dsh-spec-manager/scripts/norms-apply.ts'
 import { runCli, runScript } from './helpers/cli.ts'
 import { makeFixture, REPO_ROOT } from './helpers/fixtures.ts'
 
 /** The two files an applied selection lives in. */
-const FILE = join('docs', 'norms.md')
-const RECORD = join('docs', 'norms.yaml')
+const FILE = NORMS_FILE
+const RECORD = NORMS_RECORD
 
 /** One norm's block, as the file holds it. */
 function block(fixture: { read: (path: string) => string }, id: string): string {
@@ -291,6 +291,6 @@ test('a hook a hand edit dropped comes back from the record on the next sync', (
 test('this repository keeps its own instructions instead of applying the catalog', () => {
   // These norms were distilled from this repository, so applying them back would state the same
   // guidance twice and let the two drift apart. The catalog is shipped, never installed here.
-  assert.equal(existsSync(join(REPO_ROOT, 'docs', 'norms.md')), false, 'this repository applied the catalog to itself')
+  assert.equal(existsSync(join(REPO_ROOT, NORMS_FILE)), false, 'this repository applied the catalog to itself')
   assert.doesNotMatch(readFileSync(join(REPO_ROOT, 'AGENTS.md'), 'utf8'), /dsh-spec:norms/, 'this repository carries the catalog hook')
 })

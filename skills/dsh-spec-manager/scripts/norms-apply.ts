@@ -2,9 +2,13 @@
  * Applying norms to a project: the selection a project holds, the file they are written into, and
  * the comparison that decides what an update may overwrite.
  *
- * A project's copy has two halves. `docs/norms.md` is the text an agent reads, one section per group
- * and one marked block per norm; `docs/norms.yaml` is the record: the ids this project applied and
- * the hash of each norm's text as the skill set last wrote it. The record is what makes
+ * A project's copy is a directory holding two files, and it sits with the project's own agent
+ * records rather than under `docs/`: the text is instruction an agent reads, not a document a person
+ * reads. `README.md` is the entry — one section per group, one marked block per norm, and the file
+ * the `AGENTS.md` hook points at — while `applied.yaml` records the ids this project applied and the
+ * hash of each norm's text as the skill set last wrote it. A directory rather than one file because
+ * the catalogue may outgrow a single page: a later per-group split adds files beside these two and
+ * moves neither, where a file that had to become a directory would move a path projects hold. The record is what makes
  * personalization safe, because with a base hash three states are distinguishable and only one of
  * them may be overwritten silently:
  *
@@ -24,8 +28,9 @@ import { readNorms } from './norms.ts'
 import type { NormsCatalog, NormsLanguage } from './norms.ts'
 
 /** The file a project reads, and the record beside it. */
-export const NORMS_FILE = join('docs', 'norms.md')
-export const NORMS_RECORD = join('docs', 'norms.yaml')
+export const NORMS_DIR = join('.agents', 'dsh-spec', 'norms')
+export const NORMS_FILE = join(NORMS_DIR, 'README.md')
+export const NORMS_RECORD = join(NORMS_DIR, 'applied.yaml')
 
 /** The end marker of one block; the start marker is built from the id. */
 const END_MARKER = '<!-- /dsh-norm -->'
@@ -121,7 +126,7 @@ export function readNormsRecord(path: string): NormsRecord {
 export function renderNormsRecord(record: NormsRecord): string {
   return [
     '# The norms this project applies, and the hash of each as the skill set last wrote it.',
-    '# A hash that no longer matches the block in docs/norms.md means this project personalized that',
+    `# A hash that no longer matches the block in ${NORMS_FILE} means this project personalized that`,
     '# norm: an update keeps it and says so instead of overwriting. `norms update --keep <id...>`',
     '# confirms the project\'s text as deliberate, and `norms update --take <id...>` takes the',
     '# revision\'s text instead.',

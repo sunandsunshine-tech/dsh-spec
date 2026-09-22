@@ -14,6 +14,7 @@ import { chmodSync, existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { test } from 'node:test'
 import { runCli, runScript } from './helpers/cli.ts'
+import { NORMS_FILE } from '../skills/dsh-spec-manager/scripts/norms-apply.ts'
 import { NOTES, makeFixture, snapshot, writeNote } from './helpers/fixtures.ts'
 import type { Fixture } from './helpers/fixtures.ts'
 
@@ -162,7 +163,7 @@ test('install --dry-run reports a plan and changes nothing', (t) => {
   assert.match(result.output, /root AGENTS\.md: missing — will be created/, result.output)
   // Adoption reports the norms a project could apply, and writes none of them.
   assert.match(result.output, /no norms are applied in this project/, result.output)
-  assert.equal(existsSync(join(fixture.root, 'docs', 'norms.md')), false, 'adoption wrote a norms file')
+  assert.equal(existsSync(join(fixture.root, NORMS_FILE)), false, 'adoption wrote a norms file')
   assert.deepEqual(projectFiles(fixture), before, 'a dry run wrote to the project')
 })
 

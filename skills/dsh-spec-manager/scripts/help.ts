@@ -163,13 +163,13 @@ const COMMAND_HELP: readonly CommandHelp[] = [
     flags: [],
     en: {
       summary: 'List, explain and apply the norms a project chooses',
-      detail: 'The catalog is data: every norm has a stable id, the group a project chooses it by, an English title and body, and a Chinese title for this surface. A project applies the ones it chooses into `docs/norms.md`, with `docs/norms.yaml` recording the selection and the hash of each block as the skill set last wrote it — which is what lets an update tell an untouched block from a personalized one. The `AGENTS.md` section that points at the file exists exactly while a project applies norms.',
+      detail: 'The catalog is data: every norm has a stable id, the group a project chooses it by, an English title and body, and a Chinese title for this surface. A project applies the ones it chooses into `.agents/dsh-spec/norms/README.md`, with `.agents/dsh-spec/norms/applied.yaml` recording the selection and the hash of each block as the skill set last wrote it — which is what lets an update tell an untouched block from a personalized one. The `AGENTS.md` section that points at the file exists exactly while a project applies norms.',
       comment: 'List the whole catalog',
       example: 'norms list --root .',
     },
     zh: {
       summary: '列出、解释并应用项目挑选的规范',
-      detail: '目录是数据:每条规范有稳定的 id、用来选择的分组、英文标题与正文,以及供这个界面使用的中文标题。项目把选中的规范写进 `docs/norms.md`,`docs/norms.yaml` 记录选择以及每个块上次由技能集合写入时的哈希 —— 更新正是靠它分辨「没人动过」与「已个性化」。`AGENTS.md` 里指向该文件的那一小节,只在项目应用规范期间存在。',
+      detail: '目录是数据:每条规范有稳定的 id、用来选择的分组、英文标题与正文,以及供这个界面使用的中文标题。项目把选中的规范写进 `.agents/dsh-spec/norms/README.md`,`.agents/dsh-spec/norms/applied.yaml` 记录选择以及每个块上次由技能集合写入时的哈希 —— 更新正是靠它分辨「没人动过」与「已个性化」。`AGENTS.md` 里指向该文件的那一小节,只在项目应用规范期间存在。',
       comment: '列出整个目录',
       example: 'norms list --root .',
     },
@@ -443,13 +443,13 @@ const COMMAND_HELP: readonly CommandHelp[] = [
       ['--dry-run', 'Print the plan and write nothing', '只打印计划,不写任何东西'],
     ],
     en: {
-      summary: 'Apply norms into docs/norms.md',
+      summary: 'Apply norms into .agents/dsh-spec/norms/README.md',
       detail: 'A norm the project already applied is compared, not re-applied: one whose text still matches the record is left alone, one whose text moved is kept and reported, and one where both moved is reported with both versions for the project to decide.',
       comment: 'Apply the prose group',
       example: 'norms install --group prose --root .',
     },
     zh: {
-      summary: '把规范应用进 docs/norms.md',
+      summary: '把规范应用进 .agents/dsh-spec/norms/README.md',
       detail: '已经应用过的规范是「比较」而不是「重装」:文本仍与记录一致的不动;文本动过的保留并报告;两边都动过的把两份版本都打印出来,由项目决定。',
       comment: '应用散文分组',
       example: 'norms install --group prose --root .',
