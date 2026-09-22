@@ -92,3 +92,7 @@ What that command does to each skill, and what `install`, `status` and `uninstal
 - [`AGENTS.md`](AGENTS.md) — the rules that hold in every session, and the commands this repository actually runs.
 - [`skills/dsh-spec-manager/SKILL.md`](skills/dsh-spec-manager/SKILL.md) — the collection's entry; the other seven skills sit beside it.
 - [`.agents/dsh-spec/notes/README.md`](.agents/dsh-spec/notes/README.md) — the decision-record contract, which is the pattern describing itself.
+
+## License
+
+This project is released under the MIT License. The full text and copyright line are in [`LICENSE`](LICENSE); the upstream DeepSeek Harness notice, the ported files and the bundled npm packages are in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
