@@ -1,4 +1,5 @@
 /**
+ * SPDX-License-Identifier: MIT
  * Ported from dsh scripts/translation-brief.ts @ ddefc45fbc7f8e46dd73185e68295696d1297887 (submodules/dsh). Relation: adapted.
  * Pure assembly of the minimal-update briefing for one out-of-sync
  * translation pair: the authored side's changes since the last confirmed
