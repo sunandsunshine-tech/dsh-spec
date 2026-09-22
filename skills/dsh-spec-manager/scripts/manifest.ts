@@ -1,11 +1,14 @@
 /**
  * The manifest: the one record this collection reads and writes nothing into.
  *
- * It decides which skills a project installs, the revision they all come from, and which gates
- * this collection publishes. The gate field is a record rather than a reading of the engine
- * directory: a name written down is reviewable in a diff, and `dsh-spec.ts` resolves a gate against it
- * and the entry point reconciles it with the `verify-*.ts` scripts beside it before anything runs, so
- * a recorded name and its file have to agree or nothing is dispatched at all.
+ * It decides which skills a project installs and which gates this collection publishes. It does not
+ * declare a revision: the manager reads that from the ref `gh skill install` injected into its own
+ * installed `SKILL.md`, so a skill set is pinned by the file that runs rather than by a field here.
+ *
+ * The gate field is a record rather than a reading of the engine directory: a name written down is
+ * reviewable in a diff, and `dsh-spec.ts` resolves a gate against it and the entry point reconciles
+ * it with the `verify-*.ts` scripts beside it before anything runs, so a recorded name and its file
+ * have to agree or nothing is dispatched at all.
  *
  * The scope record answers the two questions a dispatcher asks about one gate: **which surface**
  * it answers for, as scope keys a single owner module resolves, and **how it is selected** —
