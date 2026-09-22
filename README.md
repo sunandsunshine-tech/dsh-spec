@@ -2,9 +2,9 @@
 
 English | [中文](README.zh.md)
 
-Give your project a decision record for every change that matters, a check that notices when one is missing, and English and Chinese documents that stay in step.
+Give a project one place to keep what a change has to carry: why it went that way, what it gave up, and what proves it. This repository extracts the pattern the [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) team works by, and ships it as eight skills and one engine that a project installs, runs and updates from a single revision.
 
-It looks after the parts a team loses first: why a decision went the way it did, which other options lost, what a change owes as evidence, and how the English and Chinese versions of a document stay together. All of that gets written down, kept where it belongs, and checked by one command.
+Two of the skills reach into the project's own tree: the contract for its decision records, and a catalogue of development norms the project chooses from. The rest are the workflows a change goes through — prose, review, pre-push checks, translations.
 
 ## Prerequisites
 
@@ -41,6 +41,7 @@ Give your agent these instructions:
 ## What you get
 
 - **Decisions stay put.** Every change that matters says what it built, what it gave up and what will verify it, so the next person does not argue it again.
+- **You pick the norms.** The set also ships the development norms it accumulated: each has an id, a group, and a body that says the rule, why it is a rule, and how to notice you are breaking it. `norms install` writes the ones your project chooses into `.agents/dsh-spec/norms/`, and `norms update` brings them to the installed revision without overwriting what you edited.
 - **One command closes the loop.** It runs every check on record; a missing one, or a record that disagrees with the scripts beside it, fails on the spot instead of turning green.
 - **The two languages stay together.** Each pair carries its English side, its Chinese side and a record of the last agreed state, so a side edited without the other shows up as a failed check.
 - **Review and push have something to go on.** Review follows a list of what code alone cannot show; before a push you run the smallest evidence that covers the change, not the whole suite.
@@ -49,7 +50,7 @@ Give your agent these instructions:
 
 | Skill | What it is for |
 |---|---|
-| `dsh-spec-manager` | Owning the set: initialize a project, install and update the skills at one revision, keep the mechanism text in step, run the aggregate check |
+| `dsh-spec-manager` | Owning the set: initialize a project, install and update the skills at one revision, apply the norms a project chooses, keep the mechanism text in step, run the aggregate check |
 | `dsh-archive-agent-notes` | Keeping the decision records honest: validate the tree, check supersession, freeze what has served its purpose |
 | `dsh-translate-docs` | Keeping a document and its translation in step, and recording the pair |
 | `dsh-prose-standard` | What prose each place owes — API documentation, comments, tests, READMEs, diagnostics, visible strings |
@@ -58,14 +59,41 @@ Give your agent these instructions:
 | `dsh-pre-push-checks` | The smallest evidence that covers an outgoing change |
 | `dsh-find-simplifications` | Turning "find things to simplify" into evidence-backed proposals |
 
-## How a change goes
+## Applying the norms it ships
+
+The catalogue is data: every norm has a stable id, the group a project chooses it by, and a body that says the rule, why it is a rule, and how to notice you are breaking it. A project applies the ones it wants, by group or by id:
+
+```sh
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts norms list
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts norms install --group prose --root .
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts norms update --root .
+```
+
+They land in `.agents/dsh-spec/norms/README.md`, with `applied.yaml` beside it recording which ids the project applied and the hash of each block as the skill set last wrote it. That record is what lets an update tell three cases apart: a block nobody touched takes the revision's text, a block the project edited is kept and reported, and a block both sides changed prints both versions and waits — `norms update --keep <id>` keeps yours, `norms update --take <id>` takes the revision's. While a project applies any norm, its `AGENTS.md` carries one section pointing at the file.
+
+`install` and `upgrade` never write those files. They report what the revision moves, the way `apt update` reports upgradable packages, and leave the writing to `norms update`.
+
+## Updating the skill set
+
+The set follows the manager: every skill carries the ref the manager itself was installed from, and an install reads the remote ref rather than the working tree, so push the source change first. `upgrade` resolves the target revision, replaces the manager when it names a different ref, and then re-runs the freshly installed copy to deploy the set at it:
+
+```sh
+node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts upgrade --root .
+```
+
+`upgrade --only-skill-set` is the half without the self-update: it installs the set at the manager's current ref. In a source tree, such as this repository, run `upgrade --revision <current-branch>`: a bare `upgrade` there has no installed manager ref to read and resolves the latest published release instead.
+
+What that command does to each skill, and what `install`, `status` and `uninstall` add, is in [`manager-lifecycle.md`](skills/dsh-spec-manager/references/manager-lifecycle.md).
+
+## Working in a project that has it
 
 1. **Decide in a note first.** A change worth recording starts as a record under `proposed/`, with the problem, the options that lost and how it will be verified; a conclusion reached in conversation is recorded the same way, or it lives only in that conversation.
-2. **Change the skill, not the installed copy.** Work lands in `skills/`. `.agents/skills/` is overwritten by the next install, so an edit there is lost.
-3. **Close the loop with one command.** The command is in [`AGENTS.md`](AGENTS.md#commands): it runs every check, and the workflow skill for the change picks the smallest part of it that the change owes.
-4. **Move the note, refresh the copy.** Once a decision ships, the note moves to `implemented/` and speaks in the present tense; the change is pushed, the installed set is refreshed from that revision, and both land together.
+2. **Close the loop with one command.** The command is in [`AGENTS.md`](AGENTS.md#commands): it runs every check, and the workflow skill for the change picks the smallest part of it that the change owes.
 
-## What is in this repository
+## Working on this repository
+
+- **Change the skill, not the installed copy.** Work lands in `skills/`. `.agents/skills/` is overwritten by the next install, so an edit there is lost.
+- **Move the note, update the copy.** Once a decision ships, the note moves to `implemented/` and speaks in the present tense; the change is pushed, the installed set is updated from that revision, and both land together.
 
 | Who | Job |
 |---|---|
@@ -76,18 +104,6 @@ Give your agent these instructions:
 | `scripts/` | What belongs to this repository and is not shipped: [`verify-skill-structure.ts`](scripts/verify-skill-structure.ts), the provenance registry and gate, and the `ports` comparison |
 | `tests/` | The functional suite for the checks themselves — `node --test 'tests/**/*.test.ts'` |
 | `submodules/dsh/` | Where the pattern came from, pinned as a comparison baseline: read it, never edit it |
-
-## Refreshing the installed set
-
-The set follows the manager: every skill carries the ref the manager itself was installed from, and an install reads the remote ref rather than the working tree, so push the source change first. `upgrade` resolves the target revision, refreshes the manager when it names a different ref, and then re-runs the freshly installed copy to deploy the set at it:
-
-```sh
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts upgrade --root .
-```
-
-`upgrade --only-skill-set` is the half without the self-update: it installs the set at the manager's current ref. In a source tree, such as this repository, run `upgrade --revision <current-branch>`: a bare `upgrade` there has no installed manager ref to read and resolves the latest published release instead.
-
-What that command does to each skill, and what `install`, `status` and `uninstall` add, is in [`manager-lifecycle.md`](skills/dsh-spec-manager/references/manager-lifecycle.md).
 
 ## Read next
 

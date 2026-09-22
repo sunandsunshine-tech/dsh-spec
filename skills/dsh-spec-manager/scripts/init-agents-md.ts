@@ -20,6 +20,7 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, 
 import { tmpdir } from 'node:os'
 import { basename, dirname, join, relative, resolve, sep } from 'node:path'
 import { readGateRecord } from './manifest.ts'
+import { applyNormsHook, readNormsRecord, recordPathOf } from './norms-apply.ts'
 
 /**
  * Directories never descended into when looking for existing instruction files.
@@ -412,6 +413,16 @@ function unifiedDiff(path: string, existing: string, rendered: string): string {
  * everywhere. Nothing outside the managed list is read or written.
  */
 function syncManagedFiles(): void {
+  /** Whether this project applies any norm, which is what the `AGENTS.md` hook reports. A record
+   * that cannot be read is treated as none: a project's norms must not fail a sync. */
+  const appliesNorms = (): boolean => {
+    try {
+      return readNormsRecord(recordPathOf(root)).norms.length > 0
+    } catch {
+      return false
+    }
+  }
+  const applied = appliesNorms()
   const updated: string[] = []
   const created: string[] = []
   /** The `(existing, rendered)` text of each updated file, so a dry run can show what changes. */
@@ -431,6 +442,8 @@ function syncManagedFiles(): void {
     let merged = file.merge === 'section' && existing === undefined
       ? `${rendered.trimEnd()}\n\n${notesSection(notesDir).trimEnd()}\n`
       : mergeManaged(existing, rendered, file.merge)
+    // The one other dynamic region of `AGENTS.md`: a project carries it only while it applies norms.
+    if (file.merge === 'section') merged = applyNormsHook(merged, applied)
     // A managed document a project translated has two sides. The English side carries its half of
     // the switcher the moment the counterpart exists, so the text this loop compares is the merged
     // text *with* that switcher — computing it here is what keeps a no-op sync from reporting a

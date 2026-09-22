@@ -63,6 +63,13 @@ Node ≥ 22.19 or ≥ 24 is the only requirement: the engine is TypeScript that 
 - **Never edit `.agents/skills/`.** It is tracked so every collaborator runs the same revision, and it is overwritten on the next install. Change `skills/`, push, then refresh the copy in the same change with the command in [`manager-lifecycle.md`](skills/dsh-spec-manager/references/manager-lifecycle.md). In this repository that command is `upgrade --revision <current-branch>`: a bare `upgrade` targets the newest published release, which is not the branch under work. The note [The manager's own install is the pin](.agents/dsh-spec/notes/implemented/process/2026-09-21-the-manager-s-own-install-is-the-pin.md) owns the rule and its alternative.
 - **Ask before changing what the package claims to be generic.** A part that assumes one ecosystem is the defect this package exists to avoid.
 - **A gate that passes on an empty corpus is worse than no gate.** Every gate here exits non-zero when it finds nothing to check; keep it that way.
+- **Prefer the design an adopter can migrate more cheaply.** Where two designs are equal for the
+  architecture and the plan, take the one an adopter's accumulated content would survive — a
+  directory that can gain files over a file that has to become one, a format that can gain
+  fields over one that has to be rewritten, a name that can stay. Migration is cheap here and
+  expensive there, and the gap only widens as adopters hold more of their own edits; when the
+  change is likely and the insurance costs little now, buy it, and when the odds are a guess,
+  ask. [Migration cost is a design constraint](.agents/dsh-spec/notes/implemented/process/2026-09-22-migration-cost-is-a-design-constraint.md).
 - **Never edit `submodules/dsh/`.** It is the pinned baseline a re-extraction diffs against, and its content is not ours.
 - **A development branch follows this repository's own pull-request lifecycle.** [The pull-request lifecycle](.agents/dsh-spec/notes/implemented/process/2026-09-21-the-pull-request-lifecycle.md) owns the stages, the commit convention, the PR description and the merge each kind of pull request uses.
 - **A check's scope is a decision, not an accident.** Before widening what a gate reads, read the owner that narrowed it: `DEFAULT_I18N_EXCLUDES` in `i18n-scope.ts` is the whole list of trees the pairing gate refuses to read, and each entry names a reason. A file a gate does not read may be excluded on purpose.
@@ -74,6 +81,11 @@ Node ≥ 22.19 or ≥ 24 is the only requirement: the engine is TypeScript that 
 
 - **Every skill change traces to dsh.** The package is an extraction, so a change either mirrors a change upstream or is recorded as a deliberate deviation.
 - **This file holds what an agent needs every session; the document that owns a rationale holds the rest.** A rule that needs a scan or a person to establish is linked, never restated here.
+- **Write each side of a pair in its own language's idiom.** The pairing gate checks structure; it
+  cannot check that a sentence was carried over with the other side's syntax, and such a sentence
+  reads as machine translation to the reader it was written for. Say it the way that language
+  says it, and let the structure be the constraint rather than the wording.
+  [Each side is written in its own idiom](.agents/dsh-spec/notes/implemented/process/2026-09-22-each-side-is-written-in-its-own-idiom.md).
 - **Derive a path from its owner; never hardcode it twice.** Two regressions in this package came from a path that had one owner and two literals.
 
 ## Documentation
