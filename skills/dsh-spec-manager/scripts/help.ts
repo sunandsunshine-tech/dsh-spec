@@ -82,13 +82,13 @@ const COMMAND_HELP: readonly CommandHelp[] = [
     ],
     en: {
       summary: 'Update the installed skills and the mechanism text',
-      detail: 'Self-updates the manager first, re-executes that new copy, and then installs the skill set at the ref it was updated to. `--only-skill-set` skips the first half and installs the set at the manager\'s own ref. Creates nothing: a file the project deleted on purpose stays deleted. `--reinstall` copies the skills again even when their content already matches.',
+      detail: 'Self-updates the manager first, re-executes that new copy, and then installs the skill set at the ref it was updated to. A replacement too old to know `--only-skill-set` is not re-executed: the invoked copy installs the set itself from the replacement\'s manifest, so the manager and the set still end on one revision. `--only-skill-set` skips the first half and installs the set at the manager\'s own ref. Creates nothing: a file the project deleted on purpose stays deleted. `--reinstall` copies the skills again even when their content already matches.',
       comment: 'Refresh a project pinned to a new revision',
       example: 'upgrade --root .',
     },
     zh: {
       summary: '更新已安装的技能与机制文本',
-      detail: '先把 manager 自更新到目标 ref,再跑一次那份新副本,然后按它安装技能集合。`--only-skill-set` 跳过前半段,按 manager 自己的 ref 安装技能集合。不创建缺失的文件:项目有意删掉的东西保持被删。`--reinstall` 在内容已一致时也重新拷贝技能。',
+      detail: '先把 manager 自更新到目标 ref,再跑一次那份新副本,然后按它安装技能集合。比 `--only-skill-set` 更老的替换副本不重新执行:改由被调用的这份副本按替换副本随包的 manifest 装集合,manager 与技能集合仍落在同一个修订上。`--only-skill-set` 跳过前半段,按 manager 自己的 ref 安装技能集合。不创建缺失的文件:项目有意删掉的东西保持被删。`--reinstall` 在内容已一致时也重新拷贝技能。',
       comment: '把项目刷新到新的修订',
       example: 'upgrade --root .',
     },

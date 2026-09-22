@@ -70,7 +70,7 @@ The [global flags](#flags) apply to every command.
 
 Update the installed skills and the mechanism text.
 
-Self-updates the manager first, re-executes that new copy, and then installs the skill set at the ref it was updated to. `--only-skill-set` skips the first half and installs the set at the manager's own ref. Creates nothing: a file the project deleted on purpose stays deleted. `--reinstall` copies the skills again even when their content already matches.
+Self-updates the manager first, re-executes that new copy, and then installs the skill set at the ref it was updated to. A replacement too old to know `--only-skill-set` is not re-executed: the invoked copy installs the set itself from the replacement's manifest, so the manager and the set still end on one revision. `--only-skill-set` skips the first half and installs the set at the manager's own ref. Creates nothing: a file the project deleted on purpose stays deleted. `--reinstall` copies the skills again even when their content already matches.
 
 ```sh
 # Refresh a project pinned to a new revision
