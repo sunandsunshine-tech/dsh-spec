@@ -27,6 +27,8 @@ import { spawn, spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { existsSync, readFileSync, readdirSync, rmSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
+import { normsStatusFor } from './norms-apply.ts'
+import { normsPathOf } from './norms.ts'
 import { fileURLToPath } from 'node:url'
 import { manifestPathOf } from './manifest.ts'
 
@@ -603,6 +605,9 @@ export async function installProject(root: string, options: { dryRun: boolean, j
   console.log(`  install ${manifest.skills.length} skill(s) from ${manifest.repo} at ${ref} into ${skillsDirectory(root)}`)
   if (options.dryRun) console.log('  dry run — nothing is written; drop --dry-run to apply')
   await refresh(root, manifest.repo, skillsDirectory(root), manifest, ref, options.dryRun, false, true, options.jobs)
+  // The norms a project applies are its own selection, so adoption reports them and never writes
+  // them: `norms install` is the command that does.
+  console.log(normsStatusFor(root, normsPathOf(import.meta.dirname)))
 }
 
 /**
@@ -662,6 +667,9 @@ export async function upgradeProject(root: string, options: { dryRun: boolean, r
   }
   console.log(`  at ${ref}: installing the skill set only`)
   await refresh(root, manifest.repo, directory, manifest, ref, options.dryRun, options.reinstall, false, options.jobs)
+  // `apt update`, not `apt upgrade`: a refresh reads the applied norms and says what the revision
+  // moves, and leaves writing them to `norms update`.
+  console.log(normsStatusFor(root, normsPathOf(import.meta.dirname)))
 }
 
 /**

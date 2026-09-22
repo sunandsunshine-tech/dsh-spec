@@ -11,6 +11,7 @@ import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { test } from 'node:test'
+import { normsStatusFor, recordPathOf, filePathOf, normHash, renderNormsRecord } from '../skills/dsh-spec-manager/scripts/norms-apply.ts'
 import { runCli } from './helpers/cli.ts'
 import { makeFixture } from './helpers/fixtures.ts'
 
@@ -202,4 +203,42 @@ test('the file and the record render as documented, and an installed manager tur
     assert.match(norm.sourceUrl, /^https:\/\/github\.com\/sunandsunshine-tech\/dsh-spec\/blob\/v1\.2\.3\//, norm.sourceUrl)
   }
   assert.match(readFileSync(join(fixture.root, FILE), 'utf8'), /<!-- dsh-norms: evidence -->/)
+})
+
+test('a refresh reports the applied norms, and never writes them', (t) => {
+  const fixture = makeFixture()
+  t.after(() => fixture.dispose())
+  const body = '- **One.**\n  - Why: because.\n  - Self-check: ask.'
+  fixture.write('catalog.json', JSON.stringify({
+    groups: [{ id: 'g', title: 'G', titleZh: '组' }],
+    norms: [{ id: 'g.one', group: 'g', title: 'One', titleZh: '一', body, source: 'README.md' }],
+  }))
+  const catalog = join(fixture.root, 'catalog.json')
+
+  // Nothing applied: the report says what the set offers and how to apply it.
+  assert.match(normsStatusFor(fixture.root, catalog), /no norms are applied.*`norms list` shows the 1/, normsStatusFor(fixture.root, catalog))
+  assert.equal(existsSync(join(fixture.root, FILE)), false, 'the report created the file')
+
+  // Applied and current: the block hashes to the recorded base.
+  fixture.write(FILE, `# Norms\n\n<!-- dsh-norms: g -->\n## G\n\n<!-- dsh-norm: g.one -->\n${body}\n<!-- /dsh-norm -->\n`)
+  fixture.write(RECORD, renderNormsRecord({ groups: ['g'], norms: [{ id: 'g.one', base: normHash(body) }] }))
+  assert.match(normsStatusFor(fixture.root, catalog), /1 norm\(s\) applied, all at this revision/)
+
+  // Personalized: named, and the command that would decide it is named too.
+  fixture.write(FILE, fixture.read(FILE).replace('- **One.**', '- **Ours.**'))
+  const report = normsStatusFor(fixture.root, catalog)
+  assert.match(report, /1 personalized/, report)
+  assert.match(report, /`norms update` applies or decides them; this command does not write them/, report)
+
+  // A record that cannot be read is reported, because a project's norms must not fail an upgrade.
+  fixture.write(RECORD, 'g.one: not-a-hash\n')
+  assert.match(normsStatusFor(fixture.root, catalog), /could not be read/, normsStatusFor(fixture.root, catalog))
+  assert.match(normsStatusFor(fixture.root, join(fixture.root, 'absent.json')), /could not be read/)
+})
+
+test('the record path and the file path are the documented pair', (t) => {
+  const fixture = makeFixture()
+  t.after(() => fixture.dispose())
+  assert.equal(recordPathOf(fixture.root), join(fixture.root, RECORD))
+  assert.equal(filePathOf(fixture.root), join(fixture.root, FILE))
 })

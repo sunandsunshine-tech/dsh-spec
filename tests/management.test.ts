@@ -160,6 +160,9 @@ test('install --dry-run reports a plan and changes nothing', (t) => {
   // The initializer's own preview is part of this plan, not a command the plan defers: a dry run
   // that stopped at the skills would not say which project files adoption would create.
   assert.match(result.output, /root AGENTS\.md: missing — will be created/, result.output)
+  // Adoption reports the norms a project could apply, and writes none of them.
+  assert.match(result.output, /no norms are applied in this project/, result.output)
+  assert.equal(existsSync(join(fixture.root, 'docs', 'norms.md')), false, 'adoption wrote a norms file')
   assert.deepEqual(projectFiles(fixture), before, 'a dry run wrote to the project')
 })
 
@@ -173,6 +176,7 @@ test('upgrade --dry-run reports without changing anything', (t) => {
 
   assert.equal(result.status, 0, result.output)
   assert.match(result.output, /upgrade 8 skill\(s\) .* at main/)
+  assert.match(result.output, /no norms are applied in this project/, result.output)
   assert.deepEqual(projectFiles(fixture), before, 'a dry run wrote to the project')
 })
 

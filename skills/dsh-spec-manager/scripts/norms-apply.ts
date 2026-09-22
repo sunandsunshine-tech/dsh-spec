@@ -20,6 +20,7 @@
 import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
+import { readNorms } from './norms.ts'
 import type { NormsCatalog, NormsLanguage } from './norms.ts'
 
 /** The file a project reads, and the record beside it. */
@@ -439,6 +440,39 @@ export function renderNormsPlan(plan: NormsPlan, language: NormsLanguage): strin
     ? `  记录 ${NORMS_RECORD} 现在记 ${plan.record.norms.length} 条`
     : `  the record ${NORMS_RECORD} now holds ${plan.record.norms.length}`)
   return `${lines.join('\n')}\n`
+}
+
+/**
+ * What a manager verb says about a project's applied norms, without touching them.
+ *
+ * `install` and `upgrade` own the mechanism text; the norms a project applies are the project's own
+ * selection, so a refresh reports them the way `apt update` reports upgradable packages: it reads
+ * the catalog, the record and the file, says how many applied norms the revision moves, and names
+ * the one command that applies them. Nothing here writes, and a record that cannot be read is
+ * reported rather than raised — a project's norms must not be able to fail an upgrade.
+ *
+ * @param root - the project root.
+ * @param catalogPath - the catalog of the revision being installed.
+ * @returns one line for the refresh to print.
+ */
+export function normsStatusFor(root: string, catalogPath: string): string {
+  try {
+    const catalog = readNorms(catalogPath)
+    const record = readNormsRecord(recordPathOf(root))
+    if (record.norms.length === 0) {
+      return `  no norms are applied in this project — \`norms list\` shows the ${catalog.norms.length} this skill set offers, and \`norms install\` applies the ones you choose`
+    }
+    const file = existsSync(filePathOf(root)) ? readFileSync(filePathOf(root), 'utf8') : undefined
+    const plan = normsPlan(catalog, record, file, { verb: 'update', ids: record.norms.map(entry => entry.id) }, 'en')
+    const counts = new Map<NormState, number>()
+    for (const outcome of plan.outcomes) counts.set(outcome.state, (counts.get(outcome.state) ?? 0) + 1)
+    const moved = [...counts.entries()].filter(([state]) => state !== 'current')
+    if (moved.length === 0) return `  ${record.norms.length} norm(s) applied, all at this revision`
+    const summary = moved.map(([state, count]) => `${count} ${state}`).join(', ')
+    return `  ${record.norms.length} norm(s) applied: ${summary} — \`norms update\` applies or decides them; this command does not write them`
+  } catch (error) {
+    return `  the norms this project applies could not be read: ${(error as Error).message}`
+  }
 }
 
 /** Write a plan: the file and the record, creating their directory when it is missing. */

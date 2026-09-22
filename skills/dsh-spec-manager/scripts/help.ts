@@ -58,7 +58,7 @@ const COMMAND_HELP: readonly CommandHelp[] = [
     ],
     en: {
       summary: 'Install the collection into a project',
-      detail: 'Acts by default. The set is installed at the ref `gh skill install` injected into this manager, or at `--revision <ref>`. `--dry-run` prints both plans — the skills it would deploy and the files it would create — and writes nothing.',
+      detail: 'Acts by default. The set is installed at the ref `gh skill install` injected into this manager, or at `--revision <ref>`. `--dry-run` prints both plans — the skills it would deploy and the files it would create — and writes nothing. The norms a project applies are the project\'s own selection: this verb reports them and never writes them.',
       comment: 'See what adopting this project would do',
       example: 'install --root . --dry-run',
     },
@@ -82,7 +82,7 @@ const COMMAND_HELP: readonly CommandHelp[] = [
     ],
     en: {
       summary: 'Update the installed skills and the mechanism text',
-      detail: 'Self-updates the manager first, re-executes that new copy, and then installs the skill set at the ref it was updated to. A replacement too old to know `--only-skill-set` is not re-executed: the invoked copy installs the set itself from the replacement\'s manifest, so the manager and the set still end on one revision. `--only-skill-set` skips the first half and installs the set at the manager\'s own ref. Creates nothing: a file the project deleted on purpose stays deleted. `--reinstall` copies the skills again even when their content already matches.',
+      detail: 'Self-updates the manager first, re-executes that new copy, and then installs the skill set at the ref it was updated to. The norms a project applies are reported, not written — like `apt update`, it says what the revision moves and leaves applying to `norms update`. A replacement too old to know `--only-skill-set` is not re-executed: the invoked copy installs the set itself from the replacement\'s manifest, so the manager and the set still end on one revision. `--only-skill-set` skips the first half and installs the set at the manager\'s own ref. Creates nothing: a file the project deleted on purpose stays deleted. `--reinstall` copies the skills again even when their content already matches.',
       comment: 'Refresh a project pinned to a new revision',
       example: 'upgrade --root .',
     },

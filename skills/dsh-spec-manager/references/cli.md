@@ -53,7 +53,7 @@ The help speaks English or Chinese: `--help zh`, or a `DSH_SPEC_LANG`, `LC_ALL`,
 
 Install the collection into a project.
 
-Acts by default. The set is installed at the ref `gh skill install` injected into this manager, or at `--revision <ref>`. `--dry-run` prints both plans — the skills it would deploy and the files it would create — and writes nothing.
+Acts by default. The set is installed at the ref `gh skill install` injected into this manager, or at `--revision <ref>`. `--dry-run` prints both plans — the skills it would deploy and the files it would create — and writes nothing. The norms a project applies are the project's own selection: this verb reports them and never writes them.
 
 ```sh
 # See what adopting this project would do
@@ -71,7 +71,7 @@ The [global flags](#flags) apply to every command.
 
 Update the installed skills and the mechanism text.
 
-Self-updates the manager first, re-executes that new copy, and then installs the skill set at the ref it was updated to. A replacement too old to know `--only-skill-set` is not re-executed: the invoked copy installs the set itself from the replacement's manifest, so the manager and the set still end on one revision. `--only-skill-set` skips the first half and installs the set at the manager's own ref. Creates nothing: a file the project deleted on purpose stays deleted. `--reinstall` copies the skills again even when their content already matches.
+Self-updates the manager first, re-executes that new copy, and then installs the skill set at the ref it was updated to. The norms a project applies are reported, not written — like `apt update`, it says what the revision moves and leaves applying to `norms update`. A replacement too old to know `--only-skill-set` is not re-executed: the invoked copy installs the set itself from the replacement's manifest, so the manager and the set still end on one revision. `--only-skill-set` skips the first half and installs the set at the manager's own ref. Creates nothing: a file the project deleted on purpose stays deleted. `--reinstall` copies the skills again even when their content already matches.
 
 ```sh
 # Refresh a project pinned to a new revision
