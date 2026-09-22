@@ -2,7 +2,7 @@
 description: 'Use when adding, auditing, pruning, archiving, restoring, or reviewing Agent Notes in a project that adopted the pattern: validates the tree against its contract and the format gates, checks every new note for superseded active records, classifies implemented notes by future decision value, deletes rejected notes that no longer prevent a tempting fallacy, and applies the frozen archived/{kind} triplet and manifest rules. Creating a tree is the manager initializer''s job.'
 metadata:
     github-path: skills/dsh-archive-agent-notes
-    github-ref: refs/heads/feat/agent-roles-norms
+    github-ref: refs/heads/fix/zh-counterpart-format
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
     github-tree-sha: d0ae1bdeb53779f10552847d8babad0877ce5e77
 name: dsh-archive-agent-notes
