@@ -1,4 +1,5 @@
 /**
+ * SPDX-License-Identifier: MIT
  * Ported from dsh scripts/translation-pairing-git.ts @ ddefc45fbc7f8e46dd73185e68295696d1297887 (submodules/dsh). Relation: adapted.
  */
 /** Git-blob operations owned by the bilingual pairing workflow. */
