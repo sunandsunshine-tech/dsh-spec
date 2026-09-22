@@ -4,7 +4,7 @@ metadata:
     github-path: skills/dsh-trim-cot-leakage
     github-ref: refs/heads/refactor/no-rg-dependency
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: 297d604f2c6993e3a42a9c60eef91bbaf03ae4ef
+    github-tree-sha: 241f87a4512bee3f7aea5bbf0c300268c7744917
 name: dsh-trim-cot-leakage
 ---
 # Trimming Chain-of-Thought Leakage
