@@ -315,13 +315,18 @@ test('sync re-records a written pair through the entry point verb', (t) => {
  *
  * The path is the installed manager's entry point, not this repository's: an upgrade re-executes the
  * copy `gh` just installed, and this stand-in writes its arguments to a log beside the fixture.
+ * `knowsTarget: false` stands in for a copy installed from a ref older than `--only-skill-set`.
  */
-function stubDispatcher(fixture: Fixture, exit = 0): string {
+function stubDispatcher(fixture: Fixture, options: { knowsTarget?: boolean } = {}): string {
+  const { knowsTarget = true } = options
   const path = join(fixture.root, '.agents', 'skills', 'dsh-spec-manager', 'scripts', 'dsh-spec.ts')
   fixture.write('.agents/skills/dsh-spec-manager/scripts/dsh-spec.ts', [
     "import { appendFileSync } from 'node:fs'",
+    // The stand-in's own text is what decides whether an upgrade may re-execute it: a copy whose
+    // dispatcher never mentions `--only-skill-set` is one that predates the flag.
+    ...knowsTarget ? ['// this copy takes --only-skill-set'] : ['// this copy takes --dry-run only'],
     `appendFileSync(new URL('../../../../reexec.txt', import.meta.url), \`\${process.argv.slice(2).join(' ')}\\n\`)`,
-    `process.exit(${exit})`,
+    'process.exit(0)',
     '',
   ].join('\n'))
   return path
@@ -357,6 +362,32 @@ test('upgrade self-updates the manager, then re-executes the new copy for the sk
     [`upgrade --only-skill-set --revision v9.9.9 --root ${fixture.root}`],
     `the re-exec ran the wrong command:\n${result.output}`,
   )
+})
+
+test('a replacement manager older than --only-skill-set is not run, and the set is installed here', (t) => {
+  const fixture = makeFixture({ 'README.md': '# A project\n' })
+  t.after(() => fixture.dispose())
+  installSet(fixture, 'main')
+  stubDispatcher(fixture, { knowsTarget: false })
+  // A manager package ships the manifest its verbs install from, so the replacement on disk is the
+  // copy whose skill list the half below owes.
+  fixture.write('.agents/skills/dsh-spec-manager/references/manifest.json',
+    readFileSync(new URL('../skills/dsh-spec-manager/references/manifest.json', import.meta.url), 'utf8'))
+  const calls = stubGh(fixture, { releases: [{ draft: false, tag_name: 'v9.9.9' }] })
+
+  const result = runCli(fixture.root, ['upgrade', '--revision', 'v9.9.9', '--root', fixture.root], { env: stubPath(fixture) })
+
+  assert.equal(result.status, 0, result.output)
+  assert.match(result.output, /predates `--only-skill-set`/, result.output)
+  // The copy pins its own ref and cannot be told the target, so running it would install the set at
+  // a revision this invocation never resolved. Nothing may reach it.
+  assert.deepEqual(reexecCalls(fixture), [], 'a copy that cannot be told the target was run')
+  // It is not left half-applied either: the half that could not be delegated is done by the copy
+  // that knows the ref, so every skill lands on the revision that was asked for.
+  const installs = installCalls(calls())
+  assert.deepEqual(installs.slice(1), SKILLS.map(skill =>
+    `skill install sunandsunshine-tech/dsh-spec ${skill}@v9.9.9 --dir ${fixture.root}/.agents/skills --force`,
+  ), `the set was not installed at the resolved ref:\n${result.output}`)
 })
 
 test('a manager already at the target ref is not reinstalled, and the set is still refreshed', (t) => {

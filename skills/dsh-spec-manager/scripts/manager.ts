@@ -103,27 +103,36 @@ function skillsDirectory(root: string): string {
   return resolve(root, flagValue('--dir') ?? join('.agents', 'skills'))
 }
 
-/** Read and validate the manifest; a missing or empty one is a failure. */
-function readManifest(): Manifest {
-  if (!existsSync(manifestPath)) {
-    fail(`no manifest at ${manifestPath} — the skill is incomplete, so it cannot say what to install`)
+/**
+ * Read and validate a manifest; a missing or empty one is a failure.
+ *
+ * The default is this copy's own manifest, which is the one a verb installs from. An upgrade that
+ * replaces the manager passes the replacement's path instead: from then on the replacement is the
+ * copy in the project, so it is the one whose skill list the install owes.
+ *
+ * @param path - the manifest to read; this copy's by default.
+ * @returns the repo and the skill names it names.
+ */
+function readManifest(path: string = manifestPath): Manifest {
+  if (!existsSync(path)) {
+    fail(`no manifest at ${path} — the skill is incomplete, so it cannot say what to install`)
   }
   let parsed: unknown
   try {
-    parsed = JSON.parse(readFileSync(manifestPath, 'utf8'))
+    parsed = JSON.parse(readFileSync(path, 'utf8'))
   } catch (error) {
-    fail(`${manifestPath} is not readable JSON: ${(error as Error).message}`)
+    fail(`${path} is not readable JSON: ${(error as Error).message}`)
   }
   const candidate = parsed as Partial<Manifest>
   const repo = candidate.repo
-  if (typeof repo !== 'string' || repo === '') fail(`${manifestPath} names no \`repo\``)
+  if (typeof repo !== 'string' || repo === '') fail(`${path} names no \`repo\``)
   if (!Array.isArray(candidate.skills) || candidate.skills.length === 0) {
-    fail(`${manifestPath} names no skills — an empty manifest would install nothing and report success`)
+    fail(`${path} names no skills — an empty manifest would install nothing and report success`)
   }
   const skills = candidate.skills.map((entry) => {
-    if (typeof entry !== 'string' || entry === '') fail(`${manifestPath} has a skill entry with no name`)
+    if (typeof entry !== 'string' || entry === '') fail(`${path} has a skill entry with no name`)
     if (!NAME.test(entry)) {
-      fail(`${manifestPath} names the skill \`${entry}\`, which is not a skill name — a name becomes a path under the skills directory, so only ${NAME} is accepted`)
+      fail(`${path} names the skill \`${entry}\`, which is not a skill name — a name becomes a path under the skills directory, so only ${NAME} is accepted`)
     }
     return entry
   })
@@ -601,7 +610,9 @@ export async function installProject(root: string, options: { dryRun: boolean, j
  * the ref is replaced by that ref's copy of itself, and the new copy is then run once — re-executed —
  * so the second half, installing the set, is decided by the revision being installed rather than by
  * the code that was already on disk. `--only-skill-set` skips the first half, which is what makes
- * this a way to install the set at the manager's own ref.
+ * this a way to install the set at the manager's own ref. A replacement copy older than that flag
+ * cannot be told the target at all, so it is not run: the invoker installs the set instead, from the
+ * skill list the replacement ships, because the invoker is the copy that can be told the ref.
  *
  * @param root - the project root.
  * @param options - the dry-run, reinstall, dispatch width, revision and half selection.
@@ -625,7 +636,19 @@ export async function upgradeProject(root: string, options: { dryRun: boolean, r
     if (!options.dryRun) {
       // The manager just changed: the copy that decides the rest is the one now on disk, so the
       // second half runs in a new process carrying `--only-skill-set` rather than mixing revisions.
+      // A copy older than the flag — a downgrade, or a ref that has not merged it — cannot be told
+      // the target: run on its own it would install the set at the ref it pins, a different
+      // revision than the one this invocation resolved. That copy is not run. The set is installed
+      // here instead, from the skill list the replacement ships — so one ref still governs both
+      // halves and the project is never left half-applied.
       const dispatcher = join(directory, 'dsh-spec-manager', 'scripts', 'dsh-spec.ts')
+      if (existsSync(dispatcher) && !readFileSync(dispatcher, 'utf8').includes('only-skill-set')) {
+        const replacement = readManifest(manifestPathOf(join(directory, 'dsh-spec-manager', 'scripts')))
+        console.log(`  the replacement at ${ref} predates \`--only-skill-set\`, so it cannot be told a target; installing the set here, from the manifest it ships`)
+        console.log(`  at ${ref}: installing the skill set only`)
+        await refresh(root, replacement.repo, directory, replacement, ref, false, options.reinstall, false, options.jobs)
+        return
+      }
       console.log(`  re-exec ${dispatcher} upgrade --only-skill-set --revision ${ref} --root ${root}`)
       const result = spawnSync(process.execPath, [dispatcher, 'upgrade', '--only-skill-set', '--revision', ref, '--root', root], { stdio: 'inherit' })
       if (result.error) fail(`${dispatcher} could not be run: ${result.error.message}`)
