@@ -13,7 +13,6 @@ Two of the skills reach into the project's own tree: the contract for its decisi
 | [Node.js](https://nodejs.org/) 22.19 or newer | Running the check scripts |
 | [Git](https://git-scm.com/) | Managing the skills, and the checks that read commits |
 | [GitHub CLI](https://github.com/cli/cli) (`gh`), with its `skill` command | Installing and updating the skills |
-| [ripgrep](https://github.com/BurntSushi/ripgrep) | The recall probes in `dsh-trim-cot-leakage` |
 
 The GitHub CLI ships an agent skill of its own; browse [its repository](https://github.com/cli/cli) to install one.
 

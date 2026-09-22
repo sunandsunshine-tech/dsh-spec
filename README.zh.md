@@ -13,7 +13,6 @@
 | [Node.js](https://nodejs.org/) 22.19 或更新 | 运行检查脚本 |
 | [Git](https://git-scm.com/) | 管理技能;需要读提交的检查 |
 | [GitHub CLI](https://github.com/cli/cli)(`gh`,含 `skill` 命令) | 安装和更新技能 |
-| [ripgrep](https://github.com/BurntSushi/ripgrep) | `dsh-trim-cot-leakage` 的检索探针 |
 
 GitHub CLI 也自带 agent 技能,去[它的仓库](https://github.com/cli/cli)装一个即可。
 
