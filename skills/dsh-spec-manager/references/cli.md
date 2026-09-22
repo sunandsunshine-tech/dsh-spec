@@ -139,7 +139,7 @@ The [global flags](#flags) apply to every command.
 
 List, explain and apply the norms a project chooses.
 
-The catalog is data: every norm has a stable id, the group a project chooses it by, an English title and body, and a Chinese title for this surface. A project applies the ones it chooses into `.agents/dsh-spec/norms/README.md`, with `.agents/dsh-spec/norms/applied.yaml` recording the selection and the hash of each block as the skill set last wrote it — which is what lets an update tell an untouched block from a personalized one. The `AGENTS.md` section that points at the file exists exactly while a project applies norms.
+The catalog is data: every norm has a stable id, the group a project chooses it by, an English title and body, and a Chinese title for this surface. A project applies the ones it chooses into `.agents/dsh-spec/norms/norms.md`, with `.agents/dsh-spec/norms/applied.yaml` recording the selection and the hash of each block as the skill set last wrote it — which is what lets an update tell an untouched block from a personalized one. The `AGENTS.md` section that points at the file exists exactly while a project applies norms.
 
 **Verbs:** `list`, `explain`, `install`, `update`, `remove`
 
@@ -350,7 +350,7 @@ The [global flags](#flags) apply to every command.
 
 ### norms install
 
-Apply norms into .agents/dsh-spec/norms/README.md.
+Apply norms into .agents/dsh-spec/norms/norms.md.
 
 A norm the project already applied is compared, not re-applied: one whose text still matches the record is left alone, one whose text moved is kept and reported, and one where both moved is reported with both versions for the project to decide.
 
