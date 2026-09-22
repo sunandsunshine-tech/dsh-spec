@@ -2,7 +2,7 @@
 description: Use when writing, reviewing, restoring, trimming, or auditing prose in this repository, including deciding where documentation or comments are required across Markdown, public API documentation (JSDoc, Javadoc, docstrings — whichever form the ecosystem uses), code and test comments, prompts, descriptions, diagnostics, and command-line or UI strings.
 metadata:
     github-path: skills/dsh-prose-standard
-    github-ref: refs/heads/refactor/norms-file-and-hook
+    github-ref: refs/heads/feat/agent-roles-norms
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
     github-tree-sha: 6061c4b7002b14ea4691b381d58646108671202b
 name: dsh-prose-standard
