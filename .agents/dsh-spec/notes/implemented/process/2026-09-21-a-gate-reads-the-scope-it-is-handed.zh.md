@@ -20,10 +20,10 @@ Status: implemented
 
 | 命令 | 动词 | 输入 | 功能 |
 |---|---|---|---|
-| `install` | — | `--dry-run`、`--jobs <n>` | 采用:按 manifest 的修订部署技能集、创建缺失的项目文件、同步受管文本 |
-| `upgrade` | — | `--reinstall`、`--dry-run`、`--jobs <n>` | 刷新部署与受管文本;绝不创建缺失的项目文件 |
+| `install` | — | `--dry-run`、`--jobs <n>`、`--revision <ref>` | 采用:按 manager 的 ref 或点名的修订部署技能集合、创建缺失的项目文件、同步受管文本 |
+| `upgrade` | — | `--reinstall`、`--dry-run`、`--jobs <n>`、`--revision <ref>`、`--only-skill-set` | 先自更新 manager,再重新执行它来刷新部署与受管文本;绝不创建缺失的项目文件 |
 | `uninstall` | — | `--dry-run` | 只删技能目录,然后逐项点名它留下的产物 |
-| `status` | — | — | 安装集等于 manifest、每个技能坐落在钉住的修订上、分发器在位 |
+| `status` | — | — | 安装集等于 manifest、每个技能坐落在 manager 的修订上、分发器在位 |
 | `check` | — | `<path…>` / `--base <ref>` / `--head <ref>` / `--all` / `--files-from -` | 运行某个选区欠下的检查,并打印它跳过的每一个主语 |
 | `notes` | `check` | `--all` / `<path…>` / `--files-from -` | 活跃生命周期上的分类与格式 |
 | `notes-archived` | `check`、`write` | `--all` | 冻结归档;`write` 追加新封存 |
@@ -52,7 +52,7 @@ dsh-spec <subject> <operation> --root <project> (--all | <path…> | --files-fro
 
 ### Management
 
-`install` 是采用的动词:按 manifest 的修订部署技能集、创建缺失的项目文件、同步集合拥有的文本。它默认执行,`--dry-run` 打印计划。`upgrade` 刷新部署与受管文本,绝不创建缺失的项目文件,所以被有意删掉的 `docs/AGENTS.md` 保持被删。两者都不接受修订:`references/manifest.json` 是惟一的钉子,而唯一点名修订的地方是引导命令 `gh skill install <repo> dsh-spec-manager@<ref>`。`status` 报告三项漂移事实。`uninstall` 删除技能目录并点名它留下的东西 —— 笔记树、`docs/`、根 `AGENTS.md` 里的标记块,以及 `.rgignore` —— 因为一次把它们一起带走的卸载会删除项目自己的决定。
+`install` 是采用的动词:按 manager 自己的 ref、或 `--revision <ref>` 点名的修订部署技能集合、创建缺失的项目文件、同步技能集合拥有的文本。它默认执行,`--dry-run` 打印计划。`upgrade` 刷新部署与受管文本,绝不创建缺失的项目文件,所以被有意删掉的 `docs/AGENTS.md` 保持被删。目标修订按两级解析 —— `--revision <ref>` 优先,没有它则由最新已发布 release 顶上 —— 而且只有完全没有已安装 manager 元数据的树才需要解析:`install` 与 `upgrade --only-skill-set` 从 manager 注入的 ref 取修订。目标与当前不同时,`upgrade` 自更新 manager 并重新执行新副本,[`manager-lifecycle.md`](../../../../../skills/dsh-spec-manager/references/manager-lifecycle.md) 把做法原样写出,[manager 自己的安装就是那颗钉子](2026-09-21-the-manager-s-own-install-is-the-pin.zh.md)拥有其中的理由。`status` 报告三项漂移事实,第一项如今对着 manager 自己注入的 ref。`uninstall` 删除技能目录并点名它留下的东西 —— 笔记树、`docs/`、根 `AGENTS.md` 里的标记块,以及 `.rgignore` —— 因为一次把它们一起带走的卸载会删除项目自己的决定。
 
 `--no-notes` 与 `--no-docs` 都已移除。一个让采用过程跳过它所采用的机制的旗标,会产出一个项目:常备指令描述着一棵不存在的树,文档里的路径解析不到任何东西,聚合在第一次检查上就失败。两条仍把 `--no-docs` 描述为活旗标的笔记在同一次改动里修正,这正是这类旗标招来的下场。
 
@@ -119,7 +119,7 @@ dsh 的 `run-gates.ts` 不移植:它绑定 pnpm 调用与 dsh 自己的模式清
 
 **两个输入旗标,`--files` 与 `--scan`。** 意图毫无歧义。它落选是因为种类已经由路径本身携带,而旗标无法覆盖的那一种情形 —— 长到装不进参数向量的清单 —— 由 `--files-from -` 覆盖。
 
-**在 install 与 upgrade 上保留 `--rev`。** 一个旗标,项目就能钉住任何它喜欢的修订。它落选是因为 manifest 之外选定的修订会把一套技能与另一个修订的脚本和引用混在一起,这正是 `status` 存在要报告的错配,本集合绝不能自己造出它。
+**在 install 与 upgrade 上保留 `--rev`。** 一个旗标,项目就能钉住任何它喜欢的修订。它当时落选是因为 manifest 之外选定的修订会把一套技能与另一个修订的脚本和引用混在一起,这正是 `status` 存在要报告的错配,技能集合绝不能自己造出它。[manager 自己的安装就是那颗钉子](2026-09-21-the-manager-s-own-install-is-the-pin.zh.md)后来从相反方向抵达了同一个表面:旗标存在,而它点名的修订就是整套技能安装所用的那个,因为它曾与之矛盾的那个 manifest 字段已经消失。
 
 **保留 `--no-notes`。** 不要决策树也能采用。它落选是因为采用过程写下的其余部分都假定那棵树存在,于是这个旗标买给项目的是一份它无法满足的契约。
 

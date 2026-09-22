@@ -12,7 +12,7 @@ Releasing 0.1.0 raised the question the pin had deferred: should the released li
 
 ## Decision
 
-**The manifest pins `main`.** `"revision": "main"` is what a project installs from, what a refresh fetches, and what `status` compares an installed `refs/heads/main` against.
+**The manifest pins `main`.** `"revision": "main"` is what a project installs from, what a refresh fetches, and what `status` compares an installed `refs/heads/main` against. [The manager's own install is the pin](2026-09-21-the-manager-s-own-install-is-the-pin.md) later removed that field and moved the pin to the ref the installer wrote into the manager, which keeps this decision's answer — the released line is `main` — while a project names a branch with `--revision` instead of editing a manifest it does not own.
 
 **The tag is the human-facing marker, not the pin.** `v0.1.0` names the release — the tag, its notes and the draft release — while installs follow the released line. The two answer different questions: a tag says which commit was released, the branch says where the released line is.
 

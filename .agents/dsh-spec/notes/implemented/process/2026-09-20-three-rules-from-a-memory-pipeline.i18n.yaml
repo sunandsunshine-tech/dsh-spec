@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-20-three-rules-from-a-memory-pipeline.md
-2026-09-20-three-rules-from-a-memory-pipeline.md: df1e0e8dc3e66034c1584b434ba72edf5739a470
-2026-09-20-three-rules-from-a-memory-pipeline.zh.md: dc4dfcbe76d10519036f497e43fd407d01446e41
+2026-09-20-three-rules-from-a-memory-pipeline.md: dd4c99fe2ff56a28ed454d415847663512e7d6b6
+2026-09-20-three-rules-from-a-memory-pipeline.zh.md: 313592900d39b1b63ce09bc7179e969998e07e78

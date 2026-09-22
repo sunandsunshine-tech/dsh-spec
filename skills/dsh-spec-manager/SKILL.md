@@ -1,6 +1,6 @@
 ---
 name: dsh-spec-manager
-description: 'Use when adopting the dsh development pattern in a project, or when an adopted project needs its skill set changed: initialize the root AGENTS.md and the Agent Note tree; install the skill set from one pinned revision; update it; remove it; read each installed revision from the metadata the installer injected into SKILL.md; or run the checks the project owes. This skill owns project setup and the skill set, and reports every fact it could not determine.'
+description: 'Use when adopting the dsh development pattern in a project, or when an adopted project needs its skill set changed: initialize the root AGENTS.md and the Agent Note tree; install the skill set at the ref the manager itself was installed from; update it; remove it; read each installed ref from the metadata the installer injected into SKILL.md; or run the checks the project owes. This skill owns project setup and the skill set, and reports every fact it could not determine.'
 ---
 
 # Managing an adopted project

@@ -12,7 +12,7 @@ manifest 钉住一个修订,而每一次安装、刷新与 `status` 比对都读
 
 ## Decision
 
-**manifest 钉 `main`。** `"revision": "main"` 就是项目安装的来源、刷新拉取的对象,也是 `status` 拿已安装的 `refs/heads/main` 去比对的基准。
+**manifest 钉 `main`。** `"revision": "main"` 就是项目安装的来源、刷新拉取的对象,也是 `status` 拿已安装的 `refs/heads/main` 去比对的基准。后来[manager 自己的安装就是那颗钉子](2026-09-21-the-manager-s-own-install-is-the-pin.zh.md)删掉了该字段,把钉子移到安装器写进 manager 的那个 ref 上;这条决策的答案——发布线是 `main`——仍然成立,只是项目改用 `--revision` 点名一条分支,不再编辑一个不属于自己的 manifest。
 
 **tag 是给人看的标记,不是钉子。** `v0.1.0` 命名这次发布——tag、它的说明与草稿 release——而安装跟随发布线。两者回答不同的问题:tag 说发布的是哪个提交,分支说发布线在哪里。
 

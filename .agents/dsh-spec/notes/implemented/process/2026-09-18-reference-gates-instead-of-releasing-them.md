@@ -8,7 +8,7 @@ English | [中文](2026-09-18-reference-gates-instead-of-releasing-them.zh.md)
 
 `init` copied the Agent Note gates into `.agents/dsh-spec/notes/scripts/`, so every adopted project held its own copy. Two failures followed from that, and this repository met both.
 
-A released gate has no update path. `init` never overwrites a file it did not create, and the collection's own updater only touches the collection, so a gate fixed in `skills/` stayed broken in every project that had already adopted it. The rule that recorded their location said as much — "refresh them by copying" — which was a procedure no gate checked and no collaborator would remember.
+A released gate has no update path. `init` never overwrites a file it did not create, and the skill set's own updater only touches the skill set, so a gate fixed in `skills/` stayed broken in every project that had already adopted it. The rule that recorded their location said as much — "refresh them by copying" — which was a procedure no gate checked and no collaborator would remember.
 
 A released gate also has two owners. Nothing said whether the collection's copy or the project's copy was authoritative, and drift between them was invisible: the deployed notes contract sat stale against its templates with a dead gate path and mangled links, and no check covered it because every gate ran with `--root skills/dsh-doc`.
 

@@ -60,7 +60,7 @@ Node ≥ 22.19 or ≥ 24 is the only requirement: the engine is TypeScript that 
 
 ## Boundaries
 
-- **Never edit `.agents/skills/`.** It is tracked so every collaborator runs the same revision, and it is overwritten on the next install. Change `skills/`, push, then refresh the copy in the same change with the command in [`manager-lifecycle.md`](skills/dsh-spec-manager/references/manager-lifecycle.md).
+- **Never edit `.agents/skills/`.** It is tracked so every collaborator runs the same revision, and it is overwritten on the next install. Change `skills/`, push, then refresh the copy in the same change with the command in [`manager-lifecycle.md`](skills/dsh-spec-manager/references/manager-lifecycle.md). In this repository that command is `upgrade --revision <current-branch>`: a bare `upgrade` targets the newest published release, which is not the branch under work. The note [The manager's own install is the pin](.agents/dsh-spec/notes/implemented/process/2026-09-21-the-manager-s-own-install-is-the-pin.md) owns the rule and its alternative.
 - **Ask before changing what the package claims to be generic.** A part that assumes one ecosystem is the defect this package exists to avoid.
 - **A gate that passes on an empty corpus is worse than no gate.** Every gate here exits non-zero when it finds nothing to check; keep it that way.
 - **Never edit `submodules/dsh/`.** It is the pinned baseline a re-extraction diffs against, and its content is not ours.

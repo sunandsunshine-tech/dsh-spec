@@ -20,10 +20,10 @@ One entry point, an action as a subcommand, and no operation spelled as a flag: 
 
 | Command | Verbs | Input | Function |
 |---|---|---|---|
-| `install` | — | `--dry-run`, `--jobs <n>` | Adopt: deploy the manifest's revision, create the missing project files, sync the managed text |
-| `upgrade` | — | `--reinstall`, `--dry-run`, `--jobs <n>` | Refresh the deployment and the managed text; never creates a missing project file |
+| `install` | — | `--dry-run`, `--jobs <n>`, `--revision <ref>` | Adopt: deploy the skill set at the manager's ref or the named revision, create the missing project files, sync the managed text |
+| `upgrade` | — | `--reinstall`, `--dry-run`, `--jobs <n>`, `--revision <ref>`, `--only-skill-set` | Self-update the manager, re-execute it to refresh the deployment and the managed text; never creates a missing project file |
 | `uninstall` | — | `--dry-run` | Remove the skill directories only, then name every artifact it left behind |
-| `status` | — | — | Installed set equals the manifest, every skill sits at the pinned revision, the dispatcher is present |
+| `status` | — | — | Installed set equals the manifest, every skill sits at the manager's revision, the dispatcher is present |
 | `check` | — | `<path…>` / `--base <ref>` / `--head <ref>` / `--all` / `--files-from -` | Run the checks a selection owes, and print every subject it skipped |
 | `notes` | `check` | `--all` / `<path…>` / `--files-from -` | Classification and format over the active lifecycles |
 | `notes-archived` | `check`, `write` | `--all` | The frozen archive; `write` appends new seals |
@@ -52,7 +52,7 @@ The two dispatch modes run checks through a bounded scheduler, defaulting to `mi
 
 ### Management
 
-`install` is the adoption verb: deploy the skill set at the manifest's revision, create the project files that are missing, sync the text the collection owns. It acts by default and `--dry-run` prints the plan. `upgrade` refreshes the deployment and the managed text and never creates a missing project file, so a deliberately deleted `docs/AGENTS.md` stays deleted. Neither takes a revision: `references/manifest.json` is the only pin, and the one place a revision is named is the bootstrap, `gh skill install <repo> dsh-spec-manager@<ref>`. `status` reports the three drift facts. `uninstall` removes the skill directories and names what it left — the notes tree, `docs/`, the marked block inside the root `AGENTS.md`, and `.rgignore` — because an uninstall that took them would delete the project's own decisions.
+`install` is the adoption verb: deploy the skill set at the manager's own ref, or at the revision `--revision <ref>` names, create the project files that are missing, sync the text the collection owns. It acts by default and `--dry-run` prints the plan. `upgrade` refreshes the deployment and the managed text and never creates a missing project file, so a deliberately deleted `docs/AGENTS.md` stays deleted. A target revision is resolved in two levels — `--revision <ref>` wins, and without it the latest published release does — and only a tree with no installed manager metadata resolves one at all: `install` and `upgrade --only-skill-set` take their revision from the manager's injected ref. `upgrade` self-updates the manager when that target differs and re-executes the new copy, [`manager-lifecycle.md`](../../../../../skills/dsh-spec-manager/references/manager-lifecycle.md) writes out how, and [The manager's own install is the pin](2026-09-21-the-manager-s-own-install-is-the-pin.md) owns why. `status` reports the three drift facts, the first of them now against the manager's own injected ref. `uninstall` removes the skill directories and names what it left — the notes tree, `docs/`, the marked block inside the root `AGENTS.md`, and `.rgignore` — because an uninstall that took them would delete the project's own decisions.
 
 `--no-notes` and `--no-docs` are gone. A flag that lets adoption skip the mechanism it adopts produces a project whose standing orders describe a tree that does not exist, whose documented paths resolve to nothing, and whose aggregate fails on the first check. The two notes that still describe `--no-docs` as live are corrected in the same change, which is the fate such flags invite.
 
@@ -119,7 +119,7 @@ The suite comes first because a check that is being rewritten needs its verdicts
 
 **Two input flags, `--files` and `--scan`.** Unambiguous about intent. It lost because the kind is already carried by the path, and `--files-from -` covers the one case a flag could not: a list too long for the argument vector.
 
-**Keep `--rev` on install and upgrade.** One flag, and a project can pin any revision it likes. It lost because a revision chosen outside the manifest mixes a skill set with scripts and references from another rev, which is the mismatch `status` exists to report and the collection must not be able to create.
+**Keep `--rev` on install and upgrade.** One flag, and a project can pin any revision it likes. It lost at the time because a revision chosen outside the manifest mixed a skill set with scripts and references from another rev, which is the mismatch `status` exists to report and the collection must not be able to create. [The manager's own install is the pin](2026-09-21-the-manager-s-own-install-is-the-pin.md) later reached the same surface from the other direction: the flag exists, and the revision it names is the one the whole set installs at, because the manifest field it once contradicted is gone.
 
 **Keep `--no-notes`.** Adoption without the decision tree. It lost because the rest of what adoption writes assumes that tree, so the flag buys a project a contract it cannot satisfy.
 
