@@ -106,11 +106,19 @@ if (!notesRootExists(agentNoteRoot)) {
 
 const errors: string[] = []
 let checked = 0
+let counterparts = 0
 for (const entry of scope.entries) {
   const absolute = resolve(scope.root, entry)
   // A path the change reports as deleted has no body to read; its structural side belongs to the
   // classification gate, which walks the tree.
   if (!existsSync(absolute)) continue
+  // A Chinese counterpart is the same Agent Note, and its section names are its own language's:
+  // the format grammar reads the English side, and the pairing gate holds the counterpart to its
+  // sibling's structure section for section. Upstream draws the same line.
+  if (entry.endsWith('.zh.md')) {
+    counterparts += 1
+    continue
+  }
   const parsed = noteFromRel(entry)
   if (!parsed.ok) {
     errors.push(`format: ${entry} — ${parsed.error}`)
@@ -120,10 +128,14 @@ for (const entry of scope.entries) {
   checkNote(parsed.note, readFileSync(absolute, 'utf8').split('\n'), errors)
 }
 
-// Every handed path is a deletion: the change removed notes, and a removed note has no body to
-// read. That is a fact about the change rather than a scope nobody assembled.
+if (counterparts > 0) {
+  console.log(`${gate}: ${counterparts} Chinese counterpart(s) skipped — the format grammar reads the English side, and the pairing gate checks the pair's structure.`)
+}
+
+// Every handed path is a deletion or a counterpart: the change removed notes, and a removed note
+// has no body to read. That is a fact about the change rather than a scope nobody assembled.
 if (checked === 0) {
-  console.log(`${gate}: all ${scope.entries.length} path(s) handed in are deletions — no note body to read.`)
+  console.log(`${gate}: no English note body to read among the ${scope.entries.length} path(s) handed in.`)
   process.exit(0)
 }
 
