@@ -139,7 +139,7 @@ The [global flags](#flags) apply to every command.
 
 List, explain and apply the norms a project chooses.
 
-The catalog is data: every norm has a stable id, the group a project chooses it by, an English title and body, and a Chinese title for this surface. A project applies the ones it chooses into `docs/norms.md`, with `docs/norms.yaml` recording the selection and the hash of each block as the skill set last wrote it — which is what lets an update tell an untouched block from a personalized one.
+The catalog is data: every norm has a stable id, the group a project chooses it by, an English title and body, and a Chinese title for this surface. A project applies the ones it chooses into `docs/norms.md`, with `docs/norms.yaml` recording the selection and the hash of each block as the skill set last wrote it — which is what lets an update tell an untouched block from a personalized one. The `AGENTS.md` section that points at the file exists exactly while a project applies norms.
 
 **Verbs:** `list`, `explain`, `install`, `update`, `remove`
 

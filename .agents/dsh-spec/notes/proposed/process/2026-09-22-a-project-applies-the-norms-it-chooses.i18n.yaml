@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/proposed/process/2026-09-22-a-project-applies-the-norms-it-chooses.md
-2026-09-22-a-project-applies-the-norms-it-chooses.md: e645a0d75dabd527a86f1de85c0c2cb0995a3754
-2026-09-22-a-project-applies-the-norms-it-chooses.zh.md: 760fc18951d2250ef9ae30620e36c1444e375f2b
+2026-09-22-a-project-applies-the-norms-it-chooses.md: 62ff1a07205777f3313e79a5484adcc9f7068606
+2026-09-22-a-project-applies-the-norms-it-chooses.zh.md: 572f97e28cd9f2a8b0469d4bc1cce1e3656ad049

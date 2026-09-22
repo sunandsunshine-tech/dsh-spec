@@ -442,8 +442,59 @@ export function renderNormsPlan(plan: NormsPlan, language: NormsLanguage): strin
   return `${lines.join('\n')}\n`
 }
 
+/** The markers around the `AGENTS.md` hook that points a session at the file. */
+export const NORMS_HOOK_START = '<!-- dsh-spec:norms -->'
+export const NORMS_HOOK_END = '<!-- /dsh-spec:norms -->'
+
+/**
+ * The `AGENTS.md` section a project carries only while it applies norms.
+ *
+ * A hook is not a rule: it says where the rules are and what keeps them honest, so a session that
+ * starts long after the install still finds them. It is rendered from the same place a rule is, so
+ * there is one statement of it rather than two.
+ *
+ * @returns the section text, markers included, newline-terminated.
+ */
+export function normsHookSection(): string {
+  return `${NORMS_HOOK_START}
+## Norms this project applies
+
+\`${NORMS_FILE}\` holds the norms this project chose from the skill set: one section per group, one rule per marked block. Read the ones covering the work in hand before changing code, tests or prose. \`norms list\` shows what the set offers, \`norms update\` brings the applied rules up to the installed revision, and \`norms explain <id>\` reads why one exists. A rule this project edited is kept and reported rather than overwritten.
+
+${NORMS_HOOK_END}
+`
+}
+
+/**
+ * Add, refresh or remove the hook in an `AGENTS.md`, and touch nothing else.
+ *
+ * The hook exists exactly while the project applies norms, which is what makes it a report of a
+ * selection rather than another standing order: a project that applies none carries no line pointing
+ * at a file it does not have. Everything outside the two markers is the project's own text and is
+ * returned byte for byte.
+ *
+ * @param existing - the `AGENTS.md` as the project holds it.
+ * @param applied - whether the project applies any norm.
+ * @returns the file's new text.
+ */
+export function applyNormsHook(existing: string, applied: boolean): string {
+  const rendered = applied ? normsHookSection().trimEnd() : ''
+  const start = existing.indexOf(NORMS_HOOK_START)
+  const end = existing.indexOf(NORMS_HOOK_END)
+  if (start < 0 || end < 0) {
+    return rendered === '' ? existing : `${existing.replace(/\s+$/, '')}\n\n${rendered}\n`
+  }
+  const before = existing.slice(0, start).replace(/\s+$/, '')
+  const after = existing.slice(end + NORMS_HOOK_END.length).replace(/^\n+/, '').replace(/\s+$/, '')
+  const head = before === '' ? '' : `${before}\n`
+  if (rendered === '') return after === '' ? `${head}`.replace(/\n*$/, '\n') : `${head}\n${after}\n`
+  const tail = after === '' ? '' : `\n\n${after}`
+  return `${head}\n${rendered}${tail}\n`
+}
+
 /**
  * What a manager verb says about a project's applied norms, without touching them.
+
  *
  * `install` and `upgrade` own the mechanism text; the norms a project applies are the project's own
  * selection, so a refresh reports them the way `apt update` reports upgradable packages: it reads

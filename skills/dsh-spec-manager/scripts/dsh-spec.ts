@@ -36,7 +36,7 @@ import { globalHelp, helpLanguage, markdownHelp, subjectHelp } from './help.ts'
 import { installProject, managerRef, statusProject, uninstallProject, upgradeProject } from './manager.ts'
 import { readGateRecord, readGateScopes } from './manifest.ts'
 import { normsPathOf, readNorms, readNormsRepo, recordUrlOf, renderNormsExplain, renderNormsJson, renderNormsList } from './norms.ts'
-import { applyNormsPlan, filePathOf, normsPlan, readNormsRecord, recordPathOf, renderNormsPlan, resolveNormsIds } from './norms-apply.ts'
+import { NORMS_HOOK_START, applyNormsHook, applyNormsPlan, filePathOf, normsPlan, readNormsRecord, recordPathOf, renderNormsPlan, resolveNormsIds } from './norms-apply.ts'
 import type { Norm, NormsCatalog } from './norms.ts'
 import type { NormsPlan, NormsRecord } from './norms-apply.ts'
 import { resolveRepoRoot } from './repo-root.ts'
@@ -645,6 +645,31 @@ async function main(): Promise<void> {
       fail((error as Error).message)
     }
     process.stdout.write(renderNormsPlan(plan, language))
+    // The hook in `AGENTS.md` exists exactly while the project applies norms, so that a project
+    // which applies none carries no line pointing at a file it does not have. Everything outside
+    // its two markers is the project's own text and is left alone.
+    const agentsPath = join(root, 'AGENTS.md')
+    let hook: string | undefined
+    let hookLine: string
+    if (!existsSync(agentsPath)) {
+      hookLine = language === 'zh'
+        ? '  AGENTS.md 不存在,因此没有指向规范的指针'
+        : '  AGENTS.md is not present, so nothing points at the file'
+    } else {
+      const current = readFileSync(agentsPath, 'utf8')
+      const next = applyNormsHook(current, plan.record.norms.length > 0)
+      if (next !== current) hook = next
+      const had = current.includes(NORMS_HOOK_START)
+      const has = next.includes(NORMS_HOOK_START)
+      const changed = next !== current
+      const state = !had && has
+        ? ['added', '已加入']
+        : had && !has
+          ? ['removed', '已移除']
+          : changed ? ['refreshed', '已刷新'] : ['already in step', '已一致']
+      hookLine = language === 'zh' ? `  AGENTS.md 的规范小节${state[1]}` : `  AGENTS.md: the norms section is ${state[0]}`
+    }
+    console.log(hookLine)
     // A removal that was refused did not happen, and a script has to be able to tell: an update
     // only reports what it kept, but `remove` that removed nothing exits non-zero.
     const refused = verb === 'remove' && plan.outcomes.some(outcome => outcome.state !== 'removed')
@@ -653,6 +678,7 @@ async function main(): Promise<void> {
       process.exit(refused ? 1 : 0)
     }
     applyNormsPlan(root, plan)
+    if (hook !== undefined) writeFileSync(agentsPath, hook)
     process.exit(refused ? 1 : 0)
   }
 

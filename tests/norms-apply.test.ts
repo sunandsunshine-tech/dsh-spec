@@ -12,8 +12,8 @@ import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { test } from 'node:test'
 import { normsStatusFor, recordPathOf, filePathOf, normHash, renderNormsRecord } from '../skills/dsh-spec-manager/scripts/norms-apply.ts'
-import { runCli } from './helpers/cli.ts'
-import { makeFixture } from './helpers/fixtures.ts'
+import { runCli, runScript } from './helpers/cli.ts'
+import { makeFixture, REPO_ROOT } from './helpers/fixtures.ts'
 
 /** The two files an applied selection lives in. */
 const FILE = join('docs', 'norms.md')
@@ -241,4 +241,56 @@ test('the record path and the file path are the documented pair', (t) => {
   t.after(() => fixture.dispose())
   assert.equal(recordPathOf(fixture.root), join(fixture.root, RECORD))
   assert.equal(filePathOf(fixture.root), join(fixture.root, FILE))
+})
+
+test('the AGENTS.md hook exists exactly while the project applies norms', (t) => {
+  const fixture = makeFixture({ 'AGENTS.md': '# AGENTS.md\n\nOurs.\n' })
+  t.after(() => fixture.dispose())
+  const sync = ['skills/dsh-spec-manager/scripts/init-agents-md.ts', '--root', fixture.root, '--sync', '--write']
+
+  // Nothing applied: the collection's own sync adds no line pointing at a file the project has not
+  // got, and the project's text is left as it stands.
+  runScript(sync[0] as string, sync.slice(1))
+  assert.doesNotMatch(fixture.read('AGENTS.md'), /dsh-spec:norms/)
+  assert.match(fixture.read('AGENTS.md'), /Ours\./)
+
+  // A dry run says what it would do and writes nothing.
+  const planned = runCli(fixture.root, ['norms', 'install', '--group', 'test', '--dry-run'])
+  assert.match(planned.output, /AGENTS\.md: the norms section is added/, planned.output)
+  assert.doesNotMatch(fixture.read('AGENTS.md'), /dsh-spec:norms/, 'a dry run wrote the hook')
+
+  const installed = runCli(fixture.root, ['norms', 'install', '--group', 'test'])
+  assert.equal(installed.status, 0, installed.output)
+  assert.match(installed.output, /AGENTS\.md: the norms section is added/, installed.output)
+  assert.match(fixture.read('AGENTS.md'), /<!-- dsh-spec:norms -->/)
+  assert.match(fixture.read('AGENTS.md'), /Ours\./)
+
+  // The hook is a report of the selection, so a second install reports it in step and rewrites
+  // nothing; removing the last norm takes the hook away with it.
+  const again = runCli(fixture.root, ['norms', 'install', '--group', 'test'])
+  assert.match(again.output, /AGENTS\.md: the norms section is already in step/, again.output)
+  const removed = runCli(fixture.root, ['norms', 'remove', '--all'])
+  assert.equal(removed.status, 0, removed.output)
+  assert.match(removed.output, /AGENTS\.md: the norms section is removed/, removed.output)
+  assert.doesNotMatch(fixture.read('AGENTS.md'), /dsh-spec:norms/, 'the hook outlived the last norm')
+  assert.match(fixture.read('AGENTS.md'), /Ours\./)
+})
+
+test('a hook a hand edit dropped comes back from the record on the next sync', (t) => {
+  const fixture = makeFixture({ 'AGENTS.md': '# AGENTS.md\n\nOurs.\n' })
+  t.after(() => fixture.dispose())
+  runCli(fixture.root, ['norms', 'install', '--group', 'evidence'])
+  fixture.write('AGENTS.md', fixture.read('AGENTS.md').replace(/\n*<!-- dsh-spec:norms -->[\s\S]*?<!-- \/dsh-spec:norms -->\n*/, '\n'))
+
+  runScript('skills/dsh-spec-manager/scripts/init-agents-md.ts', ['--root', fixture.root, '--sync', '--write'])
+
+  assert.match(fixture.read('AGENTS.md'), /<!-- dsh-spec:norms -->/, 'the sync did not restore the hook')
+  assert.match(fixture.read('AGENTS.md'), /Ours\./)
+})
+
+test('this repository keeps its own instructions instead of applying the catalog', () => {
+  // These norms were distilled from this repository, so applying them back would state the same
+  // guidance twice and let the two drift apart. The catalog is shipped, never installed here.
+  assert.equal(existsSync(join(REPO_ROOT, 'docs', 'norms.md')), false, 'this repository applied the catalog to itself')
+  assert.doesNotMatch(readFileSync(join(REPO_ROOT, 'AGENTS.md'), 'utf8'), /dsh-spec:norms/, 'this repository carries the catalog hook')
 })
