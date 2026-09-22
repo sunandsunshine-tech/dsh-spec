@@ -24,11 +24,6 @@
       "id": "test",
       "title": "Tests",
       "titleZh": "测试"
-    },
-    {
-      "id": "agent",
-      "title": "Agent roles",
-      "titleZh": "agent 的角色"
     }
   ],
   "norms": [
@@ -99,9 +94,9 @@
     {
       "id": "prose.idiom",
       "group": "prose",
-      "title": "Write each side of a pair in its own idiom",
-      "titleZh": "双语的两侧各按自己的语感写",
-      "body": "- **Write each side of a pair in its own idiom.** A bilingual pair carries one meaning in two documents; say it the way each language says it, and let the structure — headings, lists, links, code — be the contract rather than the wording.\n  - Why: a sentence carried over with the other side's syntax reads as machine translation to the reader it was written for. They have to translate it back to understand, which is the cost the second language exists to avoid.\n  - Self-check: read the side you speak, aloud. Does it stop you anywhere? That sentence came from the other side: rewrite it from the meaning — reorder it, split it, drop the image.",
+      "title": "Write and say it in that language's idiom, in an order a reader can follow",
+      "titleZh": "写与说,按那门语言的语感,按读者能跟上的次序",
+      "body": "- **Write and say it in that language's idiom, in an order a reader can follow.** A sentence whose shape came from another language is rewritten from its meaning: reorder it, split it, drop the image, use the construction that language reaches for. Put the content in cause-and-effect order — the conclusion or the request first, then the chain that supports it, every sentence established by the ones before it, what belongs together kept together, neighbouring paragraphs consistent. Which language a text is in is not this rule's question: a pair has its two sides by contract, this set's own text is English because an agent reads it, and a reply uses the language of the ask.\n  - Why: a borrowed sentence shape makes the reader translate it back, and an order with no thread makes them lose the paragraph before; both costs come out of the message.\n  - Self-check: read it aloud — does it stop you? Cover the conclusion: do the sentences before it establish it? Between two paragraphs, can you say the connection in one sentence?",
       "source": ".agents/dsh-spec/notes/implemented/process/2026-09-22-each-side-is-written-in-its-own-idiom.md"
     },
     {
@@ -183,22 +178,6 @@
       "titleZh": "推送前跑覆盖改动的最小子集",
       "body": "- **Before pushing, run the smallest set that covers the change.** The full suite is for milestones, and for a change that touches its scope; a subset chosen from what actually changed is faster and still honest.\n  - Why: a suite run reflexively on every push is the one that gets skipped when it mattered, while a subset justified by the diff can be defended.\n  - Self-check: can you say why each check in your subset reads something this change touched? Did you skip a check whose scope you changed?",
       "source": ".agents/dsh-spec/notes/implemented/process/2026-09-21-a-diff-selects-the-gates-it-owes.md"
-    },
-    {
-      "id": "agent.roles",
-      "group": "agent",
-      "title": "Act by the role you hold",
-      "titleZh": "按你持有的角色行事",
-      "body": "- **Act by the role you hold, and delegate only inside an agreed plan.** A brief that assigns work opens with the identity it hands to its holder: `Role: subagent`. An agent that no brief assigned is the main agent — the one holding the conversation with the person who asked. Nothing is delegated from the main thread before the plan that names it is agreed with that person; the plan is where the units, their carrier and their cost are decided.\n\n  The main agent carries each piece of work on the cheapest carrier that fits, in this order:\n\n  1. the main thread — work small enough that briefing and verifying it would cost more than doing it;\n  2. a background job — a command that takes time, run without spending an agent on it;\n  3. one `subagent` — a unit that is self-contained and can be verified on its own, given to an agent that already holds the relevant context where one does, and to a fresh one where that context would only get in the way;\n  4. one `subagent` owning a fan-out — a batch of units that can run at once, run as a `workflow`, or as parallel `subagent` calls where no `workflow` exists.\n\n  | You are | You own | You hand back | You keep the work yourself when |\n  | --- | --- | --- | --- |\n  | the main agent | the conversation, the plan, the dispatch, the acceptance and the commit | to the person: the result, and every command you ran with its output | the work fits a cheaper rung: small enough to do, or a command that only has to run |\n  | a `subagent` | one briefed unit, the context that stays inside it, and — when that unit holds parts that do not touch each other — the fan-out over those parts | to whoever briefed you: the artifact's paths, every command you ran with its raw output, and what you could not determine | the unit's parts touch each other, or there is only one part |\n\n  A brief's `Scope` is the set of paths its holder may write, and two agents never hold the same path for writing at once; the owner of a fan-out partitions the units before it starts them. `Scope` covers the deliverable tree, not scratch space: an agent drafts wherever its own temp directory is, and two units do not share one. A unit that only needs findings is given no write scope. Two units that need the same tree are not independent: run them in sequence, or give each its own `git worktree` and let the main agent merge. Only the main agent commits.\n\n  - Why: a rule written as behavior cannot be matched to a position, so an agent reads all of it and applies none of it; an identity and its row can be matched, and a brief that opens with the identity tells its holder which row is its own. A fan-out reports once per unit and a `workflow` holds the thread it runs on, so held by the main thread it fragments the conversation and the work; held by a `subagent`, both stay below it. Briefing is the expensive part of delegation — every agent starts without the context the work was chosen in — so the carrier is chosen by cost and an agent that already holds the context is reused.\n  - Self-check: does an agreed plan name this delegation, its units and its cost? Is the carrier the cheapest rung that fits? If a batch is running, does one `subagent` own it, and do any two of its units share a path?",
-      "source": ".agents/dsh-spec/notes/implemented/process/2026-09-22-the-roles-an-agent-acts-by.md"
-    },
-    {
-      "id": "agent.voice",
-      "group": "agent",
-      "title": "Answer in the idiom of the language you were asked in",
-      "titleZh": "回话用对方语言的语感",
-      "body": "- **Answer in the idiom of the language you were asked in.** Lead with the conclusion; keep sentences short; keep the other language's word order, nominalizations and images out of the reply; keep a domain term as a term — pin, rebase, release stay themselves. When the artifact you ask someone to review is written in another language, the review copy is in theirs.\n  - Why: a reader spends effort turning a sentence back into their own language, and that effort is taken out of the message.\n  - Self-check: does the first line carry the answer, and would you say the remaining sentences out loud this way?",
-      "source": ".agents/dsh-spec/notes/implemented/process/2026-09-22-the-roles-an-agent-acts-by.md"
     }
   ]
 }
