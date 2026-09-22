@@ -1,0 +1,47 @@
+# Agent Note: A project applies the norms it chooses
+
+Status: proposed
+
+English | [中文](2026-09-22-a-project-applies-the-norms-it-chooses.zh.md)
+
+## Problem
+
+The pattern this repository extracted has accumulated rules that hold for any project: how a change walks from WIP to merge, what prose owes its reader, who owns a fact, what counts as evidence, how a test suite stays honest. Today they live in three places only this repository reads — the standing orders in `AGENTS.md`, the conclusion of each decision record, and the workflow skills. A project that adopts the skill set receives the workflows and the mechanism text, but not the rules themselves, and a person who wants one reads a decision record per rule.
+
+## Proposal
+
+Ship the rules as a catalog, and let a project apply the ones it chooses, by group or by id.
+
+**The catalog is data.** `skills/dsh-spec-manager/references/norms.json` holds every norm with a stable id (`<group>.<name>`), the group a project chooses it by, the English title and body that would be written into that project, a Chinese title for the choice surface, and the decision record that owns the rationale. Every body is one shape: the rule in the imperative, then `- Why:` — the reason that makes it a rule rather than a preference — then `- Self-check:` — how a reader notices they are breaking it. A catalog that cannot be rendered is refused by name before anything is written: an id that would not survive being matched, an id recorded twice, a norm in an undeclared group, a group nothing belongs to, a body with no reason. The rule line names the symptom a reader recognizes -- *running a tool twice must not erase what it did not write* rather than *creating and updating carry different licences* -- because a norm nobody parses on the first read is a norm nobody applies.
+
+**The choice surface is `norms list`.** One heading per group and one line per norm, printed in the language `--help zh|en` or the locale selects. The body is English, because an agent is what reads it and the skill set is English; the Chinese title exists so a Chinese-speaking reader can choose and identify a rule without reading the English body. `--json` carries both titles, the body and the record, which is the form an agent renders the choice from — a CLI cannot portably render a picker, but it can hand an agent the data to render one. The norms are deliberately **not** a gate: a project is allowed to personalize a rule, so drift is reported by install and update and never fails a check.
+
+**The applied text is one managed file with one section per group.** Each rule is one list item wrapped in `<!-- dsh-norm: <id> -->` … `<!-- /dsh-norm -->`, so a rule can be located, hashed and personalized on its own; the markers are HTML comments, which Claude Code strips before injecting a file into context. Beside the file, a sidecar records the ids the project applied and the hash of each rule as the collection last wrote it — the same idea as the `.i18n.yaml` that records a bilingual pair's confirmed state.
+
+**Install and update compare three states per id.** The project's text still hashes to the recorded base and the revision changed the rule: overwrite with the revision's text, silently, because nobody had touched it. The project's text moved and the revision did not: keep it and report it as personalized, once. Both moved: print the three-way difference — base, revision, project — keep the project's text, and leave the decision to the project, or to the agent acting for it, which asks its user. `--write` remains the whole difference between a preview and an apply, and the preview renders the same comparison.
+
+## Delivery in two rounds
+
+- **This round:** the catalog, `norms list` (with `--group` and `--json`), and the tests that keep the catalog renderable and the surface stable. No write path.
+- **Next round:** the managed file and its sidecar, a `rules` merge mode in the initializer's managed-file list, the three-way comparison, `norms install | update | remove | write`, and the pointer line in `AGENTS.md`.
+
+## Alternatives considered
+
+**One file per group, hooked per group from `AGENTS.md` — the shape first proposed.** Rejected for now, on evidence from how the field organizes agent instructions. Claude Code's own guidance keeps the always-loaded file under 200 lines and splits only what can be *conditionally* loaded — its `.claude/rules/` files load on demand when a `paths` glob matches, and unscoped ones load every session, which is the same as not splitting. Codex documents one `AGENTS.md` merged from global and repository scope and asks for concrete rules with the critical ones first. dsh keeps one root `AGENTS.md` of 179 lines with topical sections, plus per-subtree files that trigger by directory. These rules are cross-cutting and have no path scope, so a split file has no trigger of its own, and a rule that is never read is worse than a rule that costs a line. The measured catalog is 18 rules, about 60 lines of body — inside that budget. The split stays reachable, and cheap, because groups and ids live in the data model: rendering one file per group later changes no id and no hash, and the group hooks in `AGENTS.md` become the trigger lines.
+
+**A gate for drift.** Rejected: personalizing a rule is allowed by design, so drift is not a defect, and a check that failed on it would forbid the customization the sidecar exists to protect. The feature's own tests carry its stability instead.
+
+**Shipping all 33 candidate rules.** Rejected: the rules about this package's own gates and decision-record mechanism are what the skill set itself solves, not rules a project applies. The generic ones consolidate to 18.
+
+**A file per rule, text beside its hash.** Rejected: one catalog and one sidecar keep one owner per fact, and per-rule markers already give the granularity the hashes need.
+
+## Acceptance criteria
+
+- `norms list` prints every shipped norm; `--group` narrows to one group and refuses a group the catalog does not declare; the locale selects Chinese titles; `--json` carries both titles, the body and the record. A catalog that cannot be rendered — the nine ways the tests seed — is refused by name. (Met by this round's tests.)
+- Install writes the selected rules into the managed file and the sidecar; update overwrites only rules whose text still hashes to the base, keeps and reports a personalized one, and prints a three-way difference for a conflict; `--dry-run` renders all of it and writes nothing. (Recorded here so the next round can be judged against it.)
+
+## Risks
+
+- The catalog can outgrow what an always-loaded file should carry. The mitigation is the recorded split path rather than a promise to stay small, and the size is measured rather than felt.
+- A hash records that text moved, not that the move was meant. A project that reformats a rule will be asked about that rule; because the report is per rule the cost is one question, not one file.
+- These are the opinions of one repository. Publishing them as good practice claims more than one project's experience, so every norm carries the record it came from and a reader can weigh the reason instead of trusting the rule.
