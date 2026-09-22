@@ -157,11 +157,11 @@ function fileHeader(): string {
   return [
     '# Norms applied in this project',
     '',
-    'Each norm below is one marked block, refreshed from the skill set this project installed. The',
-    `selection and the hash of each block as the skill set last wrote it live in \`${NORMS_RECORD}\`;`,
-    '`norms list` shows what else the skill set offers, `norms update` brings these blocks up to the',
-    'installed revision, and `norms explain <id>` reads why a norm exists. Anything outside a marked',
-    'block belongs to this project and is never written by that refresh.',
+    'Each norm below is one marked block. The selection, and the hash of each block as the skill set',
+    `last wrote it, live in \`${NORMS_RECORD}\` — that record is what lets a refresh tell an untouched`,
+    'block from one this project personalized: an untouched block takes the text of the revision, a',
+    'personalized one is kept and reported. Anything outside a marked block belongs to this project,',
+    'and a refresh never writes it.',
     '',
   ].join('\n')
 }
