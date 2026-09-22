@@ -157,6 +157,9 @@ test('install --dry-run reports a plan and changes nothing', (t) => {
   assert.equal(result.status, 0, result.output)
   assert.match(result.output, /dry run/)
   assert.match(result.output, /at main/)
+  // The initializer's own preview is part of this plan, not a command the plan defers: a dry run
+  // that stopped at the skills would not say which project files adoption would create.
+  assert.match(result.output, /root AGENTS\.md: missing — will be created/, result.output)
   assert.deepEqual(projectFiles(fixture), before, 'a dry run wrote to the project')
 })
 
@@ -544,16 +547,24 @@ test('a dry-run sync diffs the managed text it would rewrite', (t) => {
   assert.match(result.output, /^\+## Decision records$/m, `the changed hunk is not in the diff:\n${result.output}`)
 })
 
-test('the dry-run refresh names the managed text it would rewrite', (t) => {
+test('a dry-run refresh renders the managed text it would rewrite, and writes none of it', (t) => {
   const fixture = makeFixture({ 'README.md': '# A project\n' })
   t.after(() => fixture.dispose())
   installSet(fixture, 'main')
   withTree(fixture, oneFilePerSkill(skill => digest(`main-${skill}`)))
   stubGh(fixture)
+  // The initializer writes the files the collection owns; a stale marked section put back into
+  // `AGENTS.md` is what makes the next dry run a comparison between a project's text and this
+  // revision's — the half a preview must render rather than defer to a command.
+  runScript('skills/dsh-spec-manager/scripts/init-agents-md.ts', ['--root', fixture.root, '--write'])
+  fixture.write('AGENTS.md', fixture.read('AGENTS.md').replace('## Decision records', 'stale injected text'))
 
   const result = runCli(fixture.root, ['upgrade', '--dry-run', '--revision', 'main'], { env: stubPath(fixture) })
 
   assert.equal(result.status, 0, result.output)
-  assert.match(result.output, /would run: .*init-agents-md\.ts --root .* --sync\s*$/, result.output)
-  assert.doesNotMatch(result.output, /--sync --write/, `a dry run would have written the managed text:\n${result.output}`)
+  assert.match(result.output, /would update AGENTS\.md/, result.output)
+  assert.match(result.output, /^--- AGENTS\.md \(as it is\)$/m, result.output)
+  assert.match(result.output, /^-stale injected text$/m, `the managed-text diff was not rendered:\n${result.output}`)
+  assert.doesNotMatch(result.output, /would run: .*init-agents-md/, `the preview deferred the managed text:\n${result.output}`)
+  assert.match(fixture.read('AGENTS.md'), /stale injected text/, 'the dry run wrote the managed text')
 })

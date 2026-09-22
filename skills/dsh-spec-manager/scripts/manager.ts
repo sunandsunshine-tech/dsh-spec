@@ -585,11 +585,14 @@ async function refresh(root: string, repo: string, directory: string, manifest: 
   // Adoption creates the project files that are missing and never overwrites one it did not
   // create; a refresh only brings the managed text up to this revision, so a file a project
   // deliberately deleted stays deleted.
-  if (create) run(process.execPath, initializerArgs(root, ['--write']), dryRun)
-  // Without `--write` the initializer prints the same plan and writes nothing, so its own dry run is
-  // what makes the managed-text half of this preview complete: an apply and a preview compare the
-  // same two texts, and a preview that omitted this half would stop at the skills.
-  run(process.execPath, initializerArgs(root, dryRun ? ['--sync'] : ['--sync', '--write']), dryRun)
+  //
+  // The initializer is its own preview: without `--write` it prints the same plan an apply would
+  // carry out — the files it would create, the managed text it would rewrite, with the diff — and
+  // writes nothing. So a dry run runs it, rather than printing the command that would have rendered
+  // the plan; `--write` is the whole difference between the two, which is what keeps a preview and
+  // an apply comparing the same two texts.
+  if (create) run(process.execPath, initializerArgs(root, dryRun ? [] : ['--write']), false)
+  run(process.execPath, initializerArgs(root, dryRun ? ['--sync'] : ['--sync', '--write']), false)
 }
 
 /** Adopt the collection: deploy the set at the manager's own ref, create the missing project files, sync the text. */
