@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-22-migration-cost-is-a-design-constraint.md
+2026-09-22-migration-cost-is-a-design-constraint.md: 7c1067103c470d1974b017af697ee594e11c30fc
+2026-09-22-migration-cost-is-a-design-constraint.zh.md: d8926077b3a7bc105f316464ad883486c51339dd
