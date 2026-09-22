@@ -1,4 +1,5 @@
 /**
+ * SPDX-License-Identifier: MIT
  * Ported from dsh scripts/markdown.ts @ ddefc45fbc7f8e46dd73185e68295696d1297887 (submodules/dsh). Relation: adapted.
  */
 /** Shared Markdown parsing and depth-first traversal for documentation gates. */

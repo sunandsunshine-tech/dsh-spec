@@ -1,4 +1,5 @@
 /**
+ * SPDX-License-Identifier: MIT
  * Ported from dsh scripts/verify-md-links.ts @ ddefc45fbc7f8e46dd73185e68295696d1297887 (submodules/dsh). Relation: adapted.
  * Verify that relative Markdown links, images, and definitions resolve — the
  * target file must exist AND a `#fragment` onto a Markdown target (including

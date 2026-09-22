@@ -92,3 +92,7 @@ node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts upgrade --root .
 - [`AGENTS.md`](AGENTS.md) —— 每次会话都要遵守的规则,以及本仓库真正跑的命令。
 - [`skills/dsh-spec-manager/SKILL.md`](skills/dsh-spec-manager/SKILL.md) —— 技能集合的入口,另外七个技能就在它旁边。
 - [`.agents/dsh-spec/notes/README.md`](.agents/dsh-spec/notes/README.zh.md) —— 决策记录的约定,也是这套做法对自己的说明。
+
+## 许可证
+
+本项目以 MIT 发布。全文与版权行见 [`LICENSE`](LICENSE);上游 DeepSeek Harness 的通知、移植文件清单与随技能集合内联的 npm 包清单见 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)。

@@ -1,4 +1,5 @@
 /**
+ * SPDX-License-Identifier: MIT
  * Ported from dsh scripts/translation-pairing.ts @ ddefc45fbc7f8e46dd73185e68295696d1297887 (submodules/dsh). Relation: split.
  * Pure parsing and structural helpers for the bilingual-document pairing
  * gate. Kept separate from the CLI so corpus discovery and signature behavior
