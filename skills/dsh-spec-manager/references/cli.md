@@ -21,13 +21,14 @@ node <engine>/dsh-spec.ts <command> [flags]
 
 ## Commands
 
-| Command            | Scope or verbs                               | What it does                                |
-|--------------------|----------------------------------------------|---------------------------------------------|
-| `check`            | `<path...> \| --base <ref> \| --all`         | Run the checks a selection owes             |
-| `notes`            | `check`                                      | Check the Agent Note tree and its notes     |
-| `notes-archived`   | `check \| write`                             | Check the frozen archive and its seal       |
-| `translation-pair` | `check \| list \| explain \| write \| brief` | Check a translated pair, or brief an update |
-| `md-links`         | `check`                                      | Check links in Markdown                     |
+| Command            | Scope or verbs                                   | What it does                                        |
+|--------------------|--------------------------------------------------|-----------------------------------------------------|
+| `check`            | `<path...> \| --base <ref> \| --all`             | Run the checks a selection owes                     |
+| `norms`            | `list \| explain \| install \| update \| remove` | List, explain and apply the norms a project chooses |
+| `notes`            | `check`                                          | Check the Agent Note tree and its notes             |
+| `notes-archived`   | `check \| write`                                 | Check the frozen archive and its seal               |
+| `translation-pair` | `check \| list \| explain \| write \| brief`     | Check a translated pair, or brief an update         |
+| `md-links`         | `check`                                          | Check links in Markdown                             |
 
 ## Flags
 
@@ -52,7 +53,7 @@ The help speaks English or Chinese: `--help zh`, or a `DSH_SPEC_LANG`, `LC_ALL`,
 
 Install the collection into a project.
 
-Acts by default. The set is installed at the ref `gh skill install` injected into this manager, or at `--revision <ref>`. `--dry-run` prints both plans — the skills it would deploy and the files it would create — and writes nothing.
+Acts by default. The set is installed at the ref `gh skill install` injected into this manager, or at `--revision <ref>`. `--dry-run` prints both plans — the skills it would deploy and the files it would create — and writes nothing. The norms a project applies are the project's own selection: this verb reports them and never writes them.
 
 ```sh
 # See what adopting this project would do
@@ -70,7 +71,7 @@ The [global flags](#flags) apply to every command.
 
 Update the installed skills and the mechanism text.
 
-Self-updates the manager first, re-executes that new copy, and then installs the skill set at the ref it was updated to. A replacement too old to know `--only-skill-set` is not re-executed: the invoked copy installs the set itself from the replacement's manifest, so the manager and the set still end on one revision. `--only-skill-set` skips the first half and installs the set at the manager's own ref. Creates nothing: a file the project deleted on purpose stays deleted. `--reinstall` copies the skills again even when their content already matches.
+Self-updates the manager first, re-executes that new copy, and then installs the skill set at the ref it was updated to. The norms a project applies are reported, not written — like `apt update`, it says what the revision moves and leaves applying to `norms update`. A replacement too old to know `--only-skill-set` is not re-executed: the invoked copy installs the set itself from the replacement's manifest, so the manager and the set still end on one revision. `--only-skill-set` skips the first half and installs the set at the manager's own ref. Creates nothing: a file the project deleted on purpose stays deleted. `--reinstall` copies the skills again even when their content already matches.
 
 ```sh
 # Refresh a project pinned to a new revision
@@ -131,6 +132,37 @@ node <engine>/dsh-spec.ts check --base main --root .
 | `--base <ref>` | Compute the path list from a change against this ref |
 | `--head <ref>` | The commit the change is measured to (default HEAD) |
 | `--files-from <file|->` | Read the path list from a file, or from stdin |
+
+The [global flags](#flags) apply to every command.
+
+### norms
+
+List, explain and apply the norms a project chooses.
+
+The catalog is data: every norm has a stable id, the group a project chooses it by, an English title and body, and a Chinese title for this surface. A project applies the ones it chooses into `.agents/dsh-spec/norms/README.md`, with `.agents/dsh-spec/norms/applied.yaml` recording the selection and the hash of each block as the skill set last wrote it — which is what lets an update tell an untouched block from a personalized one. The `AGENTS.md` section that points at the file exists exactly while a project applies norms.
+
+**Verbs:** `list`, `explain`, `install`, `update`, `remove`
+
+```sh
+# List the whole catalog
+node <engine>/dsh-spec.ts norms list --root .
+```
+
+### norms list
+
+Print the catalog, in the reader’s language.
+
+One heading per group and one line per norm, in the language `--help zh|en` or the locale selects; `--json` carries both titles, the body that would be written, and the record the rationale lives in.
+
+```sh
+# Pick a group to look at
+node <engine>/dsh-spec.ts norms list --group prose --root .
+```
+
+| Flag | Meaning |
+|---|---|
+| `--group <id>` | Only the norms in this group |
+| `--json` | Print the catalog as data, for an agent to render the choice from |
 
 The [global flags](#flags) apply to every command.
 
@@ -296,6 +328,81 @@ node <engine>/dsh-spec.ts translation-pair brief --apply docs/guide.md --root .
 | Flag | Meaning |
 |---|---|
 | `--apply` | Splice a code-fence-only change after structural validation |
+
+The [global flags](#flags) apply to every command.
+
+### norms explain
+
+Read one norm: its text, its record and whether this project applied it.
+
+The record is a URL at the revision the manager itself was installed from, because a repository path exists only in the repository that publishes the catalog; a tree with no installed ref prints the path instead.
+
+```sh
+# Read why a norm exists
+node <engine>/dsh-spec.ts norms explain test.behaviour --root .
+```
+
+| Flag | Meaning |
+|---|---|
+| `--json` | Print the norms as data, applied state included |
+
+The [global flags](#flags) apply to every command.
+
+### norms install
+
+Apply norms into .agents/dsh-spec/norms/README.md.
+
+A norm the project already applied is compared, not re-applied: one whose text still matches the record is left alone, one whose text moved is kept and reported, and one where both moved is reported with both versions for the project to decide.
+
+```sh
+# Apply the prose group
+node <engine>/dsh-spec.ts norms install --group prose --root .
+```
+
+| Flag | Meaning |
+|---|---|
+| `--group <id>` | Apply every norm in this group |
+| `--all` | Apply every norm the catalog ships |
+| `--dry-run` | Print the plan and write nothing |
+
+The [global flags](#flags) apply to every command.
+
+### norms update
+
+Bring the applied norms up to the installed revision.
+
+Nothing is overwritten that the project has touched: an untouched block takes the revision's text, a personalized one is kept and named, and a conflict prints both versions. `--take` and `--keep` carry out the decision the report asks for.
+
+```sh
+# Refresh what this project applies
+node <engine>/dsh-spec.ts norms update --root .
+```
+
+| Flag | Meaning |
+|---|---|
+| `--take <id...>` | Take the revision's text for these norms |
+| `--keep <id...>` | Confirm this project's text as deliberate |
+| `--group <id>` | Only the applied norms in this group |
+| `--dry-run` | Print the plan and write nothing |
+
+The [global flags](#flags) apply to every command.
+
+### norms remove
+
+Stop applying norms, and drop them from the record.
+
+A norm the project personalized is refused rather than deleted with its text: `norms update --take <id>` first, then remove.
+
+```sh
+# Stop applying a norm
+node <engine>/dsh-spec.ts norms remove test.fast-subset --root .
+```
+
+| Flag | Meaning |
+|---|---|
+| `--group <id>` | Remove the applied norms in this group |
+| `--all` | Remove every applied norm |
+| `--dry-run` | Print the plan and write nothing |
 
 The [global flags](#flags) apply to every command.
 

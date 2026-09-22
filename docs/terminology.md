@@ -83,7 +83,8 @@
 | aggregate | 聚合检查 | | 汇总门禁 | `run.ts --all`：manifest 所列的每一道门禁 |
 | installed copy | 安装副本 | | 已安装拷贝 | `.agents/skills/` 下的部署产物 |
 | skill set | 技能集合 | | 集合、套件 | 本技能集合的自称 |
-| refresh | 刷新 | | 更新、同步 | 用 `gh` 把技能集合更新到新版本 |
+| refresh | 刷新 | | 更新、同步 | 用 `gh` 把技能集合带到新版本 |
+| upgrade | 更新 | | 升级 | CLI 动词:把已安装的技能集合带到新版本;「更新」归它,「刷新」归 refresh |
 | extraction | 抽取 | | 提取 | 从源项目得到本技能集合的过程 |
 | baseline | 基线 | | 基准 | `submodules/dsh/`，固定的抽取来源 |
 | deviation | 偏离 | | 偏差、差异 | 与源项目不同且被记录下来的地方 |
