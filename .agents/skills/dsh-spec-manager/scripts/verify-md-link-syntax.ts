@@ -1,5 +1,5 @@
 /**
- * Ported from dsh scripts/verify-md-link-syntax.ts @ ddefc45fbc7f8e46dd73185e68295696d1297887 (submodules/dsh). Relation: adapted.
+ * SPDX-License-Identifier: MIT
  * Reject the two link shapes a bulk rewrite produces and a link resolver cannot see.
  *
  * `verify-md-links` resolves links that parse. A rewrite that replaces a target with prose leaves

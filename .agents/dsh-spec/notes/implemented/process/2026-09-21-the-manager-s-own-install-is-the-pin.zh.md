@@ -8,7 +8,7 @@ Status: implemented
 
 manifest 声明了每个技能来自哪个修订,而项目改不了它:`manifest.json` 随已安装的 manager 一起发布,所以这份声明由技能集合写下、又由同一次安装放进去的那个 manager 读回。需要某条分支或某个旧版本的项目没有任何受支持的方式表达这件事,而唯一命名那个 pin 的文件,恰恰是项目不可以编辑的那个文件。
 
-这份声明背后也没有任何检查。`status` 拿每个已安装的 ref 与 manifest 里的字面值比对,于是只要各安装副本彼此一致,一份命名了没人安装过的修订的 manifest 就能通过——技能集合无法察觉自己声明的 pin 和自己的安装已经各走各的。[发布的修订是 main 分支](2026-09-21-the-released-revision-is-main.zh.md)保留了这个形状,只改了它的值。
+这份声明背后也没有任何检查。`status` 拿每个已安装的 ref 与 manifest 里的字面值比对,于是只要各安装副本彼此一致,一份命名了没人安装过的修订的 manifest 就能通过——技能集合无法察觉自己声明的 pin 和自己的安装已经各走各的。[发布的修订是 main 分支](../../archived/process/2026-09-21-the-released-revision-is-main.md)保留了这个形状,只改了它的值。
 
 ## Decision
 

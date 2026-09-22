@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-manager-s-own-install-is-the-pin.md
-2026-09-21-the-manager-s-own-install-is-the-pin.md: 1f802dede9a9ca69c40b2449c84b3b71b8daaf28
-2026-09-21-the-manager-s-own-install-is-the-pin.zh.md: bc741461b0826c16ef4af831b07da63558c80c31
+2026-09-21-the-manager-s-own-install-is-the-pin.md: 67af24d37e76b9c05af0246973031ab69a3fb15b
+2026-09-21-the-manager-s-own-install-is-the-pin.zh.md: f88339977587fdbaf39d87ec54d8ec94c2a1749f

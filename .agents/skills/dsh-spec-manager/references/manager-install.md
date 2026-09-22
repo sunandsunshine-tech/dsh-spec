@@ -1,6 +1,6 @@
 # Adopting the collection: what `install` writes into a project
 
-`install` is the adoption verb, and it has two halves. The first deploys the skill set at the manifest's revision. The second reaches the project's own tree: the initializer beside this skill creates the files a project needs and does not have, and then syncs the text the collection owns. `--dry-run` prints both plans and writes nothing, and the second half never needs the network.
+`install` is the adoption verb, and it has two halves. The first deploys the skill set at the ref the manager itself was installed from, or at the revision `--revision <ref>` names. The second reaches the project's own tree: the initializer beside this skill creates the files a project needs and does not have, and then syncs the text the collection owns. `--dry-run` prints both plans and writes nothing, and the second half never needs the network.
 
 ```sh
 node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts install --root <project> --dry-run
