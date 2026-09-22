@@ -96,7 +96,7 @@ test('--take takes the revision text, and lets the norm go back to ok', (t) => {
   assert.equal(taken.status, 0, taken.output)
   assert.match(taken.output, /update\s+test\.offline/, taken.output)
   assert.match(block(fixture, 'test.offline'), /The suite runs offline and deterministically/)
-  assert.doesNotMatch(fixture.read(RECORD), /kept/, 'a taken norm is still marked as the project\'s')
+  assert.doesNotMatch(fixture.read(RECORD), / kept$/m, 'a taken norm is still marked as the project\'s')
 
   const after = runCli(fixture.root, ['norms', 'update'])
   assert.equal(after.status, 0, after.output)

@@ -127,9 +127,9 @@ export function renderNormsRecord(record: NormsRecord): string {
   return [
     '# The norms this project applies, and the hash of each as the skill set last wrote it.',
     `# A hash that no longer matches the block in ${NORMS_FILE} means this project personalized that`,
-    '# norm: an update keeps it and says so instead of overwriting. `norms update --keep <id...>`',
-    '# confirms the project\'s text as deliberate, and `norms update --take <id...>` takes the',
-    '# revision\'s text instead.',
+    '# norm: a refresh keeps it and reports it rather than overwriting. A `kept` mark at the end',
+    '# of a line records that the project confirmed its own text as deliberate, so that mismatch is',
+    '# settled rather than pending.',
     `groups: [${record.groups.join(', ')}]`,
     ...record.norms.map(norm => `${norm.id}: ${norm.base}${norm.kept === true ? ' kept' : ''}`),
     '',
