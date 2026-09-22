@@ -2,7 +2,7 @@
 description: Use when working in this repository to find non-obvious simplification candidates, remove redundant comments or implementation-heavy documentation, write proposed Agent Notes or inline TODO/FIXME/XXX notes, audit or coalesce superseded Agent Notes, or fold worthwhile simplification ideas from another PR; especially for dead, duplicated, speculative, over-built, added-then-removed, or hand-rolled-where-a-dependency-exists surfaces.
 metadata:
     github-path: skills/dsh-find-simplifications
-    github-ref: refs/heads/refactor/norms-file-and-hook
+    github-ref: refs/heads/feat/agent-roles-norms
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
     github-tree-sha: 616701c47502d5843bf9c8d15018720b0981390c
 name: dsh-find-simplifications
