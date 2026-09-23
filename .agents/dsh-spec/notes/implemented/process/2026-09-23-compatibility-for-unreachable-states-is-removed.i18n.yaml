@@ -3,4 +3,4 @@
 # after editing either side, bring the other along and re-record with:
 #   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-23-compatibility-for-unreachable-states-is-removed.md
 2026-09-23-compatibility-for-unreachable-states-is-removed.md: a69ef29d3a8fc76a85655be1e712e01989fa1fac
-2026-09-23-compatibility-for-unreachable-states-is-removed.zh.md: d48b41512ad67445b12db3b2823d3a2896512cef
+2026-09-23-compatibility-for-unreachable-states-is-removed.zh.md: 38757042d2c6e3de7e452b3c2e7448e228940653

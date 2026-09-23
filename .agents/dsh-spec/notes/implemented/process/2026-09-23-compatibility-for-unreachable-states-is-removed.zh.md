@@ -10,7 +10,7 @@ Status: implemented
 
 - `notes-root.ts` 把笔记树解析在本集合自己的路径上,**或者**解析在它被抽取出来的那个无命名空间路径 `.agents/notes/` 上;两个导出函数返回"可能的根前缀"列表,让引擎其余部分去搜。
 - `verify-agent-note-format.ts` 接受一条祖父注释代替 `## Alternatives considered`(仅限日期早于 `2026-07-05` 的笔记),并封禁两个已退休的债务标记;`agent-note-tree.ts` 为这个截止日期专门带着每篇笔记的日期。
-- `verify-agent-note-classification.ts` 会把把笔记放在 `docs/rfc/` 或 `docs/rfcs/` 的仓库判为失败。
+- `verify-agent-note-classification.ts` 会把笔记放在 `docs/rfc/` 或 `docs/rfcs/` 的仓库判为失败。
 - `manager.ts` 有一条分支,处理"替换副本比 `--only-skill-set` 更老"的情形,由替换副本自带的 manifest 装上技能集合,因为那份副本无法被指定目标。
 
 这四处谁都到不了。这套集合从未发布过——`v0.1.0` 的 release 还是草稿——而已经存在的那个 tag 本身就带命名空间路径、当前正文格式和那个旗标,所以即便有人把副本钉在那个 tag 上,也进不了这四种状态中的任何一种。它们其实是本仓库自己的历史:它被抽取出来的那个布局、它迁移过的正文格式、更早的 ADR 流程用过的文档树,以及抽取还在写的时候加上的那个旗标。
