@@ -87,7 +87,8 @@ Node ≥ 22.19 or ≥ 24 is the only requirement: the engine is TypeScript that 
   text is and who receives it — an agent loads the skills, a person installs the package, the next
   maintainer reads the notes — so a sentence written for whoever is present is a sentence for the
   wrong reader, and a sentence that addresses its reader — to ask, to answer back, or to justify — is
-  an interaction that never happened.
+  an interaction that never happened. Every sentence of a draft is checked against one question —
+  does it state the fact, or does it address the reader?
   [A text names its reader](.agents/dsh-spec/notes/implemented/process/2026-09-23-a-text-names-its-reader.md).
 - **Write and say it in that language's idiom, in an order a reader can follow.** Each side of a pair
   is written the way its own language says it, and so is anything said to the maintainer; which
