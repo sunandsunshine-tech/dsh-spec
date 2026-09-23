@@ -80,7 +80,7 @@ if (failures.length > 0) {
 }
 
 if (skipped.length > 0) {
-  console.log(`${gate}: ${skipped.length} marked region(s) left unread — ${skipped.join(', ')} (frozen by \`${EXCLUDED_REGION_MARKER}\`, so neither this shape nor any other is asserted there)`)
+  console.log(`${gate}: ${skipped.length} preserved region(s) left unread — ${skipped.join(', ')} (marked with \`${EXCLUDED_REGION_MARKER}\`, so no mangled or nested link is asserted inside it)`)
 }
 
 console.log(`${gate}: ${read} file(s) read; no link was rewritten into prose.`)
