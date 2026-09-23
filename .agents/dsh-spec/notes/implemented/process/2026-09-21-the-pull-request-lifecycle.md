@@ -28,17 +28,15 @@ A pull request moves through five stages in order — WIP, development, wrap-up,
 
 **A PR description carries five sections.** `## What this PR does`, `## Why`, `## How`, `## Reviewer notes`, `## Verification`. It states what a maintainer needs to review and merge, and nothing else.
 
-**Squash is the default merge.** Every non-release pull request is squash-merged on GitHub, by fast-forward, so the released line gains one clean commit per pull request.
+**Squash is the merge.** Every pull request is squash-merged on GitHub, by fast-forward, so the released line gains one clean commit per pull request.
 
-**The release pull request is the one exception, and it merges locally.** After the maintainer has reviewed it, its head commits are merged with `git merge --ff-only` and pushed. GitHub then reports the pull request as merged — an indirect merge, which [GitHub's merge reference](https://docs.github.com/en/pull-requests/reference/pull-request-merges) defines as a pull request whose head commits become reachable from the base branch outside that pull request — and the released tag names a commit that is on the released line. The other two GitHub merges are turned off for this repository: rebase-and-merge rewrites every commit SHA, and a merge commit is not what a line built from squashes wants.
-
-**The two costs of an indirect merge are accepted.** Branch protection does not stand in its way: GitHub's reference states that a pull request merged indirectly is marked as merged "even if branch protection rules … were not satisfied", so the protection a PR normally passes is not the guard here — the maintainer's review is. And GitHub does not delete the merged head branch, because the merge happened locally, so that branch is deleted by hand after the push.
+**A release pull request squashes like every other one, and the tag goes on the squash commit.** Its commits are the release notes and the installed copy refreshed from the release branch, and the tag is created on that commit after the merge, so the released tag names a commit on the released line without a merge path of its own. [The release commit carries its own copy](2026-09-23-the-release-commit-carries-its-own-copy.md) owns the reversal, the cost it accepts, and the alternatives it beat. The other two GitHub merges stay turned off for this repository: rebase-and-merge rewrites every commit SHA, and a merge commit is not what a line built from squashes wants.
 
 **A rule lands before the changes it governs.** A change that a rule constrains opens its pull request after the rule is on `main`, so the change can point at a rule a reader can already open.
 
 ## Alternatives considered
 
-**Keep all three GitHub merges available and let the author pick.** It is the default and the least policy. It lost because the branch's meaning then depends on which button was pressed: a merge commit makes `fix typo` a permanent line of history, and rebase-and-merge "Always updates the committer information and creates new commit SHAs" ([GitHub's merge reference](https://docs.github.com/en/pull-requests/reference/pull-request-merges)), so a release tag taken from such a branch would name a commit the released line never contains. One merge per kind of pull request is the only version of this that a release can depend on.
+**Keep all three GitHub merges available and let the author pick.** It is the default and the least policy. It lost because the branch's meaning then depends on which button was pressed: a merge commit makes `fix typo` a permanent line of history, and rebase-and-merge "Always updates the committer information and creates new commit SHAs" ([GitHub's merge reference](https://docs.github.com/en/pull-requests/reference/pull-request-merges)), so a release tag taken from such a branch would name a commit the released line never contains. One merge, applied to every pull request, is the only version of this that a release can depend on.
 
 **Manage the parallel branches with `gh stack`.** It tracks a series and keeps each layer rebased on the one below, which is genuinely better than by hand for a stacked change. It lost because stacking is as narrow as its rule: it is needed when one change is layered on another. Independent changes need none of it — a rule can land without a note, and a note without a rule — so plain branches plus fixups and one squash are the whole mechanism.
 
@@ -52,4 +50,4 @@ The change is legible at every stage: one commit per unit of work is merged, the
 
 A squash loses the working commits that led to the final one — the failed attempts, the reverted experiments — and that history is worth keeping while a change is a proposal, which is exactly what the WIP and development stages are for. The trade is deliberate: the released line is read far more often than a branch is.
 
-The lifecycle is stated once, here. Other documents — a PR template, the standing orders — point at this note instead of repeating its rules, and the two costs of the indirect merge are recorded because they are paid by a person at publish time, not by a check.
+The lifecycle is stated once, here. Other documents — a PR template, the standing orders — point at this note instead of repeating its rules.
