@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-23-the-release-commit-carries-its-own-copy.md
+2026-09-23-the-release-commit-carries-its-own-copy.md: e7159542815374c5dd365fb6c9408da58ab190f0
+2026-09-23-the-release-commit-carries-its-own-copy.zh.md: 92663f06cb9c7e0d06a40690e430932980a9b5d0
