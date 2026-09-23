@@ -17,14 +17,14 @@ For a broad request, divide independent domains among subagents — the project'
 
 ## Search for removable obligations
 
-Use these questions to guide discovery. Read the relevant section of [historical patterns](references/historical-patterns.md) when a candidate needs calibration; those examples illustrate decisions, not a current deletion inventory.
+Use these questions to guide discovery. Read the relevant section of [historical patterns](references/historical-patterns.md) when a candidate needs calibration: each section states a judgement, the forces it weighs and what would reverse it, and the cases behind it — recorded decisions, not a current deletion inventory.
 
-- **Does a declared feature have a complete effect path?** Trace producer, transformations, provider or endpoint support, and observable result. A field copied everywhere may still have no setter, no reader, or only implementations that reject it. Search constructors and discriminant emitters as well as callers.
-- **Which distinctions change a consumer's action?** Several internal states may require one model-facing status or one usable identifier. Keep internal distinctions that control authorization, residency, durability, or ownership; remove public distinctions that only invite an unusable choice.
-- **Could a smaller explicit behavior remove the subsystem?** Fixed intervals, caller-supplied time zones, or reported activation failure can eliminate generalized calendars, persisted defaults, or automatic rollback. Name the capability given up and the machinery deleted. A production caller makes this a behavior decision rather than an automatic rejection; implementation must remain within the user's authorization.
-- **Can a consumer read the authoritative value when needed?** Look for copied histories, promotion ledgers, invalidation events followed by reads, and feature caches beside a shared projection stream. Derivation or reuse may delete subscriptions, retained data, stale-response handling, and recovery paths together. Establish the required time of observation first.
+- **Does a declared feature have a complete effect path?** Trace producer, transformations, provider or endpoint support, and observable result. Search constructors and discriminant emitters as well as callers.
+- **Which distinctions change a consumer's action?** Map every public variant to the consumer action it enables, and keep the internal distinctions that still control authorization, residency, durability, or ownership.
+- **Could a smaller explicit behavior remove the subsystem?** Name the capability given up and the machinery deleted. A production caller makes this a behavior decision rather than an automatic rejection; implementation must remain within the user's authorization.
+- **Can a consumer read the authoritative value when needed?** Derivation or reuse may delete subscriptions, retained data, stale-response handling, and recovery paths together. Establish the required time of observation first.
 - **Is composition being mistaken for policy?** Optional service presence, a provider method, or a sibling tool can express availability without deciding deployment behavior. Explicit configuration or a caller-intent operation may remove registries and dependency checks. Preserve distinct operations when their ownership or completion timing differs.
-- **What owns the complete maintenance cost?** Trace pass-through configuration, duplicate application trees, demo launchers used by products, resolver-only workspaces, and installation helpers with their own upgrade lifecycle. Compare the entire removed system with the replacement, including residual glue; moving complexity, or adding a gate that keeps duplicate definitions equal, does not remove it.
+- **What owns the complete maintenance cost?** Compare the entire removed system with the replacement, including residual glue; moving complexity, or adding a gate that keeps duplicate definitions equal, does not remove it.
 
 ## Prove reachability and the trade-off
 

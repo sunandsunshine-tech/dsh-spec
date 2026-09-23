@@ -1,6 +1,6 @@
 # Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-shipped-skill-text-is-an-extraction.md
-2026-09-21-the-shipped-skill-text-is-an-extraction.md: cc05364f55aa61765850f6abd4009bb0dae8b2fb
-2026-09-21-the-shipped-skill-text-is-an-extraction.zh.md: 47f053f2781105130fbed9c675bcc00cce7cdb3d
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-shipped-skill-text-is-an-extraction.md
+2026-09-21-the-shipped-skill-text-is-an-extraction.md: 6fa14b8c875c6fa6c800e463ca642c6b8c5a027e
+2026-09-21-the-shipped-skill-text-is-an-extraction.zh.md: d72f436374e9c3b5a42c3d2dcb8d82e273d9c671
