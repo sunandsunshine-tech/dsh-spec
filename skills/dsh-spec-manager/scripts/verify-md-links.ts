@@ -96,8 +96,10 @@ export function githubSlug(heading: string): string {
  * Every anchor one Markdown document exposes: each heading's GitHub slug —
  * computed from the RENDERED heading text, so links, images, inline code, and
  * emphasis inside a heading slug the way GitHub renders them — plus every
- * explicit `<a id="…">` that appears in real HTML flow (a fenced or inline
- * code sample and a commented-out anchor register nothing). Repeated slugs
+ * explicit `id` on a raw HTML element in real HTML flow, whichever element
+ * carries it: an `<a id="…">` and a `<h3 id="…">` are both anchors a reader can
+ * reach (a fenced or inline code sample and a commented-out anchor register
+ * nothing). Repeated slugs
  * get GitHub's occupied-set `-1`, `-2`, … suffixes: each collision bumps the
  * ORIGINAL slug's counter until a free name is found, so `Repeat`, `Repeat-1`,
  * `Repeat` yields `repeat`, `repeat-1`, `repeat-2`. Matching is exact —
@@ -122,7 +124,7 @@ export function documentAnchors(source: string): Set<string> {
   visitMarkdown(parseMarkdown(source), (node: Nodes): void => {
     if (node.type !== 'html') return
     const html = node.value.replace(/<!--[\s\S]*?-->/g, '')
-    for (const match of html.matchAll(/<a id="([^"]+)"/g)) anchors.add(match[1] ?? '')
+    for (const match of html.matchAll(/<[a-zA-Z][^>]*\sid="([^"]+)"/g)) anchors.add(match[1] ?? '')
   })
   return anchors
 }

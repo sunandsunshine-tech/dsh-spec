@@ -60,6 +60,14 @@
       "source": ".agents/dsh-spec/notes/implemented/process/2026-09-21-the-pull-request-lifecycle.md"
     },
     {
+      "id": "pr.authorization",
+      "group": "pr",
+      "title": "Merge and publish only when that act is authorized",
+      "titleZh": "合并与发布只在维护者授权那一次行为后进行",
+      "body": "- **Merge and publish only when that act is authorized.** An agent opens a pull request and stops there; merging it, and publishing a release, happen only after the maintainer authorizes that specific act, and the request names the act and carries the change's description. Approval of a different change, or of the same change at an earlier phase, authorizes nothing.\n  - Why: the repository's history and its published artifacts are the maintainer's, and an agent cannot tell a change it believes is finished from one the maintainer has accepted; a standing permission quietly turns the review before it into a formality.\n  - Self-check: can you point to the authorization for this merge or this release, and does it name this act?",
+      "source": ".agents/dsh-spec/notes/implemented/process/2026-09-23-merging-and-publishing-need-authorization.md"
+    },
+    {
       "id": "prose.reader",
       "group": "prose",
       "title": "Write for the reader's question, and answer it with something they can run",
