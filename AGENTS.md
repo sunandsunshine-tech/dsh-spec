@@ -112,7 +112,7 @@ Keep each rule self-contained while linking the document that owns its rationale
 <!-- dsh-spec:agent-notes -->
 ## Decision records
 
-Add or update an Agent Note in the same change only for lasting decision rationale that code, tests, and existing documentation do not explain; mechanical or local edits are exempt. **A decision agreed in conversation counts**: record it as a `proposed` note before the change exists, because a conclusion that lives only in a transcript is invisible to the next session, the next collaborator, and the next device. Update that note as the design moves, and move it to `implemented` when it ships.
+Add or update an Agent Note in the same change only for lasting decision rationale that code, tests, and existing documentation do not explain; mechanical or local edits are exempt ([scope](.agents/dsh-spec/notes/README.md#when-to-write-one)). Archived notes are frozen: never edit them or treat them as current authority ([archive policy](.agents/dsh-spec/notes/README.md#archiving-and-deletion)).
 
 Read `.agents/dsh-spec/notes/README.md` for the layout, the classes, and the in-file format, and keep every note inside the closed lifecycle and class folders the checks enforce. The checks are not copied into this project: they ship inside the installed skills and are reached through the entry point in `.agents/skills/dsh-spec-manager/scripts/`. Run a check through it after adding a note.
 
