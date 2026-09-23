@@ -14,7 +14,7 @@ manifest 声明了每个技能来自哪个修订,而项目改不了它:`manifest
 
 **manifest 不再声明任何修订。** `revision` 从 `manifest.json` 中删除;该文件仍持有仓库、要安装的技能、本技能集合发布的门禁以及每道门禁的范围。安装器早已把它解析出的 ref 以 `metadata.github-ref` 记进每个已安装的 `SKILL.md`,那条记录就是 pin:一次安装交付了什么,项目就跑什么。
 
-**必须命名目标的命令按两级解析目标。** 显式的 `--revision <ref>` 优先。没有该旗标时,解析器从仓库读取最新的**已发布** release——草稿 release 不算 release,它的 `tag_name` 不会被拿来用——既没有旗标也没有已发布 release 时,以退出码 2 拒绝,并在信息里点名 `--revision`。只有两个自更新动作会解析目标:`install` 与 `upgrade --only-skill-set` 改为从 manager 取修订。
+**必须命名目标的命令按两级解析目标。** 显式的 `--revision <ref>` 优先。没有该旗标时,解析器从仓库读取最新的**已发布** release——草稿 release 不算 release,它的 `tag_name` 不会被拿来用——既没有旗标也没有已发布 release 时,以退出码 2 拒绝,并在信息里点名 `--revision`。有两个动作不解析目标,而是从 manager 取修订:`install` 与 `upgrade --only-skill-set`。
 
 **技能集合按 manager 自己的 ref 安装。** `install` 与 `upgrade --only-skill-set` 从已安装的 `dsh-spec-manager/SKILL.md` 读出 `metadata.github-ref`,按它安装其余技能,并把 `refs/heads/` 或 `refs/tags/` 前缀去掉作为短名。这就是一次安装已经交付的那个 ref。从未安装过的源码树没有这份元数据,在那里这一对动作回退到上面的两级解析。
 
@@ -40,6 +40,6 @@ manifest 声明了每个技能来自哪个修订,而项目改不了它:`manifest
 
 **代价是什么。** 没有任何东西拿已安装技能集合与一个项目从未安装过的修订比对,所以想试某条分支的项目必须先取回该分支上的 manager,然后才能装其余技能——原来的 manifest pin 可以一次指向一条分支并刷新到位。manager 在 `upgrade` 里多了自己的一步,而重新执行正是让这两半不会把旧代码和新 ref 混在一起的原因。
 
-**要求了什么。** 不带 manager 元数据的源码树没有本地 pin,所以 `install` 与 `upgrade` 在那里回退到最新已发布 release,并在仓库没有已发布 release、又没给旗标时被拒绝。在本仓库里,安装副本的 ref 因此是唯一告诉刷新从哪里取的东西。[在 git 中跟踪已安装的技能副本](2026-09-18-track-the-installed-skill-copy.zh.md)拥有随之而来的常驻指令,而[拉取请求生命周期](2026-09-21-the-pull-request-lifecycle.zh.md)里的发布 PR 正是发布这个回退所解析的那个修订的地方。
+**要求了什么。** `install` 与 `upgrade --only-skill-set` 读 pin,所以从未安装过的树没有 pin,那里的 `install` 回退到最新已发布 release——仓库没有已发布 release、又没给旗标时被拒绝。全量 `upgrade` 在任何树里都按同一方式解析目标:先看 `--revision`,否则取最新已发布 release;因为 pin 记录的是已安装的那一份从哪来,而不是它该往哪去。在本仓库里,安装副本的 ref 因此是告诉 `install` 或 `--only-skill-set` 刷新从哪里取的东西。[在 git 中跟踪已安装的技能副本](2026-09-18-track-the-installed-skill-copy.zh.md)拥有随之而来的常驻指令,而[拉取请求生命周期](2026-09-21-the-pull-request-lifecycle.zh.md)里的发布 PR 正是发布这个回退所解析的那个修订的地方。
 
-**留给读者什么。** 安装路径是一次安装加一次刷新:`status` 确认技能集合,`upgrade` 把它追到 manager 自己携带的那个 ref。需要特定修订的项目显式传入它,而既然没有文件再声明 pin,这个旗标就是 pin 的全部表面。
+**留给读者什么。** 安装路径是一次安装加一次刷新:`status` 对照 manager 自己携带的 ref 确认技能集合,`upgrade --only-skill-set` 把它追到那个 ref;而全量 `upgrade` 去的是调用者点名的修订,或最新已发布 release。既然没有文件再声明 pin,那个旗标就是 pin 的全部表面。

@@ -8,7 +8,7 @@ English | [中文](2026-09-21-the-note-trigger-follows-dsh.zh.md)
 
 The contract this skill set ships said that **every non-trivial change** must add or update an Agent Note, with non-trivial defined as a list: behavior, architecture, a contract shared across files, process or tooling, testing strategy, a stored, wire or configuration format, or any decision a maintainer might revisit.
 
-dsh narrowed that in `dsh-v0.1.6-alpha.2`, the release this skill set now pins: a note is for **lasting decision rationale that code, tests and existing documentation do not explain**, and mechanical or local edits are exempt. The standing-orders bullet in its root `AGENTS.md` changed with it — the previous pin required a note for every non-trivial change — while the mechanism's code, its note instruction file and its search exclusion did not move.
+dsh narrowed that in `dsh-v0.1.6-alpha.2`, the release this text was ported from: a note is for **lasting decision rationale that code, tests and existing documentation do not explain**, and mechanical or local edits are exempt. The standing-orders bullet in its root `AGENTS.md` changed with it — the text before it required a note for every non-trivial change — while the mechanism's code, its note instruction file and its search exclusion did not move.
 
 ## Decision
 
