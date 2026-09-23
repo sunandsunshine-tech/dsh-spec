@@ -644,19 +644,7 @@ export async function upgradeProject(root: string, options: { dryRun: boolean, r
     if (!options.dryRun) {
       // The manager just changed: the copy that decides the rest is the one now on disk, so the
       // second half runs in a new process carrying `--only-skill-set` rather than mixing revisions.
-      // A copy older than the flag — a downgrade, or a ref that has not merged it — cannot be told
-      // the target: run on its own it would install the set at the ref it pins, a different
-      // revision than the one this invocation resolved. That copy is not run. The set is installed
-      // here instead, from the skill list the replacement ships — so one ref still governs both
-      // halves and the project is never left half-applied.
       const dispatcher = join(directory, 'dsh-spec-manager', 'scripts', 'dsh-spec.ts')
-      if (existsSync(dispatcher) && !readFileSync(dispatcher, 'utf8').includes('only-skill-set')) {
-        const replacement = readManifest(manifestPathOf(join(directory, 'dsh-spec-manager', 'scripts')))
-        console.log(`  the replacement at ${ref} predates \`--only-skill-set\`, so it cannot be told a target; installing the set here, from the manifest it ships`)
-        console.log(`  at ${ref}: installing the skill set only`)
-        await refresh(root, replacement.repo, directory, replacement, ref, false, options.reinstall, false, options.jobs)
-        return
-      }
       console.log(`  re-exec ${dispatcher} upgrade --only-skill-set --revision ${ref} --root ${root}`)
       const result = spawnSync(process.execPath, [dispatcher, 'upgrade', '--only-skill-set', '--revision', ref, '--root', root], { stdio: 'inherit' })
       if (result.error) fail(`${dispatcher} could not be run: ${result.error.message}`)

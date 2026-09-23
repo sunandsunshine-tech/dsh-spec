@@ -7,7 +7,7 @@
 
 import { globSync, readdirSync } from 'node:fs'
 import { sep } from 'node:path'
-import { notesRootPrefixes, resolveNotesRoot } from './notes-root.ts'
+import { NOTES_ROOT_PREFIX, resolveNotesRoot } from './notes-root.ts'
 
 export const agentNoteRoot = resolveNotesRoot()
 
@@ -39,8 +39,6 @@ export interface AgentNote {
   lifecycle: string
   /** Path relative to .agents/dsh-spec/notes. */
   rel: string
-  /** `yyyy-mm-dd` from the filename. */
-  date: string
 }
 
 /**
@@ -87,7 +85,7 @@ export function walkAgentNoteTree(): { notes: AgentNote[]; errors: string[] } {
         errors.push(`structure: ${match} — filename must be yyyy-mm-dd-topic.md`)
         continue
       }
-      notes.push({ lifecycle, rel: match, date: base.slice(0, 10) })
+      notes.push({ lifecycle, rel: match })
     }
   }
   return { notes, errors }
@@ -113,9 +111,8 @@ export const ACTIVE_LIFECYCLES: readonly string[] = AGENT_NOTE_LIFECYCLES
  * @returns true when the path is `{lifecycles}/{class}/yyyy-mm-dd-topic.md` under a notes root.
  */
 export function isActiveNotePath(path: string): boolean {
-  const prefix = notesRootPrefixes().find(candidate => path.startsWith(candidate))
-  if (prefix === undefined) return false
-  const segments = path.slice(prefix.length).split('/')
+  if (!path.startsWith(NOTES_ROOT_PREFIX)) return false
+  const segments = path.slice(NOTES_ROOT_PREFIX.length).split('/')
   if (segments.length !== 3) return false
   const [lifecycle, cls, base] = segments
   if (lifecycle === undefined || cls === undefined || base === undefined) return false
@@ -137,10 +134,9 @@ export function noteFromRel(path: string): { ok: true, note: AgentNote } | { ok:
   if (!isActiveNotePath(path)) {
     return { ok: false, error: `${path} is not an active Agent Note — the path is \`{proposed,implemented,rejected}/{class}/yyyy-mm-dd-topic.md\` under a notes root` }
   }
-  const prefix = notesRootPrefixes().find(candidate => path.startsWith(candidate))
-  const rel = path.slice((prefix ?? '').length)
+  const rel = path.slice(NOTES_ROOT_PREFIX.length)
   const segments = rel.split('/')
   const lifecycle = segments[0] ?? ''
   const base = segments[2] ?? ''
-  return { ok: true, note: { lifecycle, rel, date: base.slice(0, 10) } }
+  return { ok: true, note: { lifecycle, rel } }
 }

@@ -45,7 +45,7 @@ import {
   normalizeTranslationMarkdownLinks,
   translationLinkLocaleViolations,
 } from './translation-links.ts'
-import { notesRootPrefixes } from './notes-root.ts'
+import { NOTES_ROOT_PREFIX } from './notes-root.ts'
 import { resolveRepoRoot } from './repo-root.ts'
 
 const root = resolveRepoRoot()
@@ -143,7 +143,8 @@ const SCOPE_PATTERNS = [
   '**/*.i18n.yaml',
   '.agents/**/*.md',
   '.agents/**/*.i18n.yaml',
-  ...notesRootPrefixes().flatMap(prefix => [`${prefix}**/*.md`, `${prefix}**/*.i18n.yaml`]),
+  `${NOTES_ROOT_PREFIX}**/*.md`,
+  `${NOTES_ROOT_PREFIX}**/*.i18n.yaml`,
 ]
 
 /**

@@ -1,10 +1,10 @@
 /**
  * SPDX-License-Identifier: MIT
  * Ported from dsh scripts/verify-agent-note-format.ts @ ddefc45fbc7f8e46dd73185e68295696d1297887 (submodules/dsh). Relation: adapted.
- * Enforce Agent Note headers, lifecycle-specific sections, alternatives, and retired
- * marker rules. Classification and filenames belong to the sibling tree gate;
- * translation structure belongs to the pairing gate. Exact format and
- * grandfathering rules live in `.agents/dsh-spec/notes/README.md`.
+ * Enforce Agent Note headers, lifecycle-specific sections, and alternatives.
+ * Classification and filenames belong to the sibling tree gate; translation
+ * structure belongs to the pairing gate. Exact format rules live in
+ * `.agents/dsh-spec/notes/README.md`.
  *
  * This gate reads exactly the paths it is handed: the tree walk belongs to classification, which
  * asserts about the tree, and a check that only reads note bodies has no business enumerating one.
@@ -17,15 +17,6 @@ import { readGateScope, refuseOutOfScope } from './gate-scope.ts'
 import { notesRootExists } from './notes-root.ts'
 
 const gate = 'verify-agent-note-format'
-
-/** The date these format rules took effect; the grandfather comment is valid only before it. */
-const FORMAT_ADOPTED = '2026-07-05'
-
-/** The exact comment a pre-format Agent Note carries in place of `## Alternatives considered`. */
-const GRANDFATHER = '<!-- agent-note-format: alternatives-not-recorded (pre-format Agent Note) -->'
-
-/** The retired debt marker that flagged pre-format bodies; banned so it cannot creep back. */
-const LEGACY_MARKERS = ['XXX: legacy ADR/RFC body format', 'XXX: legacy ADR/Agent Note body format']
 
 /** Status-line grammar per lifecycle folder. */
 const STATUS: Record<string, RegExp> = {
@@ -87,13 +78,9 @@ function checkNote(note: AgentNote, lines: string[], errors: string[]): void {
     }
   }
 
-  const hasSection = h2s.includes('## Alternatives considered')
-  const hasGrandfather = prose.includes(GRANDFATHER)
-  if (hasSection && hasGrandfather) fail('carries both `## Alternatives considered` and the grandfather comment — drop the comment')
-  if (!hasSection && !hasGrandfather) fail('missing `## Alternatives considered` (a pre-format Agent Note whose alternatives are not reconstructible carries the grandfather comment instead — see .agents/dsh-spec/notes/README.md § The file format)')
-  if (hasGrandfather && note.date >= FORMAT_ADOPTED) fail(`the grandfather comment is only valid for Agent Notes dated before ${FORMAT_ADOPTED}`)
-
-  if (prose.some(line => LEGACY_MARKERS.some(marker => line.includes(marker)))) fail('carries the retired legacy-format debt marker')
+  if (!h2s.includes('## Alternatives considered')) {
+    fail('missing `## Alternatives considered` — see .agents/dsh-spec/notes/README.md § The file format')
+  }
 }
 
 const scope = readGateScope(gate)
