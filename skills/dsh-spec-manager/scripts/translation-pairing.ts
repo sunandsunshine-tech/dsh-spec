@@ -12,7 +12,7 @@ import { createHash } from 'node:crypto'
 import { basename, dirname, relative, resolve, sep } from 'node:path'
 import { DEFAULT_I18N_EXCLUDES, isTranslationScopeFile } from './i18n-scope.ts'
 import { resolveRepoRoot } from './repo-root.ts'
-import { archivedNotesPrefixes } from './notes-root.ts'
+import { ARCHIVED_NOTES_PREFIX } from './notes-root.ts'
 import { fromMarkdown } from './vendor-mdast.mjs'
 import { gfmFromMarkdown } from './vendor-mdast.mjs'
 import { gfm } from './vendor-mdast.mjs'
@@ -117,7 +117,7 @@ export function parsePairMeta(content: string): Map<string, string> | undefined 
  * membership from whether a `.zh.md` counterpart exists, and reports the counterpart as the reason.
  */
 export const TRANSLATION_SCOPE_GLOB_EXCLUDES: string[] = [
-  ...archivedNotesPrefixes().map(prefix => `${prefix}**`),
+  `${ARCHIVED_NOTES_PREFIX}**`,
   ...DEFAULT_I18N_EXCLUDES.map(entry => `**/${entry}**`),
   '**/.doc-typecheck-*/**',
   '**/.node-next-types-*/**',

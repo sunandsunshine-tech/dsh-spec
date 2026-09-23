@@ -4,14 +4,16 @@
  * The three gates here were recovered from the deleted `dsh-doc` skill, which read its scope — the
  * patterns and the paths no gate reads — from the project's `doc-tiers` ledger key. The ledger is
  * deleted, so the defaults below replace it and every exclusion carries the reason it is out of
- * scope. A project whose layout differs adapts these lists; there is no second place to record them.
+ * scope. These lists are the collection's defaults, and this file ships inside the installed
+ * deployment, which the next install overwrites: a fork of this collection adapts them here, and an
+ * installed project reads them as they stand.
  *
  * The Agent Note tree stays in scope: its own gates check classification, format and the frozen
  * archive, and none of them checks whether a note's links still resolve. Only the archive is out,
  * because a sealed note is history whose outbound links are frozen.
  */
 
-import { archivedNotesPrefixes } from './notes-root.ts'
+import { ARCHIVED_NOTES_PREFIX } from './notes-root.ts'
 import { type RepoFile, uniqueRepoFiles } from './repo-files.ts'
 
 /**
@@ -51,8 +53,7 @@ const EXCLUDED_PREFIXES: ReadonlyArray<readonly [prefix: string, reason: string]
  * @returns the reason, or an empty string when the gates read the file.
  */
 export function scopeReason(file: string): string {
-  const archived = archivedNotesPrefixes().find(prefix => file.startsWith(prefix))
-  if (archived !== undefined) return `under \`${archived}\` — an archived note is frozen history`
+  if (file.startsWith(ARCHIVED_NOTES_PREFIX)) return `under \`${ARCHIVED_NOTES_PREFIX}\` — an archived note is frozen history`
   const excluded = EXCLUDED_PREFIXES.find(([prefix]) => file.startsWith(prefix))
   if (excluded !== undefined) return `under \`${excluded[0]}\` — ${excluded[1]}`
   const tree = file.split('/').find(part => DEPENDENCY_TREES.includes(part))
