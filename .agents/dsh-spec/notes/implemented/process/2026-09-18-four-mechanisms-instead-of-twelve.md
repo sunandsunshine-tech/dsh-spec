@@ -19,7 +19,7 @@ Two causes stand separately. Most of the weight was machinery this repository in
 3. **An index at the root, and nothing else.** `AGENTS.md` carries orders and **routing** — which kind of change reads which directory. The root `README.md` is the architecture: what exists, what owns what, and the command that checks it.
 4. **One aggregate command.** Its exit code is the whole check. The gate list is **recorded** in `references/manifest.json`, and the dispatcher reconciles the record against the `verify-*.ts` files beside it before it runs anything — a recorded name with no file, or a file the record does not name, is reported and refused. It runs every recorded gate and fails when one fails **or when the record and the engine directory disagree**, which is what makes any gate non-optional. [A gate is a recorded name](2026-09-20-a-gate-is-a-recorded-name.md).
 
-### The eight skills
+### The nine skills
 
 | Skill | What it owns |
 |---|---|
@@ -31,6 +31,7 @@ Two causes stand separately. Most of the weight was machinery this repository in
 | [`dsh-trim-cot-leakage`](../../../../../skills/dsh-trim-cot-leakage/SKILL.md) | Prose that reads like a leaked reasoning transcript |
 | [`dsh-code-review`](../../../../../skills/dsh-code-review/SKILL.md) | The review a change receives, against the root `AGENTS.md` |
 | [`dsh-find-simplifications`](../../../../../skills/dsh-find-simplifications/SKILL.md) | Dead, duplicated, speculative and over-built surfaces |
+| [`dsh-agent-experience`](../../../../../skills/dsh-agent-experience/SKILL.md) | What an agent's own context owes: purpose and constraints before detail, a deferred resource behind a reliable description, bounded outputs, and locality around a result |
 
 **Four skills leave**, each because the mechanism it parameterized is gone or because the capability belongs elsewhere:
 
@@ -41,7 +42,7 @@ Two causes stand separately. Most of the weight was machinery this repository in
 | `dsh-speed-up-perf` | The `perf-baseline` key recorded that nothing here is measured: the deliverable is Markdown and dependency-free TypeScript run on demand |
 | `dsh-merging-stacked-prs` | Stacked pull requests are a capability of the host, not a repository discipline, and the `gh` skill covers the capability |
 
-**Eight is a decision, not a remainder.** Every skill that stays keeps its name and its trigger description, because each still owns a distinct subject; the four above each owned a mechanism this decision removes.
+**The membership is a decision, not a remainder.** Every skill that stays keeps its name and its trigger description, because each still owns a distinct subject; the four above each owned a mechanism this decision removes.
 
 ### One code home for the skill set
 
