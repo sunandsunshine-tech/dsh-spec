@@ -14,7 +14,7 @@
 
 ## Reviewer notes
 
-<!-- Where to look first, what you are unsure of, and anything a reviewer would otherwise have to discover: a breaking change, a migration step, or the merge method this PR asks for — squash unless this is a release PR. -->
+<!-- Where to look first, what you are unsure of, and anything a reviewer would otherwise have to discover: a breaking change, a migration step, or the merge method this PR asks for — squash, a release pull request included. -->
 
 ## Verification
 

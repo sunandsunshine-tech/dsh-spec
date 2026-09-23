@@ -28,17 +28,15 @@ Status: implemented
 
 **PR 描述分五节。** `## What this PR does`、`## Why`、`## How`、`## Reviewer notes`、`## Verification`。它只讲维护者评审和合并需要的东西，不讲别的。
 
-**默认用 squash 合并。** 所有非发布 PR 都在 GitHub 侧用 squash 合并，快进，于是一条发布线每个 PR 只多出一个干净的提交。
+**合并就只有 squash。** 每一个 PR 都在 GitHub 侧用 squash 合并，快进，于是一条发布线每个 PR 只多出一个干净的提交。
 
-**发布 PR 是唯一的例外，它在本地合并。** 维护者评审之后，它的头部提交用 `git merge --ff-only` 合入并推送。GitHub 随后把这个 PR 报成已合并——一次间接合并，[GitHub 的合并参考](https://docs.github.com/en/pull-requests/reference/pull-request-merges)把它定义为一个头部分支的提交在该 PR 之外变得可从基分支到达的 PR——而发布 tag指向一个在发布线上的提交。GitHub 的另外两种合并在本仓库关闭：Rebase and merge 会重写每一条提交的 SHA，而合并提交不是一条由 squash 构成的发布线想要的东西。
-
-**间接合并的两条代价被接受。** 分支保护挡不住它：GitHub 的参考说，间接合并的 PR 会被标记为已合并，「even if branch protection rules … were not satisfied」，所以平时守住 PR 的那道保护在这里不是关卡——维护者的评审才是。而且 GitHub 不会删除被合并的头部分支，因为合并是在本地做的，所以那条分支要在推送后手动删掉。
+**发布 PR 与其它 PR 一样 squash，tag 打在 squash 提交上。** 它的提交是发布说明和「从发布分支刷新的安装副本」，tag 在合并之后打在那个提交上，于是发布 tag 指向发布线上的一个提交，而不需要一条自己的合并路径。[发布提交自带它发布的那份副本](2026-09-23-the-release-commit-carries-its-own-copy.zh.md)拥有这次反转、它接受的代价，以及它击败的替代方案。GitHub 的另外两种合并仍然关闭：Rebase and merge 会重写每一条提交的 SHA，而合并提交不是一条由 squash 构成的发布线想要的东西。
 
 **规则先于它约束的改动落地。** 一条规则所约束的改动，在规则进入 `main` 之后再开 PR，这样它能指向一条读者已经可以打开的规则。
 
 ## Alternatives considered
 
-**GitHub 三种合并全开，让作者自己挑。** 这是默认做法，政策最少。它落选是因为分支的含义从此取决于按了哪个按钮：合并提交让 `fix typo` 成为历史里永久的一行，而 rebase 合并「Always updates the committer information and creates new commit SHAs」（[GitHub 的合并参考](https://docs.github.com/en/pull-requests/reference/pull-request-merges)），于是从这样一条分支打的发布 tag会指向一个发布线上并不存在的提交。发布能依赖的版本只有一个：一类 PR 一种合并。
+**GitHub 三种合并全开，让作者自己挑。** 这是默认做法，政策最少。它落选是因为分支的含义从此取决于按了哪个按钮：合并提交让 `fix typo` 成为历史里永久的一行，而 rebase 合并「Always updates the committer information and creates new commit SHAs」（[GitHub 的合并参考](https://docs.github.com/en/pull-requests/reference/pull-request-merges)），于是从这样一条分支打的发布 tag会指向一个发布线上并不存在的提交。发布能依赖的版本只有一个：每一个 PR 用同一种合并。
 
 **用 `gh stack` 管理并行分支。** 它跟踪一串改动，让每一层始终rebase 在下一层之上；对一个分层改动来说，这确实比手工做得好。它落选是因为堆叠和它的规则一样窄：只有当一个改动叠在另一个改动上时才需要它。彼此独立的改动不需要它——一条规则可以没有笔记就落地，一条笔记也可以没有规则就落地——所以普通分支加 fixup 加一次 squash 就是全部机制。
 
@@ -52,4 +50,4 @@ Status: implemented
 
 一次 squash 会丢掉通向最终提交的那些工作提交——失败的尝试、被回退的实验——而那段历史在一个改动还是提案时是有价值的，那正是 WIP 和开发这两个阶段的用途。这个取舍是刻意的：发布线被读的次数远多过一条分支。
 
-生命周期只写在这里一处。其它文档——PR 模板、常驻指令——指向这条笔记，而不重复它的规则；间接合并的两条代价被记下来，是因为它们由人在发布时支付，而不是由某道门禁支付。
+生命周期只写在这里一处。其它文档——PR 模板、常驻指令——指向这条笔记，而不重复它的规则。

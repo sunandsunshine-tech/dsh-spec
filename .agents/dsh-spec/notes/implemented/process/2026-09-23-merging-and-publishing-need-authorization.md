@@ -20,7 +20,7 @@ The rule has three homes, one per reader:
 - `pr.authorization` carries it in the norm catalog, so an adopting project inherits it with the rest.
 - `.github/release_template.md` carries the shape a release notes document takes, so publishing is written to one form instead of remembered.
 
-Two boundaries keep it from spreading. It does not re-argue the lifecycle's case for the maintainer's judgement; it names the act that judgement authorizes. And it does not decide the merge kind, which the lifecycle owns: a release pull request still merges locally with `git merge --ff-only` once that act is authorized.
+Two boundaries keep it from spreading. It does not re-argue the lifecycle's case for the maintainer's judgement; it names the act that judgement authorizes. And it does not decide the merge kind, which the lifecycle owns: a release pull request squashes like every other one once that act is authorized.
 
 ## Alternatives considered
 
