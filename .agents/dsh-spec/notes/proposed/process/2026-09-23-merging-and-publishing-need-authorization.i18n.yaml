@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/proposed/process/2026-09-23-merging-and-publishing-need-authorization.md
+2026-09-23-merging-and-publishing-need-authorization.md: 99d44708ad6e98d8b622135f7e33c73c183ec9d5
+2026-09-23-merging-and-publishing-need-authorization.zh.md: 68d5b2368a1bbc79a4b4f45c54aaabef93fa275e
