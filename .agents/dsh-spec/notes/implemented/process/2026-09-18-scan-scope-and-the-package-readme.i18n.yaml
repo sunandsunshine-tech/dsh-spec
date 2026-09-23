@@ -1,6 +1,6 @@
 # Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-18-scan-scope-and-the-package-readme.md
-2026-09-18-scan-scope-and-the-package-readme.md: 1d5f3f6549a59bd048f031df47d5d474d8921b93
-2026-09-18-scan-scope-and-the-package-readme.zh.md: d35189d58fd4d9e5508285537caabe60772bdc45
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-18-scan-scope-and-the-package-readme.md
+2026-09-18-scan-scope-and-the-package-readme.md: 71cb16c96a88f470760819c724dbb897e320894f
+2026-09-18-scan-scope-and-the-package-readme.zh.md: eb98ab07c334a2af6aebb36cc3f42325bdaf7ebd

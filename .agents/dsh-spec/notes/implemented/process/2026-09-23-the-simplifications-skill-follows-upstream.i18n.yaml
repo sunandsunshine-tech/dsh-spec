@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-23-the-simplifications-skill-follows-upstream.md
-2026-09-23-the-simplifications-skill-follows-upstream.md: e33e8393ea32574c745c998f34f8ce625f9c89bd
-2026-09-23-the-simplifications-skill-follows-upstream.zh.md: 54410c607caf80ac708189edf324cc26aadc541a
+2026-09-23-the-simplifications-skill-follows-upstream.md: 7441adaa2efd104b954d649424ac8d3ebce63937
+2026-09-23-the-simplifications-skill-follows-upstream.zh.md: 89fc051c2d5f9b07622373b5ef980764f0bb4048
