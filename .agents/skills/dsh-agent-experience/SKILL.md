@@ -3,7 +3,7 @@ description: Use when designing agent tools, skills, context loading, or multi-s
 metadata:
     date: "2026-09-11"
     github-path: skills/dsh-agent-experience
-    github-ref: refs/heads/docs/abstraction-method-and-reader-rule
+    github-ref: refs/heads/release/v0.2.0
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
     github-tree-sha: d62d235e546bb15d329302e9cd4e2f045515c9c8
 name: dsh-agent-experience
