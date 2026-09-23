@@ -90,6 +90,30 @@ test('a nested link fails', (t) => {
   assert.equal(result.status, 1, result.output)
 })
 
+test('a marked region is left unread, and the gate names it', (t) => {
+  const fixture = makeFixture({
+    'docs/a.md': '# A\n\n<!-- gate-exclude:start -->\n\nSee [the guide (reference).\n\n<!-- gate-exclude:end -->\n',
+  })
+  t.after(() => fixture.dispose())
+
+  const result = runCli(fixture.root, ['md-links', 'check', 'docs/a.md'])
+
+  assert.equal(result.status, 0, result.output)
+  assert.match(result.output, /1 marked region\(s\) left unread — docs\/a\.md:4-6/, result.output)
+})
+
+test('a half-applied marker leaves the whole file read', (t) => {
+  const fixture = makeFixture({
+    'docs/a.md': '# A\n\n<!-- gate-exclude:start -->\n\nSee [the guide (reference).\n',
+  })
+  t.after(() => fixture.dispose())
+
+  const result = runCli(fixture.root, ['md-links', 'check', 'docs/a.md'])
+
+  assert.equal(result.status, 1, result.output)
+  assert.doesNotMatch(result.output, /left unread/, result.output)
+})
+
 test('a path outside the markdown scope is a violation', (t) => {
   const fixture = makeFixture({ 'docs/notes.txt': 'Not Markdown.\n' })
   t.after(() => fixture.dispose())
