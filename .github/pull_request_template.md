@@ -14,7 +14,7 @@
 
 ## Reviewer notes
 
-<!-- Where to look first, what you are unsure of, and anything a reviewer would otherwise have to discover: a breaking change, a migration step, or the merge method this PR asks for — squash, a release pull request included. -->
+<!-- The uncertainty met while implementing and why — an odd mechanism or an API whose effect is unclear, kept as it stands or tried and then dropped; whether it is a breaking change; how far the change reaches; and the migration it suggests. -->
 
 ## Verification
 
