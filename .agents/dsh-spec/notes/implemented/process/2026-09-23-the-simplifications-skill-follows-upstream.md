@@ -27,8 +27,8 @@ The examples live in `references/historical-patterns.md` as patterns with the le
 
 ## Consequences
 
-**What it bought.** The skill asks questions a reader can apply to a project it was not written for, its worked examples no longer need translating, and the six questions carry the calibration that used to be spread across a checklist — so a candidate that fits no criterion is still reachable.
+**What it bought.** The skill asks questions a reader can apply to a project it was not written for, its worked examples read without translation, and the six questions carry the calibration itself — so a candidate that fits no criterion is still reachable.
 
-**What it costs.** The patterns reference lost its evidence: a reader can no longer open the record a lesson came from, so a pattern has to be believed or rediscovered rather than checked. The generalised scope advice is also weaker than the original list — "the project's own subsystems" says where to look and not what tends to hide there, which is what the worked examples supplied.
+**What it costs.** The reference carries no evidence: the record a lesson came from is not installed with this collection, so a pattern has to be believed or rediscovered rather than checked. The generalised scope advice is also weaker than a list of examples — "the project's own subsystems" says where to look and not what tends to hide there.
 
 **What it leaves to a reader.** The reference is the calibration, so a project that accumulates its own simplification records should cite them from there rather than trusting eight patterns forever; nothing in this collection enforces that, and the file says which shape each pattern came from without naming a source.
