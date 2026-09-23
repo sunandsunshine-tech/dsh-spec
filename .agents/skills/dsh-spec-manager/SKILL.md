@@ -4,7 +4,7 @@ metadata:
     github-path: skills/dsh-spec-manager
     github-ref: refs/heads/docs/abstraction-method-and-reader-rule
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: c9bbb3c04e933d2b5e68e9da115e41282e2a125a
+    github-tree-sha: 6d6fd98b1be2248723a7c8e3b60573ab0b3e25da
 name: dsh-spec-manager
 ---
 # Managing an adopted project
