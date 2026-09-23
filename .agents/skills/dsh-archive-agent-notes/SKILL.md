@@ -1,10 +1,10 @@
 ---
-description: 'Use when adding, auditing, pruning, archiving, restoring, or reviewing Agent Notes in a project that adopted the pattern: validates the tree against its contract and the format gates, checks every new note for superseded active records, classifies implemented notes by future decision value, deletes rejected notes that no longer prevent a tempting fallacy, and applies the frozen archived/{kind} triplet and manifest rules. Creating a tree is the manager initializer''s job.'
+description: 'Use when adding, auditing, pruning, archiving, restoring, or reviewing Agent Notes in a project that adopted the pattern: validates the tree against its contract and the format gates, checks each new note for superseded records, deletes small UI or purely mechanical records, classifies the rest by future value, deletes rejections that no longer prevent a tempting fallacy, and applies the frozen archived/{kind} triplet and manifest rules. Creating a tree is the initializer''s job.'
 metadata:
     github-path: skills/dsh-archive-agent-notes
-    github-ref: refs/heads/docs/merge-and-release-authorization
+    github-ref: refs/heads/chore/dsh-baseline-notes-contract
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: d0ae1bdeb53779f10552847d8babad0877ce5e77
+    github-tree-sha: cb97da7314031fc15e94a665f70edf1b5ccc7bc3
 name: dsh-archive-agent-notes
 ---
 # Archive Agent Notes
@@ -23,8 +23,9 @@ Every new Agent Note triggers a scoped audit of active notes covering the same d
 
 Apply these lifecycle-specific outcomes:
 
-- **Implemented — keep active:** retain a note when its rationale, alternatives, negative guarantees, durable/wire semantics, ownership boundary, security rule, or reintroduction condition is likely to guide a future change. Length does not matter.
-- **Implemented — archive:** archive a note when the shipped decision is complete and its body is unlikely to guide future work, such as one-off UI chrome, a narrow adapter, a minor closed bug, superseded implementation detail, or process history whose current behavior is obvious elsewhere.
+- **Implemented — delete:** delete complete triplets that only describe small UI adjustments or purely mechanical changes, and repair or remove inbound links. Local bug fixes, performance changes, new capabilities, and substantive behavior or ownership decisions do not qualify merely because they are implemented. Apply this criterion before the keep/archive classification.
+- **Implemented — keep active:** retain a note when its rationale, alternatives, negative guarantees, durable/wire semantics, ownership boundary, security rule, or reintroduction condition is likely to guide a future change. Classify the decision, not the mechanics of its implementation: a mechanical rename or type extraction can still record lasting naming, compatibility, or ownership rules. Length does not matter.
+- **Implemented — archive:** archive a substantive historical decision when it is complete and unlikely to guide future work, but its historical rationale still warrants preservation. Do not archive records that meet the direct-deletion criterion.
 - **Proposed — never archive:** keep a live proposal active; if it is no longer worth pursuing, reject it with an honest reason and satisfy the rejected lifecycle format.
 - **Rejected — keep only as a guardrail:** retain a rejection only when the losing proposal remains a tempting, meaningful mistake and the note explains why it loses.
 - **Rejected — delete:** delete the whole triplet when the rejected idea is obsolete, superseded, no longer plausible, or unlikely to prevent re-litigation. Repair or delete inbound links.
@@ -35,11 +36,10 @@ Do not archive toward a quota. Inspect every note in scope, classify analogous g
 
 These examples set the bar; the word counts demonstrate that size is not the test.
 
-Archive implemented notes such as:
+Delete implemented notes such as:
 
 - collapsed UI control rail — 533 words: closed, minor presentation behavior;
-- CLI argument adapter — 1,498 words: substantial implementation detail with little future design leverage;
-- documentation graph atlas — 920 words: completed documentation machinery whose current generators are authoritative.
+- module ownership moved between packages — completed function relocation and import rewiring with unchanged behavior.
 
 Keep implemented notes such as:
 
@@ -59,7 +59,7 @@ For rejected notes:
 
 1. Move the complete `foo.md`, `foo.zh.md`, and `foo.i18n.yaml` triplet from `implemented/<kind>/` to `archived/<kind>/`; `implemented` is deliberately absent from the archive path.
 2. Make no body edits. Insert only `Archived: YYYY-MM-DD` immediately below `Status: implemented` in both language files, using the archival date and the same value on both sides.
-3. Re-record the sidecar hashes mechanically for the two metadata-only edits. Do not translate, reformat, update facts, or repair links inside the note.
+3. Re-record the sidecar hashes mechanically for the two metadata-only edits. Do not translate, reformat, update facts, or repair links inside the note. Existing title punctuation, blank-line layout, and language-switcher wording are preserved, not prerequisites for archival.
 4. Search for inbound links from active prose. Redirect them to current authority, retarget them to the archived path only when the historical snapshot is intentionally cited, or delete them. Never verify or repair links out of the archived note.
 5. Run the archive verifier — one of the checks in the collection's engine directory, reached through the entry point beside it: `node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes-archived write --all --root .`. Its append-only mode first proves every existing seal still matches, then adds only the new triplet hashes. Run the normal verifier afterward.
 
@@ -69,4 +69,4 @@ After the triplet is sealed, never edit, move, translate, reformat, or delete it
 
 Run the archive verifier, `node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes-archived check --all --root .`, the project's aggregate check, and `git diff --check`; select any additional evidence through [dsh-pre-push-checks](../dsh-pre-push-checks/SKILL.md).
 
-Report active implemented notes kept, implemented notes archived, rejected notes kept/deleted, proposed notes rejected if any, and every genuinely borderline case with its word count and chosen outcome. Do not claim archived outbound links are valid: the archive verifier intentionally never checks them.
+Report active implemented notes kept, implemented notes deleted or archived, rejected notes kept/deleted, proposed notes rejected if any, and every genuinely borderline case with its word count and chosen outcome. Do not claim archived outbound links are valid: the archive verifier intentionally never checks them.
