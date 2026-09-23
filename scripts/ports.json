@@ -11,7 +11,7 @@
       "upstream": "scripts/agent-note-tree.ts",
       "sha": "ddefc45fbc7f8e46dd73185e68295696d1297887",
       "relation": "adapted",
-      "note": "The notes root resolves through notes-root.ts, so this pattern's own path and the un-namespaced layout it was extracted from are both honoured."
+      "note": "The notes root resolves through notes-root.ts at this collection's own path, and a note carries no date: nothing here grandfathers a pre-format body."
     },
     {
       "local": "archived-agent-notes.ts",

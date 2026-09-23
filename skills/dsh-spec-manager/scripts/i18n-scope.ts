@@ -16,7 +16,7 @@
 
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { archivedNotesPrefixes } from './notes-root.ts'
+import { ARCHIVED_NOTES_PREFIX } from './notes-root.ts'
 import { resolveRepoRoot } from './repo-root.ts'
 
 /**
@@ -140,9 +140,8 @@ export function translationRecordOf(anchor: string): string {
  */
 export function explainScope(file: string): ScopeVerdict {
   const anchor = pairAnchorOf(file)
-  const archived = archivedNotesPrefixes().find(prefix => file.startsWith(prefix))
-  if (archived !== undefined) {
-    return { inScope: false, rule: 'archived', reason: `under \`${archived}\` — archived notes are frozen and never paired` }
+  if (file.startsWith(ARCHIVED_NOTES_PREFIX)) {
+    return { inScope: false, rule: 'archived', reason: `under \`${ARCHIVED_NOTES_PREFIX}\` — archived notes are frozen and never paired` }
   }
   const excluded = DEFAULT_I18N_EXCLUDES.find(entry => matchesScopeEntry(anchor, entry))
   if (excluded !== undefined) {

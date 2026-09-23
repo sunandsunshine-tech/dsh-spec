@@ -115,13 +115,7 @@ Status: <status>
 
 ### 曾考虑的替代方案——必需
 
-每份 Agent Note 都必须包含 `## Alternatives considered` 章节：每个真实的替代方案及其落选原因，每个替代方案用一个加粗引导的段落，或对争议较大的替代方案用 `### Why not <X>?` 子节。记录决策时不记录它击败了什么，就是在邀请反复争论——这正是 Agent Note 旨在防止的问题。
-
-替代方案是记录下来的，不是凭空编造的。日期早于 2026-07-05 且替代方案无法从记录中重建的 Agent Note，用以下精确注释代替该章节，门禁仅对格式规范之前的文件接受此注释：
-
-```markdown
-<!-- agent-note-format: alternatives-not-recorded (pre-format Agent Note) -->
-```
+每份 Agent Note 都必须包含 `## Alternatives considered` 章节：每个真实的替代方案及其落选原因，每个替代方案用一个加粗引导的段落，或对争议较大的替代方案用 `### Why not <X>?` 子节。记录决策时不记录它击败了什么，就是在邀请反复争论——这正是 Agent Note 旨在防止的问题。替代方案是记录下来的，不是凭空编造的。
 
 ### 引用文本与密钥
 

@@ -107,13 +107,7 @@ A rejected Agent Note is the proposal, frozen: it keeps whatever proposal-time s
 
 ### Alternatives considered — mandatory
 
-Every Agent Note carries an `## Alternatives considered` section: each genuine alternative and why it lost, one bold-led paragraph per alternative or a `### Why not <X>?` subsection per contested one. A decision recorded without what it beat invites re-litigation — the failure Agent Notes exist to prevent.
-
-Alternatives are recorded, never invented. An Agent Note dated before 2026-07-05 whose alternatives are not reconstructible from the record carries this exact comment in place of the section, which the gate accepts for pre-format files only:
-
-```markdown
-<!-- agent-note-format: alternatives-not-recorded (pre-format Agent Note) -->
-```
+Every Agent Note carries an `## Alternatives considered` section: each genuine alternative and why it lost, one bold-led paragraph per alternative or a `### Why not <X>?` subsection per contested one. A decision recorded without what it beat invites re-litigation — the failure Agent Notes exist to prevent. Alternatives are recorded, never invented.
 
 ### Quoted text and secrets
 

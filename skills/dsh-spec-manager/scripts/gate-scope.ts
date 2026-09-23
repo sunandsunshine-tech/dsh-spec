@@ -23,7 +23,7 @@ import { isActiveNotePath, walkAgentNoteTree } from './agent-note-tree.ts'
 import { isTranslationScopeFile } from './i18n-scope.ts'
 import { readGateScopes } from './manifest.ts'
 import { scopedMarkdown, scopeReason } from './md-scope.ts'
-import { archivedNotesPrefixes, notesRootPrefixes, resolveNotesRoot } from './notes-root.ts'
+import { ARCHIVED_NOTES_PREFIX, NOTES_ROOT_PREFIX, resolveNotesRoot } from './notes-root.ts'
 import { resolveRepoRoot } from './repo-root.ts'
 import type { GateScopeKey, GateSelection } from './manifest.ts'
 
@@ -218,10 +218,8 @@ export function expandScope(root: string, key: GateScopeKey): string[] {
  * @returns true when this gate owes that path.
  */
 export function pathInGateScope(record: { keys: readonly GateScopeKey[], selection: GateSelection }, path: string): boolean {
-  const notesRoots = notesRootPrefixes()
-  const archivedRoots = archivedNotesPrefixes()
-  const inNotes = notesRoots.some(prefix => path.startsWith(prefix))
-  const inArchive = archivedRoots.some(prefix => path.startsWith(prefix))
+  const inNotes = path.startsWith(NOTES_ROOT_PREFIX)
+  const inArchive = path.startsWith(ARCHIVED_NOTES_PREFIX)
   const active = inNotes && !inArchive
   if (record.selection === 'root') {
     // `notes` owns the active tree and `notes-archived` the frozen one; neither is a file selection.
