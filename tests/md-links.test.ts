@@ -90,21 +90,46 @@ test('a nested link fails', (t) => {
   assert.equal(result.status, 1, result.output)
 })
 
-test('a marked region is left unread, and the gate names it', (t) => {
+test('a preserved region is left unread, and both link gates name it', (t) => {
   const fixture = makeFixture({
-    'docs/a.md': '# A\n\n<!-- gate-exclude:start -->\n\nSee [the guide (reference).\n\n<!-- gate-exclude:end -->\n',
+    'docs/a.md': '# A\n\n<!-- preserved-region:start -->\n\nSee [the guide (reference).\n\n<!-- preserved-region:end -->\n',
   })
   t.after(() => fixture.dispose())
 
   const result = runCli(fixture.root, ['md-links', 'check', 'docs/a.md'])
 
   assert.equal(result.status, 0, result.output)
-  assert.match(result.output, /1 marked region\(s\) left unread — docs\/a\.md:4-6/, result.output)
+  assert.match(result.output, /verify-md-link-syntax: 1 preserved region\(s\) left unread — docs\/a\.md:4-6/, result.output)
+  assert.match(result.output, /verify-md-links: 1 preserved region\(s\) left unread — docs\/a\.md:4-6/, result.output)
+})
+
+test('the resolver leaves a preserved region unread', (t) => {
+  const fixture = makeFixture({
+    'docs/a.md': '# A\n\n<!-- preserved-region:start -->\n\nSee [gone](missing.md) and [worse](b.md#nope).\n\n<!-- preserved-region:end -->\n',
+  })
+  t.after(() => fixture.dispose())
+
+  const result = runCli(fixture.root, ['md-links', 'check', 'docs/a.md'])
+
+  assert.equal(result.status, 0, result.output)
+  assert.match(result.output, /verify-md-links: 1 preserved region\(s\) left unread/, result.output)
+})
+
+test('an anchor inside a preserved region is still a target', (t) => {
+  const fixture = makeFixture({
+    'docs/a.md': '# A\n\nSee [the anchor](b.md#kept).\n',
+    'docs/b.md': '# B\n\n<!-- preserved-region:start -->\n\n<a id="kept"></a>\n\n<!-- preserved-region:end -->\n',
+  })
+  t.after(() => fixture.dispose())
+
+  const result = runCli(fixture.root, ['md-links', 'check', 'docs/a.md'])
+
+  assert.equal(result.status, 0, result.output)
 })
 
 test('a half-applied marker leaves the whole file read', (t) => {
   const fixture = makeFixture({
-    'docs/a.md': '# A\n\n<!-- gate-exclude:start -->\n\nSee [the guide (reference).\n',
+    'docs/a.md': '# A\n\n<!-- preserved-region:start -->\n\nSee [the guide (reference).\n',
   })
   t.after(() => fixture.dispose())
 

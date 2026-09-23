@@ -1,11 +1,17 @@
 /**
- * Freeze one marked region of a live document from the gates that read source lines.
+ * Freeze one marked region of a live document from the gates that read links.
  *
  * A document sometimes has to keep a stretch of text exactly as it stands — a quoted historical
  * format, an example whose brackets are deliberately not links — while the rest of it stays authored
  * prose that every gate must read. The frozen archive answers the whole-file case by moving the file
- * out of the corpus; this answers the in-file case with one marker pair, and a gate that scans lines
- * takes the range it returns as its `excludedRange` selector.
+ * out of the corpus; this answers the in-file case with one marker pair, and both link gates take the
+ * range it returns as their `excludedRange` selector.
+ *
+ * The region is the project's own text, so its own links are left unchecked — and an anchor it
+ * defines stays a valid target, because marking a region must not turn it into an island that
+ * inbound links cannot reach. The marker names no gate and promises nothing beyond the link gates: a
+ * gate that reads something else is unaffected, and a gate added later reads the whole file until it
+ * asks for the selector.
  *
  * Two rules keep it from becoming a way to hide prose. The marker name has one owner, here, so a
  * reader who greps the corpus for one spelling finds every marked region. And a half-applied marker
@@ -17,10 +23,10 @@
  */
 
 /**
- * The marker pair's name. A document writes `<!-- gate-exclude:start -->` on its own line above the
- * region and `<!-- gate-exclude:end -->` on its own line below it.
+ * The marker pair's name. A document writes `<!-- preserved-region:start -->` on its own line above
+ * the region and `<!-- preserved-region:end -->` on its own line below it.
  */
-export const EXCLUDED_REGION_MARKER = 'gate-exclude'
+export const EXCLUDED_REGION_MARKER = 'preserved-region'
 
 /**
  * Build the selector a line-reading gate passes as `excludedRange`.
