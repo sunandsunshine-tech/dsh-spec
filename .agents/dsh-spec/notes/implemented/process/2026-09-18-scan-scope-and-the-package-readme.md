@@ -45,3 +45,7 @@ The scan depends on git being present and the root being inside a work tree. Out
 The contract is longer by three sentences and shorter by three pointers to files a reader of this repository cannot open. The notes contract and its Chinese counterpart remain byte-identical to the skill set's templates, so the next template change reaches this repository with no reconciliation.
 
 The README is now a paired document under the bilingual gate, which means editing it costs a counterpart edit and a re-record, and its length is bounded by the wrap rule rather than by taste.
+
+## Related
+
+- [A text names its reader](2026-09-23-a-text-names-its-reader.md) — the reader rule generalized out of this change's README decision. The rule and its reason live there now; this note keeps the scan scope, the inlined rationales and the ask-before-write step.

@@ -23,6 +23,16 @@ Everything else was removed or repaired in this change. A rule that belongs to t
 
 Defects were repaired rather than reverted. Prose was restored where a rewrite had destroyed it, every reference now resolves to something the skill set ships or to a path a project owns, and no published command carries a workaround for this repository's environment.
 
+## The abstraction method
+
+A generalization takes one of two forms, and what decides which is what is left once the specifics are gone.
+
+Where the rule survives on its own, the text is generalized where it stands. Removing one project's product name, package layout, linters or private checks leaves guidance any project can follow, because those names were illustrations of a rule that was never about them; nothing else is needed and no example has to be kept.
+
+Where the material is one project's judgement, the abstraction goes on top and the cases are retold beneath it. The abstraction has to reach the nature of the judgement: which forces were weighed — implementation cost, maintenance weight, incremental adoptability and migration cost, reversibility, durability, security — and what would flip the decision. A noun for the subject is not an abstraction of it. "Delete dead code" restates the case; "a declaration with no producer or consumer is contract surface every implementation has to consider, and it returns the day something emits it" is a judgement a reader can apply to a case nobody wrote down. The retold cases follow as supporting examples, each keeping enough of its background, its context and its choice to be checked against the abstraction above it, and each readable as this project's own material rather than as part of the rule.
+
+Provenance and licence surfaces are not abstracted at all. Where a file came from, which revision it came from and what this project changed are facts about a copy rather than a judgement, and generalizing them destroys the only thing they do.
+
 ## Alternatives considered
 
 **Keep the additions and record them.** The added rules were true, and each had been written because a reader needed it. It lost because a skill's text is what an agent loads, and one project's operating rule does not belong in a capability the skill set ships to every project: the same material already sits in the skill set's own documents, which is where a reader meets the package.
@@ -37,6 +47,7 @@ Defects were repaired rather than reverted. Prose was restored where a rewrite h
 - The removed material is not lost: the manager keeps the record and the engine, the project README introduces the set, and the terminology rule lives in `docs/AGENTS.md`.
 - No shipped skill names this repository's own gates, its sandbox workaround, or its vendored baseline any more; a consumer reads only paths it has, and the templates resolve the engine path as they are written instead of leaving a placeholder for a person.
 - What this costs is source fidelity of a different kind: wherever a sentence had to be generalized clause by clause, the skill's prose is further from the source's phrasing than a free rewrite would have left it.
+- Where the material is a judgement rather than a paraphrase, the abstraction and its cases ship together: `skills/dsh-find-simplifications/references/historical-patterns.md` states for each pattern the forces that were weighed and what would reverse the verdict, and keeps the recorded cases beneath it as material a project replaces with its own.
 
 ## Verification
 

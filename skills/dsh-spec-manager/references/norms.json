@@ -72,8 +72,8 @@
       "group": "prose",
       "title": "Write for the reader's question, and answer it with something they can run",
       "titleZh": "写给读者的疑问,并用能跑的东西回答",
-      "body": "- **Write for the reader's question, and answer it with something they can run.** Name who the page is for before writing it -- the person installing the thing is not the person maintaining it -- and prefer one real command or one real output over a paragraph of adjectives.\n  - Why: a page written for the wrong reader is complete and still useless, and a claim nothing can execute cannot be checked.\n  - Self-check: whose question does this paragraph answer? Could it be replaced by a command and its output?",
-      "source": ".agents/dsh-spec/notes/implemented/process/2026-09-18-scan-scope-and-the-package-readme.md"
+      "body": "- **Write for the reader's question, and answer it with something they can run.** Name who the page is for before writing it -- the person installing the thing is not the person maintaining it -- and prefer one real command or one real output over a paragraph of adjectives. Which reader a text has is settled before its wording: it follows from what the text is and who receives it, not from who happens to be present while it is written, so a sentence addressed to whoever asked for the change is a sentence for the wrong reader.\n  - Why: a page written for the wrong reader is complete and still useless, and a claim nothing can execute cannot be checked. The reader fixes the register, the assumptions and the length before the first sentence is chosen, so a wording that addresses someone else is rewritten rather than trimmed.\n  - Self-check: whose question does this paragraph answer? Could it be replaced by a command and its output? Does every sentence state the fact, or does one address the reader -- to ask, to answer back, or to justify?",
+      "source": ".agents/dsh-spec/notes/implemented/process/2026-09-23-a-text-names-its-reader.md"
     },
     {
       "id": "prose.present-tense",
