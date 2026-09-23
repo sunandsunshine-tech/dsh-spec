@@ -6,7 +6,7 @@ These Agent Notes describe shipped decisions. Follow the `README.md` beside this
 
 Keep paths, symbols, defaults, and mechanisms current in the same change that alters them. Rewrite stale facts in place; do not append change history.
 
-When a shipped note is unlikely to guide future work, archive its complete triplet through `dsh-archive-agent-notes` instead of continuing to maintain it.
+When a shipped note only describes small UI adjustments or purely mechanical changes, delete its complete triplet through `dsh-archive-agent-notes`; when it is a substantive decision that is unlikely to guide future work, archive its complete triplet there instead of continuing to maintain it. The `README.md` beside this file owns both criteria.
 
 ### This is not a license to rewrite the *decision*
 
