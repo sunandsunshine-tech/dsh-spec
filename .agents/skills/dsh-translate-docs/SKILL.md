@@ -3,7 +3,7 @@ description: Manually run the extended bilingual-document workflow — generated
 disable-model-invocation: true
 metadata:
     github-path: skills/dsh-translate-docs
-    github-ref: refs/heads/docs/merge-and-release-authorization
+    github-ref: refs/heads/chore/dsh-baseline-notes-contract
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
     github-tree-sha: f2e2827941ad7570bced3b9216bf2d223dfdcf3c
 name: dsh-translate-docs

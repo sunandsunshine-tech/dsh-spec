@@ -19,7 +19,7 @@ Accept `mode: automatic | interactive`; default to `automatic`. Enter interactiv
 
 `mode` controls questions, not write authority. Review and audit tasks report findings without editing; explicitly requested write, fix, or trim tasks apply clear changes.
 
-Always exclude vendored dependencies from discovery, review, and edits, even when the requested scope is the whole repository, and do not follow a symlink into them. Exclude them in whatever tool you use, and put the exclusion after any inclusion so a later include cannot re-admit them: a search tool with glob filters takes `!vendor/**` and `!vendor-*` (this repository's bundle is `vendor-mdast.mjs`; there is no `vendor/` directory), and Git commands take an explicit `:(exclude)vendor/**` pathspec. A tool with no exclusion filter is narrowed to the directories that matter instead. If the requested scope holds only vendored files, report that no eligible files remain.
+Always exclude vendored dependencies from discovery, review, and edits, even when the requested scope is the whole repository, and do not follow a symlink into them. Put exclusions after inclusion globs so a later include cannot re-admit them: the exclusion globs are `!vendor/**` and `!vendor-*` — this repository's bundle is `vendor-mdast.mjs`, and there is no `vendor/` directory — and Git commands take an explicit `:(exclude)vendor/**` pathspec. If the requested scope holds only vendored files, report that no eligible files remain.
 
 Also exclude `.agents/dsh-spec/notes/archived/` from prose review and edits. Archived Agent Notes are frozen snapshots; inspect an exact target only to understand a historical inbound citation, never to modernize its prose or outbound links.
 
