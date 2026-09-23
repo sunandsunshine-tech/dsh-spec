@@ -5,7 +5,7 @@ description: 'Use before pushing, force-pushing, marking ready for review, or cl
 
 # Pre-Push Checks
 
-Use this skill to run relevant local evidence once before a push. The sole ordering exception is `gh stack sync`, which may publish a cascading rebase before the rewritten layers can be validated; validate them immediately afterward and do not merge until the evidence passes. Git hooks are intentionally narrow: pre-commit fixes staged lint, checks staged whitespace, and guards vendored-source metadata; pre-push runs only the incremental repository typecheck. CI owns exhaustive coverage and the platform matrix.
+Use this skill to run relevant local evidence once before a push. The sole ordering exception is `gh stack sync`, which may publish a cascading rebase before the rewritten layers can be validated; validate them immediately afterward and do not merge until the evidence passes. Whatever automation the project has — hooks on commit or on push, a CI pipeline — is a floor rather than the evidence: it catches what it was built to catch, and this skill chooses what this particular change owes on top of it.
 
 ## Inspect the outgoing change
 
@@ -27,7 +27,7 @@ Neither command guesses or fetches a base: supply the ref you verified from curr
 
 ## Select relevant evidence
 
-There is no universal local baseline beyond the hooks. Every behavior change needs the narrowest available test or purpose-built check that would fail for its regression; add broader checks only for surfaces the diff actually reaches.
+There is no universal local baseline beyond the project's own automation. Every behavior change needs the narrowest available test or purpose-built check that would fail for its regression; add broader checks only for surfaces the diff actually reaches.
 
 When the outgoing change adds or changes a resource-owning or asynchronous test, fixture, helper, or CI execution path, apply the project's test-reliability rules first to decide whether restoration, negative-control, quiescent-teardown, or concurrent-process evidence applies. This skill still selects the commands and avoids repeating evidence that already passed.
 
@@ -39,7 +39,7 @@ When the outgoing change adds or changes a resource-owning or asynchronous test,
 - **Package manifests, public exports, build configuration, entry points, or built runtime paths:** run the project's build gate, its relevant hygiene checks, and the smoke test that exercises the built artifact.
 - **Real external-provider or agent behavior:** run the relevant end-to-end target when credentials are available; never print secrets.
 
-Do not manually repeat a passing check merely because commit or push follows. In particular, do not run typecheck immediately before pushing solely to duplicate the pre-push hook.
+Do not manually repeat a passing check merely because commit or push follows. In particular, do not run a check immediately before pushing solely to duplicate a hook that already runs it.
 
 ### Focus unit coverage on the affected source
 
@@ -51,7 +51,7 @@ Test selection and coverage selection are separate. A test-file filter chooses w
   --coverage.include='<path/to/affected/source>/**'
 ```
 
-Use an exact source file when the behavior is truly confined to one module. Repeat `--coverage.include` for multiple affected files or packages, and pass every owning test file needed to exercise that scope. The configured per-file 100% thresholds still apply inside the selected source scope.
+Use an exact source file when the behavior is truly confined to one module. Repeat `--coverage.include` for multiple affected files or packages, and pass every owning test file needed to exercise that scope. The project's configured coverage thresholds still apply inside the selected source scope.
 
 When the owning tests are unclear, use the test runner's dependency graph to discover a candidate set, then inspect the selected tests before treating the run as evidence:
 
@@ -66,7 +66,7 @@ A dependency-graph query cannot discover behavior reached only through configura
 
 ## Full local rehearsal
 
-Run the complete local approximation only when the user explicitly requests it, while diagnosing a CI failure, or when the change spans the repository so broadly that no narrower set is credible. Use the current workflow and package scripts as the inventory; do not recreate a removed aggregate check.
+Run the complete local approximation only when the user explicitly requests it, while diagnosing a CI failure, or when the change spans the repository so broadly that no narrower set is credible. Use the project's current workflow and scripts as the inventory; do not recreate a removed aggregate check.
 
 ## Protect history-rewriting pushes
 
@@ -101,8 +101,8 @@ If a failure looks environment-specific, prove it:
 For ordinary and standalone rebase pushes:
 
 1. Run the selected relevant checks once.
-2. Commit normally and inspect any files changed by the pre-commit fixer before continuing.
-3. Push normally, or use the exact lease for an authorized rewritten branch, so the incremental typecheck hook runs.
+2. Commit normally and inspect any files a hook or fixer rewrote before continuing.
+3. Push normally, or use the exact lease for an authorized rewritten branch, so the project's own hooks see the push.
 4. Verify the remote ref matches local `HEAD`.
 
 ```sh
