@@ -45,6 +45,30 @@ test('a fragment that names no heading fails', (t) => {
   assert.equal(result.status, 1, result.output)
 })
 
+test('an explicit id on a raw HTML element is an anchor', (t) => {
+  const fixture = makeFixture({
+    'docs/a.md': '# A\n\nSee [中文](b.md#cn-v1) | [English](b.md#en-v1).\n',
+    'docs/b.md': '# B\n\n<h3 id="cn-v1">新增功能</h3>\n\nText.\n\n<h3 id="en-v1">Improvements</h3>\n',
+  })
+  t.after(() => fixture.dispose())
+
+  const result = runCli(fixture.root, ['md-links', 'check', 'docs/a.md'])
+
+  assert.equal(result.status, 0, result.output)
+})
+
+test('a fragment naming an id no element carries still fails', (t) => {
+  const fixture = makeFixture({
+    'docs/a.md': '# A\n\nSee [中文](b.md#cn-v2).\n',
+    'docs/b.md': '# B\n\n<h3 id="cn-v1">新增功能</h3>\n',
+  })
+  t.after(() => fixture.dispose())
+
+  const result = runCli(fixture.root, ['md-links', 'check', 'docs/a.md'])
+
+  assert.equal(result.status, 1, result.output)
+})
+
 test('a link a bulk rewrite turned into prose fails', (t) => {
   const fixture = makeFixture({ 'docs/a.md': '# A\n\nSee [the guide (reference).\n' })
   t.after(() => fixture.dispose())

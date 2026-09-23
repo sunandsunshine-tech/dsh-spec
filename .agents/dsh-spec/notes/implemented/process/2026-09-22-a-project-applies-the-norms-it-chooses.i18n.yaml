@@ -1,6 +1,6 @@
 # Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-22-a-project-applies-the-norms-it-chooses.md
-2026-09-22-a-project-applies-the-norms-it-chooses.md: aef9cc1d5b9bf657166c7f5843d63b325d40d81e
-2026-09-22-a-project-applies-the-norms-it-chooses.zh.md: b2df208ec015c2e0c82f51eaccf8fcfbe98ebc40
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-22-a-project-applies-the-norms-it-chooses.md
+2026-09-22-a-project-applies-the-norms-it-chooses.md: f53986cccbfeaff0db35ccaaaecbeb9bb0f87da8
+2026-09-22-a-project-applies-the-norms-it-chooses.zh.md: 1ce34417a104e2afcf10e87dee57268768d3feb2
