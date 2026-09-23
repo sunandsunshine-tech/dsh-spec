@@ -4,7 +4,7 @@ metadata:
     github-path: skills/dsh-spec-manager
     github-ref: refs/heads/feat/skill-set-and-notes-audit
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: 6c12a12bd655ccdcea5e00139d262f1edaef98b1
+    github-tree-sha: ea9a5457dd1f96fd0ba3f493d5c641d663c42421
 name: dsh-spec-manager
 ---
 # Managing an adopted project
