@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-23-the-simplifications-skill-follows-upstream.md
+2026-09-23-the-simplifications-skill-follows-upstream.md: f2f0144a505bcba7a52406057ce2650aa1cd50cd
+2026-09-23-the-simplifications-skill-follows-upstream.zh.md: 71fb283cc52ed560713c615c83954f7b22f68678
