@@ -13,8 +13,9 @@
  */
 
 import { existsSync, readFileSync } from 'node:fs'
-import { dirname, relative, resolve } from 'node:path'
+import { dirname, relative, resolve, sep } from 'node:path'
 import type { Nodes } from './vendor-mdast-types.js'
+import { EXCLUDED_REGION_MARKER, excludedRegion } from './excluded-region.ts'
 import { readGateScope, refuseOutOfScope } from './gate-scope.ts'
 import { markdownHeadingLines, parseMarkdown, visitMarkdown } from './markdown.ts'
 import { scopeReason } from './md-scope.ts'
@@ -154,31 +155,38 @@ export function anchorCache(): (absPath: string) => Set<string> {
  * @param absPath - absolute path of the Markdown source to scan.
  * @param anchorsOf - anchor lookup shared across files for cross-link checks.
  * @param scanRoot - repository root violations are reported relative to.
- * @returns one entry per broken link, in document order.
+ * @param excludedRange - optional selector of a zero-based, end-exclusive line range to leave unread, for a document that keeps one region exactly as it stands; anchors that region defines stay valid targets.
+ * @returns one entry per broken link in document order, and the range this scan left unread.
  */
 export function findViolations(
   absPath: string,
   anchorsOf: (abs: string) => Set<string>,
   scanRoot: string = root,
-): Violation[] {
+  excludedRange?: (file: string, source: string) => readonly [number, number] | undefined,
+): { violations: Violation[]; skipped: readonly [number, number] | undefined } {
   const file = relative(scanRoot, absPath)
   const dir = dirname(absPath)
   const source = readFileSync(absPath, 'utf8')
   const tree = parseMarkdown(source)
   const out: Violation[] = []
+  const skipped = excludedRange?.(file.split(sep).join('/'), source)
 
   const check = (url: string, node: Nodes): void => {
+    // The document's own preserved text: its links are not this gate's to judge, while an anchor
+    // inside it was collected above and remains a target other documents may link to.
+    const line = node.position?.start.line ?? 0
+    if (skipped !== undefined && line >= skipped[0] + 1 && line <= skipped[1]) return
     if (isExternal(url)) return
     const target = pathPart(url)
     const resolved = target === '' ? absPath : resolve(dir, target)
     if (!existsSync(resolved)) {
-      out.push({ file, line: node.position?.start.line ?? 0, url, reason: 'target' })
+      out.push({ file, line, url, reason: 'target' })
       return
     }
     const fragment = fragmentPart(url)
     if (fragment === null || !resolved.endsWith('.md')) return
     if (!anchorsOf(resolved).has(fragment)) {
-      out.push({ file, line: node.position?.start.line ?? 0, url, reason: 'anchor' })
+      out.push({ file, line, url, reason: 'anchor' })
     }
   }
 
@@ -187,7 +195,7 @@ export function findViolations(
       check(node.url, node)
     }
   })
-  return out
+  return { violations: out, skipped }
 }
 
 if (process.argv[1] && import.meta.filename === resolve(process.argv[1])) {
@@ -198,7 +206,9 @@ if (process.argv[1] && import.meta.filename === resolve(process.argv[1])) {
   // documented limit of a file selection, not something this gate can see.
   const files = scope.entries.filter(entry => existsSync(resolve(scope.root, entry)))
   const anchorsOf = anchorCache()
-  const all = files.flatMap(entry => findViolations(resolve(scope.root, entry), anchorsOf))
+  const scans = files.map(entry => ({ entry, scan: findViolations(resolve(scope.root, entry), anchorsOf, root, excludedRegion()) }))
+  const all = scans.flatMap(({ scan }) => scan.violations)
+  const skipped = scans.flatMap(({ entry, scan }) => scan.skipped === undefined ? [] : [`${entry}:${scan.skipped[0] + 1}-${scan.skipped[1]}`])
   const checked = files.length
 
   // Every handed path is a deletion: there is nothing to resolve in a removed file, and what the
@@ -209,6 +219,9 @@ if (process.argv[1] && import.meta.filename === resolve(process.argv[1])) {
   }
 
   if (all.length === 0) {
+    if (skipped.length > 0) {
+      console.log(`verify-md-links: ${skipped.length} preserved region(s) left unread — ${skipped.join(', ')} (marked with \`${EXCLUDED_REGION_MARKER}\`, so neither their targets nor their fragments are asserted here; an anchor they define remains a target)`)
+    }
     console.log(`verify-md-links: ${checked} file(s) checked, all relative cross-links and fragments resolve.`)
     process.exit(0)
   }

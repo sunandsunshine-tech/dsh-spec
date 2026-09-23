@@ -1,6 +1,6 @@
 # Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-18-four-mechanisms-instead-of-twelve.md
-2026-09-18-four-mechanisms-instead-of-twelve.md: 613573c74df8f6dbb958b949c14b6195930e435c
-2026-09-18-four-mechanisms-instead-of-twelve.zh.md: 822b3aab39c670b75d523a3ff8a7d3dacd7f7b1c
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-18-four-mechanisms-instead-of-twelve.md
+2026-09-18-four-mechanisms-instead-of-twelve.md: 51e32fab5be6967131b3616e175a9d9ae983c197
+2026-09-18-four-mechanisms-instead-of-twelve.zh.md: e3cd8d3d5b50ec8ecc6b060d7659f0dc6b8fa2e4

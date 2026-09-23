@@ -19,7 +19,7 @@ Status: implemented
 3. **根目录只放一个索引。** `AGENTS.md` 承载命令与**路由**——哪类改动该读哪个目录。根 `README.md` 就是架构文档：有什么、什么拥有什么，以及检查它的那条命令。
 4. **一条聚合检查。** 它的退出码就是全部检查。门禁清单**记录**在 `references/manifest.json` 中，调度器在运行任何东西之前，先把这份记录与它旁边的 `verify-*.ts` 文件对账——记录里有名称却没有对应文件，或存在记录未点名的文件，都会被报告并拒绝运行。它运行记录中的每一道门禁，并在某道门禁失败**或记录与引擎目录不一致**时失败，而正是这一点让任何门禁都不可选。[门禁是一个被记录的名称](2026-09-20-a-gate-is-a-recorded-name.zh.md)。
 
-### 八个技能
+### 九个技能
 
 | 技能 | 它拥有什么 |
 |---|---|
@@ -31,6 +31,7 @@ Status: implemented
 | [`dsh-trim-cot-leakage`](../../../../../skills/dsh-trim-cot-leakage/SKILL.md) | 读起来像泄漏的推理记录的散文 |
 | [`dsh-code-review`](../../../../../skills/dsh-code-review/SKILL.md) | 一次改动接受的评审，对照根 `AGENTS.md` |
 | [`dsh-find-simplifications`](../../../../../skills/dsh-find-simplifications/SKILL.md) | 死代码、重复、投机性和过度建造的表面 |
+| [`dsh-agent-experience`](../../../../../skills/dsh-agent-experience/SKILL.md) | agent 自己的上下文欠什么：用途与约束先于细节、被推迟的资源要有一个可靠的取回方式、输出宁可有界、结果旁边带上局部上下文 |
 
 **四个技能离开**，各自因为其参数化的机制已消失，或因为该能力属于别处：
 
@@ -41,7 +42,7 @@ Status: implemented
 | `dsh-speed-up-perf` | `perf-baseline` 键记录这里没有任何被测量的东西：交付物是按需运行的 Markdown 和无依赖 TypeScript |
 | `dsh-merging-stacked-prs` | 堆叠拉取请求是宿主平台的能力，不是仓库纪律，该能力已由 `gh` 技能承接 |
 
-**「八个」是一项决定，不是剩下的部分。** 每个留下的技能都保留其名称与触发描述，因为每一个仍然拥有一个独立的主题；上面四个各自拥有的机制正是本次决策移除的。
+**成员名单是一项决定，不是剩下的部分。** 每个留下的技能都保留其名称与触发描述，因为每一个仍然拥有一个独立的主题；上面四个各自拥有的机制正是本次决策移除的。
 
 ### 技能集合只有一个代码归属
 

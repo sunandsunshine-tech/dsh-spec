@@ -8,7 +8,8 @@
     "dsh-trim-cot-leakage",
     "dsh-code-review",
     "dsh-pre-push-checks",
-    "dsh-find-simplifications"
+    "dsh-find-simplifications",
+    "dsh-agent-experience"
   ],
   "gates": [
     "verify-agent-note-classification",
