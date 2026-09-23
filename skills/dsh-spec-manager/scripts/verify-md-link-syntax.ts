@@ -13,10 +13,15 @@
  * This gate reads the source lines rather than the parsed tree, and reads exactly the paths it is
  * handed — no cross-file meaning exists here, so a file selection decides the same question a full
  * scan does.
+ *
+ * A document that has to keep one stretch of text exactly as it stands marks it with the
+ * `gate-exclude` pair, and that stretch is left unread; the gate names every region it skipped, so a
+ * reader can tell what the green line does and does not cover.
  */
 
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { EXCLUDED_REGION_MARKER, excludedRegion } from './excluded-region.ts'
 import { readGateScope, refuseOutOfScope } from './gate-scope.ts'
 import { scopeReason } from './md-scope.ts'
 
@@ -33,6 +38,8 @@ const scope = readGateScope(gate)
 refuseOutOfScope(gate, scope, entry => entry.endsWith('.md') && scopeReason(entry) === '')
 
 const failures: string[] = []
+const skipped: string[] = []
+const excludedRange = excludedRegion()
 let read = 0
 
 for (const entry of scope.entries) {
@@ -40,9 +47,13 @@ for (const entry of scope.entries) {
   // A path the change reports as deleted carries no line to read.
   if (!existsSync(absolute)) continue
   read += 1
-  const lines = readFileSync(absolute, 'utf8').split('\n')
+  const source = readFileSync(absolute, 'utf8')
+  const lines = source.split('\n')
+  const excluded = excludedRange(entry, source)
+  if (excluded !== undefined) skipped.push(`${entry}:${excluded[0] + 1}-${excluded[1]}`)
   let fenced = false
   for (const [index, line] of lines.entries()) {
+    if (excluded !== undefined && index >= excluded[0] && index < excluded[1]) continue
     if (FENCE.test(line)) { fenced = !fenced; continue }
     if (fenced) continue
     for (const pattern of [MANGLED, NESTED]) {
@@ -66,6 +77,10 @@ if (failures.length > 0) {
   console.error(`${gate} failed:\n`)
   for (const failure of failures) console.error(`  ${failure}`)
   process.exit(1)
+}
+
+if (skipped.length > 0) {
+  console.log(`${gate}: ${skipped.length} preserved region(s) left unread — ${skipped.join(', ')} (marked with \`${EXCLUDED_REGION_MARKER}\`, so no mangled or nested link is asserted inside it)`)
 }
 
 console.log(`${gate}: ${read} file(s) read; no link was rewritten into prose.`)
