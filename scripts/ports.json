@@ -44,9 +44,9 @@
     {
       "local": "repo-files.ts",
       "upstream": "scripts/repo-files.ts",
-      "sha": "ddefc45fbc7f8e46dd73185e68295696d1297887",
-      "relation": "split",
-      "note": "Keeps the glob expansion and symlink deduplication; dsh's line-oriented reference scanner is not ported."
+      "sha": "00102833dfaee1da9f48a3a8eae9d34005a75218",
+      "relation": "adapted",
+      "note": "Glob expansion is node's and symlink deduplication is kept; the line-oriented reference scanner and its excludedRange hook are ported, and the range selector a gate passes to it lives in excluded-region.ts."
     },
     {
       "local": "translation-brief.ts",
