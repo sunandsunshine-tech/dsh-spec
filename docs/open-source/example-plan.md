@@ -9,7 +9,7 @@
 1. **底层到上层,一次做对。** 先定文件与内容的真值,再上会校验这些真值的自动化,再动历史,再动平台,最后发布。反例写在第 5 节各阶段开头:先上 CI 再改基线,CI 要重跑;先切可见性再改写历史,强推就打在公开仓库上。
 2. **每条有完成判据**,结束时不留未完成项。
 3. **阶段内并行只允许写作用域不重叠**;需要并行开 PR 时用 worktree(见 §3)。
-4. **不可撤回或需授权的动作由 Lead 独占**:历史改写、可见性切换、平台设置、发布。
+4. **不可撤回或需授权的动作由维护者执行**:历史改写、可见性切换、平台设置、发布。
 
 ## 1. 决策台账(全部已定)
 
@@ -31,7 +31,7 @@
 | release 模板 | 增补「相关 issue 与 PR」区块 |
 | 基线 | bump 到 `dsh-v0.1.7-rc.1`;此后 **dsh 每次发布都跟一次** |
 | 版本号 | 本次发布 `v0.3.0` |
-| 团队 | 遵循原生提示与动机,不强制;适合并行的 PR 开发;worktree 由编排层按需安排,本规划不额外着墨 |
+| 团队 | 不强制;适合并行的工作包各自开 PR;worktree 按需安排,本规划不额外着墨 |
 | 不做 | dsh-client-ui-ux 不抽取;agent-teams 笔记不跟进;Auto review 不安装(见 §8) |
 
 ## 2. 交付物与文件归属
@@ -46,24 +46,22 @@
 
 | 工作包 | 内容 | 写作用域 | 依赖 | 可由谁做 |
 |---|---|---|---|---|
-| `WP-1` | 表单套装整理与示例化(对应 `PR-1`) | `docs/open-source/**`(含报告移入该目录)、`.agents/dsh-spec/notes/implemented/process/**` | 本规划定稿;`example-plan.md` 反映最终编排 | fresh 队友或 Lead |
-| `WP-2a` | 策略文档:`SECURITY.md`、`CONTRIBUTING.md`、`CODE_OF_CONDUCT.md` | 这三个文件 | 邮箱地址已定 | fresh 队友 |
-| `WP-2b` | 基线与通知:`ports.json` ref/sha、submodule 检出、`AGENTS.md` pin 行、`THIRD_PARTY_NOTICES.md`、`.github/release_template.md`、`.github/ISSUE_TEMPLATE/**` | 这些文件与 submodule | 无 | fresh 队友或 Lead |
-| `WP-3a` | 自动化入口:`.github/workflows/checks.yml`、`.github/dependabot.yml` | 这两个文件 | 与 `WP-3b` 先约定脚本名与调用方式 | fresh 队友 |
-| `WP-3b` | 自动化脚本:`scripts/vendored.json`、`scripts/verify-dco.ts` | `scripts/**` | 无 | fresh 队友 |
-| `WP-3c` | 表单回填:`questions.md` 的 Q-A2–Q-A8 与 `checklist.md` 的三条新任务 | 这两个文件 | `WP-3a/3b` 落定后 | Lead |
-| `WP-V` | **只读验收者**:跑门禁、验链接、核对脱敏与文件归属 | 不写 | 每个工作包完成后 | fresh 队友(只读) |
-| `WP-L` | Lead 独占:历史和平台操作、发布 | — | 见 §5 | Lead |
+| `WP-1` | 表单套装整理与示例化(对应 `PR-1`) | `docs/open-source/**`(含报告移入该目录)、`.agents/dsh-spec/notes/implemented/process/**` | 编排定稿;`example-plan.md` 反映最终编排 | 独立执行者或维护者 |
+| `WP-2a` | 策略文档:`SECURITY.md`、`CONTRIBUTING.md`、`CODE_OF_CONDUCT.md` | 这三个文件 | 邮箱地址已定 | 独立执行者 |
+| `WP-2b` | 基线与通知:`ports.json` ref/sha、submodule 检出、`AGENTS.md` pin 行、`THIRD_PARTY_NOTICES.md`、`.github/release_template.md`、`.github/ISSUE_TEMPLATE/**` | 这些文件与 submodule | 无 | 独立执行者或维护者 |
+| `WP-3a` | 自动化入口:`.github/workflows/checks.yml`、`.github/dependabot.yml` | 这两个文件 | 与 `WP-3b` 先约定脚本名与调用方式 | 独立执行者 |
+| `WP-3b` | 自动化脚本:`scripts/vendored.json`、`scripts/verify-dco.ts` | `scripts/**` | 无 | 独立执行者 |
+| `WP-3c` | 表单回填:`questions.md` 的 Q-A2–Q-A8 与 `checklist.md` 的三条新任务 | 这两个文件 | `WP-3a/3b` 落定后 | 维护者 |
+| `WP-V` | **只读验收者**:跑门禁、验链接、核对脱敏与文件归属 | 不写 | 每个工作包完成后 | 独立执行者(只读) |
+| `WP-L` | 维护者保留:历史和平台操作、发布 | — | 见 §5 | 维护者 |
 
 **串并行判断**
 
 - `WP-2a` 与 `WP-2b`、`WP-3a` 与 `WP-3b` 写作用域不重叠 → 可并行。**但同一份 checkout 只能待在一个分支上**,所以并行开 PR 必须给每个工作包一个 worktree;否则就串行,每包一个分支、一个 PR。
 - worktree 的 submodule 有两个坑:①`git worktree add` 不带 submodule,而 `verify-port-provenance` 要读 `submodules/dsh`;②**复制法在本环境实测不成立**——`cp -a` 与 `cp -al` 复制 `submodules/dsh`(397M、exit 0)后副本里**没有 `.git`**,符号链接同样不行,门禁都 exit 1(`… does not exist at ddefc45 …`),因为门禁要在子模块历史里解析每个移植文件的来源修订。**正确做法是既不克隆也不复制,而是给子模块开一个 linked worktree**:`git -C submodules/dsh worktree add --detach <外层 worktree>/submodules/dsh "$(git submodule status | awk '{print $1}')"` —— 实测 0.86 秒、对象共享、门禁 exit 0;收尾 `git -C submodules/dsh worktree remove --force <path>` 再删外层 worktree,残留用 `git -C submodules/dsh worktree prune`。
-- `WP-1` 与 `WP-2/3` 互不阻塞,但 `WP-1` 的 `example-plan.md` 依赖本规划定稿。
+- `WP-1` 与 `WP-2/3` 互不阻塞;`example-plan.md` 以编排定稿为前提。
 - `WP-V` 在每个包合并前跑一次;`WP-3c` 只能在 `WP-3a/3b` 之后。
 - **T0–T2 全部合并之前不得进入 T3**(历史改写是最后的内容层操作)。
-
-**队友命名**(lowercase-kebab-case;名字创建后永久占用,失败也不复用):`docs-examples` = `WP-1`、`policy-docs` = `WP-2a`、`baseline-notices` = `WP-2b`、`ci-wiring` = `WP-3a`、`check-scripts` = `WP-3b`、`verifier` = `WP-V`(只读)。`WP-L` 的不可撤回动作不派队友,由 Lead 自己做。
 
 ## 4. PR 职责安排
 
@@ -122,7 +120,7 @@
 | `T2-4` | 新增 | `scripts/verify-dco.ts`:PR 范围内每个提交带 `Signed-off-by` 且与作者一致 | 缺签名时检查失败 |
 | `T2-5` | 新增 | 回填 `questions.md` 的 Q-A2–Q-A8 与 `checklist.md` 的三条新任务 | 表单与清单一致;任务编号无悬空 |
 
-### T3 身份与历史(Lead 独占)
+### T3 身份与历史(维护者执行)
 
 > 为什么在平台之前:改写会换掉所有 SHA;之后任何提交都会留下旧身份的记录。
 
@@ -134,7 +132,7 @@
 | `T3-4` | `PRE-08` | 用存档的发布说明重建旧版本 release | 指向新 tag |
 | `T3-5` | 新增 | 留痕:说明改写原因的提交(或 Note 修订)与校验输出 | 仓库内可查 |
 
-### T4 公开与平台设置(Lead 独占)
+### T4 公开与平台设置(维护者执行)
 
 > 为什么在历史之后:`v*` 保护要打在稳定的 tag 上;`checks` 这个名字要已在 T2 存在。
 
