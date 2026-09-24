@@ -46,7 +46,7 @@
 
 | 工作包 | 内容 | 写作用域 | 依赖 | 可由谁做 |
 |---|---|---|---|---|
-| `WP-1` | 表单套装整理与示例化(对应 `PR-1`) | `docs/open-source/**`(含报告移入该目录)、`.agents/dsh-spec/notes/implemented/process/**` | 编排定稿;`example-plan.md` 反映最终编排 | 独立执行者或维护者 |
+| `WP-1` | 表单套装整理与示例化(对应 `PR-1`) | `docs/open-source/**`(含报告移入该目录)、`.agents/dsh-spec/notes/implemented/process/**` | 工作包定稿;`example-plan.md` 反映最终编排 | 独立执行者或维护者 |
 | `WP-2a` | 策略文档:`SECURITY.md`、`CONTRIBUTING.md`、`CODE_OF_CONDUCT.md` | 这三个文件 | 邮箱地址已定 | 独立执行者 |
 | `WP-2b` | 基线与通知:`ports.json` ref/sha、submodule 检出、`AGENTS.md` pin 行、`THIRD_PARTY_NOTICES.md`、`.github/release_template.md`、`.github/ISSUE_TEMPLATE/**` | 这些文件与 submodule | 无 | 独立执行者或维护者 |
 | `WP-3a` | 自动化入口:`.github/workflows/checks.yml`、`.github/dependabot.yml` | 这两个文件 | 与 `WP-3b` 先约定脚本名与调用方式 | 独立执行者 |
@@ -58,8 +58,8 @@
 **串并行判断**
 
 - `WP-2a` 与 `WP-2b`、`WP-3a` 与 `WP-3b` 写作用域不重叠 → 可并行。**但同一份 checkout 只能待在一个分支上**,所以并行开 PR 必须给每个工作包一个 worktree;否则就串行,每包一个分支、一个 PR。
-- worktree 的 submodule 有两个坑:①`git worktree add` 不带 submodule,而 `verify-port-provenance` 要读 `submodules/dsh`;②**复制法在本环境实测不成立**——`cp -a` 与 `cp -al` 复制 `submodules/dsh`(397M、exit 0)后副本里**没有 `.git`**,符号链接同样不行,门禁都 exit 1(`… does not exist at ddefc45 …`),因为门禁要在子模块历史里解析每个移植文件的来源修订。**正确做法是既不克隆也不复制,而是给子模块开一个 linked worktree**:`git -C submodules/dsh worktree add --detach <外层 worktree>/submodules/dsh "$(git submodule status | awk '{print $1}')"` —— 实测 0.86 秒、对象共享、门禁 exit 0;收尾 `git -C submodules/dsh worktree remove --force <path>` 再删外层 worktree,残留用 `git -C submodules/dsh worktree prune`。
-- `WP-1` 与 `WP-2/3` 互不阻塞;`example-plan.md` 以编排定稿为前提。
+- worktree 的 submodule 有两个坑:①`git worktree add` 不带 submodule,而 `verify-port-provenance` 要读 `submodules/dsh`;②**复制法实测不成立**——`cp -a` 与 `cp -al` 复制 `submodules/dsh`(397M、exit 0)后副本里**没有 `.git`**,符号链接同样不行,门禁都 exit 1(`… does not exist at ddefc45 …`),因为门禁要在子模块历史里解析每个移植文件的来源修订。**正确做法是既不克隆也不复制,而是给子模块开一个 linked worktree**:`git -C submodules/dsh worktree add --detach <外层 worktree>/submodules/dsh "$(git submodule status | awk '{print $1}')"` —— 实测 0.86 秒、对象共享、门禁 exit 0;收尾 `git -C submodules/dsh worktree remove --force <path>` 再删外层 worktree,残留用 `git -C submodules/dsh worktree prune`。
+- `WP-1` 与 `WP-2/3` 互不阻塞;`example-plan.md` 以工作包定稿为前提。
 - `WP-V` 在每个包合并前跑一次;`WP-3c` 只能在 `WP-3a/3b` 之后。
 - **T0–T2 全部合并之前不得进入 T3**(历史改写是最后的内容层操作)。
 
