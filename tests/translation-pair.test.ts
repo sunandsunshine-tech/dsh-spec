@@ -8,6 +8,8 @@
  */
 
 import assert from 'node:assert/strict'
+import { readFileSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { test } from 'node:test'
 import { runCli } from './helpers/cli.ts'
 import { makeFixture, writePair } from './helpers/fixtures.ts'
@@ -20,6 +22,29 @@ test('a recorded, consistent pair passes', (t) => {
 
   const written = runCli(fixture.root, ['translation-pair', 'write', 'docs/guide.md'])
   assert.equal(written.status, 0, written.output)
+
+  const checked = runCli(fixture.root, ['translation-pair', 'check', 'docs/guide.md'])
+  assert.equal(checked.status, 0, checked.output)
+})
+
+test('a record naming the other entry-point copy is still canonical', (t) => {
+  const fixture = makeFixture()
+  t.after(() => fixture.dispose())
+  writePair(fixture, 'docs/guide.md')
+  fixture.commit('add the pair')
+  runCli(fixture.root, ['translation-pair', 'write', 'docs/guide.md'])
+
+  // The installed copy of the engine reaches the same gate under `.agents/skills/`, so a record it
+  // wrote has to be canonical for the authored copy too; the recovery command's path is not part
+  // of the form. The hash lines themselves are still compared exactly.
+  const record = join(fixture.root, 'docs/guide.i18n.yaml')
+  const swapped = readFileSync(record, 'utf8').replace(
+    /^# {3}node .*$/m,
+    '#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write docs/guide.md',
+  )
+  assert.notEqual(swapped, readFileSync(record, 'utf8'))
+  writeFileSync(record, swapped)
+  fixture.commit('name the installed copy in the recovery command')
 
   const checked = runCli(fixture.root, ['translation-pair', 'check', 'docs/guide.md'])
   assert.equal(checked.status, 0, checked.output)
