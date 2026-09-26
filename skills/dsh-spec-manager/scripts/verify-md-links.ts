@@ -124,7 +124,11 @@ export function documentAnchors(source: string): Set<string> {
   }
   visitMarkdown(parseMarkdown(source), (node: Nodes): void => {
     if (node.type !== 'html') return
-    const html = node.value.replace(/<!--[\s\S]*?-->/g, '')
+    // A comment ends at its first `-->`, so one pass strips a well-formed one whole; an unterminated
+    // `<!--` runs to the end of the node and is a comment too. Leaving it in place would let an `id`
+    // written inside it into the anchor set, and this gate would then accept a fragment no heading
+    // defines — a gate that passes when it should fail.
+    const html = node.value.replace(/<!--[\s\S]*?(?:-->|$)/g, '')
     for (const match of html.matchAll(/<[a-zA-Z][^>]*\sid="([^"]+)"/g)) anchors.add(match[1] ?? '')
   })
   return anchors
