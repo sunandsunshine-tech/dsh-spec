@@ -142,23 +142,27 @@ export function writeNote(fixture: Fixture, name: string, options: { lifecycle?:
 }
 
 /**
- * An archive that holds nothing: its `AGENTS.md` is required, its six kind directories are not.
- * A fixture that lets the archive check run needs this, because a notes tree without `archived/`
- * is not a shape the contract defines.
+ * An archive that holds nothing: `AGENTS.md` and the six class directories are required, and no
+ * triplet is sealed. A fixture that lets the archive check run needs this, because a notes tree
+ * without `archived/` is not a shape the contract defines.
  */
 export function writeEmptyArchive(fixture: Fixture): void {
-  fixture.write(`${NOTES}/archived/AGENTS.md`, '# Archived Agent Notes\n')
+  writeArchiveKindDirs(fixture)
 }
 
 /**
- * The six archive class directories, which an archive holding an artifact must carry.
+ * The six archive class directories, each carrying the marker that keeps it in a clone.
  *
- * They are created empty on purpose: a kind directory that holds a placeholder file would be read
- * as an archived artifact, and an empty directory is exactly the state git cannot carry, which is
- * why the gate requires them only once something has been archived.
+ * The archive requires all six whether or not they hold a frozen artifact, and Git carries files
+ * rather than directories, so each one holds `AGENT_NOTE_CLASS_PLACEHOLDER`. The initializer writes
+ * it the same way, so a case built from this fixture exercises the marker the reader must skip as
+ * well as the rule that demands the directories.
  */
 export function writeArchiveKindDirs(fixture: Fixture): void {
-  for (const cls of CLASSES) fixture.mkdir(`${NOTES}/archived/${cls}`)
+  for (const cls of CLASSES) {
+    fixture.mkdir(`${NOTES}/archived/${cls}`)
+    fixture.write(`${NOTES}/archived/${cls}/.gitkeep`, '# Keeps this class directory in the revision.\n')
+  }
   fixture.write(`${NOTES}/archived/AGENTS.md`, '# Archived Agent Notes\n')
 }
 

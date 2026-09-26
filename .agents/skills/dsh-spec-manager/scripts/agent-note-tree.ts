@@ -21,6 +21,18 @@ const AGENT_NOTE_LIFECYCLES = ['proposed', 'implemented', 'rejected'] as const
  */
 export const AGENT_NOTE_CLASSES = ['feature', 'bug-fix', 'simplification', 'architecture', 'process', 'testing'] as const
 
+/**
+ * The file that keeps an otherwise empty class directory in the revision.
+ *
+ * Git carries files, not directories, so a class directory nothing has been filed under exists
+ * only in the working tree that created it and is absent from every clone. The archive requires
+ * its six class directories whether or not each holds a frozen artifact — the rule dsh states —
+ * so the initializer writes this file into each one and the archive gate reads it as a directory
+ * marker rather than as an artifact. Any other name in a class directory is still an artifact or
+ * an error.
+ */
+export const AGENT_NOTE_CLASS_PLACEHOLDER = '.gitkeep'
+
 /** Historical implemented notes live outside the active lifecycle tree. */
 const AGENT_NOTE_ARCHIVE = 'archived'
 

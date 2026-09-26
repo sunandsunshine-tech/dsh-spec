@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-26-a-class-directory-carries-a-marker.md
+2026-09-26-a-class-directory-carries-a-marker.md: bc80b203c61696c6dd5a7735959f910fafd08a8e
+2026-09-26-a-class-directory-carries-a-marker.zh.md: 6bbfaee6b4bc77670ad260609c5a0b8acffe33d3

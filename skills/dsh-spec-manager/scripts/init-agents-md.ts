@@ -19,6 +19,7 @@ import { spawnSync } from 'node:child_process'
 import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { basename, dirname, join, relative, resolve, sep } from 'node:path'
+import { AGENT_NOTE_CLASS_PLACEHOLDER } from './agent-note-tree.ts'
 import { readGateRecord } from './manifest.ts'
 import { applyNormsHook, readNormsRecord, recordPathOf } from './norms-apply.ts'
 
@@ -218,8 +219,10 @@ function present(candidate: string): string {
 interface PlannedFile {
   /** Path relative to the project root. */
   path: string
-  /** Template file name, or undefined for a directory this script creates. */
+  /** Template file name, or undefined for a directory or a literal file this script creates. */
   template?: string
+  /** Literal body, written as-is when `template` is absent. */
+  body?: string
 }
 
 function planNotesTree(notesDir: string): PlannedFile[] {
@@ -239,7 +242,16 @@ function planNotesTree(notesDir: string): PlannedFile[] {
   for (const lifecycle of LIFECYCLES) {
     for (const cls of CLASSES) planned.push({ path: `${notesDir}/${lifecycle}/${cls}` })
   }
-  for (const cls of ARCHIVE_CLASSES) planned.push({ path: `${notesDir}/archived/${cls}` })
+  // The archive's class directories carry a placeholder as well as existing: the gate requires all
+  // six whether or not they hold a frozen artifact, and Git carries files rather than directories,
+  // so an empty one would be absent from every clone and fail the gate there.
+  for (const cls of ARCHIVE_CLASSES) {
+    planned.push({ path: `${notesDir}/archived/${cls}` })
+    planned.push({
+      path: `${notesDir}/archived/${cls}/${AGENT_NOTE_CLASS_PLACEHOLDER}`,
+      body: `# Keeps this class directory in the revision when it holds no frozen artifact.\n# The archive gate requires all ${ARCHIVE_CLASSES.length} class directories; it reads this file as a\n# marker rather than as an archived artifact, so nothing is sealed under it.\n`,
+    })
+  }
   return planned
 }
 
@@ -636,9 +648,15 @@ if (rootInstruction === undefined) {
       kept.push(entry.path)
       continue
     }
-    if (entry.template === undefined) {
+    if (entry.template === undefined && entry.body === undefined) {
       ensureDirectory(absolute)
       written.push(`${entry.path}/`)
+      continue
+    }
+    if (entry.template === undefined) {
+      ensureDirectory(dirname(absolute))
+      writeFileSync(absolute, entry.body ?? '')
+      written.push(entry.path)
       continue
     }
     copyTemplate(entry.template, absolute)

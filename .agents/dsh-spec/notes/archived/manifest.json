@@ -1,6 +1,9 @@
 {
   "version": 1,
   "files": {
+    "bug-fix/2026-09-21-an-empty-archive-cannot-ship-its-kind-directories.i18n.yaml": "sha256:214c911c0bbec3ae614917525bddc417855c746fc74567c20772e818c71056f5",
+    "bug-fix/2026-09-21-an-empty-archive-cannot-ship-its-kind-directories.md": "sha256:7c2accde3070c92d77dda35d49f4256b62f3c5fb0296a77a69b4275c41c365c9",
+    "bug-fix/2026-09-21-an-empty-archive-cannot-ship-its-kind-directories.zh.md": "sha256:4c39d8215e82ab50f95dd23dab6110d42f268250f54420d65966924e236e4c83",
     "process/2026-09-21-the-released-revision-is-main.i18n.yaml": "sha256:b6af56135ecd7d31dcd8cd8dfbf8a7d3fc2686287d1f9bc71e0b3e8d1abd51b5",
     "process/2026-09-21-the-released-revision-is-main.md": "sha256:454ac9b4c020f205601e1e559c59ce0f534e459ddda47913cf05df74c39a2c97",
     "process/2026-09-21-the-released-revision-is-main.zh.md": "sha256:f4d6bc1da7b17361ab18be12ce91762f9389ddf8b762502e1771e22a59d587b3",
