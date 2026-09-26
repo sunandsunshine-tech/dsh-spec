@@ -99,6 +99,8 @@ Node ≥ 22.19 or ≥ 24 is the only requirement: the engine is TypeScript that 
   [Each side is written in its own idiom, in an order a reader can follow](.agents/dsh-spec/notes/implemented/process/2026-09-22-each-side-is-written-in-its-own-idiom.md).
 - **Derive a path from its owner; never hardcode it twice.** Two regressions in this package came from a path that had one owner and two literals.
 
+- **A pull-request description follows [the pull-request lifecycle](.agents/dsh-spec/notes/implemented/process/2026-09-21-the-pull-request-lifecycle.md).** The sections it carries, and the sentence a reviewer can act on, are owned there; the norm catalog extracts the same rule for adopters.
+
 ## Documentation
 
 | Fact | Home |
