@@ -24,11 +24,15 @@ Status: implemented
 
 **合并前收尾在评审之后。** 「After a review, prepare your PR for merging by squashing your commits. All commits left on your branch after a review should represent meaningful milestones or units of work」（[kubernetes/community：github-workflow.md](https://github.com/kubernetes/community/blob/main/contributors/guide/github-workflow.md)）。在这里，这次 squash 由rebase 完成：每个 fixup、错字修正、与基线的合并都被压进它所属的那个里程碑，于是留下的每个提交只代表一个里程碑或一个工作单元，别无其它。结果仍然是一个每个提交都是完整状态的分支。
 
-**提交信息用 Conventional Commits。** `type(scope): 一句话`：一个类型、一个可选范围、一个标题，以及一段说清改了什么、为什么的正文。标题行不超过 70 个字符。参与改动的机器只写在 `Assisted-by:` 尾注里；信息本身只讲这个改动。
+**提交信息用 Conventional Commits。** `type(scope): 一句话`：一个类型、一个可选范围、一个标题，以及一段说清改了什么、为什么的正文。**标题命名的是这次改动**:一条规则、一条指令、一个问题,都是写给某个读者的,而这一行是给不在场的人读的。标题行不超过 70 个字符。参与改动的机器只写在 `Assisted-by:` 尾注里；信息本身只讲这个改动。
 
 **PR 描述分四节。** `## What this PR does`、`## Why`、`## How`、`## Reviewer notes`;门禁在每个 pull request 上跑,那次运行就是验证,不再由某一节复述。
 
 **其中每一句话,只有当评审者能据此行动、或据此被提醒时,才留。** 哪些工具参与过、成形之前试过什么、这条分支怎么走到这里,两者都不是。三个例外自带分量:改动本身讲的就是这些;评审者需要这条提醒——重复的 PR、移动过的 base;或者这份不确定正是评审者合并前必须掂量的。
+
+**描述说的是事实,不是条目号。** 规划里的一步编号、审计或评审里的一条编号,都是评审者手里没有的名字:写清它代指的那次改动、那个故障或那条命令,编号留在定义它的文档里。
+
+**它说的是改动本身;悬而未决的问题留在对话里。** 还有什么没做、作者建议怎么做、他在等什么 —— 这些句子 都写给当时在场的人,而描述是在那个人走了之后才被读的。
 
 **合并就只有 squash。** 每一个 PR 都在 GitHub 侧用 squash 合并，快进，于是一条发布线每个 PR 只多出一个干净的提交。
 

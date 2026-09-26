@@ -24,11 +24,15 @@ A pull request moves through five stages in order — WIP, development, wrap-up,
 
 **Merge preparation happens after review.** "After a review, prepare your PR for merging by squashing your commits. All commits left on your branch after a review should represent meaningful milestones or units of work" ([kubernetes/community: github-workflow.md](https://github.com/kubernetes/community/blob/main/contributors/guide/github-workflow.md)). Here that squash is done by rebase: each fixup, typo correction, and merge from the base is folded into the milestone it belongs to, so every commit left represents a milestone or a unit of work and nothing else. The result is a branch whose every commit is again a complete state.
 
-**A commit message is Conventional Commits.** `type(scope): one line`: a type, an optional scope, a subject, and a body that says what changed and why. The subject stays within 70 characters. A machine that took part in the change is named only in an `Assisted-by:` trailer; the message itself is about the change.
+**A commit message is Conventional Commits.** `type(scope): one line`: a type, an optional scope, a subject, and a body that says what changed and why. The subject names the change: a rule, an instruction or a question is addressed to a reader, and the line is read by someone who was not there. The subject stays within 70 characters. A machine that took part in the change is named only in an `Assisted-by:` trailer; the message itself is about the change.
 
 **A PR description carries four sections.** `## What this PR does`, `## Why`, `## How`, `## Reviewer notes`; the checks run on every pull request, so the run is the verification and no section repeats it.
 
 **A sentence in it stays only if a reviewer can act on it or be warned by it.** Which tools took part, what was tried before the shape settled, and how the branch reached this point cannot be either. Three exceptions carry their own weight: the change itself is about those things; the reviewer needs the warning — a duplicate pull request, a base branch that moved; or the uncertainty is one a reviewer must weigh before merging.
+
+**A description names the fact, not the item code.** A code from a plan, an audit or a review — a step number, a finding's number — is a name the reviewer does not hold: write the change, the failure or the command it stood for, and leave the code in the document that defines it.
+
+**It states the change; an open question stays in the conversation.** What is left undone, what the author recommends and what they wait for are all addressed to whoever is present, and a description is read long after that reader is gone.
 
 **Squash is the merge.** Every pull request is squash-merged on GitHub, by fast-forward, so the released line gains one clean commit per pull request.
 
