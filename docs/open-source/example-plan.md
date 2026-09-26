@@ -29,7 +29,9 @@
 | 路线图 | 不建独立文件,后续用 milestones |
 | 文档归属 | 表单套装随仓库开源;公开前报告归档进 `docs/open-source/`;两份工作文件整理成 [`example-answers.md`](example-answers.md) 与 [`example-plan.md`](example-plan.md) 后不保留 |
 | release 模板 | 增补「相关 issue 与 PR」区块 |
-| 基线 | bump 到 `dsh-v0.1.7-rc.1`;此后 **dsh 每次发布都跟一次** |
+| PR 说明 | 五节结构保留;写作判据归生命周期笔记(实践侧所有者),规范条目自包含,模板不承载规则 |
+| 归档门禁 | 与 dsh 对齐:六类 kind 目录必须齐备,由每类目录里的占位文件让 Git 能携带它 |
+| 基线 | bump 到 `dsh-v0.1.7-rc.2`;此后 **dsh 每次发布都跟一次** |
 | 版本号 | 本次发布 `v0.3.0` |
 | 团队 | 不强制;适合并行的工作包各自开 PR;worktree 按需安排,本规划不额外着墨 |
 | 不做 | dsh-client-ui-ux 不抽取;agent-teams 笔记不跟进;Auto review 不安装(见 §8) |
@@ -38,8 +40,8 @@
 
 **随仓库开源(`docs/open-source/`)**:`form.md`、`questions.md`、`checklist.md`、`sources.md`、[`example-answers.md`](example-answers.md)(答题样例 + 交互问询样例)、[`example-plan.md`](example-plan.md)(本规划的公开版)、`making-this-repository-public.md`(公开前报告)。
 **不保留**:两份工作文件(内容分别转入两份示例后删除)。
-**新增**:`SECURITY.md`、`CONTRIBUTING.md`、`CODE_OF_CONDUCT.md`、`.github/ISSUE_TEMPLATE/`(表单 + `config.yml`)、`.github/workflows/checks.yml`、`.github/dependabot.yml`、`scripts/vendored.json`、`scripts/verify-dco.ts`。
-**修改**:`THIRD_PARTY_NOTICES.md`、`scripts/ports.json`、`AGENTS.md`(pin 行)、`.github/release_template.md`、`form.md`(文件构成)、`questions.md` 与 `checklist.md`(回填)、`docs/releases/v0.3.0.md`(新增)。
+**新增**:`SECURITY.md`、`CONTRIBUTING.md`、`CODE_OF_CONDUCT.md`、`.github/ISSUE_TEMPLATE/`(表单 + `config.yml`)、`.github/workflows/checks.yml`、`.github/workflows/vendored.yml`、`.github/dependabot.yml`、`scripts/submit-vendored.ts`、`scripts/verify-dco.ts`、`docs/releases/v0.3.0.md`。
+**修改**:`THIRD_PARTY_NOTICES.md`、`scripts/ports.json`、`AGENTS.md`(pin 行,以及 Environment 一节的两条环境事实)、`.github/release_template.md`、`.github/pull_request_template.md`、`skills/dsh-spec-manager/references/norms.json`、`.agents/dsh-spec/notes/implemented/process/2026-09-21-the-pull-request-lifecycle.md` 与 `.zh.md`、`form.md`(文件构成)、`questions.md` 与 `checklist.md`(回填)。
 **新增 Agent Note**:`.agents/dsh-spec/notes/implemented/process/` 下一篇公开决策,配 `.zh.md` 与 `.i18n.yaml`,过笔记门禁。
 
 ## 3. 拓扑与工作包
@@ -49,9 +51,12 @@
 | `WP-1` | 表单套装整理与示例化(对应 `PR-1`) | `docs/open-source/**`(含报告移入该目录)、`.agents/dsh-spec/notes/implemented/process/**` | 工作包定稿;`example-plan.md` 反映最终编排 | 独立执行者或维护者 |
 | `WP-2a` | 策略文档:`SECURITY.md`、`CONTRIBUTING.md`、`CODE_OF_CONDUCT.md` | 这三个文件 | 邮箱地址已定 | 独立执行者 |
 | `WP-2b` | 基线与通知:`ports.json` ref/sha、submodule 检出、`AGENTS.md` pin 行、`THIRD_PARTY_NOTICES.md`、`.github/release_template.md`、`.github/ISSUE_TEMPLATE/**` | 这些文件与 submodule | 无 | 独立执行者或维护者 |
-| `WP-3a` | 自动化入口:`.github/workflows/checks.yml`、`.github/dependabot.yml` | 这两个文件 | 与 `WP-3b` 先约定脚本名与调用方式 | 独立执行者 |
-| `WP-3b` | 自动化脚本:`scripts/vendored.json`、`scripts/verify-dco.ts` | `scripts/**` | 无 | 独立执行者 |
+| `WP-2c` | 说明规则:五节结构保留、内容规定去掉;判据归生命周期笔记,规范条目自包含 | `.github/pull_request_template.md`、`skills/dsh-spec-manager/references/norms.json`、`.agents/skills/**`、`.agents/dsh-spec/notes/implemented/process/2026-09-21-the-pull-request-lifecycle.md` 与 `.zh.md`、`AGENTS.md`、`docs/open-source/example-plan.md` | 无;对应 `PR-1b` | 独立执行者或维护者 |
+| `WP-2d` | rc.2 的配对记录语义重搬:五个引擎文件、`ports.json` 逐条 sha/relation、全部 `.i18n.yaml` 重录、出货契约两侧 | `skills/dsh-spec-manager/**`、`scripts/ports.json`、`**/*.i18n.yaml` | **与 `WP-2b` 串行**(两者都写 `ports.json`);对应 `PR-2b` | 独立执行者或维护者 |
+| `WP-3a` | 自动化入口:`.github/workflows/checks.yml`、`.github/workflows/vendored.yml`、`.github/dependabot.yml` | 这三个文件 | 与 `WP-3b` 先约定脚本名与调用方式 | 独立执行者 |
+| `WP-3b` | 自动化脚本:`scripts/submit-vendored.ts`、`scripts/verify-dco.ts` | `scripts/**` | 无 | 独立执行者 |
 | `WP-3c` | 表单回填:`questions.md` 的 Q-A2–Q-A8 与 `checklist.md` 的三条新任务 | 这两个文件 | `WP-3a/3b` 落定后 | 维护者 |
+| `WP-3d` | 归档门禁与 dsh 对齐:六类 kind 目录的可携带化与门禁的占位文件豁免 | `skills/dsh-spec-manager/**`、`.agents/skills/**`、`tests/**`、`.agents/dsh-spec/notes/**` | 无;CI 的判据依赖它 | 独立执行者或维护者 |
 | `WP-V` | **只读验收者**:跑门禁、验链接、核对脱敏与文件归属 | 不写 | 每个工作包完成后 | 独立执行者(只读) |
 | `WP-L` | 维护者保留:历史和平台操作、发布 | — | 见 §5 | 维护者 |
 
@@ -67,19 +72,24 @@
 
 仓库生命周期规定:每个改动都是 PR;**agent 开 PR 并停在开 PR,合并是维护者的行为;发布同样需要授权**。
 
-| PR | 覆盖 | 描述要点 | 评审与合并 |
-|---|---|---|---|
-| `PR-1` docs(open-source) | `WP-1` | 表单套装的用途与来源;两份示例的整理原则与脱敏边界;报告归档后的链接修正 | 维护者评审;合并需授权 |
-| `PR-2` docs/chore(基线) | `WP-2a`、`WP-2b` | DCO 与 AI 披露口径;通知文件与基线对齐的证据(16 文件比对输出);release 模板新增区块 | 同上 |
-| `PR-3` feat(自动化) | `WP-3a`、`WP-3b`、`WP-3c` | CI 最小权限设计;vendored 提交机制与 token scope;DCO 检查判据 | 同上;合并后把 `checks` 设为必需检查 |
-| `PR-4` chore(release) | 发布 | 按模板写双语发布说明;列出相关 issue 与 PR | 与其它 PR 同一种 squash 合并;发布提交自带安装副本 |
-| 历史操作 | T3 | 不产生 PR;`git bundle` 备份 + 一条说明改写原因的提交留痕 | 维护者本人执行 |
+| PR | 覆盖 | 评审与合并 |
+|---|---|---|
+| `PR-1` docs(open-source) | `WP-1` | 维护者评审;合并需授权 |
+| `PR-1b` chore(说明规则) | `WP-2c` | 同上 |
+| `PR-2` docs/chore(基线) | `WP-2a`、`WP-2b` | 同上 |
+| `PR-2b` chore(engine) | `WP-2d` | 同上;叠在 `PR-2` 之上,因为两者都写 `ports.json` |
+| `PR-3` feat(自动化) | `WP-3a`、`WP-3b`、`WP-3c`、`WP-3d` | 同上;叠在 `PR-2b` 之上 |
+| `PR-3b` chore(模板) | `T2-6` | 同上;必需检查生效之后才动手 |
+| `PR-4` chore(release) | 发布 | 与其它 PR 同一种 squash 合并;发布提交自带安装副本 |
+| 历史操作 | T3 | 不产生 PR;`git bundle` 备份 + 一条说明改写原因的提交留痕。维护者本人执行 |
 
-每个 PR 的描述按模板五节写,`Verification` 附真实命令与输出;`PR-3` 合并后,后续 PR 的验证改为附 CI 运行链接。
+串行相关的 PR 用 `gh stack` 排成一条栈,自下而上评审与合并;单独指向 `main` 的两条(`PR-1`、`PR-1b`)在栈之前按内容层先合。每个 PR 的描述按模板的五节写,`Verification` 附真实命令与输出;写作判据由生命周期笔记持有,各节写什么不由规划规定。
+
+**`checks` 设为必需检查排在 T4,不排在这里。** 私有仓库在免费计划下设不了 ruleset,必需检查只能在公开之后生效;`T2-6`(模板去掉 `Verification` 一节)因此也顺延到那之后。
 
 ## 5. 阶段与条目(底层到上层)
 
-### T0 内容定稿与示例化(`PR-1`)
+### T0 内容定稿与示例化(`PR-1`)· 已完成
 
 > 为什么最底层:后面所有阶段引用的文件与决策都以这里为准。
 
@@ -92,15 +102,27 @@
 | `T0-5` | 新增 | 更新 `form.md` 的文件构成:示例两份替换工作文件,归档报告入列 | 列表与目录一致 |
 | `T0-6` | 新增 | 删除两份工作文件 | 两个文件不在工作树 |
 | `T0-7` | 新增 | 新增公开决策的 Agent Note(双语 + 配对记录) | 笔记分类与格式门禁通过 |
+| `T0-8` | 新增 | 常驻指令补 `## Environment` 两条环境事实(fake-IP 可 `curl`;worktree 不带 submodule 而 linked worktree 可以) | 两条都在 `AGENTS.md` |
 
-### T1 仓库基线(`PR-2`)
+### T0b 说明规则与判据归属(`PR-1b`)· 已完成
+
+> 为什么在基线之前:说明是每个 PR 的写作现场;规则先于它约束的改动存在。宗旨是**结构保留** —— 五节标题与逐节注释都留着,去掉的是与结构无关的内容规定。
+
+| 条目 | 对应清单 | 动作 | 完成判据 |
+|---|---|---|---|
+| `T0b-1` | 新增 | `.github/pull_request_template.md`:删掉开头那条使用说明注释,五个标题与逐节注释不动 | 模板不含规则性注释;标题与逐节注释未变 |
+| `T0b-2` | 新增 | `skills/dsh-spec-manager/references/norms.json` 的 `pr.description`:出处、读者判据、句子判据与三个例外、五节义务写全,自检只看结构;`upgrade --revision <当前分支>` 刷新 `.agents/skills/` | 两份规范目录一致;条目自包含 |
+| `T0b-3` | 新增 | 生命周期笔记(英中):删掉内容规定,换成可当场自问的判据与三个例外 | 笔记只陈述判据;`notes check` 与配对门禁通过 |
+| `T0b-4` | 新增 | 常驻指令加一行钩子指向笔记;规划 §4 去掉「描述要点」列,`example-plan.md` 同步 | 工作规划与公开示例一致 |
+
+### T1 仓库基线(`PR-2`)· 已完成
 
 > 为什么在自动化之前:CI 校验的就是这些文件与这个基线;先上 CI 再改基线,CI 要重跑一遍。
 
 | 条目 | 对应清单 | 动作 | 完成判据 |
 |---|---|---|---|
-| `T1-1` | 新增 | **基线 bump**:`ports.json` 的 `baseline.ref`/`sha` 改为 `dsh-v0.1.7-rc.1`/`46a7f68b…`;submodule 检出到该 tag;`AGENTS.md` 与 `THIRD_PARTY_NOTICES.md` 的 pin 行同步 | 四处写法一致;`verify-port-provenance` 通过 |
-| `T1-2` | 新增 | 记录 16 个移植文件与 rc.1 的比对结论(逐字节一致,无需重搬) | 结论进入 `PR-2` 描述与 Note |
+| `T1-1` | 新增 | **基线 bump**:`ports.json` 的 `baseline.ref`/`sha` 改为 `dsh-v0.1.7-rc.2`/`477b4f42…`;submodule 检出到该 tag;`AGENTS.md` 与 `THIRD_PARTY_NOTICES.md` 的 pin 行同步 | 四处写法一致;`verify-port-provenance` 通过 |
+| `T1-2` | 新增 | 逐文件比对 16 个移植文件与 rc.2:五个配对引擎文件有改动,列进 `WP-2d`;其余逐字节一致 | 结论进入 `PR-2` 描述与 Note |
 | `T1-3` | `PRE-14` | `SECURITY.md`:支持范围、私有报告 + 公司邮箱、不承诺 SLA | 文件存在 |
 | `T1-4` | `PRE-16`、`PRE-18`、`PRE-06` | `CONTRIBUTING.md`:门禁命令、评审与合并方式、双语规则、AI 披露、**DCO 要求(day0)**、安全报告路径 | 与 `verify-dco.ts` 口径一致 |
 | `T1-5` | `PRE-17` | `CODE_OF_CONDUCT.md`:Contributor Covenant 2.1 英文 + 执行联系人与利益冲突段;不建配对 | 文件存在;无 `.zh.md` |
@@ -108,7 +130,17 @@
 | `T1-7` | 新增 | `.github/release_template.md`:在 `Full Changelog` 前增补「相关 issue 与 PR」区块,双语同步 | 两侧结构一致;配对门禁通过 |
 | `T1-8` | `PRE-05` | `THIRD_PARTY_NOTICES.md` 基线行随 bump 改写(原 v0.1.6 陈旧问题一并消除) | 四处基线一致 |
 
-### T2 自动化(`PR-3`)
+### T1b rc.2 的配对记录语义(`PR-2b`)· 已完成
+
+> 为什么跟 `PR-2` 串行:两者都写 `scripts/ports.json`。
+
+| 条目 | 对应清单 | 动作 | 完成判据 |
+|---|---|---|---|
+| `T1b-1` | 新增 | 五个配对引擎文件按 rc.2 重搬:记录改按标题段落取哈希、generated region 拆成三个函数、git 侧只留 index 读取 | 源码引擎与 rc.2 语义一致 |
+| `T1b-2` | 新增 | `translation-pair write` 重录全部配对记录;出货契约两侧改准描述 | 源码引擎报全部 in-sync |
+| `T1b-3` | 新增 | `ports.json` 逐条 `sha`/`relation` 与 `THIRD_PARTY_NOTICES.md` 的关系计数改准 | `verify-port-provenance` 通过 |
+
+### T2 自动化(`PR-3`)· 已完成
 
 > 为什么在历史之前:CI 的第一次运行要覆盖最终的文件真值;此后只改历史,不动内容。
 
@@ -116,9 +148,11 @@
 |---|---|---|---|
 | `T2-1` | 新增 | `.github/workflows/checks.yml`:`pull_request` + `push: [main]`;`permissions: {contents: read}`;`checkout` 开 `submodules: recursive`;node 24;跑测试、`check --all`、provenance、九个技能结构、DCO 检查、`md-links` | 首次运行全绿 |
 | `T2-2` | 新增 | `.github/dependabot.yml`:`github-actions`,weekly | 两个 action 的 SHA 走 PR 更新 |
-| `T2-3` | 新增 | `scripts/vendored.json` + 提交步骤:`push: [main]` 时提交依赖快照;落地前核实 token scope | 依赖图谱出现这些包并能出告警 |
+| `T2-3` | 新增 | `scripts/submit-vendored.ts` + `.github/workflows/vendored.yml`:`push: [main]` 时从 `THIRD_PARTY_NOTICES.md` 派生清单并提交依赖快照;清单只有一个主人 | 依赖图谱出现这些包并能出告警 |
 | `T2-4` | 新增 | `scripts/verify-dco.ts`:PR 范围内每个提交带 `Signed-off-by` 且与作者一致 | 缺签名时检查失败 |
 | `T2-5` | 新增 | 回填 `questions.md` 的 Q-A2–Q-A8 与 `checklist.md` 的三条新任务 | 表单与清单一致;任务编号无悬空 |
+| `T2-6` | 新增 | **顺延到 T4 之后**:`checks` 真的成为必需检查后,模板去掉 `## Verification` 一节(标题与它的注释),规范目录与生命周期笔记的节数同步改四,`example-plan.md` 同步 | 模板 = 四节;验证证据在 CI 运行里 |
+| `T2-7` | 新增 | 归档门禁与 dsh 对齐(见 `WP-3d`):六类 kind 目录由占位文件使其可被 Git 携带,门禁在产物读取与封存两处豁免它 | 全新克隆的 `check --all` 全绿;dsh 的六目录规则保留 |
 
 ### T3 身份与历史(维护者执行)
 
@@ -180,7 +214,7 @@
 4. 改四处 pin:`ports.json` 的 `baseline`、submodule 检出、`AGENTS.md`、`THIRD_PARTY_NOTICES.md`;
 5. 跑 `verify-port-provenance` 与全量门禁,写一条 release note。
 
-**本次**:pin 从 `dsh-v0.1.7-alpha.2` bump 到 `dsh-v0.1.7-rc.1`(tag `46a7f68b…`);16 个移植文件已核对**逐字节一致**,无需重搬;范式文件(根 `AGENTS.md`、`CONTRIBUTING.md`、`.agents/notes/README.md`、`docs/AGENTS.md`)也一致。
+**本次**:pin 从 `dsh-v0.1.7-alpha.2` bump 到 `dsh-v0.1.7-rc.2`(tag `477b4f42…`);16 个移植文件里**五个配对引擎文件有改动**,已按 rc.2 重搬并重录全部配对记录(§5 `T1b`);其余逐字节一致。范式文件(根 `AGENTS.md`、`CONTRIBUTING.md`、`.agents/notes/README.md`、`docs/AGENTS.md`)一致。
 
 ## 7. 发布准备(v0.3.0)
 
@@ -210,8 +244,10 @@
 
 | 阶段 | 门槛(执行并留输出) |
 |---|---|
-| T0 | 六个文档 `md-links` 通过;两份示例无私有信息;笔记门禁通过 |
+| T0 | 七份文档 `md-links` 通过;两份示例无私有信息;笔记门禁通过 |
+| T0b | 模板不含规则性注释,五个标题与逐节注释未变;规范目录与安装副本一致且自包含;笔记只陈述判据;九个技能结构门禁通过 |
 | T1 | 四处 pin 一致;`verify-port-provenance` 通过;五份文件存在;release 模板两侧结构一致 |
+| T1b | 源码引擎报全部配对记录 in-sync;`verify-port-provenance` 通过 |
 | T2 | CI 首次全绿:`node --test 'tests/**/*.test.ts'`(130 通过 0 失败)、`check --all`、`verify-port-provenance`、九个技能结构、DCO 检查、`md-links`;依赖图谱出现 vendored 包 |
 | T3 | `git log --format='%ae\|%ce' \| sort -u` 只剩 noreply;`git ls-remote` tag 指向新 SHA;旧版本 release 指向新 tag |
 | T4 | 匿名 `curl`/`clone` 成功;ruleset 生效;topics 可见;secret scanning 无告警 |
@@ -233,4 +269,4 @@
 
 ## 11. 规模
 
-仓库内:新增 4 份文档、2 个 workflow、2 个脚本、1 份发布说明、1 篇配对 Note;修改 8 处;移动 1 处;删除 2 处。平台:组织、安全、Actions/rulesets 三组设置、1 次可见性切换、1 次发布。按半天粒度:T0–T2 各 1–2 个半天(并行时压到 1),T3 半个半天(含备份),T4 半个半天,T5 半个半天,T6 是日历事件。
+仓库内:`docs/open-source/` 七份文档(表单四份 + 示例两份 + 报告归档)、三份仓库级页面、三个 issue 模板、2 个 workflow、`dependabot.yml`、2 个脚本、1 份发布说明、1 篇配对 Note、5 个 kind 目录占位文件;修改 `ports.json`、`THIRD_PARTY_NOTICES.md`、`AGENTS.md`、release 与 PR 模板、`norms.json`、生命周期笔记、`questions.md` 与 `checklist.md`;移动 1 处;删除 2 处。PR:执行类 6 个(`PR-1`、`PR-1b`、`PR-2`、`PR-2b`、`PR-3`、`PR-3b`)加发布 `PR-4`。平台:组织、安全、Actions/rulesets 三组设置、1 次可见性切换、1 次发布。按半天粒度:T0/T0b 各 1 个半天,T1/T1b 各 1 个半天(串行),T2 1–2 个半天,T3 半个半天(含备份),T4 半个半天,T5 半个半天,T6 是日历事件。
