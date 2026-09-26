@@ -1,9 +1,9 @@
 /**
- * `notes-archived check`: the frozen archive, its closed kind tree, and its append-only seal.
+ * `notes-archived check`: the frozen archive, its closed class tree, and its append-only seal.
  *
- * The empty-archive case is first on purpose: a fresh clone carries no empty directories, so a rule
- * that demanded all six unconditionally made the aggregate fail on every checkout. The sealing case
- * is what makes the rest evidence rather than a snapshot.
+ * The class directories are required whether or not the archive holds anything, and each carries a
+ * marker because Git does not carry an empty directory; the first two cases pin both halves of that
+ * rule. The sealing case is what makes the rest evidence rather than a snapshot.
  */
 
 import assert from 'node:assert/strict'
@@ -11,9 +11,10 @@ import { test } from 'node:test'
 import { runCli } from './helpers/cli.ts'
 import { NOTES, makeFixture, writeArchivedTriplet, writeArchiveKindDirs } from './helpers/fixtures.ts'
 
-test('an empty archive passes, with or without the kind directories', (t) => {
-  const fixture = makeFixture({ [`${NOTES}/archived/AGENTS.md`]: '# Archived Agent Notes\n' })
+test('an empty archive passes once the class directories are present', (t) => {
+  const fixture = makeFixture()
   t.after(() => fixture.dispose())
+  writeArchiveKindDirs(fixture)
 
   const result = runCli(fixture.root, ['notes-archived', 'check', '--all'])
 
@@ -21,7 +22,28 @@ test('an empty archive passes, with or without the kind directories', (t) => {
   assert.match(result.output, /empty/)
 })
 
-test('an artifact without its kind directories fails', (t) => {
+test('the class-directory marker is not read as an artifact', (t) => {
+  const fixture = makeFixture()
+  t.after(() => fixture.dispose())
+  writeArchiveKindDirs(fixture)
+
+  const result = runCli(fixture.root, ['notes-archived', 'check', '--all'])
+
+  assert.equal(result.status, 0, result.output)
+  assert.doesNotMatch(result.output, /not sealed/)
+})
+
+test('a missing class directory fails, with or without an artifact', (t) => {
+  const fixture = makeFixture({ [`${NOTES}/archived/AGENTS.md`]: '# Archived Agent Notes\n' })
+  t.after(() => fixture.dispose())
+
+  const result = runCli(fixture.root, ['notes-archived', 'check', '--all'])
+
+  assert.equal(result.status, 1, result.output)
+  assert.match(result.output, /required kind directory/)
+})
+
+test('an artifact without its class directories fails', (t) => {
   const fixture = makeFixture()
   t.after(() => fixture.dispose())
   writeArchivedTriplet(fixture, '2026-01-01-an-old-decision')

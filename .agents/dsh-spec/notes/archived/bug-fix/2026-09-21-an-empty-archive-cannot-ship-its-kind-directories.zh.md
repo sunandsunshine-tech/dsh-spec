@@ -1,6 +1,7 @@
 # Agent Note: 空归档无法交付它的类别目录
 
 Status: implemented
+Archived: 2026-09-26
 
 [English](2026-09-21-an-empty-archive-cannot-ship-its-kind-directories.md) | 中文
 

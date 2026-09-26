@@ -7,7 +7,7 @@
 import { spawnSync } from 'node:child_process'
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { AGENT_NOTE_CLASSES, agentNoteRoot } from './agent-note-tree.ts'
+import { AGENT_NOTE_CLASSES, AGENT_NOTE_CLASS_PLACEHOLDER, agentNoteRoot } from './agent-note-tree.ts'
 import { parseScopeArgs, readGateScope } from './gate-scope.ts'
 import { notesRootExists } from './notes-root.ts'
 import {
@@ -67,18 +67,19 @@ for (const entry of readdirSync(archiveRoot, { withFileTypes: true })) {
       errors.push(`${rel}: archived kind directories contain regular files only`)
       continue
     }
+    // The placeholder only keeps the directory in the revision; it is sealed by being carried,
+    // not by the manifest, so it reaches neither the artifact map nor the append-only seal.
+    if (child.name === AGENT_NOTE_CLASS_PLACEHOLDER) continue
     artifacts.set(rel, readFileSync(resolve(archiveRoot, rel)))
   }
 }
-// The six kind directories are required once the archive holds something, and not before: an
-// empty directory is not a thing Git can carry, so requiring all six unconditionally made every
-// fresh clone of a project that has archived nothing yet fail this gate — the exact state this
-// gate's own empty-archive report below describes as consistent. No artifact can hide in a kind
-// directory that does not exist, so nothing this rule protects is lost by waiting.
-if (artifacts.size > 0) {
-  for (const kind of AGENT_NOTE_CLASSES) {
-    if (!kinds.has(kind)) errors.push(`archived/${kind}/: required kind directory is missing`)
-  }
+// The six kind directories are required whether or not the archive holds anything: the class set
+// is closed, and a note filed under a mistyped directory is invisible to the seal. Git carries
+// files rather than directories, so each one holds `AGENT_NOTE_CLASS_PLACEHOLDER` — the
+// initializer writes it and the reader above skips it — which is what makes the rule satisfiable
+// in a fresh clone. dsh states the same loop; the placeholder is this package's only addition.
+for (const kind of AGENT_NOTE_CLASSES) {
+  if (!kinds.has(kind)) errors.push(`archived/${kind}/: required kind directory is missing`)
 }
 errors.push(...validateArchiveArtifacts(artifacts))
 
@@ -166,7 +167,7 @@ if (writeMode) {
   }
   console.log(`verify-archived-agent-notes: sealed ${extended.added.length} new artifact(s); existing seals unchanged.`)
 } else if (artifacts.size === 0) {
-  console.log(`verify-archived-agent-notes: the archive is empty — 0 frozen artifact(s) to check and no seal recorded yet; all ${AGENT_NOTE_CLASSES.length} kind directories are required once a note is archived.`)
+  console.log(`verify-archived-agent-notes: the archive is empty — 0 frozen artifact(s) to check and no seal recorded yet; the ${AGENT_NOTE_CLASSES.length} kind directories are required, and each carries ${AGENT_NOTE_CLASS_PLACEHOLDER} so a fresh clone has them.`)
 } else {
   console.log(`verify-archived-agent-notes: ${artifacts.size} frozen artifact(s) checked across ${kinds.size} kind(s).`)
 }
