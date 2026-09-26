@@ -1,0 +1,40 @@
+name: Bug report
+description: Something in the skill set or its checks behaves differently from what the documentation says.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A vulnerability goes through the private channel in [SECURITY.md](../SECURITY.md), not here.
+        A defect in DeepSeek Harness itself belongs to [that project](https://github.com/deepseek-ai/deepseek-harness/issues).
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: The behaviour you got, and the command or gate that produced it.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+      description: What the documentation or the gate's own description led you to expect.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: How to reproduce
+      description: The smallest sequence that shows it, with the output it printed.
+      placeholder: |
+        $ node scripts/verify-port-provenance.ts
+        <output>
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The release or commit you are on, and the Node version.
+    validations:
+      required: true

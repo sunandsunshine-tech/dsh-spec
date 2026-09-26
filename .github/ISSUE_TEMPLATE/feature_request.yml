@@ -1,0 +1,38 @@
+name: Feature request
+description: A change that would make the pattern fit a project better.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This repository extracts the development pattern of DeepSeek Harness into an installable skill
+        set, so a request that assumes one ecosystem is the defect the package exists to avoid.
+        A capability of the harness itself belongs to [that project](https://github.com/deepseek-ai/deepseek-harness/issues).
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What you are trying to do and where the current pattern stops you, with the evidence you have.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you propose
+      description: The change you have in mind, and the workflow it belongs to.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What else you tried
+      description: The alternatives and the workaround you are using now, if any.
+    validations:
+      required: false
+  - type: textarea
+    id: scope
+    attributes:
+      label: How generic it stays
+      description: Why this helps a project that is not yours, and what it would cost a project that already adopted the set.
+    validations:
+      required: true
