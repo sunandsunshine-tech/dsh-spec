@@ -1,0 +1,6 @@
+# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
+# side as of the last confirmed-consistent state. Both languages carry equal authority;
+# after editing either side, bring the other along and re-record with:
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-24-opening-this-repository.md
+2026-09-24-opening-this-repository.md: 454b69922f40ebaea682939468f80e0b2a22feac
+2026-09-24-opening-this-repository.zh.md: 369a90f4c16c9616f8891cef18be4b8853a0a74e
