@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-18-never-overwrite-a-file-the-initializer-did-not-create.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-18-never-overwrite-a-file-the-initializer-did-not-create.md
-2026-09-18-never-overwrite-a-file-the-initializer-did-not-create.md: 31712666ea4199d2b45a29337c28b4c4dfdc1f7d
-2026-09-18-never-overwrite-a-file-the-initializer-did-not-create.zh.md: 5f7c01c2ed8b7b2cd67fd81f88f71df5a5db26e6
+/agent-note-never-overwrite-a-file-the-initializer-did-not-create:
+  en: cbc2fb72fcfb1df8
+  zh: 136e576af0e6121a
+/agent-note-never-overwrite-a-file-the-initializer-did-not-create/problem:
+  en: 10bf5977664025a8
+  zh: 04de2ec2c88e67d1
+/agent-note-never-overwrite-a-file-the-initializer-did-not-create/decision:
+  en: d188b2464143a6a2
+  zh: 6c605385a6a22bfd
+/agent-note-never-overwrite-a-file-the-initializer-did-not-create/alternatives-considered:
+  en: 081520971a7ab5f2
+  zh: 42cdea065f724bbf
+/agent-note-never-overwrite-a-file-the-initializer-did-not-create/consequences:
+  en: 83522842f5bfa0e6
+  zh: 96801a9f7ef373ba
+/agent-note-never-overwrite-a-file-the-initializer-did-not-create/related:
+  en: c9f7880d42c40aec
+  zh: 145743285f37fde3

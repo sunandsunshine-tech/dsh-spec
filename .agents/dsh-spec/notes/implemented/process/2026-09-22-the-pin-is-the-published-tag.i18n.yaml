@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
-#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-22-the-pin-is-the-published-tag.md
-2026-09-22-the-pin-is-the-published-tag.md: 508670d1785ba49164a333ffb7e663b77d722edf
-2026-09-22-the-pin-is-the-published-tag.zh.md: 41817f6d90ce2c06a5c48f48694e5f198a322599
+# Bilingual-pair consistency record for 2026-09-22-the-pin-is-the-published-tag.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-22-the-pin-is-the-published-tag.md
+/agent-note-the-pin-is-the-published-tag:
+  en: 4bf24c2f8294c8d8
+  zh: 0de268f94727bd72
+/agent-note-the-pin-is-the-published-tag/problem:
+  en: be7e6ab7edcf8c45
+  zh: ce72f8a6b4907cd7
+/agent-note-the-pin-is-the-published-tag/decision:
+  en: 06a2f252c89bbb76
+  zh: b72b3f21dcc2cd76
+/agent-note-the-pin-is-the-published-tag/alternatives-considered:
+  en: 7dd39eaeb0711bfb
+  zh: 373036571f6952cd
+/agent-note-the-pin-is-the-published-tag/consequences:
+  en: 620b9f48253e9e33
+  zh: 549a15ea9b4d9333

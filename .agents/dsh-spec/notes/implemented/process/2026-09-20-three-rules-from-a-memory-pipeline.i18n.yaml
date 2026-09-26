@@ -1,6 +1,28 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-20-three-rules-from-a-memory-pipeline.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-20-three-rules-from-a-memory-pipeline.md
-2026-09-20-three-rules-from-a-memory-pipeline.md: dd4c99fe2ff56a28ed454d415847663512e7d6b6
-2026-09-20-three-rules-from-a-memory-pipeline.zh.md: b29141b23f4920bdbdab995038e45b4eac3463e1
+/agent-note-three-rules-from-a-memory-pipeline:
+  en: 4ec09b5c9cccd59e
+  zh: a598828a15c9b2b6
+/agent-note-three-rules-from-a-memory-pipeline/problem:
+  en: 7b3c30480eb4a2ba
+  zh: 6ae5a1541a94dc20
+/agent-note-three-rules-from-a-memory-pipeline/decision:
+  en: a60c9cbce8c546ae
+  zh: cf4e38c4573977c6
+/agent-note-three-rules-from-a-memory-pipeline/decision/the-first-two-rules-stay-prose:
+  en: 4208eeace26d4e8e
+  zh: 41eb5ba67a6b37f9
+/agent-note-three-rules-from-a-memory-pipeline/decision/the-third-rule-gets-a-gate:
+  en: d03c290f35801e39
+  zh: e7a80fbbbf8960dc
+/agent-note-three-rules-from-a-memory-pipeline/decision/the-notes-contract-carries-only-their-application:
+  en: b8838f0410263f48
+  zh: 707902b7b51a180f
+/agent-note-three-rules-from-a-memory-pipeline/alternatives-considered:
+  en: 8a3fd99a004c49b2
+  zh: 0c48a02912c9aa16
+/agent-note-three-rules-from-a-memory-pipeline/consequences:
+  en: f27cef34ec5d00b1
+  zh: 07ca36134fded132

@@ -30,7 +30,7 @@
     {
       "local": "gen-translation-brief.ts",
       "upstream": "scripts/gen-translation-brief.ts",
-      "sha": "ddefc45fbc7f8e46dd73185e68295696d1297887",
+      "sha": "477b4f420553e8a52c2fbccc464d7561b239c443",
       "relation": "adapted",
       "note": "Reads --root instead of the authored layout, and the commands it prints name the installed engine."
     },
@@ -65,21 +65,21 @@
     {
       "local": "translation-pairing-git.ts",
       "upstream": "scripts/translation-pairing-git.ts",
-      "sha": "ddefc45fbc7f8e46dd73185e68295696d1297887",
-      "relation": "adapted",
-      "note": "Drops the DSH_ environment prefix from the snapshot ref."
+      "sha": "477b4f420553e8a52c2fbccc464d7561b239c443",
+      "relation": "verbatim",
+      "note": ""
     },
     {
       "local": "translation-pairing-record.ts",
       "upstream": "scripts/translation-pairing-record.ts",
-      "sha": "ddefc45fbc7f8e46dd73185e68295696d1297887",
+      "sha": "477b4f420553e8a52c2fbccc464d7561b239c443",
       "relation": "adapted",
       "note": "The record renderer, split out of dsh's translation-pairing.ts; the recorded command is project-relative."
     },
     {
       "local": "translation-pairing.ts",
       "upstream": "scripts/translation-pairing.ts",
-      "sha": "ddefc45fbc7f8e46dd73185e68295696d1297887",
+      "sha": "477b4f420553e8a52c2fbccc464d7561b239c443",
       "relation": "split",
       "note": "The record renderer moved to translation-pairing-record.ts and scope questions live in i18n-scope.ts; what remains is the parsing and structure comparison."
     },
@@ -114,7 +114,7 @@
     {
       "local": "verify-translation-pairing.ts",
       "upstream": "scripts/verify-translation-pairing.ts",
-      "sha": "ddefc45fbc7f8e46dd73185e68295696d1297887",
+      "sha": "477b4f420553e8a52c2fbccc464d7561b239c443",
       "relation": "adapted",
       "note": "The corpus is the file tree rather than a pairing manifest, and the gate reads --root."
     }

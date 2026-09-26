@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
-#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-23-compatibility-for-unreachable-states-is-removed.md
-2026-09-23-compatibility-for-unreachable-states-is-removed.md: a69ef29d3a8fc76a85655be1e712e01989fa1fac
-2026-09-23-compatibility-for-unreachable-states-is-removed.zh.md: 38757042d2c6e3de7e452b3c2e7448e228940653
+# Bilingual-pair consistency record for 2026-09-23-compatibility-for-unreachable-states-is-removed.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-23-compatibility-for-unreachable-states-is-removed.md
+/agent-note-compatibility-for-unreachable-states-is-removed:
+  en: e8535c5e1e0ffb11
+  zh: 9c4203cb91724a77
+/agent-note-compatibility-for-unreachable-states-is-removed/problem:
+  en: 756d8161abd332c8
+  zh: 8003b2017eb9d540
+/agent-note-compatibility-for-unreachable-states-is-removed/decision:
+  en: c12163f96bf97a24
+  zh: 4074edfe131c3693
+/agent-note-compatibility-for-unreachable-states-is-removed/alternatives-considered:
+  en: ebaeab1eadb7118b
+  zh: 09465847a17850d1
+/agent-note-compatibility-for-unreachable-states-is-removed/consequences:
+  en: 2632ce22f4702ef0
+  zh: 2c0992de3ad92c2b

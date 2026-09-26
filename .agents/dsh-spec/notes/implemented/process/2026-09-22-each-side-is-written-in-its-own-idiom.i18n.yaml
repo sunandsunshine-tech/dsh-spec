@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-22-each-side-is-written-in-its-own-idiom.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-22-each-side-is-written-in-its-own-idiom.md
-2026-09-22-each-side-is-written-in-its-own-idiom.md: 70fcc373a15b3386e168a00034ad07a17873971f
-2026-09-22-each-side-is-written-in-its-own-idiom.zh.md: b8beb5a2e4337be163c3f0ca39b90827f9cfd40c
+/agent-note-each-side-is-written-in-its-own-idiom-in-an-order-a-reader-can-follow:
+  en: 417eda66a3729940
+  zh: cbbc974363656c10
+/agent-note-each-side-is-written-in-its-own-idiom-in-an-order-a-reader-can-follow/problem:
+  en: 4209bcd7c6c7250c
+  zh: 60a4486f92065c4d
+/agent-note-each-side-is-written-in-its-own-idiom-in-an-order-a-reader-can-follow/decision:
+  en: 69de408a14c5e4b8
+  zh: 4a6e0c088eeb8bc9
+/agent-note-each-side-is-written-in-its-own-idiom-in-an-order-a-reader-can-follow/alternatives-considered:
+  en: f6e5d0d670562db6
+  zh: 072684715d865365
+/agent-note-each-side-is-written-in-its-own-idiom-in-an-order-a-reader-can-follow/consequences:
+  en: 6683f60e14dec58f
+  zh: 51b0234256c5a18a

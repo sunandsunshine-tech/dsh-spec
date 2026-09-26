@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-21-actions-are-subcommands.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-actions-are-subcommands.md
-2026-09-21-actions-are-subcommands.md: 39136c519da056bcf89ce72d9c2eea2d606aaeff
-2026-09-21-actions-are-subcommands.zh.md: c06ef11c012b7c92afbe41bebec187a3188f2cc6
+/agent-note-actions-are-subcommands-and-the-cheap-scope-is-the-default:
+  en: 1cc17a64379b8f8f
+  zh: 8ea4dca446ab306e
+/agent-note-actions-are-subcommands-and-the-cheap-scope-is-the-default/problem:
+  en: f300b01886e91bfc
+  zh: 738f3a91eae7349d
+/agent-note-actions-are-subcommands-and-the-cheap-scope-is-the-default/decision:
+  en: f6960693a1296907
+  zh: d49746834c27b564
+/agent-note-actions-are-subcommands-and-the-cheap-scope-is-the-default/testing:
+  en: 05cbd36b1c08faa2
+  zh: fd61e5cb40ee91fe
+/agent-note-actions-are-subcommands-and-the-cheap-scope-is-the-default/alternatives-considered:
+  en: 9f159380a07d57f6
+  zh: d3324613a6933621
+/agent-note-actions-are-subcommands-and-the-cheap-scope-is-the-default/consequences:
+  en: 42d54d59129d4f31
+  zh: 7e81e7801d78b834

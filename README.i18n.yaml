@@ -1,6 +1,43 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
-#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write README.md
-README.md: 3ef8d9d91b4e5783ac6f9224e8988926a0a60a5d
-README.zh.md: 06d67ce4a8d41aea5473415420ea9c0d63777a01
+# Bilingual-pair consistency record for README.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write README.md
+/dsh-spec:
+  en: e18043e9542446d9
+  zh: 1166450684b4eb41
+/dsh-spec/prerequisites:
+  en: f86dbc1ce5a23fab
+  zh: 8a2b68465623ed3f
+/dsh-spec/install:
+  en: 83467f287fbb68f2
+  zh: 6192c46551824fef
+/dsh-spec/install/install-by-hand:
+  en: bff074ac0c9f34cb
+  zh: bc52aeebf47226b2
+/dsh-spec/install/install-with-an-agent:
+  en: 2e9af852251be07b
+  zh: b3a56c07841fe144
+/dsh-spec/what-you-get:
+  en: 06eee3da222e6e4c
+  zh: abdf440f7f6430ab
+/dsh-spec/the-nine-skills:
+  en: 3025886e183140b3
+  zh: 24940a52f0adbff9
+/dsh-spec/applying-the-norms-it-ships:
+  en: f969c308548d2559
+  zh: caf5ed0624b08df6
+/dsh-spec/updating-the-skill-set:
+  en: a50b130c6557a325
+  zh: c53f6e052a82639e
+/dsh-spec/working-in-a-project-that-has-it:
+  en: 2f8e5a11c71ffde3
+  zh: fbb25fd5f81e1439
+/dsh-spec/working-on-this-repository:
+  en: 94f07a38ecc8b0d0
+  zh: 653d98e7704006db
+/dsh-spec/read-next:
+  en: f6c6faaf97ae105b
+  zh: 2dc17d1293e2b000
+/dsh-spec/license:
+  en: 483760b9bb8b7642
+  zh: 3fa142d511f54b7f
