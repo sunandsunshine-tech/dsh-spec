@@ -26,7 +26,7 @@ A pull request moves through five stages in order — WIP, development, wrap-up,
 
 **A commit message is Conventional Commits.** `type(scope): one line`: a type, an optional scope, a subject, and a body that says what changed and why. The subject stays within 70 characters. A machine that took part in the change is named only in an `Assisted-by:` trailer; the message itself is about the change.
 
-**A PR description carries five sections.** `## What this PR does`, `## Why`, `## How`, `## Reviewer notes`, `## Verification`. It states what a maintainer needs to review and merge, and nothing else.
+**A PR description carries five sections.** `## What this PR does`, `## Why`, `## How`, `## Reviewer notes`, `## Verification`.
 
 **Squash is the merge.** Every pull request is squash-merged on GitHub, by fast-forward, so the released line gains one clean commit per pull request.
 

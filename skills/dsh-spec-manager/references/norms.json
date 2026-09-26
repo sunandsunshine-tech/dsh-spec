@@ -48,7 +48,7 @@
       "group": "pr",
       "title": "Give the reviewer the sections they are going to ask for",
       "titleZh": "PR 描述按固定分节写",
-      "body": "- **Give the reviewer the sections they are going to ask for.** What the change does, why it is right, how it is done, what to look at first, and how it was verified.\n  - Why: the reviewer's questions are the same every time; a description that answers them in a familiar order is read once instead of reconstructed.\n  - Self-check: can the reviewer find the verification evidence without asking for it? Is anything in it written for the author rather than for the reviewer?",
+      "body": "- **Give the reviewer the sections they are going to ask for.** `## What this PR does`, `## Why`, `## How`, `## Reviewer notes`, `## Verification`.\n  - Why: the reviewer's questions are the same every time; a description that answers them in a familiar order is read once instead of reconstructed.\n  - Self-check: are all five sections present, in that order?",
       "source": ".agents/dsh-spec/notes/implemented/process/2026-09-21-the-pull-request-lifecycle.md"
     },
     {

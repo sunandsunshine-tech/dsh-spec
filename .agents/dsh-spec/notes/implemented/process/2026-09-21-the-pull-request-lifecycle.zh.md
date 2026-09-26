@@ -26,7 +26,7 @@ Status: implemented
 
 **提交信息用 Conventional Commits。** `type(scope): 一句话`：一个类型、一个可选范围、一个标题，以及一段说清改了什么、为什么的正文。标题行不超过 70 个字符。参与改动的机器只写在 `Assisted-by:` 尾注里；信息本身只讲这个改动。
 
-**PR 描述分五节。** `## What this PR does`、`## Why`、`## How`、`## Reviewer notes`、`## Verification`。它只讲维护者评审和合并需要的东西，不讲别的。
+**PR 描述分五节。** `## What this PR does`、`## Why`、`## How`、`## Reviewer notes`、`## Verification`。
 
 **合并就只有 squash。** 每一个 PR 都在 GitHub 侧用 squash 合并，快进，于是一条发布线每个 PR 只多出一个干净的提交。
 
