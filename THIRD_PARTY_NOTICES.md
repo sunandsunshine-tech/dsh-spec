@@ -4,7 +4,7 @@ This repository is an extraction of [DeepSeek Harness](https://github.com/deepse
 
 ## DeepSeek Harness
 
-Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.1.6-alpha.2` (`ddefc45fbc7f8e46dd73185e68295696d1297887`).
+Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.1.7-rc.2` (`477b4f420553e8a52c2fbccc464d7561b239c443`).
 
 This repository is an extraction of that project: it rewrites the harness's development pattern into an installable skill set, so the engine files here are ports rather than new work. [`scripts/ports.json`](scripts/ports.json) is the registry — it names each ported file, its upstream path and sha, and how far it diverged (16 files: 12 adapted, 2 verbatim, 2 split) — and every ported file states the same fact in its own header, next to its `SPDX-License-Identifier: MIT` line. [`scripts/verify-port-provenance.ts`](scripts/verify-port-provenance.ts) holds the registry, those headers and the pinned baseline against each other.
 
