@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-20-a-gate-is-a-recorded-name.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-20-a-gate-is-a-recorded-name.md
-2026-09-20-a-gate-is-a-recorded-name.md: 6a31fe9d4cf1f391ff2d8cb6391a8aa47a9f599f
-2026-09-20-a-gate-is-a-recorded-name.zh.md: 0288998ddf91564900d0c6c75c5f2005f52b09d7
+/agent-note-a-gate-is-a-recorded-name:
+  en: 64c9dd0c6ebaabd2
+  zh: 2b57fb48297ab13a
+/agent-note-a-gate-is-a-recorded-name/problem:
+  en: a497b0e2111fd79d
+  zh: 1e11bd74a02e25b8
+/agent-note-a-gate-is-a-recorded-name/decision:
+  en: cdf791dfbac4ea6b
+  zh: f64722c29212ac62
+/agent-note-a-gate-is-a-recorded-name/alternatives-considered:
+  en: be8905e247dad2b9
+  zh: 3a8f32d3cb0f50f7
+/agent-note-a-gate-is-a-recorded-name/consequences:
+  en: 3a8f5bf3829b7995
+  zh: 5cf068997bbb237a
+/agent-note-a-gate-is-a-recorded-name/related:
+  en: 45efe78077fca90e
+  zh: f90bdd86a5522bb9

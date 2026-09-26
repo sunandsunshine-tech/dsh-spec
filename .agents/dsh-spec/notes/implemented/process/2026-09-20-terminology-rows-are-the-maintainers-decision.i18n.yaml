@@ -1,6 +1,25 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-20-terminology-rows-are-the-maintainers-decision.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-20-terminology-rows-are-the-maintainers-decision.md
-2026-09-20-terminology-rows-are-the-maintainers-decision.md: fe9859e233a71be347b98e4287dcfdc14ee61379
-2026-09-20-terminology-rows-are-the-maintainers-decision.zh.md: 798b280a463432831c3d5fbaa6f3647f7df0a41f
+/agent-note-terminology-rows-are-the-maintainer-s-decision:
+  en: 787ab80431666631
+  zh: caf4b5878a43e881
+/agent-note-terminology-rows-are-the-maintainer-s-decision/problem:
+  en: ea4313b80cc30160
+  zh: 04f8aa910d6bc9df
+/agent-note-terminology-rows-are-the-maintainer-s-decision/decision:
+  en: 20babbe4b6d9dae9
+  zh: 6b7d3994ad8ca727
+/agent-note-terminology-rows-are-the-maintainer-s-decision/decision/why-no-gate:
+  en: b0d609d66210ba93
+  zh: 6be18d241481d8bb
+/agent-note-terminology-rows-are-the-maintainer-s-decision/alternatives-considered:
+  en: 506187b28504dba8
+  zh: 6290dbebf0898d88
+/agent-note-terminology-rows-are-the-maintainer-s-decision/consequences:
+  en: 4e9ea7ce80c9e9aa
+  zh: f01eb9188ff15363
+/agent-note-terminology-rows-are-the-maintainer-s-decision/related:
+  en: 4db85eb5cb7bdd10
+  zh: 2762a05835ee7f2b

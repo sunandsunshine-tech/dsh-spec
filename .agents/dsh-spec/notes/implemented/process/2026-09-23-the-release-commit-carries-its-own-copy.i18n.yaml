@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
-#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-23-the-release-commit-carries-its-own-copy.md
-2026-09-23-the-release-commit-carries-its-own-copy.md: e7159542815374c5dd365fb6c9408da58ab190f0
-2026-09-23-the-release-commit-carries-its-own-copy.zh.md: 92663f06cb9c7e0d06a40690e430932980a9b5d0
+# Bilingual-pair consistency record for 2026-09-23-the-release-commit-carries-its-own-copy.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-23-the-release-commit-carries-its-own-copy.md
+/agent-note-the-release-commit-carries-its-own-copy:
+  en: 08b1efbdf38f88bb
+  zh: c58c23fae2ff70d9
+/agent-note-the-release-commit-carries-its-own-copy/problem:
+  en: a67c61f17845addc
+  zh: 1b16d82ae73f979e
+/agent-note-the-release-commit-carries-its-own-copy/decision:
+  en: b16624bee44c0056
+  zh: 72e948386ba672a4
+/agent-note-the-release-commit-carries-its-own-copy/alternatives-considered:
+  en: 6d73da82eb8d6259
+  zh: aad47b372734c362
+/agent-note-the-release-commit-carries-its-own-copy/consequences:
+  en: 5c4ece0dd1c2c86f
+  zh: fbdded0929d0082c
+/agent-note-the-release-commit-carries-its-own-copy/related:
+  en: 26b15cbcc6e82219
+  zh: 1365ab458535c10a

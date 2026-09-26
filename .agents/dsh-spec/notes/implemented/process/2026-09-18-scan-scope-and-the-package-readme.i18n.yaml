@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
-#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-18-scan-scope-and-the-package-readme.md
-2026-09-18-scan-scope-and-the-package-readme.md: 71cb16c96a88f470760819c724dbb897e320894f
-2026-09-18-scan-scope-and-the-package-readme.zh.md: eb98ab07c334a2af6aebb36cc3f42325bdaf7ebd
+# Bilingual-pair consistency record for 2026-09-18-scan-scope-and-the-package-readme.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-18-scan-scope-and-the-package-readme.md
+/agent-note-scan-scope-inlined-rationale-and-a-package-readme:
+  en: b6c7c154b23044b5
+  zh: 621c28ca71472e0b
+/agent-note-scan-scope-inlined-rationale-and-a-package-readme/problem:
+  en: 8f65f5c4c36e4c20
+  zh: ac7fb48c543d781c
+/agent-note-scan-scope-inlined-rationale-and-a-package-readme/decision:
+  en: cb2481f84386a1b3
+  zh: 408bcb2b8b1d8df6
+/agent-note-scan-scope-inlined-rationale-and-a-package-readme/alternatives-considered:
+  en: bd5fa43eabf2f122
+  zh: b288dfeea5e425e8
+/agent-note-scan-scope-inlined-rationale-and-a-package-readme/consequences:
+  en: 4d631c03adb5ac90
+  zh: 38a70a37ac046480
+/agent-note-scan-scope-inlined-rationale-and-a-package-readme/related:
+  en: 3f9b2b488a029fb7
+  zh: 1d5e67969995502a

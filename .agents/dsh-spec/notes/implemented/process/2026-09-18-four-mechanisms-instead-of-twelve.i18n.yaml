@@ -1,6 +1,37 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
-#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-18-four-mechanisms-instead-of-twelve.md
-2026-09-18-four-mechanisms-instead-of-twelve.md: 51e32fab5be6967131b3616e175a9d9ae983c197
-2026-09-18-four-mechanisms-instead-of-twelve.zh.md: e3cd8d3d5b50ec8ecc6b060d7659f0dc6b8fa2e4
+# Bilingual-pair consistency record for 2026-09-18-four-mechanisms-instead-of-twelve.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-18-four-mechanisms-instead-of-twelve.md
+/agent-note-four-mechanisms-instead-of-twelve:
+  en: 0b1541bdde6c029a
+  zh: f2e7b94d8838c16f
+/agent-note-four-mechanisms-instead-of-twelve/problem:
+  en: 3763e63c3ca9434b
+  zh: c268dae4e52d17e3
+/agent-note-four-mechanisms-instead-of-twelve/decision:
+  en: 3779763f4deec150
+  zh: 693a08881bb733b7
+/agent-note-four-mechanisms-instead-of-twelve/decision/the-nine-skills:
+  en: 17bf2e9b36a30a78
+  zh: 7b87cafc54bc94a4
+/agent-note-four-mechanisms-instead-of-twelve/decision/one-code-home-for-the-skill-set:
+  en: 60a02da53dc177b3
+  zh: 29e6475e1cd5671e
+/agent-note-four-mechanisms-instead-of-twelve/decision/the-release-record-is-deleted:
+  en: 712131d5fa925e81
+  zh: a7ae0de487e8f415
+/agent-note-four-mechanisms-instead-of-twelve/decision/the-documentation-mechanism-is-deleted:
+  en: 99d7c09fdf3be1a6
+  zh: 389634b896187dc7
+/agent-note-four-mechanisms-instead-of-twelve/decision/the-consolidated-notes:
+  en: e364082e4d8b4f48
+  zh: fb447f8b7c3ea702
+/agent-note-four-mechanisms-instead-of-twelve/decision/boundary-condition-not-just-the-principle:
+  en: 6fc48fbd734516fd
+  zh: 88f11825f2736731
+/agent-note-four-mechanisms-instead-of-twelve/alternatives-considered:
+  en: 1faecbf264c582e1
+  zh: 6c56ec5c8d343419
+/agent-note-four-mechanisms-instead-of-twelve/consequences:
+  en: 8d2ed5796a7d65d3
+  zh: cdd3fbd70f1328f8

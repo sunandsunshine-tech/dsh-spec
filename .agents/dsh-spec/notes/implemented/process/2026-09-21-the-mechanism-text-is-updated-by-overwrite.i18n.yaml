@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-21-the-mechanism-text-is-updated-by-overwrite.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-mechanism-text-is-updated-by-overwrite.md
-2026-09-21-the-mechanism-text-is-updated-by-overwrite.md: 44fc99c15f41efc4ede1d9af7b2ffec572baf252
-2026-09-21-the-mechanism-text-is-updated-by-overwrite.zh.md: 0921856ee684e89f2a27d13b7ab6b05b5377689f
+/agent-note-the-mechanism-text-is-updated-by-overwrite:
+  en: a3f281befd44e823
+  zh: b08237ce0b59826b
+/agent-note-the-mechanism-text-is-updated-by-overwrite/problem:
+  en: e22321751e47f8e2
+  zh: 6e5de225ecf1ebad
+/agent-note-the-mechanism-text-is-updated-by-overwrite/decision:
+  en: de64e34da515c5e4
+  zh: 800358d18ccc0b14
+/agent-note-the-mechanism-text-is-updated-by-overwrite/alternatives-considered:
+  en: 0fb20a43a056aa5f
+  zh: ba4bd11f0fc76c6c
+/agent-note-the-mechanism-text-is-updated-by-overwrite/consequences:
+  en: 77e4d936e182cc38
+  zh: e145f2e1464811f5
+/agent-note-the-mechanism-text-is-updated-by-overwrite/related:
+  en: 430ffa33010553cf
+  zh: 705a8a5f293ea1ec

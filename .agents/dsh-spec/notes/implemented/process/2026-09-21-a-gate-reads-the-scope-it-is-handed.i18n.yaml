@@ -1,6 +1,52 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-21-a-gate-reads-the-scope-it-is-handed.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-a-gate-reads-the-scope-it-is-handed.md
-2026-09-21-a-gate-reads-the-scope-it-is-handed.md: 221c2fc485ffd2b68a0c2dc488f39c6febe5d37a
-2026-09-21-a-gate-reads-the-scope-it-is-handed.zh.md: 8306f617bf208ee66c3ef0079087e6b4202d22f4
+/agent-note-a-gate-reads-the-scope-the-dispatcher-hands-it:
+  en: c272bc5cdad19eec
+  zh: d24cecad549b642e
+/agent-note-a-gate-reads-the-scope-the-dispatcher-hands-it/problem:
+  en: 1a5ecd51ae427739
+  zh: b27136d5311d00e4
+/agent-note-a-gate-reads-the-scope-the-dispatcher-hands-it/decision:
+  en: a15c7c13f167e5ac
+  zh: a15c7c13f167e5ac
+/agent-note-a-gate-reads-the-scope-the-dispatcher-hands-it/decision/the-command-surface:
+  en: 5ea622d19b1af1a3
+  zh: e13d3e1c9a5ebd7f
+/agent-note-a-gate-reads-the-scope-the-dispatcher-hands-it/decision/the-gate-input-contract:
+  en: fc5d17f286ed4c7b
+  zh: ce7cbe8ed354367b
+/agent-note-a-gate-reads-the-scope-the-dispatcher-hands-it/decision/the-dispatcher-owns-selection:
+  en: b590e60cf6b732a2
+  zh: 4b8ee1032efa6d72
+/agent-note-a-gate-reads-the-scope-the-dispatcher-hands-it/decision/parallelism:
+  en: acdc07acb2e75753
+  zh: f42fbaecf240fe50
+/agent-note-a-gate-reads-the-scope-the-dispatcher-hands-it/decision/management:
+  en: 395611e2959f4de9
+  zh: f9f617a8ccdca189
+/agent-note-a-gate-reads-the-scope-the-dispatcher-hands-it/decision/node-is-the-only-runtime:
+  en: fe67bc74ea9bcf57
+  zh: a911d9e668fa5dd7
+/agent-note-a-gate-reads-the-scope-the-dispatcher-hands-it/decision/the-credential-scan-is-dropped:
+  en: 80d9f469757f6f87
+  zh: fddc38c80c660fe7
+/agent-note-a-gate-reads-the-scope-the-dispatcher-hands-it/decision/check-logic-borrowed-interaction-ours:
+  en: a2f9d4075f3892c1
+  zh: 3854f05586e249bd
+/agent-note-a-gate-reads-the-scope-the-dispatcher-hands-it/migration-order:
+  en: 6df3ff5697c1804b
+  zh: b17cc0620b5c9b22
+/agent-note-a-gate-reads-the-scope-the-dispatcher-hands-it/required-verification:
+  en: 7468b8b4fd2c5ad1
+  zh: b8a4e75a6f6bb228
+/agent-note-a-gate-reads-the-scope-the-dispatcher-hands-it/risks:
+  en: 6223eff822fa1b9c
+  zh: 429df953c6809532
+/agent-note-a-gate-reads-the-scope-the-dispatcher-hands-it/alternatives-considered:
+  en: d514596dd30e0653
+  zh: ae44412c79decc95
+/agent-note-a-gate-reads-the-scope-the-dispatcher-hands-it/consequences:
+  en: 52fccfca1244f5a3
+  zh: d1b004ba04c46fef

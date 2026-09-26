@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
-#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-23-merging-and-publishing-need-authorization.md
-2026-09-23-merging-and-publishing-need-authorization.md: 2f5d762e44c8600d7f793b3264413f1e3b1945b3
-2026-09-23-merging-and-publishing-need-authorization.zh.md: 005357686ee9b86bc614454a77e7cfb4f3f82953
+# Bilingual-pair consistency record for 2026-09-23-merging-and-publishing-need-authorization.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-23-merging-and-publishing-need-authorization.md
+/agent-note-merging-and-publishing-need-authorization:
+  en: 9d050f938032724c
+  zh: f41a2e0f0f316990
+/agent-note-merging-and-publishing-need-authorization/problem:
+  en: 59c2254d45531089
+  zh: a8bc6f0927f01e8e
+/agent-note-merging-and-publishing-need-authorization/decision:
+  en: 1a2c542875544ce4
+  zh: 45e90114c619a698
+/agent-note-merging-and-publishing-need-authorization/alternatives-considered:
+  en: 3bea9166541126f5
+  zh: f93d853f5e3397c3
+/agent-note-merging-and-publishing-need-authorization/consequences:
+  en: e38d589148d228fb
+  zh: e9eb52888fe4620a

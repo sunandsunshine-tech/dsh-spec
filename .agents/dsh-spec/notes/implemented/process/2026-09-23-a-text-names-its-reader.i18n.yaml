@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
-#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-23-a-text-names-its-reader.md
-2026-09-23-a-text-names-its-reader.md: c726d4696ac9718e18b9208007b387a1417ad523
-2026-09-23-a-text-names-its-reader.zh.md: 206a7ef89234d1d577bb65a527ad25b9e304d20f
+# Bilingual-pair consistency record for 2026-09-23-a-text-names-its-reader.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-23-a-text-names-its-reader.md
+/agent-note-a-text-names-its-reader:
+  en: 445736f29b8e955f
+  zh: 441d575017be4fda
+/agent-note-a-text-names-its-reader/problem:
+  en: 50a9b23c8e9b2b05
+  zh: b23e40267bd196c9
+/agent-note-a-text-names-its-reader/decision:
+  en: 41f84ecd4997e712
+  zh: 28dc25bd4f4bb4f7
+/agent-note-a-text-names-its-reader/alternatives-considered:
+  en: 4dc81ede25f17039
+  zh: 97aa330316621de9
+/agent-note-a-text-names-its-reader/consequences:
+  en: 626bf749f869d3c2
+  zh: c58d76b3d6c11d34
+/agent-note-a-text-names-its-reader/related:
+  en: 869d6786ae2cb394
+  zh: 6f8ba5112f3884e0

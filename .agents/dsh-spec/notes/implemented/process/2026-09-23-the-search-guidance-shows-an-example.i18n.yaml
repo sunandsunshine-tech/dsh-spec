@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
-#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-23-the-search-guidance-shows-an-example.md
-2026-09-23-the-search-guidance-shows-an-example.md: 7b7a81baa130f942d8d72508e201772cb88e149a
-2026-09-23-the-search-guidance-shows-an-example.zh.md: 410721bc2e5bc8d912d67febc267ae2d7af0bbc8
+# Bilingual-pair consistency record for 2026-09-23-the-search-guidance-shows-an-example.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-23-the-search-guidance-shows-an-example.md
+/agent-note-the-search-guidance-states-its-exclusions-and-shows-an-example:
+  en: c65f86e66e180f01
+  zh: c7871915befd79d8
+/agent-note-the-search-guidance-states-its-exclusions-and-shows-an-example/problem:
+  en: 01893a2b5270f3a2
+  zh: a4ec0e23c684f0a4
+/agent-note-the-search-guidance-states-its-exclusions-and-shows-an-example/decision:
+  en: f0044e84340162d0
+  zh: d2ef769663a6a5a9
+/agent-note-the-search-guidance-states-its-exclusions-and-shows-an-example/alternatives-considered:
+  en: 3a6bc687a60e8819
+  zh: 802b7669c7c35ddf
+/agent-note-the-search-guidance-states-its-exclusions-and-shows-an-example/consequences:
+  en: c79214947f1bfdb1
+  zh: af205877a5d23628

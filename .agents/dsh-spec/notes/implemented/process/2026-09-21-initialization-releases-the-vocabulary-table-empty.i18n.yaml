@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-21-initialization-releases-the-vocabulary-table-empty.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-initialization-releases-the-vocabulary-table-empty.md
-2026-09-21-initialization-releases-the-vocabulary-table-empty.md: f8bf42cf786219bda8906db421285562835df6bb
-2026-09-21-initialization-releases-the-vocabulary-table-empty.zh.md: 1b8abc701758c3c65bc0823261752c3969f9a4d9
+/agent-note-initialization-releases-the-vocabulary-table-empty:
+  en: ee197ca86f084f5d
+  zh: 00b834db69c95d56
+/agent-note-initialization-releases-the-vocabulary-table-empty/problem:
+  en: 5f4d88438e6377e7
+  zh: d9acf45ed39dbfcc
+/agent-note-initialization-releases-the-vocabulary-table-empty/decision:
+  en: 920c3b6ff6ca84d1
+  zh: 65756f459a12e7e2
+/agent-note-initialization-releases-the-vocabulary-table-empty/alternatives-considered:
+  en: ceb2667668774172
+  zh: 812da1c73547294d
+/agent-note-initialization-releases-the-vocabulary-table-empty/consequences:
+  en: 3aa002cf89352c31
+  zh: 84e8c6034ef2b6ab
+/agent-note-initialization-releases-the-vocabulary-table-empty/related:
+  en: cf3ae175410f0263
+  zh: 14ddd64c58858e21

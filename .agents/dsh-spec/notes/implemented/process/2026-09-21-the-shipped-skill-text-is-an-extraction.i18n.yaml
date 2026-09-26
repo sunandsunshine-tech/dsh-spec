@@ -1,6 +1,28 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
-#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-shipped-skill-text-is-an-extraction.md
-2026-09-21-the-shipped-skill-text-is-an-extraction.md: 6fa14b8c875c6fa6c800e463ca642c6b8c5a027e
-2026-09-21-the-shipped-skill-text-is-an-extraction.zh.md: d72f436374e9c3b5a42c3d2dcb8d82e273d9c671
+# Bilingual-pair consistency record for 2026-09-21-the-shipped-skill-text-is-an-extraction.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-shipped-skill-text-is-an-extraction.md
+/agent-note-the-shipped-skill-text-is-an-extraction:
+  en: 28049e7ee600c15c
+  zh: 5eba31bcb2e5c447
+/agent-note-the-shipped-skill-text-is-an-extraction/problem:
+  en: 352c7062032a33fd
+  zh: 60f4d2b3da0d334d
+/agent-note-the-shipped-skill-text-is-an-extraction/decision:
+  en: a29b3db0b8b3c677
+  zh: 14a2d7580bc0cc8b
+/agent-note-the-shipped-skill-text-is-an-extraction/the-abstraction-method:
+  en: 0159f3df0e97f94a
+  zh: 406b698f49650c86
+/agent-note-the-shipped-skill-text-is-an-extraction/alternatives-considered:
+  en: 4ddbf65b87412e05
+  zh: 00f06c99cec8e63b
+/agent-note-the-shipped-skill-text-is-an-extraction/consequences:
+  en: 3016fe5ca394cb76
+  zh: f638b461950dd0d8
+/agent-note-the-shipped-skill-text-is-an-extraction/verification:
+  en: edd1b7ab1e0bf03a
+  zh: 6b06dc5fd9be7dd6
+/agent-note-the-shipped-skill-text-is-an-extraction/related:
+  en: cd61f716b129cc13
+  zh: 2dea9c08473929aa

@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-18-a-global-rename-leaves-its-description-alone.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-18-a-global-rename-leaves-its-description-alone.md
-2026-09-18-a-global-rename-leaves-its-description-alone.md: 60ecc862722642ac5f64d87cad83901d623b2276
-2026-09-18-a-global-rename-leaves-its-description-alone.zh.md: 4e9c9172561079656766a73464ba511f72c10164
+/agent-note-a-global-rename-leaves-the-sentence-that-describes-it-alone:
+  en: ac0e45eebd27e00d
+  zh: 90005016af1e4088
+/agent-note-a-global-rename-leaves-the-sentence-that-describes-it-alone/problem:
+  en: fbe6c1c902e95c83
+  zh: 2f6c4d68c8b97954
+/agent-note-a-global-rename-leaves-the-sentence-that-describes-it-alone/decision:
+  en: f32dc5bd37b200e4
+  zh: d8d83fb3cd6836ca
+/agent-note-a-global-rename-leaves-the-sentence-that-describes-it-alone/alternatives-considered:
+  en: 3065bc89529ff731
+  zh: 50cb7c144476b104
+/agent-note-a-global-rename-leaves-the-sentence-that-describes-it-alone/consequences:
+  en: 03775e182f513624
+  zh: 0f381cf3330dc8a0

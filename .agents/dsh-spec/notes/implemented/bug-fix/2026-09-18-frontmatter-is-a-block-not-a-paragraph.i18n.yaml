@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-18-frontmatter-is-a-block-not-a-paragraph.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-18-frontmatter-is-a-block-not-a-paragraph.md
-2026-09-18-frontmatter-is-a-block-not-a-paragraph.md: 6a10526ca4e93f6a323590faa76bfb6f516524e6
-2026-09-18-frontmatter-is-a-block-not-a-paragraph.zh.md: d2eeb24dba35722299a2dc275ca9b68334315a5e
+/agent-note-treat-frontmatter-as-a-block-not-as-a-paragraph:
+  en: eabab404e541647f
+  zh: a12f73471cb48f7b
+/agent-note-treat-frontmatter-as-a-block-not-as-a-paragraph/problem:
+  en: 3d0230119f3d057c
+  zh: 29c41acc664c38a5
+/agent-note-treat-frontmatter-as-a-block-not-as-a-paragraph/decision:
+  en: d7e897db4f7fb3e3
+  zh: c840ef294f7adccc
+/agent-note-treat-frontmatter-as-a-block-not-as-a-paragraph/alternatives-considered:
+  en: ebc9de58f91643da
+  zh: 390a4ce02a57555e
+/agent-note-treat-frontmatter-as-a-block-not-as-a-paragraph/consequences:
+  en: 2ab6785d5916e08f
+  zh: 49a9f08ec8e95595

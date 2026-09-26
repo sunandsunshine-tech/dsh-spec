@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-18-double-star-spans-any-depth.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-18-double-star-spans-any-depth.md
-2026-09-18-double-star-spans-any-depth.md: 4a65cde13fcd5366d909187614b338951813054c
-2026-09-18-double-star-spans-any-depth.zh.md: 7311b269e814e5c6d29a993ee136968f0c8a44df
+/agent-note-spans-any-depth-and-stays-inside-one-segment:
+  en: 5395edb300accf6c
+  zh: a9c9d8d2511f14bf
+/agent-note-spans-any-depth-and-stays-inside-one-segment/problem:
+  en: 8d35fbec02e91eee
+  zh: 8c598f6fef1aa20a
+/agent-note-spans-any-depth-and-stays-inside-one-segment/decision:
+  en: 02aa9180bf33cb2b
+  zh: 80d2ddc4654b9074
+/agent-note-spans-any-depth-and-stays-inside-one-segment/alternatives-considered:
+  en: 86e789798af5ce64
+  zh: a309ce1af90af0a8
+/agent-note-spans-any-depth-and-stays-inside-one-segment/consequences:
+  en: 47d36fe0b1f5068d
+  zh: b9ce1bc30e65921f

@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
-#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-22-a-project-applies-the-norms-it-chooses.md
-2026-09-22-a-project-applies-the-norms-it-chooses.md: f53986cccbfeaff0db35ccaaaecbeb9bb0f87da8
-2026-09-22-a-project-applies-the-norms-it-chooses.zh.md: 1ce34417a104e2afcf10e87dee57268768d3feb2
+# Bilingual-pair consistency record for 2026-09-22-a-project-applies-the-norms-it-chooses.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-22-a-project-applies-the-norms-it-chooses.md
+/agent-note-a-project-applies-the-norms-it-chooses:
+  en: 09e7dc7625c22ba6
+  zh: 21a038864a86deae
+/agent-note-a-project-applies-the-norms-it-chooses/problem:
+  en: e33d7b056d383752
+  zh: d788089696852ab7
+/agent-note-a-project-applies-the-norms-it-chooses/decision:
+  en: d1d7c0b91e825d43
+  zh: cf7dc3e3f9dfe65f
+/agent-note-a-project-applies-the-norms-it-chooses/alternatives-considered:
+  en: 8e8242286681b1e3
+  zh: 1a289191f6c51c5a
+/agent-note-a-project-applies-the-norms-it-chooses/consequences:
+  en: 26b7f25ef6a7cf53
+  zh: d67c403b46b5407d
