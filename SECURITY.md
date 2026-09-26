@@ -13,7 +13,7 @@ Two boundaries are in scope.
 - **The checks can be made to certify a tree they did not examine.** A gate that reports success while reading nothing, skips a file its scope covers, or writes a file it did not create and should not overwrite, produced a passing record for a project that never earned one.
 - **Repository content can hang or exhaust a check.** A check parses Markdown, JSON and an Agent Note tree taken from the project under inspection. A path, a glob, a link shape or a nesting depth in that input can make a check spin, recurse without bound, or consume memory without bound.
 
-Anything else is an ordinary defect: an incorrect result, a crash, a wrong diagnostic, a gate that refuses a legitimate tree, or a broken link in a document. A gate that a contributor or an agent can simply choose not to run, or a check flag that an author can omit, is that author's decision rather than a bypass — it belongs in the defect path below, not in a security report.
+Anything else is an ordinary defect: an incorrect result, a crash, a wrong diagnostic, a gate that refuses a legitimate tree, or a broken link in a document. A gate that a contributor or an agent can simply choose not to run, or a check flag that an author can omit, is that author's decision rather than a bypass — it belongs with ordinary issues rather than in a security report.
 
 The package reaches no runtime of its own. An adopter runs it while developing; its checks read files and report. A defect typically affects an adopter's gate results rather than a deployed service.
 
