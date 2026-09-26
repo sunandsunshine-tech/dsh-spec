@@ -3,11 +3,7 @@ description: Use when designing agent tools, skills, context loading, or multi-s
 metadata:
     date: "2026-09-11"
     github-path: skills/dsh-agent-experience
-<<<<<<< HEAD
-    github-ref: refs/heads/chore/notes-archive-parity
-=======
     github-ref: refs/heads/chore/report-rc2
->>>>>>> 255d2fd (fix(engine): 配对记录的规范形态不再取决于哪份副本在跑)
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
     github-tree-sha: d62d235e546bb15d329302e9cd4e2f045515c9c8
 name: dsh-agent-experience

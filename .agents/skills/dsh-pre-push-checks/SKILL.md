@@ -2,11 +2,7 @@
 description: Use before pushing, force-pushing, marking ready for review, or claiming checks pass on a branch, and immediately after gh stack sync publishes rewritten branches, to select the smallest tests and checks that cover the outgoing or just-published diff without reflexively running the full repository suite.
 metadata:
     github-path: skills/dsh-pre-push-checks
-<<<<<<< HEAD
-    github-ref: refs/heads/chore/notes-archive-parity
-=======
     github-ref: refs/heads/chore/report-rc2
->>>>>>> 255d2fd (fix(engine): 配对记录的规范形态不再取决于哪份副本在跑)
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
     github-tree-sha: 4399555f87f56c28da9d4e4623c5144cecf3cef0
 name: dsh-pre-push-checks

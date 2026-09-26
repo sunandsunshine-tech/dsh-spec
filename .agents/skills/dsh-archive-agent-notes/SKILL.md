@@ -2,11 +2,7 @@
 description: 'Use when adding, auditing, pruning, archiving, restoring, or reviewing Agent Notes in a project that adopted the pattern: validates the tree against its contract and the format gates, checks each new note for superseded records, deletes small UI or purely mechanical records, classifies the rest by future value, deletes rejections that no longer prevent a tempting fallacy, and applies the frozen archived/{kind} triplet and manifest rules. Creating a tree is the initializer''s job.'
 metadata:
     github-path: skills/dsh-archive-agent-notes
-<<<<<<< HEAD
-    github-ref: refs/heads/chore/notes-archive-parity
-=======
     github-ref: refs/heads/chore/report-rc2
->>>>>>> 255d2fd (fix(engine): 配对记录的规范形态不再取决于哪份副本在跑)
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
     github-tree-sha: cb97da7314031fc15e94a665f70edf1b5ccc7bc3
 name: dsh-archive-agent-notes

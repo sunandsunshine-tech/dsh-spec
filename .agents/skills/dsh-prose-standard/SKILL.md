@@ -2,11 +2,7 @@
 description: Use when writing, reviewing, restoring, trimming, or auditing prose in this repository, including deciding where documentation or comments are required across Markdown, public API documentation (JSDoc, Javadoc, docstrings — whichever form the ecosystem uses), code and test comments, prompts, descriptions, diagnostics, and command-line or UI strings.
 metadata:
     github-path: skills/dsh-prose-standard
-<<<<<<< HEAD
-    github-ref: refs/heads/chore/notes-archive-parity
-=======
     github-ref: refs/heads/chore/report-rc2
->>>>>>> 255d2fd (fix(engine): 配对记录的规范形态不再取决于哪份副本在跑)
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
     github-tree-sha: 39783a756fe158789221d2231c640e0ab25c6261
 name: dsh-prose-standard
