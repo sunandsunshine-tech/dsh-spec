@@ -23,7 +23,6 @@ import {
   renderTranslationPairingRecord,
   translationPairingRecordDiff,
   translationPairPaths,
-  withoutRecoveryCommandPath,
 } from './translation-pairing-record.ts'
 import {
   languageSwitcherTargets,
@@ -319,11 +318,7 @@ for (const source of [...pairAnchors].sort()) {
   const recordErrors = translationPairingRecordDiff(record, current).map(message => (
     `${meta}: out of sync — ${message} (bring the other side along, then re-record with \`translation-pair write\`)`
   ))
-  // The recovery command names the entry point that wrote the record, and a project has two: the
-  // authored tree's and the installed one. The form is about the hash lines, not about which copy
-  // ran, so the command's path is compared away.
-  if (recordErrors.length === 0
-    && withoutRecoveryCommandPath(renderTranslationPairingRecord(paths, current)) !== withoutRecoveryCommandPath(metaContent.toString('utf8'))) {
+  if (recordErrors.length === 0 && renderTranslationPairingRecord(paths, current) !== metaContent.toString('utf8')) {
     recordErrors.push(`${meta}: not in canonical form (re-record with \`translation-pair write\`)`)
   }
   if (recordErrors.length > 0) {

@@ -1,0 +1,27 @@
+name: vendored notices
+
+# The bundled npm packages reach the dependency graph only through the
+# submission API, which needs `contents: write` — a permission the pull-request
+# workflow must not hold. This job runs on a push to main, where no untrusted
+# input reaches it, and it reads its list from the notices rather than a second
+# copy of it.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: '24'
+      - name: submit the packages the bundle inlines
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/submit-vendored.ts

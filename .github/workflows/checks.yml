@@ -1,0 +1,71 @@
+name: checks
+
+# The gate a pull request owes, and the same gate over main after a merge. The
+# token is read-only: nothing here writes to the repository.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: '24'
+
+      # The baseline is the revisions the registry records and nothing more: the pin, plus the
+      # older revision nine ports were taken from. `submodules: recursive` clones dsh's entire
+      # history instead — 288 MiB and 28s, against ~60 MiB and ~20s for these commits.
+      # `ports.json` owns the revisions; `.gitmodules` owns the URL.
+      - name: the baseline, at the revisions the registry records
+        run: |
+          git clone --quiet --depth 1 \
+            --branch "$(node -p 'require("./scripts/ports.json").baseline.ref')" \
+            "$(git config -f .gitmodules --get 'submodule.submodules/dsh.url')" \
+            submodules/dsh
+          node -e 'const p = require("./scripts/ports.json"); for (const sha of new Set([p.baseline.sha, ...p.ports.map(port => port.sha)])) console.log(sha)' \
+            | while read -r sha; do
+                git -C submodules/dsh fetch --quiet --depth 1 origin "$sha"
+              done
+
+      - name: the functional suite
+        run: node --test 'tests/**/*.test.ts'
+
+      - name: the note tree and the frozen archive
+        run: node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts check --all --root .
+
+      - name: port provenance
+        run: node scripts/verify-port-provenance.ts
+
+      # A relative link is resolved against the file it sits in, so the whole
+      # corpus is read: a target deleted under an untouched referrer is caught
+      # here, not by the change-scoped dispatch. The installed copy is a
+      # deployment of the same text, and the frozen archive is skipped by the
+      # documentation gates by contract, so neither is a second corpus.
+      - name: the links in every Markdown file
+        run: |
+          git ls-files '*.md' ':(exclude).agents/skills/**' ':(exclude).agents/dsh-spec/notes/archived/**' \
+            | node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts md-links check --files-from - --root .
+
+      - name: skill structure, once per skill directory
+        run: |
+          for dir in skills/*/; do
+            node scripts/verify-skill-structure.ts --root "$dir"
+          done
+
+      # `github.sha` on a pull_request is the merge commit GitHub creates, whose author is whoever
+      # pushed and which carries no sign-off, so the range would name a commit the change never
+      # wrote. The branch's own tip is the thing a contributor signed.
+      - name: the Developer Certificate of Origin
+        if: github.event_name == 'pull_request'
+        run: node scripts/verify-dco.ts --base="origin/${{ github.base_ref }}" --head="${{ github.event.pull_request.head.sha }}"
