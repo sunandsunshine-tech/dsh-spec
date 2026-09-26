@@ -442,9 +442,11 @@ test('a set installed from a tag is read, reported and reinstalled at the short 
   assert.equal(result.status, 0, result.output)
   assert.match(result.output, /at v1\.2\.3: installing the skill set only/, result.output)
   assert.doesNotMatch(result.output, /v9\.9\.9/, `a tag pin fell back to the newest release:\n${result.output}`)
-  assert.deepEqual(installCalls(calls()), SKILLS.map(skill =>
+  // A refresh installs the set concurrently, so the stub records the calls in completion order;
+  // which skills were installed at the tag is the assertion, not the order they landed in.
+  assert.deepEqual([...installCalls(calls())].sort(), SKILLS.map(skill =>
     `skill install sunandsunshine-tech/dsh-spec ${skill}@v1.2.3 --dir ${fixture.root}/.agents/skills --force`,
-  ), `the set was not installed at the tag:\n${result.output}`)
+  ).sort(), `the set was not installed at the tag:\n${result.output}`)
 
   const status = runCli(fixture.root, ['status', '--root', fixture.root])
   assert.equal(status.status, 0, status.output)
