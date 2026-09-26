@@ -45,8 +45,11 @@ if (!dryRun && (TOKEN === '' || SHA === '')) {
 
 const resolved: Record<string, unknown> = {}
 for (const { name, version } of found) {
-  resolved[`pkg:npm/${name}@${version}`] = {
-    package_url: `https://www.npmjs.com/package/${name}`,
+  // The map key and `package_url` are both decoded as package URLs, so both carry the purl: a
+  // `https://www.npmjs.com/package/…` page is not one, and the endpoint says so.
+  const purl = `pkg:npm/${name}@${version}`
+  resolved[purl] = {
+    package_url: purl,
     relationship: 'direct',
     scope: 'runtime',
   }

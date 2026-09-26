@@ -39,13 +39,15 @@ test('scanned is the instant the endpoint dates the snapshot with', () => {
 })
 
 test('the notice file is the manifest, and each package resolves as a direct runtime dependency', () => {
-  const manifests = payload().manifests as Record<string, { resolved: Record<string, { relationship: string, scope: string }> }>
+  const manifests = payload().manifests as Record<string, { resolved: Record<string, { package_url: string, relationship: string, scope: string }> }>
   const entry = manifests['THIRD_PARTY_NOTICES.md']
   assert.ok(entry, 'the payload does not name the file the packages were read from')
   const names = Object.keys(entry.resolved)
   assert.ok(names.length > 0, 'no vendored package was resolved')
   for (const name of names) {
     assert.match(name, /^pkg:npm\//, `${name} is not a package URL`)
+    // The endpoint decodes this field as a package URL too, and a registry page is not one.
+    assert.equal(entry.resolved[name].package_url, name, `${name} names something else as its package url`)
     assert.equal(entry.resolved[name].relationship, 'direct', `${name} is not a direct dependency`)
     assert.equal(entry.resolved[name].scope, 'runtime', `${name} is not a runtime dependency`)
   }
