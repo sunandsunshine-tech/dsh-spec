@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
-#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-23-the-simplifications-skill-follows-upstream.md
-2026-09-23-the-simplifications-skill-follows-upstream.md: 7441adaa2efd104b954d649424ac8d3ebce63937
-2026-09-23-the-simplifications-skill-follows-upstream.zh.md: 89fc051c2d5f9b07622373b5ef980764f0bb4048
+# Bilingual-pair consistency record for 2026-09-23-the-simplifications-skill-follows-upstream.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-23-the-simplifications-skill-follows-upstream.md
+/agent-note-the-simplifications-skill-follows-upstream-s-rewrite:
+  en: 2683e457cf260df8
+  zh: 400341fad3bb32c8
+/agent-note-the-simplifications-skill-follows-upstream-s-rewrite/problem:
+  en: 85ccf76d8d50121f
+  zh: 3156cd72c1ca7c62
+/agent-note-the-simplifications-skill-follows-upstream-s-rewrite/decision:
+  en: 281bd8cb2a987cb9
+  zh: 6902d2a8ff7c8085
+/agent-note-the-simplifications-skill-follows-upstream-s-rewrite/alternatives-considered:
+  en: 72902778fdafc4d9
+  zh: a4719cd3af0435af
+/agent-note-the-simplifications-skill-follows-upstream-s-rewrite/consequences:
+  en: a63abf311d34ac1b
+  zh: 5c3b087d5e2490aa

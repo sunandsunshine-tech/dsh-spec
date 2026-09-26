@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-21-the-skill-set-is-introduced-once.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-skill-set-is-introduced-once.md
-2026-09-21-the-skill-set-is-introduced-once.md: cc60fb0787943419449d2bb13657afca4b6f5f45
-2026-09-21-the-skill-set-is-introduced-once.zh.md: caa5b61b51054a39ce1b3c9fc060bb98cef346e4
+/agent-note-the-skill-set-is-introduced-once-in-the-project-readme:
+  en: a20cfa62c55cad38
+  zh: b81d110d98d2cb95
+/agent-note-the-skill-set-is-introduced-once-in-the-project-readme/problem:
+  en: e310308961d70ab9
+  zh: 31f39b36814eeec1
+/agent-note-the-skill-set-is-introduced-once-in-the-project-readme/decision:
+  en: 81754e97c0971544
+  zh: 780d77551437326c
+/agent-note-the-skill-set-is-introduced-once-in-the-project-readme/alternatives-considered:
+  en: a8265e96dd5d5c77
+  zh: c39573325ad64620
+/agent-note-the-skill-set-is-introduced-once-in-the-project-readme/consequences:
+  en: 9e75f45b6ee316bf
+  zh: d1e5ce85f741b811
+/agent-note-the-skill-set-is-introduced-once-in-the-project-readme/related:
+  en: f66bd7f855905778
+  zh: 0f6c34d8d18b680b

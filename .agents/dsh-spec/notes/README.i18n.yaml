@@ -1,6 +1,52 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
-#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/README.md
-README.md: d357220737cca90000ef9c37c2cf02d9aaab671e
-README.zh.md: 50e0a9bee82006eca1f45fe62e9f21661777da33
+# Bilingual-pair consistency record for README.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/README.md
+/agent-notes:
+  en: b7c7f4de9703198a
+  zh: bbd75a528144dfd7
+/agent-notes/layout-and-naming:
+  en: ac4c79a30a6f43a1
+  zh: f5fb376d38454fec
+/agent-notes/classification:
+  en: a2d9c54663a255f0
+  zh: 32473487d9f3cfa0
+/agent-notes/archiving-and-deletion:
+  en: 82e10f8dab45f065
+  zh: 48d64bcb42b8fab5
+/agent-notes/when-to-write-one:
+  en: 5c5337395d4f32c3
+  zh: 9e3244358004f6c6
+/agent-notes/the-file-format:
+  en: c0ade7a569a1a3af
+  zh: 9b4d633967ca2dc3
+/agent-notes/the-file-format/the-header-block:
+  en: 16fdaab0c74a5bb5
+  zh: 2553f145a1eb878f
+/agent-notes/the-file-format/the-body-skeleton:
+  en: 740b7e964b9aec37
+  zh: 8551ddef1ffa776a
+/agent-notes/the-file-format/the-body-skeleton/proposed:
+  en: acc0c035c5ca6fd7
+  zh: 8a65816dfac9e580
+/agent-notes/the-file-format/the-body-skeleton/implemented:
+  en: 0d59c32af19d4a08
+  zh: a23fe611e0330bcc
+/agent-notes/the-file-format/the-body-skeleton/rejected:
+  en: f0ff5d05191f2315
+  zh: 3f9df0dd01a5cbed
+/agent-notes/the-file-format/alternatives-considered-mandatory:
+  en: ea85c807051be1bc
+  zh: 9387e7509e97be57
+/agent-notes/the-file-format/quoted-text-and-secrets:
+  en: a96c833d50b24a6a
+  zh: e67e63ad09ba9069
+/agent-notes/the-file-format/moving-between-lifecycles:
+  en: d3f18ba194dfb677
+  zh: 3d202868deda2f31
+/agent-notes/the-file-format/chinese-counterparts:
+  en: c2204d35cd524985
+  zh: 7ff1f16e4a8bde32
+/agent-notes/gates-in-this-collection:
+  en: ccee13d564e665f2
+  zh: 33c232a963ef89f5

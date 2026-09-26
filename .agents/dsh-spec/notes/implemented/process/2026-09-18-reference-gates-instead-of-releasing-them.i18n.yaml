@@ -1,6 +1,28 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-18-reference-gates-instead-of-releasing-them.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-18-reference-gates-instead-of-releasing-them.md
-2026-09-18-reference-gates-instead-of-releasing-them.md: bcc13d04e2958e4bc063b9448d15223a12ccda1e
-2026-09-18-reference-gates-instead-of-releasing-them.zh.md: 5ca74c23d6a91589a6c3dfb1fb0e648ab2bdec9a
+/agent-note-reference-the-gates-where-they-ship-instead-of-releasing-them:
+  en: 14466052b2c17e1d
+  zh: 7a301430f0fbcb7d
+/agent-note-reference-the-gates-where-they-ship-instead-of-releasing-them/problem:
+  en: 94e865b2eef34529
+  zh: 8f500a32b7597b47
+/agent-note-reference-the-gates-where-they-ship-instead-of-releasing-them/decision:
+  en: 25cec7dc52c2d5f7
+  zh: 5cd35505afd33696
+/agent-note-reference-the-gates-where-they-ship-instead-of-releasing-them/decision/one-path-recorded-once:
+  en: a6bb32ea70a5bfc7
+  zh: 2ffcf9fbfe65de3f
+/agent-note-reference-the-gates-where-they-ship-instead-of-releasing-them/decision/the-contract-documents-are-still-released:
+  en: 7c283bea6a4b8c6b
+  zh: 44c7b7efc70b4a21
+/agent-note-reference-the-gates-where-they-ship-instead-of-releasing-them/decision/migration-is-a-described-change-not-an-automated-one:
+  en: 029fe2ae5d25e077
+  zh: 4d7553987bc53187
+/agent-note-reference-the-gates-where-they-ship-instead-of-releasing-them/alternatives-considered:
+  en: a0fcc955c3293c8a
+  zh: f50ed6f857367e0b
+/agent-note-reference-the-gates-where-they-ship-instead-of-releasing-them/consequences:
+  en: e8a41e5b816bbaa3
+  zh: f6327697874cd7c5

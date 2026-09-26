@@ -1,6 +1,25 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-18-track-the-installed-skill-copy.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-18-track-the-installed-skill-copy.md
-2026-09-18-track-the-installed-skill-copy.md: 85af8d0af65938333bc83e12a6fa6ddd952a8b7d
-2026-09-18-track-the-installed-skill-copy.zh.md: 71a73000b2fc3c6a91156dfb38dbdeb5597d3a0c
+/agent-note-track-the-installed-skill-copy-in-git:
+  en: 8bf778da8300b68f
+  zh: daedf5f3a8ee727f
+/agent-note-track-the-installed-skill-copy-in-git/problem:
+  en: 8c2a4d88422df4b9
+  zh: df59e11ad0460298
+/agent-note-track-the-installed-skill-copy-in-git/decision:
+  en: a7569b9b9ee27d1e
+  zh: 993f59dca2625acc
+/agent-note-track-the-installed-skill-copy-in-git/decision/the-copy-is-not-byte-identical-to-the-source:
+  en: 192bdb23702865e0
+  zh: c0f61c929c8acce9
+/agent-note-track-the-installed-skill-copy-in-git/decision/a-refresh-follows-a-push:
+  en: f2b9146a7e523440
+  zh: c3b94ac47f23b716
+/agent-note-track-the-installed-skill-copy-in-git/alternatives-considered:
+  en: 7a0b9e7c08400526
+  zh: 8f4e091d6e51f424
+/agent-note-track-the-installed-skill-copy-in-git/consequences:
+  en: e6b1b6dc38a0063a
+  zh: d00097c403f96519

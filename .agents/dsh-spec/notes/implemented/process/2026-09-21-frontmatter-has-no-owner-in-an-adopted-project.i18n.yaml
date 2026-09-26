@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-21-frontmatter-has-no-owner-in-an-adopted-project.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-frontmatter-has-no-owner-in-an-adopted-project.md
-2026-09-21-frontmatter-has-no-owner-in-an-adopted-project.md: 83598ac0ef1d8079ed0a2eee4a5cbfe37fd8769c
-2026-09-21-frontmatter-has-no-owner-in-an-adopted-project.zh.md: 953eaf42bed81eabb186ecfbf0d92a6ceeccdcdf
+/agent-note-frontmatter-has-no-owner-in-an-adopted-project:
+  en: c4cd52a724e18d96
+  zh: 00797cd86c53c893
+/agent-note-frontmatter-has-no-owner-in-an-adopted-project/problem:
+  en: 1668be4118d728a5
+  zh: 2f537fdb8fcffc97
+/agent-note-frontmatter-has-no-owner-in-an-adopted-project/decision:
+  en: 5cde57b262bd6dda
+  zh: de643c1433bc3296
+/agent-note-frontmatter-has-no-owner-in-an-adopted-project/alternatives-considered:
+  en: 4e677307ff7712fc
+  zh: e47dc308a803c255
+/agent-note-frontmatter-has-no-owner-in-an-adopted-project/consequences:
+  en: 14c0efb94986f91b
+  zh: 895364fcd3aa795a
+/agent-note-frontmatter-has-no-owner-in-an-adopted-project/related:
+  en: 1598b41014233952
+  zh: 06ce6720e8f22568

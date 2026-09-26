@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-22-migration-cost-is-a-design-constraint.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-22-migration-cost-is-a-design-constraint.md
-2026-09-22-migration-cost-is-a-design-constraint.md: 7c1067103c470d1974b017af697ee594e11c30fc
-2026-09-22-migration-cost-is-a-design-constraint.zh.md: c34122b4e16d61e5a0c3a002591929c3e168d674
+/agent-note-migration-cost-is-a-design-constraint:
+  en: 518029280aed91d6
+  zh: 8d5284ec2e427f43
+/agent-note-migration-cost-is-a-design-constraint/problem:
+  en: 6aca1e66ee24a1c6
+  zh: 6b0385492f8f8ea1
+/agent-note-migration-cost-is-a-design-constraint/decision:
+  en: 4828376619575e67
+  zh: 75f0a1ea962da448
+/agent-note-migration-cost-is-a-design-constraint/alternatives-considered:
+  en: 75d92d47ccd09c59
+  zh: e7f9d4e7121b3ac5
+/agent-note-migration-cost-is-a-design-constraint/consequences:
+  en: 1444f1ef377cb8eb
+  zh: ca257c487d56f767

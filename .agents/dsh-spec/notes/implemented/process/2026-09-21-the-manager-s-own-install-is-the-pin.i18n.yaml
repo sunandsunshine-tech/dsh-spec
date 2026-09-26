@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
-#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-manager-s-own-install-is-the-pin.md
-2026-09-21-the-manager-s-own-install-is-the-pin.md: b015f4b1a7272f68c35708d4d4816ae39fc3740b
-2026-09-21-the-manager-s-own-install-is-the-pin.zh.md: bb29d192aa95343d4e16456010503e39a77d93dd
+# Bilingual-pair consistency record for 2026-09-21-the-manager-s-own-install-is-the-pin.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-manager-s-own-install-is-the-pin.md
+/agent-note-the-manager-s-own-install-is-the-pin:
+  en: 9e230978dd073f71
+  zh: 594f1f9055fc0c57
+/agent-note-the-manager-s-own-install-is-the-pin/problem:
+  en: 52a4eb2c099a4683
+  zh: 52baa1c3b33088b6
+/agent-note-the-manager-s-own-install-is-the-pin/decision:
+  en: 2c7595f036439fa7
+  zh: 5454f9cf30ce43ec
+/agent-note-the-manager-s-own-install-is-the-pin/alternatives-considered:
+  en: e8b269e7e1fa98df
+  zh: 11d0e4d569a75af4
+/agent-note-the-manager-s-own-install-is-the-pin/consequences:
+  en: 2fc5cc03ae96b9ea
+  zh: 1183777a3c6ccdb8

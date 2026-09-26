@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-26-a-class-directory-carries-a-marker.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-26-a-class-directory-carries-a-marker.md
-2026-09-26-a-class-directory-carries-a-marker.md: bc80b203c61696c6dd5a7735959f910fafd08a8e
-2026-09-26-a-class-directory-carries-a-marker.zh.md: 6bbfaee6b4bc77670ad260609c5a0b8acffe33d3
+/agent-note-a-class-directory-carries-a-marker:
+  en: c076cb891912e50f
+  zh: e656770b66c70da1
+/agent-note-a-class-directory-carries-a-marker/problem:
+  en: 589c1b7ad046aa2b
+  zh: ac9d198655e503b6
+/agent-note-a-class-directory-carries-a-marker/decision:
+  en: 562368ad5a979479
+  zh: 888e99f2dc715258
+/agent-note-a-class-directory-carries-a-marker/alternatives-considered:
+  en: b5ec8bfb2c02a608
+  zh: c2282d600fc89ddf
+/agent-note-a-class-directory-carries-a-marker/required-verification:
+  en: 1623125623a531f5
+  zh: b1547199e2fc45e3
+/agent-note-a-class-directory-carries-a-marker/consequences:
+  en: ac53a8b1a67077a5
+  zh: 1c56504e5e7fa337

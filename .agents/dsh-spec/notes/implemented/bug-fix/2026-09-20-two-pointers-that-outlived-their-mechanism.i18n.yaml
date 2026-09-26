@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-20-two-pointers-that-outlived-their-mechanism.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-20-two-pointers-that-outlived-their-mechanism.md
-2026-09-20-two-pointers-that-outlived-their-mechanism.md: 423049b4fd60d0727143161486cabe03d5cae8c3
-2026-09-20-two-pointers-that-outlived-their-mechanism.zh.md: 8a71009320c3b3b04aeefcb13d6a8399172cb23e
+/agent-note-two-pointers-that-outlived-their-mechanism:
+  en: 7471e426529d8a2e
+  zh: 30aa3960a3849ff5
+/agent-note-two-pointers-that-outlived-their-mechanism/problem:
+  en: 10aac27476409c33
+  zh: c3c87c7af101cc0e
+/agent-note-two-pointers-that-outlived-their-mechanism/decision:
+  en: 0388788082b86696
+  zh: 38a95c9532043278
+/agent-note-two-pointers-that-outlived-their-mechanism/alternatives-considered:
+  en: fd972b6abda77b3f
+  zh: 2cf349ed8d647147
+/agent-note-two-pointers-that-outlived-their-mechanism/required-verification:
+  en: 42f19e93629b1b4d
+  zh: e47419c3f30898b2
+/agent-note-two-pointers-that-outlived-their-mechanism/consequences:
+  en: 86e1c3b64cefeda5
+  zh: 0518f0714ee5fcef

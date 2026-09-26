@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-23-delegation-follows-the-harness-and-the-prompt.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-23-delegation-follows-the-harness-and-the-prompt.md
-2026-09-23-delegation-follows-the-harness-and-the-prompt.md: 43e763efbb56a443037a736b32a695c9dd6952e1
-2026-09-23-delegation-follows-the-harness-and-the-prompt.zh.md: e5e5150a488403e02b6aa173bc3f6c019c4051b7
+/agent-note-delegation-follows-the-harness-and-the-prompt:
+  en: c0a21f8f4e083775
+  zh: 6c587dea3ae7410a
+/agent-note-delegation-follows-the-harness-and-the-prompt/problem:
+  en: bbdd13561c62ae0a
+  zh: f6406e41df513e69
+/agent-note-delegation-follows-the-harness-and-the-prompt/decision:
+  en: b257e9093f6e9d2a
+  zh: f836b4db27fbc109
+/agent-note-delegation-follows-the-harness-and-the-prompt/alternatives-considered:
+  en: 35a689671275c1dc
+  zh: d6d96ff80a767ebb
+/agent-note-delegation-follows-the-harness-and-the-prompt/consequences:
+  en: d7fb0eb79c0c2e87
+  zh: 481488a8f2cbd540

@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
-#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-note-trigger-follows-dsh.md
-2026-09-21-the-note-trigger-follows-dsh.md: 54453f4c7b4ef6b607283723c2d3abc7e064b95d
-2026-09-21-the-note-trigger-follows-dsh.zh.md: f9263f33619c163ac2c055aab9eafaffc7b6e328
+# Bilingual-pair consistency record for 2026-09-21-the-note-trigger-follows-dsh.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-note-trigger-follows-dsh.md
+/agent-note-the-note-trigger-follows-dsh-s-narrowing:
+  en: 1fb926c53d8e74fc
+  zh: b7980790b965aa35
+/agent-note-the-note-trigger-follows-dsh-s-narrowing/problem:
+  en: 87b3bfcbc5ad16f6
+  zh: 9302b2e975d53c06
+/agent-note-the-note-trigger-follows-dsh-s-narrowing/decision:
+  en: 54218eaf91411ce1
+  zh: 9edc336dd92dad44
+/agent-note-the-note-trigger-follows-dsh-s-narrowing/alternatives-considered:
+  en: 6441a8d8a40bc854
+  zh: 7e3be203e0aa0227
+/agent-note-the-note-trigger-follows-dsh-s-narrowing/consequences:
+  en: d15552a87460219c
+  zh: 84718c3867b0751c
+/agent-note-the-note-trigger-follows-dsh-s-narrowing/related:
+  en: b2560a2d6c466e28
+  zh: d95918bd1833caec

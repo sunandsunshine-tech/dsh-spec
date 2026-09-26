@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for i18n-contract.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write skills/dsh-translate-docs/references/i18n-contract.md
-i18n-contract.md: 3068fe020b3325ab6d2db9348b2b2309148c7e8a
-i18n-contract.zh.md: e34d86120cc28c6635accd6a633b9b71271967cf
+/bilingual-documentation:
+  en: fa40330d6683b8a3
+  zh: 560037955da1ce78
+/bilingual-documentation/the-pairing-contract:
+  en: b25ef5920f6049c9
+  zh: f536837e9f069c30
+/bilingual-documentation/the-gate-verify-translation-pairing:
+  en: 3163cfa73ff89557
+  zh: d4874351a5e9b6ea
+/bilingual-documentation/scope-and-exclusions:
+  en: 1262bac171c3d21f
+  zh: bfa19339ded78f3f
+/bilingual-documentation/division-of-labor:
+  en: 63f75077688c6309
+  zh: 55de13679280a359

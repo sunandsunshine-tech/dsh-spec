@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-18-run-the-initializer-on-this-repository.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-18-run-the-initializer-on-this-repository.md
-2026-09-18-run-the-initializer-on-this-repository.md: 6dd96f60d544379df8207a2b24a2ad650e7a97bb
-2026-09-18-run-the-initializer-on-this-repository.zh.md: 6701b23b8c34a7a5c400c04262737a4cfc5adc5a
+/agent-note-running-the-initializer-on-this-repository:
+  en: 6f3288df4e903875
+  zh: ffc78c783fc657b8
+/agent-note-running-the-initializer-on-this-repository/problem:
+  en: 7466030e18d02c6e
+  zh: 15d698d06ff047b9
+/agent-note-running-the-initializer-on-this-repository/decision:
+  en: 182f98b19c043021
+  zh: 6155db79e1189994
+/agent-note-running-the-initializer-on-this-repository/alternatives-considered:
+  en: 3296592e239e4328
+  zh: 8fc5c9e28f5c008e
+/agent-note-running-the-initializer-on-this-repository/consequences:
+  en: a434ecafd159c195
+  zh: 5bec061985855047

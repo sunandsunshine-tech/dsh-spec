@@ -1,6 +1,28 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for translation-rules.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write skills/dsh-translate-docs/references/translation-rules.md
-translation-rules.md: 09edb6e3e591a458aa5be8fb692b55a952f99d1a
-translation-rules.zh.md: 35c4a67b5a0aa1cd81f92f45bdb002cc7782b3f8
+/translation-rules:
+  en: 3794f0cbff079f35
+  zh: 7d9882dc28194394
+/translation-rules/faithfulness:
+  en: 8ce28f619f598d6e
+  zh: 2d594d5c48dca50e
+/translation-rules/voice:
+  en: 141f316ff4118081
+  zh: ee7d3584c213cd00
+/translation-rules/structure-preservation:
+  en: c51c48713a6edea1
+  zh: 21aaf13b65eed508
+/translation-rules/terminology:
+  en: 095b2838bd66fb82
+  zh: 37da872bd6b0fcec
+/translation-rules/typography:
+  en: 4e8eedaa7325a5b3
+  zh: b483177284079fb5
+/translation-rules/quality-bar:
+  en: 60427d089b7d68c0
+  zh: fcdab7358ed49a2d
+/translation-rules/references:
+  en: 31d651937c72a2c5
+  zh: 54d424132cf6c4c9

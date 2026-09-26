@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-21-a-diff-selects-the-gates-it-owes.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-a-diff-selects-the-gates-it-owes.md
-2026-09-21-a-diff-selects-the-gates-it-owes.md: e8e3c49ff4dd50bfceae44511117b8a34057313b
-2026-09-21-a-diff-selects-the-gates-it-owes.zh.md: 31d125b000951f5e8abbca3a1597c84e89889cb0
+/agent-note-a-diff-selects-the-gates-it-owes:
+  en: 7b21c0ce331d9dde
+  zh: 8784409b52d4dade
+/agent-note-a-diff-selects-the-gates-it-owes/problem:
+  en: 31f3244221ebe96c
+  zh: b34631279f5bd249
+/agent-note-a-diff-selects-the-gates-it-owes/decision:
+  en: ba00f73754bc9288
+  zh: b9f403f4eebf6b81
+/agent-note-a-diff-selects-the-gates-it-owes/alternatives-considered:
+  en: 9dc52ff15594ad02
+  zh: 5b333f185d26d5ee
+/agent-note-a-diff-selects-the-gates-it-owes/consequences:
+  en: 9837fbfc82581bfb
+  zh: bb71d9ef01ccb637
+/agent-note-a-diff-selects-the-gates-it-owes/related:
+  en: 9ffba2ee78032944
+  zh: add423a5c13fc545

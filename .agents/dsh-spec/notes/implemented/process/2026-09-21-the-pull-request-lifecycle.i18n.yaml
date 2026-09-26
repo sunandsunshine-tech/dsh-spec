@@ -1,6 +1,19 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
-#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-pull-request-lifecycle.md
-2026-09-21-the-pull-request-lifecycle.md: 81ef00503b6e4eeeb7f224dd52442e1a6d8569f3
-2026-09-21-the-pull-request-lifecycle.zh.md: e9636dfa7768f5acef52eee45cececa4a84d1867
+# Bilingual-pair consistency record for 2026-09-21-the-pull-request-lifecycle.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-pull-request-lifecycle.md
+/agent-note-the-pull-request-lifecycle-from-wip-to-merge:
+  en: 4f2d5ae0f19165e2
+  zh: 4b7796c085f84a27
+/agent-note-the-pull-request-lifecycle-from-wip-to-merge/problem:
+  en: 16c99bd64acc9f48
+  zh: 7592ec71646b2703
+/agent-note-the-pull-request-lifecycle-from-wip-to-merge/decision:
+  en: 0e6a94a03d1f88fa
+  zh: c63ee7d58e526b1f
+/agent-note-the-pull-request-lifecycle-from-wip-to-merge/alternatives-considered:
+  en: fae259ca457e5706
+  zh: 3b86c0ca205ba678
+/agent-note-the-pull-request-lifecycle-from-wip-to-merge/consequences:
+  en: 5b7fef40505a5d64
+  zh: ce843208fb489911
