@@ -1,37 +1,34 @@
 /**
  * SPDX-License-Identifier: MIT
- * Ported from dsh scripts/verify-translation-pairing.ts @ ddefc45fbc7f8e46dd73185e68295696d1297887 (submodules/dsh). Relation: adapted.
- * Enforce complete English/Chinese pairs, matching structure, and recorded git
- * blob hashes for every document that declares a pair. A pair is declared by
- * the file itself: a `.md` with a `.zh.md` counterpart or an `.i18n.yaml`
- * record beside it is one side of a pair, and a document with neither is
- * simply not paired. `--list` reports state; `--write <pairs...>` records the
- * named confirmed pairs (`--write --all` records every complete pair);
- * `--cached <pairs...>` checks exact index bytes for hooks. A check or write
- * named with pair paths touches only those pairs, so update iteration does not
- * pay for a corpus scan. Translation quality remains a review responsibility.
+ * Ported from dsh scripts/verify-translation-pairing.ts @ 477b4f420553e8a52c2fbccc464d7561b239c443 (submodules/dsh). Relation: adapted.
+ * Enforce complete English/Chinese pairs, matching structure, and recorded
+ * per-section hashes for every document that declares a pair. A pair is
+ * declared by the file itself: a `.md` with a `.zh.md` counterpart or an
+ * `.i18n.yaml` record beside it is one side of a pair, and a document with
+ * neither is simply not paired. `--list` reports state; `--write <pairs...>`
+ * records the named confirmed pairs (`--write --all` records every complete
+ * pair); `--cached <pairs...>` checks exact index bytes for hooks. A check or
+ * write named with pair paths touches only those pairs, so update iteration
+ * does not pay for a corpus scan. Translation quality remains a review
+ * responsibility.
  * See `references/i18n-contract.md` for the owning contract.
  */
 
-import { spawnSync } from 'node:child_process'
 import { existsSync, globSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { basename, join, resolve, sep } from 'node:path'
+import { gitIndexPaths, readGitIndexBlob } from './translation-pairing-git.ts'
 import {
-  gitBlobHash,
-  gitIndexPaths,
-  readGitIndexBlob,
-  storeGitBlob,
-} from './translation-pairing-git.ts'
-import {
+  computeTranslationPairingRecord,
   parseTranslationPairingRecord,
   renderTranslationPairingRecord,
+  translationPairingRecordDiff,
   translationPairPaths,
 } from './translation-pairing-record.ts'
 import {
   languageSwitcherTargets,
   parseTranslationMarkdown,
   parseTranslationPairingCliArgs,
-  partitionGeneratedRegions,
+  generatedRegions,
   gateEntryPoint,
   isTranslationScopeFile,
   TRANSLATION_SCOPE_GLOB_EXCLUDES,
@@ -94,7 +91,7 @@ const contentCache = new Map<string, Buffer | undefined>()
 function readRepositoryFile(file: string): Buffer | undefined {
   if (contentCache.has(file)) return contentCache.get(file)
   const content = indexMode
-    ? indexFiles?.has(file) ? readGitIndexBlob(root, file)?.content : undefined
+    ? indexFiles?.has(file) ? readGitIndexBlob(root, file) : undefined
     : existsSync(join(root, file)) && statSync(join(root, file)).isFile()
       ? readFileSync(join(root, file))
       : undefined
@@ -152,6 +149,8 @@ const SCOPE_PATTERNS = [
  * or an `.i18n.yaml` record is one side of a pair, and `isTranslationScopeFile` reads exactly that.
  */
 const isTranslationPairSource = translationPairSourcePredicate()
+
+const recordContext = { repoRoot: root, isTranslationPairSource, repositoryFileExists }
 
 /** Markdown and sidecars the glob walked but the scope rejected; each is reported with its rule. */
 const skipped: string[] = []
@@ -228,17 +227,10 @@ if (request.scope === 'pairs') {
   }
 }
 
-// --write: (re)record both hashes for the requested complete pairs, creating
+// --write: (re)record the section hashes for the requested complete pairs, creating
 // missing records. A named pair that cannot be recorded (missing counterpart)
 // fails loud; corpus scope (--all) records every complete pair.
 if (writeMode) {
-  // Recording stores both sides as Git blobs, so it needs a repository: without one the failure is
-  // a git error inside the store rather than a statement about the tree, which reads as a crash.
-  const insideRepository = spawnSync('git', ['rev-parse', '--git-dir'], { cwd: root, encoding: 'utf8' }).status === 0
-  if (!insideRepository) {
-    console.error(`verify-translation-pairing: ${root} is not inside a git repository; \`translation-pair write\` stores each side as a Git blob so a recorded pair can be recovered. Run it from the project's working tree.`)
-    process.exit(1)
-  }
   let written = 0
   for (const source of sources) {
     const paths = translationPairPaths(source)
@@ -253,13 +245,18 @@ if (writeMode) {
     const sourceContent = readRepositoryFile(source)
     const zhContent = readRepositoryFile(zh)
     if (sourceContent === undefined || zhContent === undefined) throw new Error(`${source}: complete pair became unreadable`)
-    // A consistency record is also a recovery pointer for the briefing
-    // generator. Persist both snapshots even when the sidecar text is already
-    // current, because the bytes may exist only in this working tree.
-    const record = renderTranslationPairingRecord(paths, {
-      sourceHash: storeGitBlob(root, sourceContent),
-      zhHash: storeGitBlob(root, zhContent),
-    }, gateEntryPoint('verify-translation-pairing.ts', 'write'))
+    let record: string
+    try {
+      record = renderTranslationPairingRecord(paths, computeTranslationPairingRecord(
+        paths,
+        sourceContent.toString('utf8'),
+        zhContent.toString('utf8'),
+        recordContext,
+      ), gateEntryPoint('verify-translation-pairing.ts', 'write'))
+    } catch (error) {
+      console.error(`verify-translation-pairing: cannot record ${source}: ${error instanceof Error ? error.message : String(error)}`)
+      process.exit(2)
+    }
     if (existsSync(join(root, meta)) && readFileSync(join(root, meta), 'utf8') === record) continue
     writeFileSync(join(root, meta), record)
     console.log(`verify-translation-pairing: recorded ${meta}`)
@@ -301,28 +298,34 @@ for (const source of [...pairAnchors].sort()) {
   if (sourceContent === undefined || zhContent === undefined || metaContent === undefined) {
     throw new Error(`${source}: complete pair became unreadable`)
   }
-  const record = parseTranslationPairingRecord(metaContent.toString('utf8'), paths)
+  const record = parseTranslationPairingRecord(metaContent.toString('utf8'))
   if (record === undefined) {
-    errors.push(`${meta}: malformed consistency record (expected exactly \`${basename(source)}: <40-hex>\` and \`${basename(zh)}: <40-hex>\`)`)
-    continue
-  }
-
-  let consistent = true
-  for (const [file, content] of [[source, sourceContent], [zh, zhContent]] as const) {
-    const current = gitBlobHash(content)
-    const recorded = file === source ? record.sourceHash : record.zhHash
-    if (recorded !== current) {
-      errors.push(`${file}: out of sync — content no longer matches the pair's last confirmed-consistent state in ${meta} (bring the other side along, then re-record with \`translation-pair write\`)`)
-      consistent = false
-    }
-  }
-  if (!consistent) {
+    errors.push(`${meta}: malformed consistency record (expected \`/<section path>:\` entries, each followed by \`  en: <16-hex>\` and \`  zh: <16-hex>\`)`)
     state.set(source, 'out-of-sync')
     continue
   }
 
   const sourceText = sourceContent.toString('utf8')
   const zhText = zhContent.toString('utf8')
+  let current: ReturnType<typeof computeTranslationPairingRecord>
+  try {
+    current = computeTranslationPairingRecord(paths, sourceText, zhText, recordContext)
+  } catch (error) {
+    errors.push(`${source} ↔ ${zh}: ${error instanceof Error ? error.message : String(error)}`)
+    state.set(source, 'out-of-sync')
+    continue
+  }
+  const recordErrors = translationPairingRecordDiff(record, current).map(message => (
+    `${meta}: out of sync — ${message} (bring the other side along, then re-record with \`translation-pair write\`)`
+  ))
+  if (recordErrors.length === 0 && renderTranslationPairingRecord(paths, current) !== metaContent.toString('utf8')) {
+    recordErrors.push(`${meta}: not in canonical form (re-record with \`translation-pair write\`)`)
+  }
+  if (recordErrors.length > 0) {
+    errors.push(...recordErrors)
+    state.set(source, 'out-of-sync')
+    continue
+  }
   const sourceSwitcherTargets = languageSwitcherTargets(source)
   const zhSwitcherTargets = languageSwitcherTargets(zh)
   for (const violation of [
@@ -347,23 +350,23 @@ for (const source of [...pairAnchors].sort()) {
   // are normalized to one semantic target. The structural signature below
   // compares their contents again as part of the whole document; this named
   // check rejects any prose, ordering, code, marker, or non-locale URL drift.
-  let sourceRegions: { regions: string[]; stripped: string }
-  let zhRegions: { regions: string[]; stripped: string }
+  let sourceRegions: string[]
+  let zhRegions: string[]
   try {
-    sourceRegions = partitionGeneratedRegions(sourceText)
-    zhRegions = partitionGeneratedRegions(zhText)
+    sourceRegions = generatedRegions(sourceText).map(region => region.text)
+    zhRegions = generatedRegions(zhText).map(region => region.text)
   } catch (error) {
     errors.push(`${source} ↔ ${zh}: ${error instanceof Error ? error.message : String(error)}`)
     state.set(source, 'out-of-sync')
     continue
   }
-  const normalizedSourceRegions = sourceRegions.regions.map(region => normalizeTranslationMarkdownLinks(region, {
+  const normalizedSourceRegions = sourceRegions.map(region => normalizeTranslationMarkdownLinks(region, {
     repoRoot: root,
     sourcePath: source,
     isTranslationPairSource,
     repositoryFileExists,
   }))
-  const normalizedZhRegions = zhRegions.regions.map(region => normalizeTranslationMarkdownLinks(region, {
+  const normalizedZhRegions = zhRegions.map(region => normalizeTranslationMarkdownLinks(region, {
     repoRoot: root,
     sourcePath: zh,
     isTranslationPairSource,
