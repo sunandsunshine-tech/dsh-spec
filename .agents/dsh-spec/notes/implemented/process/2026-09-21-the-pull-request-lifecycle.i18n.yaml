@@ -2,5 +2,5 @@
 # side as of the last confirmed-consistent state. Both languages carry equal authority;
 # after editing either side, bring the other along and re-record with:
 #   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-pull-request-lifecycle.md
-2026-09-21-the-pull-request-lifecycle.md: 8d2d7f44dc8bbc3e22f2346038cfc38a4fd2c1b1
-2026-09-21-the-pull-request-lifecycle.zh.md: 6a2048d19e2230467e1b3b005fabd0c594f4d7c0
+2026-09-21-the-pull-request-lifecycle.md: 81ef00503b6e4eeeb7f224dd52442e1a6d8569f3
+2026-09-21-the-pull-request-lifecycle.zh.md: e9636dfa7768f5acef52eee45cececa4a84d1867
