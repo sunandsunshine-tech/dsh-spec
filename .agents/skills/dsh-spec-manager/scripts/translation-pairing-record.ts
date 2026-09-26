@@ -192,24 +192,6 @@ export function renderTranslationPairingRecord(
 }
 
 /**
- * The record text with its recovery command's path blanked, so the form does not depend on which copy ran.
- *
- * The command names the entry point that wrote the record, and a project has two: the authored
- * tree's `skills/…` and the installed `.agents/skills/…`. Both reach the same engine and both are
- * documented, so a record written through one must be canonical for the other; otherwise each copy
- * reads the other's records as non-canonical and no revision satisfies both.
- *
- * @param text - Rendered or on-disk record text.
- * @returns The text with the command's entry-point path replaced by a placeholder.
- */
-export function withoutRecoveryCommandPath(text: string): string {
-  return text
-    .split('\n')
-    .map(line => (line.startsWith('#   node ') ? '#   node <entry point>' : line))
-    .join('\n')
-}
-
-/**
  * Describe how a current record differs from the confirmed one.
  *
  * @param recorded - Confirmed record.
