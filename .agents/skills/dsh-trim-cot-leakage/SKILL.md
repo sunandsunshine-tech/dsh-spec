@@ -2,7 +2,11 @@
 description: Use when auditing or fixing prose that reads like a leaked reasoning transcript — dead design-session citations such as (decision N), audit item codes, or §N of uncommitted drafts; change narration such as "used to", "no longer", "this cut"; stack or review vantage ("a later PR in this stack", "rejected in review"); reviewer-addressed justifications; control-flow narration; or hedged planning residue in comments, API documentation, docs, or decision records.
 metadata:
     github-path: skills/dsh-trim-cot-leakage
+<<<<<<< HEAD
+    github-ref: refs/heads/chore/notes-archive-parity
+=======
     github-ref: refs/heads/chore/report-rc2
+>>>>>>> 255d2fd (fix(engine): 配对记录的规范形态不再取决于哪份副本在跑)
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
     github-tree-sha: 8f619ababe6394fdffe7e0b494ae8bfb6ebdf29d
 name: dsh-trim-cot-leakage
