@@ -21,7 +21,7 @@ The package reaches no runtime of its own. An adopter runs it while developing; 
 
 Two channels reach the maintainers. Both are private at the time of the report.
 
-- **GitHub private vulnerability reporting.** The **Security** tab of [the repository](https://github.com/sunandsunshine-tech/dsh-spec/security/advisories/new) carries the private report form. A report opened there is readable only by the reporter and the maintainers.
+- **GitHub private vulnerability reporting.** The **Security** tab of [the repository](https://github.com/sunandsunshine-tech/dsh-spec/security/advisories/new) carries the private report form once private vulnerability reporting is enabled on the repository. A report opened there is readable only by the reporter and the maintainers; the email channel below reaches the same maintainers whether or not the form is present.
 - **Email.** `sunandsunshinetech@163.com` accepts the same report when a GitHub account is not available.
 
 A useful report names the affected revision or release, the command and the input that trigger the behavior, the observed result, and what the reporter expected instead. A copy of the failing input — a file, a tree, a glob — shortens the path to a fix more than a description of it does.
@@ -37,4 +37,4 @@ A defect in the harness — its runtime, its packages, its applications — belo
 - [github.com/deepseek-ai/deepseek-harness/issues](https://github.com/deepseek-ai/deepseek-harness/issues) for an ordinary defect.
 - The **Security** tab of [the upstream repository](https://github.com/deepseek-ai/deepseek-harness/security) for a harness security report.
 
-This repository's own defects go to [its issue tracker](https://github.com/sunandsunshine-tech/dsh-spec/issues). Content quoted from an outside page, issue or transcript enters a report as evidence with its source named.
+This repository's own defects go to [its issue tracker](https://github.com/sunandsunshine-tech/dsh-spec/issues).

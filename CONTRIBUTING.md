@@ -32,7 +32,7 @@ node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair check 
 
 `translation-pair check` takes a document whose counterpart the change touched. Every named pair is complete, recorded, and structurally identical.
 
-A change that reaches the skills, the engine or a shipped reference owes the file scans above in full, however small the diff is. `check --base <ref> --root .` reports the subset a change owes and prints every skip with its reason; that subset is never a substitute for the commands above before a push.
+Every change owes the checks whose subject it touches, and a change that reaches the skills, the engine or a shipped reference owes the file scans above in full, however small the diff is. `check --base <ref> --root .` reports the subset a change owes and prints every skip with its reason; that subset is never a substitute for the commands above before a push.
 
 Node 22.19 or newer is the only requirement: the engine is TypeScript that Node strips by itself, the suite runs on `node --test`, and there is no build step.
 
@@ -64,7 +64,7 @@ AI involvement is allowed. It is disclosed in the commit message with an `Assist
 Assisted-by: DeepSeek Harness (dsh)
 ```
 
-The commit message itself describes the change. A pull request opened by an autonomous agent has approval **before** its branch is pushed; a pull request opened by a person who used an agent needs the trailer and nothing more.
+The commit message itself describes the change. An autonomous agent's pull request needs the maintainer's approval **before** its branch is pushed; a pull request opened by a person who used an agent needs the trailer and nothing more.
 
 ## Developer Certificate of Origin
 
