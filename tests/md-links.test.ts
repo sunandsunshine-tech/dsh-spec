@@ -69,6 +69,20 @@ test('a fragment naming an id no element carries still fails', (t) => {
   assert.equal(result.status, 1, result.output)
 })
 
+test('an unterminated comment is a comment, so the id inside it is no anchor', (t) => {
+  const fixture = makeFixture({
+    'docs/a.md': '# A\n\nSee [新增功能](b.md#ghost).\n',
+    // A comment opened and never closed runs to the end of the block; the heading it hides is
+    // prose, not a target, and a gate that read it would accept a fragment nothing defines.
+    'docs/b.md': '# B\n\n<!-- <h3 id="ghost">新增功能</h3>\n',
+  })
+  t.after(() => fixture.dispose())
+
+  const result = runCli(fixture.root, ['md-links', 'check', 'docs/a.md'])
+
+  assert.equal(result.status, 1, result.output)
+})
+
 test('a link a bulk rewrite turned into prose fails', (t) => {
   const fixture = makeFixture({ 'docs/a.md': '# A\n\nSee [the guide (reference).\n' })
   t.after(() => fixture.dispose())
