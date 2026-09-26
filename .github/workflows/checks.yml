@@ -59,6 +59,9 @@ jobs:
             node scripts/verify-skill-structure.ts --root "$dir"
           done
 
+      # `github.sha` on a pull_request is the merge commit GitHub creates, whose author is whoever
+      # pushed and which carries no sign-off, so the range would name a commit the change never
+      # wrote. The branch's own tip is the thing a contributor signed.
       - name: the Developer Certificate of Origin
         if: github.event_name == 'pull_request'
-        run: node scripts/verify-dco.ts --base="origin/${{ github.base_ref }}" --head="${{ github.sha }}"
+        run: node scripts/verify-dco.ts --base="origin/${{ github.base_ref }}" --head="${{ github.event.pull_request.head.sha }}"
