@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a vulnerability
+    url: https://github.com/sunandsunshine-tech/dsh-spec/security/advisories/new
+    about: A security problem goes through the private channel in SECURITY.md, not a public issue.
+  - name: A defect in DeepSeek Harness itself
+    url: https://github.com/deepseek-ai/deepseek-harness/issues
+    about: This repository is an extraction of that project; its own defects belong there.

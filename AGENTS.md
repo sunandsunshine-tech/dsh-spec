@@ -16,7 +16,7 @@ skills/   the deliverable: nine skills, one per workflow, each with its own entr
 scripts/           this repository's own validation, not shipped — verify-skill-structure.ts, the
           provenance registry and gate (ports.json, verify-port-provenance.ts), and ports.ts
 tests/             the functional suite for the checks themselves — node --test 'tests/**/*.test.ts'
-submodules/dsh/    the extraction baseline, pinned to dsh-v0.1.7-alpha.2 — .gitmodules
+submodules/dsh/    the extraction baseline, pinned to dsh-v0.1.7-rc.2 — .gitmodules
 .agents/skills/    the installed package, tracked and updated only with gh — this file
 .agents/dsh-spec/  what this repository decided: the decision records — notes/README.md
 docs/              the documents a person reads; no tier, no budget, and no gate
