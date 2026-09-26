@@ -79,13 +79,13 @@
 | `PR-2` docs/chore(基线) | `WP-2a`、`WP-2b` | 同上 |
 | `PR-2b` chore(engine) | `WP-2d` | 同上;叠在 `PR-2` 之上,因为两者都写 `ports.json` |
 | `PR-3` feat(自动化) | `WP-3a`、`WP-3b`、`WP-3c`、`WP-3d` | 同上;叠在 `PR-2b` 之上 |
-| `PR-3b` chore(模板) | `T2-6` | 同上;必需检查生效之后才动手 |
+| `PR-3b` chore(模板) | `T2-6` | 同上;CI 在 pull request 上跑绿之后动手 |
 | `PR-4` chore(release) | 发布 | 与其它 PR 同一种 squash 合并;发布提交自带安装副本 |
 | 历史操作 | T3 | 不产生 PR;`git bundle` 备份 + 一条说明改写原因的提交留痕。维护者本人执行 |
 
 串行相关的 PR 用 `gh stack` 排成一条栈,自下而上评审与合并;单独指向 `main` 的两条(`PR-1`、`PR-1b`)在栈之前按内容层先合。每个 PR 的描述按模板的五节写,`Verification` 附真实命令与输出;写作判据由生命周期笔记持有,各节写什么不由规划规定。
 
-**`checks` 设为必需检查排在 T4,不排在这里。** 私有仓库在免费计划下设不了 ruleset,必需检查只能在公开之后生效;`T2-6`(模板去掉 `Verification` 一节)因此也顺延到那之后。
+**`checks` 设为必需检查排在 T4,不排在这里。** 私有仓库在免费计划下设不了 ruleset,必需检查只能在公开之后生效。`T2-6` 的触发条件不同——它等的是 CI 真的在 pull request 上跑,那在公开前就成立,所以它不随这条顺延。
 
 ## 5. 阶段与条目(底层到上层)
 
@@ -151,7 +151,7 @@
 | `T2-3` | 新增 | `scripts/submit-vendored.ts` + `.github/workflows/vendored.yml`:`push: [main]` 时从 `THIRD_PARTY_NOTICES.md` 派生清单并提交依赖快照;清单只有一个主人 | 依赖图谱出现这些包并能出告警 |
 | `T2-4` | 新增 | `scripts/verify-dco.ts`:PR 范围内每个提交带 `Signed-off-by` 且与作者一致 | 缺签名时检查失败 |
 | `T2-5` | 新增 | 回填 `questions.md` 的 Q-A2–Q-A8 与 `checklist.md` 的三条新任务 | 表单与清单一致;任务编号无悬空 |
-| `T2-6` | 新增 | **顺延到 T4 之后**:`checks` 真的成为必需检查后,模板去掉 `## Verification` 一节(标题与它的注释),规范目录与生命周期笔记的节数同步改四,`example-plan.md` 同步 | 模板 = 四节;验证证据在 CI 运行里 |
+| `T2-6` | 新增 | CI 在 pull request 上跑绿之后:模板去掉 `## Verification` 一节(标题与它的注释),规范目录与生命周期笔记的节数同步改四,`example-plan.md` 同步 | 模板 = 四节;验证证据在 CI 运行里 |
 | `T2-7` | 新增 | 归档门禁与 dsh 对齐(见 `WP-3d`):六类 kind 目录由占位文件使其可被 Git 携带,门禁在产物读取与封存两处豁免它 | 全新克隆的 `check --all` 全绿;dsh 的六目录规则保留 |
 
 ### T3 身份与历史(维护者执行)

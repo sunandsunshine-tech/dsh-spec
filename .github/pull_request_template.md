@@ -13,7 +13,3 @@
 ## Reviewer notes
 
 <!-- The uncertainty met while implementing and why — an odd mechanism or an API whose effect is unclear, kept as it stands or tried and then dropped; whether it is a breaking change; how far the change reaches; and the migration it suggests. -->
-
-## Verification
-
-<!-- The exact commands you ran and the lines they printed; a check you did not run is not verification. -->
