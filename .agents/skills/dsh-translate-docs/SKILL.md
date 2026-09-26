@@ -3,11 +3,7 @@ description: Manually run the extended bilingual-document workflow — generated
 disable-model-invocation: true
 metadata:
     github-path: skills/dsh-translate-docs
-<<<<<<< HEAD
-    github-ref: refs/heads/chore/notes-archive-parity
-=======
-    github-ref: refs/heads/chore/report-rc2
->>>>>>> 255d2fd (fix(engine): 配对记录的规范形态不再取决于哪份副本在跑)
+    github-ref: refs/heads/chore/drop-verification-section
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
     github-tree-sha: ffdb651a968f652427e8d3bed69ba960139e3180
 name: dsh-translate-docs

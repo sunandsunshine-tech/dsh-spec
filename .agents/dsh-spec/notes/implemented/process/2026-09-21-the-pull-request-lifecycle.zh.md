@@ -26,7 +26,7 @@ Status: implemented
 
 **提交信息用 Conventional Commits。** `type(scope): 一句话`：一个类型、一个可选范围、一个标题，以及一段说清改了什么、为什么的正文。标题行不超过 70 个字符。参与改动的机器只写在 `Assisted-by:` 尾注里；信息本身只讲这个改动。
 
-**PR 描述分五节。** `## What this PR does`、`## Why`、`## How`、`## Reviewer notes`、`## Verification`。
+**PR 描述分四节。** `## What this PR does`、`## Why`、`## How`、`## Reviewer notes`;门禁在每个 pull request 上跑,那次运行就是验证,不再由某一节复述。
 
 **其中每一句话,只有当评审者能据此行动、或据此被提醒时,才留。** 哪些工具参与过、成形之前试过什么、这条分支怎么走到这里,两者都不是。三个例外自带分量:改动本身讲的就是这些;评审者需要这条提醒——重复的 PR、移动过的 base;或者这份不确定正是评审者合并前必须掂量的。
 

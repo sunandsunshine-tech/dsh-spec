@@ -2,11 +2,7 @@
 description: 'Use when finding evidence-backed simplifications in a project''s code, APIs, configuration, tests, or prose: remove dead, duplicated, speculative, or unnecessarily maintained behavior and infrastructure, write or consolidate proposals, mark small inline cleanups, or assess simplifications from another branch.'
 metadata:
     github-path: skills/dsh-find-simplifications
-<<<<<<< HEAD
-    github-ref: refs/heads/chore/notes-archive-parity
-=======
-    github-ref: refs/heads/chore/report-rc2
->>>>>>> 255d2fd (fix(engine): 配对记录的规范形态不再取决于哪份副本在跑)
+    github-ref: refs/heads/chore/drop-verification-section
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
     github-tree-sha: 3867056781e6fb832c2849c3cc3b0573ecfc8e8a
 name: dsh-find-simplifications

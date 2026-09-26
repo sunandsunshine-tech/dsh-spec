@@ -26,7 +26,7 @@ A pull request moves through five stages in order — WIP, development, wrap-up,
 
 **A commit message is Conventional Commits.** `type(scope): one line`: a type, an optional scope, a subject, and a body that says what changed and why. The subject stays within 70 characters. A machine that took part in the change is named only in an `Assisted-by:` trailer; the message itself is about the change.
 
-**A PR description carries five sections.** `## What this PR does`, `## Why`, `## How`, `## Reviewer notes`, `## Verification`.
+**A PR description carries four sections.** `## What this PR does`, `## Why`, `## How`, `## Reviewer notes`; the checks run on every pull request, so the run is the verification and no section repeats it.
 
 **A sentence in it stays only if a reviewer can act on it or be warned by it.** Which tools took part, what was tried before the shape settled, and how the branch reached this point cannot be either. Three exceptions carry their own weight: the change itself is about those things; the reviewer needs the warning — a duplicate pull request, a base branch that moved; or the uncertainty is one a reviewer must weigh before merging.
 
