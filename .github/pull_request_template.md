@@ -1,5 +1,3 @@
-<!-- Keep the five headings below; each comment says what its section owes a maintainer. Delete a comment once its section is written. -->
-
 ## What this PR does
 
 <!-- One paragraph on the behaviour a reader gets after this merges — the deliverable and its effect, not the files touched. -->
