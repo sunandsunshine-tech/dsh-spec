@@ -17,22 +17,26 @@ jobs:
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
-          submodules: recursive
           fetch-depth: 0
-
-      # The provenance gate resolves each ported file's origin revision inside
-      # the baseline's history, and a shallow clone does not carry it.
-      - name: the baseline carries the history the gate reads
-        run: |
-          if [ "$(git -C submodules/dsh rev-parse --is-shallow-repository)" = "true" ]; then
-            git -C submodules/dsh fetch --unshallow --tags origin
-          else
-            git -C submodules/dsh fetch --tags origin
-          fi
 
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
           node-version: '24'
+
+      # The baseline is the revisions the registry records and nothing more: the pin, plus the
+      # older revision nine ports were taken from. `submodules: recursive` clones dsh's entire
+      # history instead — 288 MiB and 28s, against ~60 MiB and ~20s for these commits.
+      # `ports.json` owns the revisions; `.gitmodules` owns the URL.
+      - name: the baseline, at the revisions the registry records
+        run: |
+          git clone --quiet --depth 1 \
+            --branch "$(node -p 'require("./scripts/ports.json").baseline.ref')" \
+            "$(git config -f .gitmodules --get 'submodule.submodules/dsh.url')" \
+            submodules/dsh
+          node -e 'const p = require("./scripts/ports.json"); for (const sha of new Set([p.baseline.sha, ...p.ports.map(port => port.sha)])) console.log(sha)' \
+            | while read -r sha; do
+                git -C submodules/dsh fetch --quiet --depth 1 origin "$sha"
+              done
 
       - name: the functional suite
         run: node --test 'tests/**/*.test.ts'
