@@ -11,7 +11,7 @@ This file is a prompt. Loading it activates the workflow: the session takes the 
 
 Do not activate for a question, a review-only request, a single-file mechanical edit, or a run the user asked to keep solo. The trigger is a multi-step delivery, not the repository.
 
-While a teammate is active the Lead does not edit production source; a one-member team is the exception, and it says so.
+While a teammate is active the Lead does not edit production source; a one-member team is the exception, and declares itself one.
 
 ## 2. Roles and carriers
 
@@ -43,7 +43,7 @@ A teammate's report is a claim. The Reviewer and the Lead run the accepting comm
 
 ## 5. Workspace
 
-The default is the shared checkout. The Lead may provision one git worktree when parallel writes genuinely need it, placed outside the repository root; the Lead then states the path in each spawn prompt and in each card, and every gate runs with that path as `--root`. A worktree does not carry a submodule, so a provenance check that resolves inside one needs the linked-worktree recipe in `AGENTS.md`.
+The default is the shared checkout. The Lead may provision one git worktree when parallel writes genuinely need it, placed outside the repository root. The Lead then states the path in each spawn prompt and in each card, and every gate runs with that path as `--root`. A worktree does not carry a submodule, so a provenance check that resolves inside one needs the linked-worktree recipe in `AGENTS.md`.
 
 ## 6. Parallel work
 
@@ -74,4 +74,4 @@ When implementation raises a decision the card does not settle, the Worker stops
 
 ## 10. Acceptance
 
-The Lead accepts on the final tree, after the last write. A parked decision, an open question, and an uncertainty travel into the pull request's reviewer notes rather than out of the record. Agents open a pull request and stop; merging and publishing need authorization for that specific act.
+The Lead accepts on the final tree, after the last write. A parked decision, an open question, and an uncertainty go into the pull request's reviewer notes, so none of them leaves the record. Agents open a pull request and stop; merging and publishing need authorization for that specific act.

@@ -72,7 +72,7 @@ node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts norms install --group p
 node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts norms update --root .
 ```
 
-They land in `.agents/dsh-spec/norms/norms.md`, with `applied.yaml` beside it recording which ids the project applied and the hash of each block as the skill set last wrote it. The file is generated: an update overwrites each block from the catalog, and a block whose text no longer matches its hash was edited by hand — the update reports it and refuses until it is run with `--force`. A norm the catalog no longer ships is pruned from both files. While a project applies any norm, its `AGENTS.md` carries one section listing those red lines.
+They land in `.agents/dsh-spec/norms/norms.md`, with `applied.yaml` beside it. That record names the ids the project applied and carries the hash of each block as the skill set last wrote it. The file is generated: an update overwrites each block from the catalog. A block whose text no longer matches its hash was edited by hand; the update reports it and refuses to write until it is run with `--force`. A norm the catalog no longer ships is pruned from both files. While a project applies any norm, its `AGENTS.md` carries one section listing those red lines.
 
 `install` and `upgrade` never write those files. They report what the revision moves, the way `apt update` reports upgradable packages, and leave the writing to `norms update`.
 

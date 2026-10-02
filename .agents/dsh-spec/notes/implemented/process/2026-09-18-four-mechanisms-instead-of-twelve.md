@@ -32,7 +32,7 @@ Two causes stand separately. Most of the weight was machinery this repository in
 | [`dsh-code-review`](../../../../../skills/dsh-code-review/SKILL.md) | The review a change receives, against the root `AGENTS.md` |
 | [`dsh-find-simplifications`](../../../../../skills/dsh-find-simplifications/SKILL.md) | Dead, duplicated, speculative and over-built surfaces |
 | [`dsh-agent-experience`](../../../../../skills/dsh-agent-experience/SKILL.md) | What an agent's own context owes: purpose and constraints before detail, a deferred resource behind a reliable description, bounded outputs, and locality around a result |
-| [`dsh-agent-team-workflow`](../../../../../skills/dsh-agent-team-workflow/SKILL.md) | The division of labour, the task-card contract, and the derivation of the obligations a change owes, inside a team that was already requested |
+| [`dsh-agent-team-workflow`](../../../../../skills/dsh-agent-team-workflow/SKILL.md) | The division of labour inside a requested team, the task-card contract, and the derivation of the obligations a change owes |
 
 **Four skills leave**, each because the mechanism it parameterized is gone or because the capability belongs elsewhere:
 
