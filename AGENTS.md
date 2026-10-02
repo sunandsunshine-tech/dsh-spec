@@ -141,7 +141,7 @@ Read `.agents/dsh-spec/notes/README.md` for the layout, the classes, and the in-
 - **`owner.create-vs-update`** Generators and initializers must be idempotent and never overwrite unmanaged user additions.
 - **`pr.lifecycle`** Walk changes through visible phases (WIP -> development -> wrap-up -> review -> merge prep -> merge).
 - **`pr.commit-message`** Conventional Commits stating why, with verified output; no session narrations or diff restatements.
-- **`pr.description`** Exactly 4 sections (## What this PR does, ## Why, ## How, ## Reviewer notes); no internal plan codes.
+- **`pr.description`** Exactly 4 sections (## What this PR does, ## Why, ## How, ## Reviewer notes); cite a file by URL or path, not a relative link; no internal plan codes.
 - **`pr.review-merge`** Append commits during review; rebase and fold fixups before merge; maintain bisectability.
 - **`pr.authorization`** Stop at PR creation; merging and publishing require explicit maintainer authorization.
 - **`prose.voice`** Write for the codebase's future reader in native idiom; state present facts; prefer real commands over adjectives; keep ecosystem terms in English.

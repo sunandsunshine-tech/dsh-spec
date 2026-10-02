@@ -57,10 +57,11 @@ never writes it.
   - A sentence stays only if a reviewer can act on it or be warned by it. An open question stays in the conversation.
   - `## What this PR does`: one paragraph on behavior after merge, not files touched.
   - `## Why`: the problem and decision, linking the owning note.
+  - Cite a file so a reader outside the repository can open it: a URL, or the repository path in code. A relative link resolves only inside a Markdown file, so it breaks in a description, an issue, or a comment.
   - `## How`: the mechanism and milestones, readable commit by commit.
   - `## Reviewer notes`: uncertainties, odd mechanisms, breaking changes, scope reach, migrations.
   - Why: a reviewer asks the same questions every time, so an orderly description is read once instead of reconstructed.
-  - Self-check: are all four sections present, in that order? Does it name real facts rather than plan codes?
+  - Self-check: are all four sections present, in that order? Does it name real facts rather than plan codes? Can a reader open every file it names?
 <!-- /dsh-norm -->
 
 <!-- dsh-norm: pr.review-merge -->
