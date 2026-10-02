@@ -41,3 +41,7 @@ The rule ships to adopters as `prose.idiom` in the norm catalogue, so a project 
 - The second side takes as long as the first. A pair is two pieces of writing, not one piece and a copy.
 - Structural alignment stays mechanical, so the gate keeps its value: it still catches a drifted link or list even when both sides read well.
 - A native reader saying "this reads like machine translation", or a reader losing the first paragraph to the second, is evidence about the prose, and belongs in a report as a defect rather than in a debate about taste.
+
+## Related
+
+- [A text names its reader](2026-09-23-a-text-names-its-reader.md) — the reader half of this rule, and the source of the `prose.voice` clause that prefers one real command or output to a paragraph of adjectives.

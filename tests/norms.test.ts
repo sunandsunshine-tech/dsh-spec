@@ -44,6 +44,7 @@ test('a catalog that cannot be rendered is refused by name', (t) => {
     group: 'pr',
     title: 'Walk a change through its phases',
     titleZh: '按阶段推进改动',
+    invariant: 'Walk the change through its phases.',
     body: '- **Walk it.**\n  - Why: because.\n  - Self-check: ask.',
     source: '.agents/dsh-spec/notes/README.md',
   }
@@ -99,7 +100,7 @@ test('norms list follows the locale, and refuses a group the catalog does not de
   const fixture = makeFixture()
   t.after(() => fixture.dispose())
   const catalog = readNorms(CATALOG)
-  const first = catalog.norms[0]
+  const first = catalog.norms.find(norm => norm.group === 'pr')
   assert.ok(first !== undefined)
 
   const zh = runCli(fixture.root, ['norms', 'list', '--group', 'pr'], { env: { DSH_SPEC_LANG: 'zh', LC_ALL: undefined, LANG: undefined } })
