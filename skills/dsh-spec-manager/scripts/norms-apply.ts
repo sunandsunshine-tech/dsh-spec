@@ -9,7 +9,7 @@
  * hash of each norm's text as the skill set last wrote it. A directory rather than one file because
  * the catalogue may outgrow a single page: a later per-group split adds files beside these two and
  * moves neither, where a file that had to become a directory would move a path projects hold. The record is what makes
- * personalization safe, because with a base hash three states are distinguishable and only one of
+ * a hand edit safe, because with a base hash three states are distinguishable and only one of
  * them may be overwritten silently:
  *
  * - the project's text still hashes to the base and the revision changed the norm: overwrite it;

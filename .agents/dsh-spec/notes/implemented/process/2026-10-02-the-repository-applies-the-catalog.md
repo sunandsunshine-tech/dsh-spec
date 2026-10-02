@@ -14,6 +14,8 @@ Two things changed. The catalog was reduced to rules that hold for any project r
 
 This repository applies the catalog. `norms install --all` writes `.agents/dsh-spec/norms/norms.md` and `applied.yaml`, and `AGENTS.md` carries the hook. The test that held the opposite is reversed: it asserts the file exists and the hook is present.
 
+The hook is the home of the generic invariants. A norm states its rule once, in the `invariant` the manager renders into the hook; the standing orders in `AGENTS.md` keep only what this repository adds and the catalog does not carry. A rule stated in both places is a rule that drifts.
+
 The earlier note keeps what it owns — the mechanism, the record, and why the selection belongs to the project — and this note owns the reversal of its one decision about this repository.
 
 ## Alternatives considered
@@ -26,6 +28,6 @@ The earlier note keeps what it owns — the mechanism, the record, and why the s
 
 ## Consequences
 
-- A change to a norm now moves two files in this repository, and `norms update` refuses rather than overwriting an edit — the drift check that protects an adopter protects this repository too.
+- A change to a norm reaches this repository's generated text: the `body` moves `.agents/dsh-spec/norms/norms.md`, and the `invariant` moves the `AGENTS.md` hook. `norms update` refuses rather than overwriting a block edited by hand — the drift check that protects an adopter protects this repository too.
 - The catalog is what this repository obeys as well as ships, so a rule that does not hold here does not belong in it.
 - Each applied norm contributes one red line to `AGENTS.md`; the fourteen norms this repository applies put fourteen lines there.
