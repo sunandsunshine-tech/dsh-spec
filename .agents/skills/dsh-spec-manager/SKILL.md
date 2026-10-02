@@ -4,7 +4,7 @@ metadata:
     github-path: skills/dsh-spec-manager
     github-ref: refs/heads/feat/agent-team-workflow
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: cbc09fd474a9d0d5923bfbd78ebf4882f287c614
+    github-tree-sha: 13a85b4167c0e7cf4a638813208916e7983a517c
 name: dsh-spec-manager
 ---
 # Managing an adopted project
