@@ -21,6 +21,8 @@ import { tmpdir } from 'node:os'
 import { basename, dirname, join, relative, resolve, sep } from 'node:path'
 import { AGENT_NOTE_CLASS_PLACEHOLDER } from './agent-note-tree.ts'
 import { readGateRecord } from './manifest.ts'
+import { readNorms, normsPathOf } from './norms.ts'
+import type { Norm } from './norms.ts'
 import { applyNormsHook, readNormsRecord, recordPathOf } from './norms-apply.ts'
 
 /**
@@ -425,16 +427,22 @@ function unifiedDiff(path: string, existing: string, rendered: string): string {
  * everywhere. Nothing outside the managed list is read or written.
  */
 function syncManagedFiles(): void {
-  /** Whether this project applies any norm, which is what the `AGENTS.md` hook reports. A record
-   * that cannot be read is treated as none: a project's norms must not fail a sync. */
-  const appliesNorms = (): boolean => {
+  /** The norms this project applies, in catalog order, which is what the `AGENTS.md` hook renders.
+   * A record or catalog that cannot be read is treated as none: a project's norms must not fail a
+   * sync. */
+  const appliedNorms = (): Norm[] => {
     try {
-      return readNormsRecord(recordPathOf(root)).norms.length > 0
+      const record = readNormsRecord(recordPathOf(root))
+      if (record.norms.length === 0) return []
+      const catalog = readNorms(normsPathOf(import.meta.dirname))
+      return record.norms
+        .map(entry => catalog.norms.find(norm => norm.id === entry.id))
+        .filter((norm): norm is Norm => norm !== undefined)
     } catch {
-      return false
+      return []
     }
   }
-  const applied = appliesNorms()
+  const applied = appliedNorms()
   const updated: string[] = []
   const created: string[] = []
   /** The `(existing, rendered)` text of each updated file, so a dry run can show what changes. */
