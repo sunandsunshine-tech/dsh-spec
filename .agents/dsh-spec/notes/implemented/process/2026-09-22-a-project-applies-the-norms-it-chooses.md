@@ -28,7 +28,7 @@ The rules ship as a catalog, and a project applies the ones it chooses, by group
 
 **This repository does not apply its own catalog.** The norms were distilled from it and already live in its `AGENTS.md` and decision records; installing them back would state the same guidance twice, and two statements of one rule drift. A test holds the line: no `.agents/dsh-spec/norms/norms.md` here and no hook in this `AGENTS.md`, while the mechanism is exercised in fixtures.
 
-**Partly superseded by [The repository applies the catalog](2026-10-02-the-repository-applies-the-catalog.md).** The catalog became generic and its hook is rendered from each norm's red line, so this repository applies a selection; this note owns the mechanism and the record, and the change removed the `--take`/`--keep` negotiation over a block a project had edited.
+**Partly superseded by [The repository applies the catalog](2026-10-02-the-repository-applies-the-catalog.md).** The catalog became generic and its hook is rendered from each norm's red line, so this repository applies a selection; this note owns the mechanism and the record, and the drift check replaces the `--take`/`--keep` negotiation over a block a project had edited.
 
 ## Alternatives considered
 

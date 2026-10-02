@@ -32,7 +32,7 @@ Status: implemented
 | [`dsh-code-review`](../../../../../skills/dsh-code-review/SKILL.md) | 一次改动接受的评审，对照根 `AGENTS.md` |
 | [`dsh-find-simplifications`](../../../../../skills/dsh-find-simplifications/SKILL.md) | 死代码、重复、投机性和过度建造的表面 |
 | [`dsh-agent-experience`](../../../../../skills/dsh-agent-experience/SKILL.md) | agent 自己的上下文欠什么：用途与约束先于细节、被推迟的资源要有一个可靠的取回方式、输出宁可有界、结果旁边带上局部上下文 |
-| [`dsh-agent-team-workflow`](../../../../../skills/dsh-agent-team-workflow/SKILL.md) | 已经请求建立的团队内部的职责分工、任务卡契约,以及一次改动所欠义务的推导 |
+| [`dsh-agent-team-workflow`](../../../../../skills/dsh-agent-team-workflow/SKILL.md) | 已经请求建立的团队内部的职责分工、任务卡契约，以及一次改动所欠义务的推导 |
 
 **四个技能离开**，各自因为其参数化的机制已消失，或因为该能力属于别处：
 

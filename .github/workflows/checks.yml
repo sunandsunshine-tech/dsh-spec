@@ -66,8 +66,8 @@ jobs:
       # The checks this change owes, scoped to the files the pull request touches: the note format on
       # the notes it edits, the pairing on the pairs it edits, the links it points at. The corpus scans
       # above still run in full; this is the subset only the diff can decide, and it is where a pair
-      # the change left unrecorded is caught. `base_ref` is the branch the pull request targets —
-      # in a stack, the layer below.
+      # left unrecorded is caught. `github.base_ref` is the branch the pull request targets — in a
+      # stack, the layer below.
       - name: the checks this change owes
         if: github.event_name == 'pull_request'
         run: node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts check --base "origin/${{ github.base_ref }}" --root .

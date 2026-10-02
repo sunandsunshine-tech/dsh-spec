@@ -28,7 +28,7 @@ Status: implemented
 
 **本仓库不应用自己的目录。** 这些规范就是从本仓库提炼出来的，本来就住在它的 `AGENTS.md` 和决策记录里；再装回来就是把同一份指导写两遍，而两份说法早晚会分叉。测试守着这条线：本仓库没有 `.agents/dsh-spec/norms/norms.md`，`AGENTS.md` 里也没有钩子；机制则在夹具里演练。
 
-**部分取代：[本仓库采用这份规范目录](2026-10-02-the-repository-applies-the-catalog.zh.md)。** 目录已经通用化，钩子由每条规范的红线渲染出来，所以本仓库应用其中一批；本篇拥有机制与记录，而对项目改过的块做取舍的 `--take`/`--keep` 已随该变更移除。
+**部分取代：[本仓库采用这份规范目录](2026-10-02-the-repository-applies-the-catalog.zh.md)。** 目录已经通用化，钩子由每条规范的红线渲染出来，所以本仓库应用其中一批；本篇拥有机制与记录；取舍项目改过的块的那套 `--take`/`--keep` 由漂移检测取代。
 
 ## Alternatives considered
 

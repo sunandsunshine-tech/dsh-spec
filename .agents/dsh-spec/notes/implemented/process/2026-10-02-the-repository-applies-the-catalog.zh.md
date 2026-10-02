@@ -14,7 +14,7 @@ Status: implemented
 
 本仓库应用这份目录。`norms install --all` 写出 `.agents/dsh-spec/norms/norms.md` 与 `applied.yaml`,`AGENTS.md` 带上钩子。守着相反结论的那条测试被反转:改为断言文件存在、钩子在位。
 
-钩子是通用不变量的家。每条规范的规则只说一次,就是管理器渲染进钩子的那行 `invariant`;`AGENTS.md` 的常设条款只留本仓库自己加的内容。同一条规则写两遍,就是一条会漂的规则。
+钩子承载通用不变量。每条规范的规则只说一次,就是管理器渲染进钩子的那行 `invariant`;`AGENTS.md` 的常设条款只留本仓库自己加的内容。同一条规则写两遍,就是一条会漂的规则。
 
 上一篇保留它拥有的东西——机制、记录,以及"选择归项目"这件事;本篇拥有的是它对"本仓库"那一项决定的翻转。
 
@@ -28,6 +28,6 @@ Status: implemented
 
 ## Consequences
 
-- 改一条规范会动到本仓库生成出来的文本:`body` 动 `.agents/dsh-spec/norms/norms.md`,`invariant` 动 `AGENTS.md` 的钩子。而 `norms update` 会拒绝覆盖手改过的块——保护采用者的那道漂移检查,同样保护本仓库。
+- 改一条规范,改到的是本仓库生成出来的文本:`body` 落在 `.agents/dsh-spec/norms/norms.md`,`invariant` 落在 `AGENTS.md` 的钩子。而 `norms update` 会拒绝覆盖手改过的块——保护采用者的那道漂移检查,同样保护本仓库。
 - 目录既是本仓库发布的,也是本仓库遵守的:一条在这里不成立的规则,不该留在里面。
 - 每应用一条规范,`AGENTS.md` 就多一行红线;本仓库应用的十四条规范,对应十四行。
