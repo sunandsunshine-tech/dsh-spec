@@ -4,7 +4,7 @@ metadata:
     github-path: skills/dsh-agent-team-workflow
     github-ref: refs/heads/feat/agent-team-workflow
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: dae4d9bcdd5aad836839f07e5a21a5c370e4269a
+    github-tree-sha: 6c93dbcbb19596c790c79ad3a0215f72d3f874c0
 name: dsh-agent-team-workflow
 ---
 # Agent Team Workflow
@@ -26,7 +26,7 @@ While a teammate is active the Lead does not edit production source; a one-membe
 | Reviewer | durable teammate, `spawn_teammate`, `context: fresh` | 1..N | Black-box verification against the card on a clean context: re-run the accepting command, and look for work that is missing |
 | Texter | durable teammate, `spawn_teammate`, `context: fresh` | 1..N | Text only, on a clean context: idiom, order, audience, vantage, leaked reasoning, terms kept unlocalized |
 
-Create all four roles at the start; the Texter's card is created then with the last review on the write track as its `blocked_by`. The text pass starts only after the last review on the write track passes and the write track settles. No role is subsumed by another member. When the runtime disables `subagent` and `subagent_fork`, every member is a teammate.
+Create all four roles at the start; the Texter's card is created at the same time, with the last review on the write track as its `blocked_by`. The text pass starts only after the last review on the write track passes and the write track settles. No role is subsumed by another member. When the runtime disables `subagent` and `subagent_fork`, every member is a teammate.
 
 Only the Lead spawns, interrupts, or reassigns.
 
