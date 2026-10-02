@@ -4,7 +4,7 @@ metadata:
     github-path: skills/dsh-agent-team-workflow
     github-ref: refs/heads/feat/agent-team-workflow
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: 6fac6a99888cb33932cede96d5d7c3471d62c40d
+    github-tree-sha: 2fb500e454341465762b9028611c5a0b75d80702
 name: dsh-agent-team-workflow
 ---
 # Agent Team Workflow
@@ -15,7 +15,7 @@ This file is a prompt. Loading it activates the workflow: the session takes the 
 
 Do not activate for a question, a review-only request, a single-file mechanical edit, or a run the user asked to keep solo. The trigger is a multi-step delivery, not the repository.
 
-While a teammate is active the Lead does not edit production source; a one-member team is the exception, and declares itself one.
+While a teammate is active the Lead does not edit production source; a one-member team is the exception, and it says so.
 
 ## 2. Roles and carriers
 
