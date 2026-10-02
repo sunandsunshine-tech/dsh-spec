@@ -11,7 +11,7 @@ This file is a prompt. Loading it activates the workflow: the session takes the 
 
 Do not activate for a question, a review-only request, a single-file mechanical edit, or a run the user asked to keep solo. The trigger is a multi-step delivery, not the repository.
 
-While a teammate is active the Lead does not edit production source; a one-member team is the exception, and declares itself one.
+While a teammate is active the Lead does not edit production source; a one-member team is the exception, and it says so.
 
 ## 2. Roles and carriers
 
