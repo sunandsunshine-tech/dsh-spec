@@ -63,6 +63,15 @@ jobs:
             node scripts/verify-skill-structure.ts --root "$dir"
           done
 
+      # The checks this change owes, scoped to the files the pull request touches: the note format on
+      # the notes it edits, the pairing on the pairs it edits, the links it points at. The corpus scans
+      # above still run in full; this is the subset only the diff can decide, and it is where a pair
+      # the change left unrecorded is caught. `base_ref` is the branch the pull request targets —
+      # in a stack, the layer below.
+      - name: the checks this change owes
+        if: github.event_name == 'pull_request'
+        run: node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts check --base "origin/${{ github.base_ref }}" --root .
+
       # `github.sha` on a pull_request is the merge commit GitHub creates, whose author is whoever
       # pushed and which carries no sign-off, so the range would name a commit the change never
       # wrote. The branch's own tip is the thing a contributor signed.
