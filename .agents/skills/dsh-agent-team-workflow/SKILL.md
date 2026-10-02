@@ -4,7 +4,7 @@ metadata:
     github-path: skills/dsh-agent-team-workflow
     github-ref: refs/heads/feat/agent-team-workflow
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: 6be21e994279c908729cb6dea731de8003fc14e5
+    github-tree-sha: dae4d9bcdd5aad836839f07e5a21a5c370e4269a
 name: dsh-agent-team-workflow
 ---
 # Agent Team Workflow
@@ -26,7 +26,7 @@ While a teammate is active the Lead does not edit production source; a one-membe
 | Reviewer | durable teammate, `spawn_teammate`, `context: fresh` | 1..N | Black-box verification against the card on a clean context: re-run the accepting command, and look for work that is missing |
 | Texter | durable teammate, `spawn_teammate`, `context: fresh` | 1..N | Text only, on a clean context: idiom, order, audience, vantage, leaked reasoning, terms kept unlocalized |
 
-Create all four roles at the start; the Texter idles until the text pass. No role is subsumed by another member. Under the Team profile `subagent` and `subagent_fork` are disabled, so every member is a teammate.
+Create all four roles at the start; the Texter's card is created then with the last review on the write track as its `blocked_by`. The text pass starts only after the last review on the write track passes and the write track settles. No role is subsumed by another member. When the runtime disables `subagent` and `subagent_fork`, every member is a teammate.
 
 Only the Lead spawns, interrupts, or reassigns.
 
@@ -34,7 +34,7 @@ Only the Lead spawns, interrupts, or reassigns.
 
 | Role | Reads |
 |---|---|
-| Lead | the project's note contract, and the obligation derivation in §8 |
+| Lead | the project's note contract, and the obligation derivation in [Obligations derived, not remembered](#8-obligations-derived-not-remembered) |
 | Worker | [dsh-agent-experience](../dsh-agent-experience/SKILL.md), [dsh-pre-push-checks](../dsh-pre-push-checks/SKILL.md), [dsh-code-review](../dsh-code-review/SKILL.md) for its own pass, [dsh-archive-agent-notes](../dsh-archive-agent-notes/SKILL.md) for a note's lifecycle, [dsh-prose-standard](../dsh-prose-standard/SKILL.md), [dsh-trim-cot-leakage](../dsh-trim-cot-leakage/SKILL.md), [dsh-translate-docs](../dsh-translate-docs/SKILL.md) |
 | Reviewer | [dsh-code-review](../dsh-code-review/SKILL.md), and the project's applied norms when it applies any |
 | Texter | [dsh-prose-standard](../dsh-prose-standard/SKILL.md), [dsh-trim-cot-leakage](../dsh-trim-cot-leakage/SKILL.md), [dsh-translate-docs](../dsh-translate-docs/SKILL.md) |
@@ -47,7 +47,7 @@ A teammate's report is a claim. The Reviewer and the Lead run the accepting comm
 
 ## 5. Workspace
 
-The default is the shared checkout. The Lead may provision one git worktree when parallel writes genuinely need it, placed outside the repository root; the Lead then states the path in each spawn prompt and in each card, and every gate runs with that path as `--root`. A worktree does not carry a submodule, so a provenance check that resolves inside one needs the linked-worktree recipe its own instructions prescribe.
+The default is the shared checkout. The Lead may provision one git worktree when parallel writes genuinely need it, placed outside the repository root; the Lead then states the path in each spawn prompt and in each card, and every gate runs with that path as `--root`. A worktree does not carry a submodule, so a provenance check that resolves inside one needs the linked-worktree recipe in `AGENTS.md`.
 
 ## 6. Parallel work
 
@@ -73,7 +73,7 @@ When implementation raises a decision the card does not settle, the Worker stops
 
 - Worker: runs the smallest evidence covering its card and the project's checks when it finishes, and records the exact command and output on the card.
 - Reviewer: runs the card's verification command unchanged, audits against the criteria, and rejects with the failing criterion and file lines. Two rejections on one task stop that track and bring the Lead in.
-- Texter: processes text; when it edits a file with code semantics it re-runs the project's fast syntax or type check, and it never changes an assertion, a type, or a logic symbol. Its own work is carded and reviewed like any other.
+- Texter: the text pass starts only after the last review on the write track passes and the write track settles; its card carries that review as `blocked_by`. It processes text; when it edits a file with code semantics it re-runs the project's fast syntax or type check, and it never changes an assertion, a type, or a logic symbol. Its own work is carded and reviewed like any other.
 - Lead: runs the aggregate and the file scans on the final tree, and reports each command with its real output.
 
 ## 10. Acceptance

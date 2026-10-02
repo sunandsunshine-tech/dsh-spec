@@ -40,4 +40,4 @@ The card is the contract between the Lead's plan and a member's work. It is the 
 3. **Criteria are checkable.** A criterion that cannot be run or inspected is a wish.
 4. **A rejection names its criterion** and the lines that fail it.
 5. **Blast radius.** A card's change touches only what its objective requires; drive-by formatting and opportunistic refactors belong in a separate card.
-6. **The verification command is cloned.** The review card carries the same string as the implementation card, and the Reviewer runs that string rather than one it composes.
+6. **The verification command is copied unchanged.** The review card carries the same string as the implementation card, and the Reviewer runs that string rather than one it composes.
