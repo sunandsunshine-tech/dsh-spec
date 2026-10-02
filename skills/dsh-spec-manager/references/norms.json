@@ -68,7 +68,7 @@
       "group": "pr",
       "title": "Walk a change through its phases, and make the current phase visible",
       "titleZh": "按阶段推进改动，并让阶段可见",
-      "invariant": "Walk changes through visible phases (WIP -> dev -> wrap-up -> review -> merge prep -> merge).",
+      "invariant": "Walk changes through visible phases (WIP -> development -> wrap-up -> review -> merge prep -> merge).",
       "body": "- **Walk a change through its phases, and make the current phase visible.** WIP -> development -> wrap-up -> review -> merge prep -> merge; each phase names what has to be true before the next one starts.\n  - Why: without phases a change oscillates between \"it runs\" and \"it is reviewable\", and the author and the reviewer each assume a different one of those.\n  - Self-check: can you say which phase this change is in, and what would have to be true to leave it? If not, it has not left the previous one.",
       "source": ".agents/dsh-spec/notes/implemented/process/2026-09-21-the-pull-request-lifecycle.md"
     },
@@ -149,7 +149,7 @@
       "group": "test",
       "title": "Run the smallest evidence covering the change before pushing",
       "titleZh": "推送前跑覆盖改动的最小子集",
-      "invariant": "Run the smallest covering test subset during development; full suites belong to release milestones.",
+      "invariant": "Run the smallest subset covering the change before pushing; the full suite belongs to release milestones.",
       "body": "- **Before pushing, run the smallest set that covers the change.** The full suite is for milestones, and for a change that touches its scope; a subset chosen from what actually changed is faster and still honest.\n  - Why: a suite run reflexively on every push is the one that gets skipped when it mattered, while a subset justified by the diff can be defended.\n  - Self-check: can you say why each check in your subset reads something this change touched? Did you skip a check whose scope you changed?",
       "source": ".agents/dsh-spec/notes/implemented/process/2026-09-21-a-diff-selects-the-gates-it-owes.md"
     }

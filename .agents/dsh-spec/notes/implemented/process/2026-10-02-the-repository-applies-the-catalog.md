@@ -8,7 +8,7 @@ English | [中文](2026-10-02-the-repository-applies-the-catalog.zh.md)
 
 [A project applies the norms it chooses](2026-09-22-a-project-applies-the-norms-it-chooses.md) recorded that this repository would not apply its own catalog: the norms were distilled from it, so installing them back would state the same guidance twice, and two statements of one rule drift. A test held the line.
 
-Two things changed. The catalog was reduced to rules that hold for any project rather than this repository's own machinery, and every norm gained a one-line red line that the manager renders into the `AGENTS.md` hook from the catalog itself. The hook is now the only place the red lines are stated, and it is generated rather than written twice by hand.
+Two things changed. The catalog was reduced to rules that hold for any project rather than this repository's own machinery, and every norm gained a one-line invariant that the manager renders into the `AGENTS.md` hook from the catalog itself, rather than writing it by hand; the block bodies in `norms.md` are the longer explanation.
 
 ## Decision
 
@@ -28,4 +28,4 @@ The earlier note keeps what it owns — the mechanism, the record, and why the s
 
 - A change to a norm now moves two files in this repository, and `norms update` refuses rather than overwriting an edit — the drift check that protects an adopter protects this repository too.
 - The catalog is what this repository obeys as well as ships, so a rule that does not hold here does not belong in it.
-- The red lines in `AGENTS.md` are bounded by the number of applied norms: nine lines at the moment of this decision.
+- Each applied norm contributes one red line to `AGENTS.md`; the fourteen norms this repository applies put fourteen lines there.

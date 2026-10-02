@@ -446,13 +446,13 @@ const COMMAND_HELP: readonly CommandHelp[] = [
     ],
     en: {
       summary: `Apply norms into ${NORMS_FILE}`,
-      detail: 'A norm the project already applied is compared, not re-applied: one whose text still matches the record is left alone, one whose text moved is kept and reported, and one where both moved is reported with both versions for the project to decide.',
+      detail: 'The file is generated from the catalog: a norm the project already applied is compared rather than re-applied — an untouched block takes the revision\'s text, and a block edited by hand is reported as `drifted` and kept, with the run refusing until it is rerun with `--force`. A norm the catalog no longer ships is reported as `removed` and pruned from the record and the file.',
       comment: 'Apply the prose group',
       example: 'norms install --group prose --root .',
     },
     zh: {
       summary: `把规范应用进 ${NORMS_FILE}`,
-      detail: '已经应用过的规范是「比较」而不是「重装」:文本仍与记录一致的不动;文本动过的保留并报告;两边都动过的把两份版本都打印出来,由项目决定。',
+      detail: '这份文件由集合目录生成:已应用过的规范是「比较」而不是「重装」——没人动过的块直接取修订文本;被手改过的块报为 `drifted` 并保留,整次运行会拒绝,直到加上 `--force`。集合已不再发布的规范报为 `removed`,并从记录与文件里清理掉。',
       comment: '应用散文分组',
       example: 'norms install --group prose --root .',
     },

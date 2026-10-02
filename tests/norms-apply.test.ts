@@ -3,8 +3,9 @@
  * decides what an update may overwrite.
  *
  * The cases that matter here are the three states a recorded base makes distinguishable — an
- * untouched norm takes the revision's text, a personalized one is kept and named, a conflict prints
- * both versions — and the promise that nothing outside a marked block is ever written.
+ * untouched norm takes the revision's text, a hand-edited one is kept and reported as drifted until
+ * `--force` takes the catalog text, and a norm the catalog dropped is pruned — and the promise that
+ * nothing outside a marked block is ever written.
  */
 
 import assert from 'node:assert/strict'

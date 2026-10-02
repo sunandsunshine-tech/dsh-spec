@@ -560,7 +560,7 @@ async function main(): Promise<void> {
     // The catalog is read here rather than by a gate: a project applies the norms it chooses, so
     // what it holds is a selection and not a tree assertion — drift is reported, never failed.
     // `norms list`/`explain` are the reading surface; the verbs below are the write path, and they
-    // decide per norm between overwrite, keep and conflict, exactly as a managed file does.
+    // classify each norm as current, update or drifted, exactly as a managed file does.
     // Help is intercepted before this point, so the language here comes from the environment
     // alone; passing the verb's own arguments would let a norm id be read as `--help`'s value.
     const language = helpLanguage([])
