@@ -1,0 +1,19 @@
+# Bilingual-pair consistency record for 2026-10-02-the-agent-team-workflow-ships-as-a-skill.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-10-02-the-agent-team-workflow-ships-as-a-skill.md
+/agent-note-the-agent-team-workflow-ships-as-a-skill:
+  en: b74635d14ad4a05d
+  zh: 10055fe730de23e7
+/agent-note-the-agent-team-workflow-ships-as-a-skill/problem:
+  en: 841ba776419e8894
+  zh: 594df70adf20d854
+/agent-note-the-agent-team-workflow-ships-as-a-skill/decision:
+  en: b39e9bc8a4a1eea1
+  zh: 08be683a8deb97fd
+/agent-note-the-agent-team-workflow-ships-as-a-skill/alternatives-considered:
+  en: c8865290f03d01e5
+  zh: 6c0f0e512401a65b
+/agent-note-the-agent-team-workflow-ships-as-a-skill/consequences:
+  en: 4829e5f6e8412853
+  zh: 2396461cdb8cdfa5

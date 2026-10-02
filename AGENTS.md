@@ -4,14 +4,14 @@ This repository holds `skills/` — one skill package carrying the dsh developme
 
 ## Reading order
 
-- `skills/dsh-spec-manager/SKILL.md` — the entry to read first; the other eight sit beside it under `skills/`.
+- `skills/dsh-spec-manager/SKILL.md` — the entry to read first; the other nine sit beside it under `skills/`.
 - `.agents/skills/dsh-spec-manager/SKILL.md` — the installed set an agent loads. Same content, deployed state; never edit it.
 - `scripts/verify-skill-structure.ts` — the one gate that belongs to this repository rather than to the package.
 
 ## Repository layout
 
 ```
-skills/   the deliverable: nine skills, one per workflow, each with its own entry and references;
+skills/   the deliverable: ten skills, one per workflow, each with its own entry and references;
           every gate is code in dsh-spec-manager/scripts/, the skill set's one home for it
 scripts/           this repository's own validation, not shipped — verify-skill-structure.ts, the
           provenance registry and gate (ports.json, verify-port-provenance.ts), and ports.ts

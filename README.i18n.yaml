@@ -1,16 +1,16 @@
 # Bilingual-pair consistency record for README.md (references/i18n-contract.md): per heading
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write README.md
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write README.md
 /dsh-spec:
-  en: e18043e9542446d9
-  zh: 1166450684b4eb41
+  en: 0f551222d77d3816
+  zh: 6b7f5134f94252cd
 /dsh-spec/prerequisites:
   en: f86dbc1ce5a23fab
   zh: 8a2b68465623ed3f
 /dsh-spec/install:
-  en: 83467f287fbb68f2
-  zh: 6192c46551824fef
+  en: 8cbce10db196d3de
+  zh: 607a5b9984ac9fc0
 /dsh-spec/install/install-by-hand:
   en: bff074ac0c9f34cb
   zh: bc52aeebf47226b2
@@ -20,9 +20,9 @@
 /dsh-spec/what-you-get:
   en: 06eee3da222e6e4c
   zh: abdf440f7f6430ab
-/dsh-spec/the-nine-skills:
-  en: 3025886e183140b3
-  zh: 24940a52f0adbff9
+/dsh-spec/the-ten-skills:
+  en: fd1b2f2718a42bae
+  zh: d9b2c8c52d121319
 /dsh-spec/applying-the-norms-it-ships:
   en: 8950d5f525303684
   zh: 6ffaf982cec2758f
@@ -33,11 +33,11 @@
   en: 2f8e5a11c71ffde3
   zh: fbb25fd5f81e1439
 /dsh-spec/working-on-this-repository:
-  en: 94f07a38ecc8b0d0
-  zh: 653d98e7704006db
+  en: ea3152f9ba493188
+  zh: 74867793628af4c2
 /dsh-spec/read-next:
-  en: f6c6faaf97ae105b
-  zh: 2dc17d1293e2b000
+  en: 2a4380a695908e3d
+  zh: 74ab50ab262bca96
 /dsh-spec/license:
   en: 483760b9bb8b7642
   zh: 3fa142d511f54b7f

@@ -1,7 +1,7 @@
 # Bilingual-pair consistency record for 2026-09-18-four-mechanisms-instead-of-twelve.md (references/i18n-contract.md): per heading
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-18-four-mechanisms-instead-of-twelve.md
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-18-four-mechanisms-instead-of-twelve.md
 /agent-note-four-mechanisms-instead-of-twelve:
   en: 0b1541bdde6c029a
   zh: f2e7b94d8838c16f
@@ -11,9 +11,9 @@
 /agent-note-four-mechanisms-instead-of-twelve/decision:
   en: 3779763f4deec150
   zh: 693a08881bb733b7
-/agent-note-four-mechanisms-instead-of-twelve/decision/the-nine-skills:
-  en: 17bf2e9b36a30a78
-  zh: 7b87cafc54bc94a4
+/agent-note-four-mechanisms-instead-of-twelve/decision/the-ten-skills:
+  en: 3e5cf67673e37c17
+  zh: 615138fdb2a92470
 /agent-note-four-mechanisms-instead-of-twelve/decision/one-code-home-for-the-skill-set:
   en: 60a02da53dc177b3
   zh: 29e6475e1cd5671e

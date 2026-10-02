@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) ![Node](https://img.shields.io/badge/node-%E2%89%A5%2022.19-339933) [![Release](https://img.shields.io/github/v/release/sunandsunshine-tech/dsh-spec)](https://github.com/sunandsunshine-tech/dsh-spec/releases/latest)
 
-给项目一个固定的地方,存放每次改动都得交代的东西:当初为什么这么定、放弃了什么、拿什么来证明。本仓库把 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 团队日常遵循的这套做法抽取出来,做成九个技能加一个引擎:项目装上它,从同一个修订运行它、更新它。
+给项目一个固定的地方,存放每次改动都得交代的东西:当初为什么这么定、放弃了什么、拿什么来证明。本仓库把 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 团队日常遵循的这套做法抽取出来,做成十个技能加一个引擎:项目装上它,从同一个修订运行它、更新它。
 
 其中两个技能会伸进项目自己的树里:一份决策记录的约定,和一份由项目挑着用的开发规范目录。其余几个是改动要经过的工作流:散文、评审、推送前检查、翻译。
 
@@ -22,7 +22,7 @@ GitHub CLI 也自带 agent 技能,去[它的仓库](https://github.com/cli/cli)�
 
 装到项目里,不要装到家目录,并把结果提交进 git。你装 manager 用的那个 ref,就是其余每个技能的 pin;装在项目里,于是每个协作者、每个 agent、CI 都停在那同一个修订上;装到用户级则只存在于各自机器上,下一次 `gh skill update` 就各走各的。首次安装后请提交 `AGENTS.md`、`.agents/`、`docs/` 和 `.rgignore`。
 
-manager 需要你亲手装,其余八个由它装。想装某条分支或某个旧版本、而不是最新已发布的那个,给 `gh skill install` 传 `--revision <ref>`。
+manager 需要你亲手装,其余九个由它装。想装某条分支或某个旧版本、而不是最新已发布的那个,给 `gh skill install` 传 `--revision <ref>`。
 
 ### 手动安装
 
@@ -47,7 +47,7 @@ node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts install --root .
 - **两种语言不会走散。** 每一对文档都带英文侧、中文侧和一份「上次确认一致」的记录;谁改了却没同步,检查直接报出来。
 - **评审和推送各有依据。** 评审照一份清单去看代码本身看不出的东西;推送前只跑真正覆盖这次改动的最小证据,不必把整个测试套件搬出来。
 
-## 九个技能
+## 十个技能
 
 | 技能 | 它管什么 |
 |---|---|
@@ -60,6 +60,7 @@ node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts install --root .
 | `dsh-pre-push-checks` | 覆盖一次外发改动的最小证据 |
 | `dsh-find-simplifications` | 把「找找能简化什么」变成有证据可依的提案 |
 | `dsh-agent-experience` | agent 自己的上下文欠什么:先给最小上下文、发现要显式、约束先于动作、输出宁可有界 |
+| `dsh-agent-team-workflow` | 团队被请求建立之后的职责分工:角色契约、任务卡,以及每项义务归哪道门禁 |
 
 ## 应用它附带的规范
 
@@ -99,7 +100,7 @@ node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts upgrade --root .
 
 | 谁 | 职责 |
 |---|---|
-| `skills/` | 交付物:九个技能,一个工作流一个;所有检查的代码集中在 `dsh-spec-manager/scripts/` |
+| `skills/` | 交付物:十个技能,一个工作流一个;所有检查的代码集中在 `dsh-spec-manager/scripts/` |
 | `.agents/skills/` | 本项目正在用的那一份,随 git 一起走,保证每个人加载同一个修订;只有安装命令会写这里 |
 | `.agents/dsh-spec/notes/` | 决策记录:决定了什么、什么落选、放弃了什么。格式见 [`notes/README.md`](.agents/dsh-spec/notes/README.zh.md) |
 | `docs/` | 写给人看的页面,包括两种语言共用的术语表;这个目录不受任何机制管辖 |
@@ -110,7 +111,7 @@ node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts upgrade --root .
 ## 接下来读
 
 - [`AGENTS.md`](AGENTS.md) —— 每次会话都要遵守的规则,以及本仓库真正跑的命令。
-- [`skills/dsh-spec-manager/SKILL.md`](skills/dsh-spec-manager/SKILL.md) —— 技能集合的入口,另外八个技能就在它旁边。
+- [`skills/dsh-spec-manager/SKILL.md`](skills/dsh-spec-manager/SKILL.md) —— 技能集合的入口,另外九个技能就在它旁边。
 - [`.agents/dsh-spec/notes/README.md`](.agents/dsh-spec/notes/README.zh.md) —— 决策记录的约定,也是这套做法对自己的说明。
 
 ## 许可证
