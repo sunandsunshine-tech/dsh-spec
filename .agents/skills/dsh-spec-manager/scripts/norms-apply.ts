@@ -4,18 +4,18 @@
  *
  * A project's copy is a directory holding two files, and it sits with the project's own agent
  * records rather than under `docs/`: the text is instruction an agent reads, not a document a person
- * reads. `README.md` is the entry — one section per group, one marked block per norm, and the file
+ * reads. `norms.md` is the entry — one section per group, one marked block per norm, and the file
  * the `AGENTS.md` hook points at — while `applied.yaml` records the ids this project applied and the
  * hash of each norm's text as the skill set last wrote it. A directory rather than one file because
  * the catalogue may outgrow a single page: a later per-group split adds files beside these two and
  * moves neither, where a file that had to become a directory would move a path projects hold. The record is what makes
- * personalization safe, because with a base hash three states are distinguishable and only one of
+ * a hand edit safe, because with a base hash three states are distinguishable and only one of
  * them may be overwritten silently:
  *
  * - the project's text still hashes to the base and the revision changed the norm: overwrite it;
- * - the project's text moved and the revision did not: keep it, and say so once;
- * - both moved: keep the project's text and print both versions, because the decision belongs to the
- *   project, or to the agent that puts the question to it.
+ * - the project's text still hashes to the base and the revision did not: leave it alone;
+ * - the project's text moved: keep it, report it as `drifted`, and refuse until the project takes the
+ *   catalog text with `--force`.
  *
  * Only the text inside a `<!-- dsh-norm: id -->` block is ever written, so a project's own sections,
  * headings and rules survive every verb untouched.

@@ -4,7 +4,7 @@ metadata:
     github-path: skills/dsh-spec-manager
     github-ref: refs/heads/feat/norms-catalog-v2
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: 629b3730e78ceede2e35fbf3f59a2383bceddf73
+    github-tree-sha: 6a30ebe733166ac647a922a19dcad720efb2f587
 name: dsh-spec-manager
 ---
 # Managing an adopted project

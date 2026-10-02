@@ -352,7 +352,7 @@ The [global flags](#flags) apply to every command.
 
 Apply norms into .agents/dsh-spec/norms/norms.md.
 
-A norm the project already applied is compared, not re-applied: one whose text still matches the record is left alone, one whose text moved is kept and reported, and one where both moved is reported with both versions for the project to decide.
+The file is generated from the catalog: a norm the project already applied is compared rather than re-applied — an untouched block takes the revision's text, and a block edited by hand is reported as `drifted` and kept, with the run refusing until it is rerun with `--force`. A norm the catalog no longer ships is reported as `removed` and pruned from the record and the file.
 
 ```sh
 # Apply the prose group
