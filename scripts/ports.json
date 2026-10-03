@@ -1,8 +1,8 @@
 {
   "baseline": {
     "repo": "https://github.com/deepseek-ai/deepseek-harness",
-    "ref": "dsh-v0.1.7-rc.2",
-    "sha": "477b4f420553e8a52c2fbccc464d7561b239c443",
+    "ref": "dsh-v0.2.0-rc.2",
+    "sha": "639ed015397290b3745d163aafe02ffee4aa3f84",
     "submodule": "submodules/dsh"
   },
   "ports": [
@@ -16,9 +16,9 @@
     {
       "local": "archived-agent-notes.ts",
       "upstream": "scripts/archived-agent-notes.ts",
-      "sha": "00102833dfaee1da9f48a3a8eae9d34005a75218",
-      "relation": "verbatim",
-      "note": ""
+      "sha": "639ed015397290b3745d163aafe02ffee4aa3f84",
+      "relation": "adapted",
+      "note": "Upstream 0.2.0-rc.2 added the figmaLinkRemovals whitelist, three exact before/after sha256 seals for one authorized Figma-link removal; this copy keeps the strict seal and does not adopt that exception."
     },
     {
       "local": "change-scope.ts",
