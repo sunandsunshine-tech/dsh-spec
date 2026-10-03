@@ -9,7 +9,8 @@
     "dsh-code-review",
     "dsh-pre-push-checks",
     "dsh-find-simplifications",
-    "dsh-agent-experience"
+    "dsh-agent-experience",
+    "dsh-agent-team-workflow"
   ],
   "gates": [
     "verify-agent-note-classification",

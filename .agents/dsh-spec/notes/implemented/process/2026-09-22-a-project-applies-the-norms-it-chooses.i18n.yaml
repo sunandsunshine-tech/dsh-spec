@@ -1,7 +1,7 @@
 # Bilingual-pair consistency record for 2026-09-22-a-project-applies-the-norms-it-chooses.md (references/i18n-contract.md): per heading
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-22-a-project-applies-the-norms-it-chooses.md
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-22-a-project-applies-the-norms-it-chooses.md
 /agent-note-a-project-applies-the-norms-it-chooses:
   en: 09e7dc7625c22ba6
   zh: 21a038864a86deae
@@ -9,11 +9,11 @@
   en: e33d7b056d383752
   zh: d788089696852ab7
 /agent-note-a-project-applies-the-norms-it-chooses/decision:
-  en: eb01b48b9612a5ce
-  zh: d4f1cfae88412d59
+  en: 5aa6d7893f7a8d56
+  zh: da5078583e1021ae
 /agent-note-a-project-applies-the-norms-it-chooses/alternatives-considered:
-  en: 59c1cee88cb44eaa
-  zh: e1c24078efe73602
+  en: 58a42826fbec3000
+  zh: 36c5f9865c5b8d80
 /agent-note-a-project-applies-the-norms-it-chooses/consequences:
   en: 26b7f25ef6a7cf53
   zh: d67c403b46b5407d

@@ -29,6 +29,7 @@ const SKILLS = [
   'dsh-pre-push-checks',
   'dsh-find-simplifications',
   'dsh-agent-experience',
+  'dsh-agent-team-workflow',
 ]
 
 /** An installed `SKILL.md` carrying the metadata block `gh skill install` injects. */
@@ -36,7 +37,7 @@ function installedSkill(ref: string): string {
   return `---\nname: probe\nmetadata:\n    github-ref: refs/heads/${ref}\n---\n# Probe\n`
 }
 
-/** Install all nine skills at one ref, letting a case put one of them elsewhere. */
+/** Install all ten skills at one ref, letting a case put one of them elsewhere. */
 function installSet(fixture: Fixture, ref: string, overrides: Record<string, string> = {}): void {
   for (const skill of SKILLS) {
     fixture.write(`.agents/skills/${skill}/SKILL.md`, installedSkill(overrides[skill] ?? ref))
@@ -177,7 +178,7 @@ test('upgrade --dry-run reports without changing anything', (t) => {
   const result = runCli(fixture.root, ['upgrade', '--dry-run', '--revision', 'main'], { env: stubPath(fixture) })
 
   assert.equal(result.status, 0, result.output)
-  assert.match(result.output, /upgrade 9 skill\(s\) .* at main/)
+  assert.match(result.output, /upgrade 10 skill\(s\) .* at main/)
   assert.match(result.output, /no norms are applied in this project/, result.output)
   assert.deepEqual(projectFiles(fixture), before, 'a dry run wrote to the project')
 })
@@ -239,7 +240,7 @@ test("status holds every skill against the manager's own ref", (t) => {
 
   assert.equal(result.status, 0, result.output)
   const okLines = result.stdout.split('\n').filter(line => /^ {2}ok {8}dsh-/.test(line))
-  assert.equal(okLines.length, 9, `status did not report nine matching skills:\n${result.output}`)
+  assert.equal(okLines.length, SKILLS.length, `status did not report every manifest skill:\n${result.output}`)
 })
 
 test("status names both refs when a skill drifted off the manager's own ref", (t) => {
@@ -450,7 +451,7 @@ test('a set installed from a tag is read, reported and reinstalled at the short 
 
   const status = runCli(fixture.root, ['status', '--root', fixture.root])
   assert.equal(status.status, 0, status.output)
-  assert.match(status.output, /9 skill\(s\) at v1\.2\.3/, status.output)
+  assert.match(status.output, /10 skill\(s\) at v1\.2\.3/, status.output)
 })
 
 test('upgrade --dry-run prints the self-update it would run and runs nothing', (t) => {

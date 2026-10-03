@@ -4,7 +4,7 @@ English | [中文](README.zh.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) ![Node](https://img.shields.io/badge/node-%E2%89%A5%2022.19-339933) [![Release](https://img.shields.io/github/v/release/sunandsunshine-tech/dsh-spec)](https://github.com/sunandsunshine-tech/dsh-spec/releases/latest)
 
-Give a project one place to keep what a change has to carry: why it went that way, what it gave up, and what proves it. This repository extracts the pattern the [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) team works by, and ships it as nine skills and one engine that a project installs, runs and updates from a single revision.
+Give a project one place to keep what a change has to carry: why it went that way, what it gave up, and what proves it. This repository extracts the pattern the [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) team works by, and ships it as ten skills and one engine that a project installs, runs and updates from a single revision.
 
 Two of the skills reach into the project's own tree: the contract for its decision records, and a catalogue of development norms the project chooses from. The rest are the workflows a change goes through — prose, review, pre-push checks, translations.
 
@@ -22,7 +22,7 @@ The GitHub CLI ships an agent skill of its own; browse [its repository](https://
 
 Install into the project, not into your home directory, and commit the result. The ref you install the manager from becomes the pin for every other skill, so a project-scoped copy puts every collaborator, every agent and CI run on that one revision; a user-scoped one stays on each machine and moves with the next `gh skill update`. Commit `AGENTS.md`, `.agents/`, `docs/` and `.rgignore` after the first install.
 
-You install the manager yourself; it installs the other eight. Pass `--revision <ref>` to install the manager at a branch or an older release instead of its latest published one.
+You install the manager yourself; it installs the other nine. Pass `--revision <ref>` to install the manager at a branch or an older release instead of its latest published one.
 
 ### Install by hand
 
@@ -47,7 +47,7 @@ Give your agent these instructions:
 - **The two languages stay together.** Each pair carries its English side, its Chinese side and a record of the last agreed state, so a side edited without the other shows up as a failed check.
 - **Review and push have something to go on.** Review follows a list of what code alone cannot show; before a push you run the smallest evidence that covers the change, not the whole suite.
 
-## The nine skills
+## The ten skills
 
 | Skill | What it is for |
 |---|---|
@@ -60,6 +60,7 @@ Give your agent these instructions:
 | `dsh-pre-push-checks` | The smallest evidence that covers an outgoing change |
 | `dsh-find-simplifications` | Turning "find things to simplify" into evidence-backed proposals |
 | `dsh-agent-experience` | What an agent's own context owes: minimal context first, discovery made explicit, constraints before the action, bounded outputs |
+| `dsh-agent-team-workflow` | The division of labour inside a requested team: role contracts, task cards, and the gate each obligation belongs to |
 
 ## Applying the norms it ships
 
@@ -71,7 +72,7 @@ node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts norms install --group p
 node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts norms update --root .
 ```
 
-They land in `.agents/dsh-spec/norms/norms.md`, with `applied.yaml` beside it recording which ids the project applied and the hash of each block as the skill set last wrote it. The file is generated: an update overwrites each block from the catalog, and a block whose text no longer matches its hash was edited by hand — the update reports it and refuses until it is run with `--force`. A norm the catalog no longer ships is pruned from both files. While a project applies any norm, its `AGENTS.md` carries one section listing those red lines.
+They land in `.agents/dsh-spec/norms/norms.md`, with `applied.yaml` beside it. That record names the ids the project applied and carries the hash of each block as the skill set last wrote it. The file is generated: an update overwrites each block from the catalog. A block whose text no longer matches its hash was edited by hand; the update reports it and refuses to write until it is run with `--force`. A norm the catalog no longer ships is pruned from both files. While a project applies any norm, its `AGENTS.md` carries one section listing those red lines.
 
 `install` and `upgrade` never write those files. They report what the revision moves, the way `apt update` reports upgradable packages, and leave the writing to `norms update`.
 
@@ -99,7 +100,7 @@ What that command does to each skill, and what `install`, `status` and `uninstal
 
 | Who | Job |
 |---|---|
-| `skills/` | The deliverable: nine skills, one per workflow; the code for every check sits together in `dsh-spec-manager/scripts/` |
+| `skills/` | The deliverable: ten skills, one per workflow; the code for every check sits together in `dsh-spec-manager/scripts/` |
 | `.agents/skills/` | The copy this project runs, tracked in git so everyone loads one revision; only an install writes here |
 | `.agents/dsh-spec/notes/` | The decision records: what was decided, what lost, what was given up. The format is [`notes/README.md`](.agents/dsh-spec/notes/README.md) |
 | `docs/` | Pages written for people, including the vocabulary both languages share; nothing governs this folder |
@@ -110,7 +111,7 @@ What that command does to each skill, and what `install`, `status` and `uninstal
 ## Read next
 
 - [`AGENTS.md`](AGENTS.md) — the rules that hold in every session, and the commands this repository actually runs.
-- [`skills/dsh-spec-manager/SKILL.md`](skills/dsh-spec-manager/SKILL.md) — the skill set's entry; the other eight skills sit beside it.
+- [`skills/dsh-spec-manager/SKILL.md`](skills/dsh-spec-manager/SKILL.md) — the skill set's entry; the other nine skills sit beside it.
 - [`.agents/dsh-spec/notes/README.md`](.agents/dsh-spec/notes/README.md) — the decision-record contract, which is the pattern describing itself.
 
 ## License

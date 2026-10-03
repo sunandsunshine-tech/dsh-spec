@@ -115,7 +115,7 @@ node scripts/verify-skill-structure.ts --root skills/<name>  → 九个技能逐
 Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.1.7-alpha.2` (`00102833dfaee1da9f48a3a8eae9d34005a75218`).
 ```
 
-这正是 `AGENTS.md` 那条「Derive a path from its owner; never hardcode it twice」针对的同一类漂移:同一个 baseline 现在有两个字面量。
+这正是 `AGENTS.md` 规范钩子里 `owner.one-home` 那条红线针对的同一类漂移 —— 一个路径或常量属于拥有它的东西，别处一律从那里推导；同一个 baseline 现在有两个字面量。
 
 ### 3.2 版权署名主体(决定)
 

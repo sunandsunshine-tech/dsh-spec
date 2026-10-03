@@ -18,6 +18,8 @@ They do not hold. What a delegation actually does is a property of the deploymen
 
 **Nothing else is put in its place.** No softened ladder, no narrower workspace rule, no "use a subagent when" list. The repository keeps the rules that were never about delegation: an acceptance claim belongs to whoever runs it, and work whose isolation matters gets an isolated checkout.
 
+**The workflow a prompt asks for is a skill.** [The agent team workflow ships as a skill](2026-10-02-the-agent-team-workflow-ships-as-a-skill.md) carries the roles, the task card, and what each step owes, so the prompt names the work and the skill holds the method.
+
 ## Alternatives considered
 
 **Keep the rules and soften the wording.** Rejected: the instability is in the mechanics, not in the phrasing. A cost ladder that names carriers the deployment may not offer is wrong however gently it is written.

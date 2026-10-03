@@ -4,14 +4,14 @@ This repository holds `skills/` — one skill package carrying the dsh developme
 
 ## Reading order
 
-- `skills/dsh-spec-manager/SKILL.md` — the entry to read first; the other eight sit beside it under `skills/`.
+- `skills/dsh-spec-manager/SKILL.md` — the entry to read first; the other nine sit beside it under `skills/`.
 - `.agents/skills/dsh-spec-manager/SKILL.md` — the installed set an agent loads. Same content, deployed state; never edit it.
 - `scripts/verify-skill-structure.ts` — the one gate that belongs to this repository rather than to the package.
 
 ## Repository layout
 
 ```
-skills/   the deliverable: nine skills, one per workflow, each with its own entry and references;
+skills/   the deliverable: ten skills, one per workflow, each with its own entry and references;
           every gate is code in dsh-spec-manager/scripts/, the skill set's one home for it
 scripts/           this repository's own validation, not shipped — verify-skill-structure.ts, the
           provenance registry and gate (ports.json, verify-port-provenance.ts), and ports.ts
@@ -65,7 +65,7 @@ Node ≥ 22.19 or ≥ 24 is the only requirement: the engine is TypeScript that 
 
 ## Boundaries
 
-The generic rules an agent needs are the red lines the `dsh-spec:norms` hook at the end of this file renders from the catalog; the environment notes above and the boundaries and conventions that follow are what this repository adds to them.
+The generic rules live in the `dsh-spec:norms` hook at the end of this file, rendered from the catalog. The environment notes above and the boundaries and conventions below are what this repository adds.
 
 - **Never edit `.agents/skills/`.** It is tracked so every collaborator runs the same revision, and it is overwritten on the next install. Change `skills/`, push, then refresh the copy in the same change with the command in [`manager-lifecycle.md`](skills/dsh-spec-manager/references/manager-lifecycle.md). In this repository that command is `upgrade --revision <current-branch>`: a bare `upgrade` targets the newest published release, which is not the branch under work. A release carries the copy at the released revision inside its own commit — the release pull request refreshes it with `upgrade --revision <release-branch>` before it merges — so the released revision ships the released skills, while the ref it names is that branch, which the merge deletes. [The manager's own install is the pin](.agents/dsh-spec/notes/implemented/process/2026-09-21-the-manager-s-own-install-is-the-pin.md) owns the rule, its alternative, and what a release does to the pin.
 - **Ask before changing what the package claims to be generic.** A part that assumes one ecosystem is the defect this package exists to avoid.
@@ -96,12 +96,12 @@ The generic rules an agent needs are the red lines the `dsh-spec:norms` hook at 
   an interaction that never happened. Every sentence of a draft is checked against one question —
   does it state the fact, or does it address the reader?
   [A text names its reader](.agents/dsh-spec/notes/implemented/process/2026-09-23-a-text-names-its-reader.md).
-- **Each side of a pair is written in its own idiom, in an order a reader can follow.** It is written
-  the way its own language says it, and so is anything said to the maintainer; which
-  language a text is in is settled elsewhere — by the pair's contract, by this set's own text being
-  English because an agent reads it, and by the language of the ask. Order the content by cause and
-  effect, conclusion first, so every sentence is established by the one before it. The pairing gate
-  checks structure and can check neither of these, so both live with whoever writes.
+- **Each side of a pair is written in its own idiom, in an order a reader can follow.** Each side is
+  written the way its own language says it, and so is anything said to the maintainer. Which language
+  a text is in is settled elsewhere: by the pair's contract, by this set's own text being English
+  because an agent reads it, and by the language of the ask. Order the content by cause and effect,
+  conclusion first, so every sentence is established by the one before it. The pairing gate checks
+  structure and can check neither of these, so both are the writer's responsibility.
   [Each side is written in its own idiom, in an order a reader can follow](.agents/dsh-spec/notes/implemented/process/2026-09-22-each-side-is-written-in-its-own-idiom.md).
 
 ## Documentation
@@ -141,7 +141,7 @@ Read `.agents/dsh-spec/notes/README.md` for the layout, the classes, and the in-
 - **`owner.create-vs-update`** Generators and initializers must be idempotent and never overwrite unmanaged user additions.
 - **`pr.lifecycle`** Walk changes through visible phases (WIP -> development -> wrap-up -> review -> merge prep -> merge).
 - **`pr.commit-message`** Conventional Commits stating why, with verified output; no session narrations or diff restatements.
-- **`pr.description`** Exactly 4 sections (## What this PR does, ## Why, ## How, ## Reviewer notes); cite a file by URL or path, not a relative link; no internal plan codes.
+- **`pr.description`** Exactly 4 sections (## What this PR does, ## Why, ## How, ## Reviewer notes); name a file by URL or path in code, never a relative link; no internal plan codes.
 - **`pr.review-merge`** Append commits during review; rebase and fold fixups before merge; maintain bisectability.
 - **`pr.authorization`** Stop at PR creation; merging and publishing require explicit maintainer authorization.
 - **`prose.voice`** Write for the codebase's future reader in native idiom; state present facts; prefer real commands over adjectives; keep ecosystem terms in English.
