@@ -6,7 +6,7 @@ This repository holds `skills/` — one skill package carrying the dsh developme
 
 - `skills/dsh-spec-manager/SKILL.md` — the entry to read first; the other nine sit beside it under `skills/`.
 - `.agents/skills/dsh-spec-manager/SKILL.md` — the installed set an agent loads. Same content, deployed state; never edit it.
-- `scripts/verify-skill-structure.ts` — the one gate that belongs to this repository rather than to the package.
+- `scripts/` — the gates that belong to this repository rather than to the package: `verify-skill-structure.ts`, `verify-port-provenance.ts`, and `verify-installed-copy.ts`.
 
 ## Repository layout
 
@@ -14,7 +14,8 @@ This repository holds `skills/` — one skill package carrying the dsh developme
 skills/   the deliverable: ten skills, one per workflow, each with its own entry and references;
           every gate is code in dsh-spec-manager/scripts/, the skill set's one home for it
 scripts/           this repository's own validation, not shipped — verify-skill-structure.ts, the
-          provenance registry and gate (ports.json, verify-port-provenance.ts), and ports.ts
+          provenance registry and gate (ports.json, verify-port-provenance.ts), the
+          installed-copy gate (verify-installed-copy.ts), and ports.ts
 tests/             the functional suite for the checks themselves — node --test 'tests/**/*.test.ts'
 submodules/dsh/    the extraction baseline, pinned to dsh-v0.2.0-rc.2 — .gitmodules
 .agents/skills/    the installed package, tracked and updated only with gh — this file
@@ -32,6 +33,10 @@ node scripts/verify-skill-structure.ts --root skills/<name>   # once per skill d
 
 node scripts/verify-port-provenance.ts
   # every ported file names its dsh origin, and the registry agrees with the pinned submodule
+
+node scripts/verify-installed-copy.ts
+  # the copy under .agents/skills equals the authored tree under skills/; the installer's injected
+  # metadata is the one allowed difference, and its recorded ref is never compared
 
 node --test 'tests/**/*.test.ts'
   # the functional suite: what each check does with a scope, a seeded defect and a dispatch
@@ -68,6 +73,7 @@ Node ≥ 22.19 or ≥ 24 is the only requirement: the engine is TypeScript that 
 The generic rules live in the `dsh-spec:norms` hook at the end of this file, rendered from the catalog. The environment notes above and the boundaries and conventions below are what this repository adds.
 
 - **Never edit `.agents/skills/`.** It is tracked so every collaborator runs the same revision, and it is overwritten on the next install. Change `skills/`, push, then refresh the copy in the same change with the command in [`manager-lifecycle.md`](skills/dsh-spec-manager/references/manager-lifecycle.md). In this repository that command is `upgrade --revision <current-branch>`: a bare `upgrade` targets the newest published release, which is not the branch under work. A release carries the copy at the released revision inside its own commit — the release pull request refreshes it with `upgrade --revision <release-branch>` before it merges — so the released revision ships the released skills, while the ref it names is that branch, which the merge deletes. [The manager's own install is the pin](.agents/dsh-spec/notes/implemented/process/2026-09-21-the-manager-s-own-install-is-the-pin.md) owns the rule, its alternative, and what a release does to the pin.
+- **A rebase that conflicts on the installed copy takes one side and regenerates the copy.** The installer writes `github-ref` into all ten installed `SKILL.md` files, so two branches that both change `skills/` conflict on the same lines with different values rather than on different work. Take either side of those lines, re-run `upgrade --revision <current-branch>` to regenerate the whole copy from the source, run `node scripts/verify-installed-copy.ts`, and publish the rewritten branch with `--force-with-lease`. [The install-copy conflict and its gate](.agents/dsh-spec/notes/implemented/process/2026-10-03-the-install-copy-conflict-and-its-gate.md) owns the decision, why the smaller metadata surface stays open, and what triggers reopening it.
 - **Ask before changing what the package claims to be generic.** A part that assumes one ecosystem is the defect this package exists to avoid.
 - **A gate that passes on an empty corpus is worse than no gate.** Every gate here exits non-zero when it finds nothing to check; keep it that way.
 - **Prefer the design an adopter can migrate more cheaply.** Where two designs are equal for the

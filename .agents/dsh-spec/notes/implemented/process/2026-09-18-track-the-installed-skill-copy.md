@@ -42,6 +42,6 @@ The install resolves the remote ref, so a source edit reaches the copy only afte
 
 The 62 files of the copy are reviewed twice — once as the source, once as the deployment. That is the price of the guarantee, and it is why the copy may never be edited in place: a fix made there is both uncounted and lost on the next refresh.
 
-Every source change now carries a refresh and, because refresh follows a push, a second commit. A change that edits the package and forgets the refresh leaves this repository green while the loaded skill is stale. No gate here detects that yet, which is the named coverage gap this decision leaves open — the strongest argument for a drift gate comparing the two trees.
+Every source change now carries a refresh and, because refresh follows a push, a second commit. A change that edits the package and forgets the refresh leaves this repository green while the loaded skill is stale. `scripts/verify-installed-copy.ts` closes that gap: it compares each installed skill with its source, and fails on a forgotten refresh or on a copy resolved to the wrong side of a conflict. [The install-copy conflict and its gate](2026-10-03-the-install-copy-conflict-and-its-gate.md) owns the comparison's contract and the resolution recipe.
 
 Adoption is unchanged for a project that consumes the package: it installs at project scope, tracks the copy, and never edits it. Nothing in this decision depends on this repository being the package's home.
