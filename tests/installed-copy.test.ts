@@ -60,7 +60,7 @@ test('this repository’s installed copy passes the gate', () => {
 test('an injected ref that names a deleted branch does not fail the gate', () => {
   const fixture = installedFixture()
   try {
-    assert.match(fixture.read(INSTALLED), new RegExp(DELETED_BRANCH.replace(/[/-]/g, '\\$&')))
+    assert.ok(fixture.read(INSTALLED).includes(DELETED_BRANCH), 'the fixture records the deleted branch ref')
     const result = gate(fixture)
 
     assert.equal(result.status, 0, result.output)
