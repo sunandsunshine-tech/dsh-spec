@@ -28,7 +28,7 @@ The form kit that ships with the repository has the same shape from the other si
 
 **The form kit ships as a worked example.** `example-answers.md` and `example-plan.md` carry the method — the answer table, the decisions a maintainer has to make, the skipped questions, the landing list, the orchestration with its dependencies and acceptance gates — with the organization's account state removed, and `making-this-repository-public.md` is archived beside them as the audit that preceded publication. The two working files the examples were derived from are not kept.
 
-**The baseline pin moves to `dsh-v0.1.7-rc.2` and follows every dsh release.** One routine does it: clone the new tag shallow, compare the ported files against `submodules/dsh`, re-port what changed and update `ports.json`, update the four pin sites, then run provenance and the full gate set.
+**The baseline pin moves to `dsh-v0.2.0-rc.2` and follows every dsh release.** One routine does it: clone the new tag shallow, compare the ported files against `submodules/dsh`, re-port what changed and update `ports.json`, update the four pin sites, then run provenance and the full gate set.
 
 Three notes own adjacent ground and are linked rather than restated: [the pin is the published tag](2026-09-22-the-pin-is-the-published-tag.md) owns what installs follow — the installed skill set's revision, not the extraction baseline; [merging and publishing need authorization](2026-09-23-merging-and-publishing-need-authorization.md) owns why the merge and the release are the maintainer's acts; and [the pull-request lifecycle](2026-09-21-the-pull-request-lifecycle.md) owns the stages, the merge kinds, and where the `Assisted-by:` trailer sits in a commit message.
 
