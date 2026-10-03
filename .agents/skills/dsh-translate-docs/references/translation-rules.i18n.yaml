@@ -1,7 +1,7 @@
 # Bilingual-pair consistency record for translation-rules.md (references/i18n-contract.md): per heading
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write skills/dsh-translate-docs/references/translation-rules.md
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write skills/dsh-translate-docs/references/translation-rules.md
 /translation-rules:
   en: 3794f0cbff079f35
   zh: 7d9882dc28194394
