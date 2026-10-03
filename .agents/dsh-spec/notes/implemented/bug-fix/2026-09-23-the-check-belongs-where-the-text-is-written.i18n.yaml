@@ -1,7 +1,7 @@
 # Bilingual-pair consistency record for 2026-09-23-the-check-belongs-where-the-text-is-written.md (references/i18n-contract.md): per heading
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-23-the-check-belongs-where-the-text-is-written.md
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-23-the-check-belongs-where-the-text-is-written.md
 /agent-note-the-check-belongs-where-the-text-is-written:
   en: 8709d1c99619e69a
   zh: a13d2a396a2b7459

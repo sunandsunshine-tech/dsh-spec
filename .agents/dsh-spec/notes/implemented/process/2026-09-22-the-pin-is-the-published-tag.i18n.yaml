@@ -1,7 +1,7 @@
 # Bilingual-pair consistency record for 2026-09-22-the-pin-is-the-published-tag.md (references/i18n-contract.md): per heading
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-22-the-pin-is-the-published-tag.md
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-22-the-pin-is-the-published-tag.md
 /agent-note-the-pin-is-the-published-tag:
   en: 4bf24c2f8294c8d8
   zh: 0de268f94727bd72

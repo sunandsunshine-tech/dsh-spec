@@ -1,7 +1,7 @@
 # Bilingual-pair consistency record for 2026-09-21-initialization-releases-the-vocabulary-table-empty.md (references/i18n-contract.md): per heading
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-initialization-releases-the-vocabulary-table-empty.md
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-initialization-releases-the-vocabulary-table-empty.md
 /agent-note-initialization-releases-the-vocabulary-table-empty:
   en: ee197ca86f084f5d
   zh: 00b834db69c95d56

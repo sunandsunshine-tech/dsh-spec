@@ -1,7 +1,7 @@
 # Bilingual-pair consistency record for 2026-09-21-the-cli-explains-itself.md (references/i18n-contract.md): per heading
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-cli-explains-itself.md
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-cli-explains-itself.md
 /agent-note-the-cli-explains-itself-in-the-reader-s-language:
   en: 8a8c03e1a1df9f64
   zh: d69e663c086e9344

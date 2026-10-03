@@ -1,7 +1,7 @@
 # Bilingual-pair consistency record for 2026-09-18-track-the-installed-skill-copy.md (references/i18n-contract.md): per heading
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-18-track-the-installed-skill-copy.md
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-18-track-the-installed-skill-copy.md
 /agent-note-track-the-installed-skill-copy-in-git:
   en: 8bf778da8300b68f
   zh: daedf5f3a8ee727f

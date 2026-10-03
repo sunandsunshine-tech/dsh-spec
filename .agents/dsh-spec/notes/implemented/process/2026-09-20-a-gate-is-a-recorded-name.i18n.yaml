@@ -1,7 +1,7 @@
 # Bilingual-pair consistency record for 2026-09-20-a-gate-is-a-recorded-name.md (references/i18n-contract.md): per heading
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-20-a-gate-is-a-recorded-name.md
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-20-a-gate-is-a-recorded-name.md
 /agent-note-a-gate-is-a-recorded-name:
   en: 64c9dd0c6ebaabd2
   zh: 2b57fb48297ab13a

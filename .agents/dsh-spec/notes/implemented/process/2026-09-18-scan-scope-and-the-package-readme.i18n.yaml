@@ -1,7 +1,7 @@
 # Bilingual-pair consistency record for 2026-09-18-scan-scope-and-the-package-readme.md (references/i18n-contract.md): per heading
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-18-scan-scope-and-the-package-readme.md
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-18-scan-scope-and-the-package-readme.md
 /agent-note-scan-scope-inlined-rationale-and-a-package-readme:
   en: b6c7c154b23044b5
   zh: 621c28ca71472e0b

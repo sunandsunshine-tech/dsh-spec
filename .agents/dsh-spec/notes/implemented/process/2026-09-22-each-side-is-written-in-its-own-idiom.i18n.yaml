@@ -1,7 +1,7 @@
 # Bilingual-pair consistency record for 2026-09-22-each-side-is-written-in-its-own-idiom.md (references/i18n-contract.md): per heading
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-22-each-side-is-written-in-its-own-idiom.md
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-22-each-side-is-written-in-its-own-idiom.md
 /agent-note-each-side-is-written-in-its-own-idiom-in-an-order-a-reader-can-follow:
   en: 417eda66a3729940
   zh: cbbc974363656c10

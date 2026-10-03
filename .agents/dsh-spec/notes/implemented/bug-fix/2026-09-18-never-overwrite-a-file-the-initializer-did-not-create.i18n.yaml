@@ -1,7 +1,7 @@
 # Bilingual-pair consistency record for 2026-09-18-never-overwrite-a-file-the-initializer-did-not-create.md (references/i18n-contract.md): per heading
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-18-never-overwrite-a-file-the-initializer-did-not-create.md
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-18-never-overwrite-a-file-the-initializer-did-not-create.md
 /agent-note-never-overwrite-a-file-the-initializer-did-not-create:
   en: cbc2fb72fcfb1df8
   zh: 136e576af0e6121a

@@ -1,7 +1,7 @@
 # Bilingual-pair consistency record for 2026-09-18-frontmatter-is-a-block-not-a-paragraph.md (references/i18n-contract.md): per heading
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-18-frontmatter-is-a-block-not-a-paragraph.md
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-18-frontmatter-is-a-block-not-a-paragraph.md
 /agent-note-treat-frontmatter-as-a-block-not-as-a-paragraph:
   en: eabab404e541647f
   zh: a12f73471cb48f7b

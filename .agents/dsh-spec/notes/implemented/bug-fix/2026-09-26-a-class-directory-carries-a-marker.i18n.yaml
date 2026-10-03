@@ -1,7 +1,7 @@
 # Bilingual-pair consistency record for 2026-09-26-a-class-directory-carries-a-marker.md (references/i18n-contract.md): per heading
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-26-a-class-directory-carries-a-marker.md
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-26-a-class-directory-carries-a-marker.md
 /agent-note-a-class-directory-carries-a-marker:
   en: c076cb891912e50f
   zh: e656770b66c70da1
