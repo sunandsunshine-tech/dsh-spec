@@ -1,7 +1,7 @@
 # Bilingual-pair consistency record for 2026-09-24-opening-this-repository.md (references/i18n-contract.md): per heading
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-24-opening-this-repository.md
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-24-opening-this-repository.md
 /agent-note-opening-this-repository:
   en: 3c03886e34de88d1
   zh: 595bdc10b821d553
@@ -9,8 +9,8 @@
   en: 3b65bf9762be83f0
   zh: 258d3aa8c631dfb7
 /agent-note-opening-this-repository/decision:
-  en: eaf5537bdb5c1185
-  zh: a4350ef0dfe7d590
+  en: 0301eaf867dbf576
+  zh: 8f05c1f907cbee7f
 /agent-note-opening-this-repository/alternatives-considered:
   en: a3c5ee9a06e79e2f
   zh: fad289062240aafe

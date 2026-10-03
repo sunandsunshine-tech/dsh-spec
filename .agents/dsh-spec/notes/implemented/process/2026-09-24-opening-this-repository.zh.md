@@ -28,7 +28,7 @@ Status: implemented
 
 **表单套装作为示例公开。** `example-answers.md` 与 `example-plan.md` 承载方法——答案总表、必须由维护者拍板的决定、被跳过的题、任务落点、带依赖与验收的执行编排——并去掉本组织的账号状态;`making-this-repository-public.md` 作为公开前那次审计的记录归档在它们旁边。两份工作文件不保留。
 
-**基线 pin 移到 `dsh-v0.1.7-rc.2`,此后每次 dsh 发布都跟一次。** 固定一套动作:按 tag 浅克隆、逐个比对移植文件与 `submodules/dsh`、有变化就重搬并更新 `ports.json`、改四处 pin,最后跑 provenance 与全量门禁。
+**基线 pin 每次 dsh 发布都跟一次。** 固定一套动作:按 tag 浅克隆、逐个比对移植文件与 `submodules/dsh`、有变化就重搬并更新 `ports.json`、改四处 pin,最后跑 provenance 与全量门禁。
 
 三篇笔记各自拥有相邻的地盘,这里只链接、不复述:[the pin is the published tag](2026-09-22-the-pin-is-the-published-tag.zh.md) 拥有「安装跟随什么」——那是已装技能集的修订,不是抽取基线;[merging and publishing need authorization](2026-09-23-merging-and-publishing-need-authorization.zh.md) 拥有「为什么合并与发布是维护者的行为」;[the pull-request lifecycle](2026-09-21-the-pull-request-lifecycle.zh.md) 拥有这套决定所遵循的阶段、合并方式,以及 `Assisted-by:` trailer 在提交信息里的位置。
 
