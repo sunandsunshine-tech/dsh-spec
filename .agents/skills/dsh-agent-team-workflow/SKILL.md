@@ -2,9 +2,9 @@
 description: Use when a request is a multi-step engineering delivery — a feature, a refactor, or a bug fix that must carry its decision record, its documentation, and its bilingual pairs. Treats the loaded skill as the prompt that turns the session into a team, and the task card as the contract each member works from.
 metadata:
     github-path: skills/dsh-agent-team-workflow
-    github-ref: refs/heads/chore/unify-pair-record-command
+    github-ref: refs/heads/feat/team-naming-and-affinity
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: 2fb500e454341465762b9028611c5a0b75d80702
+    github-tree-sha: c840761575dbbe9407c7f928c8a9bbafdd160c13
 name: dsh-agent-team-workflow
 ---
 # Agent Team Workflow
@@ -28,7 +28,7 @@ While a teammate is active the Lead does not edit production source; a one-membe
 
 Create all four roles at the start; the Texter's card is created at the same time, with the last review on the write track as its `blocked_by`. The text pass starts only after the last review on the write track passes and the write track settles. No role is subsumed by another member. When the runtime disables `subagent` and `subagent_fork`, every member is a teammate.
 
-Only the Lead spawns, interrupts, or reassigns.
+Only the Lead spawns, interrupts, or reassigns. A teammate's name is its role and an index (`worker-1`, `reviewer-2`); a member keeps that name when a later delivery reuses it.
 
 ## 3. Bindings
 
@@ -51,7 +51,7 @@ The default is the shared checkout. The Lead may provision one git worktree when
 
 ## 6. Parallel work
 
-Durable teammates carry tasks with dependencies, review cycles, or peer questions. A scripted fan-out carries homogeneous, decoupled work that needs no mailbox identity. Tasks whose paths overlap are ordered with `blocked_by`. Path prefixes recorded as `write_scopes` diagnose overlap and never block a claim.
+Durable teammates carry tasks with dependencies, review cycles, or peer questions. A scripted fan-out carries homogeneous, decoupled work that needs no mailbox identity. Tasks whose paths overlap are ordered with `blocked_by`. Path prefixes recorded as `write_scopes` diagnose overlap and never block a claim. A role gains an additional member only for concurrency or context isolation; dependent cards in one role stay with a single owner.
 
 A change touches only what its objective requires; drive-by formatting and opportunistic refactors belong in a separate change.
 
