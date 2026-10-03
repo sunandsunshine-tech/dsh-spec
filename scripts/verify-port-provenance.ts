@@ -13,14 +13,15 @@
  *
  *   node scripts/verify-port-provenance.ts
  *
- * Five things must hold, and an empty registry is the first failure rather than a clean run:
+ * Six things must hold, and an empty registry is the first failure rather than a clean run:
  * every recorded port exists and names its upstream path and sha in its header; every recorded
- * upstream path exists at that sha; the baseline ref is the pin the root `AGENTS.md` states; every
- * engine file that exists upstream is recorded, so a new port cannot be forgotten; and every engine
- * file whose header claims a dsh origin is recorded, so a provenance line cannot name an origin
- * nobody can enumerate. The last two are the two directions of one reconciliation, and the second
- * of them is what the first cannot see: a fabricated header points at an upstream path that never
- * existed, so "the upstream file is missing" never fires.
+ * upstream path exists at that sha; the baseline ref is the pin the root `AGENTS.md` states; the
+ * submodule carries the baseline commit at its HEAD, so the working tree a diff reads is the one
+ * the registry names; every engine file that exists upstream is recorded, so a new port cannot be
+ * forgotten; and every engine file whose header claims a dsh origin is recorded, so a provenance
+ * line cannot name an origin nobody can enumerate. The last two are the two directions of one
+ * reconciliation, and the second of them is what the first cannot see: a fabricated header points
+ * at an upstream path that never existed, so "the upstream file is missing" never fires.
  */
 
 import { execFileSync } from 'node:child_process'
@@ -88,6 +89,11 @@ if (git(submodulePath, ['rev-parse', '--git-dir']) === undefined) {
   errors.push(`the baseline submodule ${registry.baseline.submodule} is not a git checkout — initialise it before trusting the registry`)
 } else if (git(submodulePath, ['cat-file', '-e', `${registry.baseline.sha}^{commit}`]) === undefined) {
   errors.push(`the baseline commit ${registry.baseline.sha} is not in ${registry.baseline.submodule} — fetch the pin before trusting the registry`)
+} else {
+  const checkout = git(submodulePath, ['rev-parse', 'HEAD'])?.trim()
+  if (checkout !== registry.baseline.sha) {
+    errors.push(`the baseline submodule ${registry.baseline.submodule} is checked out at ${checkout ?? 'an unreadable revision'} but the registry records ${registry.baseline.sha} — check it out at the recorded baseline before trusting the registry`)
+  }
 }
 
 /** The pin the root `AGENTS.md` states, so a submodule bump cannot orphan the registry silently. */

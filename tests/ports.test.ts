@@ -82,6 +82,14 @@ test('every provenance header in the engine directory is recorded', () => {
   }
 })
 
+test('the submodule checkout is the baseline the registry records', () => {
+  const ports = readPorts()
+  const result = spawnSync('git', ['-C', join(REPO_ROOT, ports.baseline.submodule), 'rev-parse', 'HEAD'], { encoding: 'utf8' })
+
+  assert.equal(result.status, 0, `cannot read the submodule HEAD: ${result.stderr}`)
+  assert.equal(result.stdout.trim(), ports.baseline.sha, 'the submodule is checked out elsewhere than the registry baseline')
+})
+
 test('the offline provenance gate accepts this repository', () => {
   const result = runScript('scripts/verify-port-provenance.ts')
 
