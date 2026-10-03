@@ -1,6 +1,6 @@
 /**
  * SPDX-License-Identifier: MIT
- * Ported from dsh scripts/archived-agent-notes.ts @ 00102833dfaee1da9f48a3a8eae9d34005a75218 (submodules/dsh). Relation: verbatim.
+ * Ported from dsh scripts/archived-agent-notes.ts @ 639ed015397290b3745d163aafe02ffee4aa3f84 (submodules/dsh). Relation: adapted.
  */
 /** Pure archive-format, triplet, and immutable-manifest helpers. */
 

@@ -1,11 +1,10 @@
 ---
 description: Use when designing agent tools, skills, context loading, or multi-step workflows to make information discoverable and use context efficiently.
 metadata:
-    date: "2026-09-11"
     github-path: skills/dsh-agent-experience
-    github-ref: refs/heads/feat/agent-team-workflow
+    github-ref: refs/heads/chore/baseline-dsh-v0.2.0-rc.2
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: d62d235e546bb15d329302e9cd4e2f045515c9c8
+    github-tree-sha: bafeb10a33bb9abcf819cf2275403a6caad493eb
 name: dsh-agent-experience
 ---
 - **Start with minimal context:** expose purpose, available actions, and constraints first; load detailed instructions when needed.

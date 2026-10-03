@@ -3,7 +3,7 @@ description: Manually run the extended bilingual-document workflow — generated
 disable-model-invocation: true
 metadata:
     github-path: skills/dsh-translate-docs
-    github-ref: refs/heads/feat/agent-team-workflow
+    github-ref: refs/heads/chore/baseline-dsh-v0.2.0-rc.2
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
     github-tree-sha: ffdb651a968f652427e8d3bed69ba960139e3180
 name: dsh-translate-docs
