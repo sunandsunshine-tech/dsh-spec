@@ -139,7 +139,7 @@ The [global flags](#flags) apply to every command.
 
 List, explain and apply the norms a project chooses.
 
-The catalog is data: every norm has a stable id, the group a project chooses it by, an English title and body, and a Chinese title for this surface. A project applies the ones it chooses into `.agents/dsh-spec/norms/norms.md`, with `.agents/dsh-spec/norms/applied.yaml` recording the selection and the hash of each block as the skill set last wrote it — which is what lets an update tell an untouched block from a personalized one. The `AGENTS.md` section that points at the file exists exactly while a project applies norms.
+The catalog is data: every norm has a stable id, the group a project chooses it by, an English title and body, a red line, and a Chinese title for this surface. A project applies the ones it chooses into `.agents/dsh-spec/norms/norms.md`, which is generated from the catalog; `.agents/dsh-spec/norms/applied.yaml` records the selection and the hash of each block as the skill set last wrote it, so an update reports a hand-edited block and refuses rather than overwriting it. The `AGENTS.md` section that lists the red lines exists exactly while a project applies norms.
 
 **Verbs:** `list`, `explain`, `install`, `update`, `remove`
 
@@ -352,7 +352,7 @@ The [global flags](#flags) apply to every command.
 
 Apply norms into .agents/dsh-spec/norms/norms.md.
 
-A norm the project already applied is compared, not re-applied: one whose text still matches the record is left alone, one whose text moved is kept and reported, and one where both moved is reported with both versions for the project to decide.
+The file is generated from the catalog: a norm the project already applied is compared rather than re-applied — an untouched block takes the revision's text, and a block edited by hand is reported as `drifted` and kept, with the run refusing until it is rerun with `--force`. A norm the catalog no longer ships is reported as `removed` and pruned from the record and the file.
 
 ```sh
 # Apply the prose group
@@ -371,7 +371,7 @@ The [global flags](#flags) apply to every command.
 
 Bring the applied norms up to the installed revision.
 
-Nothing is overwritten that the project has touched: an untouched block takes the revision's text, a personalized one is kept and named, and a conflict prints both versions. `--take` and `--keep` carry out the decision the report asks for.
+The file is generated from the catalog: an untouched block takes the revision's text, and a block edited by hand is reported and kept — the update refuses until it is run with `--force`. A norm the catalog no longer ships is pruned from the record and the file, and named in the report.
 
 ```sh
 # Refresh what this project applies
@@ -380,8 +380,7 @@ node <engine>/dsh-spec.ts norms update --root .
 
 | Flag | Meaning |
 |---|---|
-| `--take <id...>` | Take the revision's text for these norms |
-| `--keep <id...>` | Confirm this project's text as deliberate |
+| `--force` | Overwrite a block this project edited by hand |
 | `--group <id>` | Only the applied norms in this group |
 | `--dry-run` | Print the plan and write nothing |
 
@@ -391,7 +390,7 @@ The [global flags](#flags) apply to every command.
 
 Stop applying norms, and drop them from the record.
 
-A norm the project personalized is refused rather than deleted with its text: `norms update --take <id>` first, then remove.
+Removing a block that was edited by hand would take the edit with it, so it is refused until an update has been run with `--force`.
 
 ```sh
 # Stop applying a norm

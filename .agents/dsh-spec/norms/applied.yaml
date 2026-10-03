@@ -1,0 +1,19 @@
+# The norms this project applies, and the hash of each block as the skill set last wrote it.
+# .agents/dsh-spec/norms/norms.md is generated: every update overwrites each block from the catalog. A hash that
+# no longer matches the block means the file was edited by hand, and the update refuses rather
+# than overwriting it — run the update with `--force` to take the catalog version.
+groups: [evidence, owner, pr, prose, test]
+evidence.claims: 33f280795de602239b3ecb5afb6675a61b8e0f5d7d03a11c0e05d53f8861074b
+evidence.external-is-data: d8f6dd81befd81f19cabad5e12ec71c02d608e577473e1e2ef5e832ae1bf9547
+owner.one-home: f079ddd76448f890a6b82254818ffafb0468d6e7ded6b9992fbd1ff6e581ede1
+owner.create-vs-update: 0b5738e41719f6913f9dfbffb42198485481f15af067e6af95e8c248bab68879
+pr.lifecycle: beba31ff481c703d46df0cc15e3b05dc25d34c8cbf4db3a11934dcaa0c0b22c8
+pr.commit-message: bebadf27c58116ea4d6aa4be68db3d127817244775073d3c24d75874a3ff418e
+pr.description: c7295f97fd597f520da4e7cdd6201d0ce666d101eb62ec1b447e1ab6610351ef
+pr.review-merge: 782d5fc177b390fda9336491015e8ed1beecd77c3f568da0b6b3d22e96c78576
+pr.authorization: e3c1aa7a288df108f8eb59b29e0ddc4640b9aaafce7b3f9969b2307ecd7679fd
+prose.voice: 74b35347b800c39916e816a552b9eb046a7039b085b262d883445ccc3ac47b2b
+test.acceptance-first: 35044978e7bd06312b2bd1cc67bb6dec6e75d9ec9fd6c1b5ecc5037da437ef01
+test.behaviour: 611a9a586bd3a3466dd2f2aeb405197043ae6c853347ca1b601f1cccd40c4b52
+test.offline: 631aa894599a5bb8f060e772aed0c64cd3d8823064f97e08ee4863fd6322936d
+test.fast-subset: 0f00c4a683ceddda6a441a4c45e292cc0d9037b434cbf08d4b117ab989007f47

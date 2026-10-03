@@ -3,7 +3,8 @@
  *
  * `references/norms.json` is data rather than prose: every norm has a stable id, the group a project
  * chooses it by, the English title and body that would be written into that project, a Chinese title
- * for the choice surface, and the decision record that owns its rationale. Rendering a chosen norm
+ * for the choice surface, the one-line red line its hook renders, and the document that owns the
+ * rule (a path relative to the repository this catalog is published from). Rendering a chosen norm
  * into a project belongs to the manager; this module owns reading the catalog and refusing one that
  * cannot be rendered, so a broken catalog fails once, loudly, instead of halfway through a write.
  *
@@ -21,13 +22,16 @@ export interface NormGroup {
   titleZh: string
 }
 
-/** One norm, with the text a project receives and the record its rationale lives in. */
+/** One norm: the text a project receives, its one-line red line, and the document that owns it. */
 export interface Norm {
   id: string
   group: string
   title: string
   titleZh: string
+  /** One line stating the rule as a negative invariant; rendered into the project's AGENTS.md hook. */
+  invariant: string
   body: string
+  /** The document that owns the rule, relative to the repository the catalog is published from. */
   source: string
 }
 
@@ -142,7 +146,7 @@ export function readNorms(path: string): NormsCatalog {
     if (typeof norm.group !== 'string' || !groupIds.has(norm.group)) {
       throw new Error(`${path}: norm \`${norm.id}\` names group \`${String(norm.group)}\`, which the catalog does not declare`)
     }
-    for (const field of ['title', 'titleZh', 'body', 'source'] as const) {
+    for (const field of ['title', 'titleZh', 'invariant', 'body', 'source'] as const) {
       const value = norm[field]
       if (typeof value !== 'string' || value === '') throw new Error(`${path}: norm \`${norm.id}\` has no \`${field}\``)
     }
@@ -158,6 +162,7 @@ export function readNorms(path: string): NormsCatalog {
       group: norm.group,
       title: norm.title as string,
       titleZh: norm.titleZh as string,
+      invariant: norm.invariant as string,
       body,
       source: norm.source as string,
     }
@@ -257,6 +262,7 @@ export function renderNormsExplain(
     const group = catalog.groups.find(entry => entry.id === norm.group)
     lines.push(`  ${norm.id}   ${zh ? norm.titleZh : norm.title}   (${group === undefined ? norm.group : (zh ? group.titleZh : group.title)})`)
     lines.push(`  ${zh ? '本项目' : 'applied'}: ${options.applied.includes(norm.id) ? (zh ? '已应用' : 'yes') : (zh ? '未应用' : 'no')}`)
+    lines.push(`  ${zh ? '红线' : 'red line'}: ${norm.invariant}`)
     lines.push(`  ${zh ? '记录' : 'record'}: ${options.url === undefined ? norm.source : options.url(norm)}`)
     lines.push('')
     for (const row of norm.body.split('\n')) lines.push(`  ${row}`)

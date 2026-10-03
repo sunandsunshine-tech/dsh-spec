@@ -36,7 +36,9 @@ needs no dependency, no transform and no package manager — the same property t
 - **The source engine, never the installed copy.** `skills/dsh-spec-manager/scripts/` is what these
   cases run; `.agents/skills/` is a deployment that only `gh` may change.
 - **No network.** Every case is local: `install` and `upgrade` are exercised through `--dry-run`.
-- **A case names the behavior it pins**, in the test title, so a failure reads as a statement about
-  the design rather than about a line of code.
+- **A case pins the behavior, not the implementation.** It names the behavior in the test title, so a
+  failure reads as a statement about the design rather than about a line of code, and a refactor that
+  preserves the contract leaves it passing.
+- **Every acceptance criterion has a case**, and a defect gets a case that reproduces it before the fix.
 - **Fixtures are built, not committed.** A scratch repository is created per case and disposed after
   it, so a case cannot depend on another's leftovers.

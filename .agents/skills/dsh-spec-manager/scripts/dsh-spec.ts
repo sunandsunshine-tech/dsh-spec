@@ -560,7 +560,7 @@ async function main(): Promise<void> {
     // The catalog is read here rather than by a gate: a project applies the norms it chooses, so
     // what it holds is a selection and not a tree assertion — drift is reported, never failed.
     // `norms list`/`explain` are the reading surface; the verbs below are the write path, and they
-    // decide per norm between overwrite, keep and conflict, exactly as a managed file does.
+    // classify each norm as current, update or drifted, exactly as a managed file does.
     // Help is intercepted before this point, so the language here comes from the environment
     // alone; passing the verb's own arguments would let a norm id be read as `--help`'s value.
     const language = helpLanguage([])
@@ -602,15 +602,10 @@ async function main(): Promise<void> {
     }
 
     // `update` means the norms this project applied, so it needs no selection of its own; the other
-    // verbs name one, and `--group` narrows any of them. `--take` and `--keep` are how the decision
-    // about a personalized norm is carried out, so they belong to `update` alone.
-    const takeFlag = extractValue(verbArgs, '--take')
-    const keepFlag = extractValue(takeFlag.rest, '--keep')
-    const group = extractValue(keepFlag.rest, '--group')
-    const decisions = [...takeFlag.values, ...keepFlag.values]
-    if (decisions.length > 0 && verb !== 'update') {
-      usage(`norms ${verb} does not take --take or --keep — a decision about a personalized norm is made by \`norms update\``)
-    }
+    // verbs name one, and `--group` narrows any of them. `--force` overwrites a block this project
+    // edited by hand, which is the one decision an update cannot make for itself.
+    const force = verbArgs.includes('--force')
+    const group = extractValue(verbArgs.filter(argument => argument !== '--force'), '--group')
     const all = group.rest.includes('--all') || verb === 'update'
     const dryRun = group.rest.includes('--dry-run')
     const ids = group.rest.filter(argument => !argument.startsWith('-'))
@@ -633,14 +628,10 @@ async function main(): Promise<void> {
     } catch (error) {
       usage((error as Error).message)
     }
-    const unapplied = decisions.filter(id => !record.norms.some(entry => entry.id === id))
-    if (unapplied.length > 0) {
-      usage(`${unapplied.map(id => `\`${id}\``).join(', ')} is not applied in this project — \`norms update\` decides about the norms it applies`)
-    }
     const file = existsSync(filePathOf(root)) ? readFileSync(filePathOf(root), 'utf8') : undefined
     let plan: NormsPlan
     try {
-      plan = normsPlan(catalog, record, file, { verb, ids: [...new Set([...chosen, ...decisions])], take: takeFlag.values, keep: keepFlag.values }, language)
+      plan = normsPlan(catalog, record, file, { verb, ids: [...new Set(chosen)], force }, language)
     } catch (error) {
       fail((error as Error).message)
     }
@@ -657,7 +648,10 @@ async function main(): Promise<void> {
         : '  AGENTS.md is not present, so nothing points at the file'
     } else {
       const current = readFileSync(agentsPath, 'utf8')
-      const next = applyNormsHook(current, plan.record.norms.length > 0)
+      const appliedNorms = plan.record.norms
+        .map(entry => catalog.norms.find(norm => norm.id === entry.id))
+        .filter((norm): norm is Norm => norm !== undefined)
+      const next = applyNormsHook(current, appliedNorms)
       if (next !== current) hook = next
       const had = current.includes(NORMS_HOOK_START)
       const has = next.includes(NORMS_HOOK_START)
@@ -670,9 +664,10 @@ async function main(): Promise<void> {
       hookLine = language === 'zh' ? `  AGENTS.md 的规范小节${state[1]}` : `  AGENTS.md: the norms section is ${state[0]}`
     }
     console.log(hookLine)
-    // A removal that was refused did not happen, and a script has to be able to tell: an update
-    // only reports what it kept, but `remove` that removed nothing exits non-zero.
-    const refused = verb === 'remove' && plan.outcomes.some(outcome => outcome.state !== 'removed')
+    // A block this project edited by hand is reported and kept, so the run refuses: a script has to
+    // be able to tell that nothing was taken. `remove` that removed nothing exits non-zero too.
+    const drifted = plan.outcomes.some(outcome => outcome.state === 'drifted')
+    const refused = drifted || (verb === 'remove' && plan.outcomes.some(outcome => outcome.state !== 'removed'))
     if (dryRun) {
       console.log(language === 'zh' ? '  dry run — 什么都没写;去掉 --dry-run 落盘' : '  dry run — nothing is written; drop --dry-run to apply')
       process.exit(refused ? 1 : 0)

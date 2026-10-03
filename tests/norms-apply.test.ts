@@ -3,8 +3,9 @@
  * decides what an update may overwrite.
  *
  * The cases that matter here are the three states a recorded base makes distinguishable — an
- * untouched norm takes the revision's text, a personalized one is kept and named, a conflict prints
- * both versions — and the promise that nothing outside a marked block is ever written.
+ * untouched norm takes the revision's text, a hand-edited one is kept and reported as drifted until
+ * `--force` takes the catalog text, and a norm the catalog dropped is pruned — and the promise that
+ * nothing outside a marked block is ever written.
  */
 
 import assert from 'node:assert/strict'
@@ -64,43 +65,46 @@ test('install writes the group as a section, and the record as the base of every
   assert.equal(fixture.read(FILE), file, 'a no-op install rewrote the file')
 })
 
-test('update keeps a personalized block, and --keep stops asking about it', (t) => {
+test('a hand-edited block drifts, and only --force takes the catalog text', (t) => {
   const fixture = makeFixture()
   t.after(() => fixture.dispose())
   runCli(fixture.root, ['norms', 'install', '--group', 'test'])
   const mine = '- **Our suite runs offline, with the stub server in tests/stub/.**'
   fixture.write(FILE, fixture.read(FILE).replace('- **The suite runs offline and deterministically.**', mine))
 
+  // Without --force the update reports the drift and refuses: the edit is not overwritten.
   const update = runCli(fixture.root, ['norms', 'update'])
-  assert.equal(update.status, 0, update.output)
-  assert.match(update.output, /personalized — kept\s+test\.offline/, update.output)
-  assert.match(block(fixture, 'test.offline'), /Our suite runs offline/, 'the update overwrote a personalized block')
+  assert.equal(update.status, 1, update.output)
+  assert.match(update.output, /drifted: test\.offline \(locally modified in .*norms\.md\)/, update.output)
+  assert.match(block(fixture, 'test.offline'), /Our suite runs offline/, 'the update overwrote a hand-edited block')
 
-  const kept = runCli(fixture.root, ['norms', 'update', '--keep', 'test.offline'])
-  assert.equal(kept.status, 0, kept.output)
-  assert.match(fixture.read(RECORD), /test\.offline: [0-9a-f]{64} kept/, fixture.read(RECORD))
+  // The record still holds the hash the skill set wrote, so the next update reports the same drift.
+  const again = runCli(fixture.root, ['norms', 'update'])
+  assert.equal(again.status, 1, again.output)
+  assert.match(again.output, /drifted: test\.offline/, again.output)
 
-  const after = runCli(fixture.root, ['norms', 'update'])
-  assert.equal(after.status, 0, after.output)
-  assert.match(after.output, /personalized — kept\s+test\.offline/, after.output)
-  assert.match(block(fixture, 'test.offline'), /Our suite runs offline/, 'a confirmed block was overwritten')
-})
-
-test('--take takes the revision text, and lets the norm go back to ok', (t) => {
-  const fixture = makeFixture()
-  t.after(() => fixture.dispose())
-  runCli(fixture.root, ['norms', 'install', '--group', 'test'])
-  fixture.write(FILE, fixture.read(FILE).replace('- **The suite runs offline and deterministically.**', '- **Ours.**'))
-
-  const taken = runCli(fixture.root, ['norms', 'update', '--take', 'test.offline'])
-  assert.equal(taken.status, 0, taken.output)
-  assert.match(taken.output, /update\s+test\.offline/, taken.output)
+  const forced = runCli(fixture.root, ['norms', 'update', '--force'])
+  assert.equal(forced.status, 0, forced.output)
   assert.match(block(fixture, 'test.offline'), /The suite runs offline and deterministically/)
-  assert.doesNotMatch(fixture.read(RECORD), / kept$/m, 'a taken norm is still marked as the project\'s')
 
   const after = runCli(fixture.root, ['norms', 'update'])
   assert.equal(after.status, 0, after.output)
   assert.match(after.output, /4 norm\(s\): 4 ok/, after.output)
+})
+
+test('a norm the catalog dropped is pruned from the record and the file', (t) => {
+  const fixture = makeFixture()
+  t.after(() => fixture.dispose())
+  runCli(fixture.root, ['norms', 'install', '--group', 'test'])
+  // The catalog no longer ships this id, and the project still records it.
+  fixture.write(RECORD, fixture.read(RECORD).replace(/^test\.behaviour: [0-9a-f]{64}$/m, `pr.gone: ${'a'.repeat(64)}`))
+  fixture.write(FILE, fixture.read(FILE).replace('<!-- dsh-norm: test.behaviour -->', '<!-- dsh-norm: pr.gone -->'))
+
+  const update = runCli(fixture.root, ['norms', 'update'])
+  assert.equal(update.status, 0, update.output)
+  assert.match(update.output, /removed: pr\.gone \(unshipped from catalog, pruned\)/, update.output)
+  assert.doesNotMatch(fixture.read(RECORD), /pr\.gone/, 'the record still lists a norm the catalog dropped')
+  assert.doesNotMatch(fixture.read(FILE), /dsh-norm: pr\.gone/, 'the block survived the prune')
 })
 
 test('nothing outside a marked block is ever written', (t) => {
@@ -122,7 +126,7 @@ test('nothing outside a marked block is ever written', (t) => {
   assert.match(fixture.read(FILE), /## Our own rules/, 'a removal took the project\'s own section with it')
 })
 
-test('remove refuses a personalized norm, and takes back an untouched one', (t) => {
+test('remove refuses a block that drifted, and takes back an untouched one', (t) => {
   const fixture = makeFixture()
   t.after(() => fixture.dispose())
   runCli(fixture.root, ['norms', 'install', '--group', 'test'])
@@ -130,7 +134,7 @@ test('remove refuses a personalized norm, and takes back an untouched one', (t) 
 
   const refused = runCli(fixture.root, ['norms', 'remove', 'test.behaviour'])
   assert.equal(refused.status, 1, refused.output)
-  assert.match(refused.output, /personalized — kept\s+test\.behaviour/, refused.output)
+  assert.match(refused.output, /drifted: test\.behaviour/, refused.output)
   assert.match(fixture.read(FILE), /Ours\./, 'a refused removal deleted the block')
 
   const removed = runCli(fixture.root, ['norms', 'remove', 'test.offline'])
@@ -147,8 +151,8 @@ test('explain reads a norm, its record and whether this project applied it', (t)
   const applied = runCli(fixture.root, ['norms', 'explain', 'test.behaviour'])
   assert.equal(applied.status, 0, applied.output)
   assert.match(applied.output, /applied: yes/, applied.output)
-  // No manager is installed in this fixture, so there is no ref to link at and the path is printed.
-  assert.match(applied.output, /record: \.agents\/dsh-spec\/notes\//, applied.output)
+  // The owning document of `test.behaviour` is the suite's own README, so that path is printed.
+  assert.match(applied.output, /record: tests\/README\.md/, applied.output)
   assert.match(applied.output, /- Why:/, applied.output)
 
   const other = runCli(fixture.root, ['norms', 'explain', 'pr.lifecycle'])
@@ -160,7 +164,7 @@ test('explain reads a norm, its record and whether this project applied it', (t)
   const parsed = JSON.parse(json.stdout) as { id: string, applied: boolean, source: string }[]
   assert.equal(parsed[0]?.id, 'test.behaviour')
   assert.equal(parsed[0]?.applied, true)
-  assert.ok(parsed[0]?.source.startsWith('.agents/'))
+  assert.equal(parsed[0]?.source, 'tests/README.md')
 })
 
 test('a selection or a record that cannot be read is refused, not half-applied', (t) => {
@@ -174,10 +178,6 @@ test('a selection or a record that cannot be read is refused, not half-applied',
   const noSelection = runCli(fixture.root, ['norms', 'install'])
   assert.equal(noSelection.status, 2, noSelection.output)
   assert.match(noSelection.output, /name the norms this applies to/, noSelection.output)
-
-  const unapplied = runCli(fixture.root, ['norms', 'update', '--take', 'test.behaviour'])
-  assert.equal(unapplied.status, 2, unapplied.output)
-  assert.match(unapplied.output, /is not applied in this project/, unapplied.output)
 
   fixture.write(RECORD, 'groups: [test]\ntest.behaviour: not-a-hash\n')
   const broken = runCli(fixture.root, ['norms', 'update'])
@@ -211,7 +211,7 @@ test('a refresh reports the applied norms, and never writes them', (t) => {
   const body = '- **One.**\n  - Why: because.\n  - Self-check: ask.'
   fixture.write('catalog.json', JSON.stringify({
     groups: [{ id: 'g', title: 'G', titleZh: '组' }],
-    norms: [{ id: 'g.one', group: 'g', title: 'One', titleZh: '一', body, source: 'README.md' }],
+    norms: [{ id: 'g.one', group: 'g', title: 'One', titleZh: '一', invariant: 'One.', body, source: 'README.md' }],
   }))
   const catalog = join(fixture.root, 'catalog.json')
 
@@ -224,11 +224,11 @@ test('a refresh reports the applied norms, and never writes them', (t) => {
   fixture.write(RECORD, renderNormsRecord({ groups: ['g'], norms: [{ id: 'g.one', base: normHash(body) }] }))
   assert.match(normsStatusFor(fixture.root, catalog), /1 norm\(s\) applied, all at this revision/)
 
-  // Personalized: named, and the command that would decide it is named too.
+  // Edited by hand: named as drift, and the flag that would take the catalog text is named too.
   fixture.write(FILE, fixture.read(FILE).replace('- **One.**', '- **Ours.**'))
   const report = normsStatusFor(fixture.root, catalog)
-  assert.match(report, /1 personalized/, report)
-  assert.match(report, /`norms update` applies or decides them; this command does not write them/, report)
+  assert.match(report, /1 drifted/, report)
+  assert.match(report, /a drifted block needs `--force`; this command does not write them/, report)
 
   // A record that cannot be read is reported, because a project's norms must not fail an upgrade.
   fixture.write(RECORD, 'g.one: not-a-hash\n')
@@ -288,9 +288,9 @@ test('a hook a hand edit dropped comes back from the record on the next sync', (
   assert.match(fixture.read('AGENTS.md'), /Ours\./)
 })
 
-test('this repository keeps its own instructions instead of applying the catalog', () => {
-  // These norms were distilled from this repository, so applying them back would state the same
-  // guidance twice and let the two drift apart. The catalog is shipped, never installed here.
-  assert.equal(existsSync(join(REPO_ROOT, NORMS_FILE)), false, 'this repository applied the catalog to itself')
-  assert.doesNotMatch(readFileSync(join(REPO_ROOT, 'AGENTS.md'), 'utf8'), /dsh-spec:norms/, 'this repository carries the catalog hook')
+test('this repository applies its own catalog, and holds the hook', () => {
+  // The catalog is generic and every red line is rendered from it, so this repository applies a
+  // selection like any other project: the file exists and `AGENTS.md` points at it.
+  assert.equal(existsSync(join(REPO_ROOT, NORMS_FILE)), true, 'this repository does not apply the catalog')
+  assert.match(readFileSync(join(REPO_ROOT, 'AGENTS.md'), 'utf8'), /dsh-spec:norms/, 'this repository carries no catalog hook')
 })

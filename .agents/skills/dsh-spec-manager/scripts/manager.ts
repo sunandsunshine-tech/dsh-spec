@@ -209,9 +209,9 @@ function runCaptured(command: string, args: string[], label: string): Promise<Ch
 /**
  * Run one command per item at the same time, and report each by its label.
  *
- * A refresh is network-bound: one `gh skill install` takes about twelve seconds here, and nine of
- * them in sequence is two minutes of waiting for work that has no order — each child writes its own
- * skill directory and reads nothing the others write. Their output is kept per child and printed
+ * A refresh is network-bound: one `gh skill install` takes about twelve seconds here, so running one
+ * per skill in sequence costs minutes of waiting for work that has no order — each child writes its
+ * own skill directory and reads nothing the others write. Their output is kept per child and printed
  * only when that child fails, so a failure is still readable and a success costs one line.
  *
  * @param command - the binary to run.
@@ -544,7 +544,7 @@ function pruneToRevision(skill: string, directory: string, expected: string[] | 
  * that content (they are left alone), which files a skill gained, lost or edited, and which files the
  * revision no longer ships (removed afterwards — `gh skill install --force` overwrites what it
  * installs and never deletes what the revision dropped). A refresh of an unchanged project is then
- * one API call and a local walk, rather than nine network installs.
+ * one API call and a local walk, rather than one network install per skill.
  *
  * A dry run reads the same listing and prints the same plan: the header it prints says `would` where
  * an applied run says nothing, and nothing is written. Reading the network is what makes

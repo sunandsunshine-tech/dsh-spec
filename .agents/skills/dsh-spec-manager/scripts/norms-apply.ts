@@ -4,18 +4,18 @@
  *
  * A project's copy is a directory holding two files, and it sits with the project's own agent
  * records rather than under `docs/`: the text is instruction an agent reads, not a document a person
- * reads. `README.md` is the entry — one section per group, one marked block per norm, and the file
+ * reads. `norms.md` is the entry — one section per group, one marked block per norm, and the file
  * the `AGENTS.md` hook points at — while `applied.yaml` records the ids this project applied and the
  * hash of each norm's text as the skill set last wrote it. A directory rather than one file because
  * the catalogue may outgrow a single page: a later per-group split adds files beside these two and
  * moves neither, where a file that had to become a directory would move a path projects hold. The record is what makes
- * personalization safe, because with a base hash three states are distinguishable and only one of
+ * a hand edit safe, because with a base hash three states are distinguishable and only one of
  * them may be overwritten silently:
  *
  * - the project's text still hashes to the base and the revision changed the norm: overwrite it;
- * - the project's text moved and the revision did not: keep it, and say so once;
- * - both moved: keep the project's text and print both versions, because the decision belongs to the
- *   project, or to the agent that puts the question to it.
+ * - the project's text still hashes to the base and the revision did not: leave it alone;
+ * - the project's text moved: keep it, report it as `drifted`, and refuse until the project takes the
+ *   catalog text with `--force`.
  *
  * Only the text inside a `<!-- dsh-norm: id -->` block is ever written, so a project's own sections,
  * headings and rules survive every verb untouched.
@@ -25,7 +25,7 @@ import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { readNorms } from './norms.ts'
-import type { NormsCatalog, NormsLanguage } from './norms.ts'
+import type { Norm, NormsCatalog, NormsLanguage } from './norms.ts'
 
 /** The file a project reads, and the record beside it. */
 export const NORMS_DIR = join('.agents', 'dsh-spec', 'norms')
@@ -35,12 +35,10 @@ export const NORMS_RECORD = join(NORMS_DIR, 'applied.yaml')
 /** The end marker of one block; the start marker is built from the id. */
 const END_MARKER = '<!-- /dsh-norm -->'
 
-/** One applied norm and the hash of the text this project held when it last agreed. */
+/** One applied norm and the hash of the block as the skill set last wrote it, for drift detection. */
 export interface AppliedNorm {
   id: string
   base: string
-  /** The project confirmed its own text as deliberate: an update may never overwrite it. */
-  kept?: boolean
 }
 
 /** What a project applied, and what the skill set last wrote for each of them. */
@@ -50,7 +48,7 @@ export interface NormsRecord {
 }
 
 /** What one norm's comparison found. */
-export type NormState = 'add' | 'current' | 'update' | 'personalized' | 'conflict' | 'missing' | 'unshipped' | 'removed'
+export type NormState = 'add' | 'current' | 'update' | 'drifted' | 'missing' | 'removed'
 
 /** One norm's outcome, with the two texts a decision needs when the project's copy moved. */
 export interface NormOutcome {
@@ -83,9 +81,16 @@ export function filePathOf(root: string): string {
   return join(root, NORMS_FILE)
 }
 
-/** The hash of a norm's text: the body, trimmed, so edge whitespace is not personalization. */
+/**
+ * The hash of a norm's block: line endings and trailing whitespace are normalized first, so a
+ * checkout with CRLF endings or an editor that trims a line is not read as a local edit.
+ *
+ * @param body - the block text.
+ * @returns the sha256 of its normalized form.
+ */
 export function normHash(body: string): string {
-  return createHash('sha256').update(body.trim(), 'utf8').digest('hex')
+  const normalized = body.replace(/\r\n?/g, '\n').split('\n').map(line => line.replace(/[ \t]+$/, '')).join('\n').trim()
+  return createHash('sha256').update(normalized, 'utf8').digest('hex')
 }
 
 /**
@@ -109,15 +114,13 @@ export function readNormsRecord(path: string): NormsRecord {
       record.groups = text.slice('groups:'.length).replace(/[[\]]/g, '').split(',').map(entry => entry.trim()).filter(entry => entry !== '')
       continue
     }
-    const match = /^([a-z][a-z0-9-]*\.[a-z][a-z0-9-]*):\s*([0-9a-f]{64})(\s+kept)?$/.exec(text)
+    // A ` kept` mark written before personalization was removed is read and dropped: the format
+    // gains nothing by carrying it, and refusing an older record would strand the upgrade.
+    const match = /^([a-z][a-z0-9-]*\.[a-z][a-z0-9-]*):\s*([0-9a-f]{64})(?:\s+kept)?$/.exec(text)
     if (match === null) {
       throw new Error(`${path}: \`${text}\` is not \`<id>: <sha256>\` — a record that cannot be read cannot decide what may be overwritten`)
     }
-    record.norms.push({
-      id: match[1] as string,
-      base: match[2] as string,
-      ...(match[3] === undefined ? {} : { kept: true }),
-    })
+    record.norms.push({ id: match[1] as string, base: match[2] as string })
   }
   return record
 }
@@ -125,13 +128,12 @@ export function readNormsRecord(path: string): NormsRecord {
 /** The record as its text, with the header that says what keeps it honest. */
 export function renderNormsRecord(record: NormsRecord): string {
   return [
-    '# The norms this project applies, and the hash of each as the skill set last wrote it.',
-    `# A hash that no longer matches the block in ${NORMS_FILE} means this project personalized that`,
-    '# norm: a refresh keeps it and reports it rather than overwriting. A `kept` mark at the end',
-    '# of a line records that the project confirmed its own text as deliberate, so that mismatch is',
-    '# settled rather than pending.',
+    '# The norms this project applies, and the hash of each block as the skill set last wrote it.',
+    `# ${NORMS_FILE} is generated: every update overwrites each block from the catalog. A hash that`,
+    '# no longer matches the block means the file was edited by hand, and the update refuses rather',
+    '# than overwriting it — run the update with `--force` to take the catalog version.',
     `groups: [${record.groups.join(', ')}]`,
-    ...record.norms.map(norm => `${norm.id}: ${norm.base}${norm.kept === true ? ' kept' : ''}`),
+    ...record.norms.map(norm => `${norm.id}: ${norm.base}`),
     '',
   ].join('\n')
 }
@@ -157,11 +159,11 @@ function fileHeader(): string {
   return [
     '# Norms applied in this project',
     '',
-    'Each norm below is one marked block. The selection, and the hash of each block as the skill set',
-    `last wrote it, live in \`${NORMS_RECORD}\` — that record is what lets a refresh tell an untouched`,
-    'block from one this project personalized: an untouched block takes the text of the revision, a',
-    'personalized one is kept and reported. Anything outside a marked block belongs to this project,',
-    'and a refresh never writes it.',
+    'Each norm below is one marked block, generated from the catalog. The selection, and the hash of',
+    `each block as the skill set last wrote it, live in \`${NORMS_RECORD}\` — a block whose text no`,
+    'longer matches its hash was edited by hand, and the next update reports it and refuses rather',
+    'than overwriting it. Anything outside a marked block belongs to this project, and a refresh',
+    'never writes it.',
     '',
   ].join('\n')
 }
@@ -232,29 +234,22 @@ function renderFile(catalog: NormsCatalog, blocks: Map<string, string>, language
   return out.join('\n')
 }
 
-/** The three-way comparison for one applied norm: what it is, and the text the file should hold. */
+/** The comparison for one applied norm: what it is, and the text the file should hold. */
 function classify(catalog: NormsCatalog, applied: AppliedNorm, block: string | undefined): { outcome: NormOutcome, text?: string } {
   const norm = catalog.norms.find(entry => entry.id === applied.id)
   const group = (norm?.group ?? applied.id.split('.')[0]) as string
-  if (norm === undefined) return { outcome: { id: applied.id, group, state: 'unshipped', mine: block } }
+  if (norm === undefined) return { outcome: { id: applied.id, group, state: 'removed', mine: block } }
   if (block === undefined) return { outcome: { id: applied.id, group, state: 'missing' } }
   const mine = normHash(block)
   const shipped = normHash(norm.body)
-  if (applied.kept === true) {
-    // Confirmed as this project's own: never overwritten, and when the revision moved it too the
-    // report prints both versions so the decision can be revisited.
-    return shipped === applied.base
-      ? { outcome: { id: applied.id, group, state: 'personalized', mine: block }, text: block }
-      : { outcome: { id: applied.id, group, state: 'personalized', shipped: norm.body, mine: block }, text: block }
-  }
-  if (mine === applied.base) {
-    return shipped === applied.base
-      ? { outcome: { id: applied.id, group, state: 'current' }, text: block }
-      : { outcome: { id: applied.id, group, state: 'update', shipped: norm.body }, text: norm.body }
+  if (mine !== applied.base) {
+    // The block is not what the skill set last wrote: a hand edit. It is kept and reported, and the
+    // update refuses until the project takes the catalog version.
+    return { outcome: { id: applied.id, group, state: 'drifted', shipped: norm.body, mine: block }, text: block }
   }
   return shipped === applied.base
-    ? { outcome: { id: applied.id, group, state: 'personalized', mine: block }, text: block }
-    : { outcome: { id: applied.id, group, state: 'conflict', shipped: norm.body, mine: block }, text: block }
+    ? { outcome: { id: applied.id, group, state: 'current' }, text: block }
+    : { outcome: { id: applied.id, group, state: 'update', shipped: norm.body }, text: norm.body }
 }
 
 /**
@@ -272,43 +267,42 @@ export function normsPlan(
   catalog: NormsCatalog,
   record: NormsRecord,
   existing: string | undefined,
-  request: { verb: NormsVerb, ids: readonly string[], keep?: readonly string[], take?: readonly string[] },
+  request: { verb: NormsVerb, ids: readonly string[], force?: boolean },
   language: NormsLanguage,
 ): NormsPlan {
   const blocks = existing === undefined ? new Map<string, string>() : readNormsBlocks(existing)
   const applied = new Map(record.norms.map(entry => [entry.id, entry]))
-  const keep = request.keep ?? []
-  const take = request.take ?? []
+  const force = request.force === true
   const outcomes: NormOutcome[] = []
   /** The ids this plan drops from the selection, so the sweep below cannot hold them back. */
   const dropped = new Set<string>()
   /** Per id: the text the file should hold (`undefined` keeps a record entry with no block), the
    * base hash the record should carry, and whether the project confirmed its own text. */
-  const next = new Map<string, { text?: string, base: string, kept?: boolean }>()
+  const next = new Map<string, { text?: string, base: string }>()
 
-  /** Hold an applied norm exactly as it stands: same text, same base, same confirmation. An update
-   * that may not overwrite a norm must not forget what the skill set last wrote either, or the next
-   * update would compare against the project's own text and overwrite it. */
+  /** Hold a norm exactly as it stands: same text, same base. A block that drifted keeps the base the
+   * skill set last wrote, so the next update reports the same drift instead of adopting the edit. */
   const hold = (id: string, entry: AppliedNorm): void => {
     const block = blocks.get(id)
-    next.set(id, {
-      ...(block === undefined ? {} : { text: block }),
-      base: entry.base,
-      ...(entry.kept === true ? { kept: true } : {}),
-    })
+    next.set(id, { ...(block === undefined ? {} : { text: block }), base: entry.base })
   }
 
   for (const id of request.ids) {
     const norm = catalog.norms.find(entry => entry.id === id)
-    if (norm === undefined) throw new Error(`no norm \`${id}\` in the catalog — run \`norms list\` for the ids it ships`)
+    if (norm === undefined) {
+      // `update` walks the record, so an id the catalog dropped reaches this loop: it is left to the
+      // sweep below, which prunes it, rather than refusing the whole update.
+      if (request.verb === 'update') continue
+      throw new Error(`no norm \`${id}\` in the catalog — run \`norms list\` for the ids it ships`)
+    }
     const entry = applied.get(id)
     const block = blocks.get(id)
     if (request.verb === 'remove') {
       if (entry === undefined) throw new Error(`\`${id}\` is not applied in this project — nothing to remove`)
-      // Removing a norm the project personalized would take that text with it, so it is refused
-      // until the project has decided: `norms update --take <id>` first, then remove.
+      // Removing a block that drifted would take a hand edit with it, so it is refused until the
+      // project resolves it: run an update with `--force` first, then remove.
       if (block !== undefined && normHash(block) !== entry.base) {
-        outcomes.push({ id, group: norm.group, state: 'personalized', mine: block })
+        outcomes.push({ id, group: norm.group, state: 'drifted', shipped: norm.body, mine: block })
         hold(id, entry)
         continue
       }
@@ -317,63 +311,58 @@ export function normsPlan(
       continue
     }
     if (entry === undefined) {
-      // Applying an id this project never applied. A block already under that id is the project's
-      // own writing: the record gains the id so updates can compare, and the text stays theirs.
+      // Applying an id this project never applied. A block already under that id is not ours: it is
+      // reported as drift and left alone until `--force` takes the catalog version.
       if (block === undefined) {
         next.set(id, { text: norm.body, base: normHash(norm.body) })
         outcomes.push({ id, group: norm.group, state: 'add' })
+      } else if (force) {
+        next.set(id, { text: norm.body, base: normHash(norm.body) })
+        outcomes.push({ id, group: norm.group, state: 'update', shipped: norm.body, mine: block })
       } else {
-        next.set(id, { text: block, base: normHash(norm.body), kept: true })
-        outcomes.push({ id, group: norm.group, state: 'personalized', mine: block })
+        next.set(id, { text: block, base: normHash(norm.body) })
+        outcomes.push({ id, group: norm.group, state: 'drifted', shipped: norm.body, mine: block })
       }
-      continue
-    }
-    if (take.includes(id)) {
-      if (block === undefined) {
-        outcomes.push({ id, group: norm.group, state: 'missing' })
-        continue
-      }
-      const shipped = normHash(norm.body)
-      const mine = normHash(block)
-      next.set(id, { text: norm.body, base: shipped })
-      outcomes.push(mine === shipped
-        ? { id, group: norm.group, state: 'current' }
-        : { id, group: norm.group, state: 'update', shipped: norm.body, mine: block })
-      continue
-    }
-    if (keep.includes(id)) {
-      if (block === undefined) {
-        outcomes.push({ id, group: norm.group, state: 'missing' })
-        continue
-      }
-      const shipped = normHash(norm.body)
-      next.set(id, { text: block, base: entry.base, kept: true })
-      outcomes.push(shipped === entry.base
-        ? { id, group: norm.group, state: 'personalized', mine: block }
-        : { id, group: norm.group, state: 'personalized', shipped: norm.body, mine: block })
       continue
     }
     const { outcome, text } = classify(catalog, entry, block)
-    outcomes.push(outcome)
-    if (outcome.state === 'current' || outcome.state === 'update') {
-      next.set(id, { text: text as string, base: outcome.state === 'current' ? entry.base : normHash(text as string) })
-    } else if (outcome.state === 'personalized' || outcome.state === 'conflict' || outcome.state === 'unshipped') {
-      hold(id, entry)
+    if (outcome.state === 'drifted' && force) {
+      // The project asked to take the catalog text over its own edit: that is an update, and the run
+      // must not report the drift it was told to resolve.
+      outcomes.push({ id, group: norm.group, state: 'update', shipped: norm.body, mine: block })
+      next.set(id, { text: norm.body, base: normHash(norm.body) })
     } else {
-      // `missing`: the block is gone from the file. The record keeps the id, and nothing is
-      // re-added — a block this project deleted stays deleted.
-      hold(id, entry)
+      outcomes.push(outcome)
+      if (outcome.state === 'current' || outcome.state === 'update') {
+        next.set(id, { text: text as string, base: outcome.state === 'current' ? entry.base : normHash(text as string) })
+      } else {
+        // `missing`: the block is gone from the file, so the record keeps the id and nothing is
+        // re-added. `drifted` without `--force`: the block is not ours and stays exactly as it is.
+        hold(id, entry)
+      }
     }
   }
   for (const entry of record.norms) {
     if (next.has(entry.id) || dropped.has(entry.id)) continue
     const norm = catalog.norms.find(candidate => candidate.id === entry.id)
-    if (request.verb === 'install' && norm !== undefined) {
+    if (norm === undefined) {
+      // Self-heal: the catalog dropped this norm. Prune it from the record and delete its block, so
+      // an upgrade does not carry a rule nobody publishes any more.
+      outcomes.push({ id: entry.id, group: entry.id.split('.')[0] as string, state: 'removed', mine: blocks.get(entry.id) })
+      dropped.add(entry.id)
+      continue
+    }
+    if (request.verb === 'install') {
       const { outcome, text } = classify(catalog, entry, blocks.get(entry.id))
-      outcomes.push(outcome)
-      if (outcome.state === 'current' || outcome.state === 'update') {
-        next.set(entry.id, { text: text as string, base: outcome.state === 'current' ? entry.base : normHash(text as string) })
-      } else hold(entry.id, entry)
+      if (outcome.state === 'drifted' && force) {
+        outcomes.push({ id: entry.id, group: entry.id.split('.')[0] as string, state: 'update', shipped: norm.body, mine: blocks.get(entry.id) })
+        next.set(entry.id, { text: norm.body, base: normHash(norm.body) })
+      } else {
+        outcomes.push(outcome)
+        if (outcome.state === 'current' || outcome.state === 'update') {
+          next.set(entry.id, { text: text as string, base: outcome.state === 'current' ? entry.base : normHash(text as string) })
+        } else hold(entry.id, entry)
+      }
       continue
     }
     hold(entry.id, entry)
@@ -395,11 +384,9 @@ export function normsPlan(
       else if (outcome.state === 'update' && entry?.text !== undefined) file = replaceBlock(file, outcome.id, entry.text)
     }
   }
-  // The record lists what the project applies: catalog order first, then the norms the catalog no
-  // longer ships, each with the hash of the text the skill set last wrote and its confirmation.
-  const inCatalog = catalog.norms.filter(norm => next.has(norm.id)).map(norm => norm.id)
-  const unshipped = record.norms.map(entry => entry.id).filter(id => next.has(id) && !inCatalog.includes(id))
-  const order = [...inCatalog, ...unshipped]
+  // The record lists what the project applies, in catalog order, each with the hash of the block as
+  // the skill set last wrote it. A norm the catalog dropped is pruned above and not listed.
+  const order = catalog.norms.filter(norm => next.has(norm.id)).map(norm => norm.id)
   const groups = catalog.groups.map(group => group.id).filter(group => order.some(id => id.startsWith(`${group}.`)))
   return {
     outcomes,
@@ -407,8 +394,8 @@ export function normsPlan(
     record: {
       groups,
       norms: order.map((id) => {
-        const value = next.get(id) as { base: string, kept?: boolean }
-        return { id, base: value.base, ...(value.kept === true ? { kept: true } : {}) }
+        const value = next.get(id) as { base: string }
+        return { id, base: value.base }
       }),
     },
   }
@@ -420,16 +407,24 @@ export function renderNormsPlan(plan: NormsPlan, language: NormsLanguage): strin
     add: ['add', '新增'],
     current: ['ok', '已是'],
     update: ['update', '更新'],
-    personalized: ['personalized — kept', '已个性化 — 保留'],
-    conflict: ['conflict — kept, decide', '冲突 — 保留,待定'],
+    drifted: ['drifted', '被本地改动'],
     missing: ['not in the file — not re-added', '文件里没有 — 不补回'],
-    unshipped: ['no longer shipped — kept', '集合已不再发布 — 保留'],
-    removed: ['remove', '移除'],
+    removed: ['removed', '已移除'],
   }
   const lines: string[] = []
   for (const outcome of plan.outcomes) {
-    const label = labels[outcome.state][language === 'zh' ? 1 : 0]
-    lines.push(`  ${label.padEnd(language === 'zh' ? 18 : 28)}${outcome.id}`)
+    if (outcome.state === 'drifted') {
+      lines.push(language === 'zh'
+        ? `  drifted: ${outcome.id}（${NORMS_FILE} 里被本地改动）— 加 --force 取集合版`
+        : `  drifted: ${outcome.id} (locally modified in ${NORMS_FILE}). Run with --force to take the catalog version.`)
+    } else if (outcome.state === 'removed') {
+      lines.push(language === 'zh'
+        ? `  removed: ${outcome.id}（集合不再发布，已清理）`
+        : `  removed: ${outcome.id} (unshipped from catalog, pruned)`)
+    } else {
+      const label = labels[outcome.state][language === 'zh' ? 1 : 0]
+      lines.push(`  ${label.padEnd(language === 'zh' ? 18 : 28)}${outcome.id}`)
+    }
     if (outcome.shipped !== undefined && outcome.mine !== undefined) {
       lines.push(language === 'zh' ? '    集合这一版:' : '    the revision says:')
       for (const row of outcome.shipped.split('\n')) lines.push(`      ${row}`)
@@ -454,17 +449,21 @@ export const NORMS_HOOK_END = '<!-- /dsh-spec:norms -->'
 /**
  * The `AGENTS.md` section a project carries only while it applies norms.
  *
- * A hook is not a rule: it says that the rules exist, where they are, and how far they reach, so
- * a session that starts long after the install still reads them. It is rendered from the same place
- * a rule is, so there is one statement of it rather than two.
+ * A hook is not a rule: it states each applied norm's red line, in one flat list, so a session that
+ * starts long after the install reads the constraint without opening the file. It is rendered from
+ * the catalog's `invariant` field, so the file and the hook have one statement rather than two.
  *
+ * @param norms - the norms the project applies, in catalog order.
  * @returns the section text, markers included, newline-terminated.
  */
-export function normsHookSection(): string {
+export function normsHookSection(norms: readonly Norm[]): string {
+  const lines = norms.map(norm => `- **\`${norm.id}\`** ${norm.invariant}`)
   return `${NORMS_HOOK_START}
 ## Norms this project applies
 
-\`${NORMS_FILE}\` holds the norms this project applies: one section per group, one rule per marked block. They govern every task here, not only changes to files — read the ones covering the work in hand before starting it.
+\`${NORMS_FILE}\` holds the norms this project applies; these are their red lines. They govern every task here, not only changes to files — read the rule itself before the work it covers.
+
+${lines.join('\n')}
 
 ${NORMS_HOOK_END}
 `
@@ -479,11 +478,11 @@ ${NORMS_HOOK_END}
  * returned byte for byte.
  *
  * @param existing - the `AGENTS.md` as the project holds it.
- * @param applied - whether the project applies any norm.
+ * @param norms - the norms the project applies; an empty list removes the hook.
  * @returns the file's new text.
  */
-export function applyNormsHook(existing: string, applied: boolean): string {
-  const rendered = applied ? normsHookSection().trimEnd() : ''
+export function applyNormsHook(existing: string, norms: readonly Norm[]): string {
+  const rendered = norms.length > 0 ? normsHookSection(norms).trimEnd() : ''
   const start = existing.indexOf(NORMS_HOOK_START)
   const end = existing.indexOf(NORMS_HOOK_END)
   if (start < 0 || end < 0) {
@@ -525,7 +524,7 @@ export function normsStatusFor(root: string, catalogPath: string): string {
     const moved = [...counts.entries()].filter(([state]) => state !== 'current')
     if (moved.length === 0) return `  ${record.norms.length} norm(s) applied, all at this revision`
     const summary = moved.map(([state, count]) => `${count} ${state}`).join(', ')
-    return `  ${record.norms.length} norm(s) applied: ${summary} — \`norms update\` applies or decides them; this command does not write them`
+    return `  ${record.norms.length} norm(s) applied: ${summary} — \`norms update\` applies them, a drifted block needs \`--force\`; this command does not write them`
   } catch (error) {
     return `  the norms this project applies could not be read: ${(error as Error).message}`
   }
