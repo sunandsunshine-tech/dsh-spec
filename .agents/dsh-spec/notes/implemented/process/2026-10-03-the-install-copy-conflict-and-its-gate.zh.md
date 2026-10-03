@@ -18,6 +18,8 @@ Status: implemented
 
 **门禁既是安全网,也补上那条缺口。** `scripts/verify-installed-copy.ts` 逐技能比较两棵树:文件集合必须相同,除 `SKILL.md` 外逐字节相等,`SKILL.md` 则把注入的 `metadata:` 块从两侧都去掉后再比;每份副本的 `github-tree-sha` 必须等于 `git rev-parse HEAD:skills/<name>`;空语料即失败。它**绝不比较 `github-ref` 的值**:在 main 上该值指向一个已合并并被删除的工作分支,而副本仍是最新的——这个字段是历史指针,不是这棵树能检查的声明。[发布提交自带它发布的那份副本](2026-09-23-the-release-commit-carries-its-own-copy.zh.md)拥有「为什么悬空的 ref 可以接受、以及为什么注入的 tree sha 才是副本给出的声明」。门禁抓两类错误:忘了刷新,以及冲突解错了边;`AGENTS.md` 的配方里点的就是它。
 
+**两篇互补,谁也不取代谁。**[在 git 中跟踪已安装的技能副本](2026-09-18-track-the-installed-skill-copy.zh.md)的决定继续有效,本篇关闭的是它 Consequences 里点名的那条覆盖缺口。
+
 ## Alternatives considered
 
 **用 `.gitattributes` 合并驱动自动取一边。** 落选:副本里的引擎就是 CI 执行的代码;当一边改了引擎、另一边只改了技能时,自动取一边会把引擎的改动静默丢掉。

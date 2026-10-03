@@ -18,6 +18,8 @@ The repository also has no gate comparing the copy with its source — the cover
 
 **A gate is both the net and the missing coverage.** `scripts/verify-installed-copy.ts` compares the two trees per skill: the file sets must match, every file but `SKILL.md` byte-for-byte, and `SKILL.md` with the injected `metadata:` block dropped from both sides; each copy's `github-tree-sha` must equal `git rev-parse HEAD:skills/<name>`; an empty corpus fails. It **never compares `github-ref`'s value**, because on main that value names a work branch that was merged and deleted while the copy is current — the field is a historical pointer, not a claim this tree can check. [The release commit carries its own copy](2026-09-23-the-release-commit-carries-its-own-copy.md) owns why a dangling ref is accepted and why the injected tree sha is the claim a copy makes. The gate catches a forgotten refresh and a conflict resolved to the wrong side, and `AGENTS.md` names it in the recipe.
 
+**The two notes are complementary and neither supersedes the other.** [Track the installed skill copy in git](2026-09-18-track-the-installed-skill-copy.md) keeps its decision in force, and this note closes the coverage gap its Consequences named.
+
 ## Alternatives considered
 
 **A `.gitattributes` merge driver that takes one side.** Rejected: the copy carries the engine that CI executes, and an automatic resolution silently drops an engine change whenever one side changes the engine and the other only changes a skill.
