@@ -1,8 +1,6 @@
 ---
 name: dsh-agent-experience
 description: Use when designing agent tools, skills, context loading, or multi-step workflows to make information discoverable and use context efficiently.
-metadata:
-  date: "2026-09-11"
 ---
 
 - **Start with minimal context:** expose purpose, available actions, and constraints first; load detailed instructions when needed.
