@@ -6,13 +6,13 @@ Status: implemented
 
 ## Problem
 
-每次改到 `skills/` 的变更都必须顺手在同一 change 里刷新 `.agents/skills/**`,因为[在 git 中跟踪已安装的技能副本](2026-09-18-track-the-installed-skill-copy.zh.md)把副本定成了 agent 真正加载的规则。安装器往十个已安装的 `SKILL.md` 里各写一段 `metadata:`,其中的 `github-ref` 记的是这次安装所依据的分支。这个值逐分支不同,于是两个都改 `skills/` 的 PR 会在同样那十行上撞车——同一行、不同值,而不是不同的改动:#57 的 rebase 手工解掉了这处冲突,#60 还欠一次。
+每次改动 `skills/` 都必须在同一次变更里刷新 `.agents/skills/**`,因为[在 git 中跟踪已安装的技能副本](2026-09-18-track-the-installed-skill-copy.zh.md)把副本定成了 agent 真正加载的规则。安装器往十个已安装的 `SKILL.md` 里各写一段 `metadata:`,其中的 `github-ref` 记的是这次安装所依据的分支。这个值逐分支不同,于是两个都改 `skills/` 的 PR 会在同样那十行上撞车——同一行、不同值,而不是不同的改动:#57 的 rebase 手工解掉了这处冲突。
 
-仓库同时没有一条门禁比较副本与源——这正是[在 git 中跟踪已安装的技能副本](2026-09-18-track-the-installed-skill-copy.zh.md)在 Consequences 里点名的覆盖缺口。改了包却忘了刷新的变更会让本仓库保持绿色,而加载的技能已经陈旧,评审里也看不出来。
+仓库还没有一条门禁比较副本与源——这正是[在 git 中跟踪已安装的技能副本](2026-09-18-track-the-installed-skill-copy.zh.md)在 Consequences 里点名的覆盖缺口。改了包却忘了刷新的变更会让本仓库保持绿色,而加载的技能已经陈旧,评审里也看不出来。
 
 ## Decision
 
-**冲突本身接受。** 副本与源留在同一个 change 里。把刷新挪到发布时,中间每个 PR 都会加载源已不再声明的规则,而那正是跟踪副本要防的静默分叉。注入块上的撞车是机械的——一行、一个值——不值得为它放弃 same-change 保证。
+**冲突本身接受。** 副本与源留在同一次变更里。把刷新挪到发布时,中间每个 PR 都会加载源已不再声明的规则,而那正是跟踪副本要防的静默分叉。注入块上的撞车是机械的——一行、一个值——不值得为它放弃「同一变更」这条保证。
 
 **解决走一条固定配方。** 先把分支 rebase 到新的基上,副本冲突行取任意一边,重跑 `upgrade --revision <current-branch>` 让整份副本从源重新生成,跑 `node scripts/verify-installed-copy.ts`,再用 `--force-with-lease` 发布重写后的分支。
 
@@ -35,4 +35,4 @@ Status: implemented
 - 冲突还在,但它变得机械,而且有了安全网:不论是忘了刷新,还是冲突解错了边,门禁都会点名那份与源不一致的副本。
 - 门禁是仓库自己的工具,不是随包发布的检查:它读 `skills/`,adopter 没有这棵树;CI 在 port provenance 之后跑它。
 - 配方落在 `AGENTS.md` 里,一次 rebase 因此只有一个已记录的答案,不必逐分支重新判断。
-- 缩小元数据面这件事连同它的触发条件保持开放;在那之前,十个注入的 `github-ref` 行就是 same-change 保证的代价。
+- 缩小元数据面这件事连同它的触发条件保持开放;在那之前,十个注入的 `github-ref` 行就是「同一变更」保证的代价。
