@@ -1,7 +1,7 @@
 # Bilingual-pair consistency record for 2026-10-02-the-repository-applies-the-catalog.md (references/i18n-contract.md): per heading
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-10-02-the-repository-applies-the-catalog.md
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-10-02-the-repository-applies-the-catalog.md
 /agent-note-the-repository-applies-the-catalog:
   en: 93c2fa002708a4bf
   zh: c1095a1e5a3dfc80

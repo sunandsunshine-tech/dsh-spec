@@ -1,7 +1,7 @@
 # Bilingual-pair consistency record for 2026-09-20-two-pointers-that-outlived-their-mechanism.md (references/i18n-contract.md): per heading
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-20-two-pointers-that-outlived-their-mechanism.md
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-20-two-pointers-that-outlived-their-mechanism.md
 /agent-note-two-pointers-that-outlived-their-mechanism:
   en: 7471e426529d8a2e
   zh: 30aa3960a3849ff5

@@ -1,7 +1,7 @@
 # Bilingual-pair consistency record for 2026-09-21-actions-are-subcommands.md (references/i18n-contract.md): per heading
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-actions-are-subcommands.md
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-actions-are-subcommands.md
 /agent-note-actions-are-subcommands-and-the-cheap-scope-is-the-default:
   en: 1cc17a64379b8f8f
   zh: 8ea4dca446ab306e

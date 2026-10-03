@@ -1,7 +1,7 @@
 # Bilingual-pair consistency record for 2026-09-18-double-star-spans-any-depth.md (references/i18n-contract.md): per heading
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-18-double-star-spans-any-depth.md
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-18-double-star-spans-any-depth.md
 /agent-note-spans-any-depth-and-stays-inside-one-segment:
   en: 5395edb300accf6c
   zh: a9c9d8d2511f14bf

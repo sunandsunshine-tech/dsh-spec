@@ -1,7 +1,7 @@
 # Bilingual-pair consistency record for 2026-09-21-the-manager-s-own-install-is-the-pin.md (references/i18n-contract.md): per heading
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-manager-s-own-install-is-the-pin.md
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-manager-s-own-install-is-the-pin.md
 /agent-note-the-manager-s-own-install-is-the-pin:
   en: 9e230978dd073f71
   zh: 594f1f9055fc0c57

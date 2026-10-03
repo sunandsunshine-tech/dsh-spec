@@ -1,7 +1,7 @@
 # Bilingual-pair consistency record for 2026-09-20-three-rules-from-a-memory-pipeline.md (references/i18n-contract.md): per heading
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-20-three-rules-from-a-memory-pipeline.md
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-20-three-rules-from-a-memory-pipeline.md
 /agent-note-three-rules-from-a-memory-pipeline:
   en: 4ec09b5c9cccd59e
   zh: a598828a15c9b2b6

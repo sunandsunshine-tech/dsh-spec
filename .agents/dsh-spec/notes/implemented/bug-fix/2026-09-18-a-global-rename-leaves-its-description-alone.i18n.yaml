@@ -1,7 +1,7 @@
 # Bilingual-pair consistency record for 2026-09-18-a-global-rename-leaves-its-description-alone.md (references/i18n-contract.md): per heading
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-18-a-global-rename-leaves-its-description-alone.md
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/bug-fix/2026-09-18-a-global-rename-leaves-its-description-alone.md
 /agent-note-a-global-rename-leaves-the-sentence-that-describes-it-alone:
   en: ac0e45eebd27e00d
   zh: 90005016af1e4088

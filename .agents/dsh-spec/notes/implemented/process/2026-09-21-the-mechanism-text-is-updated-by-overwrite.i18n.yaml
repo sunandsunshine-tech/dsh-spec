@@ -1,7 +1,7 @@
 # Bilingual-pair consistency record for 2026-09-21-the-mechanism-text-is-updated-by-overwrite.md (references/i18n-contract.md): per heading
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-mechanism-text-is-updated-by-overwrite.md
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-mechanism-text-is-updated-by-overwrite.md
 /agent-note-the-mechanism-text-is-updated-by-overwrite:
   en: a3f281befd44e823
   zh: b08237ce0b59826b

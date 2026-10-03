@@ -1,7 +1,7 @@
 # Bilingual-pair consistency record for 2026-09-22-migration-cost-is-a-design-constraint.md (references/i18n-contract.md): per heading
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-22-migration-cost-is-a-design-constraint.md
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-22-migration-cost-is-a-design-constraint.md
 /agent-note-migration-cost-is-a-design-constraint:
   en: 518029280aed91d6
   zh: 8d5284ec2e427f43

@@ -1,7 +1,7 @@
 # Bilingual-pair consistency record for 2026-09-18-reference-gates-instead-of-releasing-them.md (references/i18n-contract.md): per heading
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-18-reference-gates-instead-of-releasing-them.md
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-18-reference-gates-instead-of-releasing-them.md
 /agent-note-reference-the-gates-where-they-ship-instead-of-releasing-them:
   en: 14466052b2c17e1d
   zh: 7a301430f0fbcb7d

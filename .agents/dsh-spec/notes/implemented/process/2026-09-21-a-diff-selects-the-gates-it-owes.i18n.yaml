@@ -1,7 +1,7 @@
 # Bilingual-pair consistency record for 2026-09-21-a-diff-selects-the-gates-it-owes.md (references/i18n-contract.md): per heading
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-a-diff-selects-the-gates-it-owes.md
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-a-diff-selects-the-gates-it-owes.md
 /agent-note-a-diff-selects-the-gates-it-owes:
   en: 7b21c0ce331d9dde
   zh: 8784409b52d4dade

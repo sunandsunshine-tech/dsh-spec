@@ -2,7 +2,7 @@
 description: Use when designing agent tools, skills, context loading, or multi-step workflows to make information discoverable and use context efficiently.
 metadata:
     github-path: skills/dsh-agent-experience
-    github-ref: refs/heads/chore/baseline-dsh-v0.2.0-rc.2
+    github-ref: refs/heads/chore/unify-pair-record-command
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
     github-tree-sha: bafeb10a33bb9abcf819cf2275403a6caad493eb
 name: dsh-agent-experience

@@ -2,7 +2,7 @@
 description: Use when reviewing a pull request in this repository — orients the reviewer to this codebase's standards (AGENTS.md conventions, defensive patterns, decision records, quality gates) and the review-specific checks that code alone can't show
 metadata:
     github-path: skills/dsh-code-review
-    github-ref: refs/heads/chore/baseline-dsh-v0.2.0-rc.2
+    github-ref: refs/heads/chore/unify-pair-record-command
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
     github-tree-sha: ea3ae85e6e4016d628c185f84dbf4c27a004741c
 name: dsh-code-review

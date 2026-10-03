@@ -2,7 +2,7 @@
 description: Use before pushing, force-pushing, marking ready for review, or claiming checks pass on a branch, and immediately after gh stack sync publishes rewritten branches, to select the smallest tests and checks that cover the outgoing or just-published diff without reflexively running the full repository suite.
 metadata:
     github-path: skills/dsh-pre-push-checks
-    github-ref: refs/heads/chore/baseline-dsh-v0.2.0-rc.2
+    github-ref: refs/heads/chore/unify-pair-record-command
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
     github-tree-sha: 4399555f87f56c28da9d4e4623c5144cecf3cef0
 name: dsh-pre-push-checks

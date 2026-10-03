@@ -1,7 +1,7 @@
 # Bilingual-pair consistency record for 2026-09-21-the-shipped-skill-text-is-an-extraction.md (references/i18n-contract.md): per heading
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
-#   node skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-shipped-skill-text-is-an-extraction.md
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-shipped-skill-text-is-an-extraction.md
 /agent-note-the-shipped-skill-text-is-an-extraction:
   en: 28049e7ee600c15c
   zh: 5eba31bcb2e5c447
