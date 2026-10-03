@@ -24,18 +24,17 @@ never writes it.
 <!-- dsh-norms: owner -->
 ## Ownership and a single source of truth
 
-<!-- dsh-norm: owner.one-home -->
-- **One fact, one home, and everything else derives from it.** Do not write the same path, revision, list or rule down twice: the second copy drifts, and the drift is invisible until the two disagree in public. A path or a constant belongs to the thing that owns it; every other mention resolves it from there.
-  - Why: a second copy is a promise to keep two things in step that nothing enforces.
-  - Self-check: change the fact and count the files you had to touch. More than one owner is one too many.
-<!-- /dsh-norm -->
-
 <!-- dsh-norm: owner.create-vs-update -->
 - **Running a tool twice must not erase what it did not write.** A generator or initializer fills the gaps on its first run; every later run leaves alone the files a person created and the lines a person added, and when it has to refresh its own text it rewrites only that text.
   - Why: re-running is the normal thing to do -- after a pull, after an upgrade, on a second machine. A tool whose second run punishes that habit stops being re-run, and then it is no longer an upgrade path at all.
   - Self-check: run it twice. Does the second run change anything the first one did not write? Add a line by hand, run it again: is the line still there?
 <!-- /dsh-norm -->
 
+<!-- dsh-norm: owner.ssot -->
+- **One fact, one home, and everything else derives from it.** Do not write the same path, revision, list or rule down twice: the second copy drifts, and the drift is invisible until the two disagree in public. A path or a constant belongs to the thing that owns it; every other mention resolves it from there.
+  - Why: a second copy is a promise to keep two things in step that nothing enforces.
+  - Self-check: change the fact and count the files you had to touch. More than one owner is one too many.
+<!-- /dsh-norm -->
 <!-- dsh-norms: pr -->
 ## Pull-request lifecycle
 
