@@ -1,0 +1,19 @@
+# Bilingual-pair consistency record for 2026-10-03-the-install-copy-conflict-and-its-gate.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-10-03-the-install-copy-conflict-and-its-gate.md
+/agent-note-the-install-copy-conflict-and-its-gate:
+  en: 0ec70c96f3f3e64c
+  zh: 9ca63fa30eafa423
+/agent-note-the-install-copy-conflict-and-its-gate/problem:
+  en: 8d4468dd6c0cf675
+  zh: fc5698966cdef484
+/agent-note-the-install-copy-conflict-and-its-gate/decision:
+  en: c172cd8b69bbb01c
+  zh: c0422548f9e9750f
+/agent-note-the-install-copy-conflict-and-its-gate/alternatives-considered:
+  en: 4c5911b84ffd8c45
+  zh: ee710f23fe4a2899
+/agent-note-the-install-copy-conflict-and-its-gate/consequences:
+  en: 222482ab0c47b3a3
+  zh: 8fba08321d065944

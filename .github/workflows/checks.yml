@@ -58,6 +58,13 @@ jobs:
       - name: port provenance
         run: node scripts/verify-port-provenance.ts
 
+      # The installed copy is the same text as skills/, so a reloaded rule cannot differ from the
+      # one that was reviewed. It is also the net under a rebase that resolved the injected
+      # metadata conflict to the wrong side: the copy is compared against the source tree, not
+      # against the branch it was installed from.
+      - name: the installed copy equals the authored skills
+        run: node scripts/verify-installed-copy.ts
+
       # A relative link is resolved against the file it sits in, so the whole
       # corpus is read: a target deleted under an untouched referrer is caught
       # here, not by the change-scoped dispatch. The installed copy is a
