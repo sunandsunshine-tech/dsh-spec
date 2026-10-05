@@ -26,17 +26,28 @@ jobs:
       # The baseline is the revisions the registry records and nothing more: the pin, plus the
       # older revision nine ports were taken from. `submodules: recursive` clones dsh's entire
       # history instead — 288 MiB and 28s, against ~60 MiB and ~20s for these commits.
-      # `ports.json` owns the revisions; `.gitmodules` owns the URL.
+      # `ports.json` owns the revisions; `.gitmodules` owns the URL. Revisions the clone lacks go
+      # out in one fetch: one fetch per revision reads and rewrites `.git/shallow` each time, and
+      # the runner's git aborts a later one with "shallow file has changed since we read it".
+      # Every recorded revision is asserted afterwards, so a fetch that quietly fetches nothing
+      # fails the job instead of leaving the gate to read a tree the registry does not name.
       - name: the baseline, at the revisions the registry records
         run: |
           git clone --quiet --depth 1 \
             --branch "$(node -p 'require("./scripts/ports.json").baseline.ref')" \
             "$(git config -f .gitmodules --get 'submodule.submodules/dsh.url')" \
             submodules/dsh
-          node -e 'const p = require("./scripts/ports.json"); for (const sha of new Set([p.baseline.sha, ...p.ports.map(port => port.sha)])) console.log(sha)' \
-            | while read -r sha; do
-                git -C submodules/dsh fetch --quiet --depth 1 origin "$sha"
-              done
+          mapfile -t revisions < <(node -e 'const p = require("./scripts/ports.json"); for (const sha of new Set([p.baseline.sha, ...p.ports.map(port => port.sha)])) console.log(sha)')
+          missing=()
+          for revision in "${revisions[@]}"; do
+            git -C submodules/dsh cat-file -e "${revision}^{commit}" 2>/dev/null || missing+=("$revision")
+          done
+          if [ "${#missing[@]}" -gt 0 ]; then
+            git -C submodules/dsh fetch --quiet --depth 1 origin "${missing[@]}"
+          fi
+          for revision in "${revisions[@]}"; do
+            git -C submodules/dsh cat-file -e "${revision}^{commit}"
+          done
 
       - name: the functional suite
         run: node --test 'tests/**/*.test.ts'
