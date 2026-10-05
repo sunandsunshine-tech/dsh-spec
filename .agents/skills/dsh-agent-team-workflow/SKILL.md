@@ -2,7 +2,7 @@
 description: Use when a request is a multi-step engineering delivery — a feature, a refactor, or a bug fix that must carry its decision record, its documentation, and its bilingual pairs. Treats the loaded skill as the prompt that turns the session into a team, and the task card as the contract each member works from.
 metadata:
     github-path: skills/dsh-agent-team-workflow
-    github-ref: refs/heads/refactor/norm-owner-ssot
+    github-ref: refs/heads/release/v0.4.0
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
     github-tree-sha: c840761575dbbe9407c7f928c8a9bbafdd160c13
 name: dsh-agent-team-workflow
