@@ -1,0 +1,22 @@
+# Bilingual-pair consistency record for 2026-10-03-teammate-reuse-and-task-affinity.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-10-03-teammate-reuse-and-task-affinity.md
+/agent-note-teammate-reuse-and-task-affinity:
+  en: 765fe0ce8c788a20
+  zh: 6a072a482ba42a66
+/agent-note-teammate-reuse-and-task-affinity/problem:
+  en: c24d9ce4b8ab35a3
+  zh: 37ea7dcf64ad2466
+/agent-note-teammate-reuse-and-task-affinity/decision:
+  en: ba8159ff46aa0cd1
+  zh: 7aefa69ba5de1b5b
+/agent-note-teammate-reuse-and-task-affinity/scope-against-the-withdrawn-carrier-ladder:
+  en: 297eae022a780630
+  zh: 88b55ebbcb911e34
+/agent-note-teammate-reuse-and-task-affinity/alternatives-considered:
+  en: b59c9e317936a411
+  zh: ba875a0946868942
+/agent-note-teammate-reuse-and-task-affinity/consequences:
+  en: 86828af3cf0e2767
+  zh: 959f1a80a86d131a
