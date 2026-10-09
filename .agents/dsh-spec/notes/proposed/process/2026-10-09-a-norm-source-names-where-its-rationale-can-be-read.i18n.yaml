@@ -1,0 +1,22 @@
+# Bilingual-pair consistency record for 2026-10-09-a-norm-source-names-where-its-rationale-can-be-read.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/proposed/process/2026-10-09-a-norm-source-names-where-its-rationale-can-be-read.md
+/agent-note-a-norm-s-source-names-where-its-rationale-can-be-read:
+  en: 6eaa8cb496b567d8
+  zh: f8ea91fa50212986
+/agent-note-a-norm-s-source-names-where-its-rationale-can-be-read/problem:
+  en: af5d8fc1c4794560
+  zh: e0d04ffbc84ff6f6
+/agent-note-a-norm-s-source-names-where-its-rationale-can-be-read/proposal:
+  en: 6acbc0254f731aee
+  zh: 2fd605e3f89eb788
+/agent-note-a-norm-s-source-names-where-its-rationale-can-be-read/alternatives-considered:
+  en: 4440d815a78bcf83
+  zh: a4e72b84450a65cb
+/agent-note-a-norm-s-source-names-where-its-rationale-can-be-read/acceptance-criteria:
+  en: 18e97f58ec793b19
+  zh: 3030510ed8ac3ed8
+/agent-note-a-norm-s-source-names-where-its-rationale-can-be-read/risks:
+  en: 1c1703c1b3272e55
+  zh: 9b1617ede123c548
