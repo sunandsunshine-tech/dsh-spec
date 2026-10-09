@@ -1,0 +1,22 @@
+# Bilingual-pair consistency record for 2026-10-10-a-delivery-records-a-plan-and-a-working-copy.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/proposed/process/2026-10-10-a-delivery-records-a-plan-and-a-working-copy.md
+/agent-note-a-delivery-records-a-plan-and-a-working-copy:
+  en: 14ec66f42742ba73
+  zh: 8d0edd9bbb35434f
+/agent-note-a-delivery-records-a-plan-and-a-working-copy/problem:
+  en: ec3a26bf0564541c
+  zh: c2ddeba8c8982639
+/agent-note-a-delivery-records-a-plan-and-a-working-copy/proposal:
+  en: 8ca6af6512bffef7
+  zh: 9cf3cecb364ebff0
+/agent-note-a-delivery-records-a-plan-and-a-working-copy/alternatives-considered:
+  en: 45fe6c315d48f771
+  zh: b48d2281da6288b3
+/agent-note-a-delivery-records-a-plan-and-a-working-copy/acceptance-criteria:
+  en: d898cc227896a9bc
+  zh: 5b974c3d83c107a5
+/agent-note-a-delivery-records-a-plan-and-a-working-copy/risks:
+  en: 9e5b9b9896f87fa3
+  zh: 8c01aa4f750d5458

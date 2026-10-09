@@ -117,6 +117,7 @@ The generic rules live in the `dsh-spec:norms` hook at the end of this file, ren
 | Standing orders an agent needs in every session | this file |
 | Orders specific to one subtree | that subtree's `AGENTS.md` (the notes tree has its own three) |
 | Decision rationale: the why, and what was given up | `.agents/dsh-spec/notes/` |
+| The plan a multi-step delivery is executed from, and the rules it obeys | `.agents/dsh-spec/plans/` — the contract is [`README.md`](.agents/dsh-spec/plans/README.md) |
 | The package's own contract and workflows | `skills/` — see [the manager entry](skills/dsh-spec-manager/SKILL.md) |
 | What this repository decided about applying the pattern | the same notes tree, and the standing entries above |
 | A past incident's durable lesson | the notes tree, in its `bug-fix` class |

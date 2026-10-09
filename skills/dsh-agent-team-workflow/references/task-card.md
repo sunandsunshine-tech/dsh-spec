@@ -9,6 +9,7 @@ The card is the contract between the Lead's plan and a member's work. It is the 
 - **Objective** — the change the holder produces, in one sentence.
 - **Workspace** — the directory the work and its commands run in; omit it for the shared checkout.
 - **Base ref** — the ref the diff and the gate selection are measured against.
+- **References** — the documents the card rests on, one per line: the delivery plan, the contract the work follows, and any external source.
 - **write_scopes** — the path prefixes the card expects to touch. Advisory: they diagnose overlap and never lock a file.
 - **Decision record** — the note this delivery updates or creates, or `none`.
 - **Depends on** — the task ids that must be completed first.
