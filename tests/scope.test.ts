@@ -40,6 +40,28 @@ test('--files-from reads the list from stdin', (t) => {
   assert.equal(result.status, 0, result.output)
 })
 
+test('--files-from reads the list from a file on disk', (t) => {
+  const fixture = makeFixture()
+  t.after(() => fixture.dispose())
+  const note = writeNote(fixture, '2026-01-01-a-first-decision.md')
+  fixture.write('paths.txt', `${note}\n`)
+
+  const result = runCli(fixture.root, ['notes', 'check', '--files-from', 'paths.txt'])
+
+  assert.equal(result.status, 0, result.output)
+})
+
+test('an empty list in a --files-from file is a usage error, never a clean run', (t) => {
+  const fixture = makeFixture()
+  t.after(() => fixture.dispose())
+  writeNote(fixture, '2026-01-01-a-first-decision.md')
+  fixture.write('paths.txt', '\n')
+
+  const result = runCli(fixture.root, ['notes', 'check', '--files-from', 'paths.txt'])
+
+  assert.equal(result.status, 2, result.output)
+})
+
 test('an empty --files-from list is a usage error, never a clean run', (t) => {
   const fixture = makeFixture()
   t.after(() => fixture.dispose())

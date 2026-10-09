@@ -15,9 +15,13 @@ import { dirname, join, resolve } from 'node:path'
 import { readNorms, normsPathOf } from '../norms.ts'
 import { applyNormsHook, readNormsRecord, recordPathOf } from '../norms-apply.ts'
 import type { Norm } from '../norms.ts'
+import { exitsOf } from '../cli-args.ts'
 import { ensureDirectory, findTemplate, substitute } from './templates.ts'
 import { managedFiles, mergeManaged, mergeSections, withSwitcher } from './merge.ts'
 import type { SectionHook } from './sections.ts'
+
+/** The exit this module's failures print under: the initializer is the entry it belongs to. */
+const { fail } = exitsOf('dsh-spec-init')
 
 /** What one sync run needs: the project, the mode, and the paths the entry resolved. */
 export interface SyncOptions {
