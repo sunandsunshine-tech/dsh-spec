@@ -17,10 +17,10 @@
  * home, so there is no second copy of the engine either.
  *
  * An install is two halves: the skills under `.agents/skills/`, and the mechanism text a project
- * holds in its own tree — the notes contract, the documentation orders, the search exclusion, and
- * the marked standing-orders section. `sync` rewrites the second half from the installed templates
- * and is also exposed on its own, because a project may want to see the diff without a network
- * install; `init` is the half that creates those files.
+ * holds in its own tree — the notes contract, the delivery-plan contract, the documentation orders,
+ * the search exclusion, and the marked standing-orders sections. `sync` rewrites the second half from
+ * the installed templates and is also exposed on its own, because a project may want to see the diff
+ * without a network install; `init` is the half that creates those files.
  */
 
 import { spawn, spawnSync } from 'node:child_process'
@@ -581,9 +581,10 @@ async function refresh(root: string, repo: string, directory: string, manifest: 
     pruneToRevision(skill, directory, plan.shipped.get(skill), dryRun)
   }
   // The other half of a refresh: the files whose text the collection owns — the notes contract, the
-  // documentation orders, the search exclusion, the marked standing-orders section — are brought to
-  // this revision too, so every project's mechanism text is the same one. A terminology table keeps
-  // its rows and `AGENTS.md` keeps everything outside the marked section.
+  // delivery-plan contract, the documentation orders, the search exclusion, the marked
+  // standing-orders sections — are brought to this revision too, so every project's mechanism text is
+  // the same one. A terminology table keeps its rows and `AGENTS.md` keeps everything outside the
+  // marked sections.
   // Adoption creates the project files that are missing and never overwrites one it did not
   // create; a refresh only brings the managed text up to this revision, so a file a project
   // deliberately deleted stays deleted.
@@ -799,7 +800,7 @@ function uninstall(root: string, manifest: Manifest, dryRun: boolean): void {
   // directory removes them; nothing outside it was ever written. What is left is the project's own,
   // and an uninstall that took it would delete decisions and standing orders the project made.
   console.log('  left in place — delete these yourself if the project is leaving the pattern:')
-  for (const path of ['AGENTS.md (its dsh-spec:agent-notes block)', '.agents/dsh-spec/notes/', 'docs/', '.rgignore']) {
+  for (const path of ['AGENTS.md (its dsh-spec:agent-notes and dsh-spec:plans blocks)', '.agents/dsh-spec/notes/', '.agents/dsh-spec/plans/', 'docs/', '.rgignore']) {
     console.log(`    ${path}`)
   }
 }

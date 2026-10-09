@@ -158,3 +158,10 @@ Read `.agents/dsh-spec/notes/README.md` for the layout, the classes, and the in-
 - **`test.fast-subset`** Run the smallest subset covering the change before pushing; the full suite belongs to release milestones.
 
 <!-- /dsh-spec:norms -->
+
+<!-- dsh-spec:plans -->
+## Delivery plans
+
+A delivery that spans more than one step records its plan in `.agents/dsh-spec/plans/` before it starts; a single-step or mechanical change does not. Read [the contract](.agents/dsh-spec/plans/README.md) for the plan's fields, the state read from its working copy, its dependency line, and the start-and-finish rules.
+
+<!-- /dsh-spec:plans -->
