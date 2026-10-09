@@ -33,11 +33,16 @@ const SKILLS = [
   'dsh-agent-team-workflow',
 ]
 
+/** The repository the manifest names, and the URL `gh skill install` writes for it. */
+const COLLECTION_REPO = 'sunandsunshine-tech/dsh-spec'
+const COLLECTION_URL = 'https://github.com/sunandsunshine-tech/dsh-spec'
+
 /**
  * An installed `SKILL.md` carrying the metadata block `gh skill install` injects.
  *
  * `github-repo` is the source repository, which is what makes an installed directory's owner readable
- * offline; a case that omits it stands for an install that recorded no owner.
+ * offline; a case that omits it stands for an install that recorded no owner. The value is passed as
+ * given, so a case can model either the URL the installer writes or the bare form the manifest uses.
  */
 function installedSkill(ref: string, repo?: string): string {
   const source = repo === undefined ? '' : `    github-repo: ${repo}\n`
@@ -91,7 +96,7 @@ function stubGh(fixture: Fixture, options: { releases?: unknown[], commit?: stri
         '  name="${spec%@*}"',
         '  ref="${spec#*@}"',
         '  mkdir -p "$dir/$name"',
-        '  printf -- \'---\\nname: %s\\nmetadata:\\n    github-repo: sunandsunshine-tech/dsh-spec\\n    github-ref: refs/heads/%s\\n---\\n# %s\\n\' "$name" "$ref" "$name" > "$dir/$name/SKILL.md"',
+        '  printf -- \'---\\nname: %s\\nmetadata:\\n    github-repo: https://github.com/sunandsunshine-tech/dsh-spec\\n    github-ref: refs/heads/%s\\n---\\n# %s\\n\' "$name" "$ref" "$name" > "$dir/$name/SKILL.md"',
         'fi',
       ]
       : []),
@@ -844,7 +849,9 @@ test("another collection's install beside this one does not fail this collection
   t.after(() => fixture.dispose())
   installSet(fixture, 'main')
   writePlanSurface(fixture)
-  fixture.write('.agents/skills/other-set/SKILL.md', installedSkill('main', 'someone-else/another-set'))
+  // Another collection's install carries the URL form the installer writes, and the line reports the
+  // repository it names rather than the URL it recorded.
+  fixture.write('.agents/skills/other-set/SKILL.md', installedSkill('main', 'https://github.com/someone-else/another-set'))
   fixture.write('.agents/skills/anonymous/SKILL.md', installedSkill('main'))
 
   const result = runCli(fixture.root, ['status'])
@@ -855,11 +862,16 @@ test("another collection's install beside this one does not fail this collection
   assert.match(result.output, /other +anonymous +no metadata\.github-repo — not this collection's, left alone/, result.output)
 })
 
-test('a skill this collection installed and the revision dropped is a finding, and upgrade removes it', (t) => {
+/** A fixture holding a skill this collection installed and the revision no longer publishes. */
+function retiredFixture(recorded: string): Fixture {
   const fixture = makeFixture({ 'README.md': '# A project\n' })
-  t.after(() => fixture.dispose())
   installSet(fixture, 'main')
-  fixture.write('.agents/skills/dsh-retired-probe/SKILL.md', installedSkill('main', 'sunandsunshine-tech/dsh-spec'))
+  fixture.write('.agents/skills/dsh-retired-probe/SKILL.md', installedSkill('main', recorded))
+  return fixture
+}
+
+/** A fixture whose manager owns a retired skill is reported and removed, whichever form it recorded. */
+function assertRetiredIsRemoved(fixture: Fixture): void {
   const retired = join(fixture.root, '.agents', 'skills', 'dsh-retired-probe')
 
   const reported = runCli(fixture.root, ['status'])
@@ -877,6 +889,33 @@ test('a skill this collection installed and the revision dropped is a finding, a
   assert.equal(applied.status, 0, applied.output)
   assert.match(applied.output, /removed .*dsh-retired-probe — this revision no longer publishes dsh-retired-probe/, applied.output)
   assert.equal(existsSync(retired), false, 'upgrade left a skill the revision no longer publishes')
+}
+
+test('a skill this collection installed and the revision dropped is found through the URL the installer writes', (t) => {
+  // What `gh skill install` records in every installed copy of this repository.
+  const fixture = retiredFixture(COLLECTION_URL)
+  t.after(() => fixture.dispose())
+
+  assertRetiredIsRemoved(fixture)
+})
+
+test('the same retired skill is found when the source repository was recorded in the bare form', (t) => {
+  const fixture = retiredFixture(COLLECTION_REPO)
+  t.after(() => fixture.dispose())
+
+  assertRetiredIsRemoved(fixture)
+})
+
+test('a trailing slash or `.git` on the recorded URL still names this collection', (t) => {
+  for (const recorded of [`${COLLECTION_URL}/`, `${COLLECTION_URL}.git`, `https://github.com/${COLLECTION_REPO}/`]) {
+    const fixture = retiredFixture(recorded)
+    t.after(() => fixture.dispose())
+
+    const reported = runCli(fixture.root, ['status'])
+
+    assert.equal(reported.status, 1, `status did not find the retired skill recorded as ${recorded}:\n${reported.output}`)
+    assert.match(reported.output, /dsh-retired-probe: installed from sunandsunshine-tech\/dsh-spec but this revision no longer publishes it/, reported.output)
+  }
 })
 
 test('a refresh follows an optional skill the project holds and does not install one it never took', (t) => {
@@ -925,7 +964,7 @@ test('uninstall removes one named skill, the whole set, and never another collec
   t.after(() => fixture.dispose())
   installSet(fixture, 'main')
   const foreign = join(fixture.root, '.agents', 'skills', 'other-set')
-  fixture.write('.agents/skills/other-set/SKILL.md', installedSkill('main', 'someone-else/another-set'))
+  fixture.write('.agents/skills/other-set/SKILL.md', installedSkill('main', 'https://github.com/someone-else/another-set'))
 
   const one = runCli(fixture.root, ['uninstall', '--skill', 'dsh-code-review'])
   assert.equal(one.status, 0, one.output)

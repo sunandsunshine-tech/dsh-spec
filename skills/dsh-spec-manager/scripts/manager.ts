@@ -772,6 +772,8 @@ function retireUnpublished(directory: string, manifest: Manifest, dryRun: boolea
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     if (!entry.isDirectory() || manifest.skills.includes(entry.name)) continue
     const skillFile = join(directory, entry.name, 'SKILL.md')
+    // `installedRepo` answers in the manifest's own shape, so equality is the whole ownership test
+    // whichever form the installer wrote.
     if (!existsSync(skillFile) || installedRepo(skillFile) !== manifest.repo) continue
     const path = join(directory, entry.name)
     if (dryRun) {
@@ -988,11 +990,32 @@ function installedRevision(path: string): string | undefined {
 }
 
 /**
- * The repository `gh skill install` recorded in an installed `SKILL.md`.
+ * The `owner/name` a recorded source repository names, or undefined when it names none.
+ *
+ * `gh skill install` writes the source repository as a URL while the manifest names it in the bare
+ * form, so the two have to be brought to one shape before they can be compared. Accepting a trailing
+ * slash or `.git` is what makes the field readable whichever way it was written; anything that is
+ * still not `owner/name` after that is returned as it stands, so a repository this collection does
+ * not own stays a value that compares unequal rather than being mistaken for one.
+ *
+ * @param recorded - the recorded value, or undefined when the file records none.
+ * @returns `owner/name`, or undefined when the value is empty.
+ */
+function repositoryName(recorded: string | undefined): string | undefined {
+  if (recorded === undefined) return undefined
+  const trimmed = recorded.trim().replace(/\/+$/, '').replace(/\.git$/i, '')
+  const onGitHub = /^https?:\/\/github\.com\/([^/]+\/[^/]+)$/i.exec(trimmed)
+  const name = (onGitHub?.[1] ?? trimmed).replace(/\/+$/, '')
+  return name === '' ? undefined : name
+}
+
+/**
+ * The repository an installed `SKILL.md` records, as `owner/name`.
  *
  * The source repo is what makes an installed directory's owner readable without the network: a name
- * the manifest does not list belongs to this collection exactly when the file states this
- * collection's repo, and anything else is another collection's install to leave alone.
+ * the manifest does not list belongs to this collection exactly when the normalised value equals
+ * `manifest.repo`, and anything else is another collection's install to leave alone. This is the one
+ * place that knows the shapes the installer writes, so every caller compares the result directly.
  *
  * @param path - the installed `SKILL.md`.
  * @returns the recorded `owner/name`, or undefined when the file records none.
@@ -1001,7 +1024,7 @@ function installedRepo(path: string): string | undefined {
   const frontmatter = injectedMetadata(path)
   if (frontmatter === undefined) return undefined
   const repo = /^\s*github-repo:\s*(.+)$/m.exec(frontmatter)?.[1]?.trim() ?? ''
-  return repo === '' ? undefined : repo
+  return repositoryName(repo === '' ? undefined : repo)
 }
 
 /** Report the installed set and each skill's revision, each compared with the manager's own; change nothing. */
@@ -1059,7 +1082,8 @@ function status(root: string, manifest: Manifest): void {
     const skillFile = join(directory, name, 'SKILL.md')
     const owner = installedRepo(skillFile)
     // A directory this collection installed that the manifest no longer names is a skill the
-    // revision dropped: it is this collection's, and `upgrade` cleans it up.
+    // revision dropped: it is this collection's, and `upgrade` cleans it up. `owner` is the recorded
+    // repository in the manifest's own shape, so a URL and a bare name both land here.
     if (owner === manifest.repo) {
       findings.push(`${name}: installed from ${manifest.repo} but this revision no longer publishes it — \`upgrade\` removes it`)
       continue

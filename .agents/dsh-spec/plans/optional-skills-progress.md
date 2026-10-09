@@ -34,8 +34,11 @@ GATE PASS
 4. C-2 完成：`status` 归属三分类与可选取舍行、`selectedSkills()`（存在即跟随，Objective 4）、`retireUnpublished()`、`uninstall` 的默认/`--skill`；Q5 授权扩到 `dsh-spec.ts` 的 flag 表；管理面 33/33，全量 160 中 159 pass。
 5. C-3 完成：非 TTY 具名提示、TTY 询问（默认否）、`--with`（可重复 + 三类具名拒绝）、`--dry-run` 不读 stdin、SKILL.md 代理面句、`dsh-spec.ts` 的 `--with`；Q6 按从 revision 读描述首句（失败回退名字）、Q7 按字面 (A) 实现并 park 给用户；管理面 38/38，全量 165 中 164 pass。
 6. C-4 完成：计划面条件化——事实所有者是 `manager.ts`（`PLAN_SURFACE_SKILL` / `PLANS_DIR` / 标记常量），init import 它们；`SectionHook.active()` 且对"不活跃但存在"的块执行删除；`planPlansTree()` 在装面时给三件；`status` 报半装的面；`uninstall --skill` 删技能后跑 sync 半程移除钩子、保留树与计划。六条场景各一用例；B 侧 6 条用例改名/重写并按报告点名；`manager-install.md` 四行改写。管理面 43/43，全量 170 中 169 pass（唯一红＝副本门禁）。
-7. 进行中：C-5（文档与 README）、C-6（两条新 note + 更新被 C 取代的 B 侧 note 陈述），由 worker-2 按序执行。
-8. 待办：C-7 评审 → C-8 文本终检 → C-9 刷新副本 + 全量门禁 + PR 转 ready。
+7. C-5（文档与 README）、C-6（两条新 note + 更新被 C 取代的 B note 判据）、C-6b（刷新三条被 C 写旧的 implemented 记录）完成。C-4 与 C-6 共同构成跨层差异：**C 的 Design 让"选中可选技能时采用落三件 + 配对记录"，取代 B 的两件**；B 侧受影响用例与被取代的 note 判据都在报告里点名并已更新。
+8. Lead 提交 `b34bad1`，`gh stack sync` 推 C（先把 B 的 worktree 退掉，因为 sync 要 checkout 它），`upgrade --revision feat/optional-skills` 刷新副本，提交 `a6236c5` 再推；此后 `node --test` 170/170、副本、出处、`check --all`、corpus md-links 158 文件、corpus pairing、`check --base main` 全绿。
+9. C-7 评审（reviewer-1，`a6236c5`）：**REJECT**，一条阻断——归属比较把注入值与 `manifest.repo` 直接等值比较，而安装器写的是 URL，于是"本集合已下线"这一类不可达、`upgrade` 永不清理；测试绿只因 fixture 注入了安装器不写的 bare 形式。其余 Objective 1/2/3/4/5/7/8 与全部门禁经评审原样重跑通过。
+10. 处理中：重新打开 C-2（task-10），要求比较前归一（bare 与 URL 两种都接受、只在一处归一）、fixture 与 gh 替身改成真实 URL 形状、另留 bare 形式用例；修好后 Lead 提交再推，reviewer 只复跑归属探针与受影响用例。
+11. 待办：C-8 文本终检 → C-9 刷新副本 + 全量门禁 + PR 转 ready。
 
 ## Park 与裁决
 
