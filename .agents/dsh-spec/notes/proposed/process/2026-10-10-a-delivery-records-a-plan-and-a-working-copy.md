@@ -33,7 +33,7 @@ A delivery is carried by two files in `.agents/dsh-spec/plans/`: `<slug>.md`, th
 ## Acceptance criteria
 
 - This repository's `.agents/dsh-spec/plans/` holds the contract with its Chinese counterpart and the subtree's orders, and the contract is a complete pair.
-- The manager's adopt path creates the two files it deploys — `plans/README.md` and `plans/AGENTS.md` — and injects the marked plans section into the root `AGENTS.md`. Adoption writes each contract's English side only, so the Chinese side ships as a template and no sidecar is created; a project that adds the counterpart gets it synced and the pair re-recorded, and content outside the markers stays untouched.
+- The manager's adopt path creates the delivery-plan surface only when the optional `dsh-agent-team-workflow` is taken: it writes `plans/README.md`, its Chinese counterpart and `plans/AGENTS.md`, records the pair beside them, and injects the marked plans section into the root `AGENTS.md`. An adoption that leaves that skill out creates no plan tree and no hook, and content outside the markers stays untouched.
 - No artifact carries a written delivery status: a tree with only the plan reads as not started, one with both files as in flight, and one with neither as landed.
 - A dependency's command reads a fact about main; a failing command stops the delivery by name, and no loop or agent polls in its place.
 - An agreed but unstarted plan produces no worktree, no card and no implementation until the user starts it.

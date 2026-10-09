@@ -19,7 +19,7 @@ node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts upgrade --root .
 由此产生三条规则，`AGENTS.md` 承载它们：
 
 - **绝不手工编辑该副本。** 它会被下一次安装覆盖。修改 `skills/`，然后在同一次变更中刷新副本。
-- **通过 manager 刷新，绝不靠复制文件。** 一条命令按 manifest 所列、在 manager 自己那份已安装元数据所携带的修订上安装每一个技能，[`manager-lifecycle.md`](../../../../../skills/dsh-spec-manager/references/manager-lifecycle.md) 把该命令原样写出。安装解析的是远端 ref，因此它跟在推送之后，而 manager 的 `status` 把安装器注入每个已安装 `SKILL.md` 的 ref 与 manager 自己的那份比对——不再有 manifest 字段声明这个 pin，这件事由[manager 自己的安装就是那个 pin](2026-09-21-the-manager-s-own-install-is-the-pin.zh.md)拥有。
+- **通过 manager 刷新，绝不靠复制文件。** 一条命令在 manager 自己那份已安装元数据所携带的修订上安装 manifest 要求的技能，以及项目已经持有的可选技能，[`manager-lifecycle.md`](../../../../../skills/dsh-spec-manager/references/manager-lifecycle.md) 把该命令原样写出。安装解析的是远端 ref，因此它跟在推送之后，而 manager 的 `status` 把安装器注入每个已安装 `SKILL.md` 的 ref 与 manager 自己的那份比对——不再有 manifest 字段声明这个 pin，这件事由[manager 自己的安装就是那个 pin](2026-09-21-the-manager-s-own-install-is-the-pin.zh.md)拥有。
 - **该副本是部署产物，不是第二个来源。** 两者不一致时，以 `skills/` 为准，副本才是缺陷。
 
 ### 副本与源文件并非逐字节相同

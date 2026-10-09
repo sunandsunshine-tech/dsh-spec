@@ -10,10 +10,11 @@
 
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
-import { chmodSync, existsSync, readFileSync } from 'node:fs'
+import { chmodSync, cpSync, existsSync, readFileSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { runCli, runScript } from './helpers/cli.ts'
+import { pathToFileURL } from 'node:url'
+import { runCli, runEntry, runScript } from './helpers/cli.ts'
 import { NORMS_FILE } from '../skills/dsh-spec-manager/scripts/norms-apply.ts'
 import { NOTES, PLANS, REPO_ROOT, exists, makeFixture, snapshot, writeNote } from './helpers/fixtures.ts'
 import type { Fixture } from './helpers/fixtures.ts'
@@ -32,9 +33,15 @@ const SKILLS = [
   'dsh-agent-team-workflow',
 ]
 
-/** An installed `SKILL.md` carrying the metadata block `gh skill install` injects. */
-function installedSkill(ref: string): string {
-  return `---\nname: probe\nmetadata:\n    github-ref: refs/heads/${ref}\n---\n# Probe\n`
+/**
+ * An installed `SKILL.md` carrying the metadata block `gh skill install` injects.
+ *
+ * `github-repo` is the source repository, which is what makes an installed directory's owner readable
+ * offline; a case that omits it stands for an install that recorded no owner.
+ */
+function installedSkill(ref: string, repo?: string): string {
+  const source = repo === undefined ? '' : `    github-repo: ${repo}\n`
+  return `---\nname: probe\nmetadata:\n${source}    github-ref: refs/heads/${ref}\n---\n# Probe\n`
 }
 
 /** Install all ten skills at one ref, letting a case put one of them elsewhere. */
@@ -54,7 +61,7 @@ function installSet(fixture: Fixture, ref: string, overrides: Record<string, str
  * real binary never produces. Nothing reaches the network, and the call log is what proves a flag
  * short-circuited one of the questions.
  */
-function stubGh(fixture: Fixture, options: { releases?: unknown[], commit?: string, status?: number } = {}): () => string[] {
+function stubGh(fixture: Fixture, options: { releases?: unknown[], commit?: string, status?: number, installs?: boolean } = {}): () => string[] {
   const log = join(fixture.root, 'gh-calls.log')
   const releases = encode(options.releases ?? [])
   const commit = encode({ commit: { tree: { sha: options.commit ?? 'a'.repeat(40) } } })
@@ -66,8 +73,28 @@ function stubGh(fixture: Fixture, options: { releases?: unknown[], commit?: stri
     `  "api repos/"*"/releases") payload=$(printf '%s' '${releases}' | base64 -d) ;;`,
     `  "api repos/"*"/commits/"*) payload=$(printf '%s' '${commit}' | base64 -d) ;;`,
     `  "api repos/"*"/git/trees/"*) [ -f '${fixture.root}/gh-tree.json' ] && payload=$(cat '${fixture.root}/gh-tree.json') ;;`,
+    `  "api repos/"*"/contents/"*) [ -f '${fixture.root}/gh-contents.json' ] && payload=$(cat '${fixture.root}/gh-contents.json') ;;`,
     '  *) : ;;',
     'esac',
+    // An install that really leaves a directory behind, the way `gh skill install` does: a case that
+    // needs the create half to see an installed optional skill cannot get there otherwise.
+    ...(options.installs === true
+      ? [
+        'if [ "$1" = skill ] && [ "$2" = install ]; then',
+        '  dir=""',
+        '  prev=""',
+        '  for a in "$@"; do',
+        '    if [ "$prev" = "--dir" ]; then dir="$a"; fi',
+        '    prev="$a"',
+        '  done',
+        '  spec="$4"',
+        '  name="${spec%@*}"',
+        '  ref="${spec#*@}"',
+        '  mkdir -p "$dir/$name"',
+        '  printf -- \'---\\nname: %s\\nmetadata:\\n    github-repo: sunandsunshine-tech/dsh-spec\\n    github-ref: refs/heads/%s\\n---\\n# %s\\n\' "$name" "$ref" "$name" > "$dir/$name/SKILL.md"',
+        'fi',
+      ]
+      : []),
     'filter=$(printf \'%s\\n\' "$*" | sed -n \'s/.*--jq //p\')',
     'if [ -n "$filter" ]; then printf \'%s\' "$payload" | jq -r "$filter"; else printf \'%s\' "$payload"; fi',
     `exit ${options.status ?? 0}`,
@@ -81,6 +108,11 @@ function stubGh(fixture: Fixture, options: { releases?: unknown[], commit?: stri
 /** A payload for the stand-in: base64, so no quoting of the JSON is left to the shell. */
 function encode(payload: unknown): string {
   return Buffer.from(JSON.stringify(payload), 'utf8').toString('base64')
+}
+
+/** The contents-API answer the stand-in gives for a skill's `SKILL.md`, which is where a description lives. */
+function withSkillFile(fixture: Fixture, text: string): void {
+  fixture.write('gh-contents.json', JSON.stringify({ content: Buffer.from(text, 'utf8').toString('base64') }))
 }
 
 /** The environment that puts the stub before every other `gh` on the machine. */
@@ -178,7 +210,9 @@ test('upgrade --dry-run reports without changing anything', (t) => {
   const result = runCli(fixture.root, ['upgrade', '--dry-run', '--revision', 'main'], { env: stubPath(fixture) })
 
   assert.equal(result.status, 0, result.output)
-  assert.match(result.output, /upgrade 10 skill\(s\) .* at main/)
+  // Nine, not ten: the tenth is the optional skill, this project never took it, and a refresh does
+  // not install a choice the project did not make.
+  assert.match(result.output, /upgrade 9 skill\(s\) .* at main/)
   assert.match(result.output, /no norms are applied in this project/, result.output)
   assert.deepEqual(projectFiles(fixture), before, 'a dry run wrote to the project')
 })
@@ -235,6 +269,8 @@ test("status holds every skill against the manager's own ref", (t) => {
   const fixture = makeFixture({ 'README.md': '# A project\n' })
   t.after(() => fixture.dispose())
   installSet(fixture, 'main')
+  // The optional skill is installed here, so the surface it owns has to be whole too.
+  writePlanSurface(fixture)
 
   const result = runCli(fixture.root, ['status'])
 
@@ -435,6 +471,7 @@ test('a set installed from a tag is read, reported and reinstalled at the short 
   // What a released revision looks like on disk: `gh` injects the tag form, while the ref every
   // command speaks is the short name. Installing the set and reporting drift both read it.
   for (const skill of SKILLS) fixture.write(`.agents/skills/${skill}/SKILL.md`, installedTagged('v1.2.3'))
+  writePlanSurface(fixture)
   stubDispatcher(fixture)
   withTree(fixture, oneFilePerSkill(skill => digest(`tag-${skill}`)))
   const calls = stubGh(fixture, { releases: [{ draft: false, tag_name: 'v9.9.9' }] })
@@ -552,16 +589,36 @@ test('a dry-run refresh renders the managed text it would rewrite, and writes no
 })
 
 /**
- * The delivery-plan surface, adoption through refresh.
+ * The delivery-plan surface: the optional workflow skill owns it, so adoption creates it with that
+ * skill and a refresh only maintains what is there.
  *
- * The plan tree is created the way the notes tree is: an adoption writes the English contract and
- * its orders, and a refresh brings that text to the installed revision without giving back a tree a
- * project removed. Its marked block in the root `AGENTS.md` is one entry in a list rather than a
- * special case, so these cases pin the two blocks apart as well as the merge itself.
+ * The tree and the hook are one surface — a project that took the optional skill holds both, and one
+ * that did not holds neither — and the contract is a pair, so an adoption records the sidecar the
+ * pairing gate checks. The cases below cover the six states the plan names: taken, not taken, taken
+ * later, refreshed, uninstalled, and half-installed.
  */
 
-/** Adopt into a fixture: the initializer's create half, which every case below starts from. */
-function adopt(fixture: Fixture): void {
+/** Install the optional skill whose presence turns the delivery-plan surface on. */
+function installPlanSurface(fixture: Fixture): void {
+  fixture.write('.agents/skills/dsh-agent-team-workflow/SKILL.md', installedSkill('main'))
+}
+
+/**
+ * Give a fixture the manager the initializer reaches for, so a pair it creates is really recorded.
+ *
+ * A sidecar is generated by the entry point rather than shipped, so the create half runs it. A
+ * fixture without that copy can hold the templates but not the record.
+ */
+function adoptManagerCopy(fixture: Fixture): void {
+  cpSync(join(REPO_ROOT, 'skills', 'dsh-spec-manager'), join(fixture.root, '.agents', 'skills', 'dsh-spec-manager'), { recursive: true })
+}
+
+/** Adopt into a fixture, with the optional plan-surface skill unless a case says otherwise. */
+function adopt(fixture: Fixture, options: { planSurface?: boolean } = {}): void {
+  if (options.planSurface !== false) {
+    installPlanSurface(fixture)
+    adoptManagerCopy(fixture)
+  }
   const result = runScript('skills/dsh-spec-manager/scripts/init-agents-md.ts', ['--root', fixture.root, '--write'])
   assert.equal(result.status, 0, result.output)
 }
@@ -573,27 +630,46 @@ function sync(fixture: Fixture): string {
   return result.output
 }
 
-test("adoption creates the plan tree's two files and the hook that points at them", (t) => {
+/** The fixture's own entry point, which is the command a project runs. */
+function fixtureCli(fixture: Fixture): string {
+  return join(fixture.root, '.agents', 'skills', 'dsh-spec-manager', 'scripts', 'dsh-spec.ts')
+}
+
+test('an adoption that takes the optional skill creates the plan tree, its pair and the hook', (t) => {
   const fixture = makeFixture({ 'README.md': '# A project\n' })
   t.after(() => fixture.dispose())
 
   adopt(fixture)
 
-  for (const path of [`${PLANS}/README.md`, `${PLANS}/AGENTS.md`]) {
+  for (const path of [`${PLANS}/README.md`, `${PLANS}/README.zh.md`, `${PLANS}/AGENTS.md`, `${PLANS}/README.i18n.yaml`]) {
     assert.equal(exists(fixture.root, path), true, `adoption did not create ${path}`)
   }
-  // The Chinese counterpart ships as a template and is not deployed, exactly as the notes
-  // contract's counterpart is not: a project that adds the other side declares the pair.
-  assert.equal(exists(fixture.root, `${PLANS}/README.zh.md`), false, "adoption deployed the plan contract's Chinese side")
   const agents = fixture.read('AGENTS.md')
   assert.match(agents, /<!-- dsh-spec:agent-notes -->/, agents)
   assert.match(agents, /<!-- dsh-spec:plans -->/, agents)
   assert.match(agents, /## Delivery plans/, agents)
   assert.match(agents, /\]\(\.agents\/dsh-spec\/plans\/README\.md\)/, agents)
   assert.match(agents, /<!-- \/dsh-spec:plans -->\n$/, agents)
+
+  // The pair the create half wrote passes the gate it belongs to, through the project's own entry
+  // point rather than through this repository's.
+  const checked = runEntry(fixtureCli(fixture), fixture.root, ['translation-pair', 'check', `${PLANS}/README.md`, '--root', fixture.root])
+  assert.equal(checked.status, 0, checked.output)
 })
 
-test('a sync creates no tree that is not there', (t) => {
+test('an adoption that does not take the optional skill creates no plan tree and no hook', (t) => {
+  const fixture = makeFixture({ 'README.md': '# A project\n' })
+  t.after(() => fixture.dispose())
+
+  adopt(fixture, { planSurface: false })
+
+  assert.equal(exists(fixture.root, PLANS), false, 'an adoption without the optional skill created the plan tree')
+  const agents = fixture.read('AGENTS.md')
+  assert.match(agents, /<!-- dsh-spec:agent-notes -->/, agents)
+  assert.doesNotMatch(agents, /dsh-spec:plans/, agents)
+})
+
+test('a sync creates no tree that is not there, and no hook for a surface that is off', (t) => {
   const fixture = makeFixture({ 'AGENTS.md': '# A project\n\nOur own standing orders.\n' })
   t.after(() => fixture.dispose())
 
@@ -601,12 +677,10 @@ test('a sync creates no tree that is not there', (t) => {
 
   assert.equal(exists(fixture.root, NOTES), false, `a sync created the notes tree:\n${output}`)
   assert.equal(exists(fixture.root, PLANS), false, `a sync created the plan tree:\n${output}`)
-  // The hook lands whether or not the tree does, which is this delivery's decision: the tree and
-  // the hook land unconditionally, and become conditional with the team workflow.
   const agents = fixture.read('AGENTS.md')
   assert.match(agents, /Our own standing orders\./, agents)
   assert.match(agents, /<!-- dsh-spec:agent-notes -->/, agents)
-  assert.match(agents, /<!-- dsh-spec:plans -->/, agents)
+  assert.doesNotMatch(agents, /dsh-spec:plans/, agents)
 })
 
 test('a sync reads back what an adoption wrote, and a second one changes nothing', (t) => {
@@ -661,20 +735,376 @@ test('the notes block and the plans block are replaced independently', (t) => {
   assert.equal(fixture.read('AGENTS.md'), adopted, 'a notes-only edit was not restored in place')
 })
 
-test('a deployed plan contract keeps the switcher its template already carries, once', (t) => {
+test('a deployed plan contract keeps the single switcher its template already carries', (t) => {
   const fixture = makeFixture({ 'README.md': '# A project\n' })
   t.after(() => fixture.dispose())
   adopt(fixture)
-  // The project takes the shipped Chinese side, which is what makes the pair one. The English
-  // template already carries its half of the switcher, so deployment must not add a second.
-  fixture.write(
-    `${PLANS}/README.zh.md`,
-    readFileSync(join(REPO_ROOT, 'skills/dsh-spec-manager/templates/plans-README.zh.md.template'), 'utf8'),
-  )
 
-  const output = sync(fixture)
-
+  // The English template already carries its half of the switcher, so deploying the pair must not
+  // add a second, and a sync of the pair it just recorded must have nothing to do.
   const switchers = fixture.read(`${PLANS}/README.md`).split('\n').filter(line => line.startsWith('English | [中文]('))
   assert.deepEqual(switchers, ['English | [中文](README.zh.md)'], `the deployed contract carries ${switchers.length} switcher line(s)`)
+  const output = sync(fixture)
   assert.doesNotMatch(output, /plans\/README\.md/, `a sync reported work on a contract that matches:\n${output}`)
+})
+
+test('an install that adds the optional skill creates the surface that skill owns', (t) => {
+  const fixture = makeFixture({ 'README.md': '# A project\n' })
+  t.after(() => fixture.dispose())
+  // A project that already holds the manager adopts again; the stand-in leaves each installed skill
+  // directory behind the way `gh skill install` does, so the install's create half sees them.
+  adoptManagerCopy(fixture)
+  stubGh(fixture, { installs: true })
+
+  const result = runCli(fixture.root, ['install', '--revision', 'main', '--with', 'dsh-agent-team-workflow'], { env: stubPath(fixture) })
+
+  assert.equal(result.status, 0, result.output)
+  for (const path of [`${PLANS}/README.md`, `${PLANS}/README.zh.md`, `${PLANS}/AGENTS.md`]) {
+    assert.equal(exists(fixture.root, path), true, `the install did not create ${path}:\n${result.output}`)
+  }
+  assert.match(fixture.read('AGENTS.md'), /<!-- dsh-spec:plans -->/, result.output)
+})
+
+test('a refresh syncs the plan surface and never creates it', (t) => {
+  const fixture = makeFixture({ 'README.md': '# A project\n' })
+  t.after(() => fixture.dispose())
+  adopt(fixture)
+  // No revision listing: the refresh installs what it selected through the stand-in and prunes
+  // nothing, which is the path this case is about — the surface, not the skill plan.
+  stubGh(fixture)
+
+  fixture.write(`${PLANS}/AGENTS.md`, '# A stale copy of the orders\n')
+  const synced = runCli(fixture.root, ['upgrade', '--only-skill-set', '--revision', 'main'], { env: stubPath(fixture) })
+  assert.equal(synced.status, 0, synced.output)
+  assert.match(fixture.read(`${PLANS}/AGENTS.md`), /Delivery plans/, 'a refresh did not sync the plan tree it found')
+
+  rmSync(join(fixture.root, PLANS), { recursive: true, force: true })
+  const again = runCli(fixture.root, ['upgrade', '--only-skill-set', '--revision', 'main'], { env: stubPath(fixture) })
+  assert.equal(again.status, 0, again.output)
+  assert.equal(exists(fixture.root, PLANS), false, 'a refresh gave back a plan tree the project removed')
+})
+
+test('uninstalling the optional skill keeps the plan tree and the plans, and removes the hook', (t) => {
+  const fixture = makeFixture({ 'README.md': '# A project\n' })
+  t.after(() => fixture.dispose())
+  adopt(fixture)
+  fixture.write(`${PLANS}/2026-10-10-a-delivery.md`, '# A delivery plan\n')
+
+  const result = runCli(fixture.root, ['uninstall', '--skill', 'dsh-agent-team-workflow'])
+
+  assert.equal(result.status, 0, result.output)
+  assert.equal(exists(fixture.root, `${PLANS}/2026-10-10-a-delivery.md`), true, 'the uninstall took the project\'s own plan')
+  assert.equal(exists(fixture.root, `${PLANS}/README.md`), true, 'the uninstall took the plan contract')
+  const agents = fixture.read('AGENTS.md')
+  assert.doesNotMatch(agents, /dsh-spec:plans/, `the hook outlived the skill it belongs to:\n${agents}`)
+  assert.match(agents, /<!-- dsh-spec:agent-notes -->/, agents)
+})
+
+test('status reports a delivery-plan surface that is half installed', (t) => {
+  const fixture = makeFixture({ 'README.md': '# A project\n' })
+  t.after(() => fixture.dispose())
+  installSet(fixture, 'main')
+
+  const missing = runCli(fixture.root, ['status'])
+
+  assert.equal(missing.status, 1, missing.output)
+  assert.match(missing.output, /dsh-agent-team-workflow is installed but the delivery-plan surface is incomplete: the plan tree is missing/, missing.output)
+  assert.match(missing.output, /the root AGENTS\.md carries no <!-- dsh-spec:plans --> hook/, missing.output)
+
+  // The two halves adoption writes are what close the gap.
+  fixture.write(`${PLANS}/README.md`, '# Delivery plans\n')
+  fixture.write('AGENTS.md', '<!-- dsh-spec:plans -->\n## Delivery plans\n<!-- /dsh-spec:plans -->\n')
+  const whole = runCli(fixture.root, ['status'])
+  assert.equal(whole.status, 0, whole.output)
+})
+
+/**
+ * Ownership: which installed directory is this collection's, and which is another collection's.
+ *
+ * Two collections share `.agents/skills/`, which is what #63 cost: a name this manifest does not
+ * carry was a finding, and a neighbouring collection made this one's `status` fail. The owner is the
+ * source repo `gh skill install` injected into the directory, read locally and never fetched.
+ */
+
+/** Every skill of the set except the optional one, installed at one ref. */
+function installRequired(fixture: Fixture, ref: string, repo?: string): void {
+  for (const skill of SKILLS.filter(name => name !== 'dsh-agent-team-workflow')) {
+    fixture.write(`.agents/skills/${skill}/SKILL.md`, installedSkill(ref, repo))
+  }
+}
+
+/** The plan surface a project that took the optional skill holds: the contract and its hook. */
+function writePlanSurface(fixture: Fixture): void {
+  fixture.write(`${PLANS}/README.md`, '# Delivery plans\n')
+  fixture.write('AGENTS.md', '<!-- dsh-spec:agent-notes -->\n## Decision records\n<!-- /dsh-spec:agent-notes -->\n\n<!-- dsh-spec:plans -->\n## Delivery plans\n<!-- /dsh-spec:plans -->\n')
+}
+
+test("another collection's install beside this one does not fail this collection's status", (t) => {
+  const fixture = makeFixture({ 'README.md': '# A project\n' })
+  t.after(() => fixture.dispose())
+  installSet(fixture, 'main')
+  writePlanSurface(fixture)
+  fixture.write('.agents/skills/other-set/SKILL.md', installedSkill('main', 'someone-else/another-set'))
+  fixture.write('.agents/skills/anonymous/SKILL.md', installedSkill('main'))
+
+  const result = runCli(fixture.root, ['status'])
+
+  // #63's reproduction: a neighbouring collection's directory used to make this exit 1.
+  assert.equal(result.status, 0, `status failed over another collection's directory:\n${result.output}`)
+  assert.match(result.output, /other +other-set +someone-else\/another-set — not this collection's, left alone/, result.output)
+  assert.match(result.output, /other +anonymous +no metadata\.github-repo — not this collection's, left alone/, result.output)
+})
+
+test('a skill this collection installed and the revision dropped is a finding, and upgrade removes it', (t) => {
+  const fixture = makeFixture({ 'README.md': '# A project\n' })
+  t.after(() => fixture.dispose())
+  installSet(fixture, 'main')
+  fixture.write('.agents/skills/dsh-retired-probe/SKILL.md', installedSkill('main', 'sunandsunshine-tech/dsh-spec'))
+  const retired = join(fixture.root, '.agents', 'skills', 'dsh-retired-probe')
+
+  const reported = runCli(fixture.root, ['status'])
+  assert.equal(reported.status, 1, reported.output)
+  assert.match(reported.output, /dsh-retired-probe: installed from sunandsunshine-tech\/dsh-spec but this revision no longer publishes it — `upgrade` removes it/, reported.output)
+
+  withTree(fixture, oneFilePerSkill(skill => digest(`main-${skill}`)))
+  stubGh(fixture)
+  const dry = runCli(fixture.root, ['upgrade', '--only-skill-set', '--dry-run', '--revision', 'main'], { env: stubPath(fixture) })
+  assert.equal(dry.status, 0, dry.output)
+  assert.match(dry.output, /would remove .*dsh-retired-probe — this revision no longer publishes dsh-retired-probe/, dry.output)
+  assert.equal(existsSync(retired), true, 'a dry run removed the retired skill')
+
+  const applied = runCli(fixture.root, ['upgrade', '--only-skill-set', '--revision', 'main'], { env: stubPath(fixture) })
+  assert.equal(applied.status, 0, applied.output)
+  assert.match(applied.output, /removed .*dsh-retired-probe — this revision no longer publishes dsh-retired-probe/, applied.output)
+  assert.equal(existsSync(retired), false, 'upgrade left a skill the revision no longer publishes')
+})
+
+test('a refresh follows an optional skill the project holds and does not install one it never took', (t) => {
+  const fixture = makeFixture({ 'README.md': '# A project\n' })
+  t.after(() => fixture.dispose())
+  installRequired(fixture, 'main')
+  withTree(fixture, oneFilePerSkill(skill => digest(`main-${skill}`)))
+  const calls = stubGh(fixture)
+
+  const absent = runCli(fixture.root, ['upgrade', '--only-skill-set', '--revision', 'main'], { env: stubPath(fixture) })
+
+  assert.equal(absent.status, 0, absent.output)
+  assert.match(absent.output, /upgrade 9 skill\(s\)/, absent.output)
+  assert.deepEqual(
+    installCalls(calls()).filter(call => call.includes('dsh-agent-team-workflow')),
+    [],
+    'a refresh installed an optional skill the project never took',
+  )
+
+  // The project takes it; from then on the optional skill follows the set like a required one.
+  fixture.write('.agents/skills/dsh-agent-team-workflow/SKILL.md', installedSkill('main'))
+  const present = runCli(fixture.root, ['upgrade', '--only-skill-set', '--revision', 'main'], { env: stubPath(fixture) })
+
+  assert.equal(present.status, 0, present.output)
+  assert.match(present.output, /upgrade 10 skill\(s\)/, present.output)
+  assert.equal(
+    installCalls(calls()).filter(call => call.includes('dsh-agent-team-workflow')).length,
+    1,
+    `a held optional skill did not follow the set:\n${present.output}`,
+  )
+})
+
+test('a missing optional skill is reported as absent rather than as a problem', (t) => {
+  const fixture = makeFixture({ 'README.md': '# A project\n' })
+  t.after(() => fixture.dispose())
+  installRequired(fixture, 'main')
+
+  const result = runCli(fixture.root, ['status'])
+
+  assert.equal(result.status, 0, `status failed over the optional skill it was not given:\n${result.output}`)
+  assert.match(result.output, /absent +dsh-agent-team-workflow +optional, not installed/, result.output)
+})
+
+test('uninstall removes one named skill, the whole set, and never another collection\'s directory', (t) => {
+  const fixture = makeFixture({ 'README.md': '# A project\n' })
+  t.after(() => fixture.dispose())
+  installSet(fixture, 'main')
+  const foreign = join(fixture.root, '.agents', 'skills', 'other-set')
+  fixture.write('.agents/skills/other-set/SKILL.md', installedSkill('main', 'someone-else/another-set'))
+
+  const one = runCli(fixture.root, ['uninstall', '--skill', 'dsh-code-review'])
+  assert.equal(one.status, 0, one.output)
+  assert.equal(existsSync(join(fixture.root, '.agents', 'skills', 'dsh-code-review')), false, 'the named skill survived')
+  assert.equal(existsSync(join(fixture.root, '.agents', 'skills', 'dsh-prose-standard')), true, '--skill removed more than the name it was given')
+
+  // A name this manifest does not carry is an invocation error, so another collection's directory is
+  // never even considered for removal.
+  const unknown = runCli(fixture.root, ['uninstall', '--skill', 'other-set'])
+  assert.equal(unknown.status, 2, unknown.output)
+  assert.match(unknown.output, /--skill other-set is not a skill this collection publishes/, unknown.output)
+  assert.equal(existsSync(foreign), true, "uninstall touched another collection's directory")
+
+  // The entry point's flag table decides which command may be handed the flag, and how many times.
+  const repeated = runCli(fixture.root, ['uninstall', '--skill', 'dsh-prose-standard', '--skill', 'dsh-code-review'])
+  assert.equal(repeated.status, 2, repeated.output)
+  assert.match(repeated.output, /uninstall takes --skill once/, repeated.output)
+
+  const elsewhere = runCli(fixture.root, ['status', '--skill', 'dsh-code-review'])
+  assert.equal(elsewhere.status, 2, elsewhere.output)
+  assert.match(elsewhere.output, /status does not take --skill/, elsewhere.output)
+
+  const rest = runCli(fixture.root, ['uninstall'])
+  assert.equal(rest.status, 0, rest.output)
+  assert.equal(existsSync(join(fixture.root, '.agents', 'skills', 'dsh-prose-standard')), false, 'the whole-set uninstall left a skill')
+  assert.equal(existsSync(foreign), true, "the whole-set uninstall touched another collection's directory")
+})
+
+/**
+ * The install's optional-skill question: who is asked, who is told the flag, and what a preview does.
+ *
+ * `process.stdin.isTTY` is what decides whether a person can be asked at all, and a pipe never
+ * reports one — so the terminal case runs a probe that marks its own stdin as a terminal and then
+ * runs the shipped install, with the pipe answering. Everything below stays offline: the `gh`
+ * stand-in answers the revision, and `withSkillFile` answers the description the question quotes.
+ */
+
+/** A skill `SKILL.md` whose frontmatter carries the description a question quotes. */
+function optionalSkillFile(description: string): string {
+  return `---\nname: probe\ndescription: ${description}\n---\n# Probe\n`
+}
+
+/**
+ * Run the shipped install with stdin claiming to be a terminal.
+ *
+ * The probe is the honest way to reach the asking path: it changes nothing about the manager, and
+ * the answer travels the same readline a person's keystrokes would.
+ */
+function ttyInstall(fixture: Fixture, answers: string, options: { dryRun?: boolean } = {}): ReturnType<typeof runEntry> {
+  const entry = join(fixture.root, 'tty-install.ts')
+  const manager = pathToFileURL(join(REPO_ROOT, 'skills', 'dsh-spec-manager', 'scripts', 'manager.ts')).href
+  fixture.write('tty-install.ts', [
+    "Object.defineProperty(process.stdin, 'isTTY', { value: true })",
+    `const { installProject } = await import(${JSON.stringify(manager)})`,
+    `await installProject(${JSON.stringify(fixture.root)}, { dryRun: ${options.dryRun === true}, jobs: 1, revision: 'main' })`,
+    '',
+  ].join('\n'))
+  return runEntry(entry, fixture.root, [], { stdin: answers, env: stubPath(fixture) })
+}
+
+test('an install in a shell that is not a terminal names the flag and adds nothing optional', (t) => {
+  const fixture = makeFixture({ 'README.md': '# A project\n' })
+  t.after(() => fixture.dispose())
+  withTree(fixture, oneFilePerSkill(skill => digest(`main-${skill}`)))
+  const calls = stubGh(fixture)
+
+  const planned = runCli(fixture.root, ['install', '--dry-run', '--revision', 'main'], { env: stubPath(fixture) })
+
+  assert.equal(planned.status, 0, planned.output)
+  assert.match(planned.output, /optional not installed: dsh-agent-team-workflow — pass --with dsh-agent-team-workflow to add it/, planned.output)
+  assert.match(planned.output, /install 9 skill\(s\)/, planned.output)
+  assert.doesNotMatch(planned.output, /would run: .*dsh-agent-team-workflow/, planned.output)
+
+  const applied = runCli(fixture.root, ['install', '--revision', 'main'], { env: stubPath(fixture) })
+
+  assert.equal(applied.status, 0, applied.output)
+  assert.match(applied.output, /optional not installed: dsh-agent-team-workflow/, applied.output)
+  assert.deepEqual(
+    installCalls(calls()).filter(call => call.includes('dsh-agent-team-workflow')),
+    [],
+    'an install with nobody to ask added the optional skill anyway',
+  )
+})
+
+test('--with takes an optional skill without asking, and names anything else it is given', (t) => {
+  const fixture = makeFixture({ 'README.md': '# A project\n' })
+  t.after(() => fixture.dispose())
+  withTree(fixture, oneFilePerSkill(skill => digest(`main-${skill}`)))
+  const calls = stubGh(fixture)
+
+  // The flag is repeatable: it is the agent's way of answering, and answering twice is not an error.
+  const taken = runCli(fixture.root, ['install', '--revision', 'main', '--with', 'dsh-agent-team-workflow', '--with', 'dsh-agent-team-workflow'], { env: stubPath(fixture) })
+
+  assert.equal(taken.status, 0, taken.output)
+  assert.match(taken.output, /with: dsh-agent-team-workflow — named by --with, no question asked/, taken.output)
+  assert.match(taken.output, /install 10 skill\(s\)/, taken.output)
+  assert.equal(
+    installCalls(calls()).filter(call => call.includes('dsh-agent-team-workflow')).length,
+    1,
+    `--with installed the optional skill a number of times other than once:\n${taken.output}`,
+  )
+
+  const alreadyRequired = runCli(fixture.root, ['install', '--dry-run', '--revision', 'main', '--with', 'dsh-code-review'])
+  assert.equal(alreadyRequired.status, 2, alreadyRequired.output)
+  assert.match(alreadyRequired.output, /--with dsh-code-review is not optional/, alreadyRequired.output)
+
+  const unknown = runCli(fixture.root, ['install', '--dry-run', '--revision', 'main', '--with', 'dsh-not-shipped'])
+  assert.equal(unknown.status, 2, unknown.output)
+  assert.match(unknown.output, /--with dsh-not-shipped is not a skill this collection publishes/, unknown.output)
+
+  const elsewhere = runCli(fixture.root, ['status', '--with', 'dsh-agent-team-workflow'])
+  assert.equal(elsewhere.status, 2, elsewhere.output)
+  assert.match(elsewhere.output, /status does not take --with/, elsewhere.output)
+})
+
+test('a terminal is asked about each optional skill, and the default answer is no', (t) => {
+  const fixture = makeFixture({ 'README.md': '# A project\n' })
+  t.after(() => fixture.dispose())
+  withTree(fixture, oneFilePerSkill(skill => digest(`main-${skill}`)))
+  withSkillFile(fixture, optionalSkillFile('Use when a delivery needs planning. A second sentence stays out.'))
+  const calls = stubGh(fixture)
+
+  // An empty line is the whole answer: the question defaults to no.
+  const declined = ttyInstall(fixture, '\n')
+
+  assert.equal(declined.status, 0, declined.output)
+  assert.match(declined.output, /dsh-agent-team-workflow — Use when a delivery needs planning\.\n  add it\? \[y\/N\] /, declined.output)
+  assert.doesNotMatch(declined.output, /A second sentence stays out/, 'the question quoted more than the first sentence')
+  assert.match(declined.output, /install 9 skill\(s\)/, declined.output)
+  assert.deepEqual(
+    installCalls(calls()).filter(call => call.includes('dsh-agent-team-workflow')),
+    [],
+    'a question answered with the default installed the optional skill',
+  )
+
+  const accepted = ttyInstall(fixture, 'y\n')
+
+  assert.equal(accepted.status, 0, accepted.output)
+  assert.match(accepted.output, /install 10 skill\(s\)/, accepted.output)
+  assert.equal(
+    installCalls(calls()).filter(call => call.includes('dsh-agent-team-workflow')).length,
+    1,
+    `a question answered yes did not install the optional skill:\n${accepted.output}`,
+  )
+})
+
+test('a preview prints the question and the answer it would take, and reads no stdin', (t) => {
+  const fixture = makeFixture({ 'README.md': '# A project\n' })
+  t.after(() => fixture.dispose())
+  withTree(fixture, oneFilePerSkill(skill => digest(`main-${skill}`)))
+  withSkillFile(fixture, optionalSkillFile('Use when a delivery needs planning.'))
+  stubGh(fixture)
+
+  // `y` is waiting on stdin: a preview that read it would plan the optional skill.
+  const result = ttyInstall(fixture, 'y\n', { dryRun: true })
+
+  assert.equal(result.status, 0, result.output)
+  assert.match(result.output, /would ask: dsh-agent-team-workflow.*answer: no \(pass --with dsh-agent-team-workflow to install it\)/, result.output)
+  assert.match(result.output, /install 9 skill\(s\)/, result.output)
+  assert.doesNotMatch(result.output, /would run: .*dsh-agent-team-workflow/, result.output)
+})
+
+test('an install leaves an optional skill the project already holds where it is', (t) => {
+  const fixture = makeFixture({ 'README.md': '# A project\n' })
+  t.after(() => fixture.dispose())
+  installSet(fixture, 'main')
+  fixture.write('.agents/skills/dsh-agent-team-workflow/SKILL.md', installedSkill('older'))
+  withTree(fixture, oneFilePerSkill(skill => digest(`main-${skill}`)))
+  stubGh(fixture)
+
+  const reported = runCli(fixture.root, ['status'])
+  assert.equal(reported.status, 1, reported.output)
+  assert.match(reported.output, /dsh-agent-team-workflow: at older, the manager is at main/, reported.output)
+
+  // An install adds what it is asked to add; it maintains nothing. The held optional is not in the
+  // selection, so it is neither updated nor pruned, and `upgrade` is the verb that moves it.
+  const installed = runCli(fixture.root, ['install', '--dry-run', '--revision', 'main'], { env: stubPath(fixture) })
+
+  assert.equal(installed.status, 0, installed.output)
+  assert.match(installed.output, /install 9 skill\(s\)/, installed.output)
+  assert.doesNotMatch(installed.output, /(would run|would remove).*dsh-agent-team-workflow/, installed.output)
 })
