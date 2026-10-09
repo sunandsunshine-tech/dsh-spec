@@ -30,7 +30,7 @@
 8. A-5 第二轮：reviewer-1 **PASS**（`43d0078`；B1/B2 复验通过，提交线性无 merge，Objective 1–8 全过）。
 9. A-6 文本终检（texter-1）：15 条修正，全部文本；其中 F13 是真遗漏——`help.ts` 的 uninstall 说明与它生成的 `cli.md` 仍在列举旧的 left-in-place 集合，delivery 自己的 P5 只修了 `manager.ts` 与两句 prose。模板与树内文本、help 与 cli.md 的一致性由 Lead 复核通过。
 10. A-6 复审（reviewer-1，独立复核文本终检之后的 `2000bc76`）：**PASS**。151/151、副本 10/10、出处 16/16、`check --all`、全 corpus md-links 152 文件、52 对配对、`check --base main` 全绿；三个模板与树内文本逐字一致、`--help en --markdown` 与 authored/installed 的 `cli.md` 逐字一致；`43d0078..HEAD` 的正文改动只有 9 个文本文件（+55/−55），两个 `.ts` 只改了字符串常量与一条注释，`tests/` 零改动。
-11. 待办：A-7 收尾（PR 去 WIP、转 ready、四节描述）。合并准备期的收口按用户指令留待授权。
+11. A-7 收尾（Lead）：提交工作副本结论 `1e8924a`，`gh stack sync` 推 B（并把 C、D 级联 rebase 到新 B），PR [#65](https://github.com/sunandsunshine-tech/dsh-spec/pull/65) 去掉标题 `WIP: ` 前缀、由 draft 转 ready、四节描述重写。合并准备期的收口按用户指令留待授权。
 
 ## A-6 文本终检结果
 
