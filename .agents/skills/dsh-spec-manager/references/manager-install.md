@@ -22,7 +22,7 @@ node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts install --root <project
 | `docs/AGENTS.md` | The orders that govern that table |
 | `.rgignore` | The search exclusions: the frozen archive, and the vendored bundle a search should not read as prose |
 
-The three `plans/` paths and the `dsh-spec:plans` block belong to the optional `dsh-agent-team-workflow` skill: a project holds them exactly while it holds that skill, and one that leaves it out carries neither — no plan tree and no plans hook.
+The three `plans/` paths and the `dsh-spec:plans` block belong to the optional `dsh-agent-team-workflow` skill: adoption creates them with that skill, and one that leaves it out carries no plan tree and no plans hook. Removing the skill later turns the hook off and leaves the tree, with the plans in it.
 
 `upgrade` syncs the same files' text and creates none of them, so what a project deleted on purpose stays deleted.
 
