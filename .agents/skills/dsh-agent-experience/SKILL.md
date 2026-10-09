@@ -2,7 +2,7 @@
 description: Use when designing agent tools, skills, context loading, or multi-step workflows to make information discoverable and use context efficiently.
 metadata:
     github-path: skills/dsh-agent-experience
-    github-ref: refs/heads/feat/optional-skills
+    github-ref: refs/heads/refactor/manager-package
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
     github-tree-sha: bafeb10a33bb9abcf819cf2275403a6caad493eb
 name: dsh-agent-experience
