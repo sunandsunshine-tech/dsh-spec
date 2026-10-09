@@ -22,7 +22,7 @@ GitHub CLI 也自带 agent 技能,去[它的仓库](https://github.com/cli/cli)�
 
 装到项目里,不要装到家目录,并把结果提交进 git。你装 manager 用的那个 ref,就是其余每个技能的 pin;装在项目里,于是每个协作者、每个 agent、CI 都停在那同一个修订上;装到用户级则只存在于各自机器上,下一次 `gh skill update` 就各走各的。首次安装后请提交 `AGENTS.md`、`.agents/`、`docs/` 和 `.rgignore`。
 
-manager 需要你亲手装,其余技能由它装。其中 `dsh-agent-team-workflow` 是可选的:`install` 会先问过再装;非终端的 shell 只有收到 `--with dsh-agent-team-workflow` 才会装它。想装某条分支或某个旧版本、而不是最新已发布的那个,给 `gh skill install` 传 `--revision <ref>`。
+manager 需要你亲手装,其余技能由它装。其中 `dsh-agent-team-workflow` 是可选的:`install` 会先问再装;非终端的 shell 只有收到 `--with dsh-agent-team-workflow` 才会装它。想装某条分支或某个旧版本、而不是最新已发布的那个,给 `gh skill install` 传 `--revision <ref>`。
 
 ### 手动安装
 
@@ -60,9 +60,9 @@ node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts install --root .
 | `dsh-pre-push-checks` | 覆盖一次外发改动的最小证据 |
 | `dsh-find-simplifications` | 把「找找能简化什么」变成有证据可依的提案 |
 | `dsh-agent-experience` | agent 自己的上下文欠什么:先给最小上下文、发现要显式、约束先于动作、输出宁可有界 |
-| `dsh-agent-team-workflow`(可选) | 团队被请求建立之后的职责分工:Lead、Worker、Reviewer、Texter 四个角色、任务卡,以及每项义务归哪道门禁 |
+| `dsh-agent-team-workflow` *(可选)* | 团队被请求建立之后的职责分工:Lead、Worker、Reviewer、Texter 四个角色、任务卡,以及每项义务归哪道门禁 |
 
-`install` 会先问过再加这个可选技能;项目不选它,就没有计划树,也没有计划钩子。
+`install` 会先问再加这个可选技能;项目不选它,就没有计划树,也没有计划钩子。
 
 ## 应用它附带的规范
 
@@ -86,7 +86,7 @@ node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts norms update --root .
 node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts upgrade --root .
 ```
 
-`upgrade --only-skill-set` 是不带自更新的那一半:它把已安装的技能带到 manager 当前的 ref。刷新从不询问可选技能——项目已经持有的跟着集合走,从没要过的不装。在源码树里(比如本仓库)要跑 `upgrade --revision <当前分支>`:那里跑裸 `upgrade` 没有可读的 manager 已安装 ref,会退而解析最新已发布的 release。
+`upgrade --only-skill-set` 是不带自更新的那一半:它在 manager 当前的 ref 上安装必装技能,以及项目已持有的可选技能。刷新从不询问可选技能——项目已经持有的跟着集合走,从没要过的不装。在源码树里(比如本仓库)要跑 `upgrade --revision <当前分支>`:那里跑裸 `upgrade` 没有可读的 manager 已安装 ref,会退而解析最新已发布的 release。
 
 这条命令对每个技能做了什么,`install`、`status`、`uninstall` 又各管什么,见 [`manager-lifecycle.md`](skills/dsh-spec-manager/references/manager-lifecycle.md)。
 

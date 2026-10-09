@@ -67,7 +67,7 @@ const COMMAND_HELP: readonly CommandHelp[] = [
     },
     zh: {
       summary: '把技能集合安装到项目',
-      detail: '默认执行。必装技能装在 `gh skill install` 注入到这个 manager 的 ref 上,或用 `--revision <ref>` 指定。manifest 标为可选的技能只在有明确答案时才装:终端下逐个提问,默认答案是否;非终端的 shell 一个都不装,只打印能把它加进来的 `--with <name>` 行;`--with <name>` 不提问直接加。`--dry-run` 只打印两半计划——要部署哪些技能、要建哪些文件——外加每个问题与它会采纳的答案,且不读输入。项目应用的规范属于项目自己的选择:这个动词只报告,从不写。',
+      detail: '默认执行。必装技能装在 `gh skill install` 注入到这个 manager 的 ref 上,或用 `--revision <ref>` 指定。manifest 标为可选的技能只在有人要它时才装:终端下逐个提问,默认答案是否;非终端的 shell 一个都不装,只打印能把它加进来的 `--with <name>` 行;`--with <name>` 不提问直接加。`--dry-run` 只打印两半计划——要部署哪些技能、要建哪些文件——外加每个问题与它会采纳的答案,且不读输入。项目应用的规范属于项目自己的选择:这个动词只报告,从不写。',
       comment: '先看采用这个项目会做什么',
       example: 'install --root . --dry-run',
     },

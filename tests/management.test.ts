@@ -599,8 +599,9 @@ test('a dry-run refresh renders the managed text it would rewrite, and writes no
  *
  * The tree and the hook are one surface — a project that took the optional skill holds both, and one
  * that did not holds neither — and the contract is a pair, so an adoption records the sidecar the
- * pairing gate checks. The cases below cover the six states the plan names: taken, not taken, taken
- * later, refreshed, uninstalled, and half-installed.
+ * pairing gate checks. Removing the skill later turns the hook off and leaves the tree, with the plans
+ * in it. The cases below cover the six states the plan names: taken, not taken, taken later,
+ * refreshed, uninstalled, and half-installed.
  */
 
 /** Install the optional skill whose presence turns the delivery-plan surface on. */

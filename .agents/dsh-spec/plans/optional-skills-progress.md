@@ -37,8 +37,9 @@ GATE PASS
 7. C-5（文档与 README）、C-6（两条新 note + 更新被 C 取代的 B note 判据）、C-6b（刷新三条被 C 写旧的 implemented 记录）完成。C-4 与 C-6 共同构成跨层差异：**C 的 Design 让"选中可选技能时采用落三件 + 配对记录"，取代 B 的两件**；B 侧受影响用例与被取代的 note 判据都在报告里点名并已更新。
 8. Lead 提交 `b34bad1`，`gh stack sync` 推 C（先把 B 的 worktree 退掉，因为 sync 要 checkout 它），`upgrade --revision feat/optional-skills` 刷新副本，提交 `a6236c5` 再推；此后 `node --test` 170/170、副本、出处、`check --all`、corpus md-links 158 文件、corpus pairing、`check --base main` 全绿。
 9. C-7 评审（reviewer-1，`a6236c5`）：**REJECT**，一条阻断——归属比较把注入值与 `manifest.repo` 直接等值比较，而安装器写的是 URL，于是"本集合已下线"这一类不可达、`upgrade` 永不清理；测试绿只因 fixture 注入了安装器不写的 bare 形式。其余 Objective 1/2/3/4/5/7/8 与全部门禁经评审原样重跑通过。
-10. 处理中：重新打开 C-2（task-10），要求比较前归一（bare 与 URL 两种都接受、只在一处归一）、fixture 与 gh 替身改成真实 URL 形状、另留 bare 形式用例；修好后 Lead 提交再推，reviewer 只复跑归属探针与受影响用例。
-11. 待办：C-8 文本终检 → C-9 刷新副本 + 全量门禁 + PR 转 ready。
+10. 修复完成：`repositoryName()` 成为唯一归一入口（bare、github URL、尾部 `/`、`.git` 都接受），`installedRepo()` 返回归一后的 `owner/name`，两处比较式不变；fixture 与 `gh` 替身改用安装器真正写的 URL 形状，并保留 URL/bare/尾部矩阵三条用例。Lead 提交 `451b92a`、刷新副本提交 `ff689b8` 并推。C-7 第二轮：reviewer-1 **PASS**（五种本集合记录形式都命中 finding 与 `would remove`；别家 URL 与无 metadata 仍是 `other` 行；`#63` 复现 exit 0；上一轮审过的提交仍是祖先）。
+11. C-8 文本终检（texter-1）：7 条修正（中文 README 行的强调跨侧、`--only-skill-set` 的过宽陈述、`manager-install.md` 与 uninstall 矛盾的"持有面即在"、`SKILL.md` 的 `--with`-only 陈述、zh help 的"有明确答案"、feature note 三处直译、implemented note 的 comma splice），全部文本；另有 `tests/management.test.ts:600` 的块注释补一句由 Lead 一并修。Q7/Q8 的措辞按指示未动。
+12. 待办：C-9 刷新副本 + 全量门禁 + PR #66 转 ready。
 
 ## Park 与裁决
 
@@ -57,4 +58,12 @@ C-2 实施时 worker-1 park 了四项；按下述处理，并由 Lead 记入 PR 
 
 ## 结论
 
-（待交付收尾时填写。）
+这次交付在 `ff689b8` 之后收尾，达到**可评审**状态：卡片 C-1…C-6、C-6b 全部完成，C-7 评审两轮通过（第一轮 REJECT 指出归属比较与真实安装元数据形状不符，修复后第二轮 PASS），C-8 文本终检完成。
+
+落地的：`manifest.json` 的 `optional` 与差集派生、校验；`install` 的 TTY/非 TTY/`--with`/`--dry-run` 四场景；`upgrade` 永不询问且只跟随已持有的可选；`status` 的三类归属（本集合在册、本集合已下线、别家/无 metadata）与半装计划面 finding；`uninstall` 的默认与 `--skill`；计划面条件化（选中可选技能才建计划树、双语契约、配对记录与钩子；卸载技能移除钩子、保留树与计划）；入口点 flag 表；文档与 README 双语同步；两条新决策 note 与三条被写旧的 implemented 记录刷新。**跨层**：C 取代了 B 的"采用落两件"为"选中时落三件 + 配对记录"。
+
+真实门禁（`ff689b8` 与文本终检后由 Lead 在 C-9 重跑）：`node --test 'tests/**/*.test.ts'`；`verify-installed-copy`；`verify-port-provenance`；`verify-skill-structure`；`check --all`；全 corpus md-links；corpus translation-pair；`check --base main`。
+
+**留给合并准备期（需用户授权）**：删除本计划与工作副本；把两条新 note 从 `proposed/` 转 `implemented/`；PR 四节描述里的未决项见下。
+
+**未决、已上报用户**：(1) Q7 `install` 对已装可选的读法（当前按计划字面 A）；(2) Q8 非 TTY `install` 对已在盘上的可选的措辞；(3) 依赖门按 stack 读法在本层 worktree 里跑，与计划"main 上的事实"措辞不同；(4) 第二条 note 的类别与计划路径不一致，按类别落 `proposed/feature/`。

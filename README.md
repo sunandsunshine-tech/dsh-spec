@@ -86,7 +86,7 @@ The set follows the manager: every skill carries the ref the manager itself was 
 node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts upgrade --root .
 ```
 
-`upgrade --only-skill-set` is the half without the self-update: it brings the installed skills to the manager's current ref. A refresh never asks about the optional skill — one the project already holds follows the set, and one it never took is not installed. In a source tree, such as this repository, run `upgrade --revision <current-branch>`: a bare `upgrade` there has no installed manager ref to read and resolves the latest published release instead.
+`upgrade --only-skill-set` is the half without the self-update: it installs the required skills, and an optional one the project already holds, at the manager's current ref. A refresh never asks about the optional skill — one the project already holds follows the set, and one it never took is not installed. In a source tree, such as this repository, run `upgrade --revision <current-branch>`: a bare `upgrade` there has no installed manager ref to read and resolves the latest published release instead.
 
 What that command does to each skill, and what `install`, `status` and `uninstall` add, is in [`manager-lifecycle.md`](skills/dsh-spec-manager/references/manager-lifecycle.md).
 
