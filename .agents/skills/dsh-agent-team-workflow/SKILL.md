@@ -1,10 +1,10 @@
 ---
-description: Use when a request is a multi-step engineering delivery — a feature, a refactor, or a bug fix that must carry its decision record, its documentation, and its bilingual pairs. Treats the loaded skill as the prompt that turns the session into a team, and the task card as the contract each member works from.
+description: Use when a request is a multi-step engineering delivery — a feature, a refactor, or a bug fix that must carry its decision record, its documentation, and its bilingual pairs. Turns the session into a Lead, Worker, Reviewer and Texter team; each member works from a task card, and every obligation belongs to a gate.
 metadata:
     github-path: skills/dsh-agent-team-workflow
-    github-ref: refs/heads/release/v0.4.0
+    github-ref: refs/heads/feat/plans-surface
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: c840761575dbbe9407c7f928c8a9bbafdd160c13
+    github-tree-sha: 435997322aa87888f9ec3eca6dc96658e8207a96
 name: dsh-agent-team-workflow
 ---
 # Agent Team Workflow
@@ -57,7 +57,7 @@ A change touches only what its objective requires; drive-by formatting and oppor
 
 ## 7. Task cards
 
-The card is the context firewall. Its fields and invariants are in [references/task-card.md](references/task-card.md).
+The card is the context firewall. Read [references/task-card.md](references/task-card.md) before writing a card and before claiming one; it carries the fields and the invariants.
 
 Claiming: `team_task_list` with `ready: true`; `team_task_get` for the current `revision`; `team_task_update` with `action: 'claim'`, `owner`, and `expected_revision`. A revision mismatch means another member claimed it; take another ready task.
 

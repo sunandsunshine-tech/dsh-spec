@@ -22,6 +22,9 @@ export const REPO_ROOT = fileURLToPath(new URL('../..', import.meta.url))
 /** The Agent Note tree an initialized project carries. */
 export const NOTES = '.agents/dsh-spec/notes'
 
+/** The delivery-plan tree an initialized project carries. */
+export const PLANS = '.agents/dsh-spec/plans'
+
 /** The six classes the archive tree requires once it holds an artifact. */
 export const CLASSES = ['feature', 'bug-fix', 'simplification', 'architecture', 'process', 'testing'] as const
 

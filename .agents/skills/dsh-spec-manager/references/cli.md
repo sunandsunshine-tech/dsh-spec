@@ -91,7 +91,7 @@ The [global flags](#flags) apply to every command.
 
 Remove the installed skills.
 
-Lists what it leaves behind — the marked block in `AGENTS.md`, the notes tree, `docs/` and `.rgignore` — because those are the project's own.
+Lists what it leaves behind — the marked blocks in `AGENTS.md`, the notes tree, the plan tree, `docs/` and `.rgignore` — because those are the project's own.
 
 ```sh
 # See what removal would leave in place
