@@ -2,9 +2,9 @@
 description: 'Use when adopting the dsh development pattern in a project, or when an adopted project changes its skill set: initialize the root AGENTS.md and the Agent Note tree; install, update or remove the skill set at the ref the manager itself was installed from; read each installed ref from its metadata; choose the norms the project applies, and list, explain or update them; or run the checks the project owes. It owns project setup and the skill set, and reports what it could not determine.'
 metadata:
     github-path: skills/dsh-spec-manager
-    github-ref: refs/heads/feat/plans-surface
+    github-ref: refs/heads/feat/optional-skills
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: a1983d566dafaef75db159e60151b362a345a4f8
+    github-tree-sha: 86515f618d6693357c57144fdfeffe1d2d9e4c9b
 name: dsh-spec-manager
 ---
 # Managing an adopted project
@@ -12,6 +12,8 @@ name: dsh-spec-manager
 This is the one skill of the set that a project installs by hand. Everything else arrives through it, at one revision, listed in its manifest.
 
 `install` runs before any other skill: the standing orders and the decision-record tree have to exist before an agent has anywhere to record a decision. After that the same entry point upgrades and removes the workflow skills, carries the collection's engine — every check, the entry point that resolves one by subject, and the modules they share all sit in this skill's `scripts/` — and dispatches the checks a change owes. It also carries the norms the set accumulated: a project chooses from the catalog in `references/norms.json`, the rules it chooses land in its own tree where it may edit them, and an update reports what moved instead of overwriting an edit.
+
+**One skill of the set is optional.** `dsh-agent-team-workflow` is installed only when `--with dsh-agent-team-workflow` names it. An install with a terminal behind it asks about each optional skill and installs the ones answered yes; a shell without one — an agent's — names the flag instead, so the question belongs to the conversation before `install` runs and the answer travels as the flag. A refresh never asks: the optional skills a project already holds follow the revision, and the ones it never took stay uninstalled.
 
 **`scripts/` here is the collection's engine, not this skill's private resources.** The other skills ship their `SKILL.md` and `references/` and no code at all, so a gate's bug is a bug in the collection rather than in the workflow this file describes; file it against the gate, and change it where every skill's checks already live.
 
