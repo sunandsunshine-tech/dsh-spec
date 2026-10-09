@@ -19,7 +19,7 @@ node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts upgrade --root .
 Three rules follow, and `AGENTS.md` carries them:
 
 - **Never hand-edit the copy.** It is overwritten by the next install. Change `skills/`, then refresh the copy in the same change.
-- **Refresh through the manager, never by copying files.** One command installs every skill the manifest names at the revision the manager's own installed metadata carries, and [`manager-lifecycle.md`](../../../../../skills/dsh-spec-manager/references/manager-lifecycle.md) writes it out. The install resolves the remote ref, so it follows a push, and the manager's `status` compares the ref the installer injected into each installed `SKILL.md` against the manager's own — no manifest field declares the pin, which [The manager's own install is the pin](2026-09-21-the-manager-s-own-install-is-the-pin.md) owns.
+- **Refresh through the manager, never by copying files.** One command installs the skills the manifest requires and any optional skill the project already holds, at the revision the manager's own installed metadata carries, and [`manager-lifecycle.md`](../../../../../skills/dsh-spec-manager/references/manager-lifecycle.md) writes it out. The install resolves the remote ref, so it follows a push, and the manager's `status` compares the ref the installer injected into each installed `SKILL.md` against the manager's own — no manifest field declares the pin, which [The manager's own install is the pin](2026-09-21-the-manager-s-own-install-is-the-pin.md) owns.
 - **The copy is a deployment artifact, not a second source.** Where the two disagree, `skills/` wins and the copy is the defect.
 
 ### The copy is not byte-identical to the source

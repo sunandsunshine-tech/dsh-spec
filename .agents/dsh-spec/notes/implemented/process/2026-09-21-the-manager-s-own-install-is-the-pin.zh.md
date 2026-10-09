@@ -12,17 +12,17 @@ manifest 声明了每个技能来自哪个修订,而项目改不了它:`manifest
 
 ## Decision
 
-**manifest 不再声明任何修订。** `revision` 从 `manifest.json` 中删除;该文件仍持有仓库、要安装的技能、本技能集合发布的门禁以及每道门禁的范围。安装器早已把它解析出的 ref 以 `metadata.github-ref` 记进每个已安装的 `SKILL.md`,那条记录就是 pin:一次安装交付了什么,项目就跑什么。
+**manifest 不再声明任何修订。** `revision` 从 `manifest.json` 中删除;该文件仍持有仓库、要安装的技能以及其中哪些是可选的、本技能集合发布的门禁以及每道门禁的范围。安装器早已把它解析出的 ref 以 `metadata.github-ref` 记进每个已安装的 `SKILL.md`,那条记录就是 pin:一次安装交付了什么,项目就跑什么。
 
 **必须命名目标的命令按两级解析目标。** 显式的 `--revision <ref>` 优先。没有该旗标时,解析器从仓库读取最新的**已发布** release——草稿 release 不算 release,它的 `tag_name` 不会被拿来用——既没有旗标也没有已发布 release 时,以退出码 2 拒绝,并在信息里点名 `--revision`。有两个动作不解析目标,而是从 manager 取修订:`install` 与 `upgrade --only-skill-set`。
 
-**技能集合按 manager 自己的 ref 安装。** `install` 与 `upgrade --only-skill-set` 从已安装的 `dsh-spec-manager/SKILL.md` 读出 `metadata.github-ref`,按它安装其余技能,并把 `refs/heads/` 或 `refs/tags/` 前缀去掉作为短名。这就是一次安装已经交付的那个 ref。从未安装过的源码树没有这份元数据,在那里这一对动作回退到上面的两级解析。
+**技能集合按 manager 自己的 ref 安装。** `install` 与 `upgrade --only-skill-set` 从已安装的 `dsh-spec-manager/SKILL.md` 读出 `metadata.github-ref`,按它安装这次选中的集合 —— 必装技能,加上 `--with` 或终端答是加进来的、或项目本来就持有的可选技能 —— 并把 `refs/heads/` 或 `refs/tags/` 前缀去掉作为短名。这就是一次安装已经交付的那个 ref。从未安装过的源码树没有这份元数据,在那里这一对动作回退到上面的两级解析。
 
 **`upgrade` 是一次自更新,后面接技能集合。** 它先解析目标;manager 当前的 ref 与目标不同时,用 `gh skill install <repo> dsh-spec-manager@<target> --dir <skillsDir> --force` 自更新 manager;然后以 `upgrade --only-skill-set --revision <target> --root <root>` 重新执行刚安装好的分发器;退出码用的是那次重新执行的退出码,所以旧代码不会把新 manager 该做的活干完。比 `--only-skill-set` 更老的替换副本没法被指定目标——它自己跑就会按它 pin 的 ref 装技能集合,那不是本次解析出的修订——所以不跑它:改由被调用的这份副本装技能集合,技能清单取自替换副本随包发布的 manifest,两半都不会落空。
 
-**`--only-skill-set` 是不带自更新的那一半。** 它按 manager 当前注入的 ref 安装技能集合,不为 manager 自身跑 `gh skill install`。
+**`--only-skill-set` 是不带自更新的那一半。** 它按 manager 当前注入的 ref 安装同一份选中的集合,不为 manager 自身跑 `gh skill install`。
 
-**`status` 拿每个技能与 manager 比。** 每个已安装技能的注入 ref 都必须等于 manager 自己的注入 ref——这是一次纯本地比对,不读网络。`SKILL.md` 里没有该块的技能会被点名报告为不是一次安装;manager 自己没有元数据本身就是一条 finding,因为那时技能集合没有可比的 pin。
+**`status` 拿每个技能与 manager 比。** manifest 点名的每个技能——项目没有要过的可选技能除外——都必须已安装,且注入 ref 等于 manager 自己的注入 ref;这是一次纯本地比对,不读网络。manifest 没有点名的目录改按注入的 `metadata.github-repo` 分类:指向本集合仓库的,是当前修订已下线的技能,也是一条 finding;指向别家的,只作信息,不影响退出码。`SKILL.md` 里没有该块的技能会被点名报告为不是一次安装;manager 自己没有元数据本身就是一条 finding,因为那时技能集合没有可比的 pin。
 
 **干跑会读远端索引,并展示三层。** `install` 与 `upgrade` 在 `--dry-run` 下联网解析 ref,所以 `already at <ref>` 是事实而不是计划;它们把目标修订携带的每个文件分为 `+ 新增`、`~ 修改` 或 `- 删除`,`SKILL.md` 不参与内容比较,单独一行说明注入元数据从哪个 ref 变成哪个;对技能集合拥有的文本,它们渲染出新文本、与磁盘上的文件做 diff,打印 `would update <path>` 加这段 diff,截断到约 40 行。什么都不会写盘,技能正文也不做 diff。
 

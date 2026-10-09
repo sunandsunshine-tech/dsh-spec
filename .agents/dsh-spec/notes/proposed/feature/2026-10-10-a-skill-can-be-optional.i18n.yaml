@@ -1,0 +1,22 @@
+# Bilingual-pair consistency record for 2026-10-10-a-skill-can-be-optional.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/proposed/feature/2026-10-10-a-skill-can-be-optional.md
+/agent-note-a-skill-can-be-optional:
+  en: 48ff7d9180af3426
+  zh: 0476ba169a5a2ad2
+/agent-note-a-skill-can-be-optional/problem:
+  en: ee93ee119e5d4dcd
+  zh: cae62ae0648367c2
+/agent-note-a-skill-can-be-optional/proposal:
+  en: 184b98e1d686d1a5
+  zh: 4f5fc53f9b5c507c
+/agent-note-a-skill-can-be-optional/alternatives-considered:
+  en: 2c2622d8cee9839b
+  zh: 8add3d212c192d6b
+/agent-note-a-skill-can-be-optional/acceptance-criteria:
+  en: 4fb772eed416031e
+  zh: 74d898aa1a62d5c9
+/agent-note-a-skill-can-be-optional/risks:
+  en: d16390596d415e57
+  zh: ecfddd2e6438d5e2

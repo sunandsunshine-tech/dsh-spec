@@ -11,15 +11,18 @@ node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts install --root <project
 
 | Path | What it is |
 |---|---|
-| `AGENTS.md` (root) | The project's standing orders, plus the marked `dsh-spec:agent-notes` and `dsh-spec:plans` blocks the collection owns |
+| `AGENTS.md` (root) | The project's standing orders, plus the collection's marked blocks — `dsh-spec:agent-notes` always, `dsh-spec:plans` while the optional workflow skill is held |
 | `.agents/dsh-spec/notes/README.md` and its three `AGENTS.md` | The decision-record contract: the layout, the classes, the in-file format, and the orders for each subtree |
 | `.agents/dsh-spec/notes/{proposed,implemented,rejected}/{class}/` | The active lifecycle tree, one directory per class |
 | `.agents/dsh-spec/notes/archived/{class}/` | The frozen archive's kind directories |
-| `.agents/dsh-spec/plans/README.md` | The delivery-plan contract: the plan's fields, the state its working copy reads as, its dependency line, and the start-and-finish rules |
+| `.agents/skills/dsh-agent-team-workflow/` (optional) | The team workflow: a terminal is asked before it is added and the default answer is no, a shell that is not a terminal adds nothing, and `--with <name>` adds it without asking |
+| `.agents/dsh-spec/plans/README.md`, its `README.zh.md` and the pairing record beside them | The delivery-plan contract as a bilingual pair: the plan's fields, the state its working copy reads as, its dependency line, and the start-and-finish rules |
 | `.agents/dsh-spec/plans/AGENTS.md` | The orders that send a multi-step delivery to that contract before it starts |
 | `docs/terminology.md` | The vocabulary table the translation briefing reads, released with its columns and rules and **no rows** |
 | `docs/AGENTS.md` | The orders that govern that table |
 | `.rgignore` | The search exclusions: the frozen archive, and the vendored bundle a search should not read as prose |
+
+The three `plans/` paths and the `dsh-spec:plans` block belong to the optional `dsh-agent-team-workflow` skill: adoption creates them with that skill, and one that leaves it out carries no plan tree and no plans hook. Removing the skill later turns the hook off and leaves the tree, with the plans in it.
 
 `upgrade` syncs the same files' text and creates none of them, so what a project deleted on purpose stays deleted.
 
@@ -28,7 +31,7 @@ node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts install --root <project
 Two things survive every install and every refresh by rule, because they are decisions rather than mechanism text:
 
 - **The rows of `docs/terminology.md`.** The table's header, its column meanings and its usage rules are the collection's; every row below them binds both sides of a bilingual pair and is the maintainer's decision, asked for in the conversation.
-- **Everything in `AGENTS.md` outside the marked blocks.** Each block between `<!-- dsh-spec:agent-notes -->` and its closing marker, and between `<!-- dsh-spec:plans -->` and its closing marker, is replaced from the shipped template; the standing orders around them are the project's own writing and are never touched.
+- **Everything in `AGENTS.md` outside the marked blocks.** Each block between `<!-- dsh-spec:agent-notes -->` and its closing marker, and between `<!-- dsh-spec:plans -->` and its closing marker, is replaced from the shipped template; a block whose surface the project no longer holds is removed, and the standing orders around them are the project's own writing and are never touched.
 
 ## What adopting without the decision tree is not an option
 
@@ -45,7 +48,7 @@ The notes tree is created with the rest, and there is no switch that skips it. A
 | `--sync` | Only bring the files whose text the collection owns up to the installed revision: the notes contract and its three `AGENTS.md` files, the delivery-plan contract and its `AGENTS.md`, `docs/AGENTS.md`, `.rgignore`, and the marked blocks inside the root `AGENTS.md` |
 | `--dir <path>` | Where the skills were installed, when it is not `.agents/skills`; the managed text names the engine directory that follows from it |
 
-Nothing outside the managed list is read or written, and a file the initializer did not create is never overwritten. The notes files are synced only where the notes tree exists, and the plan files only where the plan tree exists, so a project that removed either is not given it back by a refresh. Adoption writes each contract's English side only: the Chinese counterpart ships as a template, and a project that adds the other side declares the pair.
+Nothing outside the managed list is read or written, and a file the initializer did not create is never overwritten. The notes files are synced only where the notes tree exists, and the plan files only where the plan tree exists, so a project that removed either is not given it back by a refresh. Adoption writes the notes contract's English side only — the Chinese counterpart ships as a template, and a project that adds the other side declares the pair — while the plan contract is deployed as a pair: both sides are written, and the record beside them is generated from the two files rather than shipped.
 
 ## Boundaries
 

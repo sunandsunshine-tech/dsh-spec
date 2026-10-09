@@ -393,13 +393,21 @@ async function main(): Promise<void> {
     if (revision !== undefined && command !== 'install' && command !== 'upgrade') {
       usage(`${command} does not take --revision`)
     }
-    for (const argument of revisionFlag.rest) {
+    // `--skill` names the one skill `uninstall` removes, and `--with` adds an optional skill to an
+    // install; the manager reads both values from the argument vector itself. This table is what
+    // decides which command may be handed them, and `--with` may be repeated.
+    const skillFlag = extractValue(revisionFlag.rest, '--skill')
+    if (skillFlag.values.length > 1) usage(`${command} takes --skill once`)
+    if (skillFlag.values.length > 0 && command !== 'uninstall') usage(`${command} does not take --skill`)
+    const withFlag = extractValue(skillFlag.rest, '--with')
+    if (withFlag.values.length > 0 && command !== 'install') usage(`${command} does not take --with`)
+    for (const argument of withFlag.rest) {
       if (argument === '--dry-run' && command !== 'status') continue
       if (argument === '--reinstall' && command === 'upgrade') continue
       if (argument === '--only-skill-set' && command === 'upgrade') continue
       usage(`${command} does not take ${argument}`)
     }
-    const dryRun = revisionFlag.rest.includes('--dry-run')
+    const dryRun = withFlag.rest.includes('--dry-run')
     if (command === 'install') {
       await installProject(root, { dryRun, jobs: width, revision })
       process.exit(0)

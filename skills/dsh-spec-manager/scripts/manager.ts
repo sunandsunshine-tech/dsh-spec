@@ -27,6 +27,7 @@ import { spawn, spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { existsSync, readFileSync, readdirSync, rmSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
+import { createInterface } from 'node:readline/promises'
 import { normsStatusFor } from './norms-apply.ts'
 import { normsPathOf } from './norms.ts'
 import { fileURLToPath } from 'node:url'
@@ -42,10 +43,27 @@ const initializerPath = join(scriptDir, 'init-agents-md.ts')
 /** The grammar a skill name must match before it becomes a path. */
 const NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
+/**
+ * The delivery-plan surface: the optional skill that turns it on, and the paths and markers it owns.
+ *
+ * The manager owns these facts because it owns the installed set — `status` reports the surface as
+ * incomplete while that skill is installed and the tree or the hook is missing — and the initializer
+ * derives its create and sync halves from the same constants rather than restating them.
+ */
+export const PLAN_SURFACE_SKILL = 'dsh-agent-team-workflow'
+/** The tree the delivery-plan contract lives in, relative to the project root. */
+export const PLANS_DIR = join('.agents', 'dsh-spec', 'plans')
+/** The markers around the delivery-plan hook in an instruction file. */
+export const PLANS_SECTION_START = '<!-- dsh-spec:plans -->'
+export const PLANS_SECTION_END = '<!-- /dsh-spec:plans -->'
+
 /** The manifest this script reads and never writes. */
-interface Manifest {
+export interface Manifest {
   repo: string
+  /** Every skill the collection ships; a project installs the ones `optional` does not name. */
   skills: string[]
+  /** The skills a project may leave out — a subset of `skills`, derived from nothing else. */
+  optional: string[]
 }
 
 /** Stop with one actionable line; nothing half-applied. */
@@ -73,12 +91,24 @@ function hasFlag(name: string): boolean {
   return process.argv.includes(name)
 }
 
+/** Every value a repeatable flag was given, in order. */
+function flagValues(name: string): string[] {
+  const values: string[] = []
+  for (let index = 0; index < process.argv.length; index += 1) {
+    if (process.argv[index] !== name) continue
+    const value = process.argv[index + 1]
+    if (value === undefined || value.startsWith('--')) continue
+    values.push(value)
+  }
+  return values
+}
+
 /** The subcommand, the first argument that is not a flag or a flag's value. */
 function subcommand(): string {
   const args = process.argv.slice(2)
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index]
-    if (arg === '--root' || arg === '--dir' || arg === '--revision') {
+    if (arg === '--root' || arg === '--dir' || arg === '--revision' || arg === '--skill' || arg === '--with') {
       index += 1
       continue
     }
@@ -105,6 +135,82 @@ function skillsDirectory(root: string): string {
   return resolve(root, flagValue('--dir') ?? join('.agents', 'skills'))
 }
 
+/** What one reading of the manifest produced: the record, or why it is not one. */
+export type ManifestReading =
+  | { ok: true, manifest: Manifest }
+  | { ok: false, error: string }
+
+/**
+ * Read and validate the manifest, as a value rather than an exit.
+ *
+ * The manager's verbs stop on a malformed record, and the decision to stop is the caller's: keeping
+ * the reading separate is what lets each way a manifest can fail be observed as the message that
+ * names it. `optional` is validated as a subset of `skills` rather than trusted — a name that is not
+ * shipped cannot be left out, and a typo would make a required skill look optional — and the field
+ * is additive, so a manifest written before it existed names nothing optional and installs
+ * everything.
+ *
+ * @param path - the manifest to read; this copy's by default.
+ * @returns the repo, every skill name, and the optional subset.
+ */
+export function readManifestRecord(path: string = manifestPath): ManifestReading {
+  if (!existsSync(path)) {
+    return { ok: false, error: `no manifest at ${path} — the skill is incomplete, so it cannot say what to install` }
+  }
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(readFileSync(path, 'utf8'))
+  } catch (error) {
+    return { ok: false, error: `${path} is not readable JSON: ${(error as Error).message}` }
+  }
+  const candidate = parsed as { repo?: unknown, skills?: unknown, optional?: unknown }
+  const repo = candidate.repo
+  if (typeof repo !== 'string' || repo === '') return { ok: false, error: `${path} names no \`repo\`` }
+  if (!Array.isArray(candidate.skills) || candidate.skills.length === 0) {
+    return { ok: false, error: `${path} names no skills — an empty manifest would install nothing and report success` }
+  }
+  const skills: string[] = []
+  for (const entry of candidate.skills) {
+    if (typeof entry !== 'string' || entry === '') return { ok: false, error: `${path} has a skill entry with no name` }
+    if (!NAME.test(entry)) {
+      return { ok: false, error: `${path} names the skill \`${entry}\`, which is not a skill name — a name becomes a path under the skills directory, so only ${NAME} is accepted` }
+    }
+    skills.push(entry)
+  }
+  const optional: string[] = []
+  if (candidate.optional !== undefined) {
+    if (!Array.isArray(candidate.optional)) {
+      return { ok: false, error: `${path} carries an \`optional\` that is not a list — it names the skills a project may leave out, so it is an array of skill names` }
+    }
+    for (const entry of candidate.optional) {
+      if (typeof entry !== 'string' || entry === '') return { ok: false, error: `${path} has an \`optional\` entry with no name` }
+      if (!NAME.test(entry)) {
+        return { ok: false, error: `${path} names the optional skill \`${entry}\`, which is not a skill name — a name becomes a path under the skills directory, so only ${NAME} is accepted` }
+      }
+      if (optional.includes(entry)) return { ok: false, error: `${path} names the optional skill \`${entry}\` twice` }
+      if (!skills.includes(entry)) {
+        return { ok: false, error: `${path} names \`${entry}\` optional but \`skills\` does not — \`optional\` is a subset of the skills the collection ships, and nothing else can be left out` }
+      }
+      optional.push(entry)
+    }
+  }
+  return { ok: true, manifest: { repo, skills, optional } }
+}
+
+/**
+ * The skills a project installs unless it leaves one out: `skills` minus `optional`.
+ *
+ * Derived rather than recorded a second time, so the two lists cannot disagree: a skill is required
+ * exactly when the manifest does not name it optional, and an older manifest that names none
+ * optional requires all of them.
+ *
+ * @param manifest - the manifest as read.
+ * @returns the required skill names, in manifest order.
+ */
+export function requiredSkills(manifest: Manifest): string[] {
+  return manifest.skills.filter((skill) => !manifest.optional.includes(skill))
+}
+
 /**
  * Read and validate a manifest; a missing or empty one is a failure.
  *
@@ -113,32 +219,12 @@ function skillsDirectory(root: string): string {
  * copy in the project, so it is the one whose skill list the install owes.
  *
  * @param path - the manifest to read; this copy's by default.
- * @returns the repo and the skill names it names.
+ * @returns the repo, every skill name, and the optional subset.
  */
 function readManifest(path: string = manifestPath): Manifest {
-  if (!existsSync(path)) {
-    fail(`no manifest at ${path} — the skill is incomplete, so it cannot say what to install`)
-  }
-  let parsed: unknown
-  try {
-    parsed = JSON.parse(readFileSync(path, 'utf8'))
-  } catch (error) {
-    fail(`${path} is not readable JSON: ${(error as Error).message}`)
-  }
-  const candidate = parsed as Partial<Manifest>
-  const repo = candidate.repo
-  if (typeof repo !== 'string' || repo === '') fail(`${path} names no \`repo\``)
-  if (!Array.isArray(candidate.skills) || candidate.skills.length === 0) {
-    fail(`${path} names no skills — an empty manifest would install nothing and report success`)
-  }
-  const skills = candidate.skills.map((entry) => {
-    if (typeof entry !== 'string' || entry === '') fail(`${path} has a skill entry with no name`)
-    if (!NAME.test(entry)) {
-      fail(`${path} names the skill \`${entry}\`, which is not a skill name — a name becomes a path under the skills directory, so only ${NAME} is accepted`)
-    }
-    return entry
-  })
-  return { repo, skills }
+  const reading = readManifestRecord(path)
+  if (!reading.ok) fail(reading.error)
+  return reading.manifest
 }
 
 /**
@@ -419,7 +505,7 @@ function classifySkill(directory: string, skill: string, index: RevisionIndex): 
   return { kind: 'delta', delta: { added: added.sort(), modified: modified.sort(), removed: removed.sort(), ref } }
 }
 
-/** The install plan for every skill of the set. */
+/** The install plan for every skill of the selection. */
 interface Plan {
   /** The ref the plan is against, so `already at <ref>` names the revision rather than a placeholder. */
   ref: string
@@ -431,25 +517,157 @@ interface Plan {
 }
 
 /**
- * Read the revision index and classify every skill against it.
+ * The skills a refresh installs: every required skill, plus the optional ones the project already has.
  *
- * One reading answers the whole plan, so it happens once per command however many skills the set
- * holds. `undefined` means the listing could not be read: the plan then installs every skill, which
- * is what `gh skill install` would do anyway, and prunes nothing, because a failed API call must
- * not look like a revision that ships nothing.
+ * An optional skill is a choice the project made by holding it, so it follows the set like a required
+ * one; one that is not installed stays that way on this path, because a refresh asks no questions.
+ * The list is derived from the directory and the manifest rather than recorded, so the set and the
+ * project's own state cannot disagree.
  *
  * @param directory - the project's `.agents/skills/` directory.
- * @param manifest - the skills to plan.
+ * @param manifest - the revision's manifest.
+ * @returns the skill names to install, in manifest order.
+ */
+function selectedSkills(directory: string, manifest: Manifest): string[] {
+  return manifest.skills.filter((skill) =>
+    !manifest.optional.includes(skill) || existsSync(join(directory, skill, 'SKILL.md')))
+}
+
+/** A person's answer to one yes/no question. */
+type Asker = (question: string) => Promise<boolean>
+
+/**
+ * The asker an interactive install reads its answers from.
+ *
+ * `terminal: false` is deliberate: readline then writes the prompt and reads a line without putting
+ * the terminal into raw mode, which is what lets the same reader be driven by a pipe in a test and by
+ * a person at a terminal in the field. Lines are queued rather than read by `question()`, because a
+ * question is asked after the revision was read and an answer typed before it must not be lost; a
+ * closed input answers every remaining question with the empty line, which is the default. The caller
+ * closes it.
+ */
+function interactiveAsker(): { ask: Asker, close: () => void } {
+  const reader = createInterface({ input: process.stdin, output: process.stdout, terminal: false })
+  const queued: string[] = []
+  const waiting: ((line: string) => void)[] = []
+  reader.on('line', (line) => {
+    const next = waiting.shift()
+    if (next === undefined) queued.push(line)
+    else next(line)
+  })
+  reader.on('close', () => {
+    for (const resolve of waiting.splice(0)) resolve('')
+  })
+  const nextLine = async (): Promise<string> => {
+    const line = queued.shift()
+    if (line !== undefined) return line
+    return await new Promise<string>((resolve) => { waiting.push(resolve) })
+  }
+  return {
+    ask: async (question) => {
+      process.stdout.write(question)
+      const answer = (await nextLine()).trim().toLowerCase()
+      return answer === 'y' || answer === 'yes'
+    },
+    close: () => reader.close(),
+  }
+}
+
+/**
+ * The first sentence of a skill's `description`, read from the revision being installed.
+ *
+ * An optional skill is not installed yet, so the only honest source is the file the revision ships:
+ * the `SKILL.md` frontmatter owns that sentence, and copying it into the manifest would be a second
+ * place for it to drift. Not reading it is not an error — the question then names the skill alone,
+ * because a question is worth more than a fetch that failed.
+ *
+ * @param repo - `owner/name` the skills come from.
+ * @param ref - the revision to read.
+ * @param name - the skill whose description is wanted.
+ * @returns the first sentence, or undefined when the revision could not be read.
+ */
+async function skillDescription(repo: string, ref: string, name: string): Promise<string | undefined> {
+  const fetched = await runCaptured('gh', ['api', `repos/${repo}/contents/skills/${name}/SKILL.md?ref=${ref}`, '--jq', '.content'], `the description of ${name}`)
+  if ((fetched.status ?? 1) !== 0 || fetched.output.trim() === '') return undefined
+  const text = Buffer.from(fetched.output.trim(), 'base64').toString('utf8')
+  const description = /^description:\s*(.+)$/m.exec(text)?.[1]?.trim() ?? ''
+  if (description === '') return undefined
+  return /^(.*?[.!?])(?:\s|$)/.exec(description)?.[1] ?? description
+}
+
+/**
+ * The optional skills an install adds: the ones `--with` named, or the ones a person answers yes to.
+ *
+ * Nothing optional is installed without an answer. A shell that is not a terminal — an agent's — has
+ * nobody to ask, so it names the flag that would add the skill and installs nothing; a dry run prints
+ * the question and the answer it would take instead of reading stdin, because a preview must not
+ * consume the answer the apply needs.
+ *
+ * @param manifest - the revision's manifest.
+ * @param options - the names `--with` gave, whether this is a preview, a reader when a person can be
+ * asked, and how a skill is described in the question.
+ * @returns the optional skills to install, in manifest order.
+ */
+async function chooseOptional(
+  manifest: Manifest,
+  options: { with: readonly string[], dryRun: boolean, ask?: () => { ask: Asker, close: () => void }, describe: (name: string) => Promise<string | undefined> },
+): Promise<string[]> {
+  for (const name of options.with) {
+    if (!NAME.test(name)) refuse(`--with ${JSON.stringify(name)} is not a skill name — only ${NAME} is accepted`)
+    if (!manifest.skills.includes(name)) refuse(`--with ${name} is not a skill this collection publishes, so there is nothing to add`)
+    if (!manifest.optional.includes(name)) refuse(`--with ${name} is not optional — the set installs it already, so the flag adds nothing`)
+  }
+  const chosen: string[] = []
+  // A preview never opens the reader: what a dry run prints is the answer it would take, and a
+  // question it consumed would be an answer the apply could not give.
+  const reader = options.dryRun ? undefined : options.ask?.()
+  try {
+    for (const name of manifest.optional) {
+      if (options.with.includes(name)) {
+        console.log(`  with: ${name} — named by --with, no question asked`)
+        chosen.push(name)
+        continue
+      }
+      // A preview of a question a person would be asked prints that question and its default answer.
+      if (options.dryRun && options.ask !== undefined) {
+        const blurb = await options.describe(name)
+        console.log(`  would ask: ${blurb === undefined ? name : `${name} — ${blurb}`} — answer: no (pass --with ${name} to install it)`)
+        continue
+      }
+      // Nobody to ask: an agent's shell, or a preview in one.
+      if (reader === undefined) {
+        console.log(`  optional not installed: ${name} — pass --with ${name} to add it`)
+        continue
+      }
+      const blurb = await options.describe(name)
+      if (await reader.ask(`  ${blurb === undefined ? name : `${name} — ${blurb}`}\n  add it? [y/N] `)) chosen.push(name)
+    }
+  } finally {
+    reader?.close()
+  }
+  return chosen
+}
+
+/**
+ * Read the revision index and classify every selected skill against it.
+ *
+ * One reading answers the whole plan, so it happens once per command however many skills the set
+ * holds. `undefined` means the listing could not be read: the plan then installs every selected
+ * skill, which is what `gh skill install` would do anyway, and prunes nothing, because a failed API
+ * call must not look like a revision that ships nothing.
+ *
+ * @param directory - the project's `.agents/skills/` directory.
+ * @param skills - the selected skill names.
  * @param repo - `owner/name` the skills come from.
  * @param ref - the branch, tag or commit to read.
  * @param reinstall - plan every skill even when its content already matches.
  * @returns the plan.
  */
-async function planRefresh(directory: string, manifest: Manifest, repo: string, ref: string, reinstall: boolean): Promise<Plan | undefined> {
+async function planRefresh(directory: string, skills: readonly string[], repo: string, ref: string, reinstall: boolean): Promise<Plan | undefined> {
   const index = await readRevisionIndex(repo, ref)
   if (index === undefined) return undefined
   const plan: Plan = { ref, current: [], fresh: [], deltas: new Map(), shipped: new Map() }
-  for (const skill of manifest.skills) {
+  for (const skill of skills) {
     const paths = index.blobs.get(skill)
     if (paths !== undefined) plan.shipped.set(skill, [...paths.keys()])
     if (reinstall) {
@@ -538,6 +756,36 @@ function pruneToRevision(skill: string, directory: string, expected: string[] | 
 }
 
 /**
+ * Remove every installed directory this collection owns but the revision no longer publishes.
+ *
+ * `gh skill install` only ever adds, so a skill a later revision drops stays on disk; `status` would
+ * report it as this collection's on every run. Ownership is the source repo `gh` injected into the
+ * directory, so another collection's install beside this one is never touched — that rule is what
+ * makes two collections share `.agents/skills/` safely.
+ *
+ * @param directory - the project's `.agents/skills/` directory.
+ * @param manifest - the revision's manifest.
+ * @param dryRun - print the removals instead of making them.
+ */
+function retireUnpublished(directory: string, manifest: Manifest, dryRun: boolean): void {
+  if (!existsSync(directory)) return
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    if (!entry.isDirectory() || manifest.skills.includes(entry.name)) continue
+    const skillFile = join(directory, entry.name, 'SKILL.md')
+    // `installedRepo` answers in the manifest's own shape, so equality is the whole ownership test
+    // whichever form the installer wrote.
+    if (!existsSync(skillFile) || installedRepo(skillFile) !== manifest.repo) continue
+    const path = join(directory, entry.name)
+    if (dryRun) {
+      console.log(`  would remove ${path} — this revision no longer publishes ${entry.name}`)
+      continue
+    }
+    rmSync(path, { recursive: true, force: true })
+    console.log(`  removed ${path} — this revision no longer publishes ${entry.name}`)
+  }
+}
+
+/**
  * Read the revision, print or apply the skill plan, then sync the files whose text the collection owns.
  *
  * The revision is read once, as a tree listing, and it decides three things: which skills are already
@@ -552,16 +800,16 @@ function pruneToRevision(skill: string, directory: string, expected: string[] | 
  *
  * @param repo - `owner/name` the skills come from.
  * @param directory - the project's `.agents/skills/` directory.
- * @param manifest - the skills to install.
+ * @param skills - the selected skill names.
  * @param ref - the branch, tag or commit to install at.
  * @param dryRun - print the commands instead of running them.
  * @param reinstall - install every skill even when it is already the revision's content.
  * @param create - also run the initializer that creates the project's missing files.
  * @param limit - the most `gh` children alive at once.
  */
-async function refresh(root: string, repo: string, directory: string, manifest: Manifest, ref: string, dryRun: boolean, reinstall: boolean, create: boolean, limit: number): Promise<void> {
-  const plan = await planRefresh(directory, manifest, repo, ref, reinstall)
-  const stale = plan?.fresh ?? [...manifest.skills]
+async function refresh(root: string, repo: string, directory: string, skills: readonly string[], ref: string, dryRun: boolean, reinstall: boolean, create: boolean, limit: number): Promise<void> {
+  const plan = await planRefresh(directory, skills, repo, ref, reinstall)
+  const stale = plan?.fresh ?? [...skills]
   if (plan === undefined) {
     console.log(`  could not read the tree for ${ref} — installing every skill and pruning nothing`)
   } else {
@@ -571,7 +819,7 @@ async function refresh(root: string, repo: string, directory: string, manifest: 
     label: skill,
     args: ['skill', 'install', repo, `${skill}@${ref}`, '--dir', directory, '--force'],
   })), dryRun, limit)
-  for (const skill of manifest.skills) {
+  for (const skill of skills) {
     // Without a listing there is nothing to prune to, and an unread API call must not look like a
     // revision that ships nothing.
     if (plan === undefined) {
@@ -598,14 +846,30 @@ async function refresh(root: string, repo: string, directory: string, manifest: 
   run(process.execPath, initializerArgs(root, dryRun ? ['--sync'] : ['--sync', '--write']), false)
 }
 
-/** Adopt the collection: deploy the set at the manager's own ref, create the missing project files, sync the text. */
+/**
+ * Adopt the collection: deploy the set at the manager's own ref, create the missing project files,
+ * sync the text.
+ *
+ * The optional skills are a question this verb asks and a refresh never does: at a terminal the
+ * install asks about each one, an agent's shell is told the flag that answers instead, and `--with`
+ * answers without a question. `--dry-run` prints both the question and the skill plan it decides.
+ */
 export async function installProject(root: string, options: { dryRun: boolean, jobs: number, revision?: string }): Promise<void> {
   const manifest = readManifest()
   const explicit = options.revision === '' ? undefined : options.revision
   const ref = explicit ?? managerRef(root) ?? await resolveTargetRef(undefined)
-  console.log(`  install ${manifest.skills.length} skill(s) from ${manifest.repo} at ${ref} into ${skillsDirectory(root)}`)
+  const optional = await chooseOptional(manifest, {
+    with: flagValues('--with'),
+    dryRun: options.dryRun,
+    // A terminal is what makes a question answerable; `interactiveAsker` is built only when one of
+    // those answers is actually read.
+    ask: process.stdin.isTTY === true ? interactiveAsker : undefined,
+    describe: (name) => skillDescription(manifest.repo, ref, name),
+  })
+  const skills = [...requiredSkills(manifest), ...optional]
+  console.log(`  install ${skills.length} skill(s) from ${manifest.repo} at ${ref} into ${skillsDirectory(root)}`)
   if (options.dryRun) console.log('  dry run — nothing is written; drop --dry-run to apply')
-  await refresh(root, manifest.repo, skillsDirectory(root), manifest, ref, options.dryRun, false, true, options.jobs)
+  await refresh(root, manifest.repo, skillsDirectory(root), skills, ref, options.dryRun, false, true, options.jobs)
   // The norms a project applies are its own selection, so adoption reports them and never writes
   // them: `norms install` is the command that does.
   console.log(normsStatusFor(root, normsPathOf(import.meta.dirname)))
@@ -637,7 +901,10 @@ export async function upgradeProject(root: string, options: { dryRun: boolean, r
   const ref = options.skillSetOnly && requested === undefined
     ? (current ?? refuse('this manager carries no injected `github-ref`, so `--only-skill-set` has no ref to install from — pass `--revision <ref>`'))
     : await resolveTargetRef(requested)
-  console.log(`  upgrade ${manifest.skills.length} skill(s) from ${manifest.repo} at ${ref} into ${directory}`)
+  // A refresh asks nothing: the optional skills the project already holds follow the set, and the
+  // ones it never took are not installed behind its back.
+  const selection = selectedSkills(directory, manifest)
+  console.log(`  upgrade ${selection.length} skill(s) from ${manifest.repo} at ${ref} into ${directory}`)
   if (options.dryRun) console.log('  dry run — nothing is written; drop --dry-run to apply')
   if (!options.skillSetOnly && current !== ref) {
     const install: string[] = ['skill', 'install', manifest.repo, `dsh-spec-manager@${ref}`, '--dir', directory, '--force']
@@ -655,10 +922,34 @@ export async function upgradeProject(root: string, options: { dryRun: boolean, r
     console.log(`  the manager is already at ${current ?? 'a revision that cannot be read'}`)
   }
   console.log(`  at ${ref}: installing the skill set only`)
-  await refresh(root, manifest.repo, directory, manifest, ref, options.dryRun, options.reinstall, false, options.jobs)
+  await refresh(root, manifest.repo, directory, selection, ref, options.dryRun, options.reinstall, false, options.jobs)
+  // A skill the revision dropped survives `gh skill install` and would be reported by `status`
+  // forever, so a refresh removes the ones this collection installed and no longer publishes. It is
+  // a removal after the install, so the new revision's own set is already in place.
+  retireUnpublished(directory, manifest, options.dryRun)
   // `apt update`, not `apt upgrade`: a refresh reads the applied norms and says what the revision
   // moves, and leaves writing them to `norms update`.
   console.log(normsStatusFor(root, normsPathOf(import.meta.dirname)))
+}
+
+/**
+ * The frontmatter `gh skill install` injected into an installed `SKILL.md`, or `undefined` when the
+ * file carries no `metadata:` block at all.
+ *
+ * The installer is the only writer of that block, so every field read from it describes the install
+ * rather than a claim written beside it. `undefined` means the file was not put there by an install,
+ * which callers report as such instead of reading a missing field as agreement.
+ *
+ * @param path - the installed `SKILL.md`.
+ * @returns the frontmatter text, or undefined when there is no injected metadata block.
+ */
+function injectedMetadata(path: string): string | undefined {
+  const lines = readFileSync(path, 'utf8').split('\n')
+  if (lines[0] !== '---') return undefined
+  const end = lines.indexOf('---', 1)
+  if (end === -1) return undefined
+  const frontmatter = lines.slice(1, end).join('\n')
+  return /^metadata:\s*$/m.test(frontmatter) ? frontmatter : undefined
 }
 
 /**
@@ -675,12 +966,8 @@ export async function upgradeProject(root: string, options: { dryRun: boolean, r
 export function managerRef(project: string): string | undefined {
   const path = join(skillsDirectory(project), 'dsh-spec-manager', 'SKILL.md')
   if (!existsSync(path)) return undefined
-  const lines = readFileSync(path, 'utf8').split('\n')
-  if (lines[0] !== '---') return undefined
-  const end = lines.indexOf('---', 1)
-  if (end === -1) return undefined
-  const frontmatter = lines.slice(1, end).join('\n')
-  if (!/^metadata:\s*$/m.test(frontmatter)) return undefined
+  const frontmatter = injectedMetadata(path)
+  if (frontmatter === undefined) return undefined
   const ref = /^\s*github-ref:\s*(.+)$/m.exec(frontmatter)?.[1]?.trim() ?? ''
   return shortRef(ref) || undefined
 }
@@ -688,18 +975,10 @@ export function managerRef(project: string): string | undefined {
 /**
  * The revision `gh skill install` injected into an installed `SKILL.md`, or `undefined` when the
  * file carries no `metadata:` block at all.
- *
- * The installer is the only writer of that block, so the revision is read from the file that will
- * run rather than from a record beside it. `undefined` means the file was not put there by an
- * install, which is reported as such instead of read as agreement.
  */
 function installedRevision(path: string): string | undefined {
-  const lines = readFileSync(path, 'utf8').split('\n')
-  if (lines[0] !== '---') return undefined
-  const end = lines.indexOf('---', 1)
-  if (end === -1) return undefined
-  const frontmatter = lines.slice(1, end).join('\n')
-  if (!/^metadata:\s*$/m.test(frontmatter)) return undefined
+  const frontmatter = injectedMetadata(path)
+  if (frontmatter === undefined) return undefined
   const ref = /^\s*github-ref:\s*(.+)$/m.exec(frontmatter)?.[1]?.trim() ?? ''
   const tree = /^\s*github-tree-sha:\s*(.+)$/m.exec(frontmatter)?.[1]?.trim() ?? ''
   const revision = shortRef(ref) || tree
@@ -708,6 +987,44 @@ function installedRevision(path: string): string | undefined {
   // manager's ref, and saying so is different from reading a missing field as agreement.
   const local = /^\s*local-path:\s*(.+)$/m.exec(frontmatter)?.[1]?.trim() ?? ''
   return local === '' ? '' : `local:${local}`
+}
+
+/**
+ * The `owner/name` a recorded source repository names, or undefined when it names none.
+ *
+ * `gh skill install` writes the source repository as a URL while the manifest names it in the bare
+ * form, so the two have to be brought to one shape before they can be compared. Accepting a trailing
+ * slash or `.git` is what makes the field readable whichever way it was written; anything that is
+ * still not `owner/name` after that is returned as it stands, so a repository this collection does
+ * not own stays a value that compares unequal rather than being mistaken for one.
+ *
+ * @param recorded - the recorded value, or undefined when the file records none.
+ * @returns `owner/name`, or undefined when the value is empty.
+ */
+function repositoryName(recorded: string | undefined): string | undefined {
+  if (recorded === undefined) return undefined
+  const trimmed = recorded.trim().replace(/\/+$/, '').replace(/\.git$/i, '')
+  const onGitHub = /^https?:\/\/github\.com\/([^/]+\/[^/]+)$/i.exec(trimmed)
+  const name = (onGitHub?.[1] ?? trimmed).replace(/\/+$/, '')
+  return name === '' ? undefined : name
+}
+
+/**
+ * The repository an installed `SKILL.md` records, as `owner/name`.
+ *
+ * The source repo is what makes an installed directory's owner readable without the network: a name
+ * the manifest does not list belongs to this collection exactly when the normalised value equals
+ * `manifest.repo`, and anything else is another collection's install to leave alone. This is the one
+ * place that knows the shapes the installer writes, so every caller compares the result directly.
+ *
+ * @param path - the installed `SKILL.md`.
+ * @returns the recorded `owner/name`, or undefined when the file records none.
+ */
+function installedRepo(path: string): string | undefined {
+  const frontmatter = injectedMetadata(path)
+  if (frontmatter === undefined) return undefined
+  const repo = /^\s*github-repo:\s*(.+)$/m.exec(frontmatter)?.[1]?.trim() ?? ''
+  return repositoryName(repo === '' ? undefined : repo)
 }
 
 /** Report the installed set and each skill's revision, each compared with the manager's own; change nothing. */
@@ -739,7 +1056,9 @@ function status(root: string, manifest: Manifest): void {
   for (const skill of manifest.skills) {
     const entry = join(directory, skill, 'SKILL.md')
     if (!existsSync(entry)) {
-      findings.push(`${skill}: not installed (expected ${entry})`)
+      // An optional skill the project did not take is the state the field describes, not a problem.
+      if (manifest.optional.includes(skill)) console.log(`  absent    ${skill}  optional, not installed`)
+      else findings.push(`${skill}: not installed (expected ${entry})`)
       continue
     }
     installedHere += 1
@@ -759,7 +1078,32 @@ function status(root: string, manifest: Manifest): void {
     }
   }
   for (const name of installed) {
-    if (!manifest.skills.includes(name)) findings.push(`${name}: installed but not named in the manifest`)
+    if (manifest.skills.includes(name)) continue
+    const skillFile = join(directory, name, 'SKILL.md')
+    const owner = installedRepo(skillFile)
+    // A directory this collection installed that the manifest no longer names is a skill the
+    // revision dropped: it is this collection's, and `upgrade` cleans it up. `owner` is the recorded
+    // repository in the manifest's own shape, so a URL and a bare name both land here.
+    if (owner === manifest.repo) {
+      findings.push(`${name}: installed from ${manifest.repo} but this revision no longer publishes it — \`upgrade\` removes it`)
+      continue
+    }
+    // Another collection's install shares the directory by design. Naming it is information, and a
+    // project running two collections must not have this collection's status fail over one.
+    console.log(`  other     ${name}  ${owner ?? 'no metadata.github-repo'} — not this collection's, left alone`)
+  }
+  // The delivery-plan surface belongs to the optional workflow skill. A project that holds the skill
+  // and not the tree, or not the hook, carries half a workspace, and this is the only place that is
+  // noticed before a delivery depends on it.
+  if (existsSync(join(directory, PLAN_SURFACE_SKILL, 'SKILL.md'))) {
+    const contract = join(root, PLANS_DIR, 'README.md')
+    const instruction = existsSync(join(root, 'AGENTS.md')) ? readFileSync(join(root, 'AGENTS.md'), 'utf8') : ''
+    const gaps: string[] = []
+    if (!existsSync(contract)) gaps.push(`the plan tree is missing (expected ${contract})`)
+    if (!instruction.includes(PLANS_SECTION_START)) gaps.push(`the root AGENTS.md carries no ${PLANS_SECTION_START} hook`)
+    if (gaps.length > 0) {
+      findings.push(`${PLAN_SURFACE_SKILL} is installed but the delivery-plan surface is incomplete: ${gaps.join('; ')} — \`install\` creates it, and a refresh only syncs what is there`)
+    }
   }
   if (!existsSync(dispatcherPath)) findings.push(`${dispatcherPath}: the entry point dsh-spec.ts is missing`)
 
@@ -782,9 +1126,23 @@ export function uninstallProject(root: string, dryRun: boolean): void {
   uninstall(root, readManifest(), dryRun)
 }
 
+/**
+ * Remove the skills this collection installed.
+ *
+ * The whole set by default, or the one `--skill` names. A name this manifest does not carry is
+ * refused rather than skipped: another collection's directory must never be touched, and refusing
+ * the invocation is what keeps that a property of the code rather than of a comparison.
+ */
 function uninstall(root: string, manifest: Manifest, dryRun: boolean): void {
   const directory = skillsDirectory(root)
-  for (const skill of manifest.skills) {
+  const selected = flagValue('--skill')
+  if (selected !== undefined && !NAME.test(selected)) {
+    refuse(`--skill ${JSON.stringify(selected)} is not a skill name — only ${NAME} is accepted`)
+  }
+  if (selected !== undefined && !manifest.skills.includes(selected)) {
+    refuse(`--skill ${selected} is not a skill this collection publishes, so this manager has nothing to remove — another collection's directory is never touched`)
+  }
+  for (const skill of selected === undefined ? manifest.skills : [selected]) {
     const path = join(directory, skill)
     if (!existsSync(path)) {
       console.log(`  absent: ${path}`)
@@ -796,6 +1154,11 @@ function uninstall(root: string, manifest: Manifest, dryRun: boolean): void {
       console.log(`  removed: ${path}`)
     }
   }
+  // The root instruction file is the initializer's text, and removing a skill can turn a hook off:
+  // the delivery-plan surface belongs to the optional workflow skill, so removing that skill removes
+  // the hook that points at its workspace while the tree and the plans stay where they are. Only the
+  // initializer knows which blocks belong in the file, so it is the half that runs.
+  run(process.execPath, initializerArgs(root, dryRun ? ['--sync'] : ['--sync', '--write']), false)
   // The layer and the manifest live inside the manager skill's own directory, so removing that
   // directory removes them; nothing outside it was ever written. What is left is the project's own,
   // and an uninstall that took it would delete decisions, plans and standing orders the project made.

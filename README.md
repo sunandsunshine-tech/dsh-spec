@@ -22,7 +22,7 @@ The GitHub CLI ships an agent skill of its own; browse [its repository](https://
 
 Install into the project, not into your home directory, and commit the result. The ref you install the manager from becomes the pin for every other skill, so a project-scoped copy puts every collaborator, every agent and CI run on that one revision; a user-scoped one stays on each machine and moves with the next `gh skill update`. Commit `AGENTS.md`, `.agents/`, `docs/` and `.rgignore` after the first install.
 
-You install the manager yourself; it installs the other nine. Pass `--revision <ref>` to install the manager at a branch or an older release instead of its latest published one.
+You install the manager yourself; it installs the rest of the set. One skill, `dsh-agent-team-workflow`, is optional: `install` asks before adding it, and a shell that is not a terminal adds it only when told `--with dsh-agent-team-workflow`. Pass `--revision <ref>` to install the manager at a branch or an older release instead of its latest published one.
 
 ### Install by hand
 
@@ -31,13 +31,13 @@ gh skill install sunandsunshine-tech/dsh-spec dsh-spec-manager@latest --dir .age
 node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts install --root .
 ```
 
-The first command fetches the manager at the revision you name — `latest`, a branch, or a tag. The second installs the rest of the set at the ref the manager was installed from, and creates the files this project needs: the standing orders, the decision-record tree, and the vocabulary table. Add `--dry-run` to see the plan first, including which files would be added, changed or removed; run `status` afterwards to confirm the set.
+The first command fetches the manager at the revision you name — `latest`, a branch, or a tag. The second installs the rest of the set at the ref the manager was installed from, and creates the files this project needs: the standing orders, the decision-record tree, and the vocabulary table. It also asks about the optional `dsh-agent-team-workflow`: answer yes and the delivery-plan tree and its hook come with it. Add `--dry-run` to see the plan first, including which files would be added, changed or removed; run `status` afterwards to confirm the set.
 
 ### Install with an agent
 
 Give your agent these instructions:
 
-> Install the `dsh-spec-manager` skill from `sunandsunshine-tech/dsh-spec` with the GitHub CLI, then follow the "Install by hand" steps in this README. Check that the prerequisites above are present first, and ask me if any of them is missing.
+> Install the `dsh-spec-manager` skill from `sunandsunshine-tech/dsh-spec` with the GitHub CLI, then follow the "Install by hand" steps in this README. Ask me whether to add the optional `dsh-agent-team-workflow` skill, and pass `--with dsh-agent-team-workflow` if I say yes. Check that the prerequisites above are present first, and ask me if any of them is missing.
 
 ## What you get
 
@@ -60,7 +60,9 @@ Give your agent these instructions:
 | `dsh-pre-push-checks` | The smallest evidence that covers an outgoing change |
 | `dsh-find-simplifications` | Turning "find things to simplify" into evidence-backed proposals |
 | `dsh-agent-experience` | What an agent's own context owes: minimal context first, discovery made explicit, constraints before the action, bounded outputs |
-| `dsh-agent-team-workflow` | The division of labour inside a requested team: the Lead, Worker, Reviewer and Texter roles, task cards, and the gate each obligation belongs to |
+| `dsh-agent-team-workflow` *(optional)* | The division of labour inside a requested team: the Lead, Worker, Reviewer and Texter roles, task cards, and the gate each obligation belongs to |
+
+`install` asks before adding that optional skill, and a project that leaves it out carries no delivery-plan tree and no plans hook.
 
 ## Applying the norms it ships
 
@@ -84,7 +86,7 @@ The set follows the manager: every skill carries the ref the manager itself was 
 node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts upgrade --root .
 ```
 
-`upgrade --only-skill-set` is the half without the self-update: it installs the set at the manager's current ref. In a source tree, such as this repository, run `upgrade --revision <current-branch>`: a bare `upgrade` there has no installed manager ref to read and resolves the latest published release instead.
+`upgrade --only-skill-set` is the half without the self-update: it installs the required skills, and an optional one the project already holds, at the manager's current ref. A refresh never asks about the optional skill — one the project already holds follows the set, and one it never took is not installed. In a source tree, such as this repository, run `upgrade --revision <current-branch>`: a bare `upgrade` there has no installed manager ref to read and resolves the latest published release instead.
 
 What that command does to each skill, and what `install`, `status` and `uninstall` add, is in [`manager-lifecycle.md`](skills/dsh-spec-manager/references/manager-lifecycle.md).
 
