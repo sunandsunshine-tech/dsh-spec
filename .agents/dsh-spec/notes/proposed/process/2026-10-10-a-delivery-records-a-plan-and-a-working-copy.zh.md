@@ -32,8 +32,8 @@ Status: proposed
 
 ## Acceptance criteria
 
-- `.agents/dsh-spec/plans/` 下有契约、它的中文对侧和子树 orders,且契约是一对完整的配对。
-- manager 的采用路径建出这三个文件,并把带标记的计划段注入根 `AGENTS.md`;sync 更新集合拥有的文本,标记之外项目自己的内容不动。
+- 本仓库的 `.agents/dsh-spec/plans/` 下有契约、它的中文对侧和子树 orders,且契约是一对完整的配对。
+- manager 的采用路径建出它落装的两个文件 —— `plans/README.md` 与 `plans/AGENTS.md` —— 并把带标记的计划段注入根 `AGENTS.md`。采用只写每份契约的英文侧,中文侧随包作为模板发布,也不建 sidecar;项目自己补上中文侧之后,它会跟着 sync 更新并重录配对,而标记之外的内容保持不动。
 - 没有任何产物写着交付状态:树里只有计划读作未开始,两个文件都在读作进行中,两个都不在读作已落地。
 - 依赖命令读的是 main 上的事实;命令失败时交付具名停住,没有任何循环或 agent 代为轮询。
 - 已经商定但尚未生效的计划,在用户开工之前不产生 worktree、卡片或实现。

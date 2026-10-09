@@ -26,7 +26,19 @@
 4. A-2 完成（`description` 按规范重写 + §7 写明加载时机 + task-card `References` + README 对重录）；A-4 完成（note 三件套，留 `proposed/`）。
 5. A-3 实施中：泛化 `mergeManaged` 的钩子清单、新增 `plansSection()`、managedFiles 两条、创建半程两件、inventory 一节、manager-install / manager-lifecycle / manager.ts 的枚举面、根 AGENTS.md 文档表一行、6 个新用例。
 6. A-3 完成（150/150，唯一红＝安装副本门禁，待刷新）。Lead 提交 `0f3db33`，`gh stack sync` 推 B 并把 C、D 级联 rebase 到新 B；`upgrade --revision feat/plans-surface --root .` 刷新安装副本并注入 plans 钩子，提交 `6e9c819` 再推；此后 `node --test 'tests/**/*.test.ts'` 151/151，`verify-installed-copy`、`verify-port-provenance`、`check --all` 全绿。
-7. 待办：A-5 评审 → A-6 文本终检 → A-7 全量门禁 + PR 转 ready。
+7. A-5 黑箱评审（reviewer-1）：**REJECT**，两条阻断——B1 提交版 `6e9c819` 的文件扫描红（工作副本把 P1 草稿里的链接当成了自己的相对链接），B2 note 的验收判据仍写"采用建三件"（P3 之前的旧措辞）。Lead 提交 B1 修复 `63e4075`；worker-2 修 B2（两侧改两件 + 重录 sidecar）。待复审。
+8. 待办：A-5 复审 PASS → A-6 文本终检 → A-7 全量门禁 + PR 转 ready。
+
+## A-5 评审结果与处置
+
+reviewer-1 在 `6e9c819` 上原样重跑各卡验收，结论 REJECT，两条阻断：
+
+- **B1 提交版文件扫描**。工作副本第 39 行把 `plansSection()` 草稿里的 `[the contract](.agents/dsh-spec/plans/README.md)` 解析成本文件的相对链接，指向不存在的目标；Lead 在工作树的修复当时未提交，故"提交版"仍红。处置：Lead 提交 `63e4075`（草稿链接改代码形）。
+- **B2 note 验收判据与已交付行为矛盾**。note 两侧写"采用路径建出三个文件"，而 P3 之后采用只落两件（`plans/README.md`、`plans/AGENTS.md`，不建 zh、不建 sidecar）。处置：重新打开 A-4，由原作者 worker-2 改两侧判据并重录 sidecar。
+
+评审同时确认通过的：A-1 三条逐字 `diff`、A-2 全部（`SKILL.md` 对 main 只差 `description` 与 §7 一句）、A-3 的 151/151 与 10/10 副本、六条新用例、以及 reviewer 自建 `/tmp` 黑盒（采用两件+两钩子、sync 幂等、段外按字节保留、删树不重建、旧项目升级只补钩子、空文件幂等）、A-4 三条命令、`check --all`、`verify-port-provenance`、`check --base main`、全 corpus md-links（152 文件）、`translation-pair list`（52 ok / 0 out-of-sync / 0 missing）。
+
+评审登记的非阻断项：`AGENTS.md:73` 的"norms 钩子在文件末尾"不再字面为真（本文件偏离 #7，Lead park）；note 仍留 `proposed/`；计划卡片表与拓扑图编号不一致；`tests/management.test.ts:508` 的既有用例调整把项目行移到标记紧前才落入 diff 上下文，真正的段外字节保留由 `:628` 覆盖（建议，不阻断）。
 
 ### 顺序偏差：刷新副本提到评审之前
 
