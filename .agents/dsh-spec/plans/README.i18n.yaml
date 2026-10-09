@@ -1,0 +1,28 @@
+# Bilingual-pair consistency record for README.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/plans/README.md
+/delivery-plans:
+  en: f3a2de62b4407ff9
+  zh: 109e9894aad07e6d
+/delivery-plans/files:
+  en: 462ceb09ba700ec2
+  zh: 72651e85cc91176d
+/delivery-plans/state-is-read-never-written:
+  en: a1fc79cdafbf8f0f
+  zh: 8b8d2dd989369956
+/delivery-plans/what-a-plan-carries:
+  en: 48e041ae212b3801
+  zh: 77303248c45f55d1
+/delivery-plans/dependencies:
+  en: 285e0c4eff2f2889
+  zh: 0dac648580d2076c
+/delivery-plans/a-plan-takes-effect-only-when-the-user-starts-it:
+  en: d1ef1451dc2e79c6
+  zh: 6aa81c0140027d52
+/delivery-plans/starting-and-finishing:
+  en: da84b108116c78c1
+  zh: 45a9549801cb515d
+/delivery-plans/gates:
+  en: f0ccefacf115de8b
+  zh: b9cd8ef7d4e461bd
