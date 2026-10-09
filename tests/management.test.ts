@@ -1016,7 +1016,7 @@ function optionalSkillFile(description: string): string {
  */
 function ttyInstall(fixture: Fixture, answers: string, options: { dryRun?: boolean } = {}): ReturnType<typeof runEntry> {
   const entry = join(fixture.root, 'tty-install.ts')
-  const manager = pathToFileURL(join(REPO_ROOT, 'skills', 'dsh-spec-manager', 'scripts', 'manager.ts')).href
+  const manager = pathToFileURL(join(REPO_ROOT, 'skills', 'dsh-spec-manager', 'scripts', 'manager', 'install.ts')).href
   fixture.write('tty-install.ts', [
     "Object.defineProperty(process.stdin, 'isTTY', { value: true })",
     `const { installProject } = await import(${JSON.stringify(manager)})`,
