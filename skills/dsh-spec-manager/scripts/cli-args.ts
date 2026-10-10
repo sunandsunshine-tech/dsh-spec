@@ -43,12 +43,35 @@ export function exitsOf(program: string): Exits {
   }
 }
 
-/** Value of `--flag value`, when present. */
+/**
+ * Value of `--flag value`, when the token after the flag is a value rather than another flag.
+ *
+ * This is the manager's reading, and every command-level caller uses it: a flag never takes another
+ * flag as its value, so `--with --dry-run` is a missing value rather than a skill named
+ * `--dry-run`, and `--revision --jobs 4` does not resolve a ref called `--jobs`.
+ */
 export function flagValue(name: string): string | undefined {
   const index = process.argv.indexOf(name)
   if (index === -1) return undefined
   const value = process.argv[index + 1]
   return value === undefined || value.startsWith('--') ? undefined : value
+}
+
+/**
+ * The token after the flag, whatever it is — the initializer's own reading.
+ *
+ * The initializer feeds its root straight to `resolve()`, so `--root --write` names `<cwd>/--write`
+ * and is refused as "not a directory" with exit 1 and nothing written. The guarded reading above
+ * would take `--write` as a missing value instead, fall back to the working directory, let `--write`
+ * still apply, and write a project tree where the caller stands — a different command. A hand-run
+ * initializer is a documented path, so this reading is kept byte for byte.
+ *
+ * Only `init-agents-md.ts` uses this, for `--root` and `--dir`; every other caller wants the guarded
+ * reading, and `projectRoot`/`skillsDirectory` below are the manager's and use it.
+ */
+export function rawFlagValue(name: string): string | undefined {
+  const index = process.argv.indexOf(name)
+  return index === -1 ? undefined : process.argv[index + 1]
 }
 
 /** Whether `--flag` appears anywhere in the arguments. */

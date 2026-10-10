@@ -10,7 +10,7 @@
 
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
-import { chmodSync, cpSync, existsSync, readFileSync, rmSync } from 'node:fs'
+import { chmodSync, cpSync, existsSync, readdirSync, readFileSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import { test } from 'node:test'
 import { pathToFileURL } from 'node:url'
@@ -591,6 +591,25 @@ test('a dry-run refresh renders the managed text it would rewrite, and writes no
   assert.match(result.output, /^-stale injected text$/m, `the managed-text diff was not rendered:\n${result.output}`)
   assert.doesNotMatch(result.output, /would run: .*init-agents-md/, `the preview deferred the managed text:\n${result.output}`)
   assert.match(fixture.read('AGENTS.md'), /stale injected text/, 'the dry run wrote the managed text')
+})
+
+/**
+ * The initializer reads its root as the token after `--root`, even when that token is another flag:
+ * `--root --write` names `<cwd>/--write`, so the run is refused as "not a directory" with exit 1 and
+ * nothing written. Reading the flag as "no value" instead would fall back to the working directory,
+ * let `--write` still apply, and write a project tree where the caller stands — a different command
+ * from the one that was typed.
+ */
+test('a root whose value is the next flag is refused, and writes nothing', (t) => {
+  const fixture = makeFixture()
+  t.after(() => fixture.dispose())
+  const before = readdirSync(fixture.root)
+
+  const result = runScript('skills/dsh-spec-manager/scripts/init-agents-md.ts', ['--root', '--write'], fixture.root)
+
+  assert.equal(result.status, 1, result.output)
+  assert.equal(result.output.trim(), `dsh-spec-init: ${fixture.root}/--write is not a directory — pass --root <project>.`)
+  assert.deepEqual(readdirSync(fixture.root), before, 'the refused run created files')
 })
 
 /**
