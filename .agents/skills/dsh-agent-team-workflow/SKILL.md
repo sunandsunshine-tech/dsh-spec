@@ -2,9 +2,9 @@
 description: Use when a request is a multi-step engineering delivery — a feature, a refactor, or a bug fix that must carry its decision record, its documentation, and its bilingual pairs. Treats the loaded skill as the prompt that turns the session into a team, and the task card as the contract each member works from.
 metadata:
     github-path: skills/dsh-agent-team-workflow
-    github-ref: refs/heads/release/v0.4.0
+    github-ref: refs/heads/docs/review-stages-and-pr-description
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: c840761575dbbe9407c7f928c8a9bbafdd160c13
+    github-tree-sha: 95afad4c10c69e612c717d0ad3b1f14e760b4d2d
 name: dsh-agent-team-workflow
 ---
 # Agent Team Workflow
@@ -78,4 +78,4 @@ When implementation raises a decision the card does not settle, the Worker stops
 
 ## 10. Acceptance
 
-The Lead accepts on the final tree, after the last write. A parked decision, an open question, and an uncertainty go into the pull request's reviewer notes, so none of them leaves the record. Agents open a pull request and stop; merging and publishing need authorization for that specific act.
+The Lead accepts on the final tree, after the last write: that is the team's acceptance, and it does not stand for the implementer's. A parked decision, an open question, and an uncertainty go into the pull request's reviewer notes, so none of them leaves the record. The pull request stays a draft: the branch is folded into milestones before acceptance, the person driving the change — its implementer — accepts the result, whatever the acceptance asked for is folded back in, and the draft is marked ready once that handover is authorized. The agent does none of those steps on its own, and the ready mark is the request for the repository maintainer's review. Merging and publishing need authorization for that specific act.

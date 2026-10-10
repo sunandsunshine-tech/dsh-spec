@@ -39,7 +39,7 @@ Two causes stand separately. Most of the weight was machinery this repository in
 | Removed skill | Reason |
 |---|---|
 | `dsh-doc` | Its subject **is** the documentation mechanism this decision deletes; the tier table, the budget policy and the `verify-doc-*` and `verify-readme-shape` gates leave with it, while `verify-md-links` and `verify-md-link-syntax` survive in `dsh-prose-standard`. **The maintainer confirmed the removal on that ground: a skill whose whole subject is the mechanism being deleted has nothing left to own.** |
-| `dsh-ci-test-reliability` | It was parameterized from the `test-lanes` key, and that key recorded `none`: this repository has no CI, no build step and no test runner, so the skill described no work here |
+| `dsh-ci-test-reliability` | It was parameterized from the `test-lanes` key, and that key recorded `none`: this repository had no CI, no build step and no test runner at the time, so the skill described no work here |
 | `dsh-speed-up-perf` | The `perf-baseline` key recorded that nothing here is measured: the deliverable is Markdown and dependency-free TypeScript run on demand |
 | `dsh-merging-stacked-prs` | Stacked pull requests are a capability of the host, not a repository discipline, and the `gh` skill covers the capability |
 

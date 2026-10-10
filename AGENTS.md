@@ -149,7 +149,7 @@ Read `.agents/dsh-spec/notes/README.md` for the layout, the classes, and the in-
 - **`pr.commit-message`** Conventional Commits stating why, with verified output; no session narrations or diff restatements.
 - **`pr.description`** Exactly 4 sections (## What this PR does, ## Why, ## How, ## Reviewer notes); name a file by URL or path in code, never a relative link; no internal plan codes.
 - **`pr.review-merge`** Append commits during review; rebase and fold fixups before merge; maintain bisectability.
-- **`pr.authorization`** Stop at PR creation; merging and publishing require explicit maintainer authorization.
+- **`pr.authorization`** Stop at PR creation; the ready mark, the merge and the publication each need the authorization for that act.
 - **`prose.voice`** Write for the codebase's future reader in native idiom; state present facts; prefer real commands over adjectives; keep ecosystem terms in English.
 - **`test.acceptance-first`** Every acceptance criterion must map to an automated case; defects require a reproducible failing case before fixing.
 - **`test.behaviour`** Assert public contracts and behavior, not private internal implementations.

@@ -74,4 +74,4 @@ When implementation raises a decision the card does not settle, the Worker stops
 
 ## 10. Acceptance
 
-The Lead accepts on the final tree, after the last write. A parked decision, an open question, and an uncertainty go into the pull request's reviewer notes, so none of them leaves the record. Agents open a pull request and stop; merging and publishing need authorization for that specific act.
+The Lead accepts on the final tree, after the last write: that is the team's acceptance, and it does not stand for the implementer's. A parked decision, an open question, and an uncertainty go into the pull request's reviewer notes, so none of them leaves the record. The pull request stays a draft: the branch is folded into milestones before acceptance, the person driving the change — its implementer — accepts the result, whatever the acceptance asked for is folded back in, and the draft is marked ready once that handover is authorized. The agent does none of those steps on its own, and the ready mark is the request for the repository maintainer's review. Merging and publishing need authorization for that specific act.

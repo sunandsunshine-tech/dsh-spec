@@ -38,19 +38,22 @@ Node 22.19 or newer is the only requirement: the engine is TypeScript that Node 
 
 ## Pull request lifecycle
 
-A pull request description carries five sections, in this order:
+A pull request description carries four sections, in this order:
 
 ```markdown
 ## What this PR does
 ## Why
 ## How
 ## Reviewer notes
-## Verification
 ```
 
-`## What this PR does` states the behavior a reader gets after the merge — the deliverable and its effect. `## Why` states the problem and the decision that answers it. `## How` names the mechanism and its notable choices as the milestones a reviewer can read commit by commit. `## Reviewer notes` carries the uncertainty met while implementing, whether the change is breaking, how far it reaches, and the migration it suggests. `## Verification` carries the exact commands that were run and the lines they printed.
+`## What this PR does` states the behavior a reader gets after the merge — the deliverable and its effect, in a paragraph or, where a picture carries the mechanism more clearly than prose, a small ASCII diagram of it. `## Why` states the problem and the decision that answers it. `## How` names the mechanism and the choices a reviewer should weigh; the commit record carries the milestones. `## Reviewer notes` carries the uncertainty met while implementing, whether the change is breaking, how far it reaches, and the migration it suggests.
 
-The description is written for an outside contributor's eye. It states the change rather than the author's route to it, and it refers to no file: a reader who has not opened a path still understands what moved.
+The checks run on every pull request, so their run is the verification and no section repeats it.
+
+The description is written for an outside contributor's eye. It states the change rather than the author's route to it, and it names a file the way a reader outside the repository can open it — a URL or the repository path in code, never a relative link.
+
+A pull request is opened as a draft and it stays the implementer's working state: the branch is folded into milestones before acceptance, the implementer accepts the change and folds whatever the acceptance asked for back in, and the draft is marked ready once that handover is authorized. The repository's maintainer reads it from that point, not before, and an agent that implements the change does any of this only on the implementer's authorization.
 
 Every pull request is squash-merged on GitHub, by fast-forward, so `main` gains one clean commit per pull request. Commits before review may be rebased, reworded, dropped and force-pushed freely; commits appended during review are fixups, and they are folded into their milestone before the squash; the branch is rebased only when its base moves.
 
