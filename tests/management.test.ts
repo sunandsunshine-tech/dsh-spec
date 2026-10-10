@@ -646,6 +646,34 @@ test('a sync replaces an edited block in place and keeps the text around it', (t
   assert.equal(between(after, '<!-- dsh-spec:agent-notes -->', '<!-- /dsh-spec:agent-notes -->'), notesBlock, 'the notes block moved while the plans block was replaced')
 })
 
+test("a sync gathers the collection's blocks, above a block that follows them", (t) => {
+  const fixture = makeFixture({ 'README.md': '# A project\n' })
+  t.after(() => fixture.dispose())
+  adopt(fixture)
+  const adopted = fixture.read('AGENTS.md')
+  const notesBlock = adopted.slice(
+    adopted.indexOf('<!-- dsh-spec:agent-notes -->'),
+    adopted.indexOf('<!-- /dsh-spec:agent-notes -->'),
+  )
+  const plansStart = adopted.indexOf('<!-- dsh-spec:plans -->')
+  const plansEnd = adopted.indexOf('<!-- /dsh-spec:plans -->') + '<!-- /dsh-spec:plans -->'.length
+  const plansSection = adopted.slice(plansStart, plansEnd).trimEnd()
+  // The order an earlier revision left behind: the project's own text between the two collection
+  // blocks, and the plans block at the very end — the shape the norms hook then sat below.
+  fixture.write('AGENTS.md', `${adopted.slice(0, plansStart).trimEnd()}\n\nOur own standing orders.\n\n${plansSection}\n`)
+
+  sync(fixture)
+
+  const after = fixture.read('AGENTS.md')
+  const notes = after.indexOf('<!-- dsh-spec:agent-notes -->')
+  const plans = after.indexOf('<!-- dsh-spec:plans -->')
+  const orders = after.indexOf('Our own standing orders.')
+  assert.ok(notes >= 0 && plans >= 0 && orders >= 0, after)
+  assert.ok(notes < plans, `the collection's blocks are out of order:\n${after}`)
+  assert.ok(plans < orders, `a block that follows the collection's blocks was moved above them:\n${after}`)
+  assert.equal(after.slice(notes, after.indexOf('<!-- /dsh-spec:agent-notes -->')), notesBlock, 'the notes block was rewritten')
+})
+
 test('the notes block and the plans block are replaced independently', (t) => {
   const fixture = makeFixture({ 'README.md': '# A project\n' })
   t.after(() => fixture.dispose())

@@ -31,6 +31,17 @@
 9. A-6 文本终检（texter-1）：15 条修正，全部文本；其中 F13 是真遗漏——`help.ts` 的 uninstall 说明与它生成的 `cli.md` 仍在列举旧的 left-in-place 集合，delivery 自己的 P5 只修了 `manager.ts` 与两句 prose。模板与树内文本、help 与 cli.md 的一致性由 Lead 复核通过。
 10. A-6 复审（reviewer-1，独立复核文本终检之后的 `2000bc76`）：**PASS**。151/151、副本 10/10、出处 16/16、`check --all`、全 corpus md-links 152 文件、52 对配对、`check --base main` 全绿；三个模板与树内文本逐字一致、`--help en --markdown` 与 authored/installed 的 `cli.md` 逐字一致；`43d0078..HEAD` 的正文改动只有 9 个文本文件（+55/−55），两个 `.ts` 只改了字符串常量与一条注释，`tests/` 零改动。
 11. A-7 收尾（Lead）：提交工作副本结论 `1e8924a`，`gh stack sync` 推 B（并把 C、D 级联 rebase 到新 B），PR [#65](https://github.com/sunandsunshine-tech/dsh-spec/pull/65) 去掉标题 `WIP: ` 前缀、由 draft 转 ready、四节描述重写。合并准备期的收口按用户指令留待授权。
+12. **复核后、合并准备期之前：维护者改定了钩子的注入顺序**（见下节）。这不是计划里的"缺段追加"，而是维护者对评审后状态的一次裁定；计划文件未改。
+
+## 复核后的维护者裁定：钩子注入顺序（2026-10-10）
+
+**背景**：`## Delivery plans` 钩子原先按"缺段追加在文件末尾"注入，于是本仓库的顺序是 notes → norms → plans，而根 `AGENTS.md:73` 的常驻指令说"通用规范住在**文件末尾**的 `dsh-spec:norms` 钩子里"——那句话因此不再字面为真。计划 Constraints 限定根 `AGENTS.md` 只由钩子与文档表承接，所以当时把该句记成未决项，没有改它。
+
+**维护者裁定**：改注入顺序，让集合自己的块相邻（plans 落在 notes 上或下），norms 自然留在最后，那句话就重新为真；不要去改常驻指令。
+
+**实现**（本层唯一引擎改动的延续，`init-agents-md.ts` 的 `mergeSections`）：不再"就地替换 + 缺段追加到末尾"，改为**先把已存在的集合块整段取出、再按 `sectionHooks()` 的顺序在"最早那个已存在块的位置"重新放入**。标记之外的文本字节不变、相对顺序不变；集合的块因此总是相邻且顺序确定，另一个所有者（norms 钩子）随后追加/就位的内容留在它们下方。文件里一个块都没有时，仍在末尾按顺序放入全部。
+
+**效果与证据**：本仓库 `AGENTS.md` 变成 notes(131-138) → plans(140-145) → norms(147-167)，`AGENTS.md:73` 复为字面为真；`init-agents-md.ts --sync` 二次运行 0 变化（幂等）；`tests/management.test.ts` 新增一条用例钉住该规则（集合块相邻、其后的块留在下方、notes 块字节不变），并把函数体换回"追加到末尾"验证该用例会变红（可证伪）；全量 152 条中 151 通过，唯一红＝安装副本门禁（本次改了 `init-agents-md.ts` 与 `manager-install.md`，待刷新）。`references/manager-install.md:31` 补一句说明块会被归拢到集合列出的顺序。
 
 ## A-6 文本终检结果
 
@@ -64,6 +75,9 @@ A-3 实施时 worker-1 park 了五项（P1–P5），另有 A-4 一条卡片命�
 
 1. **P1 `plansSection()` 措辞**。计划 Design 已定形制（`## Delivery plans` 标题 + 触发规则一句 + 指向 `plans/README.md` 的链接），未定字面。采用 worker-1 草稿；字面属撰写，最终请用户复核。草稿原文如下，其中的链接以代码形引出，免得本文档自己把它解析成相对链接：
    `<!-- dsh-spec:plans -->` / `## Delivery plans` / "A delivery that spans more than one step records its plan in `.agents/dsh-spec/plans/` before it starts; a single-step or mechanical change does not. Read ``[the contract](.agents/dsh-spec/plans/README.md)`` for the plan's fields, the state read from its working copy, its dependency line, and the start-and-finish rules." / `<!-- /dsh-spec:plans -->`
+   **维护者裁定（复核之后）**：措辞"更贴 `notesSection()` 的形状"——两段式，第一段是规则（带指向契约的链接），第二段是"读契约拿到什么"+"规则怎么被约束"。改成：
+   `<!-- dsh-spec:plans -->` / `## Delivery plans` / "A delivery that spans more than one step records its plan in `.agents/dsh-spec/plans/` before it starts; a single-step or mechanical change does not. A plan is a working document rather than a decision record: what was decided, and why, lives in the notes tree, and the plan cites it (``[the contract](.agents/dsh-spec/plans/README.md)``)." / "Read `.agents/dsh-spec/plans/README.md` for the fields a plan carries, the state read from its working copy, the dependency line, and the start-and-finish rules. Nothing gates these files: the contract is the rule, and a delivery's first step reads it before it derives a goal, a team or a card." / `<!-- /dsh-spec:plans -->`
+   第一段那句"计划是工作文档而非决策记录"与第二段"Nothing gates these files"都出自契约自己的措辞（`plans/README.md` 第 5 行与 §Gates），不是新规则；形制对齐 notes（规则段 + 读法段）。
 2. **P2 采用报告的 inventory 形制**。计划只说"形制照 `notesSection()`"，未定报告。取与 notes 同形的单列一节，代价是报告多 3-4 行。
 3. **P3 采用创建几件 / sidecar**。worker-1 实测：只建三件会让新项目的 `translation-pair check .agents/dsh-spec/plans/README.md` 因缺 sidecar 直接 FAIL。按计划 Objective 2「子树**两件**与钩子都由初始器创建与同步」与 Objective 3「与 `notes` README **同法**」，判定采用只创建 `plans/README.md` 与 `plans/AGENTS.md`；`plans-README.zh.md.template` 随包发布但采用不落盘，与 notes 采用只落英文契约完全同形；A-1 已定的"sidecar 不落装"不动。**这是对卡片初稿（我写的"创建三件"）的更正**，理由与计划字面一致。
 4. **P4 钩子是否随树存在而注入**。计划 Background 明说"本次先把树与钩子无条件落下"，照此：B 里钩子无条件注入；条件化归 C（`optional-skills.md`）。

@@ -28,7 +28,7 @@ node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts install --root <project
 Two things survive every install and every refresh by rule, because they are decisions rather than mechanism text:
 
 - **The rows of `docs/terminology.md`.** The table's header, its column meanings and its usage rules are the collection's; every row below them binds both sides of a bilingual pair and is the maintainer's decision, asked for in the conversation.
-- **Everything in `AGENTS.md` outside the marked blocks.** Each block between `<!-- dsh-spec:agent-notes -->` and its closing marker, and between `<!-- dsh-spec:plans -->` and its closing marker, is replaced from the shipped template; the standing orders around them are the project's own writing and are never touched.
+- **Everything in `AGENTS.md` outside the marked blocks.** Each block between `<!-- dsh-spec:agent-notes -->` and its closing marker, and between `<!-- dsh-spec:plans -->` and its closing marker, is replaced from the shipped template; the standing orders around them are the project's own writing and are never touched. The collection's own blocks are kept together in the order it lists them, at the position of the earliest one the file already carried, so a block another owner appends afterwards stays below them.
 
 ## What adopting without the decision tree is not an option
 

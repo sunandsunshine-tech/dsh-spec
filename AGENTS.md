@@ -137,6 +137,15 @@ Read `.agents/dsh-spec/notes/README.md` for the layout, the classes, and the in-
 
 <!-- /dsh-spec:agent-notes -->
 
+<!-- dsh-spec:plans -->
+## Delivery plans
+
+A delivery that spans more than one step records its plan in `.agents/dsh-spec/plans/` before it starts; a single-step or mechanical change does not. A plan is a working document rather than a decision record: what was decided, and why, lives in the notes tree, and the plan cites it ([the contract](.agents/dsh-spec/plans/README.md)).
+
+Read `.agents/dsh-spec/plans/README.md` for the fields a plan carries, the state read from its working copy, the dependency line, and the start-and-finish rules. Nothing gates these files: the contract is the rule, and a delivery's first step reads it before it derives a goal, a team or a card.
+
+<!-- /dsh-spec:plans -->
+
 <!-- dsh-spec:norms -->
 ## Norms this project applies
 
@@ -156,10 +165,3 @@ Read `.agents/dsh-spec/notes/README.md` for the layout, the classes, and the in-
 - **`test.fast-subset`** Run the smallest subset covering the change before pushing; the full suite belongs to release milestones.
 
 <!-- /dsh-spec:norms -->
-
-<!-- dsh-spec:plans -->
-## Delivery plans
-
-A delivery that spans more than one step records its plan in `.agents/dsh-spec/plans/` before it starts; a single-step or mechanical change does not. Read [the contract](.agents/dsh-spec/plans/README.md) for the plan's fields, the state read from its working copy, its dependency line, and the start-and-finish rules.
-
-<!-- /dsh-spec:plans -->

@@ -191,7 +191,9 @@ function plansSection(plansDir: string): string {
   return `${PLANS_SECTION_START}
 ## Delivery plans
 
-A delivery that spans more than one step records its plan in \`${plansDir}/\` before it starts; a single-step or mechanical change does not. Read [the contract](${plansDir}/README.md) for the plan's fields, the state read from its working copy, its dependency line, and the start-and-finish rules.
+A delivery that spans more than one step records its plan in \`${plansDir}/\` before it starts; a single-step or mechanical change does not. A plan is a working document rather than a decision record: what was decided, and why, lives in the notes tree, and the plan cites it ([the contract](${plansDir}/README.md)).
+
+Read \`${plansDir}/README.md\` for the fields a plan carries, the state read from its working copy, the dependency line, and the start-and-finish rules. Nothing gates these files: the contract is the rule, and a delivery's first step reads it before it derives a goal, a team or a card.
 
 ${PLANS_SECTION_END}
 `
@@ -433,32 +435,39 @@ function mergeManaged(existing: string | undefined, rendered: string, merge: Mer
 }
 
 /**
- * Replace each marked block in place, and append the ones the text does not carry.
+ * Rewrite each marked block, and keep the collection's blocks together in `hooks` order.
  *
  * Everything outside the markers is the project's own standing orders and is kept byte for byte; a
  * block whose inner text was edited is replaced whole, which is what makes the mechanism's text
- * identical in every project. A missing block is appended after everything already there, separated
- * from it by one blank line, so a second run reads back the file the first one wrote.
+ * identical in every project. The blocks themselves are gathered at the position of the earliest one
+ * the file already carries, in `hooks` order, so a block another owner appends afterwards — the
+ * norms hook, which belongs to the file's end — stays below them whatever order an earlier revision
+ * left behind. An instruction file that carries none of them gains all of them at its end. A second
+ * run reads back the file the first one wrote.
  *
  * @param existing - the instruction file as the project holds it.
- * @param hooks - the blocks the collection owns, in the order a missing one is appended.
+ * @param hooks - the blocks the collection owns, in the order they are kept.
  * @returns the file's new text, newline-terminated.
  */
 function mergeSections(existing: string, hooks: readonly SectionHook[]): string {
   let text = existing
-  const missing: SectionHook[] = []
+  let anchor = -1
   for (const hook of hooks) {
     const start = text.indexOf(hook.start)
     const end = start < 0 ? -1 : text.indexOf(hook.end, start + hook.start.length)
-    if (end < 0) {
-      missing.push(hook)
-      continue
-    }
-    text = text.slice(0, start) + hook.render().trimEnd() + text.slice(end + hook.end.length)
+    if (end < 0) continue
+    if (anchor < 0) anchor = start
+    text = text.slice(0, start) + text.slice(end + hook.end.length)
   }
-  let merged = text.replace(/\s+$/, '')
-  for (const hook of missing) merged += merged === '' ? hook.render().trimEnd() : `\n\n${hook.render().trimEnd()}`
-  return `${merged}\n`
+  const rendered = hooks.map(hook => hook.render().trimEnd()).join('\n\n')
+  if (anchor < 0) {
+    const merged = text.replace(/\s+$/, '')
+    return `${merged}${merged === '' ? '' : '\n\n'}${rendered}\n`
+  }
+  const head = text.slice(0, anchor).replace(/\s+$/, '')
+  const tail = text.slice(anchor).replace(/^\s+/, '')
+  const body = `${head === '' ? '' : `${head}\n\n`}${rendered}${tail === '' ? '' : `\n\n${tail}`}`
+  return `${body.replace(/\s+$/, '')}\n`
 }
 
 /** How many lines of one managed file's diff a dry run prints before it truncates. */
