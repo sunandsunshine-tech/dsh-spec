@@ -4,7 +4,7 @@ metadata:
     github-path: skills/dsh-spec-manager
     github-ref: refs/heads/feat/plans-surface
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: 6367c2ab498e0eb2945fe0c80467bf060e79ef45
+    github-tree-sha: 7ea108f79e24d813691a8194e74be92c730a2536
 name: dsh-spec-manager
 ---
 # Managing an adopted project
