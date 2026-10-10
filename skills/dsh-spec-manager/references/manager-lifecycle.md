@@ -66,7 +66,7 @@ The entry point resolves a gate name against the manifest's `gates` record, and 
 
 `status` changes nothing. It is the check to run before a push that touches an instruction file, and the reason a stale deployment is a finding rather than a silent condition.
 
-`uninstall` removes each manifest skill's directory, and nothing else. The engine, the entry point and the manifest live inside the manager skill's own directory, so that step removes them with it — and it names what it is leaving behind, because those are the project's own: the marked block inside the root `AGENTS.md`, the notes tree under `.agents/dsh-spec/notes/`, `docs/`, and `.rgignore`. An uninstall that took them would delete decisions and standing orders the project made for itself. `--dry-run` prints the plan.
+`uninstall` removes each manifest skill's directory, and nothing else. The engine, the entry point and the manifest live inside the manager skill's own directory, so that step removes them with it — and it names what it is leaving behind, because those are the project's own: the marked blocks inside the root `AGENTS.md`, the notes tree under `.agents/dsh-spec/notes/`, the plan tree under `.agents/dsh-spec/plans/`, `docs/`, and `.rgignore`. An uninstall that took them would delete decisions, plans and standing orders the project made for itself. `--dry-run` prints the plan.
 
 ## Boundaries this mode keeps
 

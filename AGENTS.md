@@ -117,6 +117,7 @@ The generic rules live in the `dsh-spec:norms` hook at the end of this file, ren
 | Standing orders an agent needs in every session | this file |
 | Orders specific to one subtree | that subtree's `AGENTS.md` (the notes tree has its own three) |
 | Decision rationale: the why, and what was given up | `.agents/dsh-spec/notes/` |
+| The plan a multi-step delivery is executed from, and the rules it obeys | `.agents/dsh-spec/plans/` — the contract is [`README.md`](.agents/dsh-spec/plans/README.md) |
 | The package's own contract and workflows | `skills/` — see [the manager entry](skills/dsh-spec-manager/SKILL.md) |
 | What this repository decided about applying the pattern | the same notes tree, and the standing entries above |
 | A past incident's durable lesson | the notes tree, in its `bug-fix` class |
@@ -155,3 +156,10 @@ Read `.agents/dsh-spec/notes/README.md` for the layout, the classes, and the in-
 - **`test.fast-subset`** Run the smallest subset covering the change before pushing; the full suite belongs to release milestones.
 
 <!-- /dsh-spec:norms -->
+
+<!-- dsh-spec:plans -->
+## Delivery plans
+
+A delivery that spans more than one step records its plan in `.agents/dsh-spec/plans/` before it starts; a single-step or mechanical change does not. Read [the contract](.agents/dsh-spec/plans/README.md) for the plan's fields, the state read from its working copy, its dependency line, and the start-and-finish rules.
+
+<!-- /dsh-spec:plans -->

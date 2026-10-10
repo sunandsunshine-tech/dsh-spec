@@ -15,7 +15,7 @@ import { join } from 'node:path'
 import { test } from 'node:test'
 import { runCli, runScript } from './helpers/cli.ts'
 import { NORMS_FILE } from '../skills/dsh-spec-manager/scripts/norms-apply.ts'
-import { NOTES, makeFixture, snapshot, writeNote } from './helpers/fixtures.ts'
+import { NOTES, PLANS, REPO_ROOT, exists, makeFixture, snapshot, writeNote } from './helpers/fixtures.ts'
 import type { Fixture } from './helpers/fixtures.ts'
 
 /** The skills the manifest names, in manifest order. */
@@ -283,9 +283,10 @@ test('uninstall --dry-run names the artifacts it leaves behind', (t) => {
   const result = runCli(fixture.root, ['uninstall', '--dry-run'])
 
   assert.equal(result.status, 0, result.output)
-  for (const left of ['AGENTS.md', 'docs/', NOTES]) {
+  for (const left of ['AGENTS.md', 'docs/', NOTES, PLANS]) {
     assert.match(result.output, new RegExp(left.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), `uninstall did not name ${left}:\n${result.output}`)
   }
+  assert.match(result.output, /dsh-spec:plans block/, `uninstall did not name the plan hook it leaves:\n${result.output}`)
 })
 
 test('a check subject that is not a command flag still refuses an unknown operation', (t) => {
@@ -512,7 +513,10 @@ test('a dry-run sync diffs the managed text it would rewrite', (t) => {
   // project's text and this revision's.
   runScript('skills/dsh-spec-manager/scripts/init-agents-md.ts', ['--root', fixture.root, '--sync', '--write'])
   const injected = fixture.read('AGENTS.md')
-  fixture.write('AGENTS.md', `${injected.replace('## Decision records', 'stale injected text')}\nOur own standing orders.\n`)
+  // The project's own line goes immediately before the marked block, which is what puts it inside
+  // the reported hunk: a sync replaces a block in place, so a line far from the edit is unchanged
+  // text a diff has no reason to print.
+  fixture.write('AGENTS.md', injected.replace('## Decision records', 'stale injected text').replace('<!-- dsh-spec:agent-notes -->', 'Our own standing orders.\n\n<!-- dsh-spec:agent-notes -->'))
 
   const result = runScript('skills/dsh-spec-manager/scripts/init-agents-md.ts', ['--root', fixture.root, '--sync'])
 
@@ -545,4 +549,132 @@ test('a dry-run refresh renders the managed text it would rewrite, and writes no
   assert.match(result.output, /^-stale injected text$/m, `the managed-text diff was not rendered:\n${result.output}`)
   assert.doesNotMatch(result.output, /would run: .*init-agents-md/, `the preview deferred the managed text:\n${result.output}`)
   assert.match(fixture.read('AGENTS.md'), /stale injected text/, 'the dry run wrote the managed text')
+})
+
+/**
+ * The delivery-plan surface, adoption through refresh.
+ *
+ * The plan tree is created the way the notes tree is: an adoption writes the English contract and
+ * its orders, and a refresh brings that text to the installed revision without giving back a tree a
+ * project removed. Its marked block in the root `AGENTS.md` is one entry in a list rather than a
+ * special case, so these cases pin the two blocks apart as well as the merge itself.
+ */
+
+/** Adopt into a fixture: the initializer's create half, which every case below starts from. */
+function adopt(fixture: Fixture): void {
+  const result = runScript('skills/dsh-spec-manager/scripts/init-agents-md.ts', ['--root', fixture.root, '--write'])
+  assert.equal(result.status, 0, result.output)
+}
+
+/** Run the initializer's sync half, require it to succeed, and hand back what it reported. */
+function sync(fixture: Fixture): string {
+  const result = runScript('skills/dsh-spec-manager/scripts/init-agents-md.ts', ['--root', fixture.root, '--sync', '--write'])
+  assert.equal(result.status, 0, result.output)
+  return result.output
+}
+
+test("adoption creates the plan tree's two files and the hook that points at them", (t) => {
+  const fixture = makeFixture({ 'README.md': '# A project\n' })
+  t.after(() => fixture.dispose())
+
+  adopt(fixture)
+
+  for (const path of [`${PLANS}/README.md`, `${PLANS}/AGENTS.md`]) {
+    assert.equal(exists(fixture.root, path), true, `adoption did not create ${path}`)
+  }
+  // The Chinese counterpart ships as a template and is not deployed, exactly as the notes
+  // contract's counterpart is not: a project that adds the other side declares the pair.
+  assert.equal(exists(fixture.root, `${PLANS}/README.zh.md`), false, "adoption deployed the plan contract's Chinese side")
+  const agents = fixture.read('AGENTS.md')
+  assert.match(agents, /<!-- dsh-spec:agent-notes -->/, agents)
+  assert.match(agents, /<!-- dsh-spec:plans -->/, agents)
+  assert.match(agents, /## Delivery plans/, agents)
+  assert.match(agents, /\]\(\.agents\/dsh-spec\/plans\/README\.md\)/, agents)
+  assert.match(agents, /<!-- \/dsh-spec:plans -->\n$/, agents)
+})
+
+test('a sync creates no tree that is not there', (t) => {
+  const fixture = makeFixture({ 'AGENTS.md': '# A project\n\nOur own standing orders.\n' })
+  t.after(() => fixture.dispose())
+
+  const output = sync(fixture)
+
+  assert.equal(exists(fixture.root, NOTES), false, `a sync created the notes tree:\n${output}`)
+  assert.equal(exists(fixture.root, PLANS), false, `a sync created the plan tree:\n${output}`)
+  // The hook lands whether or not the tree does, which is this delivery's decision: the tree and
+  // the hook land unconditionally, and become conditional with the team workflow.
+  const agents = fixture.read('AGENTS.md')
+  assert.match(agents, /Our own standing orders\./, agents)
+  assert.match(agents, /<!-- dsh-spec:agent-notes -->/, agents)
+  assert.match(agents, /<!-- dsh-spec:plans -->/, agents)
+})
+
+test('a sync reads back what an adoption wrote, and a second one changes nothing', (t) => {
+  const fixture = makeFixture({ 'README.md': '# A project\n' })
+  t.after(() => fixture.dispose())
+  adopt(fixture)
+  const adopted = fixture.read('AGENTS.md')
+
+  const first = sync(fixture)
+  const second = sync(fixture)
+
+  for (const [round, output] of [['first', first], ['second', second]] as const) {
+    assert.match(output, /  \d+ managed file\(s\) already match the installed revision/, `the ${round} sync rewrote managed text:\n${output}`)
+    assert.doesNotMatch(output, /(would update|updated|would create|created) /, `the ${round} sync reported a change:\n${output}`)
+  }
+  assert.equal(fixture.read('AGENTS.md'), adopted, 'a sync rewrote the instruction file it had just written')
+})
+
+test('a sync replaces an edited block in place and keeps the text around it', (t) => {
+  const fixture = makeFixture({ 'README.md': '# A project\n' })
+  t.after(() => fixture.dispose())
+  adopt(fixture)
+  const adopted = fixture.read('AGENTS.md')
+  const between = (text: string, open: string, close: string): string => text.slice(text.indexOf(open), text.indexOf(close))
+  const notesBlock = between(adopted, '<!-- dsh-spec:agent-notes -->', '<!-- /dsh-spec:agent-notes -->')
+
+  // The project edits inside the plans block and adds its own orders after it.
+  fixture.write('AGENTS.md', `${adopted.replace('A delivery that spans more than one step', 'stale plans text')}\nOur own standing orders.\n`)
+
+  const output = sync(fixture)
+
+  assert.match(output, /updated AGENTS\.md/, output)
+  const after = fixture.read('AGENTS.md')
+  assert.doesNotMatch(after, /stale plans text/, after)
+  assert.match(after, /A delivery that spans more than one step/, after)
+  assert.match(after, /Our own standing orders\./, after)
+  assert.equal(between(after, '<!-- dsh-spec:agent-notes -->', '<!-- /dsh-spec:agent-notes -->'), notesBlock, 'the notes block moved while the plans block was replaced')
+})
+
+test('the notes block and the plans block are replaced independently', (t) => {
+  const fixture = makeFixture({ 'README.md': '# A project\n' })
+  t.after(() => fixture.dispose())
+  adopt(fixture)
+  const adopted = fixture.read('AGENTS.md')
+
+  fixture.write('AGENTS.md', adopted.replace('## Delivery plans', 'stale plans heading'))
+  sync(fixture)
+  assert.equal(fixture.read('AGENTS.md'), adopted, 'a plans-only edit was not restored in place')
+
+  fixture.write('AGENTS.md', adopted.replace('## Decision records', 'stale notes heading'))
+  sync(fixture)
+  assert.equal(fixture.read('AGENTS.md'), adopted, 'a notes-only edit was not restored in place')
+})
+
+test('a deployed plan contract keeps the switcher its template already carries, once', (t) => {
+  const fixture = makeFixture({ 'README.md': '# A project\n' })
+  t.after(() => fixture.dispose())
+  adopt(fixture)
+  // The project takes the shipped Chinese side, which is what makes the pair one. The English
+  // template already carries its half of the switcher, so deployment must not add a second.
+  fixture.write(
+    `${PLANS}/README.zh.md`,
+    readFileSync(join(REPO_ROOT, 'skills/dsh-spec-manager/templates/plans-README.zh.md.template'), 'utf8'),
+  )
+
+  const output = sync(fixture)
+
+  const switchers = fixture.read(`${PLANS}/README.md`).split('\n').filter(line => line.startsWith('English | [中文]('))
+  assert.deepEqual(switchers, ['English | [中文](README.zh.md)'], `the deployed contract carries ${switchers.length} switcher line(s)`)
+  assert.doesNotMatch(output, /plans\/README\.md/, `a sync reported work on a contract that matches:\n${output}`)
 })

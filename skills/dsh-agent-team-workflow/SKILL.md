@@ -1,6 +1,6 @@
 ---
 name: dsh-agent-team-workflow
-description: Use when a request is a multi-step engineering delivery — a feature, a refactor, or a bug fix that must carry its decision record, its documentation, and its bilingual pairs. Treats the loaded skill as the prompt that turns the session into a team, and the task card as the contract each member works from.
+description: Use when a request is a multi-step engineering delivery — a feature, a refactor, or a bug fix that must carry its decision record, its documentation, and its bilingual pairs. Turns the session into a Lead, Worker, Reviewer and Texter team; each member works from a task card, and every obligation belongs to a gate.
 ---
 
 # Agent Team Workflow
@@ -53,7 +53,7 @@ A change touches only what its objective requires; drive-by formatting and oppor
 
 ## 7. Task cards
 
-The card is the context firewall. Its fields and invariants are in [references/task-card.md](references/task-card.md).
+The card is the context firewall. Read [references/task-card.md](references/task-card.md) before writing a card and before claiming one; it carries the fields and the invariants.
 
 Claiming: `team_task_list` with `ready: true`; `team_task_get` for the current `revision`; `team_task_update` with `action: 'claim'`, `owner`, and `expected_revision`. A revision mismatch means another member claimed it; take another ready task.
 
