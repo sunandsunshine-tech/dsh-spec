@@ -19,7 +19,7 @@
 
 import { existsSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { basename, dirname, join, relative, resolve, sep } from 'node:path'
-import { exitsOf, flagValue, hasFlag } from './cli-args.ts'
+import { exitsOf, hasFlag, rawFlagValue } from './cli-args.ts'
 import { ensureDirectory, findInstructions, findTemplate, present, planDocsTree, planNotesTree, planPlansTree, trackedOrUntrackedFiles } from './init/templates.ts'
 import { mergeSections } from './init/merge.ts'
 import { planSurfaceInstalled, sectionHooks } from './init/sections.ts'
@@ -31,7 +31,7 @@ import { PLAN_SURFACE_SKILL, PLANS_DIR } from './plan-surface.ts'
 /** The exit this entry prints under. */
 const { fail } = exitsOf('dsh-spec-init')
 
-const root = resolve(flagValue('--root') ?? process.cwd())
+const root = resolve(rawFlagValue('--root') ?? process.cwd())
 const write = hasFlag('--write')
 const syncMode = hasFlag('--sync')
 
@@ -65,7 +65,7 @@ const gates = reading.names
  * then resolved nowhere. The skill's own name is the one thing taken from the running copy, because
  * the name is the same in both trees.
  */
-const skillsDirectory = flagValue('--dir') ?? join('.agents', 'skills')
+const skillsDirectory = rawFlagValue('--dir') ?? join('.agents', 'skills')
 const skillDirectory = present(root, `${skillsDirectory}/${basename(resolve(import.meta.dirname, '..'))}`)
 const layerDirectory = `${skillDirectory}/scripts`
 const dispatcher = `${layerDirectory}/dsh-spec.ts`

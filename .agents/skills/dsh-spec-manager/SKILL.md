@@ -6,7 +6,7 @@ metadata:
     github-path: skills/dsh-spec-manager
     github-ref: refs/heads/refactor/manager-package
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: 7ec698d6672b317db7fd8e3ef878ba4828bdafa8
+    github-tree-sha: a980a3fc73dd3e35f3a95002f26a8e41f5385bf2
 name: dsh-spec-manager
 ---
 # Managing an adopted project
