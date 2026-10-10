@@ -91,7 +91,7 @@ The [global flags](#flags) apply to every command.
 
 Remove the installed skills.
 
-Lists what it leaves behind — the marked block in `AGENTS.md`, the notes tree, `docs/` and `.rgignore` — because those are the project's own.
+Lists what it leaves behind — the marked blocks in `AGENTS.md`, the notes tree, the plan tree, `docs/` and `.rgignore` — because those are the project's own.
 
 ```sh
 # See what removal would leave in place
@@ -119,7 +119,7 @@ node <engine>/dsh-spec.ts status --root .
 
 Run the checks a selection owes.
 
-A path list runs the checks that claim those paths, `--base <ref>` computes that list from the change instead, and `--all` runs the two tree checks. With none of the three it prints the forms and reads nothing.
+A path list runs the checks that claim those paths, `--base <ref>` computes that list from the change instead, and `--all` runs the tree checks. With none of the three it prints the forms and reads nothing.
 
 ```sh
 # Check what a branch changed
@@ -128,7 +128,7 @@ node <engine>/dsh-spec.ts check --base main --root .
 
 | Flag | Meaning |
 |---|---|
-| `--all` | Run the two checks asserted over a tree |
+| `--all` | Run the checks asserted over a tree |
 | `--base <ref>` | Compute the path list from a change against this ref |
 | `--head <ref>` | The commit the change is measured to (default HEAD) |
 | `--files-from <file|->` | Read the path list from a file, or from stdin |

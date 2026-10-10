@@ -47,7 +47,7 @@
 | English | 中文 | 首次出现 | 不要译作 | 备注 |
 |---|---|---|---|---|
 | artifact | 产物 |  | 制品 |  |
-| append-only | 仅追加 |  |  |  |
+| append-only | 仅追加 |  |  | 本规范（`pr.lifecycle`）里指两次整理之间只追加 |
 | background job | 后台任务 |  |  |  |
 | build target | 构建目标 |  |  |  |
 | cancel | 取消 |  |  |  |
@@ -88,8 +88,20 @@
 | extraction | 抽取 | | 提取 | 从源项目得到本技能集合的过程 |
 | baseline | 基线 | | 基准 | `submodules/dsh/`，固定的抽取来源 |
 | deviation | 偏离 | | 偏差、差异 | 与源项目不同且被记录下来的地方 |
-| carrier | 载体 | 载体（carrier） | 载波 | 承载一件事的角色或容器：主线、后台任务、`subagent`、teammate |
+| carrier | 载体 | 载体（carrier） | 载波 | 承载一件事的角色或容器：主线、后台任务、`subagent`、teammate；不用于机制或产物（一棵树、一份契约、一对文件、一份计划），那些按它们本来的名字称呼 |
 | carrier selection | 载体选择 | | | 决定一件事交给哪个载体 |
 | carrier policy | 载体策略 | | 载体政策 | |
 | cost ladder | 成本阶梯 | | 成本梯 | 本仓库自造词：从主线到后台任务到一个 `subagent` 的载体阶梯 |
 | scheduling method | 调度方法 | | | 已授权团队内部把依赖图映到成员槽位的方法 |
+| acceptance | 验收 | | 接受 | 它是被通知触发的那一步，不是一次授权 |
+| review | 评审 | | 审查、审核 | 仓库维护者在改动转评审之后做的那一步 |
+| review handover | 转评审 | | 评审交接、待评审 | 英文 `handover` 只指这一次：把改动交给仓库维护者评审。三次「之前」的动作是整理，不是交接；合并不叫「交接」 |
+| review authorization | 转评审授权 | | | 转评审之前必须被问、被回答的那次授权，由仓库维护者回答 |
+| merge authorization | 合并授权 | | | 合并之前必须被问、被回答的那次授权，与转评审授权各是一次 |
+| tidy | 整理 | | 清理 | 把分支折成里程碑、让留下的每个提交自带完整状态、并保持 PR 描述最新的那一套操作 |
+| tidy before acceptance | 验收前整理 | | | 三次整理之一 |
+| tidy before review | 评审前整理 | | | 三次整理之一 |
+| tidy before the merge | 合并前整理 | | | 三次整理之一 |
+| driver | 驾驶员 | | 驱动者 | 驱动这次改动的人；开发完成并整理好之后，agent 通知他去验收 |
+| implementer | 实现者 | | 实施者 | 实现这次改动、并在草稿状态验收它的人 |
+| repository maintainer | 仓库维护者 | | 维护人员 | 转评审与合并保留给他；那两次授权都由他回答 |

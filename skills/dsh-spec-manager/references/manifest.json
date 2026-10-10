@@ -18,7 +18,8 @@
     "verify-archived-agent-notes",
     "verify-translation-pairing",
     "verify-md-links",
-    "verify-md-link-syntax"
+    "verify-md-link-syntax",
+    "verify-norm-reference"
   ],
   "scopes": {
     "verify-agent-note-classification": {
@@ -56,6 +57,12 @@
         "markdown"
       ],
       "selection": "files"
+    },
+    "verify-norm-reference": {
+      "keys": [
+        "installed-skills"
+      ],
+      "selection": "root"
     }
   }
 }

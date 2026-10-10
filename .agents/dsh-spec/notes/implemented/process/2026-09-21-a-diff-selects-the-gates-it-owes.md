@@ -12,7 +12,9 @@ Every check this skill set runs was addressed by name, so a contributor who chan
 
 ## Decision
 
-Each recorded gate claims a **scope record** in the manifest: the surfaces it answers for — `notes`, `notes-archived`, `markdown` or `pairs` — and how it is handed them, `root` when its assertion is about a tree and `files` when it reads exactly the paths it is given. The entry point resolves a key through the module that already owns those paths: `notes-root.ts` for the note tree, `md-scope.ts` for the Markdown the prose gates read, `i18n-scope.ts` for the pairing scope. `dsh-spec.ts check --base <ref>` then hands each subject the paths that fall inside its keys, runs the ones a change owes, and prints every subject it skipped with the reason.
+Each recorded gate claims a **scope record** in the manifest: the surfaces it answers for — `notes`, `notes-archived`, `markdown`, `pairs` or `installed-skills` — and how it is handed them, `root` when its assertion is about a tree and `files` when it reads exactly the paths it is given. The entry point resolves a key through the module that already owns those paths: `notes-root.ts` for the note tree, `md-scope.ts` for the Markdown the prose gates read, `i18n-scope.ts` for the pairing scope, `installed-skills.ts` for the text the installed set ships. `dsh-spec.ts check --base <ref>` then hands each subject the paths that fall inside its keys, runs the ones a change owes, and prints every subject it skipped with the reason.
+
+`installed-skills` was recorded when shipped text began citing a norm by its catalog id: the surface is every `.md` and `.template` file the set installs, and `installed-skills.ts` owns it. Its change→gate mapping reads those texts alone rather than the whole installed tree, so a changed engine script still selects no check.
 
 Keys rather than path literals keep one owner per path: the manifest says which *surface* a gate answers for, and the engine says where that surface is. A key outside the closed set is a refusal, because an unresolved scope would read as "nothing here belongs to this gate" and quietly drop the check; a recorded gate with no entry at all is also refused, so the record cannot be half-written.
 
@@ -30,10 +32,11 @@ Keys rather than path literals keep one owner per path: the manifest says which 
 
 ## Consequences
 
-- A change to the engine runs the credential scan and nothing else; a note change runs the four gates that read the note tree, the pairs and Markdown; and each run prints the gates it skipped.
+- A change to the engine selects no check at all; a note change runs the gates that read the note tree, the pairs and Markdown; and each run prints the gates it skipped.
 - The manifest now carries four facts, and adding a gate means recording its name, its scope and its script in the same change.
 - What this costs is a second record to keep in step with the gate list. The refusal covers the half-written case, and the closed key set keeps a typo from silently narrowing a run.
-- Verification: `dsh-spec.ts check --all --root .` reports the two tree checks; `dsh-spec.ts check --base HEAD --root .` prints one line per subject — `check <subject>: ok`, `FAIL`, or `skipped — <reason>` — and a clean tree prints four skips.
+- A citation is checked where it can go wrong: `verify-norm-reference` reads the installed catalog and every shipped text, and a backticked `group.name` whose first half is a catalog group must name a norm the catalog ships. One case is left open on purpose: a wrong group half (`prs.lifecycle`) is not read as a citation at all, because a token that names no group is indistinguishable from an ordinary dotted word such as `ctx.shell` or `task.done`, and nothing else covers it. Widening the shape to every dotted token would trade that gap for noise.
+- Verification: `dsh-spec.ts check --all --root .` reports every tree check; `dsh-spec.ts check --base HEAD --root .` prints one line per subject — `check <subject>: ok`, `FAIL`, or `skipped — <reason>` — and a clean tree prints one skip per subject.
 
 ## Related
 

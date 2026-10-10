@@ -60,7 +60,7 @@ node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts install --root .
 | `dsh-pre-push-checks` | 覆盖一次外发改动的最小证据 |
 | `dsh-find-simplifications` | 把「找找能简化什么」变成有证据可依的提案 |
 | `dsh-agent-experience` | agent 自己的上下文欠什么:先给最小上下文、发现要显式、约束先于动作、输出宁可有界 |
-| `dsh-agent-team-workflow` | 团队被请求建立之后的职责分工:角色契约、任务卡,以及每项义务归哪道门禁 |
+| `dsh-agent-team-workflow` | 团队被请求建立之后的职责分工:Lead、Worker、Reviewer、Texter 四个角色、任务卡,以及每项义务归哪道门禁 |
 
 ## 应用它附带的规范
 

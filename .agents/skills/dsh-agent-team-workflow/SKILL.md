@@ -1,10 +1,10 @@
 ---
-description: Use when a request is a multi-step engineering delivery — a feature, a refactor, or a bug fix that must carry its decision record, its documentation, and its bilingual pairs. Treats the loaded skill as the prompt that turns the session into a team, and the task card as the contract each member works from.
+description: Use when a request is a multi-step engineering delivery — a feature, a refactor, or a bug fix that must carry its decision record, its documentation, and its bilingual pairs. Turns the session into a Lead, Worker, Reviewer and Texter team; each member works from a task card, and every obligation belongs to a gate.
 metadata:
     github-path: skills/dsh-agent-team-workflow
-    github-ref: refs/heads/docs/review-stages-and-pr-description
+    github-ref: refs/heads/feat/plans-surface
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: 95afad4c10c69e612c717d0ad3b1f14e760b4d2d
+    github-tree-sha: b75146ebeab30838f35ea8f7d69e7e5e31d57745
 name: dsh-agent-team-workflow
 ---
 # Agent Team Workflow
@@ -57,7 +57,7 @@ A change touches only what its objective requires; drive-by formatting and oppor
 
 ## 7. Task cards
 
-The card is the context firewall. Its fields and invariants are in [references/task-card.md](references/task-card.md).
+The card is the context firewall. Read [references/task-card.md](references/task-card.md) before writing a card and before claiming one; it carries the fields and the invariants.
 
 Claiming: `team_task_list` with `ready: true`; `team_task_get` for the current `revision`; `team_task_update` with `action: 'claim'`, `owner`, and `expected_revision`. A revision mismatch means another member claimed it; take another ready task.
 
@@ -78,4 +78,4 @@ When implementation raises a decision the card does not settle, the Worker stops
 
 ## 10. Acceptance
 
-The Lead accepts on the final tree, after the last write: that is the team's acceptance, and it does not stand for the implementer's. A parked decision, an open question, and an uncertainty go into the pull request's reviewer notes, so none of them leaves the record. The pull request stays a draft: the branch is folded into milestones before acceptance, the person driving the change — its implementer — accepts the result, whatever the acceptance asked for is folded back in, and the draft is marked ready once that handover is authorized. The agent does none of those steps on its own, and the ready mark is the request for the repository maintainer's review. Merging and publishing need authorization for that specific act.
+The Lead accepts on the final tree, after the last write: that is the team's acceptance, and it does not stand for the implementer's. A parked decision, an open question, and an uncertainty go into the pull request's reviewer notes, so none of them leaves the record. The pull request stays a draft: the branch is tidied before acceptance, before review and before the merge — folded into milestones, with the description kept current — the person driving the change — its implementer — accepts the result, whatever the acceptance asked for is folded back in, and the draft is marked ready once the handover to review is authorized. The agent does none of those acts on its own, and the ready mark is the request for the repository maintainer's review. The handover to review and the merge each need their own authorization, asked for and answered: the agent puts the act as a question and the repository maintainer answers it, rather than inferring consent.

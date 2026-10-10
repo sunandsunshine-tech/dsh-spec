@@ -30,10 +30,11 @@ export const GATE_NAME = /^verify-[a-z0-9]+(?:-[a-z0-9]+)*$/
  *
  * `notes` is the three active lifecycles and `notes-archived` the frozen archive, because the two
  * are governed by different rules; `markdown` resolves through `md-scope.ts`, `pairs` through the
- * pairing module, and there is no key for the whole tracked corpus any more — the credential scan
- * that owned it is gone.
+ * pairing module, `installed-skills` through `installed-skills.ts` — the shipped texts of the
+ * deployed set, which a project loads instead of the authored source — and there is no key for the
+ * whole tracked corpus any more, because the credential scan that owned it is gone.
  */
-export const GATE_SCOPE_KEYS = ['notes', 'notes-archived', 'markdown', 'pairs'] as const
+export const GATE_SCOPE_KEYS = ['notes', 'notes-archived', 'markdown', 'pairs', 'installed-skills'] as const
 
 /** One scope key a gate may claim. */
 export type GateScopeKey = (typeof GATE_SCOPE_KEYS)[number]

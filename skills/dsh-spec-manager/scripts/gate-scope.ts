@@ -21,6 +21,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { dirname, relative, resolve, sep } from 'node:path'
 import { isActiveNotePath, walkAgentNoteTree } from './agent-note-tree.ts'
 import { isTranslationScopeFile } from './i18n-scope.ts'
+import { isInstalledSkillText } from './installed-skills.ts'
 import { readGateScopes } from './manifest.ts'
 import { scopedMarkdown, scopeReason } from './md-scope.ts'
 import { ARCHIVED_NOTES_PREFIX, NOTES_ROOT_PREFIX, resolveNotesRoot } from './notes-root.ts'
@@ -208,10 +209,12 @@ export function expandScope(root: string, key: GateScopeKey): string[] {
  * Whether a changed path belongs to the surface one gate answers for.
  *
  * The two selection kinds ask different questions of the same key, and the difference is the point.
- * A `root`-selection gate asserts over a tree, so any change inside that tree — a file added, an
- * unknown folder created — is its business. A `files`-selection gate reads files, so only a path
- * that is one of the files it reads counts: a change to `notes/README.md` belongs to the markdown
- * and pairing checks, and not to the note-format check, which would refuse it.
+ * A `root`-selection gate asserts over a tree, so the tree is its business — a file added, an
+ * unknown folder created — and its own key decides which paths those are: `notes` the active tree,
+ * `notes-archived` the frozen one, `installed-skills` the shipped texts a citation can live in. A
+ * `files`-selection gate reads files, so only a path that is one of the files it reads counts: a
+ * change to `notes/README.md` belongs to the markdown and pairing checks, and not to the
+ * note-format check, which would refuse it.
  *
  * @param record - the gate's recorded scope.
  * @param path - one repository-relative path from the change.
@@ -227,6 +230,7 @@ export function pathInGateScope(record: { keys: readonly GateScopeKey[], selecti
       if (key === 'notes') return active
       if (key === 'notes-archived') return inArchive
       if (key === 'markdown') return path.endsWith('.md') && scopeReason(path) === ''
+      if (key === 'installed-skills') return isInstalledSkillText(path)
       return isTranslationScopeFile(path)
     })
   }
@@ -234,6 +238,7 @@ export function pathInGateScope(record: { keys: readonly GateScopeKey[], selecti
     if (key === 'notes') return isActiveNotePath(path)
     if (key === 'notes-archived') return false
     if (key === 'markdown') return path.endsWith('.md') && scopeReason(path) === ''
+    if (key === 'installed-skills') return isInstalledSkillText(path)
     return isTranslationScopeFile(path)
   })
 }
