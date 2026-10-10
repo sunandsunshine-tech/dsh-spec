@@ -6,7 +6,7 @@ English | [中文](2026-10-09-a-norm-source-names-where-its-rationale-can-be-rea
 
 ## Problem
 
-`norms.json` records one `source` per norm, and the collection reads it as a path inside this repository: `recordUrlOf` in `skills/dsh-spec-manager/scripts/norms.ts` joins it to `https://github.com/<repo>/blob/<ref>/`, and the only validation a source receives is that it is a non-empty string. All fourteen entries are repository-relative paths today, so the field has never had to say anything else. The reader it serves needs one fact — where the rationale can be read — and that place is not always inside this repository: a norm adopted from another project's practice, from an issue, or from a published article has nowhere to be recorded. Writing such a URL into the field produces a blob link with the URL glued into the path; singling URLs out and passing them through takes the local carrier's slot away, so the record can no longer point at the note that adopted the rule. Nothing checks that an in-repo path exists either, so a typo is a link that 404s and nobody notices.
+`norms.json` records one `source` per norm, and the collection reads it as a path inside this repository: `recordUrlOf` in `skills/dsh-spec-manager/scripts/norms.ts` joins it to `https://github.com/<repo>/blob/<ref>/`, and the only validation a source receives is that it is a non-empty string. Every entry is a repository-relative path today, so the field has never had to say anything else. The reader it serves needs one fact — where the rationale can be read — and that place is not always inside this repository: a norm adopted from another project's practice, from an issue, or from a published article has nowhere to be recorded. Writing such a URL into the field produces a blob link with the URL glued into the path; singling URLs out and passing them through takes the local carrier's slot away, so the record can no longer point at the note that adopted the rule. Nothing checks that an in-repo path exists either, so a typo is a link that 404s and nobody notices.
 
 ## Proposal
 
@@ -25,7 +25,7 @@ One field, two spellings. A repository-relative path is rendered at the reposito
 - A record whose source is a repository-relative path renders at the repository and the ref the manager was installed from.
 - A record whose source is an `https` URL renders as that URL, unchanged.
 - A path form whose target does not exist is refused by name, and a URL form that is not a well-formed `https` is refused by name.
-- The fourteen entries the catalog carries today stay valid without being rewritten.
+- The entries the catalog carries today stay valid without being rewritten.
 - No gate gains network access.
 
 ## Risks

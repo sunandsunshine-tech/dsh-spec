@@ -30,4 +30,4 @@ Status: implemented
 
 - 一条规范的改动落在本仓库生成出来的文本上:`body` 改了,`.agents/dsh-spec/norms/norms.md` 跟着变;`invariant` 改了,`AGENTS.md` 的钩子跟着变。`norms update` 拒绝覆盖手改过的块,保护采用者的那道漂移检查,同样保护本仓库。
 - 目录既是本仓库发布的,也是本仓库遵守的:一条在这里不成立的规则,不该留在里面。
-- 每应用一条规范,`AGENTS.md` 就多一行红线;本仓库应用的十四条规范,对应十四行。
+- 每应用一条规范,`AGENTS.md` 就多一行红线;哪几条由 `norms list` 报告。

@@ -12,12 +12,12 @@ A rule that arrives that way cannot be found by the next reader and cannot be na
 
 ## Decision
 
-An agent opens a pull request as a draft and stops there: it does not mark it ready, merge the change or publish a release without the authorization for that act, and the request names the act and carries the change's description. Approval of a different change, or of the same change at an earlier phase, authorizes nothing: the review stage and the merge are two acts, and only the second is reserved. The ready mark is the implementer's own act — an agent turns the draft over only on their authorization — while the merge and the release stay reserved to the repository's maintainer.
+Merging a change, publishing a release, and marking a draft ready each happen only after the authorization for that act. [The pull-request lifecycle](2026-09-21-the-pull-request-lifecycle.md) carries that rule — which acts need one, and which of them stay reserved to the repository's maintainer — and this note owns what an authorization has to be: it names the act it covers and carries the change's description, and approval of a different change, or of the same change at an earlier phase, authorizes nothing.
 
 The rule has three homes, one per reader:
 
 - `AGENTS.md` carries it as a standing order, so an agent working here meets it every session.
-- `pr.authorization` carries it in the norm catalog, so an adopting project inherits it with the rest.
+- `pr.lifecycle` carries it in the norm catalog, so an adopting project inherits it with the rest.
 - `.github/release_template.md` carries the shape a release notes document takes, so publishing is written to one form instead of remembered.
 
 Two boundaries keep it from spreading. It does not re-argue the lifecycle's case for the maintainer's judgement; it names the act that judgement authorizes. And it does not decide the merge kind, which the lifecycle owns: a release pull request squashes like every other one once that act is authorized.
