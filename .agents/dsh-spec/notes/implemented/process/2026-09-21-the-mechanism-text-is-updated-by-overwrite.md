@@ -37,7 +37,7 @@ A project that wants different rules for its own tree expresses them in notes an
 - Every project's notes contract, documentation orders and search exclusion are the text of the revision it runs, so the gates enforce one contract and a reviewer reads one contract.
 - A project's own edits inside those documents are overwritten. That is the point, and it is why sync reports each path it rewrites instead of saying "up to date".
 - The terminology rows and the standing orders outside the marked block need care from the project, because sync preserves them and nothing else guards them.
-- Verification: in a probe, a project whose contract had an added line, whose terminology table had an added row, and whose `AGENTS.md` had a filled introduction ran `sync --write` → `updated .agents/dsh-spec/notes/README.md`, `updated docs/terminology.md`, the added contract line gone, the row preserved, the introduction intact; a stale marked section was replaced on the next run (`updated AGENTS.md`). `dsh-spec.ts check --all --root .` reports both tree checks green in the probe and in this repository.
+- Verification: in a probe, a project whose contract had an added line, whose terminology table had an added row, and whose `AGENTS.md` had a filled introduction ran `sync --write` → `updated .agents/dsh-spec/notes/README.md`, `updated docs/terminology.md`, the added contract line gone, the row preserved, the introduction intact; a stale marked section was replaced on the next run (`updated AGENTS.md`). `dsh-spec.ts check --all --root .` reports every tree check green in the probe and in this repository.
 
 ## Related
 
