@@ -61,7 +61,7 @@ node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts check --base <ref> --ro
   # corpus, not by this.
 ```
 
-Node ≥ 22.19 or ≥ 24 is the only requirement: the engine is TypeScript that Node strips by itself, and the suite runs on `node --test`. There is no build step and no CI: a gate is a name the manifest records, backed by a `verify-*.ts` script in the engine directory, and the entry point reconciles the two before it runs anything, so the recorded set is every check that exists and `check --all` is what makes the tree checks non-optional. `git` is needed for the archive seal, the pairing hashes and the change scope; `gh` only for installing and for reading the revision index.
+Node ≥ 22.19 or ≥ 24 is the only requirement: the engine is TypeScript that Node strips by itself, and the suite runs on `node --test`. There is no build step: a gate is a name the manifest records, backed by a `verify-*.ts` script in the engine directory, and the entry point reconciles the two before it runs anything, so the recorded set is every check that exists and `check --all` is what makes the tree checks non-optional. CI runs that recorded set on every pull request and on each push to `main` (`.github/workflows/checks.yml`). `git` is needed for the archive seal, the pairing hashes and the change scope; `gh` only for installing and for reading the revision index.
 
 ## Environment
 
