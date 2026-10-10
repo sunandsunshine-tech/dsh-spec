@@ -88,7 +88,7 @@
 | extraction | 抽取 | | 提取 | 从源项目得到本技能集合的过程 |
 | baseline | 基线 | | 基准 | `submodules/dsh/`，固定的抽取来源 |
 | deviation | 偏离 | | 偏差、差异 | 与源项目不同且被记录下来的地方 |
-| carrier | 载体 | 载体（carrier） | 载波 | 承载一件事的角色或容器：主线、后台任务、`subagent`、teammate |
+| carrier | 载体 | 载体（carrier） | 载波 | 承载一件事的角色或容器：主线、后台任务、`subagent`、teammate；不用于机制或产物（一棵树、一份契约、一对文件、一份计划），那些按它们本来的名字称呼 |
 | carrier selection | 载体选择 | | | 决定一件事交给哪个载体 |
 | carrier policy | 载体策略 | | 载体政策 | |
 | cost ladder | 成本阶梯 | | 成本梯 | 本仓库自造词：从主线到后台任务到一个 `subagent` 的载体阶梯 |
