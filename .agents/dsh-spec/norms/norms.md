@@ -40,8 +40,11 @@ never writes it.
 
 <!-- dsh-norm: pr.lifecycle -->
 - **Walk a change through its phases, and make the current phase visible.** WIP -> development -> wrap-up -> review -> merge prep -> merge; each phase names what has to be true before the next one starts.
-  - Why: without phases a change oscillates between "it runs" and "it is reviewable", and the author and the reviewer each assume a different one of those.
-  - Self-check: can you say which phase this change is in, and what would have to be true to leave it? If not, it has not left the previous one.
+  - Two acts land on a change and they are not the same act: its implementer accepts it while the pull request is still a draft, and the repository's maintainer reviews it after the implementer marks it ready. A draft is the implementer's working state, and the maintainer reads it only from the point it is ready. Acceptance and review are different acts, and neither stands in for the other; each can return the change for adjustment, so the branch is tidied three times -- before acceptance, again before the ready mark, and again before the merge. Wrap-up is the handover the implementer makes: the branch is folded into milestones, the `WIP:` prefix comes off once that handover is authorized, and marking the draft ready is the request for the maintainer's review.
+  - Each tidy has its own rule. During review, append commits rather than rewriting the pushed ones. Before the merge, rebase those fixups into the milestone they belong to, so every commit left builds on its own and a bisect lands nowhere broken. And let the kind of change decide how it lands, not the button somebody happens to press.
+  - Every handover is an authorized act: the ready mark, the merge and the publication each need the authorization for that act, the merge and the release stay reserved to the repository's maintainer, and the ready mark is the implementer's own, which an agent makes only on their authorization. An authorization names the act it covers and carries the change's description; approval of a different change, or of the same change at an earlier phase, authorizes nothing.
+  - Why: without phases a change oscillates between "it runs" and "it is reviewable", and the author and the reviewer each assume a different one of those; a rewritten commit invalidates what the reviewer read, a broken intermediate destroys bisect, and a merge kind chosen per pull request makes the history depend on who merged it.
+  - Self-check: can you say which phase this change is in, what would have to be true to leave it, which reader it is waiting on, and that the handover you are making is authorized? Does every intermediate commit build, and would two people merging the same kind of change produce the same shape?
 <!-- /dsh-norm -->
 
 <!-- dsh-norm: pr.commit-message -->
@@ -54,25 +57,14 @@ never writes it.
 - **Structure PR descriptions into exactly four canonical sections:** `## What this PR does`, `## Why`, `## How`, `## Reviewer notes`.
   - Write for a reviewer who has not seen the work. A description states the change and why it is safe to merge; the route taken to it is not part of it.
   - A sentence stays only if a reviewer can act on it or be warned by it. An open question stays in the conversation.
-  - `## What this PR does`: one paragraph on behavior after merge, not files touched.
+  - `## What this PR does`: the behavior a reader gets after the merge, in a paragraph, not an inventory of the files touched.
   - `## Why`: the problem and decision, linking the owning note.
-  - `## How`: the mechanism and milestones, readable commit by commit.
+  - `## How`: the mechanism and the choices a reviewer should weigh; the commit record carries the milestones.
   - `## Reviewer notes`: uncertainties, odd mechanisms, breaking changes, scope reach, migrations.
+  - A diagram is optional: add one to `## What this PR does` where a picture carries the mechanism more clearly than prose, keep it small and in ASCII, and let it complement the paragraph rather than repeat it.
   - Name a file so a reader outside the repository can open it: a URL, or the repository path in code. A relative link resolves only inside a Markdown file, so it breaks in a description, an issue, or a comment.
   - Why: a reviewer asks the same questions every time, so an orderly description is read once instead of reconstructed.
   - Self-check: are all four sections present, in that order? Does it name real facts rather than plan codes? Can a reader open every file it names?
-<!-- /dsh-norm -->
-
-<!-- dsh-norm: pr.review-merge -->
-- **Append during review, fold before merge, and fix the merge kind once.** Once review starts, add commits rather than rewriting the pushed ones; before merging, rebase the fixups into the milestone they belong to; and let the kind of change decide how it lands, not the button somebody happens to press.
-  - Why: a reviewer reads commits, so rewriting them invalidates what they read, a broken intermediate commit destroys bisect, and a merge kind chosen per pull request makes the history depend on who merged it.
-  - Self-check: does the log hold commits only their author can interpret? Does every intermediate commit build? Would two people merging the same kind of change produce the same shape?
-<!-- /dsh-norm -->
-
-<!-- dsh-norm: pr.authorization -->
-- **Merge and publish only when that act is authorized.** An agent opens a pull request and stops there; merging it, and publishing a release, happen only after the maintainer authorizes that specific act, and the request names the act and carries the change's description. Approval of a different change, or of the same change at an earlier phase, authorizes nothing.
-  - Why: the repository's history and published artifacts belong to the maintainer, and an agent cannot tell a change it believes is finished from one the maintainer has accepted; a standing permission quietly turns the review before it into a formality.
-  - Self-check: can you point to the authorization for this merge or this release, and does it name this act?
 <!-- /dsh-norm -->
 
 <!-- dsh-norms: prose -->

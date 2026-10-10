@@ -30,4 +30,4 @@ The earlier note keeps what it owns — the mechanism, the record, and why the s
 
 - A change to a norm reaches this repository's generated text. A changed `body` lands in `.agents/dsh-spec/norms/norms.md`; a changed `invariant` lands in the `AGENTS.md` hook. `norms update` refuses to overwrite a block edited by hand, so the drift check that protects an adopter protects this repository too.
 - The catalog is what this repository obeys as well as ships, so a rule that does not hold here does not belong in it.
-- Each applied norm contributes one red line to `AGENTS.md`; the fourteen norms this repository applies put fourteen lines there.
+- Each applied norm contributes one red line to `AGENTS.md`; `norms list` reports which those are.

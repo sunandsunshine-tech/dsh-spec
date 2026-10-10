@@ -12,12 +12,12 @@ A rule that arrives that way cannot be found by the next reader and cannot be na
 
 ## Decision
 
-An agent opens a pull request and stops there. Merging it, and publishing a release, happen only after the maintainer authorizes that specific act, and the request names the act and carries the change's description. Approval of a different change, or of the same change at an earlier phase, authorizes nothing: the review stage and the merge are two acts, and only the second is reserved.
+Merging a change, publishing a release, and marking a draft ready each happen only after the authorization for that act. [The pull-request lifecycle](2026-09-21-the-pull-request-lifecycle.md) carries that rule — which acts need one, and which of them stay reserved to the repository's maintainer — and this note owns what an authorization has to be: it names the act it covers and carries the change's description, and approval of a different change, or of the same change at an earlier phase, authorizes nothing.
 
 The rule has three homes, one per reader:
 
 - `AGENTS.md` carries it as a standing order, so an agent working here meets it every session.
-- `pr.authorization` carries it in the norm catalog, so an adopting project inherits it with the rest.
+- `pr.lifecycle` carries it in the norm catalog, so an adopting project inherits it with the rest.
 - `.github/release_template.md` carries the shape a release notes document takes, so publishing is written to one form instead of remembered.
 
 Two boundaries keep it from spreading. It does not re-argue the lifecycle's case for the maintainer's judgement; it names the act that judgement authorizes. And it does not decide the merge kind, which the lifecycle owns: a release pull request squashes like every other one once that act is authorized.
@@ -25,7 +25,7 @@ Two boundaries keep it from spreading. It does not re-argue the lifecycle's case
 ## Alternatives considered
 
 - **Leave it to each task description.** That is what produced the gap: permission for one batch was indistinguishable from permission in general, and a later reader of the repository can find neither.
-- **Put it only in the norm catalog.** The catalog is what an adopting project chooses from, and this repository deliberately does not apply its own catalog, so the rule would bind nobody here.
+- **Put it only in the norm catalog.** The catalog is what an adopting project chooses from, and this repository applied none of it at the time, so the rule would have bound nobody here.
 - **Require authorization for the whole batch instead of each act.** One approval for a stack of five pull requests is the standing permission again, one level up: four of them would land on a decision nobody made.
 - **Let the approval live only in the conversation where it was given.** The merge is recorded in the repository and the approval would not be, so the next reader cannot tell an authorized merge from an assumed one.
 

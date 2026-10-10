@@ -1,6 +1,6 @@
 ## What this PR does
 
-<!-- One paragraph on the behaviour a reader gets after this merges — the deliverable and its effect, not the files touched. -->
+<!-- One paragraph on the behaviour a reader gets after this merges — the deliverable and its effect, not an inventory of the files touched. A small ASCII diagram of the mechanism belongs here where a picture carries it more clearly than prose; keep the two complementary. -->
 
 ## Why
 
@@ -8,7 +8,7 @@
 
 ## How
 
-<!-- The mechanism and its notable choices, named as the milestones a reviewer can read commit by commit. -->
+<!-- The mechanism and the choices a reviewer should weigh; the commit record carries the milestones. -->
 
 ## Reviewer notes
 

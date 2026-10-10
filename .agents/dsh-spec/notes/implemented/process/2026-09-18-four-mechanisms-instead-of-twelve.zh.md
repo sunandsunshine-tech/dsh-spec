@@ -39,7 +39,7 @@ Status: implemented
 | 被移除的技能 | 原因 |
 |---|---|
 | `dsh-doc` | 它的主题**就是**本次决策要删除的文档机制；分层表、预算策略以及 `verify-doc-*`、`verify-readme-shape` 门禁随它一起离开，而 `verify-md-links`、`verify-md-link-syntax` 存留在 `dsh-prose-standard`。**维护者基于这一理由确认了删除：一个主题就是被删机制本身的技能，已无物可拥有。** |
-| `dsh-ci-test-reliability` | 它的参数来自 `test-lanes` 键，而该键记录的是 `none`：本仓库没有 CI、没有构建步骤、也没有测试运行器，因此这个技能在这里不描述任何工作 |
+| `dsh-ci-test-reliability` | 它的参数来自 `test-lanes` 键，而该键记录的是 `none`：本仓库当时没有 CI、没有构建步骤、也没有测试运行器，因此这个技能在这里不描述任何工作 |
 | `dsh-speed-up-perf` | `perf-baseline` 键记录这里没有任何被测量的东西：交付物是按需运行的 Markdown 和无依赖 TypeScript |
 | `dsh-merging-stacked-prs` | 堆叠拉取请求是宿主平台的能力，不是仓库纪律，该能力已由 `gh` 技能承接 |
 

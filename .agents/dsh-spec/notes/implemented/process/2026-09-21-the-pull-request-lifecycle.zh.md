@@ -14,19 +14,23 @@ Status: implemented
 
 ## Decision
 
-一个 PR 按顺序走过五个阶段——WIP、开发、收尾、评审与合并前收尾、合并——每个阶段有一条规则。
+一个 PR 按顺序走过五个阶段——WIP、开发、收尾、评审与合并准备、合并——每个阶段有一条规则。有两个动作落在它身上，而这两个动作并不相同：实现者在它还是草稿时验收，仓库维护者则等实现者把它标为待评审之后才评审。草稿是实现者的工作态，维护者只在它待评审之后才读它。验收与评审是两个不同的动作，不能互相代替；两者都可能把改动退回、要求调整，于是分支要整理三次——验收之前、标为待评审之前、合并之前各一次。agent 为驾驶员实现：只有驾驶员授权，它才验收结果、才把 PR 标为待评审。
 
 **WIP 期是自由的，标题要写明。** 在做的工作是草稿 PR，**并且**标题带 `WIP:` 前缀：草稿是机制，前缀让扫列表的人一眼看到（[kubernetes/community：pull-requests.md](https://github.com/kubernetes/community/blob/main/contributors/guide/pull-requests.md)会往标题加上或去掉 `WIP` 或 `[WIP]` 前缀；[GitLab 的 draft merge requests](https://docs.gitlab.com/user/project/merge_requests/drafts/)只认前缀，而且必须在标题开头）。wrap-up 时这个前缀要删掉，因为标题会变成 squash 提交的 subject。这个阶段的提交就是工作态：rebase、改写、丢弃、强推分支。还没有任何东西依赖它们的形式。
 
-**开发在收尾结束。** 进入评审之前，分支被交互式rebase 成里程碑——一个连贯的工作单元一个提交，顺序让评审者能读下去——并且留下的每个提交都是自己就能构建、能通过检查的状态，于是没有评审者会落到一个坏掉的中间态上。
+**开发在收尾结束，而收尾就是实现者完成的交接。** 分支被交互式 rebase 成里程碑——一个连贯的工作单元一个提交，顺序让评审者能读下去——并且留下的每个提交都是自己就能构建、能通过检查的状态，于是没有评审者会落到一个坏掉的中间态上。这就是验收前的那次整理；随后实现者验收这次改动，把验收提出的调整折回里程碑，并在这次交接获得授权之后，去掉 `WIP:` 前缀、把 PR 标为待评审：这个动作就是对维护者评审的请求。
 
-**评审只追加。** PR 一旦进入待评审，收到的就是 fixup：新提交叠在上面，绝不重写历史——「Make the fixups, and don't squash yet… your reviewer can look at the new commit on its own」（[kubernetes/community：pull-requests.md](https://github.com/kubernetes/community/blob/main/contributors/guide/pull-requests.md)）。评审者读的是上一轮之后的增量，而在他们脚下重写，会毁掉他们唯一能用来比较的东西。只有基线前进时才rebase，以保持可合并。
+**维护者的评审只追加。** PR 一旦进入待评审，收到的就是 fixup：新提交叠在上面，绝不重写历史——「Make the fixups, and don't squash yet… your reviewer can look at the new commit on its own」（[kubernetes/community：pull-requests.md](https://github.com/kubernetes/community/blob/main/contributors/guide/pull-requests.md)）。评审者读的是上一轮之后的增量，而在他们脚下重写，会毁掉他们唯一能用来比较的东西。评审要求改动时，就用这些追加的 fixup 来回应；只有基线前进时才 rebase，以保持可合并。
 
-**合并前收尾在评审之后。** 「After a review, prepare your PR for merging by squashing your commits. All commits left on your branch after a review should represent meaningful milestones or units of work」（[kubernetes/community：github-workflow.md](https://github.com/kubernetes/community/blob/main/contributors/guide/github-workflow.md)）。在这里，这次 squash 由rebase 完成：每个 fixup、错字修正、与基线的合并都被压进它所属的那个里程碑，于是留下的每个提交只代表一个里程碑或一个工作单元，别无其它。结果仍然是一个每个提交都是完整状态的分支。
+**合并准备是第三次整理，发生在评审之后。** 「After a review, prepare your PR for merging by squashing your commits. All commits left on your branch after a review should represent meaningful milestones or units of work」（[kubernetes/community：github-workflow.md](https://github.com/kubernetes/community/blob/main/contributors/guide/github-workflow.md)）。在这里，这次 squash 由 rebase 完成：每个 fixup、错字修正、与基线的合并都被压进它所属的那个里程碑，于是留下的每个提交只代表一个里程碑或一个工作单元，别无其它。结果仍然是一个每个提交都是完整状态的分支。
 
-**提交信息用 Conventional Commits。** `type(scope): 一句话`：一个类型、一个可选范围、一个标题，以及一段说清改了什么、为什么的正文。**标题命名的是这次改动**:一条规则、一条指令、一个问题,都是写给某个读者的,而这一行是给不在场的人读的。标题行不超过 70 个字符。参与改动的机器只写在 `Assisted-by:` 尾注里；信息本身只讲这个改动。
+**每一次交接都是一个需要授权的动作。** 标为待评审、合并和发布，各自都需要针对那次动作的授权；合并与发布保留给仓库维护者，而标为待评审是实现者自己的动作，agent 只有得到实现者授权才做。一次授权要指明什么、以及为什么对另一个改动的批准不构成授权，由[授权规则](2026-09-23-merging-and-publishing-need-authorization.zh.md)拥有。
 
-**PR 描述分四节。** `## What this PR does`、`## Why`、`## How`、`## Reviewer notes`;门禁在每个 pull request 上跑,那次运行就是验证,不再由某一节复述。上游要的是 `Motivation`、`Changes`、`Testing`;这四节是本仓库自己的做法,写在这里,因为 `pr.description` 那条规范引用的就是它们。
+**提交信息用 Conventional Commits。** `type(scope): 一句话`：一个类型、一个可选范围、一个标题，以及一段说清改了什么、为什么的正文。标题命名的是这次改动:一条规则、一条指令、一个问题,都是写给某个读者的,而这一行是给不在场的人读的。标题行不超过 70 个字符。参与改动的机器只写在 `Assisted-by:` 尾注里；信息本身只讲这个改动。
+
+**PR 描述分四节。** `## What this PR does`、`## Why`、`## How`、`## Reviewer notes`；门禁在每个 pull request 上跑，那次运行就是验证，不再由某一节复述。上游要的是 `Motivation`、`Changes`、`Testing`；这四节是本仓库自己的做法，写在这里，因为 `pr.description` 那条规范引用的就是它们。
+
+**每个事实各占一节，里程碑由提交记录承载。** `## What this PR does` 写合并之后读者拿到的行为，`## Why` 写问题与决定，`## How` 写机制与值得权衡的选择，`## Reviewer notes` 写评审者必须掂量的不确定；`## How` 不重复提交已经承载的里程碑。图是可选的：哪里图比散文更能讲清机制，就在 `## What this PR does` 里加一张；保持小、用 ASCII，让它补足那段散文，而不是重复它。
 
 **其中每一句话,只有当评审者能据此行动、或据此被提醒时,才留。** 哪些工具参与过、成形之前试过什么、这条分支怎么走到这里,两者都不是。三个例外自带分量:改动本身讲的就是这些;评审者需要这条提醒——重复的 PR、移动过的 base;或者这份不确定正是评审者合并前必须掂量的。
 
@@ -44,7 +48,7 @@ Status: implemented
 
 **GitHub 三种合并全开，让作者自己挑。** 这是默认做法，政策最少。它落选是因为分支的含义从此取决于按了哪个按钮：合并提交让 `fix typo` 成为历史里永久的一行，而 rebase 合并「Always updates the committer information and creates new commit SHAs」（[GitHub 的合并参考](https://docs.github.com/en/pull-requests/reference/pull-request-merges)），于是从这样一条分支打的发布 tag会指向一个发布线上并不存在的提交。发布能依赖的版本只有一个：每一个 PR 用同一种合并。
 
-**用 `gh stack` 管理并行分支。** 它跟踪一串改动，让每一层始终rebase 在下一层之上；对一个分层改动来说，这确实比手工做得好。它落选是因为堆叠和它的规则一样窄：只有当一个改动叠在另一个改动上时才需要它。彼此独立的改动不需要它——一条规则可以没有笔记就落地，一条笔记也可以没有规则就落地——所以普通分支加 fixup 加一次 squash 就是全部机制。
+**用 `gh stack` 管理并行分支。** 它跟踪一串改动，让每一层始终 rebase 在下一层之上；对一个分层改动来说，这确实比手工做得好。它落选是因为堆叠和它的规则一样窄：只有当一个改动叠在另一个改动上时才需要它。彼此独立的改动不需要它——一条规则可以没有笔记就落地，一条笔记也可以没有规则就落地——所以普通分支加 fixup 加一次 squash 就是全部机制。
 
 **去掉评审门禁，检查全绿就合并。** 这里的每一道门禁都能在本地跑，所以一次全绿本来就已经是合并想要的证据，而只有一个维护者时，他可以立刻合掉自己的改动。它落选是因为检查证明的是「有人跑过它们」，不是「这个改动该落地」：它们说不出一个决定是否正确、一份文档是否说了它想说的、一个主题是否属于本仓库。那些判断都是维护者的，而一个把发布决定留给维护者的仓库，没有理由让普通改动绕过同一个人。
 
