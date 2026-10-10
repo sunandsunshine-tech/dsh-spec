@@ -798,7 +798,7 @@ function uninstall(root: string, manifest: Manifest, dryRun: boolean): void {
   }
   // The layer and the manifest live inside the manager skill's own directory, so removing that
   // directory removes them; nothing outside it was ever written. What is left is the project's own,
-  // and an uninstall that took it would delete decisions and standing orders the project made.
+  // and an uninstall that took it would delete decisions, plans and standing orders the project made.
   console.log('  left in place — delete these yourself if the project is leaving the pattern:')
   for (const path of ['AGENTS.md (its dsh-spec:agent-notes and dsh-spec:plans blocks)', '.agents/dsh-spec/notes/', '.agents/dsh-spec/plans/', 'docs/', '.rgignore']) {
     console.log(`    ${path}`)

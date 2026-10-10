@@ -103,13 +103,13 @@ const COMMAND_HELP: readonly CommandHelp[] = [
     flags: [['--dry-run', 'Print the plan and write nothing', '只打印计划,不写任何东西']],
     en: {
       summary: 'Remove the installed skills',
-      detail: "Lists what it leaves behind — the marked block in `AGENTS.md`, the notes tree, `docs/` and `.rgignore` — because those are the project's own.",
+      detail: "Lists what it leaves behind — the marked blocks in `AGENTS.md`, the notes tree, the plan tree, `docs/` and `.rgignore` — because those are the project's own.",
       comment: 'See what removal would leave in place',
       example: 'uninstall --dry-run --root .',
     },
     zh: {
       summary: '删除已安装的技能',
-      detail: '并列出它留下的东西——`AGENTS.md` 的标记块、笔记树、`docs/` 与 `.rgignore`——因为那些属于项目自己。',
+      detail: '并列出它留下的东西——`AGENTS.md` 的标记块、笔记树、计划树、`docs/` 与 `.rgignore`——因为那些属于项目自己。',
       comment: '先看卸载会留下什么',
       example: 'uninstall --dry-run --root .',
     },

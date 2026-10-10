@@ -4,25 +4,25 @@
 #   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/plans/README.md
 /delivery-plans:
   en: f3a2de62b4407ff9
-  zh: 109e9894aad07e6d
+  zh: 67a0b56d6130fbf8
 /delivery-plans/files:
   en: 462ceb09ba700ec2
-  zh: 72651e85cc91176d
+  zh: 128c069a0ab7fd30
 /delivery-plans/state-is-read-never-written:
   en: a1fc79cdafbf8f0f
-  zh: 8b8d2dd989369956
+  zh: 0fca857af2ab1bb1
 /delivery-plans/what-a-plan-carries:
   en: 48e041ae212b3801
-  zh: 77303248c45f55d1
+  zh: 1dcbc627f90267ef
 /delivery-plans/dependencies:
   en: 285e0c4eff2f2889
-  zh: 0dac648580d2076c
+  zh: 620777c3d2340fa8
 /delivery-plans/a-plan-takes-effect-only-when-the-user-starts-it:
   en: d1ef1451dc2e79c6
-  zh: 6aa81c0140027d52
+  zh: 40fbedf7f56df8a9
 /delivery-plans/starting-and-finishing:
   en: da84b108116c78c1
-  zh: 45a9549801cb515d
+  zh: f15126e1c5d7dd3e
 /delivery-plans/gates:
   en: f0ccefacf115de8b
   zh: b9cd8ef7d4e461bd

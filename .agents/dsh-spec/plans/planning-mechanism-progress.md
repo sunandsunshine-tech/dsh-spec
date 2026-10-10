@@ -27,7 +27,21 @@
 5. A-3 实施中：泛化 `mergeManaged` 的钩子清单、新增 `plansSection()`、managedFiles 两条、创建半程两件、inventory 一节、manager-install / manager-lifecycle / manager.ts 的枚举面、根 AGENTS.md 文档表一行、6 个新用例。
 6. A-3 完成（150/150，唯一红＝安装副本门禁，待刷新）。Lead 提交 `0f3db33`，`gh stack sync` 推 B 并把 C、D 级联 rebase 到新 B；`upgrade --revision feat/plans-surface --root .` 刷新安装副本并注入 plans 钩子，提交 `6e9c819` 再推；此后 `node --test 'tests/**/*.test.ts'` 151/151，`verify-installed-copy`、`verify-port-provenance`、`check --all` 全绿。
 7. A-5 黑箱评审（reviewer-1）：**REJECT**，两条阻断——B1 提交版 `6e9c819` 的文件扫描红（工作副本把 P1 草稿里的链接当成了自己的相对链接），B2 note 的验收判据仍写"采用建三件"（P3 之前的旧措辞）。Lead 提交 B1 修复 `63e4075`；worker-2 修 B2（两侧改两件 + 重录 sidecar）。待复审。
-8. 待办：A-5 复审 PASS → A-6 文本终检 → A-7 全量门禁 + PR 转 ready。
+8. A-5 第二轮：reviewer-1 **PASS**（`43d0078`；B1/B2 复验通过，提交线性无 merge，Objective 1–8 全过）。
+9. A-6 文本终检（texter-1）：15 条修正，全部文本；其中 F13 是真遗漏——`help.ts` 的 uninstall 说明与它生成的 `cli.md` 仍在列举旧的 left-in-place 集合，delivery 自己的 P5 只修了 `manager.ts` 与两句 prose。模板与树内文本、help 与 cli.md 的一致性由 Lead 复核通过。
+10. A-6 复审（reviewer-1，独立复核文本终检之后的 `2000bc76`）：**PASS**。151/151、副本 10/10、出处 16/16、`check --all`、全 corpus md-links 152 文件、52 对配对、`check --base main` 全绿；三个模板与树内文本逐字一致、`--help en --markdown` 与 authored/installed 的 `cli.md` 逐字一致；`43d0078..HEAD` 的正文改动只有 9 个文本文件（+55/−55），两个 `.ts` 只改了字符串常量与一条注释，`tests/` 零改动。
+11. A-7 收尾（Lead）：提交工作副本结论 `1e8924a`，`gh stack sync` 推 B（并把 C、D 级联 rebase 到新 B），PR [#65](https://github.com/sunandsunshine-tech/dsh-spec/pull/65) 去掉标题 `WIP: ` 前缀、由 draft 转 ready、四节描述重写。合并准备期的收口按用户指令留待授权。
+
+## A-6 文本终检结果
+
+texter-1 在 `43d0078` 上做了纯文本的 15 条修正（9 个文件，+55/−55）：新 note 中文侧的全角标点与新标点风格（`translation-rules` 的 MUST）、note 中文的四条直译/生硬、`plans/README.zh.md` 的一条强调跨侧不一致与七条自然度/情态/保真问题（同步到它的模板）、以及 F13/F14/F15 三条陈旧或含混的落装面文字：
+
+- **F13（真遗漏）**：`skills/dsh-spec-manager/scripts/help.ts` 的 uninstall 说明（en+zh）与它生成的 `references/cli.md` 仍写"`AGENTS.md` 的标记块、笔记树、`docs/` 与 `.rgignore`"，漏了计划树与第二对标记。与 P5 同属"封闭集合增员"的义务，A-3 漏在了这两个面。修正后 `cli.md` 由 `--help en --markdown` 重生成，`tests/help.test.ts` 的漂移守卫绿。
+- F14：`manager.ts:801` 注释补 "plans"；F15：`manager-install.md:48` 的 "removed one" 改为 "removed either"。
+
+刻意保留并上报：根 `README.zh.md` 全文件沿用半角标点（本次未引入，单独改动才有意义）；计划与工作副本里的计划代号（A-1…A-6、P1–P6、B1/B2、§N）属工作副本体裁，且合并准备期删除；全仓破折号间距不统一；`manager-install.md:33` 的既有语法缺陷（本交付未触及）。
+
+`AGENTS.md:73`"norms 钩子在本文件末尾"的那句，texter-1 与我判断一致：一句删掉"at the end of"即可；因计划 Constraints 限定根 `AGENTS.md` 只由钩子与文档表承接，仍留给用户定夺。
 
 ## A-5 评审结果与处置
 
@@ -59,4 +73,12 @@ A-3 实施时 worker-1 park 了五项（P1–P5），另有 A-4 一条卡片命�
 
 ## 结论
 
-（待交付收尾时填写。）
+这次交付在 `2000bc76` 上达到**可评审**状态，全部卡片（A-1…A-6）完成，评审两轮通过（A-5 一轮 REJECT 后修复，A-6 复审一轮 PASS）。
+
+落地的：计划面契约与 orders（树内文本 + 三个落装模板，逐字一致）、根 `AGENTS.md` 的机械维护钩子、`mergeManaged` 的钩子清单泛化、`managedFiles()` 两条、采用时创建两件并注入钩子、落装面各处枚举（`manager-install.md`、`manager-lifecycle.md`、`manager.ts`、`help.ts` 与它生成的 `cli.md`）的同步、`dsh-agent-team-workflow` 的规范重整（语义不变）、一条 `proposed/` 决策 note。
+
+真实门禁输出（`2000bc76`）：`node --test 'tests/**/*.test.ts'` 151/151；`verify-installed-copy` 10 skill(s) equal；`verify-port-provenance` 16 ported file(s) @ 639ed015；`verify-skill-structure`（manager 51 资源 / workflow 1 资源）；`check --all`（47 notes + 9 archived）；全 corpus in-scope `md-links` 152 文件；corpus-wide `translation-pair` 52 对；`check --base main`。
+
+**留给合并准备期（需用户授权）**：删除本计划与工作副本；把决策 note 从 `proposed/` 转 `implemented/`；PR 四节描述里的未决项见下。
+
+**未决、已上报用户**：(1) `plansSection()` 钩子措辞由团队起草、计划只定形制；(2) 根 `AGENTS.md` 里"norms 钩子在本文件末尾"不再字面为真，而计划 Constraints 限定该文件只由钩子与文档表承接；(3) 依赖门按 stack 的读法在本层 worktree 里跑，与计划"main 上的事实"的措辞不同。

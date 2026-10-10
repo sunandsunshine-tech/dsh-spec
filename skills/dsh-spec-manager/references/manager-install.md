@@ -45,7 +45,7 @@ The notes tree is created with the rest, and there is no switch that skips it. A
 | `--sync` | Only bring the files whose text the collection owns up to the installed revision: the notes contract and its three `AGENTS.md` files, the delivery-plan contract and its `AGENTS.md`, `docs/AGENTS.md`, `.rgignore`, and the marked blocks inside the root `AGENTS.md` |
 | `--dir <path>` | Where the skills were installed, when it is not `.agents/skills`; the managed text names the engine directory that follows from it |
 
-Nothing outside the managed list is read or written, and a file the initializer did not create is never overwritten. The notes files are synced only where the notes tree exists, and the plan files only where the plan tree exists, so a project that removed one is not given it back by a refresh. Adoption writes each contract's English side only: the Chinese counterpart ships as a template, and a project that adds the other side declares the pair.
+Nothing outside the managed list is read or written, and a file the initializer did not create is never overwritten. The notes files are synced only where the notes tree exists, and the plan files only where the plan tree exists, so a project that removed either is not given it back by a refresh. Adoption writes each contract's English side only: the Chinese counterpart ships as a template, and a project that adds the other side declares the pair.
 
 ## Boundaries
 

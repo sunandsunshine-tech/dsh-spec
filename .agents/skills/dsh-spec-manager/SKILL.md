@@ -2,9 +2,9 @@
 description: 'Use when adopting the dsh development pattern in a project, or when an adopted project changes its skill set: initialize the root AGENTS.md and the Agent Note tree; install, update or remove the skill set at the ref the manager itself was installed from; read each installed ref from its metadata; choose the norms the project applies, and list, explain or update them; or run the checks the project owes. It owns project setup and the skill set, and reports what it could not determine.'
 metadata:
     github-path: skills/dsh-spec-manager
-    github-ref: refs/heads/tmp/fold-m3
+    github-ref: refs/heads/tmp/fold-m4
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: 8c93474e738f543db91cfe26f78eafe0be596044
+    github-tree-sha: d05cb5a5805cb77b1cd1b40d90865c14cca55dd9
 name: dsh-spec-manager
 ---
 # Managing an adopted project
