@@ -1,22 +1,19 @@
 # Bilingual-pair consistency record for 2026-10-10-a-delivery-records-a-plan-and-a-working-copy.md (references/i18n-contract.md): per heading
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
-#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/proposed/process/2026-10-10-a-delivery-records-a-plan-and-a-working-copy.md
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-10-10-a-delivery-records-a-plan-and-a-working-copy.md
 /agent-note-a-delivery-records-a-plan-and-a-working-copy:
-  en: 14ec66f42742ba73
-  zh: 8d0edd9bbb35434f
+  en: 8b64ffc44e619618
+  zh: 8c08fe7a3e07cc67
 /agent-note-a-delivery-records-a-plan-and-a-working-copy/problem:
   en: ec3a26bf0564541c
   zh: 44fb1c0d22cee34e
-/agent-note-a-delivery-records-a-plan-and-a-working-copy/proposal:
-  en: 729233eee43c1b35
-  zh: ea455a553bce151b
+/agent-note-a-delivery-records-a-plan-and-a-working-copy/decision:
+  en: 47f534004b1caad9
+  zh: 383bb7770553623e
 /agent-note-a-delivery-records-a-plan-and-a-working-copy/alternatives-considered:
   en: b27e8be32fd30a15
   zh: 10e91009997735d1
-/agent-note-a-delivery-records-a-plan-and-a-working-copy/acceptance-criteria:
-  en: cfd1bb6cf6b3460d
-  zh: f3214b6094f4ed82
-/agent-note-a-delivery-records-a-plan-and-a-working-copy/risks:
-  en: 9e5b9b9896f87fa3
-  zh: 06f826a7ef07140e
+/agent-note-a-delivery-records-a-plan-and-a-working-copy/consequences:
+  en: 7c597e5b52721440
+  zh: fa232454d41c0a60
