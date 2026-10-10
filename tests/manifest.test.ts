@@ -14,7 +14,7 @@ import { test } from 'node:test'
 import { runEntry } from './helpers/cli.ts'
 import { REPO_ROOT, makeFixture } from './helpers/fixtures.ts'
 import type { Fixture } from './helpers/fixtures.ts'
-import { readManifestRecord, requiredSkills } from '../skills/dsh-spec-manager/scripts/manager.ts'
+import { readManifestRecord, requiredSkills } from '../skills/dsh-spec-manager/scripts/manifest.ts'
 
 /** The skills a manifest case names, one of which is optional. */
 const SKILLS = ['dsh-spec-manager', 'dsh-code-review', 'dsh-agent-team-workflow']

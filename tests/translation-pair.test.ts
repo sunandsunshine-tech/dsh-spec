@@ -27,6 +27,21 @@ test('a recorded, consistent pair passes', (t) => {
   assert.equal(checked.status, 0, checked.output)
 })
 
+test('a path list a file supplies reaches the pairing check', (t) => {
+  const fixture = makeFixture()
+  t.after(() => fixture.dispose())
+  writePair(fixture, 'docs/guide.md')
+  fixture.commit('add the pair')
+
+  const written = runCli(fixture.root, ['translation-pair', 'write', 'docs/guide.md'])
+  assert.equal(written.status, 0, written.output)
+  fixture.write('pairs.txt', 'docs/guide.md\ndocs/guide.zh.md\n')
+
+  const checked = runCli(fixture.root, ['translation-pair', 'check', '--files-from', 'pairs.txt'])
+
+  assert.equal(checked.status, 0, checked.output)
+})
+
 test('a record naming the other entry-point copy is still canonical', (t) => {
   const fixture = makeFixture()
   t.after(() => fixture.dispose())

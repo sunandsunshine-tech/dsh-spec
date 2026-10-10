@@ -21,6 +21,7 @@
 
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { exitsOf } from './cli-args.ts'
 
 /** The grammar a recorded gate name must match, because the name becomes a file beside the dispatcher. */
 export const GATE_NAME = /^verify-[a-z0-9]+(?:-[a-z0-9]+)*$/
@@ -176,3 +177,113 @@ export function readGateScopes(scriptDir: string): GateScopeReading {
   }
   return { ok: true, scopes: reading }
 }
+
+// ------------------------------------------------------------------ the skill set
+
+/** The exits this reading's failure prints under. */
+const { fail } = exitsOf('dsh-spec-manager')
+
+/** The grammar a skill name must match before it becomes a path. */
+export const SKILL_NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+
+/** The manifest this script reads and never writes. */
+export interface Manifest {
+  repo: string
+  /** Every skill the collection ships; a project installs the ones `optional` does not name. */
+  skills: string[]
+  /** The skills a project may leave out — a subset of `skills`, derived from nothing else. */
+  optional: string[]
+}
+
+/** What one reading of the manifest produced: the record, or why it is not one. */
+export type ManifestReading =
+  | { ok: true, manifest: Manifest }
+  | { ok: false, error: string }
+
+/**
+ * Read and validate the manifest, as a value rather than an exit.
+ *
+ * The manager's verbs stop on a malformed record, and the decision to stop is the caller's: keeping
+ * the reading separate is what lets each way a manifest can fail be observed as the message that
+ * names it. `optional` is validated as a subset of `skills` rather than trusted — a name that is not
+ * shipped cannot be left out, and a typo would make a required skill look optional — and the field
+ * is additive, so a manifest written before it existed names nothing optional and installs
+ * everything.
+ *
+ * @param path - the manifest to read; this copy's by default.
+ * @returns the repo, every skill name, and the optional subset.
+ */
+export function readManifestRecord(path: string = manifestPathOf(import.meta.dirname)): ManifestReading {
+  if (!existsSync(path)) {
+    return { ok: false, error: `no manifest at ${path} — the skill is incomplete, so it cannot say what to install` }
+  }
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(readFileSync(path, 'utf8'))
+  } catch (error) {
+    return { ok: false, error: `${path} is not readable JSON: ${(error as Error).message}` }
+  }
+  const candidate = parsed as { repo?: unknown, skills?: unknown, optional?: unknown }
+  const repo = candidate.repo
+  if (typeof repo !== 'string' || repo === '') return { ok: false, error: `${path} names no \`repo\`` }
+  if (!Array.isArray(candidate.skills) || candidate.skills.length === 0) {
+    return { ok: false, error: `${path} names no skills — an empty manifest would install nothing and report success` }
+  }
+  const skills: string[] = []
+  for (const entry of candidate.skills) {
+    if (typeof entry !== 'string' || entry === '') return { ok: false, error: `${path} has a skill entry with no name` }
+    if (!SKILL_NAME.test(entry)) {
+      return { ok: false, error: `${path} names the skill \`${entry}\`, which is not a skill name — a name becomes a path under the skills directory, so only ${SKILL_NAME} is accepted` }
+    }
+    skills.push(entry)
+  }
+  const optional: string[] = []
+  if (candidate.optional !== undefined) {
+    if (!Array.isArray(candidate.optional)) {
+      return { ok: false, error: `${path} carries an \`optional\` that is not a list — it names the skills a project may leave out, so it is an array of skill names` }
+    }
+    for (const entry of candidate.optional) {
+      if (typeof entry !== 'string' || entry === '') return { ok: false, error: `${path} has an \`optional\` entry with no name` }
+      if (!SKILL_NAME.test(entry)) {
+        return { ok: false, error: `${path} names the optional skill \`${entry}\`, which is not a skill name — a name becomes a path under the skills directory, so only ${SKILL_NAME} is accepted` }
+      }
+      if (optional.includes(entry)) return { ok: false, error: `${path} names the optional skill \`${entry}\` twice` }
+      if (!skills.includes(entry)) {
+        return { ok: false, error: `${path} names \`${entry}\` optional but \`skills\` does not — \`optional\` is a subset of the skills the collection ships, and nothing else can be left out` }
+      }
+      optional.push(entry)
+    }
+  }
+  return { ok: true, manifest: { repo, skills, optional } }
+}
+
+/**
+ * The skills a project installs unless it leaves one out: `skills` minus `optional`.
+ *
+ * Derived rather than recorded a second time, so the two lists cannot disagree: a skill is required
+ * exactly when the manifest does not name it optional, and an older manifest that names none
+ * optional requires all of them.
+ *
+ * @param manifest - the manifest as read.
+ * @returns the required skill names, in manifest order.
+ */
+export function requiredSkills(manifest: Manifest): string[] {
+  return manifest.skills.filter((skill) => !manifest.optional.includes(skill))
+}
+
+/**
+ * Read and validate a manifest; a missing or empty one is a failure.
+ *
+ * The default is this copy's own manifest, which is the one a verb installs from. An upgrade that
+ * replaces the manager passes the replacement's path instead: from then on the replacement is the
+ * copy in the project, so it is the one whose skill list the install owes.
+ *
+ * @param path - the manifest to read; this copy's by default.
+ * @returns the repo, every skill name, and the optional subset.
+ */
+export function readManifest(path: string = manifestPathOf(import.meta.dirname)): Manifest {
+  const reading = readManifestRecord(path)
+  if (!reading.ok) fail(reading.error)
+  return reading.manifest
+}
+
