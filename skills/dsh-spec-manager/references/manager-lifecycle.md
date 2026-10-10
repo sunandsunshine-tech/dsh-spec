@@ -85,7 +85,7 @@ The entry point resolves a gate name against the manifest's `gates` record, and 
 - `scripts/init-agents-md.ts` — the initializer `install` runs: the inventory it prints, what it creates, and what it never overwrites. `scripts/init/` holds the tree plans, the marked blocks, the merge rules and the sync. [`manager-install.md`](manager-install.md) is its subject.
 - `scripts/cli-args.ts`, `scripts/plan-surface.ts`, `scripts/dispatch/` and `scripts/help/` — the argument parsing and exit conventions each entry binds, the delivery-plan surface's constants, the dispatcher's scope, pool and report helpers, and the command table with the three shapes it renders.
 - `references/manifest.json` — the authority described above: the skills, which of them are optional, the gates, and each gate's scope. It names no revision.
-- `scripts/manifest.ts` — reads that file: its path, the recorded gate names with their grammar, and the per-gate scope record.
+- `scripts/manifest.ts` — reads that file: its path, the skill list with its required/optional split, the recorded gate names with their grammar, and the per-gate scope record.
 - `scripts/gate-scope.ts` — the scope contract: the gate's own selection kind, the argument grammar, the dispatcher's expansion of a surface, and the ownership question `check --base` asks of every changed path.
 - `scripts/change-scope.ts` — the ported change report behind `check --base`.
 - `scripts/excluded-region.ts` — the marker pair a document uses to keep one region exactly as it stands, and the range selector both link gates pass as `excludedRange`; each gate that takes it prints the region it left unread, and an anchor inside the region stays a valid target. The frozen archive does the same for a whole file by path.
