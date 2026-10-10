@@ -11,7 +11,7 @@
 
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { parseScopeArgs } from '../gate-scope.ts'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import { tmpdir } from 'node:os'
 
 /** What one command was told to read. */
