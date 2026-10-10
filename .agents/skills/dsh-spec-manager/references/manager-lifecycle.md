@@ -81,8 +81,9 @@ The entry point resolves a gate name against the manifest's `gates` record, and 
 ## Files
 
 - `scripts/dsh-spec.ts` — the one entry point. It reconciles the recorded gate names against the scripts beside it, resolves a command and its verb, assembles each check's scope through the module that owns that surface, dispatches through a bounded pool, and reports one line per check.
-- `scripts/manager.ts` — the deployment: `install`, `upgrade`, `uninstall` and `status`, plus the target-ref resolution, the self-update and re-execution behind `upgrade`, the incremental copy and the prune. Zero external dependencies, run through `node`.
-- `scripts/init-agents-md.ts` — the initializer `install` runs: what it creates, what it never overwrites, and the managed text it syncs. [`manager-install.md`](manager-install.md) is its subject.
+- `scripts/manager.ts` — the manager's entry point: it reads the command line and hands each verb to its module, and `scripts/manager/` holds the deployment itself — `install` with the optional-skill questions, `upgrade` with the target-ref resolution and the self-update and re-execution behind it, `status`, `uninstall`, and the revision plan, incremental copy and prune a refresh uses. Zero external dependencies, run through `node`.
+- `scripts/init-agents-md.ts` — the initializer `install` runs: the inventory it prints, what it creates, and what it never overwrites. `scripts/init/` holds the tree plans, the marked blocks, the merge rules and the sync. [`manager-install.md`](manager-install.md) is its subject.
+- `scripts/cli-args.ts`, `scripts/plan-surface.ts`, `scripts/dispatch/` and `scripts/help/` — the argument parsing and exit conventions each entry binds, the delivery-plan surface's constants, the dispatcher's scope, pool and report helpers, and the command table with the three shapes it renders.
 - `references/manifest.json` — the authority described above: the skills, which of them are optional, the gates, and each gate's scope. It names no revision.
 - `scripts/manifest.ts` — reads that file: its path, the recorded gate names with their grammar, and the per-gate scope record.
 - `scripts/gate-scope.ts` — the scope contract: the gate's own selection kind, the argument grammar, the dispatcher's expansion of a surface, and the ownership question `check --base` asks of every changed path.

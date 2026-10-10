@@ -62,7 +62,6 @@ const root = resolveRepoRoot()
 
 const argv = process.argv.slice(2)
 
-/** The verbs that act on the skill set rather than reading the project. */
 /** Exit 2 with the shape of the command line. */
 function usage(message?: string): never {
   if (message !== undefined) console.error(`dsh-spec: ${message}`)
@@ -140,8 +139,6 @@ const width = dispatchWidth(jobsFlag.values.at(-1), usage)
 
 /** The arguments after the command, with the two global flags taken out. */
 const args = jobsFlag.rest
-
-// ------------------------------------------------------------------ the scope
 
 // ------------------------------------------------------------------ the records
 
