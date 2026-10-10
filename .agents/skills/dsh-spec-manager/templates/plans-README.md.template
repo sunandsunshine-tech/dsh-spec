@@ -46,7 +46,7 @@ The plan is reviewed with the user and agreed; until the user's own signal arriv
 ## Starting and finishing
 
 - **Start** — on the user's own signal, which authorizes the work. Create the delivery's worktree outside the repository root, re-read the plan against current main, run every precondition, and only then create the working copy and the cards.
-- **Finish** — the merge preparation that folds the branch deletes the plan and its working copy. Every decision the delivery settled goes into the notes tree in the same change; an item still undecided goes to the user, who either decides it there, asks for a `proposed/` note that carries it until it is discussed, or asks for a new plan. Neither file reaches main.
+- **Finish** — the tidy before the merge that folds the branch deletes the plan and its working copy. Every decision the delivery settled goes into the notes tree in the same change; an item still undecided goes to the user, who either decides it there, asks for a `proposed/` note that carries it until it is discussed, or asks for a new plan. Neither file reaches main.
 
 ## Gates
 

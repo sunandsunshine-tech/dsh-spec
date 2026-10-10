@@ -29,7 +29,7 @@
 - 不改 `submodules/dsh/`；不手改 `.agents/skills/`（只经刷新命令更新）。
 - 本仓库 `AGENTS.md` 只由钩子与文档表承接；不加兜底规则。
 - 技能不新增行为规则：触发与规则归计划面（钩子 + 契约），技能只是被任务触发、读取契约的团队工作流。
-- 计划与工作副本在合并准备期删除，两个文件都不进 main。
+- 计划与工作副本在合并前整理中删除，两个文件都不进 main。
 - `source` 提案、可选技能改造、manager 包整顿各自独立（四份记录互不包含）。
 - 依赖：无。本交付不需要等任何其他交付。
 
@@ -40,9 +40,9 @@
 | [Agent Skills Specification](https://agentskills.io/specification.md)、[Best practices](https://agentskills.io/skill-creation/best-practices.md) | 技能文本整理的规范依据 |
 | [Agent Skills Overview](https://agentskills.io/home.md) | 三阶段加载（Discovery / Activation / Execution）的表述 |
 | `.agents/dsh-spec/notes/README.md` | 提案与决策的格式、生命周期、双语三件套；同时是本机制"钩子 + 子树契约"的先例 |
-| `.agents/dsh-spec/plans/README.md`（契约）与 `plans/AGENTS.md`（orders） | 本交付要发布的两份文本本身 |
+| `.agents/dsh-spec/plans/README.md`（契约）与 `plans/AGENTS.md`（常驻指令） | 本交付要发布的两份文本本身 |
 | `skills/dsh-spec-manager/scripts/init-agents-md.ts` | `notesSection()`（生成钩子，:171-182）、`mergeManaged()` 的 `section` 分支把标记写死（:368-374）、`managedFiles()`（:302-318） |
-| [The pull-request lifecycle](../notes/implemented/process/2026-09-21-the-pull-request-lifecycle.md) | 五阶段、Conventional Commits、PR 四节、squash 合并、规则先落地 |
+| [The pull-request lifecycle](../notes/implemented/process/2026-09-21-the-pull-request-lifecycle.md) | 四个状态、Conventional Commits、PR 四节、squash 合并、规则先落地 |
 
 ## Design
 
@@ -50,10 +50,10 @@
 
 1. 规划在用户当前所在的会话里进行，不做任何规划专用设置。
 2. 计划随讨论写；需要跨会话或跨设备存活时**提交**它——它自己的一个小变更；若开工在即，它直接是交付分支的第一个提交。
-3. 状态由工作副本的有无读出：无 `<slug>-progress.md` = 未开始，有 = 进行中，合并准备期两者一起删 = 完成。
+3. 状态由工作副本的有无读出：无 `<slug>-progress.md` = 未开始，有 = 进行中，合并前整理两者一起删 = 完成。
 4. 依赖是计划 `## Constraints` 里的一行前置命令，判据是 main 上的事实，不绑 note、不读别处状态；被阻塞的交付静止等待，不轮询。
 5. 开工 = 用户的信号：建交付 worktree（仓库根之外）→ 按当时的 main 重读计划 → 跑前置命令 → 建工作副本与卡片。
-6. 合并准备期收口：删计划与工作副本、把谈定的决策落进 notes、仍未决的当场交用户决定。
+6. 合并前整理收口：删计划与工作副本、把谈定的决策落进 notes、仍未决的当场交用户决定。
 
 以上各条由 `.agents/dsh-spec/plans/README.md` 拥有；技能不复述它们。
 

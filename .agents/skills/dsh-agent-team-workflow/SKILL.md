@@ -4,7 +4,7 @@ metadata:
     github-path: skills/dsh-agent-team-workflow
     github-ref: refs/heads/feat/plans-surface
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: c67a248067e7b38bd9ffdf32d8553dd5ac4d2ac5
+    github-tree-sha: d2bd342c9a742edc104c09b0a7c1028b7b973ed1
 name: dsh-agent-team-workflow
 ---
 # Agent Team Workflow
@@ -78,4 +78,4 @@ When implementation raises a decision the card does not settle, the Worker stops
 
 ## 10. Acceptance
 
-The Lead accepts on the final tree, after the last write: that is the team's acceptance, and it does not stand for the implementer's. A parked decision, an open question, and an uncertainty go into the pull request's reviewer notes, so none of them leaves the record. The pull request stays a draft: the branch is folded into milestones before acceptance, the person driving the change — its implementer — accepts the result, whatever the acceptance asked for is folded back in, and the draft is marked ready once that handover is authorized. The agent does none of those steps on its own, and the ready mark is the request for the repository maintainer's review. Merging and publishing need authorization for that specific act.
+The Lead accepts on the final tree, after the last write: that is the team's acceptance, and it does not stand for the implementer's. A parked decision, an open question, and an uncertainty go into the pull request's reviewer notes, so none of them leaves the record. The pull request stays a draft: the branch is tidied before acceptance, before review and before the merge — folded into milestones, with the description kept current — the person driving the change — its implementer — accepts the result, whatever the acceptance asked for is folded back in, and the draft is marked ready once the handover to review is authorized. The agent does none of those acts on its own, and the ready mark is the request for the repository maintainer's review. The handover to review and the merge each need their own authorization, asked for and answered: the agent puts the act as a question and waits for the answer rather than inferring consent.

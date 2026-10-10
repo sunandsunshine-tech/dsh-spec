@@ -13,7 +13,7 @@
 1. **门的读法（本条适用 C、D；B 无依赖）**。计划 `## Constraints` 与 `plans/README.md` 说前置命令"读的是 main 上的一个事实"。本次按用户指令改为 **stack 的读法**：每层的门在**它自己的 worktree** 里跑，worktree 已坐在父层之上，父层完成后该门即通过；不轮询，失败即报阻塞并停。B 的 `## Constraints` 写明"依赖：无"，因此 B 无门可跑。
 2. **`Planned cards` 与 `Topology` 图不一致**。Topology 图把 `A-4` 标成评审、`A-5` 文本终检、`A-6` 收尾；`Planned cards` 表把 `A-4` 定为决策 note、`A-5` 定为黑箱评审。按更细的卡片表执行（A-4 = note，A-5 = 评审，A-6 = 文本终检），拓扑图视为该表的摘要。
 3. **Objective 7 的 note 路径笔误**。Objective 写作 `.agents/dsh-spec/plans/proposed/process/…`，而活动树是 `.agents/dsh-spec/notes/`；按卡片 A-4 的写域 `.agents/dsh-spec/notes/**` 执行。
-4. **note 生命周期**。计划写"随本交付转 `implemented/`"；用户指令把合并准备期的收口（计划删除、note 转 implemented）留到其授权之后，因此本层只创建 `proposed/` 三件套，不转状态。
+4. **note 生命周期**。计划写"随本交付转 `implemented/`"；用户指令把合并前整理的收口（计划删除、note 转 implemented）留到其授权之后，因此本层只创建 `proposed/` 三件套，不转状态。
 5. **收尾范围**。计划的 A-6 含"计划与工作副本收口"；本次只做到"可审查"：刷新安装副本、全量门禁、PR 去 WIP 转 ready、四节描述，计划与工作副本按用户指令保留。
 
 ## 实际顺序
@@ -30,8 +30,8 @@
 8. A-5 第二轮：reviewer-1 **PASS**（`43d0078`；B1/B2 复验通过，提交线性无 merge，Objective 1–8 全过）。
 9. A-6 文本终检（texter-1）：15 条修正，全部文本；其中 F13 是真遗漏——`help.ts` 的 uninstall 说明与它生成的 `cli.md` 仍在列举旧的 left-in-place 集合，delivery 自己的 P5 只修了 `manager.ts` 与两句 prose。模板与树内文本、help 与 cli.md 的一致性由 Lead 复核通过。
 10. A-6 复审（reviewer-1，独立复核文本终检之后的 `2000bc76`）：**PASS**。151/151、副本 10/10、出处 16/16、`check --all`、全 corpus md-links 152 文件、52 对配对、`check --base main` 全绿；三个模板与树内文本逐字一致、`--help en --markdown` 与 authored/installed 的 `cli.md` 逐字一致；`43d0078..HEAD` 的正文改动只有 9 个文本文件（+55/−55），两个 `.ts` 只改了字符串常量与一条注释，`tests/` 零改动。
-11. A-7 收尾（Lead）：提交工作副本结论 `1e8924a`，`gh stack sync` 推 B（并把 C、D 级联 rebase 到新 B），PR [#65](https://github.com/sunandsunshine-tech/dsh-spec/pull/65) 去掉标题 `WIP: ` 前缀、由 draft 转 ready、四节描述重写。合并准备期的收口按用户指令留待授权。
-12. **复核后、合并准备期之前：维护者改定了钩子的注入顺序**（见下节）。这不是计划里的"缺段追加"，而是维护者对评审后状态的一次裁定；计划文件未改。
+11. A-7 收尾（Lead）：提交工作副本结论 `1e8924a`，`gh stack sync` 推 B（并把 C、D 级联 rebase 到新 B），PR [#65](https://github.com/sunandsunshine-tech/dsh-spec/pull/65) 去掉标题 `WIP: ` 前缀、由 draft 转 ready、四节描述重写。合并前整理的收口按用户指令留待授权。
+12. **复核后、合并前整理之前：维护者改定了钩子的注入顺序**（见下节）。这不是计划里的"缺段追加"，而是维护者对评审后状态的一次裁定；计划文件未改。
 13. **#69 落地之后：维护者裁定把真实流程的"计划段"补进本层**（见下节）：计划只在用户开工时生效，那个信号就是**工作授权**，PR 段的上游指向它。本层的第四处改动，不属于原计划拓扑。
 14. **B rebase 到新 main**：`gh stack sync` 在把本层 rebase 到含 #69 的 main 时撞上安装副本的注入元数据冲突（10 个 `.agents/skills/**/SKILL.md`），按仓库自己的规则取一侧后用 `upgrade --revision feat/plans-surface` 重新生成整份副本（`dsh-agent-team-workflow` 的 §10 正文取回新 main 的版本、两个技能的 `github-tree-sha` 换成 rebase 后作者树）；`verify-installed-copy` 复绿，其余门禁全绿。
 
@@ -47,9 +47,9 @@
 
 ## 复核后的维护者裁定：计划段的"工作授权"（2026-10-10）
 
-**背景**：维护者给出真实流程——`计划规划 → 计划实现 -[工作授权]→ PR 草稿工作 → 验收前整理 → PR 验收（可能有新调整）→ 待审前整理 -[转审授权]→ PR 审核 → 合并前整理 -[合并授权]→ PR 合并`。PR 段由 #69 承载（已合并，main `0b136ea`）；#69 明确不写计划段，留给本层。
+**背景**：维护者给出真实流程（**下引为当时给出的措辞，保持原样**）——`计划规划 → 计划实现 -[工作授权]→ PR 草稿工作 → 验收前整理 → PR 验收（可能有新调整）→ 待审前整理 -[转审授权]→ PR 审核 → 合并前整理 -[合并授权]→ PR 合并`。PR 段由 #69 承载（已合并，main `0b136ea`）；#69 明确不写计划段，留给本层。
 
-**维护者裁定**：计划段的"开工"就是**工作授权**——计划只在用户开工时生效，那个信号授权的是**工作**（分支、团队、卡片从它开始），而此后每一次把改动向前推进的动作（标为待评审、合并、发布）各有各的授权；并让 PR 段的上游指向计划段的开工。
+**维护者裁定**（**下引为当时给出的措辞，保持原样**）：计划段的"开工"就是**工作授权**——计划只在用户开工时生效，那个信号授权的是**工作**（分支、团队、卡片从它开始），而此后每一次把改动向前推进的动作（标为待评审、合并、发布）各有各的授权；并让 PR 段的上游指向计划段的开工。
 
 **实现**（三处，都是文本）：
 - `plans/README.md` 的 `## A plan takes effect only when the user starts it` 末尾补一句：那个信号是工作的授权，分支/团队/卡片由它开始，此后每一次把改动向前推进的动作各自授权，规范 id 引 `pr.lifecycle` 并为没引入的项目留代替描述；`## Starting and finishing` 的 Start 条目改成"on the user's own signal, which authorizes the work"。
@@ -93,7 +93,7 @@ texter-1 在 `43d0078` 上做了纯文本的 15 条修正（9 个文件，+55/�
 - **F13（真遗漏）**：`skills/dsh-spec-manager/scripts/help.ts` 的 uninstall 说明（en+zh）与它生成的 `references/cli.md` 仍写"`AGENTS.md` 的标记块、笔记树、`docs/` 与 `.rgignore`"，漏了计划树与第二对标记。与 P5 同属"封闭集合增员"的义务，A-3 漏在了这两个面。修正后 `cli.md` 由 `--help en --markdown` 重生成，`tests/help.test.ts` 的漂移守卫绿。
 - F14：`manager.ts:801` 注释补 "plans"；F15：`manager-install.md:48` 的 "removed one" 改为 "removed either"。
 
-刻意保留并上报：根 `README.zh.md` 全文件沿用半角标点（本次未引入，单独改动才有意义）；计划与工作副本里的计划代号（A-1…A-6、P1–P6、B1/B2、§N）属工作副本体裁，且合并准备期删除；全仓破折号间距不统一；`manager-install.md:33` 的既有语法缺陷（本交付未触及）。
+刻意保留并上报：根 `README.zh.md` 全文件沿用半角标点（本次未引入，单独改动才有意义）；计划与工作副本里的计划代号（A-1…A-6、P1–P6、B1/B2、§N）属工作副本体裁，且合并前整理删除；全仓破折号间距不统一；`manager-install.md:33` 的既有语法缺陷（本交付未触及）。
 
 `AGENTS.md:73`"norms 钩子在本文件末尾"的那句，texter-1 与我判断一致：一句删掉"at the end of"即可；因计划 Constraints 限定根 `AGENTS.md` 只由钩子与文档表承接，仍留给用户定夺。
 
@@ -112,6 +112,15 @@ reviewer-1 在 `6e9c819` 上原样重跑各卡验收，结论 REJECT，两条阻
 
 计划把"刷新安装副本"放在 A-6（文本终检之后），但 `node --test 'tests/**/*.test.ts'` 里的 `tests/installed-copy.test.ts` 会因 `skills/` 与 `.agents/skills/` 不一致而红，评审就没有绿的 suite 可跑。处理：A-3 收口后由 Lead 先提交 + `gh stack sync` 推分支 + `upgrade --revision feat/plans-surface` 刷新副本，再交 A-5；文本终检若再改 `skills/` 文本，A-7 再刷新一次并重跑全量门禁。`upgrade` 幂等。
 
+## 生命周期词表改写：五阶段 → 四个状态（2026-10-10）
+
+**判据变更**：`pr.lifecycle` 从"五阶段"改为**四个状态**（开发、验收、评审、合并），发布移出这条规范，整理与授权各自被重新界定。上面那两次裁定里维护者给出的流程措辞保持原样，只标注为当时给出的措辞，不据此改写。
+
+- **整理是一个操作，验收前、评审前、合并前各跑一遍**：折叠分支成里程碑、留下的每个提交自己可构建、PR 描述保持最新；两次整理之间只追加。旧措辞里的"三次整理各有各的规则"与"合并准备"作废；计划侧契约与三个落装模板改成「折叠分支的合并前整理」。
+- **授权是被问、被答**：转评审授权与合并授权都保留给仓库维护者，由维护者回答；通知驾驶员验收不是一次授权。这条同时落进 invariant、body、根 `AGENTS.md` 钩子与 `norms.md`。
+- **发布不再属于这条规范**：tag 与 release 的授权搬进 `docs/releases/AGENTS.md`；生命周期笔记只留"发布 PR 不是例外"和指针。
+- 双语对侧同批改到位，并按 `translation-pair write` 重录 sidecar。
+
 ## Park 与裁决
 
 A-3 实施时 worker-1 park 了五项（P1–P5），另有 A-4 一条卡片命令越界（P6）；按下述处理，并由 Lead 记入 PR 的 `## Reviewer notes`：
@@ -126,7 +135,7 @@ A-3 实施时 worker-1 park 了五项（P1–P5），另有 A-4 一条卡片命�
 4. **P4 钩子是否随树存在而注入**。计划 Background 明说"本次先把树与钩子无条件落下"，照此：B 里钩子无条件注入；条件化归 C（`optional-skills.md`）。
 5. **P5 落装面的枚举面漏了计划树**。worker-1 实测：`manager.ts:802` 的 uninstall "left in place" 硬编码数组、`:20`/`:583` 的注释、`manager-lifecycle.md:69` 的同义 prose 都只列 notes/docs/rgignore。**按团队工作流 §8.2「一个封闭集合增减了成员——每一处陈述其规模或列举其成员的地方都在同一改动里移动」判定这是 A-3 欠的面，授权 worker-1 一并改**（只点名，不改 uninstall 行为；行为改动归 C-4）。理由记入 PR 的 `## Reviewer notes`。
 6. **A-4 卡片验收命令 3 越界**。命令写"上面三个文件"，但 `md-links` 按设计拒绝非 Markdown 路径（"a path this check does not read is a mistake rather than a skip"），sidecar 无链接可查。改为对两个 Markdown 成员跑；不为了让字面命令变绿去改门禁。
-7. **根 `AGENTS.md` 里"norms 钩子在本文件末尾"这句不再字面为真**（Lead 记下，未改）。钩子按"缺段追加"落在末尾，而 `AGENTS.md:73` 的常驻指令说通用规范住在文件末尾的 `dsh-spec:norms` 钩子里；刷新后顺序是 notes → norms → plans。计划的 Constraints 写明"本仓库 `AGENTS.md` 只由钩子与文档表承接；不加兜底规则"，所以不额外改那句，留给用户定夺（合并准备期或后续交付）。
+7. **根 `AGENTS.md` 里"norms 钩子在本文件末尾"这句不再字面为真**（Lead 记下，未改）。钩子按"缺段追加"落在末尾，而 `AGENTS.md:73` 的常驻指令说通用规范住在文件末尾的 `dsh-spec:norms` 钩子里；刷新后顺序是 notes → norms → plans。计划的 Constraints 写明"本仓库 `AGENTS.md` 只由钩子与文档表承接；不加兜底规则"，所以不额外改那句，留给用户定夺（合并前整理或后续交付）。
 
 ## 结论
 
@@ -136,6 +145,6 @@ A-3 实施时 worker-1 park 了五项（P1–P5），另有 A-4 一条卡片命�
 
 真实门禁输出（`2000bc76`）：`node --test 'tests/**/*.test.ts'` 151/151；`verify-installed-copy` 10 skill(s) equal；`verify-port-provenance` 16 ported file(s) @ 639ed015；`verify-skill-structure`（manager 51 资源 / workflow 1 资源）；`check --all`（47 notes + 9 archived）；全 corpus in-scope `md-links` 152 文件；corpus-wide `translation-pair` 52 对；`check --base main`。
 
-**留给合并准备期（需用户授权）**：删除本计划与工作副本；把决策 note 从 `proposed/` 转 `implemented/`；PR 四节描述里的未决项见下。
+**留给合并前整理（需用户授权）**：删除本计划与工作副本；把决策 note 从 `proposed/` 转 `implemented/`；PR 四节描述里的未决项见下。
 
 **未决、已上报用户**：(1) `plansSection()` 钩子措辞由团队起草、计划只定形制；(2) 根 `AGENTS.md` 里"norms 钩子在本文件末尾"不再字面为真，而计划 Constraints 限定该文件只由钩子与文档表承接；(3) 依赖门按 stack 的读法在本层 worktree 里跑，与计划"main 上的事实"的措辞不同。

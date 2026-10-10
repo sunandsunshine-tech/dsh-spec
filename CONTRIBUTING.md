@@ -53,11 +53,11 @@ The checks run on every pull request, so their run is the verification and no se
 
 The description is written for an outside contributor's eye. It states the change rather than the author's route to it, and it names a file the way a reader outside the repository can open it — a URL or the repository path in code, never a relative link.
 
-A pull request is opened as a draft and it stays the implementer's working state: the branch is folded into milestones before acceptance, the implementer accepts the change and folds whatever the acceptance asked for back in, and the draft is marked ready once that handover is authorized. The repository's maintainer reads it from that point, not before, and an agent that implements the change does any of this only on the implementer's authorization.
+A pull request is opened as a draft and it stays the implementer's working state: before acceptance, before review and before the merge the branch is tidied — folded into milestones, with the pull request's description kept current — the implementer accepts the change and folds whatever the acceptance asked for back in, and the draft is marked ready once the handover to review is authorized. The repository's maintainer reads it from that point, not before, and an agent that implements the change does any of this only on the implementer's authorization.
 
-Every pull request is squash-merged on GitHub, by fast-forward, so `main` gains one clean commit per pull request. Commits before review may be rebased, reworded, dropped and force-pushed freely; commits appended during review are fixups, and they are folded into their milestone before the squash; the branch is rebased only when its base moves.
+Every pull request is squash-merged on GitHub, by fast-forward, so `main` gains one clean commit per pull request. Commits before review may be rebased, reworded, dropped and force-pushed freely; commits appended between tidies are fixups, and the tidy before the merge folds them into their milestone; the branch is rebased only when its base moves.
 
-An agent that opens a pull request stops at that act. Merging it, and publishing a release, happen only after the maintainer authorizes that specific act.
+An agent that opens a pull request stops at that act. Marking it ready for review and merging it happen only after the maintainer authorizes that specific act, and an authorization is asked for and answered: the agent puts the act to the maintainer as a question — naming the act and carrying the change's description — and waits for the answer, because a consent the agent reads out of its own statement is not an authorization.
 
 ## AI involvement
 
