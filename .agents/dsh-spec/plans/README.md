@@ -41,7 +41,7 @@ A dependency on another delivery is one line in `## Constraints`: the delivery w
 
 ## A plan takes effect only when the user starts it
 
-The plan is reviewed with the user and agreed; until the user's own signal arrives the delivery performs no work — no team is formed, no card is created and no implementation begins. Reading, exploration, research and side-effect-free verification are planning rather than work, and belong to the discussion that produced the plan. That signal is the authorization for the work: the branch, the team and the cards proceed from it, and the later handovers — the pull request's ready mark, its merge and its release — are authorized separately ([the pull-request lifecycle](../notes/implemented/process/2026-09-21-the-pull-request-lifecycle.md)).
+The plan is reviewed with the user and agreed; until the user's own signal arrives the delivery performs no work — no team is formed, no card is created and no implementation begins. Reading, exploration, research and side-effect-free verification are planning rather than work, and belong to the discussion that produced the plan. That signal is the authorization for the work: the branch, the team and the cards proceed from it. The acts that move the change forward are authorized separately — where this project applies the norm `pr.lifecycle`, that norm owns which act needs which authorization; where it does not, the delivery proceeds the way this project requires.
 
 ## Starting and finishing
 

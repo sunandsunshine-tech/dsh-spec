@@ -24,9 +24,9 @@ Status: implemented
 
 **合并准备是第三次整理，发生在评审之后。** 「After a review, prepare your PR for merging by squashing your commits. All commits left on your branch after a review should represent meaningful milestones or units of work」（[kubernetes/community：github-workflow.md](https://github.com/kubernetes/community/blob/main/contributors/guide/github-workflow.md)）。在这里，这次 squash 由 rebase 完成：每个 fixup、错字修正、与基线的合并都被压进它所属的那个里程碑，于是留下的每个提交只代表一个里程碑或一个工作单元，别无其它。结果仍然是一个每个提交都是完整状态的分支。
 
-**每一次交接都是一个需要授权的动作。** 标为待评审、合并和发布，各自都需要针对那次动作的授权；合并与发布保留给仓库维护者，而标为待评审是实现者自己的动作，agent 只有得到实现者授权才做。一次授权要指明什么、以及为什么对另一个改动的批准不构成授权，由[授权规则](2026-09-23-merging-and-publishing-need-authorization.zh.md)拥有。
+**每一次把改动向前推进的动作，都需要针对那次动作的授权。** 标为待评审、合并和发布就是这三个动作；合并与发布保留给仓库维护者，而标为待评审是实现者自己的动作，agent 只有得到实现者授权才做。一次授权要指明什么、以及为什么对另一个改动的批准不构成授权，由[授权规则](2026-09-23-merging-and-publishing-need-authorization.zh.md)拥有。
 
-**开工本身也需要授权。** 有计划的交付怎么开工，由[计划契约](../../../plans/README.zh.md)拥有；那次开工只授权这次工作、不授权它之后的任何一步，所以上面每一次交接仍然各自需要授权。
+**开工本身也需要授权。** 有计划的交付怎么开工，由[计划契约](../../../plans/README.zh.md)拥有；那次开工只授权这次工作、不授权它之后的任何一步，所以上面那几个动作仍然各自需要授权。
 
 **提交信息用 Conventional Commits。** `type(scope): 一句话`：一个类型、一个可选范围、一个标题，以及一段说清改了什么、为什么的正文。标题命名的是这次改动:一条规则、一条指令、一个问题,都是写给某个读者的,而这一行是给不在场的人读的。标题行不超过 70 个字符。参与改动的机器只写在 `Assisted-by:` 尾注里；信息本身只讲这个改动。
 
