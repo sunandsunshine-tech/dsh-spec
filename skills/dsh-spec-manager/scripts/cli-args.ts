@@ -1,11 +1,11 @@
 /**
  * The argument vector every entry point reads, and the two ways a command refuses to go on.
  *
- * One home for parsing that each entry used to write for itself: the flags that take a value, the
- * subcommand, the project root, the skills directory, and the exit conventions — `fail` (1) for a
- * condition that stopped the work, `refuse` (2) for an invocation the caller can fix by naming what
- * is missing. Each entry binds them to the program name it prints, so every line stays the line a
- * reader of that command already sees.
+ * One home for parsing: the flags that take a value, the subcommand, the project root, the skills
+ * directory, and the exit conventions — `fail` (1) for a condition that stopped the work, `refuse`
+ * (2) for an invocation the caller can fix by naming what is missing. Every entry reads them here
+ * and binds them to the program name it prints, so every line stays the line a reader of that
+ * command already sees.
  *
  * Zero external dependencies.
  */

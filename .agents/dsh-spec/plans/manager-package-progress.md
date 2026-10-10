@@ -27,9 +27,15 @@ GATE PASS
 
 （按发生顺序追加。）
 
-1. 从 C 之上建 worktree（根之外），挂子模块 worktree，跑门（上方输出）。
-2. D-0 定稿：最终模块清单与职责边界（见下方「D-0 定稿」一节，含行段施工图、七批顺序与移动边界复核）。
-3. D-1（包与表述）与 D-2（引擎重排）按 D-0 并行 → D-3 评审 → D-4 文本终检 → D-5 刷新副本 + 全量门禁 + PR。
+1. 从 C 之上建 worktree（根之外），挂子模块 worktree，跑门（上方输出 GATE PASS），创建本工作副本。
+2. D-0 定稿：最终模块清单与职责边界（见下方「D-0 定稿」一节，含行段施工图、七批顺序与移动边界复核）。计划文件未改。
+3. D-1（包与表述，worker-2）与 D-2（引擎重排，worker-1）按 D-0 并行。D-1：`SKILL.md` 加 `license`/`compatibility` 前置字段并按过程重组、写明每处引用的加载时机（40 行）。D-2：七批全部落地，行为比对以 `13ac29b` 为基线采集。
+4. Lead 提交 `5789558`，`gh stack submit --auto` 发布 D（并把 B/C 的 worktree 退掉以让 sync 能 checkout 它们）；`upgrade --revision refactor/manager-package` 刷新副本并**实测安装器保留 `license`/`compatibility`**，提交 `e27dfcc`。
+5. Lead 的 post-commit 门禁报出 D-2 搬动漏了三个自由标识符（`dispatch/scope.ts` 的 `resolve`、`init/sync.ts` 三处 `fail`、`init-agents-md.ts` 的 `SectionHook` 类型），只在 `--files-from <磁盘文件>` 等分支执行时才炸；`70f1d2d` 修复，并加 `tests/module-scope.test.ts`（可证伪的静态门）与两条 `--files-from` 用例。行为比对口径据实更正为 24 条（含该分支）。
+6. D-3 评审（首轮，`45923e8`）：**REJECT**——偏差 5（把 initializer 无守卫的 `flagValue` 收敛到守卫版）不是行为中性：`--root --write` 从"具名拒绝 + exit 1 + 零写入"变成"exit 0 静默写入 46 个文件"。`16d932b` 修复（`cli-args.ts` 并存两个具名读法：守卫版给 manager、`rawFlagValue` 给 initializer），并加一条钉住"exit 1 + 零写入"的回归用例。
+7. Lead 提交并推 `e269ec7`；D-3 第二轮：reviewer-1 **PASS**（自建 A/B 同路径同命令逐字相同、exit 1、零写入；42 条 dispatcher 命令 + initializer 四条全表面一致；边界 109 文件 ∩ 16 移植名单 = ∅，22 个受保护文件与 `13ac29b` 逐字相同）。
+8. D-4 文本终检（texter-1）：6 条修正，其中一条是 D 的拆分让 `manager-lifecycle.md` 的 `## Files` 清单过期（`scripts/manager.ts`/`init-agents-md.ts` 的职责已移入 `scripts/manager/`、`scripts/init/`，而 `cli-args.ts`、`plan-surface.ts`、`dispatch/`、`help/` 未被点名）。
+9. 待办：D-5 刷新副本 + 全量门禁 + PR #67 转 ready。
 
 ## D-0 定稿：引擎最终文件清单与职责边界（worker-1，2026-10-10）
 
@@ -109,7 +115,7 @@ GATE PASS
 
 ### 5. 对 Design 表的细化与偏差（D-2 按此施工）
 
-1. **新增 `plan-surface.ts`**（表未列）：init 与 manager 都要这四个常量。今天 init 是从 `manager.ts`（**入口**）import 的；拆开后若继续 import 入口，init 会把 install/upgrade/CLI 全拖进来，且形成 init→manager 的反向依赖。单列顶层叶子模块解决。
+1. **新增 `plan-surface.ts`**（表未列）：init 与 manager 都要这四个常量。拆分前 init 是从 `manager.ts`（**入口**）import 的；拆开后若继续 import 入口，init 会把 install/upgrade/CLI 全拖进来，且形成 init→manager 的反向依赖。单列顶层叶子模块解决。
 2. **新增 `init/sections.ts`**（表只写 `merge`）：钩子文本生成与"计划面是否装着"的判定（读 skills 目录）与三个合并算法是两件事，单列一节；`merge` 保持纯文本合并。
 3. **新增 `manager/process.ts`**（表未列）：`run`/`runCaptured`/`runAll` 被 install、upgrade、plan-refresh 共用。
 4. **`help/` 用两个显式文件而非目录桶**：ESM 需要显式路径，不引入 `index.ts` 桶；`dsh-spec.ts` 分别 import `help/catalog.ts` 与 `help/render.ts`。
@@ -132,4 +138,14 @@ status · install --dry-run · upgrade --dry-run · --help --markdown（en/zh）
 
 ## 结论
 
-（待交付收尾时填写。）
+这次交付在 `e269ec7` 上达到**可评审**状态：卡片 D-0…D-4 全部完成，D-3 评审两轮通过（第一轮抓出一处真实的行为变更，修复后第二轮 PASS）。
+
+落地的：四个大文件按 D-0 的布局一次重整——`cli-args.ts`（flag/argv 与两个退出约定，两种既有读法各自具名）、`plan-surface.ts`、`manifest.ts` 扩写、`help/{catalog,render}.ts`（命令表单一来源）、`manager/` 六模块、`init/` 四模块、`dispatch/` 三模块；三个入口保持原路径并瘦身（`manager.ts` 1216→76、`init-agents-md.ts` 887→286、`dsh-spec.ts` 744→564），`help.ts` 删除；`SKILL.md` 声明 `license`/`compatibility`（真实安装验证保留）并按过程重组、写明引用加载时机。
+
+**行为不变**的证据：以搬动前提交 `13ac29b` 为基线，dispatcher 42 条命令 + initializer 全表面（含 `--write` 采纳的两棵树 `diff -r`）在同一次冻结 fixture 上 stdout+stderr+退出码逐字一致；畸形 `--root --write` 的拒绝文本、退出码与零写入也逐字一致。**移动边界**：`git diff --name-only main...HEAD`（109 个文件）与 `scripts/ports.json` 的 16 个移植名单**无交集**，六个共享小模块不在 diff 里，22 个受保护文件与 `13ac29b` 逐字相同。
+
+真实门禁（`e269ec7`；文本终检后由 Lead 在 D-5 重跑）：`node --test 'tests/**/*.test.ts'`、`verify-installed-copy`、`verify-port-provenance`、`verify-skill-structure`、`check --all`、全 corpus md-links、corpus translation-pair、`check --base main`。
+
+**留给合并准备期（需用户授权）**：删除本计划与工作副本；PR 四节描述里的未决项见下。
+
+**未决、已上报用户**：(1) 是否照计划的 Design 表定稿引擎布局（本次按"计划里已定的照做"执行，未另等审批）；(2) 依赖门按 stack 读法在本层 worktree 里跑，与计划"main 上的事实"措辞不同（偏离 #1）；(3) D-0 的产出按用户指令落在工作副本而非计划（偏离 #2）。

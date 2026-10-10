@@ -83,7 +83,7 @@ export function unifiedDiff(path: string, existing: string, rendered: string): s
  * This is the half of a refresh that reaches the project's own tree: `init` creates these files
  * once, and a project that edits the contract's prose, or keeps an older revision's copy, drifts
  * from every other project. The merge rules keep the two things a project owns — the vocabulary
- * rows and its standing orders outside the marked block — while the mechanism's text is identical
+ * rows and its standing orders outside the marked blocks — while the mechanism's text is identical
  * everywhere. Nothing outside the managed list is read or written.
  */
 export function syncManagedFiles(options: SyncOptions): void {
