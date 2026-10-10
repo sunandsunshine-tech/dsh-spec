@@ -26,6 +26,8 @@ A pull request moves through five stages in order — WIP, development, wrap-up,
 
 **Every handover is an authorized act.** The ready mark, the merge and the release each need the authorization for that act; the merge and the release stay reserved to the repository's maintainer, while the ready mark is the implementer's own and an agent makes it only on their authorization. What an authorization has to name, and why an approval of a different change authorizes nothing, is [the authorization rule](2026-09-23-merging-and-publishing-need-authorization.md)'s.
 
+**The work starts under its own authorization.** A delivery that has a plan begins on the user's own signal, which is the plan's start ([the plan contract](../../../plans/README.md)); that signal authorizes the work and nothing after it, so each handover above still needs its own.
+
 **A commit message is Conventional Commits.** `type(scope): one line`: a type, an optional scope, a subject, and a body that says what changed and why. The subject names the change: a rule, an instruction or a question is addressed to a reader, and the line is read by someone who was not there. The subject stays within 70 characters. A machine that took part in the change is named only in an `Assisted-by:` trailer; the message itself is about the change.
 
 **A PR description carries four sections.** `## What this PR does`, `## Why`, `## How`, `## Reviewer notes`; the checks run on every pull request, so the run is the verification and no section repeats it. Upstream asks for `Motivation`, `Changes` and `Testing`; these four sections are this repository's own practice, recorded here because the `pr.description` norm quotes them.

@@ -41,11 +41,11 @@ A dependency on another delivery is one line in `## Constraints`: the delivery w
 
 ## A plan takes effect only when the user starts it
 
-The plan is reviewed with the user and agreed; until the user's own signal arrives the delivery performs no work — no team is formed, no card is created and no implementation begins. Reading, exploration, research and side-effect-free verification are planning rather than work, and belong to the discussion that produced the plan.
+The plan is reviewed with the user and agreed; until the user's own signal arrives the delivery performs no work — no team is formed, no card is created and no implementation begins. Reading, exploration, research and side-effect-free verification are planning rather than work, and belong to the discussion that produced the plan. That signal is the authorization for the work: the branch, the team and the cards proceed from it, and the later handovers — the pull request's ready mark, its merge and its release — are authorized separately ([the pull-request lifecycle](../notes/implemented/process/2026-09-21-the-pull-request-lifecycle.md)).
 
 ## Starting and finishing
 
-- **Start** — on the user's own signal. Create the delivery's worktree outside the repository root, re-read the plan against current main, run every precondition, and only then create the working copy and the cards.
+- **Start** — on the user's own signal, which authorizes the work. Create the delivery's worktree outside the repository root, re-read the plan against current main, run every precondition, and only then create the working copy and the cards.
 - **Finish** — the merge preparation that folds the branch deletes the plan and its working copy. Every decision the delivery settled goes into the notes tree in the same change; an item still undecided goes to the user, who either decides it there, asks for a `proposed/` note that carries it until it is discussed, or asks for a new plan. Neither file reaches main.
 
 ## Gates
