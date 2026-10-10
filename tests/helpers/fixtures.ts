@@ -25,6 +25,9 @@ export const NOTES = '.agents/dsh-spec/notes'
 /** The delivery-plan tree an initialized project carries. */
 export const PLANS = '.agents/dsh-spec/plans'
 
+/** The tree the installer deploys the skill set into. */
+export const INSTALLED_SKILLS = '.agents/skills'
+
 /** The six classes the archive tree requires once it holds an artifact. */
 export const CLASSES = ['feature', 'bug-fix', 'simplification', 'architecture', 'process', 'testing'] as const
 
@@ -197,4 +200,38 @@ export function writePair(fixture: Fixture, anchor: string, options: { switcher?
   const englishSwitch = options.switcher === false ? '' : `English | [中文](${zh.split('/').pop()})\n\n`
   fixture.write(anchor, `# Guide\n\n${englishSwitch}Some text.\n`)
   fixture.write(zh, `# 指南\n\n[English](${anchor.split('/').pop()}) | 中文\n\n一些文字。\n`)
+}
+
+/**
+ * A catalog the norm-reference gate accepts: one group and one norm under it.
+ *
+ * A catalog is data with a shape the manager validates before rendering, so a gate fixture carries
+ * the same fields a shipped one does — including the two lines every body ends with — rather than a
+ * shape only this suite understands.
+ */
+export function normCatalog(): string {
+  return `${JSON.stringify({
+    groups: [{ id: 'pr', title: 'Pull-request lifecycle', titleZh: 'PR 与提交规范' }],
+    norms: [{
+      id: 'pr.lifecycle',
+      group: 'pr',
+      title: 'Walk changes through phases',
+      titleZh: '按阶段推进改动',
+      invariant: 'Walk changes through visible phases.',
+      body: '- **Walk changes through visible phases.**\n  - Why: a review needs a phase to read.\n  - Self-check: does the branch say which phase it is in?',
+      source: 'notes/implemented/process/2026-09-21-the-pull-request-lifecycle.md',
+    }],
+  }, null, 2)}\n`
+}
+
+/**
+ * Install a minimal, clean skill set: the catalog, and one shipped text citing a norm in it.
+ *
+ * `check --all` runs the citation gate beside the note checks, so a fixture that lets the aggregate
+ * run needs an installed copy that is current — the same way the archive needs its six class
+ * directories before its own check can pass.
+ */
+export function writeInstalledSkillTexts(fixture: Fixture, text = '# Installed guide\n\nApply `pr.lifecycle` where a change needs a phase.\n'): void {
+  fixture.write(`${INSTALLED_SKILLS}/dsh-spec-manager/references/norms.json`, normCatalog())
+  fixture.write(`${INSTALLED_SKILLS}/dsh-spec-manager/references/guide.md`, text)
 }

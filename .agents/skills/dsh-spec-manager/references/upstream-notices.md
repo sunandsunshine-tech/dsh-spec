@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-Every engine file carried over from that project states it in its own header, next to its `SPDX-License-Identifier: MIT` line: the upstream path, the sha it was taken at, and whether it is verbatim, adapted or split. The registry behind those headers, and the same notices in the repository's own words, are in [`THIRD_PARTY_NOTICES.md`](../../../THIRD_PARTY_NOTICES.md) and [`scripts/ports.json`](../../../scripts/ports.json).
+Every engine file carried over from that project states it in its own header, next to its `SPDX-License-Identifier: MIT` line: the upstream path, the sha it was taken at, and whether it is verbatim, adapted or split. The registry behind those headers, and the same notices in the repository's own words, are in [`THIRD_PARTY_NOTICES.md`](https://github.com/sunandsunshine-tech/dsh-spec/blob/main/THIRD_PARTY_NOTICES.md) and [`scripts/ports.json`](https://github.com/sunandsunshine-tech/dsh-spec/blob/main/scripts/ports.json).
 
 ## Bundled npm packages
 

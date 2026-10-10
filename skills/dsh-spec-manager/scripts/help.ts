@@ -139,20 +139,20 @@ const COMMAND_HELP: readonly CommandHelp[] = [
     verbs: [],
     scope: '<path...> | --base <ref> | --all',
     flags: [
-      ['--all', 'Run the two checks asserted over a tree', '运行两道以整棵树为断言的检查'],
+      ['--all', 'Run the checks asserted over a tree', '运行以整棵树为断言的检查'],
       ['--base <ref>', 'Compute the path list from a change against this ref', '相对这个 ref 从改动算出路径清单'],
       ['--head <ref>', 'The commit the change is measured to (default HEAD)', '改动的头部提交(默认 HEAD)'],
       ['--files-from <file|->', 'Read the path list from a file, or from stdin', '从文件或 stdin 读取路径清单'],
     ],
     en: {
       summary: 'Run the checks a selection owes',
-      detail: 'A path list runs the checks that claim those paths, `--base <ref>` computes that list from the change instead, and `--all` runs the two tree checks. With none of the three it prints the forms and reads nothing.',
+      detail: 'A path list runs the checks that claim those paths, `--base <ref>` computes that list from the change instead, and `--all` runs the tree checks. With none of the three it prints the forms and reads nothing.',
       comment: 'Check what a branch changed',
       example: 'check --base main --root .',
     },
     zh: {
       summary: '运行某个选区欠下的检查',
-      detail: '路径清单只跑认领这些路径的检查,`--base <ref>` 改为从改动算出这份清单,`--all` 跑两道整树检查。三者都不给时只打印可选形式,什么也不读。',
+      detail: '路径清单只跑认领这些路径的检查,`--base <ref>` 改为从改动算出这份清单,`--all` 跑整树检查。三者都不给时只打印可选形式,什么也不读。',
       comment: '检查一个分支改了什么',
       example: 'check --base main --root .',
     },

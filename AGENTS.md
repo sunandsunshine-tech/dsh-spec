@@ -42,7 +42,8 @@ node --test 'tests/**/*.test.ts'
   # the functional suite: what each check does with a scope, a seeded defect and a dispatch
 
 node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts check --all --root .
-  # the Agent Note tree and the frozen archive — tree assertions, so they walk their own root
+  # every tree assertion — the Agent Note tree, the frozen archive and the installed skill set's
+  # citations — because a tree assertion walks its own root
 
 node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes check <note...> --root .
   # the in-file format of the notes the change touched

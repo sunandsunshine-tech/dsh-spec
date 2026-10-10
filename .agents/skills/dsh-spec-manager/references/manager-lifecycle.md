@@ -4,7 +4,7 @@ A project receives this package as a set of skills at one revision, and this mod
 
 ## The manifest
 
-The manifest lives in this skill's `references/`. It is the one list the manager reads and writes nothing into, and it holds three facts: the skills to install, the gates this collection publishes, and each gate's scope — the surfaces it answers for and how it is handed them. It declares no revision: a manifest ships inside the installed manager, so a revision written there would be a declaration the project can neither change nor check against what it actually installed. The pin is the ref the installer wrote into the manager's own installed `SKILL.md`, and [the manager's own install is the pin](../../../.agents/dsh-spec/notes/implemented/process/2026-09-21-the-manager-s-own-install-is-the-pin.md) owns why.
+The manifest lives in this skill's `references/`. It is the one list the manager reads and writes nothing into, and it holds three facts: the skills to install, the gates this collection publishes, and each gate's scope — the surfaces it answers for and how it is handed them. It declares no revision: a manifest ships inside the installed manager, so a revision written there would be a declaration the project can neither change nor check against what it actually installed. The pin is the ref the installer wrote into the manager's own installed `SKILL.md`.
 
 A gate is a recorded name backed by a file, and the two must agree: `gates` is the record a reader reviews in a diff, while the `verify-*.ts` script beside the entry point is what makes that name runnable. A recorded name with no script, and a `verify-*.ts` script the record does not name, are both refusals — the entry point reconciles the two before it runs anything.
 

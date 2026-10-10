@@ -373,6 +373,7 @@ const ARCHIVE_GATE = 'verify-archived-agent-notes'
 const PAIRING_GATE = 'verify-translation-pairing'
 const LINKS_GATE = 'verify-md-links'
 const SYNTAX_GATE = 'verify-md-link-syntax'
+const NORMS_GATE = 'verify-norm-reference'
 
 /** The notes subject: a tree assertion plus the format of the notes it was handed. */
 function notesJobs(handed: { all: boolean, paths: string[] }): { jobs: Job[], cleanup: () => void } {
@@ -479,6 +480,15 @@ async function main(): Promise<void> {
       jobs.push({ subject: 'md-links', gate: SYNTAX_GATE, args: scope.args })
     }
 
+    // A citation lives in whichever shipped text carries it, so a changed text hands the gate its
+    // whole tree: a subset of files cannot answer whether an id is in the catalog.
+    const textChanges = owns(NORMS_GATE)
+    if (textChanges.length === 0) {
+      skipped.push({ subject: 'norm-reference', reason: skipReason(recordOf(NORMS_GATE).keys) })
+    } else {
+      jobs.push({ subject: 'norm-reference', gate: NORMS_GATE, args: ['--all'] })
+    }
+
     return { jobs, skipped, cleanups }
   }
 
@@ -503,7 +513,11 @@ async function main(): Promise<void> {
 
     if (parsed.all) {
       const notes = notesJobs({ all: true, paths: [] })
-      const jobs: Job[] = [...notes.jobs, { subject: 'notes-archived', gate: ARCHIVE_GATE, args: ['--all'] }]
+      const jobs: Job[] = [
+        ...notes.jobs,
+        { subject: 'notes-archived', gate: ARCHIVE_GATE, args: ['--all'] },
+        { subject: 'norm-reference', gate: NORMS_GATE, args: ['--all'] },
+      ]
       const results = await runJobs(jobs, width)
       notes.cleanup()
       finish(results, [])

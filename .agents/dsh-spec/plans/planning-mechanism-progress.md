@@ -77,9 +77,14 @@
 末句改成"so each of those acts still needs its own."。规范目录 `pr.lifecycle` 的 `body` 是渲染
 用的那份副本，同一次改到位并重渲染。
 
-**遗留（另议）**：包内文本里"引用的规范 id 必须存在"目前没有门禁守着，一个拼错的 id 会静默
-出厂；一条 shipped 门禁可以照 `verify-port-provenance` 守 ports 注册表的手法补上，未在本层
-实施。
+**随之补上的门禁**：落装文本开始引规范 id 之后，维护者裁定补一条 shipped 门禁守着它——
+`verify-norm-reference`：扫 `<root>/.agents/skills/**` 里的 `.md`/`.template`，凡反引号里形如
+`` `group.name` ``（`group` 取自目录的分组）且不是文件扩展名的 token，必须是本修订目录里存在
+的 id；空语料与读不到目录都拒绝通过。新 surface key `installed-skills`（`selection: root`）——
+它的**变更→门禁映射**只认落装文本，因为既有决策 note 要求"改动引擎文件不选中任何检查"，而
+`selection: root` 说的是它被交给 `--all` 后自己走整棵树。同一变更里两处 references 的外链也
+去掉了（`manager-lifecycle.md` 那句理由已在本句之前，指针冗余；`upstream-notices.md` 改成公开
+仓库的绝对 URL）。
 
 ## A-6 文本终检结果
 
