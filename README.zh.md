@@ -32,7 +32,7 @@ manager 需要你亲手装,其余技能由它装。安装的顺序归 [`manager-
    gh skill install sunandsunshine-tech/dsh-spec dsh-spec-manager@latest --dir .agents/skills
    ```
 
-   这是唯一由你亲手放的技能。装一次就够;只有要挪 pin 时才再装一次 —— 你在这里写的那个 ref,就是其余技能跟随的 ref。
+   这是唯一由你亲手放的技能。装一次就够;只有要挪 pin 时才再装一次。
 
 2. **把集合采用进项目。**
 

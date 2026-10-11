@@ -32,7 +32,7 @@ You install the manager yourself; it installs the rest of the set. [`manager-ins
    gh skill install sunandsunshine-tech/dsh-spec dsh-spec-manager@latest --dir .agents/skills
    ```
 
-   This is the one skill you place yourself. Do it once, and again only to move the pin: the ref you name here is the ref every other skill follows.
+   This is the one skill you place yourself. Do it once, and again only to move the pin.
 
 2. **Adopt the collection into the project.**
 
