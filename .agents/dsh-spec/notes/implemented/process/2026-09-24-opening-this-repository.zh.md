@@ -30,7 +30,7 @@ Status: implemented
 
 **基线 pin 每次 dsh 发布都跟一次。** 固定一套动作:按 tag 浅克隆、逐个比对移植文件与 `submodules/dsh`、有变化就重搬并更新 `ports.json`、改四处 pin,最后跑 provenance 与全量门禁。
 
-三篇笔记各自拥有相邻的地盘,这里只链接、不复述:[the pin is the published tag](2026-09-22-the-pin-is-the-published-tag.zh.md) 拥有「安装跟随什么」——那是已装技能集的修订,不是抽取基线;[merging and publishing need authorization](2026-09-23-merging-and-publishing-need-authorization.zh.md) 拥有「为什么合并与发布是维护者的行为」;[the pull-request lifecycle](2026-09-21-the-pull-request-lifecycle.zh.md) 拥有这套决定所遵循的阶段、合并方式,以及 `Assisted-by:` trailer 在提交信息里的位置。
+三篇笔记各自拥有相邻的地盘，这里只链接、不复述：[the pin is the published tag](2026-09-22-the-pin-is-the-published-tag.zh.md) 拥有「安装跟随什么」——那是已装技能集的修订，不是抽取基线；[the review handover and the merge need authorization](2026-09-23-the-review-handover-and-the-merge-need-authorization.zh.md) 拥有「一次授权该是什么」，以及为什么那两个行为各自需要一次；[the pull-request lifecycle](2026-09-21-the-pull-request-lifecycle.zh.md) 拥有那四个状态、验收前、评审前与合并前的整理、合并方式，以及 `Assisted-by:` trailer 在提交信息里的位置。
 
 ## Alternatives considered
 
@@ -50,4 +50,4 @@ Status: implemented
 
 **代价是什么。** 改写会换掉全部提交 SHA,已关闭 PR 对旧提交的引用随之失效;示例失去了让原始答案有说服力的具体账号证据,读者得在方法本身的基础上接受它。
 
-**留给读者什么。** 规划把工作排了序:这些决定点名的基线 bump、策略文档、workflow 与脚本在各自所属的阶段落地,任何平台行为都不早于授权它的那个阶段——可见性切换、rulesets 与发布只在各自的阶段、且只在维护者授权后发生,这件事由 [merging and publishing need authorization](2026-09-23-merging-and-publishing-need-authorization.zh.md) 拥有。
+**留给读者什么。** 规划把工作排了序：这些决定点名的基线 bump、策略文档、workflow 与脚本在各自所属的状态落地，任何平台行为都不早于授权它的那个状态——可见性切换、rulesets 与发布只在各自的状态、且只在维护者授权后发生；这样一次授权该是什么，由 [the review handover and the merge need authorization](2026-09-23-the-review-handover-and-the-merge-need-authorization.zh.md) 拥有。

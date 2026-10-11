@@ -25,6 +25,7 @@ needs no dependency, no transform and no package manager — the same property t
 | `notes-archived.test.ts` | `notes-archived check`: the closed kind tree and the append-only seal. |
 | `translation-pair.test.ts` | Pair detection as a union of switcher and naming family, and the consistency record. |
 | `md-links.test.ts` | Link resolution and the two shapes a bulk rewrite leaves behind. |
+| `norm-reference.test.ts` | The installed skill set's citations: a catalog id resolves, a seeded wrong id fails, and an empty corpus is refused. |
 | `check.test.ts` | Which checks a selection owes — the three selections, including the documented limit. |
 | `parallel.test.ts` | Bounded dispatch: concurrency changes neither a verdict nor the report order. |
 | `management.test.ts` | `install`, `upgrade`, `uninstall` and `status`, offline (`--dry-run` only), plus the initializer's sync and the command it re-records through. |

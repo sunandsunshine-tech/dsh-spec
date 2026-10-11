@@ -60,7 +60,7 @@ Give your agent these instructions:
 | `dsh-pre-push-checks` | The smallest evidence that covers an outgoing change |
 | `dsh-find-simplifications` | Turning "find things to simplify" into evidence-backed proposals |
 | `dsh-agent-experience` | What an agent's own context owes: minimal context first, discovery made explicit, constraints before the action, bounded outputs |
-| `dsh-agent-team-workflow` | The division of labour inside a requested team: role contracts, task cards, and the gate each obligation belongs to |
+| `dsh-agent-team-workflow` | The division of labour inside a requested team: the Lead, Worker, Reviewer and Texter roles, task cards, and the gate each obligation belongs to |
 
 ## Applying the norms it ships
 

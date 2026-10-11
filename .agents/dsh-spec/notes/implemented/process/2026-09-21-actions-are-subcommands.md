@@ -57,7 +57,7 @@ The functional suite selects through the verbs and asserts the refusals beside t
 
 **What it bought.** A reader can guess the shape of a command from its neighbours, so the first question is no longer always `--help`; the default reads only what it names; and an operation has one spelling, so a copied command either works or fails loudly.
 
-**`check --all` is the tree checks and not four subjects.** A reader who expects "everything" gets the note tree and the archive, and the file-based checks keep their own forms. The help names what it runs.
+**`check --all` is the tree checks and not every subject.** A reader who expects "everything" gets the tree checks; the file-based checks keep their own forms. The help names what it runs.
 
 **The two-level grammar is more parser than a flat flag list.** It is covered by reconciling the commands against the manifest record before anything runs, the way subjects were reconciled before, and by the suite's rejection cases.
 

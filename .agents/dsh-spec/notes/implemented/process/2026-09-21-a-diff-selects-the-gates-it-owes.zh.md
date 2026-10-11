@@ -12,7 +12,9 @@ Status: implemented
 
 ## 决策
 
-manifest 里每道已记录的门禁现在都要声明一条**范围记录**:它为什么表面作答——`notes`、`notes-archived`、`markdown` 或 `pairs`——以及范围如何交给它,断言关于整棵树时为 `root`,只读交给它的文件时为 `files`。入口经由本来拥有这些路径的模块解析键:`notes-root.ts` 管笔记树,`md-scope.ts` 管散文门禁所读的 Markdown,`i18n-scope.ts` 管配对范围。随后 `dsh-spec.ts check --base <ref>` 把落在各键内的路径交给对应主语,只跑这次改动欠下的检查,并把每一个被跳过的主语连同原因打印出来。
+manifest 里每道已记录的门禁现在都要声明一条**范围记录**:它为什么表面作答——`notes`、`notes-archived`、`markdown`、`pairs` 或 `installed-skills`——以及范围如何交给它,断言关于整棵树时为 `root`,只读交给它的文件时为 `files`。入口经由本来拥有这些路径的模块解析键:`notes-root.ts` 管笔记树,`md-scope.ts` 管散文门禁所读的 Markdown,`i18n-scope.ts` 管配对范围,`installed-skills.ts` 管集合安装出去的文本。随后 `dsh-spec.ts check --base <ref>` 把落在各键内的路径交给对应主语,只跑这次改动欠下的检查,并把每一个被跳过的主语连同原因打印出来。
+
+`installed-skills` 是在落装文本开始按目录 id 引用规范时记下的:它的表面是集合安装出去的每一份 `.md` 与 `.template` 文件,由 `installed-skills.ts` 拥有。它把改动映射到门禁时只读这些文本,而不是整棵已安装的树,所以改引擎脚本仍然不会选中任何检查。
 
 用键而不是路径字面量,是为了让每条路径只有一个归属者:manifest 说明一道门禁对哪块*面*负责,引擎说明那块面在哪里。集合外的键一律拒绝——无法解析的范围会被读成"这里没有属于该门禁的东西",从而悄悄丢掉检查;已记录的门禁若完全没有条目也拒绝,这样记录不会只写一半。
 
@@ -30,10 +32,11 @@ manifest 里每道已记录的门禁现在都要声明一条**范围记录**:它
 
 ## 后果
 
-- 改引擎只会跑凭据扫描;改一条笔记会跑读笔记树、配对与 Markdown 的那四道检查;每次运行都会打印它跳过了哪些。
+- 改引擎什么检查都不选中;改一条笔记会跑读笔记树、配对与 Markdown 的那些检查;每次运行都会打印它跳过了哪些。
 - manifest 现在承载四条事实;新增一道门禁意味着在同一次改动里记录它的名称、范围与脚本。
 - 代价是多了一份要与门禁清单保持同步的记录。只写一半的情况由拒绝覆盖,而封闭的键集合让一个拼写错误无法悄悄缩小运行范围。
-- 验证:`dsh-spec.ts check --all --root .` 报告两道整树检查;`dsh-spec.ts check --base HEAD --root .` 对每个主语打印一行 —— `check <subject>: ok`、`FAIL` 或 `skipped — <reason>` —— 干净树上打印四条跳过。
+- 引用在它能出错的地方得到检查:`verify-norm-reference` 读已安装的规范目录与每一份落装文本,反引号里的 `group.name`,只要前半是目录里的分组,就必须点名目录发布的一条规范。有一种情况是刻意留着的:分组写错时(`prs.lifecycle`)根本不会被读成引用,因为不指向任何分组的点号 token 与 `ctx.shell`、`task.done` 这样的普通点号词无法区分,而别处也不覆盖它。把形状放宽到所有点号 token,只会拿这道缺口换来噪音。
+- 验证:`dsh-spec.ts check --all --root .` 报告每一项整树检查;`dsh-spec.ts check --base HEAD --root .` 对每个主语打印一行 —— `check <subject>: ok`、`FAIL` 或 `skipped — <reason>` —— 干净树上每个主语打印一条跳过。
 
 ## 相关
 

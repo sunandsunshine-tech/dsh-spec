@@ -1,0 +1,19 @@
+# Bilingual-pair consistency record for 2026-09-23-the-review-handover-and-the-merge-need-authorization.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-23-the-review-handover-and-the-merge-need-authorization.md
+/agent-note-the-review-handover-and-the-merge-need-authorization:
+  en: b8d9155c0068722f
+  zh: a6db5ac6eb0cae61
+/agent-note-the-review-handover-and-the-merge-need-authorization/problem:
+  en: 22f3a685f3272ec0
+  zh: e5fcd9d5950bb6d7
+/agent-note-the-review-handover-and-the-merge-need-authorization/decision:
+  en: 66e5f180819389b1
+  zh: cc6f2c90ec9f4909
+/agent-note-the-review-handover-and-the-merge-need-authorization/alternatives-considered:
+  en: e4966ac9f866369f
+  zh: d6bea605d7e1bd42
+/agent-note-the-review-handover-and-the-merge-need-authorization/consequences:
+  en: 9511f4f942e651e2
+  zh: 0e19ed461f8a3645

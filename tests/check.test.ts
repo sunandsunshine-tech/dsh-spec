@@ -1,6 +1,6 @@
 /**
  * `check`: one command, three selections — the paths handed in, the paths a diff produces, or the
- * two tree checks.
+ * tree checks.
  *
  * The path list is the default because it is the cheap one: a caller who knows what they touched
  * gets those checks and nothing else, and `--base` is the flag that computes that list from a change

@@ -35,5 +35,5 @@ Two boundaries. It does not change what a release is or what installs follow; [t
 
 ## Related
 
-- [The pull-request lifecycle](2026-09-21-the-pull-request-lifecycle.md) — owns the stages and the merge kinds; this note removes its release-pull-request exception.
+- [The pull-request lifecycle](2026-09-21-the-pull-request-lifecycle.md) — owns the states, the tidy before acceptance, before review and before the merge, and the merge kinds; this note removes its release-pull-request exception.
 - [The pin is the published tag](2026-09-22-the-pin-is-the-published-tag.md) — owns what a release is and what installs follow; this note changes only what this repository's own copy carries at release time.

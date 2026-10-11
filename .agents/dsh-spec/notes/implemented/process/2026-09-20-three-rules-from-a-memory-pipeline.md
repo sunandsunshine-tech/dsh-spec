@@ -54,7 +54,7 @@ Each rule now pins behavior in the form its kind allows:
 
 - The two semantic rules stand as entries in the root `AGENTS.md`: the evidence rule is stated once, with the commit that changes a documented command as its instance, and the delegated-result entry beside it applies the same rule to work done by someone else.
 - The notes application sits in `.agents/dsh-spec/notes/README.md` and its `.zh.md` counterpart, and `notes-README.md.template` and `notes-README.zh.md.template` carry the same words into every adopting project.
-- The credential rule has no gate. `dsh-spec.ts check --all --root .` reports the two tree checks and no more, so this rule's required verification is the one the other two rules share: the committer runs the acceptance command, and a quoted passage enters a note with its source named and a credential written `[REDACTED_SECRET]`.
+- The credential rule has no gate. `dsh-spec.ts check --all --root .` reports every tree check and no more, so this rule's required verification is the one the other two rules share: the committer runs the acceptance command, and a quoted passage enters a note with its source named and a credential written `[REDACTED_SECRET]`.
 - A planted, non-real credential in a scratch root outside this repository makes the gate exit non-zero with the file, the line and the pattern name, and the output carries no matched text.
 
 What the decision bought is the one failure of the three whose cost cannot be repaired after the fact: a credential-shaped value in tracked text fails the aggregate before it is pushed, while the two judgements about meaning stay with the reader who can actually make them. What it cost is a scanner to maintain and three limits that stay open:

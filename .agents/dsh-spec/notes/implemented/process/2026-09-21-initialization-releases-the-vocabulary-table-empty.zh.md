@@ -29,7 +29,7 @@ Status: implemented
 - 需要翻译的项目从第一次提交起就拥有正确的列与规则;不翻译的项目带着同一张没有行的表,而不是换一种布局。
 - 词汇规则现在住在它所约束的表旁边，项目可以修改它，而随包发布的约定不再陈述某个项目的流程。
 - 代价是采用过程多写两个路径、多两份需要与其所描述约定同步的模版,以及删除 `docs/AGENTS.md` 的项目会失去这条规则唯一的归属处。
-- 验证：`dsh-spec.ts check --all --root .` 在本次改动留下的目录树上以 `run: 8 gate(s), 0 failed` 结束；向空仓库执行 `install` 会创建这两个路径，其中不再残留 `{gate-dir}`，`verify-md-links` 报告所有相对链接均可解析。
+- 验证：`dsh-spec.ts check --all --root .` 在这棵树上报告每一项整树检查都是绿的；向空仓库执行 `install` 会创建这两个路径，其中不再残留 `{gate-dir}`，随后 `dsh-spec.ts md-links check` 报告每条相对链接均可解析。
 
 ## 相关
 
