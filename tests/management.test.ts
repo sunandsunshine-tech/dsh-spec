@@ -805,6 +805,117 @@ test('removing a block whose surface is gone closes the seam to one blank line',
   assert.doesNotMatch(agents, /\n\n\n/, `the removal left a doubled blank line:\n${agents}`)
 })
 
+/**
+ * A managed block whose markers do not resolve to one region.
+ *
+ * The merger used to read a start with no end as "no block here" and write a second one beside it —
+ * two starts, one end and the section twice, which no later sync converges. It now reports the region
+ * and leaves the file exactly as it found it, in a dry run and in a write alike.
+ */
+const INITIALIZER = 'skills/dsh-spec-manager/scripts/init-agents-md.ts'
+
+/** Run the sync half of the initializer, which is the half that merges the marked blocks. */
+function syncOnce(fixture: Fixture, write: boolean): ReturnType<typeof runScript> {
+  return runScript(INITIALIZER, ['--root', fixture.root, '--sync', ...(write ? ['--write'] : [])])
+}
+
+/** The count of one marker in the project's `AGENTS.md`. */
+function markerCount(fixture: Fixture, marker: string): number {
+  return (fixture.read('AGENTS.md').match(new RegExp(marker.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) ?? []).length
+}
+
+const NOTES_START = '<!-- dsh-spec:agent-notes -->'
+const NOTES_END = '<!-- /dsh-spec:agent-notes -->'
+
+test('a block with no closing marker is reported and the file left byte-identical', (t) => {
+  const fixture = makeFixture({ 'AGENTS.md': `# A project\n\nOur own orders.\n\n${NOTES_START}\n## Decision records\n\nA half-written block.\n` })
+  t.after(() => fixture.dispose())
+  const before = fixture.read('AGENTS.md')
+
+  const planned = syncOnce(fixture, false)
+
+  assert.equal(planned.status, 1, planned.output)
+  assert.match(planned.stderr, /AGENTS\.md:5 cannot be merged: it holds `<!-- dsh-spec:agent-notes -->` with no closing/)
+  assert.match(planned.stderr, /the region is undecidable/)
+
+  const applied = syncOnce(fixture, true)
+
+  assert.equal(applied.status, 1, applied.output)
+  assert.equal(fixture.read('AGENTS.md'), before, 'the file changed under a block the sync cannot read')
+  assert.equal(markerCount(fixture, NOTES_START), 1, 'a second start marker was written beside the half-written block')
+  assert.equal(markerCount(fixture, NOTES_END), 0, 'an end marker appeared that the file never held')
+
+  // The create half merges nothing here, but it must not call the section whole either.
+  const adopted = runScript(INITIALIZER, ['--root', fixture.root])
+
+  assert.equal(adopted.status, 1, adopted.output)
+  assert.match(adopted.stderr, /cannot be merged: it holds `<!-- dsh-spec:agent-notes -->` with no closing/)
+  assert.doesNotMatch(adopted.stderr, /already carries/)
+  assert.equal(fixture.read('AGENTS.md'), before, 'the create half changed the file')
+})
+
+test('an end marker with no start before it is reported and the file left byte-identical', (t) => {
+  const fixture = makeFixture({ 'AGENTS.md': `# A project\n\nOur own orders.\n\n${NOTES_END}\n` })
+  t.after(() => fixture.dispose())
+  const before = fixture.read('AGENTS.md')
+
+  const planned = syncOnce(fixture, false)
+  const applied = syncOnce(fixture, true)
+
+  assert.equal(planned.status, 1, planned.output)
+  assert.equal(applied.status, 1, applied.output)
+  assert.match(applied.stderr, /AGENTS\.md:5 cannot be merged: it holds `<!-- \/dsh-spec:agent-notes -->` with no opening/)
+  assert.equal(fixture.read('AGENTS.md'), before, 'the file changed under a block the sync cannot read')
+  assert.equal(markerCount(fixture, NOTES_START), 0, 'a start marker appeared that the file never held')
+  assert.equal(markerCount(fixture, NOTES_END), 1, 'the end marker was duplicated')
+})
+
+test('an end before a start is reported as markers that do not pair, not as a missing opening', (t) => {
+  const fixture = makeFixture({ 'AGENTS.md': `# A project\n\n${NOTES_END}\n${NOTES_START}\n## Decision records\n` })
+  t.after(() => fixture.dispose())
+  const before = fixture.read('AGENTS.md')
+
+  const applied = syncOnce(fixture, true)
+
+  assert.equal(applied.status, 1, applied.output)
+  assert.match(applied.stderr, /cannot be merged: it holds `<!-- \/dsh-spec:agent-notes -->` and `<!-- dsh-spec:agent-notes -->` markers that do not pair into one block/)
+  assert.doesNotMatch(applied.stderr, /with no opening/, 'the opening follows the end marker and the sentence says it is missing')
+  assert.equal(fixture.read('AGENTS.md'), before, 'the file changed under an undecidable region')
+  assert.equal(markerCount(fixture, NOTES_START), 1, 'a second start marker was written')
+  assert.equal(markerCount(fixture, NOTES_END), 1, 'the end marker was duplicated')
+})
+
+test('a start and two ends are reported as markers that do not pair, not as a missing closing', (t) => {
+  const fixture = makeFixture({ 'AGENTS.md': `# A project\n\n${NOTES_START}\n## Decision records\n\n${NOTES_END}\n\n${NOTES_END}\n` })
+  t.after(() => fixture.dispose())
+  const before = fixture.read('AGENTS.md')
+
+  const applied = syncOnce(fixture, true)
+
+  assert.equal(applied.status, 1, applied.output)
+  assert.match(applied.stderr, /cannot be merged: it holds `<!-- dsh-spec:agent-notes -->` and `<!-- \/dsh-spec:agent-notes -->` markers that do not pair into one block/)
+  assert.doesNotMatch(applied.stderr, /with no closing/, 'two closings exist and the sentence says one is missing')
+  assert.equal(fixture.read('AGENTS.md'), before, 'the file changed under an undecidable region')
+  assert.equal(markerCount(fixture, NOTES_START), 1, 'a second start marker was written')
+  assert.equal(markerCount(fixture, NOTES_END), 2, 'a third end marker was written')
+})
+
+test('two start markers for one block are reported and the file left byte-identical', (t) => {
+  const fixture = makeFixture({ 'AGENTS.md': `# A project\n\n${NOTES_START}\n## First\n\n${NOTES_START}\n## Second\n\n${NOTES_END}\n` })
+  t.after(() => fixture.dispose())
+  const before = fixture.read('AGENTS.md')
+
+  const planned = syncOnce(fixture, false)
+  const applied = syncOnce(fixture, true)
+
+  assert.equal(planned.status, 1, planned.output)
+  assert.equal(applied.status, 1, applied.output)
+  assert.match(applied.stderr, /AGENTS\.md:3 cannot be merged: it holds 2 `<!-- dsh-spec:agent-notes -->` markers for one block/)
+  assert.equal(fixture.read('AGENTS.md'), before, 'the file changed under duplicated markers')
+  assert.equal(markerCount(fixture, NOTES_START), 2, 'a third start marker was written beside the duplicated pair')
+  assert.equal(markerCount(fixture, NOTES_END), 1, 'the end marker count moved')
+})
+
 test('the notes block and the plans block are replaced independently', (t) => {
   const fixture = makeFixture({ 'README.md': '# A project\n' })
   t.after(() => fixture.dispose())

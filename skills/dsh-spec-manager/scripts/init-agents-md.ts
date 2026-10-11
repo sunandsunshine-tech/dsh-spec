@@ -438,13 +438,87 @@ function withSwitcher(source: string, counterpart: string): string {
  * under the fresh header, because a terminology row is a maintainer's decision. A `section` file
  * keeps everything outside the marked blocks, because those are the project's standing orders.
  */
-function mergeManaged(existing: string | undefined, rendered: string, merge: Merge): string {
-  if (existing === undefined || merge === 'replace') return rendered
+function mergeManaged(existing: string | undefined, rendered: string, merge: Merge): MergeResult {
+  if (existing === undefined || merge === 'replace') return { ok: true, text: rendered }
   if (merge === 'rows') {
     const rows = tableRows(existing)
-    return rows === '' ? rendered : `${rendered.trimEnd()}\n${rows}\n`
+    return { ok: true, text: rows === '' ? rendered : `${rendered.trimEnd()}\n${rows}\n` }
   }
   return mergeSections(existing, sectionHooks())
+}
+
+/** One managed block a file holds in a shape no merge can rewrite. */
+interface UndecidableBlock {
+  hook: SectionHook
+  /** The offset of the first marker that cannot be resolved to one block. */
+  offset: number
+  /** What the file holds instead of one start, one region and one end. */
+  detail: string
+}
+
+/** What a merge produced: the text to write, or the block it refuses to touch. */
+type MergeResult =
+  | { ok: true, text: string }
+  | { ok: false, block: UndecidableBlock }
+
+/** Every offset a marker occurs at, in order. */
+function occurrences(existing: string, marker: string): number[] {
+  const found: number[] = []
+  for (let at = existing.indexOf(marker); at >= 0; at = existing.indexOf(marker, at + marker.length)) found.push(at)
+  return found
+}
+
+/**
+ * The block a file holds in a shape this merger cannot rewrite.
+ *
+ * A managed block is one start marker and one end marker around one region. Anything else — a start
+ * with no end, an end with no start, or more than one pair — cannot be rewritten without guessing
+ * which half is the block, and a guess here writes a second block beside the first: two starts, one
+ * end and the section twice, which no later sync converges. The merger refuses the file instead and
+ * leaves it exactly as it found it.
+ *
+ * @param existing - the instruction file as the project holds it.
+ * @param hooks - the blocks the collection owns.
+ * @returns the first block it cannot decide, or undefined when every pair is whole.
+ */
+function undecidableBlock(existing: string, hooks: readonly SectionHook[]): UndecidableBlock | undefined {
+  for (const hook of hooks) {
+    const markers = [
+      ...occurrences(existing, hook.start).map(at => ({ at, kind: 'start' as const })),
+      ...occurrences(existing, hook.end).map(at => ({ at, kind: 'end' as const })),
+    ].sort((left, right) => left.at - right.at)
+    if (markers.length === 0) continue
+    const first = markers[0] as { at: number, kind: 'start' | 'end' }
+    if (markers.length === 2 && first.kind === 'start' && markers[1]?.kind === 'end') continue
+    const starts = markers.filter(marker => marker.kind === 'start').length
+    const ends = markers.length - starts
+    // Three shapes name the half that is missing, because there is exactly one reading of them: a
+    // lone start, a lone end, and two starts. Every other shape is described by the markers it
+    // holds, because naming a missing half would be false the moment the other half follows the
+    // first marker — `close, start` has an opening, and `start, close, close` has two closings.
+    const kinds = [...new Set(markers.map(marker => marker.kind === 'start' ? hook.start : hook.end))]
+    const detail = markers.length === 1 && starts === 1
+      ? `holds \`${hook.start}\` with no closing \`${hook.end}\``
+      : markers.length === 1 && ends === 1
+        ? `holds \`${hook.end}\` with no opening \`${hook.start}\``
+        : starts > 1
+          ? `holds ${starts} \`${hook.start}\` markers for one block`
+          : `holds ${kinds.map(kind => `\`${kind}\``).join(' and ')} markers that do not pair into one block`
+    return { hook, offset: first.at, detail }
+  }
+  return undefined
+}
+
+/**
+ * Report a block no merge can decide, and what was done about it: nothing.
+ *
+ * @param display - the file's path as a reader knows it.
+ * @param existing - the text the merge was handed, for the line number.
+ * @param block - the undecidable region.
+ */
+function reportUndecidable(display: string, existing: string, block: UndecidableBlock): void {
+  const line = existing.slice(0, block.offset).split('\n').length
+  console.error(`dsh-spec-init: ${display}:${line} cannot be merged: it ${block.detail}, so the region is undecidable — the file is left byte for byte as it is, and no block is written beside it.`)
 }
 
 /**
@@ -461,11 +535,16 @@ function mergeManaged(existing: string | undefined, rendered: string, merge: Mer
  * because the file must not point at a workspace that is gone. An instruction file that carries none
  * of them gains the active ones at its end. A second run reads back the file the first one wrote.
  *
+ * A file whose markers do not resolve to one block per hook is refused rather than rewritten, so a
+ * half-written block is reported and left alone instead of gaining a second block beside it.
+ *
  * @param existing - the instruction file as the project holds it.
  * @param hooks - the blocks the collection owns, in the order they are kept.
- * @returns the file's new text, newline-terminated.
+ * @returns the file's new text, or the block it refuses to touch.
  */
-function mergeSections(existing: string, hooks: readonly SectionHook[]): string {
+function mergeSections(existing: string, hooks: readonly SectionHook[]): MergeResult {
+  const undecidable = undecidableBlock(existing, hooks)
+  if (undecidable !== undefined) return { ok: false, block: undecidable }
   const present = hooks
     .map(hook => {
       const start = existing.indexOf(hook.start)
@@ -484,12 +563,12 @@ function mergeSections(existing: string, hooks: readonly SectionHook[]): string 
   // neither its markers nor the seam they held open behind.
   const rendered = hooks.filter(hook => hook.active()).map(hook => hook.render().trimEnd()).join('\n\n')
   if (anchor < 0) {
-    return `${[text.replace(/\s+$/, ''), rendered].filter(part => part !== '').join('\n\n')}\n`
+    return { ok: true, text: `${[text.replace(/\s+$/, ''), rendered].filter(part => part !== '').join('\n\n')}\n` }
   }
   const head = text.slice(0, anchor).replace(/\s+$/, '')
   const tail = text.slice(anchor).replace(/^\s+/, '')
   const body = [head, rendered, tail].filter(part => part !== '').join('\n\n')
-  return `${body.replace(/\s+$/, '')}\n`
+  return { ok: true, text: `${body.replace(/\s+$/, '')}\n` }
 }
 
 /** How many lines of one managed file's diff a dry run prints before it truncates. */
@@ -579,9 +658,17 @@ function syncManagedFiles(): void {
     const existing = existsSync(absolute) ? readFileSync(absolute, 'utf8') : undefined
     // A created instruction file carries every marked block, through the same merge the next sync
     // reads it back with, so the two halves write the same bytes.
-    let merged = file.merge === 'section' && existing === undefined
+    const merge = file.merge === 'section' && existing === undefined
       ? mergeSections(`${rendered.trimEnd()}\n`, sectionHooks())
       : mergeManaged(existing, rendered, file.merge)
+    // A file whose markers cannot be resolved is reported and left exactly as it is: writing would
+    // mean guessing which half of a half-written block is the block.
+    if (!merge.ok) {
+      reportUndecidable(file.path, existing ?? '', merge.block)
+      refused.push(file.path)
+      continue
+    }
+    let merged = merge.text
     // The one other dynamic region of `AGENTS.md`: a project carries it only while it applies norms.
     if (file.merge === 'section') merged = applyNormsHook(merged, applied)
     // A managed document a project translated has two sides. The English side carries its half of
@@ -649,6 +736,10 @@ function syncManagedFiles(): void {
     }
     recordPair(path)
   }
+  if (refused.length > 0) {
+    console.error(`dsh-spec-sync: ${refused.length} file(s) cannot be merged — repair the markers above and run the sync again${write ? '' : ' with `--write`'}`)
+    process.exit(1)
+  }
 }
 
 /**
@@ -669,6 +760,11 @@ function recordPair(path: string): void {
 }
 
 // ---------------------------------------------------------------- inventory
+
+/** Files this run refused to merge, so it can end non-zero having written nothing beside them. */
+const refused: string[] = []
+/** The root `AGENTS.md` merge, decided once in the inventory so a dry run reports what a write would. */
+let agentsMerge: MergeResult | undefined
 
 const target = resolve(root, 'AGENTS.md')
 const reported = findInstructions(root, 0)
@@ -694,9 +790,23 @@ console.log('  Agent instructions')
 if (rootInstruction === undefined) {
   console.log('    root AGENTS.md: missing — will be created from the template, with the marked sections')
 } else if (missingHooks.length === 0) {
-  console.log(`    root AGENTS.md: present (${rootInstruction.lines} lines), already carries ${hooks.filter(hook => hook.active()).map(hook => hook.label).join(' and ')}`)
+  // The start markers are all there, but a block whose pair is broken is not one this run can call
+  // whole: the inventory says so rather than reporting a section the file does not hold.
+  const undecidable = existingRoot === undefined ? undefined : undecidableBlock(existingRoot, hooks.filter(hook => hook.active()))
+  if (undecidable !== undefined) {
+    reportUndecidable('AGENTS.md', existingRoot ?? '', undecidable)
+    refused.push('AGENTS.md')
+  } else {
+    console.log(`    root AGENTS.md: present (${rootInstruction.lines} lines), already carries ${hooks.filter(hook => hook.active()).map(hook => hook.label).join(' and ')}`)
+  }
 } else {
-  console.log(`    root AGENTS.md: present (${rootInstruction.lines} lines) — content preserved; ${missingHooks.map(hook => hook.label).join(' and ')} will be appended`)
+  agentsMerge = mergeSections(existingRoot ?? '', missingHooks)
+  if (agentsMerge.ok) {
+    console.log(`    root AGENTS.md: present (${rootInstruction.lines} lines) — content preserved; ${missingHooks.map(hook => hook.label).join(' and ')} will be appended`)
+  } else {
+    reportUndecidable('AGENTS.md', existingRoot ?? '', agentsMerge.block)
+    refused.push('AGENTS.md')
+  }
 }
 if (subtreeInstructions.length === 0) {
   console.log('    subtree AGENTS.md: none')
@@ -758,6 +868,10 @@ console.log('  Documentation')
 
 if (!write) {
   console.log('')
+  if (refused.length > 0) {
+    console.error(`dsh-spec-init: ${refused.length} file(s) cannot be merged — repair the markers above and run the initializer again with \`--write\``)
+    process.exit(1)
+  }
   console.log('  dry run — pass --write to apply, then fill every <placeholder> by hand')
   process.exit(0)
 }
@@ -797,16 +911,26 @@ function copyTemplate(templateName: string, absoluteTarget: string, sections: re
   const rendered = readFileSync(template, 'utf8')
     .split('{gate-dir}').join(layerDirectory)
     .split('{notes-dir}').join(notesDir)
-  const text = sections.length === 0 ? rendered : mergeSections(`${rendered.trimEnd()}\n`, sections)
-  writeFileSync(absoluteTarget, text)
-  written.push(relative(root, absoluteTarget).split(sep).join('/'))
+  const display = relative(root, absoluteTarget).split(sep).join('/')
+  const merged = sections.length === 0 ? { ok: true as const, text: rendered } : mergeSections(`${rendered.trimEnd()}\n`, sections)
+  if (!merged.ok) {
+    reportUndecidable(display, `${rendered.trimEnd()}\n`, merged.block)
+    refused.push(display)
+    return
+  }
+  writeFileSync(absoluteTarget, merged.text)
+  written.push(display)
 }
 
 if (rootInstruction === undefined) {
   copyTemplate('AGENTS.md.template', target, hooks)
 } else if (missingHooks.length > 0) {
-  writeFileSync(target, mergeSections(existingRoot ?? '', missingHooks))
-  written.push(`AGENTS.md (${missingHooks.map(hook => hook.label).join(' and ')} appended; existing content untouched)`)
+  // A refused merge was reported in the inventory; either way nothing is written beside the region.
+  const merged = agentsMerge ?? mergeSections(existingRoot ?? '', missingHooks)
+  if (merged.ok) {
+    writeFileSync(target, merged.text)
+    written.push(`AGENTS.md (${missingHooks.map(hook => hook.label).join(' and ')} appended; existing content untouched)`)
+  }
 } else {
   kept.push(`AGENTS.md (already carries ${hooks.filter(hook => hook.active()).map(hook => hook.label).join(' and ')})`)
 }
@@ -889,3 +1013,8 @@ console.log(`         node ${dispatcher} translation-pair check <pair...> --root
 console.log(`         node ${dispatcher} check --base <ref> --root .             # the checks a change owes`)
 console.log('           the entry point refuses to run when the recorded gate names and the `verify-*.ts`')
 console.log('           scripts beside it disagree, so a gate whose script is gone is reported, not skipped')
+
+if (refused.length > 0) {
+  console.error(`dsh-spec-init: ${refused.length} file(s) cannot be merged — repair the markers above and run the initializer again`)
+  process.exit(1)
+}

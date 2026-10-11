@@ -1,14 +1,12 @@
 ---
-name: dsh-agent-team-workflow
 description: Use when a request is a multi-step engineering delivery — a feature, a refactor, or a bug fix that must carry its decision record, its documentation, and its bilingual pairs. Turns the session into a Lead, Worker, Reviewer and Texter team; each member works from a task card, and every obligation belongs to a gate.
 metadata:
     github-path: skills/dsh-agent-team-workflow
     github-ref: refs/heads/feat/optional-skills
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
     github-tree-sha: 77e86d04e951411b8b98c899f5cdfb43dbdd37a1
-
+name: dsh-agent-team-workflow
 ---
-
 # Agent Team Workflow
 
 ## 1. Activation

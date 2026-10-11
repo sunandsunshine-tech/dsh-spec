@@ -1,14 +1,12 @@
 ---
-name: dsh-code-review
-description: 'Use when reviewing a pull request in this repository — orients the reviewer to this codebase''s standards (AGENTS.md conventions, defensive patterns, decision records, quality gates) and the review-specific checks that code alone can''t show'
+description: Use when reviewing a pull request in this repository — orients the reviewer to this codebase's standards (AGENTS.md conventions, defensive patterns, decision records, quality gates) and the review-specific checks that code alone can't show
 metadata:
     github-path: skills/dsh-code-review
     github-ref: refs/heads/feat/optional-skills
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
     github-tree-sha: ea3ae85e6e4016d628c185f84dbf4c27a004741c
-
+name: dsh-code-review
 ---
-
 # Reviewing a pull request
 
 **This skill is guidance, not a complete checklist.** Verify and fetch the PR's live base and exact head, then establish the changed scope with `git diff --name-only <verified-base-ref>...<verified-head-ref>` before reading the diff and enough surrounding code to understand the design. The report identifies paths and dirty layers but does not replace semantic review. Re-establish the base and rerun it after a retarget or merge. Prioritize correctness, lifecycle, security, and broken required behavior over style; a short review with one substantiated blocker is better than a list of nits.
