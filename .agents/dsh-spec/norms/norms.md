@@ -26,7 +26,7 @@ never writes it.
 
 <!-- dsh-norm: owner.create-vs-update -->
 - **Running a tool twice must not erase what it did not write.** A generator or initializer fills the gaps on its first run; every later run leaves alone the files a person created and the lines a person added, and when it has to refresh its own text it rewrites only that text.
-  - Why: re-running is the normal thing to do -- after a pull, after an upgrade, on a second machine. A tool whose second run punishes that habit stops being re-run, and then it is no longer an upgrade path at all.
+  - Why: re-running is the normal thing to do — after a pull, after an upgrade, on a second machine. A tool whose second run punishes that habit stops being re-run, and then it is no longer an upgrade path at all.
   - Self-check: run it twice. Does the second run change anything the first one did not write? Add a line by hand, run it again: is the line still there?
 <!-- /dsh-norm -->
 
@@ -46,13 +46,13 @@ never writes it.
   - **Merge.** The end state.
   - Two acts land on a change and they are not the same act: its implementer accepts it while it is a draft, and the repository's maintainer reviews it once it is ready. Neither act stands in for the other.
   - **The tidy is one operation, and it runs before acceptance, before review, and before the merge.** It has three parts, and the same three run every time:
-    - Fold the branch into milestones by an interactive rebase: a commit per coherent unit of work, in an order a reviewer can read, each message stating why.
+    - The branch is folded into milestones by an interactive rebase: a commit per coherent unit of work, in an order a reviewer can read, each message stating why.
     - Every commit left is a state that builds and passes its checks on its own.
     - The pull request's description is kept current.
-  - The tidy before acceptance runs unasked: it costs little, and it is the driver's first clear look. A later one is asked for the way an authorization is -- asked first, done after, answered.
+  - The tidy before acceptance runs unasked: it costs little, and it is the driver's first clear look. A later one is asked for the way an authorization is — asked first, done after, answered.
   - **Between tidies the branch is append-only.** Fixups go on top as new commits, never as rewritten history. A reviewer reads the delta since the last tidy, and the next tidy folds each fixup into the milestone it belongs to.
   - **Acceptance is a notification.** Once development is finished and tidied, the agent tells the driver the change is ready to accept and asks for that acceptance. It is a session-level message, not an authorization, and it may be a condensed form of the description.
-  - **The review handover and the merge are each asked for, and each needs the repository maintainer's authorization.** The agent asks for the review handover, marks the pull request ready once it is answered, and later asks for the merge. Each act is asked for by the agent and answered by the maintainer on its own.
+  - **The review handover and the merge are the repository maintainer's acts, and each needs an authorization asked for and answered.** The agent asks for the review handover, marks the pull request ready once it is answered, and later asks for the merge. Each act is asked for by the agent and answered by the maintainer on its own.
   - **An authorization is asked for and answered, once the change stands as it will be handed over.** The tidy is done, the checks that verify it have passed, and the driver has agreed to what the change is. An ask made earlier covers something not yet formed.
   - The agent puts the act to the maintainer in whatever form its harness presents a question, naming the act and carrying the change's description, and the maintainer answers it. A sentence the agent writes and then reads as consent is not an authorization.
   - An authorization names the act it covers. Approval of a different change, or of the same change at an earlier state, authorizes nothing.
@@ -64,7 +64,7 @@ never writes it.
 <!-- dsh-norm: pr.commit-message -->
 - **Write Conventional Commits (`type(scope): subject <= 70 chars`) with a body stating why the change is right and the output proving it.** Strip chat transcripts, session narrations, and mechanical file lists that merely repeat the diff.
   - Why: the log is what a future reader has once the discussion is gone; a message that restates the diff answers a question nobody has.
-  - Self-check: read the subject line alone. Does it name the change -- not a rule, an instruction or a question? Does the body quote output you actually saw?
+  - Self-check: read the subject line alone. Does it name the change — not a rule, an instruction or a question? Does the body quote output you actually saw?
 <!-- /dsh-norm -->
 
 <!-- dsh-norm: pr.description -->
@@ -100,7 +100,7 @@ never writes it.
 <!-- /dsh-norm -->
 
 <!-- dsh-norm: test.behaviour -->
-- **Assert the behaviour, not the implementation.** Name the contract -- the input, the output, the error -- so that a refactor which preserves behaviour leaves the tests passing.
+- **Assert the behaviour, not the implementation.** Name the contract — the input, the output, the error — so that a refactor which preserves behaviour leaves the tests passing.
   - Why: tests coupled to internals fail on changes that are not defects, which teaches everyone to ignore failures.
   - Self-check: if the internals were rewritten tomorrow, would this still be the right test? Does it read like a specification of the feature?
 <!-- /dsh-norm -->
