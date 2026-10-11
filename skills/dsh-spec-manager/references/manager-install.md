@@ -7,6 +7,14 @@ node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts install --root <project
 node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts install --root <project>
 ```
 
+## The install, in order
+
+1. **Place the manager.** `gh skill install <owner>/<repo> dsh-spec-manager@<revision> --dir .agents/skills` places the one skill a project installs itself. `<revision>` is `latest`, a branch or a tag, and the ref it names is the pin every other skill follows. Needed once, and again only to move the pin.
+2. **Adopt the collection.** `install --root <project>` runs both halves above: the set is deployed at the manager's ref, then the initializer writes the project's own files. `--dry-run` prints both plans and writes nothing. Needed once per project, and again after the pin moves.
+3. **Choose the optional skills.** `references/manifest.json` declares which of the set's skills are optional. An install asks about the ones the project does not already hold — a terminal defaults to no, and a shell that is not a terminal adds none and names `--with <name>` — while one the project already holds is brought to the revision like a required skill. `status` prints what the project holds and how it is owned.
+4. **Check what landed.** `status` reports the ownership of every directory under `.agents/skills/` and what the target revision moves; `check --all` runs every check on record. Run the first after adopting and the second before pushing.
+5. **Keep it current.** `upgrade` resolves the target revision and redeploys the set, and never asks about an optional skill; `norms install` and `norms update` write the norms the project chose and refresh them without overwriting an edit. Their mechanics are in `manager-lifecycle.md` and `cli.md` beside this file.
+
 ## What adoption creates
 
 | Path | What it is |

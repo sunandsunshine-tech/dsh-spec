@@ -22,22 +22,39 @@ GitHub CLI 也自带 agent 技能,去[它的仓库](https://github.com/cli/cli)�
 
 装到项目里,不要装到家目录,并把结果提交进 git。你装 manager 用的那个 ref,就是其余每个技能的 pin;装在项目里,于是每个协作者、每个 agent、CI 都停在那同一个修订上;装到用户级则只存在于各自机器上,下一次 `gh skill update` 就各走各的。首次安装后请提交 `AGENTS.md`、`.agents/`、`docs/` 和 `.rgignore`。
 
-manager 需要你亲手装,其余技能由它装。其中 `dsh-agent-team-workflow` 是可选的:`install` 会先问再装;非终端的 shell 只有收到 `--with dsh-agent-team-workflow` 才会装它。想装某条分支或某个旧版本、而不是最新已发布的那个,给 `gh skill install` 传 `--revision <ref>`。
+manager 需要你亲手装,其余技能由它装。集合里有几个技能是可选的:哪些可选由集合的 manifest 声明,`install` 只对项目还没有的那些发问,装与不装由你决定。下面这份顺序是给人照做的程序;它的机制归 [`manager-install.md`](skills/dsh-spec-manager/references/manager-install.md) 所有,本页不重复。
 
 ### 手动安装
 
-```sh
-gh skill install sunandsunshine-tech/dsh-spec dsh-spec-manager@latest --dir .agents/skills
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts install --root .
-```
+1. **装 manager。**
 
-第一条命令按你给的修订取回 manager —— `latest`、某条分支或某个 tag。第二条按 manager 被安装时所用的 ref 装上其余技能,并在项目里建起需要的文件:常驻指令、决策记录树、术语表。它还会问是否要可选的 `dsh-agent-team-workflow`:答是,计划树和它的钩子随之建起。想先看计划就加 `--dry-run`,它会列出哪些文件会新增、修改或删除;装完用 `status` 确认一下。
+   ```sh
+   gh skill install sunandsunshine-tech/dsh-spec dsh-spec-manager@latest --dir .agents/skills
+   ```
+
+   这是唯一由你亲手放的技能。装一次就够;只有要挪 pin 时才再装一次 —— 你在这里写的那个 ref,就是其余技能跟随的 ref。
+
+2. **把集合采用进项目。**
+
+   ```sh
+   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts install --root .
+   ```
+
+   它按 manager 的 ref 装上其余技能,并把项目还缺的文件建起来。放好 manager 之后需要一次,挪过 pin 之后再一次。
+
+3. **选可选技能。** 集合里哪些技能可选由 manifest 声明;`install` 只对项目还没有的那些发问,装哪几个由你定。
+
+4. **确认落下了什么。** `status` 报告每个已装目录归谁、目标修订会移动什么;采用或升级之后跑一次。
+
+5. **让它保持最新。** `upgrade` 按新修订重新部署集合,从不就可选技能发问;`norms install` 与 `norms update` 把你选中的规范写下来并刷新;`check --all` 跑记录在案的每一道检查。
+
+每一步的旗标、采用会写出哪些文件、刷新会放过什么,都在 [`manager-install.md`](skills/dsh-spec-manager/references/manager-install.md);生命周期那几个动词在 [`manager-lifecycle.md`](skills/dsh-spec-manager/references/manager-lifecycle.md)。
 
 ### 让 agent 安装
 
-把下面这段交给你的 agent:
+这里的 agent 是代理人,不是第二套程序:它照上面那份顺序做,而那份程序的家在同一个 owner,所以两扇门不会各走各的 —— 不同的只是谁来开。给它这一句:
 
-> 用 GitHub CLI 从 `sunandsunshine-tech/dsh-spec` 装上 `dsh-spec-manager` 技能,然后照本 README 的「手动安装」一节操作。先问我是否要加可选的 `dsh-agent-team-workflow` 技能,我答是就带 `--with dsh-agent-team-workflow`。动手前先确认上面列的依赖都已就绪,缺哪一样就问我。
+> 照 [`manager-install.md`](skills/dsh-spec-manager/references/manager-install.md) 把 dsh-spec 技能集装进这个项目。动手前先确认上面列的依赖都已就绪,缺哪一样就问我;要装任何可选技能之前先问我,装完告诉我你改了什么。
 
 ## 装上以后有什么用
 
@@ -62,7 +79,7 @@ node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts install --root .
 | `dsh-agent-experience` | agent 自己的上下文欠什么:先给最小上下文、发现要显式、约束先于动作、输出宁可有界 |
 | `dsh-agent-team-workflow` *(可选)* | 团队被请求建立之后的职责分工:Lead、Worker、Reviewer、Texter 四个角色、任务卡,以及每项义务归哪道门禁 |
 
-`install` 会先问再加这个可选技能;项目不选它,就没有计划树,也没有计划钩子。
+标着 *(可选)* 的行是集合的可选技能:`install` 只对项目还没有的那些发问;漏掉哪一个,那个技能名下的那些面就不会跟着落下。
 
 ## 应用它附带的规范
 

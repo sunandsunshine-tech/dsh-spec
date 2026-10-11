@@ -22,22 +22,39 @@ The GitHub CLI ships an agent skill of its own; browse [its repository](https://
 
 Install into the project, not into your home directory, and commit the result. The ref you install the manager from becomes the pin for every other skill, so a project-scoped copy puts every collaborator, every agent and CI run on that one revision; a user-scoped one stays on each machine and moves with the next `gh skill update`. Commit `AGENTS.md`, `.agents/`, `docs/` and `.rgignore` after the first install.
 
-You install the manager yourself; it installs the rest of the set. One skill, `dsh-agent-team-workflow`, is optional: `install` asks before adding it, and a shell that is not a terminal adds it only when told `--with dsh-agent-team-workflow`. Pass `--revision <ref>` to install the manager at a branch or an older release instead of its latest published one.
+You install the manager yourself; it installs the rest of the set. Some of the skills are optional: the set's manifest declares which, `install` asks about the ones this project does not already hold, and which of them you take is your decision. The order below is the procedure a person follows; [`manager-install.md`](skills/dsh-spec-manager/references/manager-install.md) owns its mechanics, and this page does not restate them.
 
 ### Install by hand
 
-```sh
-gh skill install sunandsunshine-tech/dsh-spec dsh-spec-manager@latest --dir .agents/skills
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts install --root .
-```
+1. **Place the manager.**
 
-The first command fetches the manager at the revision you name — `latest`, a branch, or a tag. The second installs the rest of the set at the ref the manager was installed from, and creates the files this project needs: the standing orders, the decision-record tree, and the vocabulary table. It also asks about the optional `dsh-agent-team-workflow`: answer yes and the delivery-plan tree and its hook come with it. Add `--dry-run` to see the plan first, including which files would be added, changed or removed; run `status` afterwards to confirm the set.
+   ```sh
+   gh skill install sunandsunshine-tech/dsh-spec dsh-spec-manager@latest --dir .agents/skills
+   ```
+
+   This is the one skill you place yourself. Do it once, and again only to move the pin: the ref you name here is the ref every other skill follows.
+
+2. **Adopt the collection into the project.**
+
+   ```sh
+   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts install --root .
+   ```
+
+   It deploys the rest of the set at the manager's ref and writes the files this project needs but does not have. You need it once, after placing the manager and after the pin moves.
+
+3. **Choose the optional skills.** The manifest declares which of the set's skills are optional; `install` asks about the ones this project does not already hold, and which of them to take is your call.
+
+4. **Check what landed.** `status` reports how the installed directories are owned and what the target revision moves; run it after adopting or upgrading.
+
+5. **Keep it current.** `upgrade` redeploys the set at a new revision and never asks about an optional skill; `norms install` and `norms update` write and refresh the norms you chose; `check --all` runs every check on record.
+
+Each step's flags, the files adoption writes, and what a refresh leaves alone are in [`manager-install.md`](skills/dsh-spec-manager/references/manager-install.md); the lifecycle verbs are in [`manager-lifecycle.md`](skills/dsh-spec-manager/references/manager-lifecycle.md).
 
 ### Install with an agent
 
-Give your agent these instructions:
+An agent is your proxy here, not a second procedure: it runs the order above, from the same owner, so the two doors cannot drift apart — the difference is who opens them, not what runs. Give it this one line:
 
-> Install the `dsh-spec-manager` skill from `sunandsunshine-tech/dsh-spec` with the GitHub CLI, then follow the "Install by hand" steps in this README. Ask me whether to add the optional `dsh-agent-team-workflow` skill, and pass `--with dsh-agent-team-workflow` if I say yes. Check that the prerequisites above are present first, and ask me if any of them is missing.
+> Install the dsh-spec skill set into this project by following [`manager-install.md`](skills/dsh-spec-manager/references/manager-install.md). Check the prerequisites first and ask me if one is missing; ask me before taking any optional skill, and tell me what you changed.
 
 ## What you get
 
@@ -62,7 +79,7 @@ Give your agent these instructions:
 | `dsh-agent-experience` | What an agent's own context owes: minimal context first, discovery made explicit, constraints before the action, bounded outputs |
 | `dsh-agent-team-workflow` *(optional)* | The division of labour inside a requested team: the Lead, Worker, Reviewer and Texter roles, task cards, and the gate each obligation belongs to |
 
-`install` asks before adding that optional skill, and a project that leaves it out carries no delivery-plan tree and no plans hook.
+The rows marked *(optional)* are the set's optional skills: `install` asks about the ones this project does not already hold, and a project that leaves one out does not carry the surfaces that skill owns.
 
 ## Applying the norms it ships
 
