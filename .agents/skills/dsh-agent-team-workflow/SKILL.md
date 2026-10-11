@@ -4,7 +4,7 @@ metadata:
     github-path: skills/dsh-agent-team-workflow
     github-ref: refs/heads/feat/optional-skills
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: ad5e38eec4b6968bdc1c8cb147bb86e7175fdf0b
+    github-tree-sha: 629d0a2b8dea5869d88725f24e3fce12df228ed9
 name: dsh-agent-team-workflow
 ---
 # Agent Team Workflow
@@ -82,7 +82,7 @@ When implementation raises a decision the card does not settle, the Worker stops
 
 ## 10. Acceptance
 
-The Lead accepts on the final tree, after the last write: that is the team's acceptance, and it does not stand for the implementer's. A parked decision, an open question, and an uncertainty go into the pull request's reviewer notes, so none of them leaves the record. The person driving the change — its implementer — accepts the result, whatever the acceptance asked for is folded back in, and the pull request stays a draft until the review handover is authorized. When a tidy is asked for, and when the state-advance authorization is asked for, follows the order the pull-request lifecycle sets out (`pr.lifecycle`, where the project applies it): this skill does not restate it. The agent does none of those acts on its own, and the ready mark is the request for the repository maintainer's review. The review handover and the merge each need their own authorization, asked for and answered: the agent puts the act as a question and the repository maintainer answers it, rather than inferring consent.
+The Lead accepts on the final tree, after the last write: that is the team's acceptance, and it does not stand for the implementer's. A parked decision, an open question, and an uncertainty go into the pull request's reviewer notes, so none of them leaves the record. The person driving the change — its implementer — accepts the result, whatever the acceptance asked for is folded back in, and the pull request stays a draft until the review handover is authorized. The order in which a tidy is asked for, and in which the review authorization is asked for, is the one the pull-request lifecycle sets out (`pr.lifecycle`, where the project applies it): this skill does not restate it. The agent does none of those acts on its own, and the ready mark is the request for the repository maintainer's review. The review handover and the merge each need their own authorization, asked for and answered: the agent puts the act as a question and the repository maintainer answers it, rather than inferring consent.
 
 ## 11. The tidy
 
