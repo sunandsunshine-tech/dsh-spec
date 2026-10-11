@@ -12,6 +12,9 @@
     "dsh-agent-experience",
     "dsh-agent-team-workflow"
   ],
+  "optional": [
+    "dsh-agent-team-workflow"
+  ],
   "gates": [
     "verify-agent-note-classification",
     "verify-agent-note-format",

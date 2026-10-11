@@ -53,7 +53,7 @@ The help speaks English or Chinese: `--help zh`, or a `DSH_SPEC_LANG`, `LC_ALL`,
 
 Install the collection into a project.
 
-Acts by default. The set is installed at the ref `gh skill install` injected into this manager, or at `--revision <ref>`. `--dry-run` prints both plans — the skills it would deploy and the files it would create — and writes nothing. The norms a project applies are the project's own selection: this verb reports them and never writes them.
+Acts by default. The required skills are installed at the ref `gh skill install` injected into this manager, or at `--revision <ref>`. A skill the manifest marks optional is added only when the answer says so: a terminal is asked about each one and the default answer is no, a shell that is not a terminal adds none and prints the `--with <name>` line that would, and `--with <name>` adds one without asking. `--dry-run` prints both plans — the skills it would deploy and the files it would create — plus each question with the answer it would take, and reads no input. The norms a project applies are the project's own selection: this verb reports them and never writes them.
 
 ```sh
 # See what adopting this project would do
@@ -64,6 +64,7 @@ node <engine>/dsh-spec.ts install --root . --dry-run
 |---|---|
 | `--dry-run` | Print the plan and write nothing |
 | `--revision <ref>` | Install at this ref instead of the manager's own |
+| `--with <name>` | Install this optional skill without asking (repeatable) |
 
 The [global flags](#flags) apply to every command.
 
@@ -71,7 +72,7 @@ The [global flags](#flags) apply to every command.
 
 Update the installed skills and the mechanism text.
 
-Self-updates the manager first, re-executes that new copy, and then installs the skill set at the ref it was updated to. The norms a project applies are reported, not written — like `apt update`, it says what the revision moves and leaves applying to `norms update`. A replacement too old to know `--only-skill-set` is not re-executed: the invoked copy installs the set itself from the replacement's manifest, so the manager and the set still end on one revision. `--only-skill-set` skips the first half and installs the set at the manager's own ref. Creates nothing: a file the project deleted on purpose stays deleted. `--reinstall` copies the skills again even when their content already matches.
+Self-updates the manager first, re-executes that new copy, and then installs the skill set at the ref it was updated to. The norms a project applies are reported, not written — like `apt update`, it says what the revision moves and leaves applying to `norms update`. A replacement too old to know `--only-skill-set` is not re-executed: the invoked copy installs the set itself from the replacement's manifest, so the manager and the set still end on one revision. `--only-skill-set` skips the first half and installs the set at the manager's own ref. A refresh asks nothing about an optional skill: one the project already holds follows the set, and one it never took is not installed. Creates nothing: a file the project deleted on purpose stays deleted. `--reinstall` copies the skills again even when their content already matches.
 
 ```sh
 # Refresh a project pinned to a new revision
@@ -91,7 +92,7 @@ The [global flags](#flags) apply to every command.
 
 Remove the installed skills.
 
-Lists what it leaves behind — the marked blocks in `AGENTS.md`, the notes tree, the plan tree, `docs/` and `.rgignore` — because those are the project's own.
+Removes the whole set, or the one skill `--skill <name>` names; a name this manifest does not carry is refused, so another collection's directory is never touched. It then lists what it leaves behind — the marked blocks in `AGENTS.md`, the notes tree, the plan tree, `docs/` and `.rgignore` — because those are the project's own. Removing the optional workflow skill turns its `dsh-spec:plans` block off, while the plan tree and the plans in it stay where they are.
 
 ```sh
 # See what removal would leave in place
@@ -101,6 +102,7 @@ node <engine>/dsh-spec.ts uninstall --dry-run --root .
 | Flag | Meaning |
 |---|---|
 | `--dry-run` | Print the plan and write nothing |
+| `--skill <name>` | Remove only this skill (default: the whole set) |
 
 The [global flags](#flags) apply to every command.
 
@@ -108,7 +110,7 @@ The [global flags](#flags) apply to every command.
 
 Check the installed set against the manager's own revision.
 
-Changes nothing, and exits non-zero when a skill is missing, unlisted, or not at the revision the manager itself was installed from.
+Changes nothing. A required skill is compared with the manager's own revision, and an optional skill the project never took is reported `absent` rather than as a problem. A directory this collection installed that the revision no longer publishes is a finding — `upgrade` removes it by name — while a directory carrying no `metadata.github-repo`, or one from another repository, is an informational line that leaves the exit code alone. Holding the optional workflow skill without its plan tree or its `dsh-spec:plans` hook is a finding too: the delivery-plan workspace is half installed. Exits non-zero on any finding.
 
 ```sh
 # Report drift before pushing an instruction file

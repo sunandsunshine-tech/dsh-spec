@@ -48,6 +48,23 @@ export function runScript(script: string, args: string[] = [], cwd: string = REP
   return run(join(REPO_ROOT, script), cwd, args)
 }
 
+/**
+ * Run one entry point wherever it sits: a copy of the manager a fixture adopted, or a stand-in.
+ *
+ * `runCli` targets this repository's engine, which means it always reads this repository's manifest.
+ * A case that has to hand the manager a different manifest runs a copy from that project's own tree
+ * through this function instead.
+ *
+ * @param entry - absolute path of the script to run.
+ * @param cwd - directory to run in.
+ * @param args - arguments passed through.
+ * @param options - `stdin` and `env`, as {@link runCli}.
+ * @returns the exit status and both streams.
+ */
+export function runEntry(entry: string, cwd: string, args: string[] = [], options: { stdin?: string, env?: Record<string, string | undefined> } = {}): CliResult {
+  return run(entry, cwd, args, options)
+}
+
 function run(entry: string, cwd: string, args: string[], options: { stdin?: string, env?: Record<string, string | undefined> } = {}): CliResult {
   if (!existsSync(entry)) {
     return { status: -1, stdout: '', stderr: `missing entry point ${entry}`, output: `MISSING ENTRY POINT: ${entry}` }

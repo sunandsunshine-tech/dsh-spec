@@ -1,0 +1,22 @@
+# Bilingual-pair consistency record for 2026-10-10-the-manager-owns-only-the-skills-its-manifest-names.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/proposed/process/2026-10-10-the-manager-owns-only-the-skills-its-manifest-names.md
+/agent-note-the-manager-owns-only-the-skills-its-manifest-names:
+  en: d59e976a39f55ce0
+  zh: 5cfb7bfcc57eef0c
+/agent-note-the-manager-owns-only-the-skills-its-manifest-names/problem:
+  en: cde2d50c1f961a7a
+  zh: f108b87c895ae572
+/agent-note-the-manager-owns-only-the-skills-its-manifest-names/proposal:
+  en: 069491a9786cdf2e
+  zh: d5b080ad555f4db6
+/agent-note-the-manager-owns-only-the-skills-its-manifest-names/alternatives-considered:
+  en: 13fc54e52121f383
+  zh: 7163e2971bb62d46
+/agent-note-the-manager-owns-only-the-skills-its-manifest-names/acceptance-criteria:
+  en: 02bcb84182f71024
+  zh: 0bc6f837ee673404
+/agent-note-the-manager-owns-only-the-skills-its-manifest-names/risks:
+  en: 3233c65abcf3e3fc
+  zh: b98ed7986efb3efb

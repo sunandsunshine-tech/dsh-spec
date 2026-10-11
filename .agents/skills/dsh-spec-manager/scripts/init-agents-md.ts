@@ -2,11 +2,11 @@
  * Initialize a project's agent instructions, and sync the files whose text the collection owns.
  *
  * `init` writes the root `AGENTS.md`, the Agent Note tree with the contract that governs it, the
- * delivery-plan tree with its contract, and the documentation folder's standing orders with an empty
- * terminology table. It writes nothing until `--write` is passed, so the default run is a safe
- * inventory, and it never overwrites content it did not create: an existing `AGENTS.md` keeps every
- * line and gains only the marked sections it is missing, and an existing tree or terminology table is
- * left alone.
+ * delivery-plan tree with its contract where the optional skill that owns it is installed, and the
+ * documentation folder's standing orders with an empty terminology table. It writes nothing until
+ * `--write` is passed, so the default run is a safe inventory, and it never overwrites content it did
+ * not create: an existing `AGENTS.md` keeps every line and gains only the marked sections it is
+ * missing, and an existing tree or terminology table is left alone.
  *
  * `--sync` is the other half, and it is what keeps every project's mechanism text identical to the
  * installed revision: the contract documents are replaced, a terminology table keeps its rows, and
@@ -21,6 +21,7 @@ import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, 
 import { tmpdir } from 'node:os'
 import { basename, dirname, join, relative, resolve, sep } from 'node:path'
 import { AGENT_NOTE_CLASS_PLACEHOLDER } from './agent-note-tree.ts'
+import { PLAN_SURFACE_SKILL, PLANS_DIR, PLANS_SECTION_END, PLANS_SECTION_START } from './manager.ts'
 import { readGateRecord } from './manifest.ts'
 import { readNorms, normsPathOf } from './norms.ts'
 import type { Norm } from './norms.ts'
@@ -57,10 +58,6 @@ const ARCHIVE_CLASSES = ['architecture', 'bug-fix', 'feature', 'process', 'simpl
 /** Marks the injected Agent Note section, so a re-run can find and skip it. */
 const NOTES_SECTION_START = '<!-- dsh-spec:agent-notes -->'
 const NOTES_SECTION_END = '<!-- /dsh-spec:agent-notes -->'
-
-/** Marks the injected delivery-plan section the same way. */
-const PLANS_SECTION_START = '<!-- dsh-spec:plans -->'
-const PLANS_SECTION_END = '<!-- /dsh-spec:plans -->'
 
 function flagValue(name: string): string | undefined {
   const index = process.argv.indexOf(name)
@@ -203,8 +200,8 @@ ${PLANS_SECTION_END}
  * One marked block the collection owns inside a project's standing orders.
  *
  * A hook is the pair of markers plus the function that renders what sits between them, so the merge
- * can replace each block in place and append the ones an instruction file lacks without knowing
- * which block it is handling.
+ * can replace each block in place, append the ones an instruction file lacks and remove the ones it
+ * must not carry, without knowing which block it is handling.
  */
 interface SectionHook {
   /** The marker that opens the block. */
@@ -215,13 +212,25 @@ interface SectionHook {
   label: string
   /** The block's text, markers included and newline-terminated. */
   render: () => string
+  /** Whether this project holds the surface the block belongs to. */
+  active: () => boolean
 }
 
-/** Every marked block an instruction file carries, in the order a missing one is appended. */
+/**
+ * Whether the optional skill that owns the delivery-plan surface is installed here.
+ *
+ * The installed directory is the state, not a flag: a project that removed the skill has removed the
+ * surface, and one that has it holds the surface whether or not a refresh has reached the tree yet.
+ */
+function planSurfaceInstalled(): boolean {
+  return existsSync(resolve(root, skillsDirectory, PLAN_SURFACE_SKILL))
+}
+
+/** Every marked block an instruction file may carry, in the order a missing one is appended. */
 function sectionHooks(): SectionHook[] {
   return [
-    { start: NOTES_SECTION_START, end: NOTES_SECTION_END, label: 'the Agent Note section', render: () => notesSection(notesDir) },
-    { start: PLANS_SECTION_START, end: PLANS_SECTION_END, label: 'the delivery-plan section', render: () => plansSection(plansDir) },
+    { start: NOTES_SECTION_START, end: NOTES_SECTION_END, label: 'the Agent Note section', render: () => notesSection(notesDir), active: () => true },
+    { start: PLANS_SECTION_START, end: PLANS_SECTION_END, label: 'the delivery-plan section', render: () => plansSection(plansDir), active: planSurfaceInstalled },
   ]
 }
 
@@ -302,15 +311,19 @@ function planNotesTree(notesDir: string): PlannedFile[] {
 }
 
 /**
- * The two paths init writes into the delivery-plan tree.
+ * The three paths init writes into the delivery-plan tree, where that tree is installed at all.
  *
- * The Chinese counterpart ships as a template but is not created here, the way the notes contract's
- * counterpart is not: adoption writes the English contract alone, and a project that adds the other
- * side declares the pair. The plans themselves are the project's own writing and are never planned.
+ * The tree is the workspace of one optional skill, so a project that did not take that skill gets no
+ * tree and the hook that would point at it. Where it is taken, the contract is a pair: the English
+ * side, the shipped Chinese side, and the sidecar the initializer records once both exist — a
+ * record is generated from the two files rather than installed beside them. The plans themselves are
+ * the project's own writing and are never planned.
  */
 function planPlansTree(plansDir: string): PlannedFile[] {
+  if (!planSurfaceInstalled()) return []
   return [
     { path: `${plansDir}/README.md`, template: 'plans-README.md.template' },
+    { path: `${plansDir}/README.zh.md`, template: 'plans-README.zh.md.template' },
     { path: `${plansDir}/AGENTS.md`, template: 'plans-AGENTS.md.template' },
   ]
 }
@@ -435,38 +448,47 @@ function mergeManaged(existing: string | undefined, rendered: string, merge: Mer
 }
 
 /**
- * Rewrite each marked block, and keep the collection's blocks together in `hooks` order.
+ * Rewrite each marked block, gather the collection's active blocks in `hooks` order, and drop a
+ * block whose surface is gone.
  *
  * Everything outside the markers is the project's own standing orders and is kept byte for byte; a
  * block whose inner text was edited is replaced whole, which is what makes the mechanism's text
- * identical in every project. The blocks themselves are gathered at the position of the earliest one
- * the file already carries, in `hooks` order, so a block another owner appends afterwards — the
- * norms hook, which belongs to the file's end — stays below them whatever order an earlier revision
- * left behind. An instruction file that carries none of them gains all of them at its end. A second
- * run reads back the file the first one wrote.
+ * identical in every project. The blocks the project still holds are gathered at the position of the
+ * earliest one the file already carried, in `hooks` order, so a block another owner appends
+ * afterwards — the norms hook, which belongs to the file's end — stays below them whatever order an
+ * earlier revision left behind. A hook whose surface the project no longer holds contributes no
+ * block: one the file still carries is removed and the seam it leaves is closed to one blank line,
+ * because the file must not point at a workspace that is gone. An instruction file that carries none
+ * of them gains the active ones at its end. A second run reads back the file the first one wrote.
  *
  * @param existing - the instruction file as the project holds it.
  * @param hooks - the blocks the collection owns, in the order they are kept.
  * @returns the file's new text, newline-terminated.
  */
 function mergeSections(existing: string, hooks: readonly SectionHook[]): string {
+  const present = hooks
+    .map(hook => {
+      const start = existing.indexOf(hook.start)
+      const end = start < 0 ? -1 : existing.indexOf(hook.end, start + hook.start.length)
+      return { hook, start, end }
+    })
+    .filter(block => block.end >= 0)
+  // The offsets are read before anything is removed, so a block taken out cannot shift the position
+  // its replacement goes back to.
+  const anchor = present.length === 0 ? -1 : Math.min(...present.map(block => block.start))
   let text = existing
-  let anchor = -1
-  for (const hook of hooks) {
-    const start = text.indexOf(hook.start)
-    const end = start < 0 ? -1 : text.indexOf(hook.end, start + hook.start.length)
-    if (end < 0) continue
-    if (anchor < 0) anchor = start
-    text = text.slice(0, start) + text.slice(end + hook.end.length)
+  for (const block of [...present].sort((left, right) => right.start - left.start)) {
+    text = text.slice(0, block.start) + text.slice(block.end + block.hook.end.length)
   }
-  const rendered = hooks.map(hook => hook.render().trimEnd()).join('\n\n')
+  // Only a hook the project still holds contributes a block, so a surface that went away leaves
+  // neither its markers nor the seam they held open behind.
+  const rendered = hooks.filter(hook => hook.active()).map(hook => hook.render().trimEnd()).join('\n\n')
   if (anchor < 0) {
-    const merged = text.replace(/\s+$/, '')
-    return `${merged}${merged === '' ? '' : '\n\n'}${rendered}\n`
+    return `${[text.replace(/\s+$/, ''), rendered].filter(part => part !== '').join('\n\n')}\n`
   }
   const head = text.slice(0, anchor).replace(/\s+$/, '')
   const tail = text.slice(anchor).replace(/^\s+/, '')
-  const body = `${head === '' ? '' : `${head}\n\n`}${rendered}${tail === '' ? '' : `\n\n${tail}`}`
+  const body = [head, rendered, tail].filter(part => part !== '').join('\n\n')
   return `${body.replace(/\s+$/, '')}\n`
 }
 
@@ -625,11 +647,24 @@ function syncManagedFiles(): void {
       console.log(`  would re-record the pair ${path}`)
       continue
     }
-    const recorded = spawnSync(process.execPath, [resolve(root, dispatcher), 'translation-pair', 'write', path, '--root', root], { stdio: 'inherit' })
-    if ((recorded.status ?? 1) !== 0) {
-      console.error(`dsh-spec-sync: the pair ${path} could not be re-recorded — run the pairing gate by hand`)
-      process.exit(1)
-    }
+    recordPair(path)
+  }
+}
+
+/**
+ * Record a bilingual pair through the entry point, so the sidecar is the one the pairing gate checks.
+ *
+ * A sidecar is generated from the two files rather than installed beside them, which is why a pair an
+ * initializer just created needs this step: without the record the two sides exist and the pair is
+ * still incomplete.
+ *
+ * @param path - the pair's English side, project-relative.
+ */
+function recordPair(path: string): void {
+  const recorded = spawnSync(process.execPath, [resolve(root, dispatcher), 'translation-pair', 'write', path, '--root', root], { stdio: 'inherit' })
+  if ((recorded.status ?? 1) !== 0) {
+    console.error(`dsh-spec-init: the pair ${path} could not be recorded — run the pairing gate by hand`)
+    process.exit(1)
   }
 }
 
@@ -640,11 +675,11 @@ const reported = findInstructions(root, 0)
 const rootInstruction = reported.find(entry => entry.path === 'AGENTS.md')
 const subtreeInstructions = reported.filter(entry => entry.path !== 'AGENTS.md')
 const notesDir = '.agents/dsh-spec/notes'
-const plansDir = '.agents/dsh-spec/plans'
+const plansDir = PLANS_DIR
 const docsDir = 'docs'
 const existingRoot = rootInstruction === undefined ? undefined : readFileSync(target, 'utf8')
 const hooks = sectionHooks()
-const missingHooks = hooks.filter(hook => existingRoot?.includes(hook.start) !== true)
+const missingHooks = hooks.filter(hook => hook.active() && existingRoot?.includes(hook.start) !== true)
 
 // Sync is the other half of the same contract: init writes what is missing and never touches what
 // it finds, and sync then brings the files whose text the collection owns up to this revision.
@@ -659,7 +694,7 @@ console.log('  Agent instructions')
 if (rootInstruction === undefined) {
   console.log('    root AGENTS.md: missing — will be created from the template, with the marked sections')
 } else if (missingHooks.length === 0) {
-  console.log(`    root AGENTS.md: present (${rootInstruction.lines} lines), already carries ${hooks.map(hook => hook.label).join(' and ')}`)
+  console.log(`    root AGENTS.md: present (${rootInstruction.lines} lines), already carries ${hooks.filter(hook => hook.active()).map(hook => hook.label).join(' and ')}`)
 } else {
   console.log(`    root AGENTS.md: present (${rootInstruction.lines} lines) — content preserved; ${missingHooks.map(hook => hook.label).join(' and ')} will be appended`)
 }
@@ -697,8 +732,13 @@ console.log('')
 console.log('  Delivery plans')
 {
   const plansRoot = resolve(root, plansDir)
+  const surface = planSurfaceInstalled()
   if (!existsSync(plansRoot)) {
-    console.log(`    ${plansDir}/: missing — will be created with its contract and orders`)
+    console.log(surface
+      ? `    ${plansDir}/: missing — will be created with its contract, its Chinese counterpart and its orders`
+      : `    ${plansDir}/: not created — the surface belongs to the optional ${PLAN_SURFACE_SKILL} skill, which is not installed`)
+  } else if (!surface) {
+    console.log(`    ${plansDir}/: present — kept; the optional ${PLAN_SURFACE_SKILL} skill that owns it is not installed`)
   } else {
     const planned = planPlansTree(plansDir)
     const missing = planned.filter(entry => !existsSync(resolve(root, entry.path)))
@@ -768,7 +808,7 @@ if (rootInstruction === undefined) {
   writeFileSync(target, mergeSections(existingRoot ?? '', missingHooks))
   written.push(`AGENTS.md (${missingHooks.map(hook => hook.label).join(' and ')} appended; existing content untouched)`)
 } else {
-  kept.push(`AGENTS.md (already carries ${hooks.map(hook => hook.label).join(' and ')})`)
+  kept.push(`AGENTS.md (already carries ${hooks.filter(hook => hook.active()).map(hook => hook.label).join(' and ')})`)
 }
 
 {
@@ -801,6 +841,12 @@ for (const entry of planPlansTree(plansDir)) {
   }
   if (entry.template === undefined) continue
   copyTemplate(entry.template, absolute)
+}
+// A pair the create half just deployed has no record yet: the sidecar is generated from the two
+// files, so the initializer records it here exactly as a sync re-records one it replaces. An
+// existing record is left alone — a project that edited both sides keeps its own recognition of that.
+if (planSurfaceInstalled() && existsSync(resolve(root, plansDir, 'README.zh.md')) && !existsSync(resolve(root, plansDir, 'README.i18n.yaml'))) {
+  recordPair(`${plansDir}/README.md`)
 }
 
 for (const entry of planDocsTree(docsDir)) {
