@@ -32,6 +32,24 @@ export const NORMS_DIR = join('.agents', 'dsh-spec', 'norms')
 export const NORMS_FILE = join(NORMS_DIR, 'norms.md')
 export const NORMS_RECORD = join(NORMS_DIR, 'applied.yaml')
 
+/**
+ * Whether a repository-relative path belongs to the render of the applied norms, or the catalog it
+ * derives from.
+ *
+ * The render is one thing — the marked section in the root `AGENTS.md`, the file it points at, and
+ * the record beside it — so a change to any of them is a change to this surface. The whole norms
+ * directory counts, because a later per-group split adds files beside the two and moves neither. The
+ * catalog counts because a change to it is exactly what obliges a re-render.
+ *
+ * @param path - a repository-relative POSIX path, as git reports it.
+ * @returns true when the path belongs to this surface.
+ */
+export function isNormsSurfacePath(path: string): boolean {
+  return path === 'AGENTS.md'
+    || path.startsWith('.agents/dsh-spec/norms/')
+    || path.endsWith('/references/norms.json')
+}
+
 /** The end marker of one block; the start marker is built from the id. */
 const END_MARKER = '<!-- /dsh-norm -->'
 

@@ -20,7 +20,7 @@ test('check --all runs every tree check, in record order', (t) => {
   const result = runCli(fixture.root, ['check', '--all'])
 
   assert.equal(result.status, 0, result.output)
-  assert.deepEqual(selected(result.output), ['notes', 'notes-archived', 'norm-reference'])
+  assert.deepEqual(selected(result.output), ['notes', 'notes-archived', 'norm-reference', 'norms-render'])
 })
 
 test('concurrency 1 and the default pool report the same verdicts in the same order', (t) => {
@@ -49,7 +49,7 @@ test('one failing check does not stop the others', (t) => {
   const result = runCli(fixture.root, ['check', '--all'])
 
   assert.equal(result.status, 1, result.output)
-  assert.equal(dispatchLines(result.output).length, 3, result.output)
+  assert.equal(dispatchLines(result.output).length, 4, result.output)
   assert.ok(dispatchLines(result.output).some(line => line.verdict === 'FAIL'), result.output)
   assert.ok(dispatchLines(result.output).some(line => line.verdict === 'ok'), result.output)
 })

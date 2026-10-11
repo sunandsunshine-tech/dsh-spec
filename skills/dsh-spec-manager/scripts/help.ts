@@ -473,13 +473,13 @@ const COMMAND_HELP: readonly CommandHelp[] = [
     ],
     en: {
       summary: 'Bring the applied norms up to the installed revision',
-      detail: 'The file is generated from the catalog: an untouched block takes the revision\'s text, and a block edited by hand is reported and kept — the update refuses until it is run with `--force`. A norm the catalog no longer ships is pruned from the record and the file, and named in the report.',
+      detail: 'The file is generated from the catalog: an untouched block takes the revision\'s text, and a block edited by hand is reported and kept — the update refuses until it is run with `--force`. A norm the catalog no longer ships is pruned from the record and the file, and named in the report. The render is checked: `check --all` fails while this file, the record or the `AGENTS.md` hook is not the catalog\'s render.',
       comment: 'Refresh what this project applies',
       example: 'norms update --root .',
     },
     zh: {
       summary: '把已应用的规范刷到已安装的那个修订',
-      detail: '这份文件由集合目录生成:没人动过的块直接取修订文本;被手改过的块会被报出来并保留,更新会拒绝写,直到加上 `--force`。集合已不再发布的规范会从记录与文件里清理掉,并在报告里点名。',
+      detail: '这份文件由集合目录生成:没人动过的块直接取修订文本;被手改过的块会被报出来并保留,更新会拒绝写,直到加上 `--force`。集合已不再发布的规范会从记录与文件里清理掉,并在报告里点名。派生结果有门禁:`check --all` 会在这份文件、记录或 `AGENTS.md` 的钩子与目录渲染不一致时报红。',
       comment: '刷新本项目应用的规范',
       example: 'norms update --root .',
     },

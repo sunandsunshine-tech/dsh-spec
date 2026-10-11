@@ -1,12 +1,14 @@
 ---
+name: dsh-agent-team-workflow
 description: Use when a request is a multi-step engineering delivery — a feature, a refactor, or a bug fix that must carry its decision record, its documentation, and its bilingual pairs. Turns the session into a Lead, Worker, Reviewer and Texter team; each member works from a task card, and every obligation belongs to a gate.
 metadata:
     github-path: skills/dsh-agent-team-workflow
     github-ref: refs/heads/feat/optional-skills
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: b75146ebeab30838f35ea8f7d69e7e5e31d57745
-name: dsh-agent-team-workflow
+    github-tree-sha: 77e86d04e951411b8b98c899f5cdfb43dbdd37a1
+
 ---
+
 # Agent Team Workflow
 
 ## 1. Activation
@@ -79,3 +81,11 @@ When implementation raises a decision the card does not settle, the Worker stops
 ## 10. Acceptance
 
 The Lead accepts on the final tree, after the last write: that is the team's acceptance, and it does not stand for the implementer's. A parked decision, an open question, and an uncertainty go into the pull request's reviewer notes, so none of them leaves the record. The pull request stays a draft: the branch is tidied before acceptance, before review and before the merge — folded into milestones, with the description kept current — the person driving the change — its implementer — accepts the result, whatever the acceptance asked for is folded back in, and the draft is marked ready once the handover to review is authorized. The agent does none of those acts on its own, and the ready mark is the request for the repository maintainer's review. The handover to review and the merge each need their own authorization, asked for and answered: the agent puts the act as a question and the repository maintainer answers it, rather than inferring consent.
+
+## 11. The tidy
+
+The tidy folds the branch into milestones, and every milestone it leaves is a state that builds and passes its checks on its own. Three things it owes that no check sees on its own:
+
+1. Run the render-sync gate, `verify-norms-render`, through the project's entry point at every milestone. A text rendered from a catalog is a derived copy, and a catalog edited without re-rendering leaves every other check green.
+2. A `[skip ci]` keyword lives only in the content commit whose copy refresh has not landed, and it comes out when those two commits fold. A squash message built from the commits' own messages inherits it, and a keyword left anywhere in it skips the post-merge run of `main`.
+3. A content commit is red until its refresh lands, because the installed copy is a commit behind, so the milestone above is not free. The tidy reconstructs the copy at each milestone — replace the old one and recompute the injected `github-tree-sha` — rather than assume the intermediates were green.

@@ -1,14 +1,16 @@
 ---
-description: Manually run the extended bilingual-document workflow — generated briefings, delegated prose translation, whole-document translation, and scoped pairing verification.
+name: dsh-translate-docs
+description: 'Manually run the extended bilingual-document workflow — generated briefings, delegated prose translation, whole-document translation, and scoped pairing verification.'
 disable-model-invocation: true
+user-invocable: true
 metadata:
     github-path: skills/dsh-translate-docs
     github-ref: refs/heads/feat/optional-skills
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
     github-tree-sha: 2e3bc8c84e6538c8199516cee952f67a3944c2d9
-name: dsh-translate-docs
-user-invocable: true
+
 ---
+
 # Translating docs
 
 ## Invocation boundary

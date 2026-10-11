@@ -22,7 +22,8 @@
     "verify-translation-pairing",
     "verify-md-links",
     "verify-md-link-syntax",
-    "verify-norm-reference"
+    "verify-norm-reference",
+    "verify-norms-render"
   ],
   "scopes": {
     "verify-agent-note-classification": {
@@ -64,6 +65,12 @@
     "verify-norm-reference": {
       "keys": [
         "installed-skills"
+      ],
+      "selection": "root"
+    },
+    "verify-norms-render": {
+      "keys": [
+        "norms"
       ],
       "selection": "root"
     }

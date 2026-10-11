@@ -22,6 +22,7 @@ import { dirname, relative, resolve, sep } from 'node:path'
 import { isActiveNotePath, walkAgentNoteTree } from './agent-note-tree.ts'
 import { isTranslationScopeFile } from './i18n-scope.ts'
 import { isInstalledSkillText } from './installed-skills.ts'
+import { isNormsSurfacePath } from './norms-apply.ts'
 import { readGateScopes } from './manifest.ts'
 import { scopedMarkdown, scopeReason } from './md-scope.ts'
 import { ARCHIVED_NOTES_PREFIX, NOTES_ROOT_PREFIX, resolveNotesRoot } from './notes-root.ts'
@@ -231,6 +232,7 @@ export function pathInGateScope(record: { keys: readonly GateScopeKey[], selecti
       if (key === 'notes-archived') return inArchive
       if (key === 'markdown') return path.endsWith('.md') && scopeReason(path) === ''
       if (key === 'installed-skills') return isInstalledSkillText(path)
+      if (key === 'norms') return isNormsSurfacePath(path)
       return isTranslationScopeFile(path)
     })
   }

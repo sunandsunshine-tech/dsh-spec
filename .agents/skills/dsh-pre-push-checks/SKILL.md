@@ -1,12 +1,14 @@
 ---
-description: Use before pushing, force-pushing, marking ready for review, or claiming checks pass on a branch, and immediately after gh stack sync publishes rewritten branches, to select the smallest tests and checks that cover the outgoing or just-published diff without reflexively running the full repository suite.
+name: dsh-pre-push-checks
+description: 'Use before pushing, force-pushing, marking ready for review, or claiming checks pass on a branch, and immediately after gh stack sync publishes rewritten branches, to select the smallest tests and checks that cover the outgoing or just-published diff without reflexively running the full repository suite.'
 metadata:
     github-path: skills/dsh-pre-push-checks
     github-ref: refs/heads/feat/optional-skills
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
     github-tree-sha: 4399555f87f56c28da9d4e4623c5144cecf3cef0
-name: dsh-pre-push-checks
+
 ---
+
 # Pre-Push Checks
 
 Use this skill to run relevant local evidence once before a push. The sole ordering exception is `gh stack sync`, which may publish a cascading rebase before the rewritten layers can be validated; validate them immediately afterward and do not merge until the evidence passes. Whatever automation the project has — hooks on commit or on push, a CI pipeline — is a floor rather than the evidence: it catches what it was built to catch, and this skill chooses what this particular change owes on top of it.

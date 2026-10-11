@@ -373,7 +373,7 @@ The [global flags](#flags) apply to every command.
 
 Bring the applied norms up to the installed revision.
 
-The file is generated from the catalog: an untouched block takes the revision's text, and a block edited by hand is reported and kept — the update refuses until it is run with `--force`. A norm the catalog no longer ships is pruned from the record and the file, and named in the report.
+The file is generated from the catalog: an untouched block takes the revision's text, and a block edited by hand is reported and kept — the update refuses until it is run with `--force`. A norm the catalog no longer ships is pruned from the record and the file, and named in the report. The render is checked: `check --all` fails while this file, the record or the `AGENTS.md` hook is not the catalog's render.
 
 ```sh
 # Refresh what this project applies

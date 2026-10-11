@@ -374,6 +374,7 @@ const PAIRING_GATE = 'verify-translation-pairing'
 const LINKS_GATE = 'verify-md-links'
 const SYNTAX_GATE = 'verify-md-link-syntax'
 const NORMS_GATE = 'verify-norm-reference'
+const NORMS_RENDER_GATE = 'verify-norms-render'
 
 /** The notes subject: a tree assertion plus the format of the notes it was handed. */
 function notesJobs(handed: { all: boolean, paths: string[] }): { jobs: Job[], cleanup: () => void } {
@@ -497,6 +498,16 @@ async function main(): Promise<void> {
       jobs.push({ subject: 'norm-reference', gate: NORMS_GATE, args: ['--all'] })
     }
 
+    // The hook, the file and the record are one render of the catalog, so a change to the render or
+    // to the catalog hands the gate its whole tree: a subset of files cannot answer whether the
+    // three are still in step.
+    const renderChanges = owns(NORMS_RENDER_GATE)
+    if (renderChanges.length === 0) {
+      skipped.push({ subject: 'norms-render', reason: skipReason(recordOf(NORMS_RENDER_GATE).keys) })
+    } else {
+      jobs.push({ subject: 'norms-render', gate: NORMS_RENDER_GATE, args: ['--all'] })
+    }
+
     return { jobs, skipped, cleanups }
   }
 
@@ -525,6 +536,7 @@ async function main(): Promise<void> {
         ...notes.jobs,
         { subject: 'notes-archived', gate: ARCHIVE_GATE, args: ['--all'] },
         { subject: 'norm-reference', gate: NORMS_GATE, args: ['--all'] },
+        { subject: 'norms-render', gate: NORMS_RENDER_GATE, args: ['--all'] },
       ]
       const results = await runJobs(jobs, width)
       notes.cleanup()

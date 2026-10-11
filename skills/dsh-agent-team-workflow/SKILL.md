@@ -75,3 +75,11 @@ When implementation raises a decision the card does not settle, the Worker stops
 ## 10. Acceptance
 
 The Lead accepts on the final tree, after the last write: that is the team's acceptance, and it does not stand for the implementer's. A parked decision, an open question, and an uncertainty go into the pull request's reviewer notes, so none of them leaves the record. The pull request stays a draft: the branch is tidied before acceptance, before review and before the merge — folded into milestones, with the description kept current — the person driving the change — its implementer — accepts the result, whatever the acceptance asked for is folded back in, and the draft is marked ready once the handover to review is authorized. The agent does none of those acts on its own, and the ready mark is the request for the repository maintainer's review. The handover to review and the merge each need their own authorization, asked for and answered: the agent puts the act as a question and the repository maintainer answers it, rather than inferring consent.
+
+## 11. The tidy
+
+The tidy folds the branch into milestones, and every milestone it leaves is a state that builds and passes its checks on its own. Three things it owes that no check sees on its own:
+
+1. Run the render-sync gate, `verify-norms-render`, through the project's entry point at every milestone. A text rendered from a catalog is a derived copy, and a catalog edited without re-rendering leaves every other check green.
+2. A `[skip ci]` keyword lives only in the content commit whose copy refresh has not landed, and it comes out when those two commits fold. A squash message built from the commits' own messages inherits it, and a keyword left anywhere in it skips the post-merge run of `main`.
+3. A content commit is red until its refresh lands, because the installed copy is a commit behind, so the milestone above is not free. The tidy reconstructs the copy at each milestone — replace the old one and recompute the injected `github-tree-sha` — rather than assume the intermediates were green.

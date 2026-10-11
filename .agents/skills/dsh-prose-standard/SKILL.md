@@ -1,12 +1,14 @@
 ---
-description: Use when writing, reviewing, restoring, trimming, or auditing prose in this repository, including deciding where documentation or comments are required across Markdown, public API documentation (JSDoc, Javadoc, docstrings — whichever form the ecosystem uses), code and test comments, prompts, descriptions, diagnostics, and command-line or UI strings.
+name: dsh-prose-standard
+description: 'Use when writing, reviewing, restoring, trimming, or auditing prose in this repository, including deciding where documentation or comments are required across Markdown, public API documentation (JSDoc, Javadoc, docstrings — whichever form the ecosystem uses), code and test comments, prompts, descriptions, diagnostics, and command-line or UI strings.'
 metadata:
     github-path: skills/dsh-prose-standard
     github-ref: refs/heads/feat/optional-skills
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
     github-tree-sha: 39783a756fe158789221d2231c640e0ab25c6261
-name: dsh-prose-standard
+
 ---
+
 # Prose Standard
 
 Write enough to preserve the contract, then remove reasoning transcripts, repetition, and decoration. A contract is an obligation, invariant, precondition, postcondition, or compatibility promise that a caller, callee, implementer, producer, or consumer relies on. This skill owns editorial judgment and required prose coverage; use [dsh-translate-docs](../dsh-translate-docs/SKILL.md) for bilingual pairs and [dsh-trim-cot-leakage](../dsh-trim-cot-leakage/SKILL.md) for hunting and fixing reasoning-transcript leakage. It is guidance, not a script.
