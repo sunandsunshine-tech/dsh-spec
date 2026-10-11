@@ -16,7 +16,7 @@ A delivery is carried by two files in `.agents/dsh-spec/plans/`: `<slug>.md`, th
 - **State is read, never written.** Only `<slug>.md` present is *not started*; both files is *in flight*; neither is *landed*. No status line and no lifecycle folder exist, so no artifact and no reader can disagree about where the delivery stands.
 - **A dependency is one line in `## Constraints`** — the delivery waited for, and the command that proves it landed. That command reads a fact about main, never a plan code, a note, or a status kept elsewhere, and nothing polls.
 - **The plan takes effect only on the user's own signal.** Until then the delivery performs no work: no team is formed, no card is created, no implementation begins. Reading, exploration and side-effect-free verification are planning, not work.
-- **Finish is the merge preparation that folds the branch.** It deletes the plan and its working copy, records every decision the delivery settled as a note in the same change, and hands an item still undecided to the user. Neither file reaches main.
+- **Finish is the tidy before the merge that folds the branch.** It deletes the plan and its working copy, records every decision the delivery settled as a note in the same change, and hands an item still undecided to the user. Neither file reaches main.
 
 ## Alternatives considered
 
@@ -26,7 +26,7 @@ A delivery is carried by two files in `.agents/dsh-spec/plans/`: `<slug>.md`, th
 
 **Poll for a dependency, or keep its state beside the plan.** It lost because a poll has no owner and reads a state held somewhere other than main: a delivery whose precondition fails would look like one that is merely waiting. One command run at the start either passes or fails by name.
 
-**Let the plan reach main as a durable design document.** It lost because the merge preparation already moves every settled decision into the notes tree. A second account that is never updated competes with the note that owns the reasoning, and the note is the one kept current with what shipped.
+**Let the plan reach main as a durable design document.** It lost because the tidy before the merge already moves every settled decision into the notes tree. A second account that is never updated competes with the note that owns the reasoning, and the note is the one kept current with what shipped.
 
 **Add a plan-format gate now.** It lost to waiting, because plans are few and short-lived and the contract carries their shape; the gate would be surface that outlives the risk it removes. The condition that reopens the question is named: when malformed plans actually appear, a `keys: ["markdown"]` gate with `selection: "files"` scoped to the plans tree is the cheapest shape.
 
@@ -37,7 +37,7 @@ A delivery is carried by two files in `.agents/dsh-spec/plans/`: `<slug>.md`, th
 - No artifact carries a written delivery status: a tree with only the plan reads as not started, one with both files as in flight, and one with neither as landed.
 - A dependency's command reads a fact about main; a failing command stops the delivery by name, and no loop or agent polls in its place.
 - An agreed but unstarted plan produces no worktree, no card and no implementation until the user starts it.
-- Merge preparation deletes the plan and its working copy in one change that also records every settled decision as a note.
+- The tidy before the merge deletes the plan and its working copy in one change that also records every settled decision as a note.
 - Every check this change owes passes.
 
 ## Risks

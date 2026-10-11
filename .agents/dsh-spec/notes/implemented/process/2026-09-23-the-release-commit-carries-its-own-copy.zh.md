@@ -35,5 +35,5 @@ Status: implemented
 
 ## 相关
 
-- [拉取请求生命周期](2026-09-21-the-pull-request-lifecycle.zh.md) —— 拥有阶段与合并方式;本篇删掉它的「发布 PR 例外」。
-- [pin 就是发布出去的 tag](2026-09-22-the-pin-is-the-published-tag.zh.md) —— 拥有「一次发布是什么」与「安装跟随什么」;本篇只改本仓库自己的副本在发布时携带什么。
+- [拉取请求生命周期](2026-09-21-the-pull-request-lifecycle.zh.md) —— 拥有那四个状态、验收前、评审前与合并前的整理，以及合并方式；本篇删掉它的「发布 PR 例外」。
+- [pin 就是发布出去的 tag](2026-09-22-the-pin-is-the-published-tag.zh.md) —— 拥有「一次发布是什么」与「安装跟随什么」；本篇只改本仓库自己的副本在发布时携带什么。
