@@ -62,18 +62,20 @@ C-2 实施时 worker-1 park 了四项；按下述处理，并由 Lead 记入 PR 
 
 ## 验收轮（2026-10-12）
 
-维护者验收这一层时另起一轮：先把本层的追加提交折叠成自洽里程碑（本层头因此从 `1ed0151` 变成折叠后的 `7c0fca5`），再逐张卡收口。折叠前的那个头同样不在任何已推送的 ref 上，打不开是预期。这一轮不另写计划，追加的判据记在 `optional-skills.md` 的「验收轮追加」一节。
+维护者验收这一层时另起一轮：先把本层的追加提交折叠成自洽里程碑（本层头因此从 `1ed0151` 变成折叠后的 `7c0fca5`——`1ed0151` 从任何已推送的 ref 上都拿不到），再逐张卡收口。这一轮不另写计划，追加的判据记在 `optional-skills.md` 的「验收轮追加」一节。
 
 已落地：
 
 - **`uninstall --skill` 的边界**：只接受集合 manifest 声明的可选技能；必选技能与集合外的名字各自具名拒绝——前者是"集合本身，单删会留下下一次 install 必须修的项目"，后者是调用错误、"别家目录永不触碰"。该动词的 help、重渲染的 `cli.md` 与 `manager-install.md` 同步。
 - **README 的安装引导**：一份程序、两扇门。安装顺序的家在 `skills/dsh-spec-manager/references/manager-install.md`（新增 `The install, in order`），根 README 只说人开的那扇门与 agent 是代理人并指回该文件；可选技能改说"这一类"——manifest 声明哪些可选、`install` 只对盘上没有的发问、装哪些由采用者定——不再点名具体技能。
+- **两整理分家与推进时序**：两个整理（验收前、合并前）各自拥有自己的时点，推进动作（转评审、合并、发布）各自授权；规则落进规范 `pr.lifecycle` 与生命周期笔记那一对。
+- **完整交付物的定义**：凡动 `skills/` 的改动，交付的那个提交自身即完整状态——副本本地离线重建、注入的 `github-tree-sha` 按作者树重算，不留"内容提交 + 刷新提交"两段，也不出现跳过关键词。
+- **折叠句的搬家**：`skills/dsh-agent-team-workflow/SKILL.md` 的 tidy 一节不再握着分支折叠的机制句，只留指向——那几句归规范 `pr.lifecycle` 所有，该节现在自己说 "this skill does not restate it"。
+- **规范 body 的重排**：`pr.lifecycle` 与 `prose.voice` 的正文改成 md 结构、破折号统一，红线不动。规模是量过的：渲染出的 `.agents/dsh-spec/norms/norms.md` 118 行，仍在 200 行预算之内——预算写在 `.agents/dsh-spec/notes/implemented/process/2026-09-22-a-project-applies-the-norms-it-chooses.md`，因此不按分组拆文件、`norms/` 不扩张。
 
-在飞 / 待办：
+待办（合并前整理，需授权）：
 
-- **两整理拆分**：本轮的整理发生在验收前；合并前那次整理仍需一次——删本计划与工作副本、把两条新 note 从 `proposed/` 转 `implemented/`，并折叠届时仍存在的"内容 + 副本刷新"对。
-- **搬走分支折叠那几句**：`skills/dsh-agent-team-workflow/SKILL.md` 的 tidy 一节仍握着分支折叠与副本重建的机制句；它们归规范与笔记所有，技能里留一句指向即可。
-- **规范 body 的格式**：先按格式写定，再量长短——量在写定之前会把中间形状当成结果。
+- 删本计划与工作副本；把两条新 note 从 `proposed/` 转 `implemented/`；并折叠届时仍存在的"内容 + 副本刷新"对。
 
 本轮裁决：
 
@@ -85,12 +87,19 @@ C-2 实施时 worker-1 park 了四项；按下述处理，并由 Lead 记入 PR 
 
 ## 结论
 
-重放到 main 之后收尾，本层头是 `c794e72`：卡片 C-1…C-6、C-6b 全部完成，C-7 评审两轮通过（第一轮 REJECT 指出归属比较与真实安装元数据形状不符，修复后第二轮 PASS），C-8 文本终检完成，C-10 重基线完成，C-12 的 Q7 = B / Q8 落地完成。
+一轮收口之后，本层头是 `d01a4e2`（`origin/main..HEAD` 十四笔）：卡片 C-1…C-6、C-6b 全部完成，C-7 评审两轮通过（第一轮 REJECT 指出归属比较与真实安装元数据形状不符，修复后第二轮 PASS），C-8 文本终检完成，C-10 重基线完成，C-12 的 Q7 = B / Q8 落地完成；验收轮的卡见上一节。
 
 落地的：`manifest.json` 的 `optional` 与差集派生、校验；`install` 的 TTY/非 TTY/`--with`/`--dry-run` 四场景；`upgrade` 永不询问且只跟随已持有的可选；`status` 的三类归属（本集合在册、本集合已下线、别家/无 metadata）与半装计划面 finding；`uninstall` 的默认与 `--skill`；计划面条件化（选中可选技能才建计划树、双语契约、配对记录与钩子；卸载技能移除钩子、保留树与计划）；入口点 flag 表；文档与 README 双语同步；两条新决策 note 与三条被写旧的 implemented 记录刷新。**跨层**：C 取代了 B 的"采用落两件"为"选中时落三件 + 配对记录"。
 
-真实门禁（重放后实测）：`node --test 'tests/**/*.test.ts'`（全量 185 / pass 185；管理面 50/50）；`verify-installed-copy`（10 skill(s) equal）；`verify-port-provenance`；`verify-skill-structure --root skills/dsh-spec-manager`；`check --all`；corpus md-links 158 文件；corpus translation-pair 54 对；`check --base 1cbcf84`。
+真实门禁（`d01a4e2` 实测）：
 
-**留给合并前整理（需用户授权）**：删除本计划与工作副本；把两条新 note 从 `proposed/` 转 `implemented/`；PR 四节描述里的未决项见下。
+- `node --test 'tests/**/*.test.ts'` → 196 / pass 196 / fail 0。
+- `node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair list --root .` → 54 ok, 0 out-of-sync, 0 missing（of 54 in scope）。
+- corpus `md-links`（158 个 in-scope `.md`）→ `check md-links: ok`。
+- `node scripts/verify-installed-copy.ts` → 10 skill(s) equal their installed copies under .agents/skills，exit 0。
+- `node scripts/verify-dco.ts --base=origin/main --head=HEAD` → 14 commit(s) in origin/main..HEAD carry a Signed-off-by，exit 0。
+- `norms list` → 12 norm(s) in 5 group(s)。
 
-**未决、已上报用户**：(1) 依赖门按 stack 读法在原 worktree 里跑，与计划"main 上的事实"措辞不同；(2) 第二条 note 的类别与计划路径不一致，按类别落 `proposed/feature/`；(3) PR #66 的描述与 base 要按重放后的 head 重写（Lead 做）。
+**留给合并前整理（需用户授权）**：删除本计划与工作副本；把两条新 note 从 `proposed/` 转 `implemented/`。
+
+**未决、已上报用户**：依赖门按 stack 读法在原 worktree 里跑，与计划"main 上的事实"措辞不同。
