@@ -39,13 +39,25 @@ never writes it.
 ## Pull-request lifecycle
 
 <!-- dsh-norm: pr.lifecycle -->
-- **Walk a change through four states, and make the current state visible.** Development, acceptance, review, merge; the pull request is that state made visible, and each state names what has to be true before the next one starts. A change is a draft whose title carries the `WIP:` prefix while it is under development; it is tidied and still a draft while it awaits acceptance; the `WIP:` prefix is gone and the pull request is marked ready while it awaits review; merged is the state at the end. Two acts land on it and they are not the same act: its implementer accepts it while it is a draft, and the repository's maintainer reviews it once it is ready, and neither act stands in for the other.
-  - **The tidy is one operation, and it runs before acceptance, before review, and before the merge.** It has three parts: the branch is folded into milestones by an interactive rebase -- a commit per coherent unit of work, in an order a reviewer can read, with each commit's message stating why; every commit left is a state that builds and passes its checks on its own; and the pull request's description is kept current. The same three parts run every time. The tidy before acceptance runs unasked, because it costs little and it is the driver's first clear look; a later one is asked for the way an authorization is -- asked first, done after, answered.
-  - **Between tidies the branch is append-only.** Fixups go on top as new commits rather than rewriting the pushed history, so a reviewer reads the delta since the last tidy and the next tidy folds each fixup into the milestone it belongs to.
-  - **Acceptance is a notification, and the agent asks for the review handover and for the merge; those two need the repository maintainer's authorization.** The agent notifies the driver to accept once development is finished and tidied -- a session-level message rather than an authorization, which may be a condensed form of the description -- then asks for the review handover, and after it, marks the pull request ready, then asks for the merge. The review handover and the merge belong to the maintainer, each asked for by the agent and answered by the maintainer on its own.
-  - **An authorization is asked for and answered, once the change stands as it will be handed over.** The tidy is done, the checks that verify it have passed, and the driver has agreed to what the change is; an ask made earlier covers something not yet formed. The agent puts the act to the repository maintainer in whatever form its harness presents a question, naming the act and carrying the change's description, and the maintainer answers it; a sentence the agent writes and then reads as consent is not an authorization. An authorization names the act it covers, and approval of a different change, or of the same change at an earlier state, authorizes nothing.
-  - How a change lands is decided by the kind of change, not by the button somebody happens to press: a release pull request squashes like every other one.
-  - Why: without visible states a change oscillates between "it runs" and "it is reviewable", and the author and the reviewer each assume a different one of those; a rewritten commit invalidates what the reviewer read, a broken intermediate destroys bisect, and a consent the agent inferred is a decision the maintainer never made.
+- **Walk a change through four states, and make the current state visible.** Development, acceptance, review, merge. The pull request is that state made visible, and each state names what has to be true before the next one starts.
+  - **Development.** A draft pull request whose title carries the `WIP:` prefix.
+  - **Acceptance.** Tidied, and still a draft.
+  - **Review.** The `WIP:` prefix is gone and the pull request is marked ready.
+  - **Merge.** The end state.
+  - Two acts land on a change and they are not the same act: its implementer accepts it while it is a draft, and the repository's maintainer reviews it once it is ready. Neither act stands in for the other.
+  - **The tidy is one operation, and it runs before acceptance, before review, and before the merge.** It has three parts, and the same three run every time:
+    - Fold the branch into milestones by an interactive rebase: a commit per coherent unit of work, in an order a reviewer can read, each message stating why.
+    - Every commit left is a state that builds and passes its checks on its own.
+    - The pull request's description is kept current.
+  - The tidy before acceptance runs unasked: it costs little, and it is the driver's first clear look. A later one is asked for the way an authorization is -- asked first, done after, answered.
+  - **Between tidies the branch is append-only.** Fixups go on top as new commits, never as rewritten history. A reviewer reads the delta since the last tidy, and the next tidy folds each fixup into the milestone it belongs to.
+  - **Acceptance is a notification.** Once development is finished and tidied, the agent tells the driver the change is ready to accept and asks for that acceptance. It is a session-level message, not an authorization, and it may be a condensed form of the description.
+  - **The review handover and the merge are each asked for, and each needs the repository maintainer's authorization.** The agent asks for the review handover, marks the pull request ready once it is answered, and later asks for the merge. Each act is asked for by the agent and answered by the maintainer on its own.
+  - **An authorization is asked for and answered, once the change stands as it will be handed over.** The tidy is done, the checks that verify it have passed, and the driver has agreed to what the change is. An ask made earlier covers something not yet formed.
+  - The agent puts the act to the maintainer in whatever form its harness presents a question, naming the act and carrying the change's description, and the maintainer answers it. A sentence the agent writes and then reads as consent is not an authorization.
+  - An authorization names the act it covers. Approval of a different change, or of the same change at an earlier state, authorizes nothing.
+  - **How a change lands follows the kind of change, not the button somebody presses.** A release pull request squashes like every other one.
+  - Why: without visible states a change oscillates between "it runs" and "it is reviewable", and the author and the reviewer each assume a different one of those. A rewritten commit invalidates what the reviewer read, a broken intermediate destroys bisect, and a consent the agent inferred is a decision the maintainer never made.
   - Self-check: can you say which state this change is in, what would have to be true to leave it, which reader it is waiting on, whether the act you are about to take is authorized, and whether the description is current? Does every intermediate commit build, and would two people merging the same kind of change produce the same shape?
 <!-- /dsh-norm -->
 
@@ -73,7 +85,7 @@ never writes it.
 ## Prose
 
 <!-- dsh-norm: prose.voice -->
-- **Write for the reader who inherits the codebase, in native idiom and the present tense.** State existing behaviour; strip conversational residue ("as requested") and change narration ("used to", "this PR adds"). Lead with the conclusion, then the supporting rationale; prefer one real command or output over a paragraph of adjectives. Leave ecosystem terms (commit, rebase, diff, worktree, token) unlocalized.
+- **Write for the reader who inherits the codebase, in native idiom and the present tense.** State existing behaviour. Strip conversational residue ("as requested") and change narration ("used to", "this PR adds"). Lead with the conclusion, then the rationale. Prefer one real command or output over a paragraph of adjectives. Leave ecosystem terms (commit, rebase, diff, worktree, token) unlocalized.
   - Why: the chat vanishes on merge, leaving only the code; prose addressed to the session is stale on arrival, and mechanical translation forces the reader to reverse-translate terminology.
   - Self-check: does it state present fact in native idiom, or narrate a conversation? Could an explanation be replaced by a command and its output? Did you translate an industry-standard term?
 <!-- /dsh-norm -->
