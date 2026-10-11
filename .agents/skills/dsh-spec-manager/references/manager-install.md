@@ -15,7 +15,7 @@ node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts install --root <project
 | `.agents/dsh-spec/notes/README.md` and its three `AGENTS.md` | The decision-record contract: the layout, the classes, the in-file format, and the orders for each subtree |
 | `.agents/dsh-spec/notes/{proposed,implemented,rejected}/{class}/` | The active lifecycle tree, one directory per class |
 | `.agents/dsh-spec/notes/archived/{class}/` | The frozen archive's kind directories |
-| `.agents/skills/dsh-agent-team-workflow/` (optional) | The team workflow: a terminal is asked before it is added and the default answer is no, a shell that is not a terminal adds nothing, and `--with <name>` adds it without asking |
+| `.agents/skills/dsh-agent-team-workflow/` (optional) | The team workflow: an install asks about it only while the project does not already hold it — a terminal's default answer is no, and a shell that is not a terminal adds nothing and names `--with <name>` — while one the project holds is brought to the revision like a required skill, and `--with <name>` adds a new one without asking |
 | `.agents/dsh-spec/plans/README.md`, its `README.zh.md` and the pairing record beside them | The delivery-plan contract as a bilingual pair: the plan's fields, the state its working copy reads as, its dependency line, and the start-and-finish rules |
 | `.agents/dsh-spec/plans/AGENTS.md` | The orders that send a multi-step delivery to that contract before it starts |
 | `docs/terminology.md` | The vocabulary table the translation briefing reads, released with its columns and rules and **no rows** |

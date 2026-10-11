@@ -517,20 +517,25 @@ interface Plan {
 }
 
 /**
- * The skills a refresh installs: every required skill, plus the optional ones the project already has.
+ * The skills a project holds, which is what an install or a refresh brings to the revision.
  *
- * An optional skill is a choice the project made by holding it, so it follows the set like a required
- * one; one that is not installed stays that way on this path, because a refresh asks no questions.
- * The list is derived from the directory and the manifest rather than recorded, so the set and the
- * project's own state cannot disagree.
+ * The set is derived from the project's own directory and this run's answers rather than recorded, so
+ * what a project holds and what is installed cannot disagree: every required skill, every optional
+ * skill already on disk, and the optional skills this run chose. An optional skill is a choice the
+ * project makes by holding it, so one that is already there follows the set like a required one, and
+ * one that is neither held nor chosen is not installed. Both verbs read this one rule, so neither
+ * can drift into a revision of its own.
  *
  * @param directory - the project's `.agents/skills/` directory.
  * @param manifest - the revision's manifest.
+ * @param chosen - the optional skills this run chose, which may name ones not yet on disk.
  * @returns the skill names to install, in manifest order.
  */
-function selectedSkills(directory: string, manifest: Manifest): string[] {
+function selectedSkills(directory: string, manifest: Manifest, chosen: readonly string[] = []): string[] {
   return manifest.skills.filter((skill) =>
-    !manifest.optional.includes(skill) || existsSync(join(directory, skill, 'SKILL.md')))
+    !manifest.optional.includes(skill)
+    || chosen.includes(skill)
+    || existsSync(join(directory, skill, 'SKILL.md')))
 }
 
 /** A person's answer to one yes/no question. */
@@ -598,17 +603,24 @@ async function skillDescription(repo: string, ref: string, name: string): Promis
 /**
  * The optional skills an install adds: the ones `--with` named, or the ones a person answers yes to.
  *
- * Nothing optional is installed without an answer. A shell that is not a terminal — an agent's — has
- * nobody to ask, so it names the flag that would add the skill and installs nothing; a dry run prints
- * the question and the answer it would take instead of reading stdin, because a preview must not
- * consume the answer the apply needs.
+ * Only an optional the project does not already hold is a question, because holding one is itself the
+ * choice: an optional on disk is selected and brought to the revision, so asking about it could not
+ * change the outcome, and that is reported as an update rather than as a question. Nothing optional
+ * is installed without an answer: a shell that is not a terminal — an agent's — has nobody to ask, so
+ * it names the flag that would add the skill and adds nothing, and the name is said only about one
+ * that is genuinely absent; a dry run prints the question and the answer it would take instead of
+ * reading stdin, because a preview must not consume the answer the apply needs.
  *
+ * @param directory - the project's `.agents/skills/` directory, which is where the choice is read.
+ * @param ref - the revision the held optional skills are brought to.
  * @param manifest - the revision's manifest.
  * @param options - the names `--with` gave, whether this is a preview, a reader when a person can be
  * asked, and how a skill is described in the question.
  * @returns the optional skills to install, in manifest order.
  */
 async function chooseOptional(
+  directory: string,
+  ref: string,
   manifest: Manifest,
   options: { with: readonly string[], dryRun: boolean, ask?: () => { ask: Asker, close: () => void }, describe: (name: string) => Promise<string | undefined> },
 ): Promise<string[]> {
@@ -623,6 +635,14 @@ async function chooseOptional(
   const reader = options.dryRun ? undefined : options.ask?.()
   try {
     for (const name of manifest.optional) {
+      // Holding it is the choice, so it is selected whether or not this run was told about it; the
+      // update is what the report says instead of a question it could not answer differently.
+      if (existsSync(join(directory, name, 'SKILL.md'))) {
+        console.log(options.dryRun
+          ? `  would update: ${name} — already held, so it would be brought to ${ref}`
+          : `  updated: ${name} — already held, so it is brought to ${ref}`)
+        continue
+      }
       if (options.with.includes(name)) {
         console.log(`  with: ${name} — named by --with, no question asked`)
         chosen.push(name)
@@ -850,15 +870,18 @@ async function refresh(root: string, repo: string, directory: string, skills: re
  * Adopt the collection: deploy the set at the manager's own ref, create the missing project files,
  * sync the text.
  *
- * The optional skills are a question this verb asks and a refresh never does: at a terminal the
- * install asks about each one, an agent's shell is told the flag that answers instead, and `--with`
- * answers without a question. `--dry-run` prints both the question and the skill plan it decides.
+ * The optional skills are a question this verb asks about the ones the project does not already
+ * hold: at a terminal the install asks about each of those, an agent's shell is told the flag that
+ * answers instead, and `--with` answers without a question. One the project holds is already the
+ * answer, so it is brought to the revision like a required skill. `--dry-run` prints both the
+ * question and the skill plan it decides.
  */
 export async function installProject(root: string, options: { dryRun: boolean, jobs: number, revision?: string }): Promise<void> {
   const manifest = readManifest()
   const explicit = options.revision === '' ? undefined : options.revision
   const ref = explicit ?? managerRef(root) ?? await resolveTargetRef(undefined)
-  const optional = await chooseOptional(manifest, {
+  const directory = skillsDirectory(root)
+  const chosen = await chooseOptional(directory, ref, manifest, {
     with: flagValues('--with'),
     dryRun: options.dryRun,
     // A terminal is what makes a question answerable; `interactiveAsker` is built only when one of
@@ -866,10 +889,10 @@ export async function installProject(root: string, options: { dryRun: boolean, j
     ask: process.stdin.isTTY === true ? interactiveAsker : undefined,
     describe: (name) => skillDescription(manifest.repo, ref, name),
   })
-  const skills = [...requiredSkills(manifest), ...optional]
-  console.log(`  install ${skills.length} skill(s) from ${manifest.repo} at ${ref} into ${skillsDirectory(root)}`)
+  const skills = selectedSkills(directory, manifest, chosen)
+  console.log(`  install ${skills.length} skill(s) from ${manifest.repo} at ${ref} into ${directory}`)
   if (options.dryRun) console.log('  dry run — nothing is written; drop --dry-run to apply')
-  await refresh(root, manifest.repo, skillsDirectory(root), skills, ref, options.dryRun, false, true, options.jobs)
+  await refresh(root, manifest.repo, directory, skills, ref, options.dryRun, false, true, options.jobs)
   // The norms a project applies are its own selection, so adoption reports them and never writes
   // them: `norms install` is the command that does.
   console.log(normsStatusFor(root, normsPathOf(import.meta.dirname)))

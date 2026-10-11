@@ -1207,23 +1207,74 @@ test('a preview prints the question and the answer it would take, and reads no s
   assert.doesNotMatch(result.output, /would run: .*dsh-agent-team-workflow/, result.output)
 })
 
-test('an install leaves an optional skill the project already holds where it is', (t) => {
+test('an install brings an optional skill the project already holds to the revision', (t) => {
   const fixture = makeFixture({ 'README.md': '# A project\n' })
   t.after(() => fixture.dispose())
-  installSet(fixture, 'main')
+  // A real manager copy, so the install's create half runs; the optional is held at an older
+  // revision, which is the mixed state this rule removes.
+  adoptManagerCopy(fixture)
   fixture.write('.agents/skills/dsh-agent-team-workflow/SKILL.md', installedSkill('older'))
-  withTree(fixture, oneFilePerSkill(skill => digest(`main-${skill}`)))
-  stubGh(fixture)
+  // No revision listing: every selected skill is installed and nothing is pruned, which is what
+  // leaves the manager's real copy in place for the create half.
+  const calls = stubGh(fixture, { installs: true })
 
-  const reported = runCli(fixture.root, ['status'])
-  assert.equal(reported.status, 1, reported.output)
-  assert.match(reported.output, /dsh-agent-team-workflow: at older, the manager is at main/, reported.output)
+  // Holding it is the choice: the install selects it and reports the update, never a question and
+  // never the line that says it is not installed.
+  const planned = runCli(fixture.root, ['install', '--dry-run', '--revision', 'main'], { env: stubPath(fixture) })
 
-  // An install adds what it is asked to add; it maintains nothing. The held optional is not in the
-  // selection, so it is neither updated nor pruned, and `upgrade` is the verb that moves it.
-  const installed = runCli(fixture.root, ['install', '--dry-run', '--revision', 'main'], { env: stubPath(fixture) })
+  assert.equal(planned.status, 0, planned.output)
+  assert.match(planned.output, /would update: dsh-agent-team-workflow — already held, so it would be brought to main/, planned.output)
+  assert.doesNotMatch(planned.output, /(would ask|optional not installed).*dsh-agent-team-workflow/, planned.output)
+  assert.match(planned.output, /install 10 skill\(s\)/, planned.output)
+
+  const installed = runCli(fixture.root, ['install', '--revision', 'main'], { env: stubPath(fixture) })
 
   assert.equal(installed.status, 0, installed.output)
-  assert.match(installed.output, /install 9 skill\(s\)/, installed.output)
-  assert.doesNotMatch(installed.output, /(would run|would remove).*dsh-agent-team-workflow/, installed.output)
+  assert.match(installed.output, /updated: dsh-agent-team-workflow — already held, so it is brought to main/, installed.output)
+  assert.doesNotMatch(installed.output, /optional not installed/, installed.output)
+  assert.equal(
+    installCalls(calls()).filter(call => call.includes('dsh-agent-team-workflow@main')).length,
+    1,
+    `the held optional was not brought to the revision:\n${installed.output}`,
+  )
+  assert.match(
+    fixture.read('.agents/skills/dsh-agent-team-workflow/SKILL.md'),
+    /github-ref: refs\/heads\/main/,
+    'the held optional was left at the revision it already held',
+  )
+})
+
+test('an install asks only about the optional skills the project does not yet hold', (t) => {
+  const fixture = makeFixture({ 'README.md': '# A project\n' })
+  t.after(() => fixture.dispose())
+  adoptManagerCopy(fixture)
+  fixture.write('.agents/skills/dsh-agent-team-workflow/SKILL.md', installedSkill('main'))
+  withSkillFile(fixture, optionalSkillFile('Use when a delivery needs planning.'))
+  stubGh(fixture, { installs: true })
+
+  // An answer is waiting on stdin, so a question about the held optional would consume it.
+  const result = ttyInstall(fixture, 'y\n')
+
+  assert.equal(result.status, 0, result.output)
+  assert.doesNotMatch(result.output, /add it\? \[y\/N\]/, `a held optional was asked about:\n${result.output}`)
+  assert.match(result.output, /updated: dsh-agent-team-workflow — already held, so it is brought to main/, result.output)
+})
+
+test('--with adds a new optional, and naming one the project holds installs it once', (t) => {
+  const fixture = makeFixture({ 'README.md': '# A project\n' })
+  t.after(() => fixture.dispose())
+  adoptManagerCopy(fixture)
+  fixture.write('.agents/skills/dsh-agent-team-workflow/SKILL.md', installedSkill('main'))
+  const calls = stubGh(fixture, { installs: true })
+
+  const held = runCli(fixture.root, ['install', '--revision', 'main', '--with', 'dsh-agent-team-workflow'], { env: stubPath(fixture) })
+
+  assert.equal(held.status, 0, held.output)
+  assert.match(held.output, /updated: dsh-agent-team-workflow — already held, so it is brought to main/, held.output)
+  assert.match(held.output, /install 10 skill\(s\)/, held.output)
+  assert.equal(
+    installCalls(calls()).filter(call => call.includes('dsh-agent-team-workflow@main')).length,
+    1,
+    `--with on a held optional installed it a number of times other than once:\n${held.output}`,
+  )
 })

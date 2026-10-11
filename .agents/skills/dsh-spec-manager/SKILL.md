@@ -4,7 +4,7 @@ metadata:
     github-path: skills/dsh-spec-manager
     github-ref: refs/heads/feat/optional-skills
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: 4c35b5269d3d8772132087084de17c1cbeab29a6
+    github-tree-sha: f454f6c5f03390e8cd3f5c99fa7275a14b4b7186
 name: dsh-spec-manager
 ---
 # Managing an adopted project
@@ -13,7 +13,7 @@ This is the one skill of the set that a project installs by hand. Everything els
 
 `install` runs before any other skill: the standing orders and the decision-record tree have to exist before an agent has anywhere to record a decision. After that the same entry point upgrades and removes the workflow skills, carries the collection's engine — every check, the entry point that resolves one by subject, and the modules they share all sit in this skill's `scripts/` — and dispatches the checks a change owes. It also carries the norms the set accumulated: a project chooses from the catalog in `references/norms.json`, the rules it chooses land in its own tree where it may edit them, and an update reports what moved instead of overwriting an edit.
 
-**One skill of the set is optional.** `dsh-agent-team-workflow` is installed only when a terminal answer or `--with dsh-agent-team-workflow` asks for it. An install with a terminal behind it asks about each optional skill and installs the ones answered yes; a shell without one — an agent's — names the flag instead, so the question belongs to the conversation before `install` runs and the answer travels as the flag. A refresh never asks: the optional skills a project already holds follow the revision, and the ones it never took stay uninstalled.
+**One skill of the set is optional.** `dsh-agent-team-workflow` is installed when a terminal answer says so or `--with dsh-agent-team-workflow` names it. An install asks only about the optional skills the project does not already hold — one it holds is brought to the revision like a required skill — and a shell without a terminal, an agent's, names the flag instead, so the question belongs to the conversation before `install` runs and the answer travels as the flag. A refresh never asks: the ones a project holds follow the revision, and the ones it never took stay uninstalled.
 
 **`scripts/` here is the collection's engine, not this skill's private resources.** The other skills ship their `SKILL.md` and `references/` and no code at all, so a gate's bug is a bug in the collection rather than in the workflow this file describes; file it against the gate, and change it where every skill's checks already live.
 

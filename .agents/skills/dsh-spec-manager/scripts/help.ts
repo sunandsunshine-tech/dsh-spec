@@ -57,17 +57,17 @@ const COMMAND_HELP: readonly CommandHelp[] = [
     flags: [
       ['--dry-run', 'Print the plan and write nothing', '只打印计划,不写任何东西'],
       ['--revision <ref>', "Install at this ref instead of the manager's own", '安装在这个 ref,而不是 manager 自己的 ref'],
-      ['--with <name>', 'Install this optional skill without asking (repeatable)', '不询问直接安装这个可选技能(可重复)'],
+      ['--with <name>', 'Add an optional skill the project does not hold yet, without asking (repeatable)', '不询问直接添加一个项目尚未持有的可选技能(可重复)'],
     ],
     en: {
       summary: 'Install the collection into a project',
-      detail: 'Acts by default. The required skills are installed at the ref `gh skill install` injected into this manager, or at `--revision <ref>`. A skill the manifest marks optional is added only when the answer says so: a terminal is asked about each one and the default answer is no, a shell that is not a terminal adds none and prints the `--with <name>` line that would, and `--with <name>` adds one without asking. `--dry-run` prints both plans — the skills it would deploy and the files it would create — plus each question with the answer it would take, and reads no input. The norms a project applies are the project\'s own selection: this verb reports them and never writes them.',
+      detail: 'Acts by default. The required skills are installed at the ref `gh skill install` injected into this manager, or at `--revision <ref>`. A skill the manifest marks optional is part of the set once the project holds it: the install asks about each optional skill not yet on disk — the default answer is no — and adds the ones answered yes, while one already on disk is brought to the revision without a question. A shell that is not a terminal adds none of the absent ones and prints the `--with <name>` line that would, and `--with <name>` adds a new optional without asking. `--dry-run` prints both plans — the skills it would deploy and the files it would create — plus each question with the answer it would take, and reads no input. The norms a project applies are the project\'s own selection: this verb reports them and never writes them.',
       comment: 'See what adopting this project would do',
       example: 'install --root . --dry-run',
     },
     zh: {
       summary: '把技能集合安装到项目',
-      detail: '默认执行。必装技能装在 `gh skill install` 注入到这个 manager 的 ref 上,或用 `--revision <ref>` 指定。manifest 标为可选的技能只在有人要它时才装:终端下逐个提问,默认答案是否;非终端的 shell 一个都不装,只打印能把它加进来的 `--with <name>` 行;`--with <name>` 不提问直接加。`--dry-run` 只打印两半计划——要部署哪些技能、要建哪些文件——外加每个问题与它会采纳的答案,且不读输入。项目应用的规范属于项目自己的选择:这个动词只报告,从不写。',
+      detail: '默认执行。必装技能装在 `gh skill install` 注入到这个 manager 的 ref 上,或用 `--revision <ref>` 指定。manifest 标为可选的技能,项目一旦持有就属于这个集合:安装只对尚未在盘上的可选技能逐个提问,默认答案是否,回答是的装上去;已在盘上的不提问,直接带到当前修订。非终端的 shell 一个缺失的可选都不装,只打印能把它加进来的 `--with <name>` 行;`--with <name>` 不提问直接加一个新的可选。`--dry-run` 只打印两半计划——要部署哪些技能、要建哪些文件——外加每个问题与它会采纳的答案,且不读输入。项目应用的规范属于项目自己的选择:这个动词只报告,从不写。',
       comment: '先看采用这个项目会做什么',
       example: 'install --root . --dry-run',
     },

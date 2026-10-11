@@ -27,6 +27,7 @@
 
 ## Constraints
 
+- **判据变更（重基线到 main 之后，维护者裁定）**。`install` 按 `upgrade` 的同一条派生规则选取：项目持有的集合＝必装 ∪ 盘上已有的可选 ∪ 本轮选中的，且**只对尚未在盘上的可选提问**；已装可选因此被带到当前修订，不再留下"必装已更新、已装可选原地不动"的混合修订（Q7 = B）。报告为它加一行 `updated`，`optional not installed: …` 只对真的缺失且本轮未选的说（Q8 由构造消解）。计划 Objective 3 的字面读法（只问、只加本轮选中的）作废；`--with` 从此是"加一个新的可选"的入口，不再是唯一入口。同一次重基线把本层七个提交重放到 `main`（`1cbcf84`）。
 - **依赖 A（计划机制与计划树）**。门（开工第一步原样运行，判据是 main 上的事实，不读 note、不读别处状态）：
 
   `gate: test -f skills/dsh-spec-manager/templates/plans-README.md.template && test -f skills/dsh-spec-manager/templates/plans-AGENTS.md.template && grep -q 'dsh-spec:plans' AGENTS.md`

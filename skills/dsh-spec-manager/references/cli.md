@@ -53,7 +53,7 @@ The help speaks English or Chinese: `--help zh`, or a `DSH_SPEC_LANG`, `LC_ALL`,
 
 Install the collection into a project.
 
-Acts by default. The required skills are installed at the ref `gh skill install` injected into this manager, or at `--revision <ref>`. A skill the manifest marks optional is added only when the answer says so: a terminal is asked about each one and the default answer is no, a shell that is not a terminal adds none and prints the `--with <name>` line that would, and `--with <name>` adds one without asking. `--dry-run` prints both plans — the skills it would deploy and the files it would create — plus each question with the answer it would take, and reads no input. The norms a project applies are the project's own selection: this verb reports them and never writes them.
+Acts by default. The required skills are installed at the ref `gh skill install` injected into this manager, or at `--revision <ref>`. A skill the manifest marks optional is part of the set once the project holds it: the install asks about each optional skill not yet on disk — the default answer is no — and adds the ones answered yes, while one already on disk is brought to the revision without a question. A shell that is not a terminal adds none of the absent ones and prints the `--with <name>` line that would, and `--with <name>` adds a new optional without asking. `--dry-run` prints both plans — the skills it would deploy and the files it would create — plus each question with the answer it would take, and reads no input. The norms a project applies are the project's own selection: this verb reports them and never writes them.
 
 ```sh
 # See what adopting this project would do
@@ -64,7 +64,7 @@ node <engine>/dsh-spec.ts install --root . --dry-run
 |---|---|
 | `--dry-run` | Print the plan and write nothing |
 | `--revision <ref>` | Install at this ref instead of the manager's own |
-| `--with <name>` | Install this optional skill without asking (repeatable) |
+| `--with <name>` | Add an optional skill the project does not hold yet, without asking (repeatable) |
 
 The [global flags](#flags) apply to every command.
 
