@@ -125,3 +125,16 @@ C-1 manifest 字段与校验 ─▶ C-2 只读路径（status/upgrade/uninstall/
 | C-7 | 黑箱评审：按 Objective 逐条核，原样重跑 | 只读 | C-1..C-6 | 各卡命令原样重跑 + `git diff` 对照 |
 | C-8 | 文本终检 | 产物文本 | C-7 | 重跑 C-5、C-6 的命令 |
 | C-9 | 刷新副本、全量门禁、PR | `.agents/skills/**`（由命令写） | C-8 | `verify-installed-copy`、`verify-port-provenance`、`node --test`、`check --all`、`md-links`（全量） |
+
+## 验收轮追加（2026-10-12）
+
+维护者验收这一层时另起的一轮：先把本层的追加提交折叠成自洽里程碑，再逐张卡收口。下面每张欠什么、怎么验；进度与裁决记在 `optional-skills-progress.md`。
+
+| 卡 | 欠什么 | 验收 |
+|---|---|---|
+| `uninstall --skill` 的边界 | 只接受集合 manifest 声明的**可选**技能；必选技能与集合外的名字各自具名拒绝（两种拒绝理由不同），退出 2；该动词的 help、重渲染的 `cli.md`、`manager-install.md` 一并说清 | 三条用例：必选被拒且消息区分于未知名字、集合外被拒、可选正常卸载行为不变；`node --test 'tests/**/*.test.ts'`、`check --all`、corpus md-links/pairing |
+| README 的安装引导 | 安装顺序的家在 `skills/dsh-spec-manager/references/manager-install.md`；README 是给人开的那扇门，agent 段说明自己是代理人并指回该文件；可选技能只说"这一类"，不点名 | `md-links`、`translation-pair check README.md`、`check --all`；文本与行为两道复核各自过 |
+| 两整理拆分与推进顺序 | 验收前一次整理、合并前一次整理（删计划与工作副本、把新 note 转 `implemented/`、折叠届时仍存在的"内容 + 副本刷新"对）；转评审、合并、发布这些推进动作各自授权 | 每次整理后逐里程碑 `check --all`、corpus md-links、corpus pairing、`verify-installed-copy`、`norms update --dry-run`；规范与生命周期笔记成对读 |
+| 完整交付物的定义（任务中性） | 凡动 `skills/` 的改动，交付的那一个提交自身通过副本门禁——副本本地离线生成、注入的 `github-tree-sha` 按作者树重算；不留"内容提交 + 刷新提交"两段，也不出现跳过关键词 | 在该提交上跑 `verify-installed-copy` |
+| 搬走分支折叠那几句 | `skills/dsh-agent-team-workflow/SKILL.md` 里分支折叠与副本重建的机制句归规范与笔记所有；技能里留一句指向，不留第二份 | `md-links`、`check --all`，并对照规范目录与笔记确认只剩一份 |
+| 规范 body 的格式 | 先按格式写定，再量它的长短 | `norms update` 重渲染后的 `check norms-render` |

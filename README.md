@@ -22,7 +22,7 @@ The GitHub CLI ships an agent skill of its own; browse [its repository](https://
 
 Install into the project, not into your home directory, and commit the result. The ref you install the manager from becomes the pin for every other skill, so a project-scoped copy puts every collaborator, every agent and CI run on that one revision; a user-scoped one stays on each machine and moves with the next `gh skill update`. Commit `AGENTS.md`, `.agents/`, `docs/` and `.rgignore` after the first install.
 
-You install the manager yourself; it installs the rest of the set. Some of the skills are optional: the set's manifest declares which, `install` asks about the ones this project does not already hold, and which of them you take is your decision. The order below is the procedure a person follows; [`manager-install.md`](skills/dsh-spec-manager/references/manager-install.md) owns its mechanics, and this page does not restate them.
+You install the manager yourself; it installs the rest of the set. [`manager-install.md`](skills/dsh-spec-manager/references/manager-install.md) owns the install order, and this page is the door a person opens onto it.
 
 ### Install by hand
 
@@ -40,19 +40,19 @@ You install the manager yourself; it installs the rest of the set. Some of the s
    node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts install --root .
    ```
 
-   It deploys the rest of the set at the manager's ref and writes the files this project needs but does not have. You need it once, after placing the manager and after the pin moves.
+   It deploys the rest of the set at the manager's ref and writes the files this project needs but does not have. You need it once, after placing the manager, and again after the pin moves.
 
 3. **Choose the optional skills.** The manifest declares which of the set's skills are optional; `install` asks about the ones this project does not already hold, and which of them to take is your call.
 
-4. **Check what landed.** `status` reports how the installed directories are owned and what the target revision moves; run it after adopting or upgrading.
+4. **Check what landed.** `status` reports how the installed directories are owned; run it after adopting or upgrading.
 
-5. **Keep it current.** `upgrade` redeploys the set at a new revision and never asks about an optional skill; `norms install` and `norms update` write and refresh the norms you chose; `check --all` runs every check on record.
+5. **Keep it current.** `upgrade` redeploys the set at a new revision; `norms install` and `norms update` write and refresh the norms you chose; `check --all` runs every check on record.
 
 Each step's flags, the files adoption writes, and what a refresh leaves alone are in [`manager-install.md`](skills/dsh-spec-manager/references/manager-install.md); the lifecycle verbs are in [`manager-lifecycle.md`](skills/dsh-spec-manager/references/manager-lifecycle.md).
 
 ### Install with an agent
 
-An agent is your proxy here, not a second procedure: it runs the order above, from the same owner, so the two doors cannot drift apart — the difference is who opens them, not what runs. Give it this one line:
+An agent is your proxy here, not a second procedure: it follows the order that [`manager-install.md`](skills/dsh-spec-manager/references/manager-install.md) owns — this page is only the door you open for it — so the two doors cannot drift apart; the difference is who opens them, not what runs. Give it this one line:
 
 > Install the dsh-spec skill set into this project by following [`manager-install.md`](skills/dsh-spec-manager/references/manager-install.md). Check the prerequisites first and ask me if one is missing; ask me before taking any optional skill, and tell me what you changed.
 

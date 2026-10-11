@@ -60,6 +60,29 @@ C-2 实施时 worker-1 park 了四项；按下述处理，并由 Lead 记入 PR 
 
 8. **Q8（随 Q7 消解，不再是未决项）非 TTY `install` 对"已在盘上的可选"的措辞**。已装可选属于被选中并被带到当前修订，报告为它加一行 `updated: <name> — already held, so it is brought to <ref>`（`--dry-run` 作 `would update: <name> — already held, so it would be brought to <ref>`）；`optional not installed: <name> — pass --with <name> to add it` 只对真的不在盘上、本轮又没选的说，那句话因此永远为真。先前的候选措辞（`not selected this run`）不再需要。
 
+## 验收轮（2026-10-12）
+
+维护者验收这一层时另起一轮：先把本层的追加提交折叠成自洽里程碑（本层头因此从 `1ed0151` 变成折叠后的 `7c0fca5`），再逐张卡收口。这一轮不另写计划，追加的判据记在 `optional-skills.md` 的「验收轮追加」一节。
+
+已落地：
+
+- **`uninstall --skill` 的边界**：只接受集合 manifest 声明的可选技能；必选技能与集合外的名字各自具名拒绝——前者是"集合本身，单删会留下下一次 install 必须修的项目"，后者是调用错误、"别家目录永不触碰"。该动词的 help、重渲染的 `cli.md` 与 `manager-install.md` 同步。
+- **README 的安装引导**：一份程序、两扇门。安装顺序的家在 `skills/dsh-spec-manager/references/manager-install.md`（新增 `The install, in order`），根 README 只说人开的那扇门与 agent 是代理人并指回该文件；可选技能改说"这一类"——manifest 声明哪些可选、`install` 只对盘上没有的发问、装哪些由采用者定——不再点名具体技能。
+
+在飞 / 待办：
+
+- **两整理拆分**：本轮的整理发生在验收前；合并前那次整理仍需一次——删本计划与工作副本、把两条新 note 从 `proposed/` 转 `implemented/`，并折叠届时仍存在的"内容 + 副本刷新"对。
+- **搬走分支折叠那几句**：`skills/dsh-agent-team-workflow/SKILL.md` 的 tidy 一节仍握着分支折叠与副本重建的机制句；它们归规范与笔记所有，技能里留一句指向即可。
+- **规范 body 的格式**：先按格式写定，再量长短——量在写定之前会把中间形状当成结果。
+
+本轮裁决：
+
+1. **`uninstall --skill` 只能卸载可选技能**。必选是集合本身，单独删掉会留下下一次 install 必须修的项目；集合外的名字沿用原拒绝。两种拒绝必须用不同的话说清理由，而不是合成一句"不是你人"。
+2. **README 只有一份程序**。顺序归 `manager-install.md` 所有，README 是人开的那扇门；agent 是代理人、走同一份顺序，所以没有第二份说明可以漂移（`owner.ssot`）。同一处的归属说法、README 的步骤只写"做什么、什么时候需要"、机制句留在 owner。
+3. **推进顺序**：验收 → 转评审 → 合并 → 发布；每一次推进动作各自授权，规范与授权笔记拥有规则，README 不复述。
+4. **完整交付物（任务中性）**：凡动 `skills/` 的改动，交付的那一个提交自身就通过副本门禁——副本在本地离线生成、注入的 `github-tree-sha` 按作者树重算；不留"内容提交 + 刷新提交"两段，也不出现跳过关键词。
+5. **格式先于测量**（规范 body）。
+
 ## 结论
 
 重放到 main 之后收尾，本层头是 `c794e72`：卡片 C-1…C-6、C-6b 全部完成，C-7 评审两轮通过（第一轮 REJECT 指出归属比较与真实安装元数据形状不符，修复后第二轮 PASS），C-8 文本终检完成，C-10 重基线完成，C-12 的 Q7 = B / Q8 落地完成。

@@ -22,7 +22,7 @@ GitHub CLI 也自带 agent 技能,去[它的仓库](https://github.com/cli/cli)�
 
 装到项目里,不要装到家目录,并把结果提交进 git。你装 manager 用的那个 ref,就是其余每个技能的 pin;装在项目里,于是每个协作者、每个 agent、CI 都停在那同一个修订上;装到用户级则只存在于各自机器上,下一次 `gh skill update` 就各走各的。首次安装后请提交 `AGENTS.md`、`.agents/`、`docs/` 和 `.rgignore`。
 
-manager 需要你亲手装,其余技能由它装。集合里有几个技能是可选的:哪些可选由集合的 manifest 声明,`install` 只对项目还没有的那些发问,装与不装由你决定。下面这份顺序是给人照做的程序;它的机制归 [`manager-install.md`](skills/dsh-spec-manager/references/manager-install.md) 所有,本页不重复。
+manager 需要你亲手装,其余技能由它装。安装的顺序归 [`manager-install.md`](skills/dsh-spec-manager/references/manager-install.md) 所有,下面的步骤是给人开的那扇门。
 
 ### 手动安装
 
@@ -44,15 +44,15 @@ manager 需要你亲手装,其余技能由它装。集合里有几个技能是�
 
 3. **选可选技能。** 集合里哪些技能可选由 manifest 声明;`install` 只对项目还没有的那些发问,装哪几个由你定。
 
-4. **确认落下了什么。** `status` 报告每个已装目录归谁、目标修订会移动什么;采用或升级之后跑一次。
+4. **确认落下了什么。** `status` 报告每个已装目录归谁;采用或升级之后跑一次。
 
-5. **让它保持最新。** `upgrade` 按新修订重新部署集合,从不就可选技能发问;`norms install` 与 `norms update` 把你选中的规范写下来并刷新;`check --all` 跑记录在案的每一道检查。
+5. **让它保持最新。** `upgrade` 按新修订重新部署集合;`norms install` 与 `norms update` 把你选中的规范写下来并刷新;`check --all` 跑记录在案的每一道检查。
 
 每一步的旗标、采用会写出哪些文件、刷新会放过什么,都在 [`manager-install.md`](skills/dsh-spec-manager/references/manager-install.md);生命周期那几个动词在 [`manager-lifecycle.md`](skills/dsh-spec-manager/references/manager-lifecycle.md)。
 
 ### 让 agent 安装
 
-这里的 agent 是代理人,不是第二套程序:它照上面那份顺序做,而那份程序的家在同一个 owner,所以两扇门不会各走各的 —— 不同的只是谁来开。给它这一句:
+这里的 agent 是代理人,不是第二套程序:它照 [`manager-install.md`](skills/dsh-spec-manager/references/manager-install.md) 拥有的那份顺序做,本页只是替它开的那扇门,所以两扇门不会各走各的 —— 不同的只是谁来开。给它这一句:
 
 > 照 [`manager-install.md`](skills/dsh-spec-manager/references/manager-install.md) 把 dsh-spec 技能集装进这个项目。动手前先确认上面列的依赖都已就绪,缺哪一样就问我;要装任何可选技能之前先问我,装完告诉我你改了什么。
 
