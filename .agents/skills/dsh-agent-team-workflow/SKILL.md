@@ -4,7 +4,7 @@ metadata:
     github-path: skills/dsh-agent-team-workflow
     github-ref: refs/heads/feat/optional-skills
     github-repo: https://github.com/sunandsunshine-tech/dsh-spec
-    github-tree-sha: 77e86d04e951411b8b98c899f5cdfb43dbdd37a1
+    github-tree-sha: ad5e38eec4b6968bdc1c8cb147bb86e7175fdf0b
 name: dsh-agent-team-workflow
 ---
 # Agent Team Workflow
@@ -21,14 +21,18 @@ While a teammate is active the Lead does not edit production source; a one-membe
 
 | Role | Carrier | How many | Mandate |
 |---|---|---|---|
-| Lead | the root session | 1 | Decomposition, dependency order, provisioning, acceptance, the final gate run, the pull request |
-| Worker | durable teammate, `spawn_teammate`, `context: fresh` | 1..N | The whole deliverable: implementation, its own checks when it finishes, and its documentation and note text |
+| Lead | the root session | 1 | Decomposition, dependency order, provisioning, acceptance, the final gate run, and publishing — the pull request and every external act |
+| Worker | durable teammate, `spawn_teammate`, `context: fresh` | 1..N | The whole deliverable: everything the card's contract owes, and its own checks when it finishes |
 | Reviewer | durable teammate, `spawn_teammate`, `context: fresh` | 1..N | Black-box verification against the card on a clean context: re-run the accepting command, and look for work that is missing |
 | Texter | durable teammate, `spawn_teammate`, `context: fresh` | 1..N | Text only, on a clean context: idiom, order, audience, vantage, leaked reasoning, terms kept unlocalized |
 
 Create all four roles at the start; the Texter's card is created at the same time, with the last review on the write track as its `blocked_by`. The text pass starts only after the last review on the write track passes and the write track settles. No role is subsumed by another member. When the runtime disables `subagent` and `subagent_fork`, every member is a teammate.
 
 Only the Lead spawns, interrupts, or reassigns. A teammate's name is its role and an index (`worker-1`, `reviewer-2`); a member keeps that name when a later delivery reuses it.
+
+**A deliverable is complete against the task's own contract.** A state is complete when everything that contract owes is there — the code and its tests, the documentation and the notes, the paired texts, the install and verification results, and any derived artifact the contract names — and when the checks this task owes have passed on it, so a reviewer can accept it with nobody finishing it afterwards. What one task owes is read from its contract and its card; a checklist of artifact kinds is not the measure.
+
+**The Lead publishes and does the external acts; it does not edit production source.** The push, the pull request, the merge, the release, and anything that happens outside the tree belong to the Lead, and the source it publishes is the workers'.
 
 ## 3. Bindings
 
@@ -78,12 +82,10 @@ When implementation raises a decision the card does not settle, the Worker stops
 
 ## 10. Acceptance
 
-The Lead accepts on the final tree, after the last write: that is the team's acceptance, and it does not stand for the implementer's. A parked decision, an open question, and an uncertainty go into the pull request's reviewer notes, so none of them leaves the record. The pull request stays a draft: the branch is tidied before acceptance, before review and before the merge — folded into milestones, with the description kept current — the person driving the change — its implementer — accepts the result, whatever the acceptance asked for is folded back in, and the draft is marked ready once the handover to review is authorized. The agent does none of those acts on its own, and the ready mark is the request for the repository maintainer's review. The handover to review and the merge each need their own authorization, asked for and answered: the agent puts the act as a question and the repository maintainer answers it, rather than inferring consent.
+The Lead accepts on the final tree, after the last write: that is the team's acceptance, and it does not stand for the implementer's. A parked decision, an open question, and an uncertainty go into the pull request's reviewer notes, so none of them leaves the record. The person driving the change — its implementer — accepts the result, whatever the acceptance asked for is folded back in, and the pull request stays a draft until the review handover is authorized. When a tidy is asked for, and when the state-advance authorization is asked for, follows the order the pull-request lifecycle sets out (`pr.lifecycle`, where the project applies it): this skill does not restate it. The agent does none of those acts on its own, and the ready mark is the request for the repository maintainer's review. The review handover and the merge each need their own authorization, asked for and answered: the agent puts the act as a question and the repository maintainer answers it, rather than inferring consent.
 
 ## 11. The tidy
 
-The tidy folds the branch into milestones, and every milestone it leaves is a state that builds and passes its checks on its own. Three things it owes that no check sees on its own:
+A tidy takes two forms, and two owners hold them. This skill owns the **work-residue tidy**: the worktree a session created, its scratch files, probe output, a card that no longer says where the work went — what the session leaves behind is cleared or accounted for before the work is handed on, so the next reader sees the task's state and not the session's. It is cheap and it is never asked for: what it removes was never part of the deliverable.
 
-1. Run the render-sync gate, `verify-norms-render`, through the project's entry point at every milestone. A text rendered from a catalog is a derived copy, and a catalog edited without re-rendering leaves every other check green.
-2. A `[skip ci]` keyword lives only in the content commit whose copy refresh has not landed, and it comes out when those two commits fold. A squash message built from the commits' own messages inherits it, and a keyword left anywhere in it skips the post-merge run of `main`.
-3. A content commit is red until its refresh lands, because the installed copy is a commit behind, so the milestone above is not free. The tidy reconstructs the copy at each milestone — replace the old one and recompute the injected `github-tree-sha` — rather than assume the intermediates were green.
+The **branch-fold tidy** — folding the branch into milestones, keeping the pull request's description current, and the keyword that dies with the fold — belongs to the pull-request lifecycle (`pr.lifecycle`, where the project applies it). That owner's text holds the order in which a tidy is asked for and how it is answered; this skill does not restate it.
