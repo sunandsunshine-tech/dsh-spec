@@ -4,7 +4,7 @@
 
 ## 起点
 
-- 分支 `feat/optional-skills`，PR [#66](https://github.com/sunandsunshine-tech/dsh-spec/pull/66)（draft，base `main`）。B（#65）合并进 main（`1cbcf84`）后，本层七个提交重放到 main 之上；重放把两层各自的 `mergeSections` 合一、把 `install` 的选取改成 Q7 = B，并补/改文本，重放前的 sha 一并作废。重放后的七个提交是：`044e7e1`、`f5c3449`、`5a88231`、`3f3a99e`、`06ea65d`、`79c96bf`、`6be4b42`。
+- 分支 `feat/optional-skills`，PR [#66](https://github.com/sunandsunshine-tech/dsh-spec/pull/66)（draft，base `main`）。B（#65）合并进 main（`1cbcf84`）后，本层提交重放到 main 之上；重放把两层各自的 `mergeSections` 合一、把 `install` 的选取改成 Q7 = B，并补/改文本，重放前的 sha 一并作废。重放并整理之后，这条 first-parent 线上依次是：`044e7e1`（计划与判据）、`38a6b6f`（必装/可选与归属判定）、`6eb8cc8`（安装副本带到 C 的修订）、`d167170`（归属比较的归一修复，副本同行）、`f1204b3`（文本终检）、`02e1e5c`（副本带到本修订）、`c761aa8`（install 与 upgrade 共用选取规则）、`c794e72`（副本刷新）。
 - 原交付 worktree：`/home/dreamstar/ideaProjects/dsh-spec-wt/C`（仓库根之外）；子模块按根 `AGENTS.md` 的链式 worktree 配方挂在 `<worktree>/submodules/dsh`。重基线在仓库主工作树 `/home/dreamstar/ideaProjects/dsh-spec` 里做（子模块就地可用，不必再挂）。
 - 起点基线：`node --test 'tests/**/*.test.ts'` 151 pass / 0 fail；`verify-installed-copy` 10 skill(s) equal。
 
@@ -27,6 +27,8 @@ GATE PASS
 ## 实际顺序
 
 （按发生顺序追加。）
+
+写在重放之前的 sha 已随重放作废：它们指名的是当时真正做那件事的修订，重放之后不再出现在任何已推送的 ref 上（至多留在本地的 `backup/*`），因此打不开是预期，不是记录写错。
 
 1. 从 B 之上建 worktree（根之外），挂子模块 worktree。
 2. 跑门（上方输出 GATE PASS），创建本工作副本，按卡片表建卡 task-9..task-17，三层角色沿用 B 的 worker-1 / worker-2 / reviewer-1 / texter-1。
@@ -60,11 +62,11 @@ C-2 实施时 worker-1 park 了四项；按下述处理，并由 Lead 记入 PR 
 
 ## 结论
 
-重放到 main 之后收尾，本层头是 `6be4b42`：卡片 C-1…C-6、C-6b 全部完成，C-7 评审两轮通过（第一轮 REJECT 指出归属比较与真实安装元数据形状不符，修复后第二轮 PASS），C-8 文本终检完成，C-10 重基线完成，C-12 的 Q7 = B / Q8 落地完成。
+重放到 main 之后收尾，本层头是 `c794e72`：卡片 C-1…C-6、C-6b 全部完成，C-7 评审两轮通过（第一轮 REJECT 指出归属比较与真实安装元数据形状不符，修复后第二轮 PASS），C-8 文本终检完成，C-10 重基线完成，C-12 的 Q7 = B / Q8 落地完成。
 
 落地的：`manifest.json` 的 `optional` 与差集派生、校验；`install` 的 TTY/非 TTY/`--with`/`--dry-run` 四场景；`upgrade` 永不询问且只跟随已持有的可选；`status` 的三类归属（本集合在册、本集合已下线、别家/无 metadata）与半装计划面 finding；`uninstall` 的默认与 `--skill`；计划面条件化（选中可选技能才建计划树、双语契约、配对记录与钩子；卸载技能移除钩子、保留树与计划）；入口点 flag 表；文档与 README 双语同步；两条新决策 note 与三条被写旧的 implemented 记录刷新。**跨层**：C 取代了 B 的"采用落两件"为"选中时落三件 + 配对记录"。
 
-真实门禁（重放后实测）：`node --test 'tests/**/*.test.ts'`（管理面 50/50；全量 183 中 182 pass，唯一红＝安装副本门禁，待刷新）；`verify-installed-copy`（同上）；`verify-port-provenance`；`verify-skill-structure --root skills/dsh-spec-manager`；`check --all`；corpus md-links 158 文件；corpus translation-pair 54 对；`check --base 1cbcf84`。
+真实门禁（重放后实测）：`node --test 'tests/**/*.test.ts'`（全量 185 / pass 185；管理面 50/50）；`verify-installed-copy`（10 skill(s) equal）；`verify-port-provenance`；`verify-skill-structure --root skills/dsh-spec-manager`；`check --all`；corpus md-links 158 文件；corpus translation-pair 54 对；`check --base 1cbcf84`。
 
 **留给合并前整理（需用户授权）**：删除本计划与工作副本；把两条新 note 从 `proposed/` 转 `implemented/`；PR 四节描述里的未决项见下。
 
