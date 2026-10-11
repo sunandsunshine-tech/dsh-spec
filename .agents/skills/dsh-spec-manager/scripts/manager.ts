@@ -1152,9 +1152,11 @@ export function uninstallProject(root: string, dryRun: boolean): void {
 /**
  * Remove the skills this collection installed.
  *
- * The whole set by default, or the one `--skill` names. A name this manifest does not carry is
- * refused rather than skipped: another collection's directory must never be touched, and refusing
- * the invocation is what keeps that a property of the code rather than of a comparison.
+ * The whole set by default, or the one optional skill `--skill` names. Only an optional skill can go
+ * on its own: a required one is what the set is, so removing it alone would leave a project the next
+ * install has to repair. Two names are refused for two different reasons — one the manifest does not
+ * carry at all, which must never be touched because the directory may belong to another collection,
+ * and one the manifest carries as required.
  */
 function uninstall(root: string, manifest: Manifest, dryRun: boolean): void {
   const directory = skillsDirectory(root)
@@ -1164,6 +1166,11 @@ function uninstall(root: string, manifest: Manifest, dryRun: boolean): void {
   }
   if (selected !== undefined && !manifest.skills.includes(selected)) {
     refuse(`--skill ${selected} is not a skill this collection publishes, so this manager has nothing to remove — another collection's directory is never touched`)
+  }
+  // Required and unknown are refused for different reasons, and the message says which: one name is
+  // a member this collection installs with every set, the other is a name it does not know at all.
+  if (selected !== undefined && !manifest.optional.includes(selected)) {
+    refuse(`--skill ${selected} is a required skill — the set always carries it, so it is removed with the whole set and never on its own`)
   }
   for (const skill of selected === undefined ? manifest.skills : [selected]) {
     const path = join(directory, skill)

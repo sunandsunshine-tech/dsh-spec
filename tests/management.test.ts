@@ -1150,6 +1150,34 @@ test('a missing optional skill is reported as absent rather than as a problem', 
   assert.match(result.output, /absent +dsh-agent-team-workflow +optional, not installed/, result.output)
 })
 
+test('--skill refuses a required skill, and says required rather than unknown', (t) => {
+  const fixture = makeFixture({ 'README.md': '# A project\n' })
+  t.after(() => fixture.dispose())
+  installSet(fixture, 'main')
+
+  // A required skill is not a choice: the set always carries it, so it cannot go on its own.
+  const required = runCli(fixture.root, ['uninstall', '--skill', 'dsh-spec-manager'])
+
+  assert.equal(required.status, 2, required.output)
+  assert.match(required.output, /--skill dsh-spec-manager is a required skill/, required.output)
+  assert.doesNotMatch(required.output, /is not a skill this collection publishes/, 'a required skill was refused as an unknown name')
+  assert.equal(exists(fixture.root, '.agents/skills/dsh-spec-manager'), true, 'a required skill was removed')
+
+  // A name the manifest does not carry keeps its own refusal, and the two do not read alike.
+  const unknown = runCli(fixture.root, ['uninstall', '--skill', 'dsh-not-ours'])
+
+  assert.equal(unknown.status, 2, unknown.output)
+  assert.match(unknown.output, /is not a skill this collection publishes/, unknown.output)
+  assert.doesNotMatch(unknown.output, /is a required skill/, 'an unknown name was refused as a required one')
+
+  // An optional skill still goes, and only the name it was given.
+  const optional = runCli(fixture.root, ['uninstall', '--skill', 'dsh-agent-team-workflow'])
+
+  assert.equal(optional.status, 0, optional.output)
+  assert.equal(exists(fixture.root, '.agents/skills/dsh-agent-team-workflow'), false, 'the optional skill survived')
+  assert.equal(exists(fixture.root, '.agents/skills/dsh-code-review'), true, '--skill removed more than the name it was given')
+})
+
 test('uninstall removes one named skill, the whole set, and never another collection\'s directory', (t) => {
   const fixture = makeFixture({ 'README.md': '# A project\n' })
   t.after(() => fixture.dispose())
@@ -1157,9 +1185,10 @@ test('uninstall removes one named skill, the whole set, and never another collec
   const foreign = join(fixture.root, '.agents', 'skills', 'other-set')
   fixture.write('.agents/skills/other-set/SKILL.md', installedSkill('main', 'https://github.com/someone-else/another-set'))
 
-  const one = runCli(fixture.root, ['uninstall', '--skill', 'dsh-code-review'])
+  // Only an optional skill can go on its own; the required ones go with the whole set.
+  const one = runCli(fixture.root, ['uninstall', '--skill', 'dsh-agent-team-workflow'])
   assert.equal(one.status, 0, one.output)
-  assert.equal(existsSync(join(fixture.root, '.agents', 'skills', 'dsh-code-review')), false, 'the named skill survived')
+  assert.equal(existsSync(join(fixture.root, '.agents', 'skills', 'dsh-agent-team-workflow')), false, 'the named optional skill survived')
   assert.equal(existsSync(join(fixture.root, '.agents', 'skills', 'dsh-prose-standard')), true, '--skill removed more than the name it was given')
 
   // A name this manifest does not carry is an invocation error, so another collection's directory is

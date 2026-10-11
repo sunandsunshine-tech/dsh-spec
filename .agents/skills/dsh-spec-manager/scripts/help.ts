@@ -103,17 +103,17 @@ const COMMAND_HELP: readonly CommandHelp[] = [
     scope: '—',
     flags: [
       ['--dry-run', 'Print the plan and write nothing', '只打印计划,不写任何东西'],
-      ['--skill <name>', 'Remove only this skill (default: the whole set)', '只删这一个技能(默认删整套)'],
+      ['--skill <name>', 'Remove only this optional skill (default: the whole set)', '只删这一个可选技能(默认删整套)'],
     ],
     en: {
       summary: 'Remove the installed skills',
-      detail: "Removes the whole set, or the one skill `--skill <name>` names; a name this manifest does not carry is refused, so another collection's directory is never touched. It then lists what it leaves behind — the marked blocks in `AGENTS.md`, the notes tree, the plan tree, `docs/` and `.rgignore` — because those are the project's own. Removing the optional workflow skill turns its `dsh-spec:plans` block off, while the plan tree and the plans in it stay where they are.",
+      detail: "Removes the whole set, or the one optional skill `--skill <name>` names: a required skill is refused, because the set always carries it, and a name this manifest does not carry is refused too, so another collection's directory is never touched. It then lists what it leaves behind — the marked blocks in `AGENTS.md`, the notes tree, the plan tree, `docs/` and `.rgignore` — because those are the project's own. Removing the optional workflow skill turns its `dsh-spec:plans` block off, while the plan tree and the plans in it stay where they are.",
       comment: 'See what removal would leave in place',
       example: 'uninstall --dry-run --root .',
     },
     zh: {
       summary: '删除已安装的技能',
-      detail: '默认删掉整套,或 `--skill <name>` 点名的那一个;名字不在本 manifest 里会被拒绝,于是别家集合的目录永不被碰。随后它列出留下的东西——`AGENTS.md` 的标记块、笔记树、计划树、`docs/` 与 `.rgignore`——因为那些属于项目自己。删掉可选的 workflow 技能会关掉它的 `dsh-spec:plans` 块,而计划树与里面的计划留在原地。',
+      detail: '默认删掉整套,或 `--skill <name>` 点名的那个可选技能:必装技能会被拒绝,因为整套总会带上它;名字不在本 manifest 里同样被拒绝,于是别家集合的目录永不被碰。随后它列出留下的东西——`AGENTS.md` 的标记块、笔记树、计划树、`docs/` 与 `.rgignore`——因为那些属于项目自己。删掉可选的 workflow 技能会关掉它的 `dsh-spec:plans` 块,而计划树与里面的计划留在原地。',
       comment: '先看卸载会留下什么',
       example: 'uninstall --dry-run --root .',
     },

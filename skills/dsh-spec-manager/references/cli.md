@@ -92,7 +92,7 @@ The [global flags](#flags) apply to every command.
 
 Remove the installed skills.
 
-Removes the whole set, or the one skill `--skill <name>` names; a name this manifest does not carry is refused, so another collection's directory is never touched. It then lists what it leaves behind — the marked blocks in `AGENTS.md`, the notes tree, the plan tree, `docs/` and `.rgignore` — because those are the project's own. Removing the optional workflow skill turns its `dsh-spec:plans` block off, while the plan tree and the plans in it stay where they are.
+Removes the whole set, or the one optional skill `--skill <name>` names: a required skill is refused, because the set always carries it, and a name this manifest does not carry is refused too, so another collection's directory is never touched. It then lists what it leaves behind — the marked blocks in `AGENTS.md`, the notes tree, the plan tree, `docs/` and `.rgignore` — because those are the project's own. Removing the optional workflow skill turns its `dsh-spec:plans` block off, while the plan tree and the plans in it stay where they are.
 
 ```sh
 # See what removal would leave in place
@@ -102,7 +102,7 @@ node <engine>/dsh-spec.ts uninstall --dry-run --root .
 | Flag | Meaning |
 |---|---|
 | `--dry-run` | Print the plan and write nothing |
-| `--skill <name>` | Remove only this skill (default: the whole set) |
+| `--skill <name>` | Remove only this optional skill (default: the whole set) |
 
 The [global flags](#flags) apply to every command.
 

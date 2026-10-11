@@ -395,7 +395,7 @@ async function main(): Promise<void> {
     if (revision !== undefined && command !== 'install' && command !== 'upgrade') {
       usage(`${command} does not take --revision`)
     }
-    // `--skill` names the one skill `uninstall` removes, and `--with` adds an optional skill to an
+    // `--skill` names the one optional skill `uninstall` removes, and `--with` adds an optional skill to an
     // install; the manager reads both values from the argument vector itself. This table is what
     // decides which command may be handed them, and `--with` may be repeated.
     const skillFlag = extractValue(revisionFlag.rest, '--skill')
