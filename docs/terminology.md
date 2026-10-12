@@ -74,6 +74,7 @@
 | decision record | 决策记录 | | 决议记录 | 见 Agent Note |
 | proposal | 提案 | | 建议书 | 尚未实现的决策记录 |
 | lifecycle | 生命周期 | | 生命期 | `proposed`/`implemented`/`rejected`/`archived` |
+| reject | 否决 | | 拒绝 | 只用于 `rejected/` 这个决策状态与把它移过去的那次判定（`proposed` → `rejected`）；门禁拦下一个东西是机械行为，用"拦下/报出来并停下"，不叫「拒绝」 |
 | class | 类别 | | 分类、种类 | 决策记录的路径分类 |
 | pairing | 配对 | | 对齐 | 一份文档与其译文构成的一组 |
 | paired document | 配对文档 | | 双语文档 | 同时维护两种语言的文件 |
