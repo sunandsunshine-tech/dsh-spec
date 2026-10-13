@@ -16,7 +16,7 @@ The form kit that ships with the repository has the same shape from the other si
 
 **The code of conduct is Contributor Covenant 2.1 in its official English text, with no paired Chinese file.** The English text is authoritative, and a pair carries equal authority on both sides by contract, so a Chinese side would either be a second authority or a pointer. The repository keeps the pointer.
 
-**Inbound contributions carry a DCO from day zero.** `CONTRIBUTING.md` states the `Signed-off-by` requirement, and `scripts/verify-dco.ts` checks that every commit in the pull-request range carries a sign-off matching its author. An agent does not sign for someone else, and the check recognizes only the contributor's own signature.
+**Inbound contributions carry a DCO from day zero.** `CONTRIBUTING.md` states the `Signed-off-by` requirement, and `scripts/verify-dco.ts` checks that every commit in the pull-request range carries a sign-off matching its author, and verifies a commit claiming a bot's identity against GitHub. An agent does not sign for someone else, so the check recognizes the contributor's own signature; the one bot whose trailer GitHub fixes is accepted only once GitHub reports the commit as that bot's and signed by it.
 
 **AI contributions are allowed and disclosed.** A contribution declares assistance with an `Assisted-by:` trailer, and a person remains answerable for what the change does; a pull request submitted by an autonomous agent needs prior approval. The history already carries the trailer, and the policy records the practice rather than introducing it.
 

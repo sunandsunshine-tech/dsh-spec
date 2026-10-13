@@ -26,6 +26,8 @@ For every commit the exemption fires on, the gate then requires three GitHub-sid
 
 What that keeps: a contributor's checkout decides a human range from `git log` alone, and no commit is asked for a signature — the DCO needs none, and requiring one would impose this repository's taste on every contributor. What it costs: the gate is no longer a pure `git log` read in every case. A bot commit in the range needs `gh`, authenticated; a contributor who authors one locally and runs the gate offline gets a refusal rather than a pass, which is the honest answer, since only GitHub can tell that commit from a forgery.
 
+The credential is the CI step's to supply, and it carries `GITHUB_TOKEN` the way the vendored-packages workflow hands one to its step: `gh` reads that variable as well as `GH_TOKEN` and refuses without either, so a step offering none fails the check rather than skipping the question. `contents: read` is the only scope the lookup needs.
+
 ## Alternatives considered
 
 **Remove Dependabot and update the pin by hand when a release appears.** The smallest change, and it leaves the gate untouched. It lost because the pin is one line in two workflow files and a weekly bot is exactly the chore worth not doing: `actions/setup-node` moved from 7.0.0 to 7.1.0 with a two-line diff, and a human repeating that by hand is the manual upkeep an automated channel exists to remove.

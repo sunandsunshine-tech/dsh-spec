@@ -16,7 +16,7 @@ Status: implemented
 
 **行为准则是 Contributor Covenant 2.1 官方英文原文,不建中文配对。** 以英文原文为准;而配对约定要求两侧同等权威,所以中文一侧要么是第二个权威,要么只是一个指针。本仓库只留指针。
 
-**入站贡献从 day0 起带 DCO。** `CONTRIBUTING.md` 写明 `Signed-off-by` 要求,`scripts/verify-dco.ts` 检查 PR 范围内每个提交都带与作者一致的签名。agent 不替他人签名,检查也只认贡献者本人的签名。
+**入站贡献从 day0 起带 DCO。** `CONTRIBUTING.md` 写明 `Signed-off-by` 要求,`scripts/verify-dco.ts` 检查 PR 范围内每个提交都带与作者一致的签名,并对声称机器人身份的提交去 GitHub 核实。agent 不替他人签名,所以检查认的是贡献者本人的签名;唯一那个 trailer 由 GitHub 固定的机器人,只有在 GitHub 报出「这条提交属于它、且由它签名」之后才被接受。
 
 **允许 AI 贡献,但必须披露。** 贡献用 `Assisted-by:` trailer 声明协助,并且由人继续为改动实际做了什么负责;自主 agent 提交的 PR 需事先获批。历史里本来就在用这个 trailer,政策写下的是既有做法,不是新规矩。
 

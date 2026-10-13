@@ -14,10 +14,10 @@
  */
 
 import assert from 'node:assert/strict'
-import { chmodSync } from 'node:fs'
+import { chmodSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { makeFixture } from './helpers/fixtures.ts'
+import { makeFixture, REPO_ROOT } from './helpers/fixtures.ts'
 import type { Fixture } from './helpers/fixtures.ts'
 import { runScript } from './helpers/cli.ts'
 
@@ -229,4 +229,15 @@ test('an empty range fails rather than passing vacuously', () => {
   } finally {
     fixture.dispose()
   }
+})
+
+test('the CI step that runs this gate offers gh a token', () => {
+  // The gate asks GitHub about a commit claiming a bot identity, so the step that runs it in CI
+  // needs a token in its environment: `gh` reads `GITHUB_TOKEN` as well as `GH_TOKEN` and refuses
+  // without either, which would redden the check for a commit the gate would otherwise accept.
+  const workflow = readFileSync(join(REPO_ROOT, '.github/workflows/checks.yml'), 'utf8')
+  const steps = workflow.split(/\n(?= {6}- )/).filter((block) => block.includes('verify-dco.ts'))
+
+  assert.equal(steps.length, 1, 'exactly one step runs the DCO gate')
+  assert.match(steps[0]!, /(GH_TOKEN|GITHUB_TOKEN):/)
 })
