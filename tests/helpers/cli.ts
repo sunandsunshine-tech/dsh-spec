@@ -42,10 +42,17 @@ export function runCli(root: string, args: string[], options: { stdin?: string, 
  * @param script - path relative to this repository, for example `scripts/verify-port-provenance.ts`.
  * @param args - arguments passed through.
  * @param cwd - directory to run in; this repository by default.
+ * @param options - `env` for the variables a case needs to control, such as a `PATH` holding a
+ * stand-in for `gh`; a variable set to `undefined` is removed rather than inherited.
  * @returns the exit status and both streams.
  */
-export function runScript(script: string, args: string[] = [], cwd: string = REPO_ROOT): CliResult {
-  return run(join(REPO_ROOT, script), cwd, args)
+export function runScript(
+  script: string,
+  args: string[] = [],
+  cwd: string = REPO_ROOT,
+  options: { env?: Record<string, string | undefined> } = {},
+): CliResult {
+  return run(join(REPO_ROOT, script), cwd, args, options)
 }
 
 function run(entry: string, cwd: string, args: string[], options: { stdin?: string, env?: Record<string, string | undefined> } = {}): CliResult {
