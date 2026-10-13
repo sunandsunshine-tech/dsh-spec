@@ -93,6 +93,12 @@ jobs:
       # `github.sha` on a pull_request is the merge commit GitHub creates, whose author is whoever
       # pushed and which carries no sign-off, so the range would name a commit the change never
       # wrote. The branch's own tip is the thing a contributor signed.
+      #
+      # A commit claiming a bot identity is verified against GitHub as well, which is why this step
+      # carries a token: `gh` reads `GITHUB_TOKEN` and refuses without it, and a refusal is not a
+      # pass. `contents: read` is the only scope it needs, and a range of human commits never asks.
       - name: the Developer Certificate of Origin
         if: github.event_name == 'pull_request'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/verify-dco.ts --base="origin/${{ github.base_ref }}" --head="${{ github.event.pull_request.head.sha }}"
