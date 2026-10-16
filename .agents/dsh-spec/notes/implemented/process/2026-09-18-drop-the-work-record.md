@@ -12,7 +12,7 @@ The record also cost something every change: a file to keep current, a tier in t
 
 ## Decision
 
-**`work.md` is deleted, along with every surface that carried it**: its tier on both sides of the tier table, the standing order to update it, the composition map's section, and the documentation table's row. Those surfaces are gone with the documentation mechanism itself ([Four mechanisms instead of twelve](2026-09-18-four-mechanisms-instead-of-twelve.md)), and the record that introduced the artifact is consolidated here, with its English, Chinese, and consistency files deleted.
+**`work.md` is deleted, along with every surface that carried it**: its tier on both sides of the tier table, the standing order to update it, the composition map's section, and the documentation table's row. Those surfaces are gone with the documentation mechanism itself, and the record that introduced the artifact is consolidated here, with its English, Chinese, and consistency files deleted.
 
 **Continuity comes from what already exists.** A session resumes from the repository: the notes tree states what was decided and what is still proposed, the aggregate check reports what no longer holds, and `git log` states what shipped. Where the work record would have said "step 6 of 15", the acceptance criteria of the proposal say what remains, and the commit that closed each step says which criterion it met.
 

@@ -2,7 +2,7 @@
 
 A delivery plan is the working document a multi-step delivery is executed from: what it intends, in what order, and what proves it. Follow the `README.md` beside this file for the fields, the state, the dependencies, and the start-and-finish rules.
 
-**A delivery that spans more than one step records its plan here before it starts.** A single-step or mechanical change does not. This directory and its contract exist where the collection's team workflow is installed; a project without it has neither.
+**A delivery that spans more than one step records its plan here before it starts.** A single-step or mechanical change does not. This directory and its contract exist where the team workflow skill is installed; a project without it has neither.
 
 **The plan takes effect on the user's own signal, and that signal authorizes the work.** Reading, exploring and agreeing are planning; the branch, the team and the cards begin after the signal. The acts that move the change forward are authorized separately — as the norm `pr.lifecycle` says where this project applies it, and otherwise as this project requires.
 

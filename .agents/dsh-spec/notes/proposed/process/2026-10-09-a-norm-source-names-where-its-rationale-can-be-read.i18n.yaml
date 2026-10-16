@@ -1,7 +1,7 @@
-# Bilingual-pair consistency record for 2026-10-09-a-norm-source-names-where-its-rationale-can-be-read.md (references/i18n-contract.md): per heading
-# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
-# After editing either side, bring the other along and re-record with:
-#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/proposed/process/2026-10-09-a-norm-source-names-where-its-rationale-can-be-read.md
+# Bilingual-pair consistency record for 2026-10-09-a-norm-source-names-where-its-rationale-can-be-read.md: per heading section, a hash of its English
+# and Chinese blocks outside code blocks and generated regions. Both sides are edited together
+# and this file is re-recorded with them; the tool that wrote it shipped with the skill set the
+# refactor branch removed.
 /agent-note-a-norm-s-source-names-where-its-rationale-can-be-read:
   en: 6eaa8cb496b567d8
   zh: f8ea91fa50212986

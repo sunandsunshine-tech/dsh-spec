@@ -1,7 +1,7 @@
-# Bilingual-pair consistency record for 2026-10-13-dependabot-signs-with-a-fixed-address.md (references/i18n-contract.md): per heading
-# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
-# After editing either side, bring the other along and re-record with:
-#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-10-13-dependabot-signs-with-a-fixed-address.md
+# Bilingual-pair consistency record for 2026-10-13-dependabot-signs-with-a-fixed-address.md: per heading section, a hash of its English
+# and Chinese blocks outside code blocks and generated regions. Both sides are edited together
+# and this file is re-recorded with them; the tool that wrote it shipped with the skill set the
+# refactor branch removed.
 /agent-note-dependabot-signs-with-a-fixed-address-so-the-dco-gate-accepts-that-one:
   en: f53b42cae4e74958
   zh: efc83cd7d7bb4266

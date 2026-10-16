@@ -1,7 +1,7 @@
-# Bilingual-pair consistency record for 2026-09-24-opening-this-repository.md (references/i18n-contract.md): per heading
-# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
-# After editing either side, bring the other along and re-record with:
-#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-24-opening-this-repository.md
+# Bilingual-pair consistency record for 2026-09-24-opening-this-repository.md: per heading section, a hash of its English
+# and Chinese blocks outside code blocks and generated regions. Both sides are edited together
+# and this file is re-recorded with them; the tool that wrote it shipped with the skill set the
+# refactor branch removed.
 /agent-note-opening-this-repository:
   en: 3c03886e34de88d1
   zh: 595bdc10b821d553
@@ -9,8 +9,8 @@
   en: 3b65bf9762be83f0
   zh: 258d3aa8c631dfb7
 /agent-note-opening-this-repository/decision:
-  en: d2721e14c2a1182f
-  zh: 9fe6b62d97f80780
+  en: b31dae618cf8bddf
+  zh: ab394994bfa7b74a
 /agent-note-opening-this-repository/alternatives-considered:
   en: a3c5ee9a06e79e2f
   zh: fad289062240aafe

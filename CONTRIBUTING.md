@@ -6,35 +6,20 @@ By the time a pull request is opened, its commits carry a `Signed-off-by:` trail
 
 ## Gates to run before a pull request
 
-Each command below runs from the repository root and prints what it checked. `md-links`, `notes` and `translation-pair` act on the paths they are handed; the rest read their whole subject.
+Each command below runs from the repository root and prints what it checked.
 
 ```sh
 node --test 'tests/**/*.test.ts'
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts check --all --root .
-node scripts/verify-port-provenance.ts
-node scripts/verify-skill-structure.ts --root skills/<name>
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts md-links check <markdown...> --root .
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes check <note...> --root .
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair check <pair...> --root .
+node scripts/verify-dco.ts --base=origin/main
 ```
 
-`node --test 'tests/**/*.test.ts'` is the functional suite: what each check does with a scope, a seeded defect and a dispatch.
+`node --test 'tests/**/*.test.ts'` is the functional suite: what the DCO check decides about a range, and the payload the vendored-notices submission posts.
 
-`check --all` is the whole-tree form of the checks that assert over a tree. `--root .` is the project those tree assertions walk.
+`node scripts/verify-dco.ts --base=origin/main` reads a commit range and asserts that every commit carries a `Signed-off-by:` trailer matching its author; a commit claiming a bot identity is verified against GitHub as well.
 
-`node scripts/verify-port-provenance.ts` reads the provenance registry against the pinned `submodules/dsh` checkout: every ported file names its dsh origin, and the registry agrees with the submodule.
+Every change owes these two checks, and CI runs both on every pull request.
 
-`node scripts/verify-skill-structure.ts --root skills/<name>` runs **once per skill directory the diff touches**: the entry conforms, the resources are placed, and every reference is reachable from the entry.
-
-`md-links check` takes the Markdown this change touched. A relative link, image or definition whose target or `#fragment` does not resolve fails it. The asking side of a link is decided per file — a target deleted under an untouched referrer is caught by a run over the referring file, not by the run that covered the delete.
-
-`notes check` takes the Agent Notes the change touched, and asserts their in-file format. The tree assertions, the frozen archive and the pairing record have their own commands, given in [the Agent Notes contract](.agents/dsh-spec/notes/README.md).
-
-`translation-pair check` takes a document whose counterpart the change touched. Every named pair is complete, recorded, and structurally identical.
-
-Every change owes the checks whose subject it touches, and a change that reaches the skills, the engine or a shipped reference owes the file scans above in full, however small the diff is. `check --base <ref> --root .` reports the subset a change owes and prints every skip with its reason; that subset is never a substitute for the commands above before a push.
-
-Node 22.19 or newer is the only requirement: the engine is TypeScript that Node strips by itself, the suite runs on `node --test`, and there is no build step.
+Node 22.19 or newer is the only requirement: the checks are TypeScript that Node strips by itself, the suite runs on `node --test`, and there is no build step.
 
 ## Pull request lifecycle
 
@@ -89,18 +74,11 @@ Contributions are accepted under the MIT license the repository already carries,
 
 A bilingual pair is one document in two files — an English side and a `.zh.md` counterpart — with an `.i18n.yaml` record beside them holding the last agreed hash of each side. Either side may be the authored one for an update; both carry equal authority.
 
-The type carries the structure, and the translator carries the meaning. Each side is written the way its own language says it, in an order a reader can follow. The pairing gate compares a structural signature — heading depths and order, list kinds, ordered-list starts and item counts, table row and column counts, semantic link targets with query and fragment, and code blocks verbatim — rather than wording, so structural drift fails and wording drift does not. Whether both sides say the same thing is the reviewer's half.
+The type carries the structure, and the translator carries the meaning. Each side is written the way its own language says it, in an order a reader can follow, and an edit keeps the two structurally identical — heading depths and order, list kinds, ordered-list starts and item counts, table row and column counts, semantic link targets with query and fragment, and code blocks verbatim. Whether both sides say the same thing is the reviewer's half.
 
-An edit to one side is followed by the matching edit to the other and a renewed record in the same change:
+An edit to one side is followed by the matching edit to the other and a renewed record in the same change.
 
-```sh
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair check <pair...> --root .
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write <pair...> --root .
-```
-
-`translation-pair brief <pair...> --root .` prints the changed spans, the terminology the pair shares, and the sections that owe an update, which is the briefing an agent works from. `translation-pair check` afterwards is what proves the pair complete, recorded and structurally identical. The pairing contract the record follows is in [`i18n-contract.md`](skills/dsh-translate-docs/references/i18n-contract.md).
-
-`SECURITY.md` and `CODE_OF_CONDUCT.md` are single-language English documents. `CODE_OF_CONDUCT.md` is the official English text of Contributor Covenant 2.1, which no translation may stand in for. The three policy pages have no `.zh.md` counterpart and no `.i18n.yaml` record, so they declare no pair: `translation-pair check` asserts nothing about them, and a policy page named to that command falls outside its scope rather than passing it.
+`SECURITY.md` and `CODE_OF_CONDUCT.md` are single-language English documents. `CODE_OF_CONDUCT.md` is the official English text of Contributor Covenant 2.1, which no translation may stand in for. The three policy pages have no `.zh.md` counterpart and no `.i18n.yaml` record, so they declare no pair.
 
 ## Where a change lands
 

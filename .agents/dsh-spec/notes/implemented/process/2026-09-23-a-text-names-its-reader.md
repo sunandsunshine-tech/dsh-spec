@@ -6,7 +6,7 @@ English | [中文](2026-09-23-a-text-names-its-reader.zh.md)
 
 ## Problem
 
-[Scan scope, inlined rationale, and a package README](2026-09-18-scan-scope-and-the-package-readme.md) recorded one instance of a text written for the wrong person: the package README explained itself to the maintainer rather than to the person installing it, and the sentence addressed to the maintainer was removed. The rule that incident left in the catalog — name who the page is for before writing it — says which reader to pick and never says when the picking happens, so the failure it was written from stays available to the next text.
+One incident recorded a text written for the wrong person: a package README explained itself to the maintainer rather than to the person installing it, and the sentence addressed to the maintainer was removed. The rule that incident left in the catalog — name who the page is for before writing it — says which reader to pick and never says when the picking happens, so the failure it was written from stays available to the next text.
 
 The reader is not chosen while writing; it follows from what the text is and who receives it, and that is settled before a sentence exists. This set's own text is English because an agent reads it, a README is read by the person installing the thing, a decision record by whoever maintains it next, and a pull request description by its reviewer. A text written before that choice is made is written for whoever is present instead — the maintainer who asked for it, the reviewer reading the diff, the author's own future self. The marker is a sentence that addresses its reader rather than stating the fact: a question, an answer back, a justification offered to whoever requested the change. Each of those is aimed at someone who can answer, and the reader of a finished text cannot.
 
@@ -40,6 +40,3 @@ Two boundaries keep it from spreading. It does not decide which language a text 
 
 **What it leaves to a reader.** Nothing enforces it, and nothing can: the catalog entry ends in a self-check question rather than a gate, so the check is the writer's, and a text that addresses its reader will pass every check this collection has. The rule also does not name the reader of any particular document; a document whose contract leaves that open still has to be settled by its owner.
 
-## Related
-
-- [Scan scope, inlined rationale, and a package README](2026-09-18-scan-scope-and-the-package-readme.md) — the incident this rule was generalized from. That note stays active for the scan scope, the inlined rationales and the ask-before-write step, and this one owns the reader rule it also recorded.

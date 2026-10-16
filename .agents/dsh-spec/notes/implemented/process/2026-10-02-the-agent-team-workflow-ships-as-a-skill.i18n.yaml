@@ -1,7 +1,7 @@
-# Bilingual-pair consistency record for 2026-10-02-the-agent-team-workflow-ships-as-a-skill.md (references/i18n-contract.md): per heading
-# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
-# After editing either side, bring the other along and re-record with:
-#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-10-02-the-agent-team-workflow-ships-as-a-skill.md
+# Bilingual-pair consistency record for 2026-10-02-the-agent-team-workflow-ships-as-a-skill.md: per heading section, a hash of its English
+# and Chinese blocks outside code blocks and generated regions. Both sides are edited together
+# and this file is re-recorded with them; the tool that wrote it shipped with the skill set the
+# refactor branch removed.
 /agent-note-the-agent-team-workflow-ships-as-a-skill:
   en: b74635d14ad4a05d
   zh: 10055fe730de23e7

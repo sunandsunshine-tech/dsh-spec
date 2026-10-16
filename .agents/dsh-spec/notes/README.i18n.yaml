@@ -1,28 +1,28 @@
-# Bilingual-pair consistency record for README.md (references/i18n-contract.md): per heading
-# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
-# After editing either side, bring the other along and re-record with:
-#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/README.md
+# Bilingual-pair consistency record for README.md: per heading section, a hash of its English
+# and Chinese blocks outside code blocks and generated regions. Both sides are edited together
+# and this file is re-recorded with them; the tool that wrote it shipped with the skill set the
+# refactor branch removed.
 /agent-notes:
-  en: b7c7f4de9703198a
-  zh: bbd75a528144dfd7
+  en: d4ab364c14be53b5
+  zh: dfab1c77fd11ec92
 /agent-notes/layout-and-naming:
   en: ac4c79a30a6f43a1
   zh: f5fb376d38454fec
 /agent-notes/classification:
-  en: a2d9c54663a255f0
-  zh: 32473487d9f3cfa0
+  en: 82b4c847aa2aec3d
+  zh: 6080e4ca7186cdab
 /agent-notes/archiving-and-deletion:
-  en: 82e10f8dab45f065
-  zh: 48d64bcb42b8fab5
+  en: f24275d5f2067b41
+  zh: f02c063cc9de7495
 /agent-notes/when-to-write-one:
   en: 5c5337395d4f32c3
   zh: 9e3244358004f6c6
 /agent-notes/the-file-format:
-  en: c0ade7a569a1a3af
-  zh: 9b4d633967ca2dc3
+  en: b2fe57b70166e992
+  zh: abac7ee308640928
 /agent-notes/the-file-format/the-header-block:
-  en: 16fdaab0c74a5bb5
-  zh: 2553f145a1eb878f
+  en: 69c08ee8052d77b1
+  zh: ccacc8d807792990
 /agent-notes/the-file-format/the-body-skeleton:
   en: 740b7e964b9aec37
   zh: 8551ddef1ffa776a
@@ -30,8 +30,8 @@
   en: acc0c035c5ca6fd7
   zh: 8a65816dfac9e580
 /agent-notes/the-file-format/the-body-skeleton/implemented:
-  en: 0d59c32af19d4a08
-  zh: a23fe611e0330bcc
+  en: 6d686ba0301c7859
+  zh: ffdb082f8c9bd973
 /agent-notes/the-file-format/the-body-skeleton/rejected:
   en: f0ff5d05191f2315
   zh: 3f9df0dd01a5cbed
@@ -42,11 +42,8 @@
   en: a96c833d50b24a6a
   zh: e67e63ad09ba9069
 /agent-notes/the-file-format/moving-between-lifecycles:
-  en: d3f18ba194dfb677
-  zh: 3d202868deda2f31
+  en: 708c6dcf37c7224f
+  zh: a0713f85a2bfd531
 /agent-notes/the-file-format/chinese-counterparts:
-  en: c2204d35cd524985
-  zh: 7ff1f16e4a8bde32
-/agent-notes/gates-in-this-collection:
-  en: ccee13d564e665f2
-  zh: 33c232a963ef89f5
+  en: 57bc454a1ac1f943
+  zh: d916d10365f8b9d8

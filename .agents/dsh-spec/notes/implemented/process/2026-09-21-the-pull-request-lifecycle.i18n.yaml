@@ -1,7 +1,7 @@
-# Bilingual-pair consistency record for 2026-09-21-the-pull-request-lifecycle.md (references/i18n-contract.md): per heading
-# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
-# After editing either side, bring the other along and re-record with:
-#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-09-21-the-pull-request-lifecycle.md
+# Bilingual-pair consistency record for 2026-09-21-the-pull-request-lifecycle.md: per heading section, a hash of its English
+# and Chinese blocks outside code blocks and generated regions. Both sides are edited together
+# and this file is re-recorded with them; the tool that wrote it shipped with the skill set the
+# refactor branch removed.
 /agent-note-the-pull-request-lifecycle-from-wip-to-merge:
   en: 4f2d5ae0f19165e2
   zh: 4b7796c085f84a27
@@ -9,8 +9,8 @@
   en: 05193925ebfe87ac
   zh: eb09d3d6d6572a67
 /agent-note-the-pull-request-lifecycle-from-wip-to-merge/decision:
-  en: ab3a128376b5f47c
-  zh: e2196f7032bc5054
+  en: 9914f3ee2ff96e52
+  zh: 5e8422a270025d64
 /agent-note-the-pull-request-lifecycle-from-wip-to-merge/alternatives-considered:
   en: fae259ca457e5706
   zh: 80445dc74678c526

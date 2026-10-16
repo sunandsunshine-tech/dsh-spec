@@ -1,7 +1,7 @@
-# Bilingual-pair consistency record for 2026-10-10-a-delivery-records-a-plan-and-a-working-copy.md (references/i18n-contract.md): per heading
-# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
-# After editing either side, bring the other along and re-record with:
-#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-10-10-a-delivery-records-a-plan-and-a-working-copy.md
+# Bilingual-pair consistency record for 2026-10-10-a-delivery-records-a-plan-and-a-working-copy.md: per heading section, a hash of its English
+# and Chinese blocks outside code blocks and generated regions. Both sides are edited together
+# and this file is re-recorded with them; the tool that wrote it shipped with the skill set the
+# refactor branch removed.
 /agent-note-a-delivery-records-a-plan-and-a-working-copy:
   en: 8b64ffc44e619618
   zh: 8c08fe7a3e07cc67

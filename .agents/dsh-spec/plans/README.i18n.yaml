@@ -1,13 +1,13 @@
-# Bilingual-pair consistency record for README.md (references/i18n-contract.md): per heading
-# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
-# After editing either side, bring the other along and re-record with:
-#   node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/plans/README.md
+# Bilingual-pair consistency record for README.md: per heading section, a hash of its English
+# and Chinese blocks outside code blocks and generated regions. Both sides are edited together
+# and this file is re-recorded with them; the tool that wrote it shipped with the skill set the
+# refactor branch removed.
 /delivery-plans:
   en: f3a2de62b4407ff9
   zh: 67a0b56d6130fbf8
 /delivery-plans/files:
-  en: 462ceb09ba700ec2
-  zh: 128c069a0ab7fd30
+  en: 7782ecc3fa8ef0d4
+  zh: d136500693f8bfdf
 /delivery-plans/state-is-read-never-written:
   en: a1fc79cdafbf8f0f
   zh: 0fca857af2ab1bb1

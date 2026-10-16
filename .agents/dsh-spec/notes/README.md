@@ -4,8 +4,6 @@ English | [中文](README.zh.md)
 
 One kind of design doc lives here. An **Agent Note** records a decision or proposal that affects this codebase — the *why* and *what we gave up*, the parts code and docs can't carry. This file defines where Agent Notes live, when to write one, and [the in-file format](#the-file-format).
 
-Below, `.agents/skills/dsh-spec-manager/scripts` is the collection's engine directory, where the manager skill installs every gate, the dispatcher, and the modules they import.
-
 ## Layout and naming
 
 Every Agent Note has two axes, both encoded in its **path** — `{lifecycle}/{class}/yyyy-mm-dd-topic-title.md`:
@@ -19,7 +17,7 @@ The active lifecycle tree is the working inventory: browse its lifecycle/class f
 
 ## Classification
 
-Each Agent Note belongs to one path-encoded class from the closed set in `.agents/skills/dsh-spec-manager/scripts/agent-note-tree.ts`; the classification gate rejects other folders. Adding a class requires updating the canonical set and this section.
+Each Agent Note belongs to one path-encoded class from this closed set. Adding a class means adding it here.
 
 | Class | What it covers |
 |---|---|
@@ -34,11 +32,11 @@ The `architecture` / `process` line: **architecture** is about the source we shi
 
 ## Archiving and deletion
 
-Delete an implemented Agent Note that only describes small UI adjustments or purely mechanical changes, and delete its English, Chinese, and sidecar files together while repairing or removing inbound links. A local bug fix, performance change, new capability, or substantive behavior decision does not qualify merely because its implementation is small. Archive other implemented Agent Notes only when the shipped decision is complete, its rationale is unlikely to guide future work, and the record still has historical decision value. Keep it active when its alternatives, ownership boundary, negative guarantee, durable or wire semantics, security rule, or reintroduction condition remains useful. Never archive a proposed note: reject an obsolete proposal. Keep a rejected note only while it prevents a plausible mistake; otherwise delete its English, Chinese, and sidecar files together. Use the calibrated `dsh-archive-agent-notes` workflow rather than word count, age, or a target quota.
+Delete an implemented Agent Note that only describes small UI adjustments or purely mechanical changes, and delete its English, Chinese, and sidecar files together while repairing or removing inbound links. A local bug fix, performance change, new capability, or substantive behavior decision does not qualify merely because its implementation is small. Archive other implemented Agent Notes only when the shipped decision is complete, its rationale is unlikely to guide future work, and the record still has historical decision value. Keep it active when its alternatives, ownership boundary, negative guarantee, durable or wire semantics, security rule, or reintroduction condition remains useful. Never archive a proposed note: reject an obsolete proposal. Keep a rejected note only while it prevents a plausible mistake; otherwise delete its English, Chinese, and sidecar files together. Judge the call against the criteria stated here, not by word count, age, or a target quota.
 
 The archive is path-encoded as `archived/{class}/yyyy-mm-dd-topic-title.md`; `implemented` is deliberately absent because only implemented notes can enter it. An archival change moves the complete English/Chinese/sidecar triplet, retains `Status: implemented`, inserts the same `Archived: YYYY-MM-DD` line immediately below that status in both language files, re-records the sidecar, and repairs or deletes inbound links. These are the only permitted content changes during archival. Existing title punctuation, blank-line layout, and language-switcher wording do not block archival; preserve them with the body.
 
-Once sealed, every archived triplet is permanently frozen. Do not edit, translate, reformat, update, move, or delete it, and do not treat it as authority for current behavior. Documentation gates skip archived sources, including their outbound links; active prose may still link into an archived note when it intentionally cites history. `.agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes-archived check --all` enforces the closed class tree, complete triplets, archive metadata, sidecar hashes, and the append-only frozen-content manifest. The freeze is what makes the archive evidence: a snapshot anyone may edit proves nothing about what was decided. The root `.rgignore` keeps the archive out of recursive searches, so a historical query names the directory explicitly rather than meeting frozen facts among active ones.
+Once sealed, every archived triplet is permanently frozen. Do not edit, translate, reformat, update, move, or delete it, and do not treat it as authority for current behavior; active prose may still link into an archived note when it intentionally cites history. The archive's shape — the closed class tree, complete triplets, the archival metadata and the sidecar hashes — is recorded in `archived/manifest.json`. The freeze is what makes the archive evidence: a snapshot anyone may edit proves nothing about what was decided. The root `.rgignore` keeps the archive out of recursive searches, so a historical query names the directory explicitly rather than meeting frozen facts among active ones.
 
 ## When to write one
 
@@ -54,7 +52,7 @@ A feature-addition note may be consolidated into the later removal note only whe
 
 ## The file format
 
-Every active Agent Note follows one in-file format, enforced by `.agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes check`; the format is uniform because retrieval must not depend on who wrote the note: one skeleton means a reader knows where the decision, the alternatives, and the verification sit before opening the file. Archived notes retain the format they had when sealed plus the archive-date line above.
+Every active Agent Note follows one in-file format; the format is uniform because retrieval must not depend on who wrote the note: one skeleton means a reader knows where the decision, the alternatives, and the verification sit before opening the file. Archived notes retain the format they had when sealed plus the archive-date line above.
 
 ### The header block
 
@@ -66,7 +64,7 @@ The first three lines of every Agent Note are exactly:
 Status: <status>
 ```
 
-followed by a blank line. The `Status:` value is one of three forms, and must agree with the lifecycle folder the file sits in — the gate cross-checks them:
+followed by a blank line. The `Status:` value is one of three forms, and must agree with the lifecycle folder the file sits in:
 
 - `Status: proposed`
 - `Status: implemented`
@@ -101,7 +99,7 @@ Every Agent Note opens its body with `## Problem` — the motivation, written to
 ## Consequences
 ```
 
-`## Decision` describes shipped reality in the present tense, and the whole file is kept current with it per [implemented/AGENTS.md](implemented/AGENTS.md). `## Consequences` records what the trade-off cost **and** bought. Proposal-era headings are spec-speak here and the gate rejects them: `## Proposal`, `## Plan`, `## Migration plan`, and `## Acceptance criteria` may not appear in an implemented Agent Note. A `## Testing`, `## Deferred`, or `## Related` section is fine where it states present-tense fact.
+`## Decision` describes shipped reality in the present tense, and the whole file is kept current with it per [implemented/AGENTS.md](implemented/AGENTS.md). `## Consequences` records what the trade-off cost **and** bought. Proposal-era headings are spec-speak here: `## Proposal`, `## Plan`, `## Migration plan`, and `## Acceptance criteria` may not appear in an implemented Agent Note. A `## Testing`, `## Deferred`, or `## Related` section is fine where it states present-tense fact.
 
 #### `rejected/`
 
@@ -119,25 +117,9 @@ A credential in a note, and in the text a note quotes, is written `[REDACTED_SEC
 
 ### Moving between lifecycles
 
-Moving a file between lifecycle folders means updating the `Status:` line and re-satisfying that folder's skeleton in the same change — the gate fails the move otherwise. Concretely, `proposed/` → `implemented/` rewrites `## Proposal` into a present-tense `## Decision`, folds `## Acceptance criteria` and `## Risks` into `## Consequences` (or a present-tense `## Testing`/`## Verification` section for what now pins the behavior), and drops plans in favor of what shipped — the rewrite [implemented/AGENTS.md](implemented/AGENTS.md) requires, made mechanical. `proposed/` → `rejected/` only adds the reason to the `Status:` line and freezes the file.
+Moving a file between lifecycle folders means updating the `Status:` line and re-satisfying that folder's skeleton in the same change — the move is incomplete otherwise. Concretely, `proposed/` → `implemented/` rewrites `## Proposal` into a present-tense `## Decision`, folds `## Acceptance criteria` and `## Risks` into `## Consequences` (or a present-tense `## Testing`/`## Verification` section for what now pins the behavior), and drops plans in favor of what shipped — the rewrite [implemented/AGENTS.md](implemented/AGENTS.md) requires, made mechanical. `proposed/` → `rejected/` only adds the reason to the `Status:` line and freezes the file.
 
 ### Chinese counterparts
 
-A `.zh.md` counterpart mirrors its English sibling's structure section-for-section under the `dsh-translate-docs` pairing contract (`.agents/dsh-spec/notes/` shares its rules); the machine-checked header tokens (`# Agent Note: ` and the `Status:` line) stay in English verbatim. The format gate skips `.zh.md` files — the pairing gate checks their consistency.
+A `.zh.md` counterpart mirrors its English sibling's structure section-for-section; the machine-checked header tokens (`# Agent Note: ` and the `Status:` line) stay in English verbatim.
 
-## Gates in this collection
-
-Three gates enforce what this file states. They ship with the skills collection that initialized this project, and the project **references** them rather than releasing a copy: a released copy can never be updated, because the initializer will not overwrite a file it did not create and a refresh only touches the collection. They live in `.agents/skills/dsh-spec-manager/scripts`.
-
-Every gate is a recorded name backed by a script in that one directory, reached through the collection's entry point `.agents/skills/dsh-spec-manager/scripts/dsh-spec.ts`, which resolves a name against the collection's `gates` record in its `references/manifest.json` and reconciles that record with the `verify-*.ts` scripts beside it: a recorded gate with no script, or a script the record does not name, is a refusal that names both sides and runs nothing. Neither the entry point nor a gate needs a `package.json` or `node_modules`; run each from the project root with `--root .`:
-
-```sh
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes check --all --root .
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes check <note...> --root .
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes-archived check --all --root .
-node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts notes-archived write --all --root .
-```
-
-The same dispatcher also runs `check --all`, which runs the checks asserted over a tree and fails when one fails or when the record names none. Updating the collection updates all of them; a project that needs different behaviour changes its own files, never the gate.
-
-`AGENT_NOTES_ROOT` names the notes directory directly when a project keeps it outside `.agents/dsh-spec/notes`. A missing tree or an empty walk exits non-zero rather than reporting a pass it did not earn.

@@ -9,7 +9,7 @@ One plan per delivery, written while the delivery is discussed and executed from
 - `<slug>.md` — the plan.
 - `<slug>-progress.md` — its working copy, written while the delivery runs. The working copy records the order the work actually happened in, the attempts that failed, the criteria that changed and why, and closes with the conclusion the delivery reached.
 
-Both files are maintained by hand like any project document; the contract above them is not — this `README.md`, its Chinese counterpart, and the section in the root `AGENTS.md` are the collection's text, and a refresh brings them to the installed revision. A plan and its working copy declare no pair: they are transient, and the dispatch's pairing selection reads only documents that declare a pair.
+Both files are maintained by hand like any project document. A plan and its working copy are written in one language and declare no bilingual pair: they are transient, and no consistency record is kept for them.
 
 ## State is read, never written
 

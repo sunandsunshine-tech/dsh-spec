@@ -6,7 +6,7 @@ This repository is an extraction of [DeepSeek Harness](https://github.com/deepse
 
 Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.0-rc.2` (`639ed015397290b3745d163aafe02ffee4aa3f84`).
 
-This repository is an extraction of that project: it rewrites the harness's development pattern into an installable skill set, so the engine files here are ports rather than new work. [`scripts/ports.json`](scripts/ports.json) is the registry — it names each ported file, its upstream path and sha, and how far it diverged — and every ported file states the same fact in its own header, next to its `SPDX-License-Identifier: MIT` line. [`scripts/verify-port-provenance.ts`](scripts/verify-port-provenance.ts) holds the registry, those headers and the pinned baseline against each other.
+This repository is an extraction of that project: it rewrites the harness's development pattern into a skill set. Where a file is carried over from upstream, it states its origin, its upstream path and its provenance in its own header, next to its `SPDX-License-Identifier: MIT` line.
 
 The upstream licence, reproduced in full:
 
@@ -36,7 +36,7 @@ SOFTWARE.
 
 ## Vendored npm packages
 
-`skills/dsh-spec-manager/scripts/vendor-mdast.mjs` bundles the Markdown parser its documentation gates import, so an adopting project needs no `node_modules` and no `package.json` of its own. The bundle inlines these packages, each of them MIT-licensed:
+The dependency submission reads this table. It lists the npm packages the set's Markdown parser was built from, each of them MIT-licensed:
 
 | Package | Version |
 |---|---|
@@ -88,13 +88,6 @@ SOFTWARE.
 | `unist-util-stringify-position` | 4.0.0 |
 | `unist-util-visit` | 5.1.0 |
 | `unist-util-visit-parents` | 6.0.2 |
-
-The list is what the bundle records; regenerate it after a vendor update with:
-
-```sh
-grep -o 'node_modules/\.pnpm/[a-z0-9@._-]*' skills/dsh-spec-manager/scripts/vendor-mdast.mjs \
-  | sed 's|node_modules/\.pnpm/||' | sort -u
-```
 
 ## Scope
 
