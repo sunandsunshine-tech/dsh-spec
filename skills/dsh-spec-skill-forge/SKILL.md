@@ -1,122 +1,161 @@
 ---
 name: dsh-spec-skill-forge
-description: 在需要创建新技能（从构想或参考资料）或对已有技能进行迭代演进时使用本技能。指导明确问题与预期形态、受众领域定锚、三要素完整分析、构建单文件技能雏形、就近内聚概念定义、步内自检断言、两阶段路由解构及全程维护决策记录。
----
-# 智能体技能锻造标准规程 (Skill Forge SOP)
-
-本技能用于指导 Agent 与驾驶员协同共创，将构想、资料或既有资产转化为符合开放规范的工业级 Agent Skill。
-
-本技能中，“驾驶员”指与 Agent 协同共创的人类操作者。若运行环境无人类驾驶员，Agent 应按保守降级策略执行，并将自主决策与阻塞项同步至记录文件。
-
-技能即自然语言函数：以步骤内聚关键概念，以步内断言替代文末清单，以全过程记录文件沉淀决策历史。
-
+description: Use when creating, writing, rewriting, forging, auditing, or verifying an Agent Skill (SKILL.md) — its description, structure, triggers, or specification conformance need work — from an idea, reference material, or one or more existing skills. Produces the skill directory and a record of the decisions behind it. Not for merely installing, loading, or using an installed skill. 用于创建、编写、改写、锻造、优化或核验技能（Agent Skill / SKILL.md）：确定技能描述、触发时机、结构与规范符合性，产出技能目录与锻造记录；不用于安装、加载或使用已安装的技能。
+compatibility: Requires Node.js 22.19+ or 24+ for scripts/verify-skill-spec.ts; no build step or install.
 ---
 
-## 全局准则：跨步骤关注点与记录机制
+# Skill Forge
 
-在执行后续任何具体任务时，必须时刻遵循以下原则：
+Forge an Agent Skill and record why each part of it exists.
 
-1. **全过程动态记录文件机制 (Living Decision Record)**：  
-   在启动时，必须首先确立一个专门的**记录文件**：
-    - **位置决策**：优先使用采用者项目既有的决策记录机制；若无既有机制，由驾驶员指定存放位置。不得默认创建记录文件，不得将记录文件放入技能目录。
-    - **记录内容**：沉淀所有已定决策、解决的问题、权衡取舍与共识基线；
-    - **更新规则**：在整个流程中，每次与驾驶员交流达成任何共识后，必须立即同步更新该记录文件。
-2. **概念与规则就近内聚原则**：  
-   编写技能时，若某个规则、背景或概念仅在单一特定步骤使用，必须直接内聚在该步骤内部；仅当属于所有步骤共用的底线或前置条件时，才允许提升至全局准则中声明。
-3. **技能交付物边界**：  
-   技能交付物为 `SKILL.md`，按需包含 `references/` 与 `scripts/`；决策记录文件属于采用者项目，不纳入技能交付物，也不得默认放入技能目录。
-4. **(可选) 记录文件路径声明**：  
-   可在项目的 `AGENTS.md` 中声明锻造技能记录文件的存放目录路径与命名规范，以便未来检索记录。
+A skill is a natural-language function:
 
----
+- a description that says when it runs and on what;
+- parameters with defaults;
+- a body of steps, each ending in an assertion;
+- citations of the files and facts it needs.
 
-## 1. 意图与模式双重收敛
+## Terms
 
-通过当前信息以及驾驶员提供或 Agent 建议的信息，展开多轮沟通，并在记录文件中同步要点：
+Each term is defined once. Later text cites its exact designator.
 
-1. **明确目的与简要想法收敛**：
-    - **明确目的**：彻底弄清想要解决的**具体问题**是什么；
-    - **简要想法**：明确希望满足的要求、达成的大致效果、**预期的交付形态和使用方式**是什么。
-2. **确认任务模式：创建 (Creation) 还是迭代 (Iteration)**：
-    - **创建模式 (Creation)**：从构想直接新建，或参考上游已有资料进行提炼（上游形态不限，包括标准技能或散落的说明文档、指令文件、独立脚本等）；
-    - **迭代模式 (Iteration)**：对已有技能进行演进（指引读取对应的历史记录文件展开工作）。
-3. **【步内自检断言】**：  
-   确认记录文件中已记录具体问题、预期交付形态、使用方式与模式判定；创建模式下无历史依赖，迭代模式下已读取历史记录与现有 `SKILL.md`。否则继续沟通澄清。
+- **Driver** — the human who directs the agent.
+- **Adopter** — the person who uses this skill to forge a skill; usually the driver.
+- **Adopter's environment** — where the forging happens: the adopter's project, decision mechanism, draft and record, and tooling.
+- **Target audience** — the people or agents who will use the forged skill, and their project.
+- **Target audience's domain** — the field the forged skill serves and how it speaks — names and conventions; it decides term meanings and which disposition rung a rewrite lands on.
+- **Target audience's environment** — the runtime and tools the forged skill needs to do its work, whether from a script or from its instructions.
+- **Reference upstream** — the material or existing skills a forging draws its constraints from; cited as "the upstream".
+- **Forge skill** — this skill.
+- **Forged skill** — the product of this skill; when the forge is applied to itself, the same skill.
+- **Adopter's declared place** — the adopter's `AGENTS.md` or declared file: names the decision mechanism and the draft's parent.
+- **Target audience's declared place** — the target audience's `AGENTS.md` or declared file: supplies the instance values customizing the defaults.
+- **Record** — where the forging decisions and their bases are written: the adopter's decision mechanism (notes tree, ADR set, decision log) or the fallback file when there is none. "The record" locates it.
+- **Target-audience fact** — a checkable statement about the target audience's domain, environment, or declared place.
+- **Ruling** — a decision where the criteria leave a choice: the driver's, or the one made when no driver answers; "Escalation and rulings" gives its rules.
+- **Source constraint** — a statement of the upstream that binds the target audience; step 1 enumerates them.
+- **Disposition** — the decision taken for a source constraint; `references/dispositions.md` gives the forms.
+- **Home** — one place where a definition, rule, or fact is written; every other mention cites it.
+- **Gate** — the mechanical checker this skill ships: `scripts/verify-skill-spec.ts`.
+- **Landed artifact** — the draft or rendition when one is made: the version verified, accepted and placed at the forged skill's path.
+- **Specification** — the Agent Skills specification; sources in `references/spec-checks.md`.
 
----
+**With no driver**, every question to the driver or adopter is answered by a ruling: the option that changes least and can be undone. Record it, preferring to stop over inventing; a forging that would replace an existing skill stops and reports.
 
-## 2. 收集信息与锚定领域
+## Requirements on the forging process
 
-基于前置锁定的目标与模式收集必要资料，并更新记录文件：
+The record, the draft and the landing, the languages, escalation and rulings, and the deliverable boundary are in `references/process-rules.md`; read it before step 1.
 
-1. **直接锚定受众领域 (Target Audience Domain)**：  
-   直接明确该技能最终服务的具体业务领域与环境（如“本仓及关联仓”、“现代 TS/Node 全栈”、“Rust CLI 工具”、“通用文案排版”等）。以工业事实为准，不作抽象分级。
-2. **三要素完整分析支撑**：  
-   收集足够满足三要素深入分析所需的信息，避免过少导致频繁补采，也防止过度收集：
-    - **Docs 类**：概念定义、输出 Schema、数据结构或参考模板；
-    - **SOP 类**：业务操作流水线、步骤分支与判定逻辑；
-    - **Script 类**：必须由机器代码执行的确定性算力（如 AST 解析、哈希校验、Git 操作等）。
-3. **采集刹车机制**：  
-   满足三要素深入分析即停止采集；若发现潜在探索方向，在记录文件中列出备选路线与预期收益，由驾驶员决定是否继续。
-4. **【步内自检断言】**：  
-   确认记录文件中受众领域已明确；Docs / SOP / Script 三要素的来源与缺口已列明；无阻塞性未决采集项；记录文件已同步。
+## Requirements on the forged skill
 
----
+Read `references/forged-skill-rules.md` before step 3 and when verifying.
 
-## 3. 构建单文件 MVP 并收敛
+## 1. Converge on intent and mode
 
-根据收集的三要素信息与受众领域，组装输出未分拆的单文件 `SKILL.md` 雏形 (MVP)：
+1. **Set the process settings.** Settle the skill's name, the draft and landing locations ("The draft and the landing"), the three languages ("Languages"), and the record's location ("The record").
+   - The name is at most 64 characters of lowercase letters, digits and single hyphens, matches the forged skill's directory, and has no hyphen at either edge.
+   - Ask the driver; when no answer comes the defaults apply, and with no driver the ruling does.
+2. **Purpose and idea.** Settle:
+   - the concrete problem;
+   - the requirements;
+   - the wanted effect;
+   - the expected deliverable and use.
+   The driver may raise them; an agent may raise the idea and report it to the driver to decide. With no driver, forge only when the task states the intent; otherwise stop and report.
+3. **Mode.**
+   - **Creation** — new from an idea, or distilled from the upstream. The upstream may be anything: a skill, documents, instruction files, scripts.
+   - **Iteration** — an existing skill. Read its current `SKILL.md` and its earlier decision records, found where that environment keeps decisions, as "The record" finds them. Where none can be located, treat it as new and record that.
+4. **Enumerate the source constraints.** List them with their locations. A sentence is a source constraint when it says what must, must not, or may only be done — whatever words it uses.
+   - Merge duplicates into one entry carrying every location; merge by purpose, never by wording.
+   - With no upstream, list the requirements the driver stated instead.
 
-1. **组装与改写原则**：
-    - **受众适配转译**：根据受众领域将资料进行针对性改写，消除与受众无关的私有特化词；
-    - **按需动态补采**：构建过程中若发现细节缺口，允许定向补充采集并同步记录。
-2. **信息结构完整性与格式自适应原则**：  
-   技能正文必须完整涵盖以下核心信息维度，**但具体的章节标题、编排层级与展现格式应自适应内容的自然表达，严禁套用死板僵化的模板格式**：
-    - **核心立意与适用场景**：清晰定性该技能的职责边界、适用场景与触发前提（包含 Frontmatter 的 `name` 与 `description`）；
-    - **跨步骤关注内容 (如有)**：仅在此处声明所有步骤共用的核心底线与前置依赖；
-    - **操作主干与概念内聚**：
-        - 单步私有的关键概念（包含带有默认行为的关键机制），直接内聚在该步骤内部解释与定义；
-        - **每个操作步骤内部必须包含明确的自检断言语句**（定义如何检验本步动作是否完成、指标是否合规、失败如何自愈），保证单步自闭环，不在文末设置多余的全局检查清单。
-3. **多轮沟通收敛与 Diff 审查**：
-    - 每次微调修改，回复中必须附带明确的文件引用与 Diff 增量引用；
-    - 每次交流后同步更新记录文件。
-4. **【步内自检断言】**：  
-   确认 MVP 含 Frontmatter 的 `name` 与 `description`、适用场景与边界；每个操作步骤内部含自检断言；文末无多余全局检查清单；驾驶员已确认结构与内容；记录文件已同步。
+**Assertion.**
 
----
+- Complete when: the record carries the problem, the expected deliverable, the name, the mode, the languages, both locations, and the constraints with their locations.
+- Measure: every upstream constraint has a location; every driver-stated requirement is listed; every duplicate is merged; every conflict is resolved or escalated.
+- If it fails: ask the driver and keep recording. With no driver, settle a ruling and continue, or stop and report. Do not draft.
 
-## 4. 规范核验与路由解构
+## 2. Anchor the audience, its domain and environment, its declared place, and the terms
 
-在技能正文敲定后，依据 [**Agent Skills 开放规范与最佳实践**](https://agentskills.io/skill-creation/best-practices) 执行核验与重构：
+1. **Anchor the target audience and its domain.** State who they are and the field the forged skill serves; record how it speaks — names and conventions. The domain decides term meanings and which disposition rung a rewrite lands on.
+   - List as facts what the domain requires — tools, directories, conventions — and what it lacks.
+   - Learn them from the upstream's domain, the audience's repositories and documents, or the driver; a fact a disposition needs that none establishes is escalated.
+   - When the upstream was written for a different domain, or an older state of this one, list every difference; each difference is what a disposition decides against.
+2. **Anchor the target audience's environment.** Name the runtime and tools the forged skill needs — those a bundled script runs on, those its instructions invoke, or those the audience must have. They go into `compatibility` and, when there is a script, its header; the record keeps the facts.
+3. **Anchor the target audience's declared place.** Record whether it has one; when it exists, it supplies the instance values that customize the defaults; when it does not, the forged skill's defaults stand.
+4. **Anchor the terms.** For every term the text will use, settle its designator, its domain meaning, and its home.
+   - The anchor list is working material in the record. A term of the forged skill is defined there; a term the domain owns keeps the domain's meaning and is defined where the skill needs it.
+   - A term that cannot be disambiguated is escalated, not guessed.
+5. **Collect the three elements.** Collect until three things can be analysed:
+   - Docs: concepts, schemas, templates;
+   - SOP: how the work flows — pipelines, branches, decision rules;
+   - Script: the deterministic work only code should do.
+6. **Stop collecting.** Stop once the three elements are covered; record the remaining leads and their expected value, and let the driver decide whether to continue.
 
-1. **上下文预算与质量校准**：
-    - **预算控制**：保持 `SKILL.md` 在 500 行与 5,000 Tokens 以内；
-    - **增其所缺，删其已知**：重点补充大模型缺失的领域专有程序、脆弱边缘场景与特定工具调用，剔除通用常识（"Add what the agent lacks, omit what it knows"）；
-    - **控制粒度匹配脆弱性**：脆弱易错的操作保持严格精确的指令，容错度高的操作给予适度自主权并解释原因（"Match specificity to fragility"）；
-    - **提供默认值而非菜单**：挑选最佳的默认路径，避免给出让人/机纠结的无尽选项（"Provide defaults, not menus"）。
-2. **两阶段路由解构策略**：  
-   若技能正文体量过大（接近或超过 500 行），启动分层提取：
-    - **阶段一提取（优先剥离纯参考类内容）**：  
-      优先将长篇模板 (Templates)、数据 Schema、对照表格等纯参考类内容剥离至 `references/*.md`；必须在主干明确写明具体的触发加载时机（例如：“当遇到 X 报错时读取 references/xxx.md”）；
-    - **阶段二提取（全量步骤路由化）**：  
-      仅当剥离纯参考内容后，主体逻辑依然接近或超过 500 行，且主干无法再压缩时，才将所有步骤整体路由化——每个步骤独立为一个文件 (`references/<step-name>.md`)，`SKILL.md` 主干转化为纯调度路由器。
-3. **【步内自检断言】**：  
-   确认 `SKILL.md` 行数 ≤ 500 且 Token 估算 ≤ 5,000；若引用了 `references/`，每个引用均带有具体触发时机；阶段二仅在前述条件下启用。
+**Assertion.**
 
----
+- Complete when: the record states the audience, its domain, its environment when it depends on a runtime or a tool, whether it has a declared place, the differences from the upstream's domain, and every term's home and meaning; the Docs, SOP and Script inputs and gaps are listed, and the leads recorded.
+- Measure: no unknown remains that a disposition or an assertion would depend on.
+- If it fails: collect more, or escalate what cannot be confirmed and record it. With no driver, settle a ruling and continue, or stop and report. Do not draft.
 
-## 5. 协商运行时与代码落地 (按需)
+## 3. Draft and dispose
 
-若技能属于纯自然语言提示词流程，跳过此步；若涉及确定性算力需求（Script 类），解决代码落地：
+Write the draft at the draft location. Before the two disposition passes, read `references/dispositions.md` and fill the constraint table as they run.
 
-1. **优先探测工作区运行时复用**：  
-   探测当前工作区是否已有现成工具链，主动询问驾驶员：
-   > *“检测到当前工作区已具备 [xxx] 运行时管线，是否直接复用此环境开发与打包本技能的脚本？”*
-2. **无环境或不复用时的协商**：  
-   若无现成环境或驾驶员选择不复用，根据目标受众技术栈，向驾驶员提供 2~3 个具体方案及利弊对比，共同讨论敲定实现技术栈。
-3. **安全、权限与降级**：  
-   脚本必须声明依赖、输入输出与失败退出码；涉及文件写入、网络访问、Git 操作等敏感行为时，必须确认权限边界。若驾驶员不可用，采用保守降级或停止执行，并记录自主决策与阻塞原因。
-4. **完成代码落地**：  
-   编写并打包自包含脚本至技能目录的 `scripts/` 下，并在记录文件中归档最终技术选型。
-5. **【步内自检断言】**：  
-   确认脚本自包含、依赖 / 输入输出 / 失败退出码已声明、测试验证通过；敏感操作权限边界已确认；记录文件已归档技术选型、依赖与降级策略。
+**First pass, deconstruction.** Look for one or more passages of the upstream: a part smaller than the whole upstream that states a way of working that several concrete instructions follow. Extract each passage's steps, decision rules, roles and structure; one unit per passage. A list of concrete rules is not a passage; when the upstream has none, every constraint goes through the second pass.
+
+**Second pass, one constraint at a time.** Apply the ladder to each source constraint not covered by a deconstruction unit. The honesty rules in `references/dispositions.md` apply during the passes and the assembly.
+
+**Assembly.** Rewrite the upstream for the target audience, replacing what carries no meaning for them; a gap found while drafting is collected narrowly and recorded. The body carries the core intent and scope, shared concerns, and the steps. Each step ends with an assertion:
+- what proves the step complete;
+- the measure it must meet;
+- how to recover if it fails.
+No trailing global checklist. Write the description as `references/forged-skill-rules.md` requires.
+
+**Convergence.** After each change, show the driver the file and the diff. Keep the loop cheap: the gate and judgement checks (step 5) run when the driver states the design is settled, not after every exchange. A settled design is agreed, not accepted; with no driver, a ruling replaces that statement. A real run, an independent read and a full regression belong to the adopting project's release process.
+
+**Assertion.**
+
+- Complete when: every unit has a disposition and a basis, and the coverage rule in `references/dispositions.md` holds. The `SKILL.md` has frontmatter `name` and `description`, and every step ends with an assertion. There is no trailing checklist. The record has the constraint table.
+- Measure: each row names a constraint or passage, a disposition, a location and a basis. Each assertion has all three parts.
+- If it fails: resolve the failing entry with the driver. With no driver, settle a ruling and continue, or stop and report. Escalate an entry that cannot be decided.
+
+## 4. Bundle the script when there is one
+
+Skip this step when the forged skill bundles no script. When it needs deterministic work that only code should do:
+
+1. **Name the script's runtime.** From the target audience's environment, name the runtime the script must run on; write it in the script header and `compatibility`.
+2. **Probe the development tooling.** Probe the adopter's environment for tooling to develop and test the script — a runtime to reuse, or the stack — and ask the driver to settle it.
+3. **Record the gap.** When the development runtime and the script's runtime differ, record how the script will be tested on the script's runtime; if it cannot be, the judgement check records "unverified".
+4. The script declares its dependencies, inputs, outputs and exit codes in its header, and runs on the script's runtime with no install step.
+5. Read the "Scripts, when bundled" check in `references/spec-checks.md` when writing the script.
+6. Test the script on its runtime when available; record the test and its output.
+7. Bundle the script under `scripts/`, and record the stack, the dependencies, and what to do when the script's runtime is absent.
+8. Where the script writes files, uses the network, or runs Git, confirm with the driver which of these are allowed.
+
+**Assertion.**
+
+- Complete when: the runtime is named in the header and `compatibility`; the script is self-contained and declares its dependencies, inputs, outputs and exit codes; its test is recorded, or "unverified" when the runtime is unavailable; allowed writes, network access and Git are confirmed where they occur; the record holds the stack, the dependencies, and what to do when the runtime is absent.
+- Measure: every declared item appears in the script's header. The test output is in the record.
+- If it fails: do not ship the script. Record the blocker and escalate. With no driver, settle the ruling or stop and report.
+
+## 5. Verify and route
+
+This step runs on a settled design and verifies the forged skill against the specification; it does not re-judge the earlier steps, whose conditions belong to their own assertions.
+
+1. **Gate the draft.** From this skill's directory, run `node scripts/verify-skill-spec.ts <draft-directory>`, the absolute path of `<draft's parent>/<name>/`. Never run it without a directory: it would then check this skill itself and pass.
+2. **Make the rendition.** When "Languages" says one is due, write it at the rendition location ("The draft and the landing").
+3. **Run the judgement checks on the landed artifact.** Read `references/spec-checks.md` and run the judgement checks it lists on the landed artifact — its description and any bundled script. Record each result.
+   - When a check cannot run — no agent harness in the target audience's environment, no runtime — record "unverified" and why.
+   - Never record a pass that did not happen.
+4. **Gate the landed artifact and route its budget.** Run the gate with `--strict-budget` on the draft directory, or on the rendition at `<draft's parent>/rendition/<name>/` when one was made; it must exit 0. When the file is over the default:
+   - move long templates, schemas and lookup tables to `references/*.md`, with every citation saying when to read it;
+   - move static resources such as templates and images to `assets/`;
+   - move the steps themselves to `references/<step>.md` only when the file is still over and nothing of the first two kinds is left — when deleting one more sentence would lose a constraint or an assertion;
+   - run the gate again after each move.
+5. **Record, accept, and land.** Record both gate outputs and the driver's acceptance of the landed artifact. Then place it at `<forged skill's parent>/<name>/`, moving it when it is elsewhere. With no driver, record the ruling that stands in its place.
+
+**Assertion.**
+
+- Complete when: the gate exits 0 with `--strict-budget` on the landed artifact. Every judgement check has a recorded result, or a recorded "unverified" with its reason. The record holds the command output and the acceptance, and the landed artifact is at the forged skill's path.
+- Measure: no check is claimed that was not run. The record names the landed artifact.
+- If it fails: fix the draft. When the fix cannot be derived from the upstream, escalate instead of inventing. With no driver, settle the ruling or stop and report.

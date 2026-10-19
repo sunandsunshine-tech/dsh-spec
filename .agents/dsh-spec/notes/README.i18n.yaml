@@ -1,7 +1,7 @@
-# Bilingual-pair consistency record for README.md: per heading section, a hash of its English
-# and Chinese blocks outside code blocks and generated regions. Both sides are edited together
-# and this file is re-recorded with them; the tool that wrote it shipped with the skill set the
-# refactor branch removed.
+# Bilingual-pair consistency record for README.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/README.md
 /agent-notes:
   en: d4ab364c14be53b5
   zh: dfab1c77fd11ec92

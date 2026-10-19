@@ -2,20 +2,21 @@
 
 This repository holds `skills/` — a set of Agent Skills carrying a development pattern: decision records, prose discipline, and the change workflow. Read a skill's `SKILL.md` before changing anything under it, because its files are the deliverable.
 
-The repository is being rebuilt on the `refactor/architecture` branch. `skills/` currently holds two skills — [the skill forge](skills/dsh-spec-skill-forge/SKILL.md) and [the agent-team workflow](skills/dsh-spec-agent-team/SKILL.md) — and the rest of the set, with the engine that ran its gates, was removed while the architecture is worked out.
+The repository is being rebuilt on the `refactor/architecture` branch. `skills/` currently holds two skills — [the skill forge](skills/dsh-spec-skill-forge/SKILL.md) and [the agent-team workflow](skills/dsh-spec-agent-team/SKILL.md) — and the rest of the set was removed while the architecture is worked out. The engine the installed skills still call is kept under `scripts/dsh-spec-manager/`.
 
 ## Reading order
 
 - `skills/dsh-spec-skill-forge/SKILL.md` — forging a skill from an idea, a source, or an existing skill.
 - `skills/dsh-spec-agent-team/SKILL.md` — orchestrating a team the driver explicitly requests.
 - `.agents/skills/` — the installed copies an agent loads. They are deployed state, kept for use during the refactor and not the deliverable; never edit them.
-- `scripts/` — the checks that belong to this repository rather than to a skill: `verify-dco.ts` and `submit-vendored.ts`.
+- `scripts/` — the checks that belong to this repository rather than to a skill: `verify-dco.ts` and `submit-vendored.ts`. `scripts/dsh-spec-manager/` is the mechanism the installed skills still call; it is kept while the refactor runs and is not the deliverable.
 
 ## Repository layout
 
 ```
 skills/   the deliverable: one directory per skill, each with its own entry and references
 scripts/  this repository's own checks, not shipped — verify-dco.ts and submit-vendored.ts
+scripts/dsh-spec-manager/  the removed manager's engine, kept while the installed skills call it
 tests/    the functional suite for those checks — node --test 'tests/**/*.test.ts'
 submodules/dsh/    the extraction baseline — .gitmodules
 .agents/skills/    the installed copies, kept for use during the refactor — this file
@@ -50,6 +51,7 @@ The generic rules live in the `dsh-spec:norms` hook at the end of this file. The
 
 - **Ask before changing what the package claims to be generic.** A part that assumes one ecosystem is the defect this package exists to avoid.
 - **A check that passes on an empty corpus is worse than no check.** A gate exits non-zero when it finds nothing to check; keep it that way.
+- **A skill draft in progress lives in `docs/skills-draft/`.** The forge skill asks where its draft goes and this repository answers here, so a round of forging reads as a diff rather than as a fresh copy.
 - **Prefer the design an adopter can migrate more cheaply.** Where two designs are equal for the
   architecture and the plan, take the one an adopter's accumulated content would survive — a
   directory that can gain files over a file that has to become one, a format that can gain
@@ -58,6 +60,7 @@ The generic rules live in the `dsh-spec:norms` hook at the end of this file. The
   change is likely and the insurance costs little now, buy it, and when the odds are a guess,
   ask. [Migration cost is a design constraint](.agents/dsh-spec/notes/implemented/process/2026-09-22-migration-cost-is-a-design-constraint.md).
 - **Never edit `submodules/dsh/`.** It is the pinned baseline a re-extraction diffs against, and its content is not ours. Fetch it at the revision `git submodule status` records.
+- **A forging's decision record is an Agent Note.** A forging records its decisions at `.agents/dsh-spec/notes/proposed/process/YYYY-MM-DD-forging-<skill-name>.md` — the day the forging starts and the skill name — and the note moves to `implemented/` when the forged skill ships. The notes contract owns its body; the record's contents are those the forge skill names, placed in that contract's sections. No second working record exists; when no decision mechanism is named and no driver answers, the forge skill's fallback file applies instead.
 - **A development branch follows this repository's own pull-request lifecycle.** [The pull-request lifecycle](.agents/dsh-spec/notes/implemented/process/2026-09-21-the-pull-request-lifecycle.md) owns the states, the tidy before acceptance, before review and before the merge, the commit convention, the PR description and the merge each kind of pull request uses.
 - **A note or report that carries external text names its source.** [Three rules from a memory pipeline](.agents/dsh-spec/notes/implemented/process/2026-09-20-three-rules-from-a-memory-pipeline.md).
 - **Asking the maintainer to merge names the act and carries the change's description, as a question the maintainer answers.** [The review handover and the merge need authorization](.agents/dsh-spec/notes/implemented/process/2026-09-23-the-review-handover-and-the-merge-need-authorization.md).
@@ -88,7 +91,7 @@ The generic rules live in the `dsh-spec:norms` hook at the end of this file. The
 | Standing orders an agent needs in every session | this file |
 | Orders specific to one subtree | that subtree's `AGENTS.md` (the notes tree has its own three) |
 | Decision rationale: the why, and what was given up | `.agents/dsh-spec/notes/` |
-| The plan a multi-step delivery is executed from, and the rules it obeys | `.agents/dsh-spec/plans/` — the contract is [`README.md`](.agents/dsh-spec/plans/README.md) |
+| A forging's decision record | `.agents/dsh-spec/notes/<lifecycle>/process/YYYY-MM-DD-forging-<skill-name>.md` |
 | The package's own contract and workflows | `skills/` — see [the skill forge](skills/dsh-spec-skill-forge/SKILL.md) and [the agent-team workflow](skills/dsh-spec-agent-team/SKILL.md) |
 | What this repository decided about applying the pattern | the same notes tree, and the standing entries above |
 | A past incident's durable lesson | the notes tree, in its `bug-fix` class |
@@ -104,15 +107,6 @@ Keep each rule self-contained while linking the document that owns its rationale
 Add or update an Agent Note in the same change only for lasting decision rationale that code, tests, and existing documentation do not explain; mechanical or local edits are exempt ([scope](.agents/dsh-spec/notes/README.md#when-to-write-one)). Archived notes are frozen: never edit them or treat them as current authority ([archive policy](.agents/dsh-spec/notes/README.md#archiving-and-deletion)).
 
 <!-- /dsh-spec:agent-notes -->
-
-<!-- dsh-spec:plans -->
-## Delivery plans
-
-A delivery that spans more than one step records its plan in `.agents/dsh-spec/plans/` before it starts; a single-step or mechanical change does not. A plan is a working document rather than a decision record: what was decided, and why, lives in the notes tree, and the plan cites it ([the contract](.agents/dsh-spec/plans/README.md)).
-
-Read `.agents/dsh-spec/plans/README.md` for the fields a plan carries, the state read from its working copy, the dependency line, and the start-and-finish rules. Nothing gates these files: the contract is the rule, and a delivery's first step reads it before it derives a goal, a team or a card.
-
-<!-- /dsh-spec:plans -->
 
 <!-- dsh-spec:norms -->
 ## Norms this project applies

@@ -1,0 +1,265 @@
+/**
+ * The forge's spec gate: the mechanical half of Agent Skills conformance.
+ *
+ * The gate lives with the skill that ships it, at the landed path. Each case builds its own skill
+ * directory under the system temporary directory and removes it again, so the suite needs no
+ * network, no clock, and no repository state beyond the gate itself.
+ */
+
+import { test } from 'node:test'
+import assert from 'node:assert/strict'
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { dirname, join } from 'node:path'
+import { runScript } from './helpers/cli.ts'
+import { REPO_ROOT } from './helpers/fixtures.ts'
+
+const gate = 'skills/dsh-spec-skill-forge/scripts/verify-skill-spec.ts'
+
+/** Build a skill directory holding one SKILL.md, and return its path. */
+function skillDir(name: string, body: string): string {
+  const parent = mkdtempSync(join(tmpdir(), 'skill-spec-'))
+  const root = join(parent, name)
+  mkdirSync(root, { recursive: true })
+  writeFileSync(join(root, 'SKILL.md'), body)
+  return root
+}
+
+function withSkill(name: string, body: string, check: (root: string) => void): void {
+  const root = skillDir(name, body)
+  try {
+    check(root)
+  } finally {
+    rmSync(dirname(root), { recursive: true, force: true })
+  }
+}
+
+test('a conforming skill passes', () => {
+  withSkill('good-skill', '---\nname: good-skill\ndescription: Does one thing when it is asked for.\n---\n\nDo the thing.\n', (root) => {
+    const result = runScript(gate, [root])
+    assert.equal(result.status, 0, result.output)
+    assert.match(result.output, /0 failed/)
+  })
+})
+
+test('an empty description fails', () => {
+  withSkill('empty-description', '---\nname: empty-description\ndescription: ""\n---\n\nBody.\n', (root) => {
+    const result = runScript(gate, [root])
+    assert.equal(result.status, 1, result.output)
+    assert.match(result.output, /FAIL description/)
+  })
+})
+
+test('a name that disagrees with its directory fails', () => {
+  withSkill('right-name', '---\nname: another-name\ndescription: Says something.\n---\n\nBody.\n', (root) => {
+    const result = runScript(gate, [root])
+    assert.equal(result.status, 1, result.output)
+    assert.match(result.output, /FAIL name/)
+  })
+})
+
+test('a link that escapes the skill directory fails', () => {
+  withSkill('escaping-link', '---\nname: escaping-link\ndescription: Points outside itself.\n---\n\nSee [outside](../../etc/passwd).\n', (root) => {
+    const result = runScript(gate, [root])
+    assert.equal(result.status, 1, result.output)
+    assert.match(result.output, /FAIL links stay inside/)
+  })
+})
+
+test('a missing script mention fails', () => {
+  withSkill('missing-script', '---\nname: missing-script\ndescription: Names a script it does not ship.\n---\n\nRun `scripts/absent.ts`.\n', (root) => {
+    const result = runScript(gate, [root])
+    assert.equal(result.status, 1, result.output)
+    assert.match(result.output, /FAIL script mentions/)
+  })
+})
+
+test('a missing script named inside a command fails', () => {
+  withSkill('missing-command-script', '---\nname: missing-command-script\ndescription: Runs a script it does not ship.\n---\n\nRun `node scripts/absent.ts --check`.\n', (root) => {
+    const result = runScript(gate, [root])
+    assert.equal(result.status, 1, result.output)
+    assert.match(result.output, /FAIL script mentions/)
+  })
+})
+
+test('the forge skill on disk passes its own gate', () => {
+  const result = runScript(gate)
+  assert.equal(result.status, 0, result.output)
+  assert.match(result.output, /0 failed/)
+})
+
+test('--help prints usage and exits 0', () => {
+  const result = runScript(gate, ['--help'])
+  assert.equal(result.status, 0, result.output)
+  assert.match(result.output, /usage: verify-skill-spec\.ts/)
+})
+
+test('the reported line count matches the file', () => {
+  withSkill('line-count', '---\nname: line-count\ndescription: Counts its own lines.\n---\n\nBody.\n', (root) => {
+    const result = runScript(gate, [root])
+    assert.match(result.output, /ok {3}SKILL\.md — 6 lines/)
+  })
+})
+
+test('a metadata value that is not a string fails', () => {
+  withSkill('numeric-metadata', '---\nname: numeric-metadata\ndescription: Carries a bare number.\nmetadata:\n  version: 3\n---\n\nBody.\n', (root) => {
+    const result = runScript(gate, [root])
+    assert.equal(result.status, 1, result.output)
+    assert.match(result.output, /FAIL metadata/)
+  })
+})
+
+test('a folded description beside metadata passes', () => {
+  const body = '---\nname: folded\ndescription: >\n  Does one thing.\n  Use when testing.\nmetadata:\n  author: me\n---\n\nBody.\n'
+  withSkill('folded', body, (root) => {
+    const result = runScript(gate, [root])
+    assert.equal(result.status, 0, result.output)
+    assert.match(result.output, /metadata — 1 string entries/)
+  })
+})
+
+test('an empty compatibility field fails', () => {
+  withSkill('empty-compatibility', '---\nname: empty-compatibility\ndescription: Has an empty field.\ncompatibility: ""\n---\n\nBody.\n', (root) => {
+    const result = runScript(gate, [root])
+    assert.equal(result.status, 1, result.output)
+    assert.match(result.output, /FAIL compatibility/)
+  })
+})
+
+test('a duplicate frontmatter key fails', () => {
+  withSkill('duplicate-key', '---\nname: duplicate-key\ndescription: One.\ndescription: Two.\n---\n\nBody.\n', (root) => {
+    const result = runScript(gate, [root])
+    assert.equal(result.status, 1, result.output)
+    assert.match(result.output, /FAIL frontmatter fields — .*duplicate: description/)
+  })
+})
+
+test('an unknown option exits 2 with an error', () => {
+  const result = runScript(gate, ['--bogus'])
+  assert.equal(result.status, 2, result.output)
+  assert.match(result.output, /Error: unknown option: --bogus/)
+})
+
+test('a second skill directory exits 2 as ambiguous', () => {
+  const result = runScript(gate, ['/tmp/one', '/tmp/two'])
+  assert.equal(result.status, 2, result.output)
+  assert.match(result.output, /expected one skill directory/)
+})
+
+test('a path that is not a directory exits 2 with an error', () => {
+  const parent = mkdtempSync(join(tmpdir(), 'skill-spec-'))
+  const absent = join(parent, 'absent')
+  rmSync(parent, { recursive: true, force: true })
+  const result = runScript(gate, [absent])
+  assert.equal(result.status, 2, result.output)
+  assert.match(result.output, /Error: .* is not a directory/)
+})
+
+test('--json prints a parseable summary', () => {
+  const result = runScript(gate, ['--json'])
+  assert.equal(result.status, 0, result.output)
+  const summary = JSON.parse(result.stdout) as { results: { ok: boolean }[] }
+  assert.ok(Array.isArray(summary.results) && summary.results.length > 0)
+  assert.ok(summary.results.every((item) => item.ok), result.stdout)
+})
+
+test('an over-default body is reported and only --strict-budget fails it', () => {
+  const body = `---\nname: over-budget\ndescription: Runs long.\n---\n\n${'line\n'.repeat(510)}`
+  withSkill('over-budget', body, (root) => {
+    const loose = runScript(gate, [root])
+    assert.equal(loose.status, 0, loose.output)
+    assert.match(loose.output, /OVER the default/)
+    const strict = runScript(gate, [root, '--strict-budget'])
+    assert.equal(strict.status, 1, strict.output)
+    assert.match(strict.output, /FAIL budget/)
+  })
+})
+
+test('--chars-per-token re-estimates the budget for another tokenizer', () => {
+  const body = `---\nname: ratio-budget\ndescription: Estimates with a ratio.\n---\n\n${'word '.repeat(5000)}`
+  withSkill('ratio-budget', body, (root) => {
+    const strict = runScript(gate, [root, '--strict-budget'])
+    assert.equal(strict.status, 1, strict.output)
+    assert.match(strict.output, /3\.3 chars\/token/)
+    const lenient = runScript(gate, [root, '--strict-budget', '--chars-per-token', '5.2'])
+    assert.equal(lenient.status, 0, lenient.output)
+    assert.match(lenient.output, /5\.2 chars\/token/)
+  })
+})
+
+test('--chars-per-token rejects a value that is not a ratio', () => {
+  for (const value of ['zero', '0', '12']) {
+    const result = runScript(gate, ['--chars-per-token', value])
+    assert.equal(result.status, 2, result.output)
+    assert.match(result.output, /chars-per-token/)
+  }
+})
+
+test('CJK characters are charged conservatively in the budget', () => {
+  const skill = (name: string, count: number) => `---\nname: ${name}\ndescription: Counts CJK.\n---\n\n${'字'.repeat(count)}`
+  withSkill('cjk-over', skill('cjk-over', 4600), (root) => {
+    const strict = runScript(gate, [root, '--strict-budget'])
+    assert.equal(strict.status, 1, strict.output)
+    assert.match(strict.output, /FAIL budget/)
+  })
+  withSkill('cjk-under', skill('cjk-under', 4400), (root) => {
+    const strict = runScript(gate, [root, '--strict-budget'])
+    assert.equal(strict.status, 0, strict.output)
+  })
+})
+
+test('a SKILL.md that is a directory fails as not a regular file', () => {
+  const parent = mkdtempSync(join(tmpdir(), 'skill-spec-'))
+  const root = join(parent, 'dir-skill')
+  mkdirSync(join(root, 'SKILL.md'), { recursive: true })
+  try {
+    const result = runScript(gate, [root])
+    assert.equal(result.status, 1, result.output)
+    assert.match(result.output, /FAIL SKILL\.md — not a regular file/)
+  } finally {
+    rmSync(parent, { recursive: true, force: true })
+  }
+})
+
+test('a shipped reference that SKILL.md never names fails', () => {
+  const parent = mkdtempSync(join(tmpdir(), 'skill-spec-'))
+  const root = join(parent, 'orphan-reference')
+  mkdirSync(join(root, 'references'), { recursive: true })
+  writeFileSync(join(root, 'references', 'orphan.md'), 'orphan\n')
+  writeFileSync(join(root, 'SKILL.md'), '---\nname: orphan-reference\ndescription: Ships a file it never reads.\n---\n\nBody.\n')
+  try {
+    const result = runScript(gate, [root])
+    assert.equal(result.status, 1, result.output)
+    assert.match(result.output, /FAIL reference mentions/)
+  } finally {
+    rmSync(parent, { recursive: true, force: true })
+  }
+})
+
+test('a directory with no SKILL.md fails', () => {
+  const parent = mkdtempSync(join(tmpdir(), 'skill-spec-'))
+  const root = join(parent, 'empty-skill')
+  mkdirSync(root, { recursive: true })
+  try {
+    const result = runScript(gate, [root])
+    assert.equal(result.status, 1, result.output)
+    assert.match(result.output, /FAIL SKILL\.md/)
+  } finally {
+    rmSync(parent, { recursive: true, force: true })
+  }
+})
+
+test('a link deeper than one level fails', () => {
+  const parent = mkdtempSync(join(tmpdir(), 'skill-spec-'))
+  const root = join(parent, 'deep-link')
+  mkdirSync(join(root, 'references', 'nested'), { recursive: true })
+  writeFileSync(join(root, 'references', 'nested', 'inner.md'), 'inner\n')
+  writeFileSync(join(root, 'SKILL.md'), '---\nname: deep-link\ndescription: Points two levels down.\n---\n\nSee [inner](references/nested/inner.md).\n')
+  try {
+    const result = runScript(gate, [root])
+    assert.equal(result.status, 1, result.output)
+    assert.match(result.output, /FAIL link depth/)
+  } finally {
+    rmSync(parent, { recursive: true, force: true })
+  }
+})
