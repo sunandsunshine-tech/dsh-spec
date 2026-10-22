@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, readlinkSync, renameSync, rmSync, rmdirSync, statSync } from "node:fs";
-import { dirname, join, relative, resolve, sep } from "node:path";
+import { basename, dirname, join, relative, resolve, sep } from "node:path";
 import { createHash } from "node:crypto";
 //#region forge.ts
 const DEFAULT_FORGE = ".agents/dsh-spec-skill-forge";
@@ -23,7 +23,8 @@ options:
   --help, -h      print this and exit 0
 
 The landing directory becomes an exact copy of the work draft. Landing requires SKILL.md in the
-work draft; when a review draft exists, its script/ must match the work draft's. Landing removes
+work draft; an existing landing directory must be empty or hold this skill's SKILL.md under the
+skill's name. When a review draft exists, its script/ must match the work draft's. Landing removes
 only draft/<name>/ and review/<name>/; the shared draft/ and review/ directories stay.
 
 exit: 0 every action succeeded · 1 an action or precondition failed · 2 usage error`;
@@ -48,6 +49,18 @@ const removeTree = (path) => {
 		force: true
 	});
 };
+/** The `name` a skill directory declares in its SKILL.md frontmatter, if any. */
+function readSkillName(root) {
+	const file = join(root, "SKILL.md");
+	if (!existsSync(file)) return void 0;
+	const lines = readFileSync(file, "utf8").split("\n");
+	if (lines[0] !== "---") return void 0;
+	for (const line of lines.slice(1)) {
+		if (line === "---") break;
+		const match = /^name:\s*(.+)$/.exec(line);
+		if (match) return match[1].trim().replace(/^['"]|['"]$/g, "");
+	}
+}
 /** Hash every file under `root`, keyed by its relative path. */
 function hashTree(root) {
 	const files = /* @__PURE__ */ new Map();
@@ -273,6 +286,14 @@ function planLand(options) {
 	if (!isDirectory(draft)) throw new ForgeError(`work draft not found: ${relativeToCwd(draft)}`);
 	if (!existsSync(join(draft, "SKILL.md"))) throw new ForgeError(`the work draft has no SKILL.md: ${relativeToCwd(draft)}`);
 	if (isInside(options.forge, target) || isInside(target, options.forge)) throw new ForgeError("the landing directory must stay outside the forge directory");
+	if (existsSync(target)) {
+		if (!isDirectory(target)) throw new ForgeError(`the landing path is not a directory: ${relativeToCwd(target)}`);
+		if (readdirSync(target).length > 0) {
+			const existingName = readSkillName(target);
+			if (existingName === void 0) throw new ForgeError(`the landing directory is not a skill: ${relativeToCwd(target)}`);
+			if (basename(target) !== options.name || existingName !== options.name) throw new ForgeError(`the landing directory holds ${existingName} at ${basename(target)}, not ${options.name}: ${relativeToCwd(target)}`);
+		}
+	}
 	if (existsSync(review) && !treesEqual(join(draft, "script"), join(review, "script"))) throw new ForgeError(`review draft script is out of date; run review ${options.name}`);
 	const staging = join(options.forge, "staging", options.name);
 	const backup = join(options.forge, "staging", `${options.name}.previous`);
@@ -329,7 +350,7 @@ function execute(actions, dryRun) {
 			results.push({
 				action: action.label,
 				ok: true,
-				detail: `would ${action.detail}`
+				detail: action.detail
 			});
 			continue;
 		}

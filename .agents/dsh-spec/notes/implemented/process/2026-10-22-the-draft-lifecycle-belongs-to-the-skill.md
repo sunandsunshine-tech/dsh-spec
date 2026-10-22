@@ -12,11 +12,11 @@ The forging skill's Drafts rule described a lifecycle — a work draft, a review
 
 The lifecycle is the forging skill's Script: `script/forge.mjs`, sourced from `package/dsh-spec-skill-forge/forge.ts`, with the commands `draft`, `review` and `land`. The forge directory and the landing directory are values, so the skill stays project-neutral; the working directory is the project root.
 
-`land` validates before it writes. It requires `SKILL.md` in the work draft, refuses a review draft whose `script/` no longer matches the work draft, stages the copy under the forge directory, verifies the staged tree by content hash, swaps it into the landing directory, verifies the landing tree, and then deletes only `draft/<name>/` and `review/<name>/`. The shared `draft/` and `review/` directories stay, and `--dry-run` prints the actions without running them. A failure before the swap leaves the previous landing directory and the work draft in place, so a retry starts from the draft.
+`land` validates before it writes. It requires `SKILL.md` in the work draft, refuses a landing directory that is neither empty nor this skill, refuses a review draft whose `script/` no longer matches the work draft, stages the copy under the forge directory, verifies the staged tree by content hash, swaps it into the landing directory, verifies the landing tree, and then deletes only `draft/<name>/` and `review/<name>/`. The shared `draft/` and `review/` directories stay, and `--dry-run` prints the actions without running them. A failure before the swap leaves the previous landing directory and the work draft in place, so a retry starts from the draft.
 
 The repository's `package.json` holds thin, namespaced calls: `format`, `format:check`, `test`, `test:watch`, `skill:draft`, `skill:build`, `skill:review`, `skill:land` and `skill:refresh`. Build settings live in `package/dsh-spec-skill-forge/vite.config.ts`, which names both script entries and the work draft's `script/` output. `scripts/refresh-skills.ts` discovers `skills/*` and mirrors each skill into its installed copy, so the installed set is not written twice. The root `vite.config.ts` configures Oxfmt to the project's no-semicolon, single-quote style at 120 columns, scoped to the TypeScript sources; `vp fmt` and `vp fmt --check` are the source formatting commands. CI runs `pnpm test`.
 
-No review draft was produced for this change. The driver reviewed the plan before implementation and an independent reviewer reviewed the landed artifact, so the Drafts rule's "review is needed" condition did not hold; the ruling is recorded here rather than in a second state store.
+No review draft was produced for this change. The driver reviewed the plan before implementation and an independent reviewer reviews the landed artifact, so the Drafts rule's "review is needed" condition did not hold; the ruling is recorded here rather than in a second state store.
 
 ## Alternatives considered
 
@@ -34,6 +34,6 @@ No review draft was produced for this change. The driver reviewed the plan befor
 
 ## Consequences
 
-The skill ships a second bundled script, about 13 KB, and the repository keeps its project values — forge directory, landing directory, bundle entries — in configuration. The lifecycle has 15 cases and the installed-copy refresh has 4; the suite is 66 cases. The empty `draft/` and `review/` directories remain after landing, and a fresh clone has neither until one is created. `pnpm run format:check` does not run in CI because CI installs no Vite+ toolchain; it is a local check.
+The skill ships a second bundled script, about 14 KB, and the repository keeps its project values — forge directory, landing directory, bundle entries — in configuration. The lifecycle has 23 cases and the installed-copy refresh has 6; the suite is 78 cases. The shared `draft/` and `review/` directories are left in place when they exist, and a fresh clone has neither until one is created. `pnpm run format:check` does not run in CI because CI installs no Vite+ toolchain; it is a local check.
 
 The work draft can be seeded from the landed skill (`draft --from`), so the next round starts from the shipped bytes rather than an empty directory.

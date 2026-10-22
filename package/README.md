@@ -12,7 +12,7 @@ pnpm run skill:land
 pnpm run skill:refresh
 ```
 
-`skill:draft` copies the landed skill into the work draft for the next round; `skill:review` mirrors the work draft's `script/` into the review draft, leaving the review-language prose alone; `skill:land` copies the accepted work draft into `skills/<name>/` and removes only that skill's `draft/<name>/` and `review/<name>/`, leaving the shared directories in place; `skill:refresh` mirrors `skills/` into the installed copies.
+`skill:draft` copies the landed skill into the work draft for the next round; `skill:review` mirrors the work draft's `script/` into the review draft, leaving the review-language prose alone; `skill:land` copies the accepted work draft into `skills/<name>/` — an existing landing directory must be empty or already this skill — and removes only that skill's `draft/<name>/` and `review/<name>/`, leaving the shared directories in place; `skill:refresh` mirrors `skills/` into the installed copies.
 
 The source layout mirrors the first level of `skills/`:
 

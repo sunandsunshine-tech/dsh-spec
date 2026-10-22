@@ -12,11 +12,11 @@ Status: implemented
 
 生命周期是锻造技能的 Script：`script/forge.mjs`，源码在 `package/dsh-spec-skill-forge/forge.ts`，命令是 `draft`、`review` 和 `land`。锻造目录和落地目录都是取值，技能因此保持项目中立；工作目录即项目根。
 
-`land` 先校验再写盘。它要求工作草稿里有 `SKILL.md`，审查草稿存在时其 `script/` 必须仍与工作草稿一致；把副本暂存到锻造目录下，按内容哈希校验暂存树，交换进落地目录，再次校验落地树，然后只删除 `draft/<名称>/` 和 `review/<名称>/`。共享的 `draft/` 和 `review/` 目录保留；`--dry-run` 只打印动作、不执行。交换前的失败保留原落地目录和工作草稿，重试从草稿开始。
+`land` 先校验再写盘。它要求工作草稿里有 `SKILL.md`；落地目录必须不存在、为空或就是本技能；审查草稿存在时其 `script/` 必须仍与工作草稿一致；把副本暂存到锻造目录下，按内容哈希校验暂存树，交换进落地目录，再次校验落地树，然后只删除 `draft/<名称>/` 和 `review/<名称>/`。共享的 `draft/` 和 `review/` 目录保留；`--dry-run` 只打印动作、不执行。交换前的失败保留原落地目录和工作草稿，重试从草稿开始。
 
 仓库的 `package.json` 只保留按命名空间分组的薄调用：`format`、`format:check`、`test`、`test:watch`、`skill:draft`、`skill:build`、`skill:review`、`skill:land` 和 `skill:refresh`。打包配置在 `package/dsh-spec-skill-forge/vite.config.ts`，声明两个脚本入口和工作草稿的 `script/` 输出。`scripts/refresh-skills.ts` 按 `skills/*` 发现技能并逐个镜像到已安装副本，已安装集合不再写第二遍。根 `vite.config.ts` 把 Oxfmt 配成项目的无分号、单引号、120 列风格，只作用于 TypeScript 源码；`vp fmt` 和 `vp fmt --check` 是源码格式化命令。CI 跑 `pnpm test`。
 
-这次变更没有生成审查草稿。驾驶员在实现前审查了方案，独立评审者审查了落地产物，因此草稿规则里“需要审查”的条件不成立；裁定记录在这里，而不是第二个状态存储。
+这次变更没有生成审查草稿。驾驶员在实现前审查了方案，独立评审者评审落地产物，因此草稿规则里“需要审查”的条件不成立；裁定记录在这里，而不是第二个状态存储。
 
 ## Alternatives considered
 
@@ -34,6 +34,6 @@ Status: implemented
 
 ## Consequences
 
-技能多出一个打包脚本，约 13 KB；仓库把项目取值——锻造目录、落地目录、打包入口——留在配置里。生命周期有 15 个用例，已安装副本刷新有 4 个；套件共 66 个用例。落地后空的 `draft/` 和 `review/` 目录保留，新克隆在创建之前两个都没有。`pnpm run format:check` 不在 CI 里运行，因为 CI 不安装 Vite+ 工具链；它是本地检查。
+技能多出一个打包脚本，约 14 KB；仓库把项目取值——锻造目录、落地目录、打包入口——留在配置里。生命周期有 23 个用例，已安装副本刷新有 6 个；套件共 78 个用例。共享的 `draft/` 和 `review/` 目录在存在时保留，新克隆在创建之前两个都没有。`pnpm run format:check` 不在 CI 里运行，因为 CI 不安装 Vite+ 工具链；它是本地检查。
 
 工作草稿可以从落地技能播种（`draft --from`），下一轮从已交付的字节开始，而不是空目录。

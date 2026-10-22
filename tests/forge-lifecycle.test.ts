@@ -172,7 +172,7 @@ test('land refuses a review draft whose script is stale', () => {
 test('land replaces an existing landing directory exactly', () => {
   withWorkspace((ws) => {
     seedDrafts(ws)
-    ws.write('skills/alpha/SKILL.md', '# Old\n')
+    ws.write('skills/alpha/SKILL.md', '---\nname: alpha\ndescription: An old skill.\n---\n# Old\n')
     ws.write('skills/alpha/stale.md', 'stale\n')
     const result = forge(ws, 'land', 'alpha', '--into', 'skills/alpha')
     assert.equal(result.status, 0, result.output)
@@ -223,5 +223,88 @@ test('--json reports the actions', () => {
       summary.results.some((item) => item.action === 'create' && item.ok),
       true,
     )
+  })
+})
+
+test('land refuses a landing directory that is not a skill', () => {
+  withWorkspace((ws) => {
+    seedDrafts(ws)
+    ws.write('victim/precious.txt', 'keep\n')
+    const result = forge(ws, 'land', 'alpha', '--into', 'victim')
+    assert.equal(result.status, 1, result.output)
+    assert.match(result.stderr, /not a skill/)
+    assert.equal(ws.read('victim/precious.txt'), 'keep\n')
+    assert.equal(ws.exists(`${FORGE}/draft/alpha`), true)
+  })
+})
+
+test('land refuses a landing directory for another skill', () => {
+  withWorkspace((ws) => {
+    seedDrafts(ws)
+    ws.write('skills/beta/SKILL.md', '---\nname: beta\ndescription: Another skill.\n---\n# Beta\n')
+    const result = forge(ws, 'land', 'alpha', '--into', 'skills/beta')
+    assert.equal(result.status, 1, result.output)
+    assert.match(result.stderr, /not alpha/)
+    assert.equal(ws.read('skills/beta/SKILL.md'), '---\nname: beta\ndescription: Another skill.\n---\n# Beta\n')
+  })
+})
+
+test('land replaces an empty landing directory', () => {
+  withWorkspace((ws) => {
+    seedDrafts(ws)
+    ws.mkdir('skills/alpha')
+    const result = forge(ws, 'land', 'alpha', '--into', 'skills/alpha')
+    assert.equal(result.status, 0, result.output)
+    assert.equal(ws.read('skills/alpha/SKILL.md'), '# Alpha\n')
+  })
+})
+
+test('--forge selects another forge directory', () => {
+  withWorkspace((ws) => {
+    const skill = '---\nname: alpha\ndescription: Alpha.\n---\n# Alpha\n'
+    ws.write('landed/alpha/SKILL.md', skill)
+    const created = forge(ws, 'draft', 'alpha', '--forge', 'custom', '--from', 'landed/alpha')
+    assert.equal(created.status, 0, created.output)
+    assert.equal(ws.exists('custom/draft/alpha/SKILL.md'), true)
+    const landed = forge(ws, 'land', 'alpha', '--forge', 'custom', '--into', 'skills/alpha')
+    assert.equal(landed.status, 0, landed.output)
+    assert.equal(ws.read('skills/alpha/SKILL.md'), skill)
+  })
+})
+
+test('--help prints the commands and exits 0', () => {
+  withWorkspace((ws) => {
+    const result = forge(ws, '--help')
+    assert.equal(result.status, 0, result.output)
+    assert.match(result.stdout, /usage: forge\.mjs/)
+    assert.match(result.stdout, /^  draft/m)
+    assert.match(result.stdout, /^  land/m)
+  })
+})
+
+test('draft refuses a missing --from directory', () => {
+  withWorkspace((ws) => {
+    const result = forge(ws, 'draft', 'alpha', '--from', 'absent')
+    assert.equal(result.status, 1, result.output)
+    assert.match(result.stderr, /is not a directory/)
+    assert.equal(ws.exists(`${FORGE}/draft/alpha`), false)
+  })
+})
+
+test('review --remove with no review draft is a no-op', () => {
+  withWorkspace((ws) => {
+    ws.write(`${FORGE}/draft/alpha/SKILL.md`, '# Alpha\n')
+    const result = forge(ws, 'review', 'alpha', '--remove')
+    assert.equal(result.status, 0, result.output)
+    assert.match(result.stdout, /no review draft/)
+  })
+})
+
+test('land --dry-run prints each action once', () => {
+  withWorkspace((ws) => {
+    seedDrafts(ws)
+    const result = forge(ws, 'land', 'alpha', '--into', 'skills/alpha', '--dry-run')
+    assert.equal(result.status, 0, result.output)
+    assert.doesNotMatch(result.stdout, /would \w+ — would/)
   })
 })

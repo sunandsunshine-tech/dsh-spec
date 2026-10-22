@@ -9,7 +9,8 @@ pnpm test
 ```
 
 Node 22.19 or newer is the only requirement: the runner executes TypeScript directly, so the suite
-needs no dependency, no transform and no package manager — the same property the scripts rely on.
+needs no dependency and no transform; `pnpm test` is the documented entry point, and the scripts rely
+on the same property.
 
 ## Layout
 
@@ -23,6 +24,7 @@ needs no dependency, no transform and no package manager — the same property t
 | `skill-spec.test.ts` | `skills/dsh-spec-skill-forge/script/verify-skill-spec.mjs`: the mechanical half of Agent Skills conformance. |
 | `forge-lifecycle.test.ts` | `skills/dsh-spec-skill-forge/script/forge.mjs`: the work draft, review draft and landing lifecycle, including the landing cleanup scope. |
 | `refresh-skills.test.ts` | `scripts/refresh-skills.ts`: each skill under `skills/` replaces its installed copy, and other installed skills stay alone. |
+| `repository-shape.test.ts` | The tree invariants the tooling relies on: every package script is one command, and every landed skill has an identical installed copy. |
 
 ## Rules this suite keeps
 

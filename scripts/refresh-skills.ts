@@ -31,6 +31,9 @@ options:
   --dry-run   print the skills that would be synchronized and change nothing
   --help, -h  print this and exit 0
 
+A failed copy removes its staging directory; a failed swap keeps the previous copy under
+.agents/.refresh for inspection.
+
 exit: 0 every skill was synchronized · 1 an action or precondition failed · 2 usage error`
 
 class RefreshError extends Error {}
@@ -157,6 +160,8 @@ for (const name of skills) {
     results.push({ skill: name, ok: true, detail: `mirrored ${files} file(s)` })
   } catch (error) {
     results.push({ skill: name, ok: false, detail: error instanceof Error ? error.message : String(error) })
+    if (existsSync(backup)) console.error(`warning: a failed swap kept ${relativeToCwd(backup)} for inspection`)
+    else removeTree(stage)
     break
   }
 }

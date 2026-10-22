@@ -20,6 +20,8 @@ export interface Workspace {
   exists(rel: string): boolean
   /** The entries of one directory, sorted. */
   entries(rel: string): string[]
+  /** Create a directory. */
+  mkdir(rel: string): void
   /** Remove a path. */
   remove(rel: string): void
   /** Dispose the workspace. */
@@ -43,6 +45,9 @@ export function makeWorkspace(): Workspace {
     },
     entries(rel) {
       return existsSync(join(root, rel)) ? readdirSync(join(root, rel)).sort() : []
+    },
+    mkdir(rel) {
+      mkdirSync(join(root, rel), { recursive: true })
     },
     remove(rel) {
       rmSync(join(root, rel), { recursive: true, force: true })

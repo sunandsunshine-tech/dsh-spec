@@ -52,15 +52,15 @@ A skill's script source lives under `package/<name>/` with a `vite.config.ts` th
 
 ### Verification
 
-`node skills/dsh-spec-skill-forge/script/verify-skill-spec.mjs skills/dsh-spec-skill-forge --strict-budget --name-max 64 --description-max 1024 --compatibility-max 500 --max-lines 500 --max-tokens 5000 --cjk-tokens-per-char 0.6 --other-tokens-per-char 0.3` → 11 checks, 0 failed, 181 lines, ~3,420 tokens, strict budget passes. The script defaults report ~3,494 tokens and also pass. Three SOP steps are routed whole into `references/` to keep the body inside budget.
+`node skills/dsh-spec-skill-forge/script/verify-skill-spec.mjs skills/dsh-spec-skill-forge --strict-budget --name-max 64 --description-max 1024 --compatibility-max 500 --max-lines 500 --max-tokens 5000 --cjk-tokens-per-char 0.6 --other-tokens-per-char 0.3` → 11 checks, 0 failed, 181 lines, ~3,421 tokens, strict budget passes. The script defaults report ~3,496 tokens and also pass. Three SOP steps are routed whole into `references/` to keep the body inside budget.
 
-The checker parses frontmatter with the bundled `yaml` parser; its tests cover invalid YAML, non-mapping frontmatter, duplicate keys, field types, metadata maps, `allowed-tools` spacing and the numeric parameters. `pnpm test` → 66 pass, including 15 lifecycle cases and 4 installed-copy cases. `pnpm run skill:build` writes both scripts into the work draft, and `pnpm run skill:land` copies that work draft into `skills/dsh-spec-skill-forge/`. `dsh-spec notes check --all` → 24 active notes, `notes-archived check --all` → 6 frozen artifacts, and the named translation pairs and changed Markdown links check clean. `dsh-spec check --all` still reports a pre-existing `norm-reference` failure because the branch has no `.agents/skills/dsh-spec-manager/references/norms.json`; that is the installed-skills state, not this skill.
+The checker parses frontmatter with the bundled `yaml` parser; its tests cover invalid YAML, non-mapping frontmatter, duplicate keys, field types, metadata maps, `allowed-tools` spacing and the numeric parameters. `pnpm test` → 78 pass, including 23 lifecycle cases and 6 installed-copy cases. `pnpm run skill:build` writes both scripts into the work draft, and `pnpm run skill:land` copies that work draft into `skills/dsh-spec-skill-forge/`. `dsh-spec notes check --all` → 24 active notes, `notes-archived check --all` → 6 frozen artifacts, and the named translation pairs and changed Markdown links check clean. `dsh-spec check --all` still reports a pre-existing `norm-reference` failure because the branch has no `.agents/skills/dsh-spec-manager/references/norms.json`; that is the installed-skills state, not this skill.
 
 External trigger quality, cold start and task utility remain unverified: this environment has no agent harness in the target audience's environment. They are recorded as a gap, not a pass.
 
 ### Review and landing
 
-The review draft was generated in Chinese with an English trigger at `.agents/dsh-spec-skill-forge/review/dsh-spec-skill-forge/`. The driver accepted it, `pnpm run skill:land` copied the work draft into `skills/dsh-spec-skill-forge/`, `pnpm run skill:refresh` refreshed the installed copies, and the draft and review directories were deleted; only this skill's `draft/<name>/` and `review/<name>/` were removed, and the shared directories stayed.
+The review draft was generated in Chinese with an English trigger at `.agents/dsh-spec-skill-forge/review/dsh-spec-skill-forge/`. The driver accepted it, the work draft was copied into `skills/dsh-spec-skill-forge/`, the installed copies were refreshed, and the draft and review directories were deleted; only this skill's `draft/<name>/` and `review/<name>/` were removed, and the shared directories stayed.
 
 ## Alternatives considered
 
@@ -82,7 +82,7 @@ The review draft was generated in Chinese with an English trigger at `.agents/ds
 
 The forge is smaller in shape and has one composition rule, one skill structure, nested step assertions, a specification-linked outcome assertion and a parameterized checker. The YAML parser and its bundle add about 240 KB to the landed script, but the skill stays self-contained and needs no install.
 
-The body is 181 lines and about 3,420 tokens because the SOP steps are routed whole into three references. The body keeps the step order and references; loading a step now needs its reference. That is the budget route's deliberate cost.
+The body is 181 lines and about 3,421 tokens because the SOP steps are routed whole into three references. The body keeps the step order and references; loading a step now needs its reference. That is the budget route's deliberate cost.
 
 The work/review/landing flow keeps `skills/` equal to the accepted draft. The trade-off is that tests target the work draft while it exists and fall back to the landed script after landing.
 

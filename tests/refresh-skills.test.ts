@@ -8,6 +8,8 @@
  */
 
 import assert from 'node:assert/strict'
+import { chmodSync } from 'node:fs'
+import { join } from 'node:path'
 import { test } from 'node:test'
 import { runScript } from './helpers/cli.ts'
 import { makeWorkspace } from './helpers/workspace.ts'
@@ -77,3 +79,34 @@ test('refresh rejects an unknown option', () => {
     assert.match(result.stderr, /unknown option/)
   })
 })
+
+test('refresh is idempotent', () => {
+  withWorkspace((ws) => {
+    ws.write('skills/alpha/SKILL.md', '# Alpha\n')
+    assert.equal(run(ws).status, 0)
+    const before = ws.read('.agents/skills/alpha/SKILL.md')
+    const second = run(ws)
+    assert.equal(second.status, 0, second.output)
+    assert.equal(ws.read('.agents/skills/alpha/SKILL.md'), before)
+    assert.equal(ws.exists('.agents/.refresh'), false)
+  })
+})
+
+test(
+  'refresh removes its staging after a failed copy',
+  { skip: typeof process.getuid === 'function' && process.getuid() === 0 },
+  () => {
+    withWorkspace((ws) => {
+      ws.write('skills/alpha/SKILL.md', '# Alpha\n')
+      ws.write('skills/alpha/secret.md', 'secret\n')
+      chmodSync(join(ws.root, 'skills/alpha/secret.md'), 0o000)
+      try {
+        const result = run(ws)
+        assert.equal(result.status, 1, result.output)
+        assert.equal(ws.exists('.agents/.refresh'), false)
+      } finally {
+        chmodSync(join(ws.root, 'skills/alpha/secret.md'), 0o644)
+      }
+    })
+  },
+)
