@@ -93,19 +93,21 @@ test('refresh is idempotent', () => {
 })
 
 test(
-  'refresh removes its staging after a failed copy',
+  'refresh removes its staging after a failed swap',
   { skip: typeof process.getuid === 'function' && process.getuid() === 0 },
   () => {
     withWorkspace((ws) => {
       ws.write('skills/alpha/SKILL.md', '# Alpha\n')
-      ws.write('skills/alpha/secret.md', 'secret\n')
-      chmodSync(join(ws.root, 'skills/alpha/secret.md'), 0o000)
+      ws.mkdir('.agents/skills')
+      chmodSync(join(ws.root, '.agents/skills'), 0o555)
       try {
         const result = run(ws)
         assert.equal(result.status, 1, result.output)
+        assert.match(result.stdout, /FAIL alpha/)
         assert.equal(ws.exists('.agents/.refresh'), false)
+        assert.equal(ws.exists('.agents/skills/alpha'), false)
       } finally {
-        chmodSync(join(ws.root, 'skills/alpha/secret.md'), 0o644)
+        chmodSync(join(ws.root, '.agents/skills'), 0o755)
       }
     })
   },

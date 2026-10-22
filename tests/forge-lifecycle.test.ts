@@ -308,3 +308,46 @@ test('land --dry-run prints each action once', () => {
     assert.doesNotMatch(result.stdout, /would \w+ — would/)
   })
 })
+
+test('land refuses a landing path that is a file', () => {
+  withWorkspace((ws) => {
+    seedDrafts(ws)
+    ws.write('target-file', 'keep\n')
+    const result = forge(ws, 'land', 'alpha', '--into', 'target-file')
+    assert.equal(result.status, 1, result.output)
+    assert.match(result.stderr, /not a directory/)
+    assert.equal(ws.read('target-file'), 'keep\n')
+  })
+})
+
+test('land refuses a skill directory whose SKILL.md names another skill', () => {
+  withWorkspace((ws) => {
+    seedDrafts(ws)
+    ws.write('skills/alpha/SKILL.md', '---\nname: beta\ndescription: Another skill.\n---\n# Beta\n')
+    const result = forge(ws, 'land', 'alpha', '--into', 'skills/alpha')
+    assert.equal(result.status, 1, result.output)
+    assert.match(result.stderr, /holds beta at alpha/)
+    assert.equal(ws.read('skills/alpha/SKILL.md'), '---\nname: beta\ndescription: Another skill.\n---\n# Beta\n')
+  })
+})
+
+test('land refuses a skill directory under another name', () => {
+  withWorkspace((ws) => {
+    seedDrafts(ws)
+    ws.write('skills/other/SKILL.md', '---\nname: alpha\ndescription: Alpha elsewhere.\n---\n# Alpha\n')
+    const result = forge(ws, 'land', 'alpha', '--into', 'skills/other')
+    assert.equal(result.status, 1, result.output)
+    assert.match(result.stderr, /holds alpha at other/)
+    assert.equal(ws.exists('skills/other/SKILL.md'), true)
+  })
+})
+
+test('land accepts a name line with a comment and CRLF', () => {
+  withWorkspace((ws) => {
+    seedDrafts(ws)
+    ws.write('skills/alpha/SKILL.md', '---\r\nname: alpha # keep\r\ndescription: Old.\r\n---\r\n# Old\r\n')
+    const result = forge(ws, 'land', 'alpha', '--into', 'skills/alpha')
+    assert.equal(result.status, 0, result.output)
+    assert.equal(ws.read('skills/alpha/SKILL.md'), '# Alpha\n')
+  })
+})

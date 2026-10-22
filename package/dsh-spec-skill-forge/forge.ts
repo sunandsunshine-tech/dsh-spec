@@ -98,14 +98,23 @@ const removeTree = (path: string): void => {
 
 /** The `name` a skill directory declares in its SKILL.md frontmatter, if any. */
 function readSkillName(root: string): string | undefined {
-  const file = join(root, 'SKILL.md')
-  if (!existsSync(file)) return undefined
-  const lines = readFileSync(file, 'utf8').split('\n')
+  let text: string
+  try {
+    text = readFileSync(join(root, 'SKILL.md'), 'utf8')
+  } catch {
+    return undefined
+  }
+  const lines = text.split(/\r?\n/)
   if (lines[0] !== '---') return undefined
   for (const line of lines.slice(1)) {
     if (line === '---') break
     const match = /^name:\s*(.+)$/.exec(line)
-    if (match) return match[1].trim().replace(/^['"]|['"]$/g, '')
+    if (!match) continue
+    const value = match[1]
+      .replace(/\s+#.*$/, '')
+      .trim()
+      .replace(/^['"]|['"]$/g, '')
+    if (value.length > 0) return value
   }
   return undefined
 }

@@ -36,7 +36,7 @@ test('every package script is one command', () => {
   const scripts = JSON.parse(repoFile('package.json')).scripts as Record<string, string>
   assert.ok(Object.keys(scripts).length > 0)
   for (const [name, command] of Object.entries(scripts)) {
-    assert.doesNotMatch(command, /&&|\|\||\brsync\b|\brm -rf\b/, name)
+    assert.doesNotMatch(command, /&&|\|\||;|\$\(|`|\brsync\b|\brm -rf\b/, name)
   }
 })
 

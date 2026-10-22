@@ -51,14 +51,20 @@ const removeTree = (path) => {
 };
 /** The `name` a skill directory declares in its SKILL.md frontmatter, if any. */
 function readSkillName(root) {
-	const file = join(root, "SKILL.md");
-	if (!existsSync(file)) return void 0;
-	const lines = readFileSync(file, "utf8").split("\n");
+	let text;
+	try {
+		text = readFileSync(join(root, "SKILL.md"), "utf8");
+	} catch {
+		return;
+	}
+	const lines = text.split(/\r?\n/);
 	if (lines[0] !== "---") return void 0;
 	for (const line of lines.slice(1)) {
 		if (line === "---") break;
 		const match = /^name:\s*(.+)$/.exec(line);
-		if (match) return match[1].trim().replace(/^['"]|['"]$/g, "");
+		if (!match) continue;
+		const value = match[1].replace(/\s+#.*$/, "").trim().replace(/^['"]|['"]$/g, "");
+		if (value.length > 0) return value;
 	}
 }
 /** Hash every file under `root`, keyed by its relative path. */

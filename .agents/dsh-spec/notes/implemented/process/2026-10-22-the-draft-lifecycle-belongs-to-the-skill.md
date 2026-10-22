@@ -34,6 +34,6 @@ No review draft was produced for this change. The driver reviewed the plan befor
 
 ## Consequences
 
-The skill ships a second bundled script, about 14 KB, and the repository keeps its project values — forge directory, landing directory, bundle entries — in configuration. The lifecycle has 23 cases and the installed-copy refresh has 6; the suite is 78 cases. The shared `draft/` and `review/` directories are left in place when they exist, and a fresh clone has neither until one is created. `pnpm run format:check` does not run in CI because CI installs no Vite+ toolchain; it is a local check.
+The skill ships a second bundled script, about 14 KB, and the repository keeps its project values — forge directory, landing directory, bundle entries — in configuration. The lifecycle has 27 cases and the installed-copy refresh has 6; the suite is 82 cases. The shared `draft/` and `review/` directories are left in place when they exist, and a fresh clone has neither until one is created. `pnpm run format:check` does not run in CI because CI installs no Vite+ toolchain; it is a local check.
 
 The work draft can be seeded from the landed skill (`draft --from`), so the next round starts from the shipped bytes rather than an empty directory.

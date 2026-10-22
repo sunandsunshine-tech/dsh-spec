@@ -54,7 +54,7 @@ SOP 步骤可以嵌套。每一层都有自己的任务、所需 Docs 和 Script
 
 `node skills/dsh-spec-skill-forge/script/verify-skill-spec.mjs skills/dsh-spec-skill-forge --strict-budget --name-max 64 --description-max 1024 --compatibility-max 500 --max-lines 500 --max-tokens 5000 --cjk-tokens-per-char 0.6 --other-tokens-per-char 0.3` → 11 checks, 0 failed, 181 lines, ~3,421 tokens，strict budget 通过。脚本默认值约 3,496 tokens，也通过。三个 SOP 步骤整体路由到 `references/`，使正文留在预算内。
 
-检查器用打包的 `yaml` 解析 frontmatter；测试覆盖非法 YAML、非 mapping frontmatter、重复键、字段类型、metadata map、`allowed-tools` 空格和数值参数。`pnpm test` → 78 通过，其中 23 个生命周期用例和 6 个已安装副本用例。`pnpm run skill:build` 把两个脚本写入工作草稿，`pnpm run skill:land` 把该工作草稿复制到 `skills/dsh-spec-skill-forge/`。`dsh-spec notes check --all` → 24 条活跃记录，`notes-archived check --all` → 6 件冻结产物，具名 translation pair 和改动的 Markdown 链接检查通过。`dsh-spec check --all` 仍报一个既有的 `norm-reference` 失败，因为本分支没有 `.agents/skills/dsh-spec-manager/references/norms.json`；这是 installed-skills 状态，不是本技能的问题。
+检查器用打包的 `yaml` 解析 frontmatter；测试覆盖非法 YAML、非 mapping frontmatter、重复键、字段类型、metadata map、`allowed-tools` 空格和数值参数。`pnpm test` → 82 通过，其中 27 个生命周期用例和 6 个已安装副本用例。`pnpm run skill:build` 把两个脚本写入工作草稿，`pnpm run skill:land` 把该工作草稿复制到 `skills/dsh-spec-skill-forge/`。`dsh-spec notes check --all` → 24 条活跃记录，`notes-archived check --all` → 6 件冻结产物，具名 translation pair 和改动的 Markdown 链接检查通过。`dsh-spec check --all` 仍报一个既有的 `norm-reference` 失败，因为本分支没有 `.agents/skills/dsh-spec-manager/references/norms.json`；这是 installed-skills 状态，不是本技能的问题。
 
 外部触发质量、冷启动和任务效用仍未验证：本环境没有位于目标受众环境、能加载被锻造技能的 agent harness。它们记录为缺口，不记为通过。
 

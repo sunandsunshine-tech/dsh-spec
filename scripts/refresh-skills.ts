@@ -142,14 +142,14 @@ for (const name of skills) {
   const destination = join(installedDir, name)
   const stage = join(stagingRoot, name)
   const backup = join(stagingRoot, `${name}.previous`)
-  const files = hashTree(source).size
 
   if (dryRun) {
-    results.push({ skill: name, ok: true, detail: `would mirror ${files} file(s)` })
+    results.push({ skill: name, ok: true, detail: `would mirror ${hashTree(source).size} file(s)` })
     continue
   }
 
   try {
+    const files = hashTree(source).size
     removeTree(stage)
     mkdirSync(stagingRoot, { recursive: true })
     cpSync(source, stage, { recursive: true })
