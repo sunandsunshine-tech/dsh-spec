@@ -77,10 +77,7 @@ if (argv.includes('--help') || argv.includes('-h')) {
   process.exit(0)
 }
 
-const numericOptions = new Map<
-  string,
-  { set: (value: number) => void; integer: boolean; positive: boolean }
->([
+const numericOptions = new Map<string, { set: (value: number) => void; integer: boolean; positive: boolean }>([
   ['--name-max', { set: (value) => (limits.nameMax = value), integer: true, positive: true }],
   ['--description-max', { set: (value) => (limits.descriptionMax = value), integer: true, positive: true }],
   ['--compatibility-max', { set: (value) => (limits.compatibilityMax = value), integer: true, positive: true }],
@@ -110,7 +107,9 @@ for (let i = 0; i < argv.length; i += 1) {
     continue
   }
   if (arg.startsWith('--')) {
-    const [name, inline] = arg.includes('=') ? [arg.slice(0, arg.indexOf('=')), arg.slice(arg.indexOf('=') + 1)] : [arg, undefined]
+    const [name, inline] = arg.includes('=')
+      ? [arg.slice(0, arg.indexOf('=')), arg.slice(arg.indexOf('=') + 1)]
+      : [arg, undefined]
     if (name === '--chars-per-token') {
       const raw = inline ?? argv[(i += 1)]
       const value = readNumber(name, raw, false)
@@ -128,7 +127,8 @@ for (let i = 0; i < argv.length; i += 1) {
   positionals.push(arg)
 }
 
-if (positionals.length > 1) usageError(`expected one skill directory, got ${positionals.length}: ${positionals.join(', ')}`)
+if (positionals.length > 1)
+  usageError(`expected one skill directory, got ${positionals.length}: ${positionals.join(', ')}`)
 const asJson = flags.has('--json')
 const strictBudget = flags.has('--strict-budget')
 const root = positionals[0] ? resolve(positionals[0]) : resolve(dirname(fileURLToPath(import.meta.url)), '..')
@@ -190,12 +190,18 @@ if (!existsSync(skillFile)) {
           name.length <= limits.nameMax &&
           NAME.test(name) &&
           name === basename(root)
-        record('name', nameOk, typeof name === 'string' ? `${name} (dir: ${basename(root)})` : '(missing or not a string)')
+        record(
+          'name',
+          nameOk,
+          typeof name === 'string' ? `${name} (dir: ${basename(root)})` : '(missing or not a string)',
+        )
 
         const description = typeof fields.description === 'string' ? [...fields.description] : []
         record(
           'description',
-          typeof fields.description === 'string' && description.length > 0 && description.length <= limits.descriptionMax,
+          typeof fields.description === 'string' &&
+            description.length > 0 &&
+            description.length <= limits.descriptionMax,
           `${description.length} characters`,
         )
 
@@ -215,8 +221,7 @@ if (!existsSync(skillFile)) {
           const ok =
             typeof value === 'string' &&
             value.length > 0 &&
-            (key !== 'allowed-tools' ||
-              (value.trim() === value && !/[\n\r\t]/.test(value) && !/ {2,}/.test(value)))
+            (key !== 'allowed-tools' || (value.trim() === value && !/[\n\r\t]/.test(value) && !/ {2,}/.test(value)))
           record(key, ok, typeof value === 'string' ? `${value.length} characters` : 'not a string')
         }
         if (keys.includes('metadata')) {
@@ -262,16 +267,28 @@ if (!existsSync(skillFile)) {
       else if (relative(root, resolved).split('/').length > 2) deep.push(target)
     }
   }
-  record('links stay inside', escaped.length === 0, escaped.length ? `escaping: ${escaped.join(', ')}` : `${links.length} relative link(s)`)
+  record(
+    'links stay inside',
+    escaped.length === 0,
+    escaped.length ? `escaping: ${escaped.join(', ')}` : `${links.length} relative link(s)`,
+  )
   record('links resolve', broken.length === 0, broken.length ? `missing: ${broken.join(', ')}` : 'all resolve')
-  record('link depth', deep.length === 0, deep.length ? `deeper than one level: ${deep.join(', ')}` : 'nothing deeper than one level')
+  record(
+    'link depth',
+    deep.length === 0,
+    deep.length ? `deeper than one level: ${deep.join(', ')}` : 'nothing deeper than one level',
+  )
 
   const referenceFiles = existsSync(referencesDir) ? markdownFiles(referencesDir) : []
   const unnamed = referenceFiles.map((file) => relative(root, file)).filter((path) => !text.includes(path))
   record(
     'reference mentions',
     unnamed.length === 0,
-    referenceFiles.length === 0 ? 'none shipped' : unnamed.length ? `not named in SKILL.md: ${unnamed.join(', ')}` : `${referenceFiles.length} reference(s) named`,
+    referenceFiles.length === 0
+      ? 'none shipped'
+      : unnamed.length
+        ? `not named in SKILL.md: ${unnamed.join(', ')}`
+        : `${referenceFiles.length} reference(s) named`,
   )
 
   const characters = [...text]
@@ -285,9 +302,7 @@ if (!existsSync(skillFile)) {
     else if (cjkOther.test(char)) cjkOthers += 1
     else others += 1
   }
-  const estimate = Math.ceil(
-    (ideographs + cjkOthers) * limits.cjkTokensPerChar + others * limits.otherTokensPerChar,
-  )
+  const estimate = Math.ceil((ideographs + cjkOthers) * limits.cjkTokensPerChar + others * limits.otherTokensPerChar)
   const withinBudget = lineCount < limits.maxLines && estimate <= limits.maxTokens
   const budgetDetail = withinBudget
     ? `${lineCount} lines, ~${estimate} tokens at ${limits.cjkTokensPerChar} CJK / ${limits.otherTokensPerChar.toFixed(3)} other tokens/char (limit: under ${limits.maxLines} lines and ${limits.maxTokens} tokens)`

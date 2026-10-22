@@ -38,7 +38,12 @@ export function runScript(
   return run(join(REPO_ROOT, script), cwd, args, options)
 }
 
-function run(entry: string, cwd: string, args: string[], options: { stdin?: string, env?: Record<string, string | undefined> } = {}): CliResult {
+function run(
+  entry: string,
+  cwd: string,
+  args: string[],
+  options: { stdin?: string; env?: Record<string, string | undefined> } = {},
+): CliResult {
   if (!existsSync(entry)) {
     return { status: -1, stdout: '', stderr: `missing entry point ${entry}`, output: `MISSING ENTRY POINT: ${entry}` }
   }
