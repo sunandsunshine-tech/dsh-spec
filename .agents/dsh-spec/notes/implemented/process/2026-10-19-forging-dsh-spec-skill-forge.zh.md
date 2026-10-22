@@ -102,4 +102,4 @@ Status: implemented
 
 ## Related
 
-- [锻造 dsh-spec-skill-forge（2026-10-21 提案）](../../proposed/process/2026-10-21-forging-dsh-spec-skill-forge.zh.md) —— 一项以组成为核心的拟议重构；在该提案落地前，本 note 仍是已发布五步技能的记录。
+- [锻造 dsh-spec-skill-forge（2026-10-21，已实现）](2026-10-21-forging-dsh-spec-skill-forge.zh.md) —— 取代本 note 所记录五步技能的组合优先重构。

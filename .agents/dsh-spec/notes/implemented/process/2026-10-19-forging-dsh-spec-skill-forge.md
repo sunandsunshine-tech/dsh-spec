@@ -102,4 +102,4 @@ The records and links: `dsh-spec notes check --all` → 24 notes, structure and 
 
 ## Related
 
-- [Forging dsh-spec-skill-forge (2026-10-21 proposal)](../../proposed/process/2026-10-21-forging-dsh-spec-skill-forge.md) — a proposed composition-first redesign; this note remains the record of the shipped five-step skill until that proposal ships.
+- [Forging dsh-spec-skill-forge (2026-10-21, implemented)](2026-10-21-forging-dsh-spec-skill-forge.md) — the composition-first redesign that superseded the five-step skill recorded here.
