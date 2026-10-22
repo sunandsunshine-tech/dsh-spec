@@ -1,6 +1,7 @@
 # Agent Note: Teammate reuse and task affinity
 
 Status: implemented
+Archived: 2026-10-22
 
 English | [中文](2026-10-03-teammate-reuse-and-task-affinity.zh.md)
 

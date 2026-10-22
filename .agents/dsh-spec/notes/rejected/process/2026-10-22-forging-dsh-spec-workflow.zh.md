@@ -188,5 +188,5 @@ Note 门禁也通过：`translation-pair check` 报告两条锻造记录一致�
 ## Related
 
 - [锻造 dsh-spec-analysis](2026-10-22-forging-dsh-spec-analysis.zh.md) —— 其四产物方法产出上方解构的姊妹锻造。
-- [agent team 工作流作为技能交付](../../implemented/process/2026-10-02-the-agent-team-workflow-ships-as-a-skill.zh.md) —— 本技能把团队机制当作选项。
+- [agent team 工作流作为技能交付(已归档)](../../archived/process/2026-10-02-the-agent-team-workflow-ships-as-a-skill.md) —— 本技能把团队机制当作选项。
 - [锻造技能](../../implemented/process/2026-10-21-forging-dsh-spec-skill-forge.zh.md) —— 本次锻造遵循的组成纪律与精度参照。

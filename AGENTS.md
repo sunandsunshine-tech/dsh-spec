@@ -2,12 +2,11 @@
 
 This repository holds `skills/` — a set of Agent Skills carrying a development pattern: decision records, prose discipline, and the change workflow. Read a skill's `SKILL.md` before changing anything under it, because its files are the deliverable.
 
-The repository is being rebuilt on the `refactor/architecture` branch. `skills/` currently holds two skills — [the skill forge](skills/dsh-spec-skill-forge/SKILL.md) and [the agent-team workflow](skills/dsh-spec-agent-team/SKILL.md) — and the rest of the set was removed while the architecture is worked out. The engine the installed skills still call is kept under `scripts/dsh-spec-manager/`.
+The repository is being rebuilt on the `refactor/architecture` branch. `skills/` currently holds one skill, [the skill forge](skills/dsh-spec-skill-forge/SKILL.md); the rest of the set was removed while the architecture is worked out. The engine the installed skills still call is kept under `scripts/dsh-spec-manager/`.
 
 ## Reading order
 
 - `skills/dsh-spec-skill-forge/SKILL.md` — forging a skill from an idea, a source, or an existing skill.
-- `skills/dsh-spec-agent-team/SKILL.md` — orchestrating a team the driver explicitly requests.
 - `.agents/skills/` — the installed copies an agent loads. They are deployed state, kept for use during the refactor and not the deliverable; never edit them.
 - `scripts/` — the checks and tooling that belong to this repository rather than to a skill: `verify-dco.ts`, `submit-vendored.ts` and `refresh-skills.ts`. `scripts/dsh-spec-manager/` is the mechanism the installed skills still call; it is kept while the refactor runs and is not the deliverable.
 
@@ -112,7 +111,7 @@ The generic rules live in the `dsh-spec:norms` hook at the end of this file. The
 | Orders specific to one subtree | that subtree's `AGENTS.md` (the notes tree has its own three) |
 | Decision rationale: the why, and what was given up | `.agents/dsh-spec/notes/` |
 | A forging's decision record | `.agents/dsh-spec/notes/<lifecycle>/process/YYYY-MM-DD-forging-<skill-name>.md` |
-| The package's own contract and workflows | `skills/` — see [the skill forge](skills/dsh-spec-skill-forge/SKILL.md) and [the agent-team workflow](skills/dsh-spec-agent-team/SKILL.md) |
+| The package's own contract and workflows | `skills/` — see [the skill forge](skills/dsh-spec-skill-forge/SKILL.md) |
 | What this repository decided about applying the pattern | the same notes tree, and the standing entries above |
 | A past incident's durable lesson | the notes tree, in its `bug-fix` class |
 | A human-facing page, and the terminology the pairs share | `docs/` — a folder nothing manages, with no tier, no budget and no gate; the vocabulary table is [`docs/terminology.md`](docs/terminology.md) |

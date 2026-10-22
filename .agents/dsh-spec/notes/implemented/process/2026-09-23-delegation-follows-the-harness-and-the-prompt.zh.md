@@ -18,7 +18,7 @@ Status: implemented
 
 **不再补别的东西。** 不写软化的成本阶梯,不写收窄的工作区规则,不写「什么时候该用 subagent」的清单。仓库保留那些从来与委派无关的规则:验收的主张归跑它的那个人,需要隔离的工作用独立的检出。
 
-**提示词要求的那套做法是一个技能。**[团队工作流以一个技能的形式交付](2026-10-02-the-agent-team-workflow-ships-as-a-skill.zh.md)承载角色分工、任务卡,以及每一步的义务;提示词说清要什么,技能持有做法。
+**没有仓库技能承载这套工作流。**harness 的团队工具与提示词就是机制的全部;[agent team 工作流已移除](2026-10-22-the-agent-team-workflow-is-removed.zh.md),那条移除笔记取代本段。
 
 ## Alternatives considered
 

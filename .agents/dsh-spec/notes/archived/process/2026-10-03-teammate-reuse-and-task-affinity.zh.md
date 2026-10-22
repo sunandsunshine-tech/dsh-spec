@@ -1,6 +1,7 @@
 # Agent Note: 成员的复用与拆分亲和性
 
 Status: implemented
+Archived: 2026-10-22
 
 [English](2026-10-03-teammate-reuse-and-task-affinity.md) | 中文
 

@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) ![Node](https://img.shields.io/badge/node-%E2%89%A5%2022.19-339933) [![Release](https://img.shields.io/github/v/release/sunandsunshine-tech/dsh-spec)](https://github.com/sunandsunshine-tech/dsh-spec/releases/latest)
 
-给项目一个固定的地方,存放每次改动都得交代的东西:当初为什么这么定、放弃了什么、拿什么来证明。本仓库把 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 团队日常遵循的这套做法抽取出来,做成两个技能,由项目装进自己的树里。
+给项目一个固定的地方,存放每次改动都得交代的东西:当初为什么这么定、放弃了什么、拿什么来证明。本仓库把 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 团队日常遵循的这套做法抽取出来,做成一个技能,由项目装进自己的树里。
 
 一个技能把构想、资料或已有技能锻造成新技能;另一个把宽跨度的交付交给一支 agent 团队来完成。
 
@@ -28,7 +28,6 @@ GitHub CLI 也自带 agent 技能,去[它的仓库](https://github.com/cli/cli)�
 
 ```sh
 gh skill install sunandsunshine-tech/dsh-spec dsh-spec-skill-forge@latest --dir .agents/skills
-gh skill install sunandsunshine-tech/dsh-spec dsh-spec-agent-team@latest --dir .agents/skills
 ```
 
 每条命令按你给的修订 —— `latest`、某条分支或某个 tag —— 取回一个技能,写进 `.agents/skills/`。
@@ -37,21 +36,19 @@ gh skill install sunandsunshine-tech/dsh-spec dsh-spec-agent-team@latest --dir .
 
 把下面这段交给你的 agent:
 
-> 用 GitHub CLI 从 `sunandsunshine-tech/dsh-spec` 装上 `dsh-spec-skill-forge` 和 `dsh-spec-agent-team` 两个技能,然后照本 README 的「手动安装」一节操作。动手前先确认上面列的依赖都已就绪,缺哪一样就问我。
+> 用 GitHub CLI 从 `sunandsunshine-tech/dsh-spec` 装上 `dsh-spec-skill-forge` 技能,然后照本 README 的「手动安装」一节操作。动手前先确认上面列的依赖都已就绪,缺哪一样就问我。
 
 ## 装上以后有什么用
 
 - **决定留得下来。** 每个不平凡的改动都写清做了什么、放弃了什么、将来靠什么验证,下一个人不必把同一件事再争一遍。
 - **技能是锻造出来的,不是随手写的。** `dsh-spec-skill-forge` 把一个构想、一份资料或一个已有技能,经过领域锚定、单文件雏形和一路维护的决策记录,锻造成新技能。
-- **宽跨度的交付交给一支团队。** `dsh-spec-agent-team` 把它分给 Lead、Explorer、Worker、Reviewer 四类角色,按名册点对点通信,上下文始终收紧。
 - **两种语言不会走散。** 每一对文档都带英文侧、中文侧和一份「上次确认一致」的记录;让两侧保持一致是写作者的责任。
 
-## 两个技能
+## 技能
 
 | 技能 | 它管什么 |
 |---|---|
 | `dsh-spec-skill-forge` | 从构想、资料或已有技能锻造技能:锁定问题与形态、锚定领域、做出雏形,并维护决策记录 |
-| `dsh-spec-agent-team` | 把宽跨度交付交给一支团队:Lead、Explorer、Worker、Reviewer 四类角色、按名册点对点通信,以及上下文纪律 |
 
 ## 更新技能集合
 
@@ -69,7 +66,7 @@ gh skill install sunandsunshine-tech/dsh-spec dsh-spec-agent-team@latest --dir .
 
 | 谁 | 职责 |
 |---|---|
-| `skills/` | 交付物:两个技能,各有自己的入口 |
+| `skills/` | 交付物:技能,各有自己的入口 |
 | `.agents/skills/` | agent 加载的安装副本,随 git 一起走;只有安装命令会写这里,在那里的手改会丢 |
 | `.agents/dsh-spec/notes/` | 决策记录:决定了什么、什么落选、放弃了什么。格式见 [`notes/README.md`](.agents/dsh-spec/notes/README.zh.md) |
 | `docs/` | 写给人看的页面,包括两种语言共用的术语表;这个目录不受任何机制管辖 |
@@ -80,7 +77,7 @@ gh skill install sunandsunshine-tech/dsh-spec dsh-spec-agent-team@latest --dir .
 ## 接下来读
 
 - [`AGENTS.md`](AGENTS.md) —— 每次会话都要遵守的规则,以及本仓库真正跑的命令。
-- [`skills/dsh-spec-skill-forge/SKILL.md`](skills/dsh-spec-skill-forge/SKILL.md) —— 锻造技能的入口;另一个技能 [`skills/dsh-spec-agent-team/SKILL.md`](skills/dsh-spec-agent-team/SKILL.md) 就在它旁边。
+- [`skills/dsh-spec-skill-forge/SKILL.md`](skills/dsh-spec-skill-forge/SKILL.md) —— 锻造技能的入口。
 - [`.agents/dsh-spec/notes/README.md`](.agents/dsh-spec/notes/README.zh.md) —— 决策记录的约定,也是这套做法对自己的说明。
 
 ## 许可证

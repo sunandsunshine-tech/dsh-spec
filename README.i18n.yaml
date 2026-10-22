@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write README.md
 /dsh-spec:
-  en: 7aad60298b4293de
-  zh: 50b9888099dd2c7b
+  en: 9a8a7e2b4b6e1046
+  zh: 9ccf5dd6104d030a
 /dsh-spec/prerequisites:
   en: 925a568a5a1f494a
   zh: e96bcd0fd8c7ba70
@@ -15,14 +15,14 @@
   en: 54e285f6820d1aac
   zh: 8e3727b243c49ad3
 /dsh-spec/install/install-with-an-agent:
-  en: 2b6d4d1feda1f57a
-  zh: 95880388ec4e93e8
+  en: 70fb30e180f5b7ec
+  zh: bcb44b45d7b15533
 /dsh-spec/what-you-get:
-  en: 14e3807eeba060e9
-  zh: 88d655a1fdcddf09
-/dsh-spec/the-two-skills:
-  en: bf777ac4bcefe370
-  zh: 8b39e39244ed4b96
+  en: 24d1100a4bc12efc
+  zh: a18c3a1d972cde62
+/dsh-spec/the-skill:
+  en: 9813b4530e6d247d
+  zh: 23464a5a27d54592
 /dsh-spec/updating-the-skill-set:
   en: 23bc9bd9b23c1dcb
   zh: f325e7d040bffb84
@@ -30,11 +30,11 @@
   en: ec73ac5211a4b872
   zh: 6dac3d326f26d9da
 /dsh-spec/working-on-this-repository:
-  en: bf5c8028b94c72a9
-  zh: b85ec7d3e0b5c613
+  en: 46e2b21257b7715f
+  zh: b16b668adf316f91
 /dsh-spec/read-next:
-  en: 6490738567d3e0cd
-  zh: 93cf6f8c17919008
+  en: 33932762d147f55f
+  zh: ce568334f92de089
 /dsh-spec/license:
   en: 483760b9bb8b7642
   zh: 3fa142d511f54b7f

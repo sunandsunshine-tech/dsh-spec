@@ -188,5 +188,5 @@ Four review corrections shaped this forging. The first rejected the framework dr
 ## Related
 
 - [Forging dsh-spec-analysis](2026-10-22-forging-dsh-spec-analysis.md) — the sibling forging whose four-artifact method produced the deconstruction above.
-- [The agent-team workflow ships as a skill](../../implemented/process/2026-10-02-the-agent-team-workflow-ships-as-a-skill.md) — the team mechanism whose use this skill treats as an option.
+- [The agent-team workflow shipped as a skill (archived)](../../archived/process/2026-10-02-the-agent-team-workflow-ships-as-a-skill.md) — the team mechanism whose use this skill treats as an option.
 - [The skill forge](../../implemented/process/2026-10-21-forging-dsh-spec-skill-forge.md) — the composition discipline and precision reference this forging follows.

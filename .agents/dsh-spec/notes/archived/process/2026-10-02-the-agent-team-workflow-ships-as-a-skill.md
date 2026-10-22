@@ -1,6 +1,7 @@
 # Agent Note: The agent team workflow ships as a skill
 
 Status: implemented
+Archived: 2026-10-22
 
 English | [中文](2026-10-02-the-agent-team-workflow-ships-as-a-skill.zh.md)
 

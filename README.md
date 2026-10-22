@@ -4,9 +4,9 @@ English | [中文](README.zh.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) ![Node](https://img.shields.io/badge/node-%E2%89%A5%2022.19-339933) [![Release](https://img.shields.io/github/v/release/sunandsunshine-tech/dsh-spec)](https://github.com/sunandsunshine-tech/dsh-spec/releases/latest)
 
-Give a project one place to keep what a change has to carry: why it went that way, what it gave up, and what proves it. This repository extracts the pattern the [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) team works by, and ships it as two skills that a project installs into its own tree.
+Give a project one place to keep what a change has to carry: why it went that way, what it gave up, and what proves it. This repository extracts the pattern the [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) team works by, and ships it as a skill that a project installs into its own tree.
 
-One skill forges a new skill from a concept, a source, or an existing one; the other runs a broad delivery as an agent team.
+The skill forges a new skill from a concept, a source, or an existing one.
 
 ## Prerequisites
 
@@ -28,7 +28,6 @@ Each skill is installed on its own, at the revision you name.
 
 ```sh
 gh skill install sunandsunshine-tech/dsh-spec dsh-spec-skill-forge@latest --dir .agents/skills
-gh skill install sunandsunshine-tech/dsh-spec dsh-spec-agent-team@latest --dir .agents/skills
 ```
 
 Each command fetches one skill at the revision you name — `latest`, a branch, or a tag — and writes it under `.agents/skills/`.
@@ -37,21 +36,19 @@ Each command fetches one skill at the revision you name — `latest`, a branch, 
 
 Give your agent these instructions:
 
-> Install the `dsh-spec-skill-forge` and `dsh-spec-agent-team` skills from `sunandsunshine-tech/dsh-spec` with the GitHub CLI, then follow the "Install by hand" steps in this README. Check that the prerequisites above are present first, and ask me if any of them is missing.
+> Install the `dsh-spec-skill-forge` skill from `sunandsunshine-tech/dsh-spec` with the GitHub CLI, then follow the "Install by hand" steps in this README. Check that the prerequisites above are present first, and ask me if any of them is missing.
 
 ## What you get
 
 - **Decisions stay put.** Every change that matters says what it built, what it gave up and what will verify it, so the next person does not argue it again.
 - **A skill is forged, not improvised.** `dsh-spec-skill-forge` takes a concept, a source, or an existing skill through domain anchoring, a single-file prototype, and a decision record kept alongside.
-- **A broad delivery becomes a team.** `dsh-spec-agent-team` divides it across a Lead, Explorer, Worker and Reviewer, with roster-based peer messaging and context kept tight.
 - **The two languages stay together.** Each pair carries its English side, its Chinese side and a record of the last agreed state; keeping the two in step is the writer's job.
 
-## The two skills
+## The skill
 
 | Skill | What it is for |
 |---|---|
 | `dsh-spec-skill-forge` | Forging a skill from an idea, a source, or an existing skill: pin the problem and the shape, anchor the domain, build a prototype, and keep the decision record |
-| `dsh-spec-agent-team` | Running a broad delivery as a team: the Lead, Explorer, Worker and Reviewer roles, roster-based peer messaging, and context discipline |
 
 ## Updating the skill set
 
@@ -69,7 +66,7 @@ Each skill is installed at the revision you name, and `gh skill update` refreshe
 
 | Who | Job |
 |---|---|
-| `skills/` | The deliverable: the two skills, each with its own entry |
+| `skills/` | The deliverable: the skill, with its own entry |
 | `.agents/skills/` | Installed copies an agent loads, tracked in git; written only by an install, so an edit there is lost |
 | `.agents/dsh-spec/notes/` | The decision records: what was decided, what lost, what was given up. The format is [`notes/README.md`](.agents/dsh-spec/notes/README.md) |
 | `docs/` | Pages written for people, including the vocabulary both languages share; nothing governs this folder |
@@ -80,7 +77,7 @@ Each skill is installed at the revision you name, and `gh skill update` refreshe
 ## Read next
 
 - [`AGENTS.md`](AGENTS.md) — the rules that hold in every session, and the commands this repository actually runs.
-- [`skills/dsh-spec-skill-forge/SKILL.md`](skills/dsh-spec-skill-forge/SKILL.md) — the skill-authoring entry; [`skills/dsh-spec-agent-team/SKILL.md`](skills/dsh-spec-agent-team/SKILL.md) sits beside it.
+- [`skills/dsh-spec-skill-forge/SKILL.md`](skills/dsh-spec-skill-forge/SKILL.md) — the skill-authoring entry.
 - [`.agents/dsh-spec/notes/README.md`](.agents/dsh-spec/notes/README.md) — the decision-record contract, which is the pattern describing itself.
 
 ## License

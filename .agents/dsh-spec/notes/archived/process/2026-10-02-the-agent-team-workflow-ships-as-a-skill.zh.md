@@ -1,6 +1,7 @@
 # Agent Note: 团队工作流以一个技能的形式交付
 
 Status: implemented
+Archived: 2026-10-22
 
 [English](2026-10-02-the-agent-team-workflow-ships-as-a-skill.md) | 中文
 
