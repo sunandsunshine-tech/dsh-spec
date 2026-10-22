@@ -98,4 +98,8 @@ Status: implemented
 
 判断类检查：触发质量未核验——本环境没有位于目标受众环境、能加载被锻造技能的 agent harness；记录原因，而不记为通过。脚本设计检查通过：门禁非交互，`--help` 含示例与退出码，`--json` 输出结构化结果，stdout 与 stderr 分离，退出码 0/1/2 有意义。
 
-记录与链接：`dsh-spec notes check --all` → 23 条记录，结构与格式一致；对本 note 的 `translation-pair check` → 一致；对改动文件的 `md-links check` → 链接全部解析。
+记录与链接：`dsh-spec notes check --all` → 24 条记录，结构与格式一致；对本 note 的 `translation-pair check` → 一致；对改动文件的 `md-links check` → 链接全部解析。
+
+## Related
+
+- [锻造 dsh-spec-skill-forge（2026-10-21 提案）](../../proposed/process/2026-10-21-forging-dsh-spec-skill-forge.zh.md) —— 一项以组成为核心的拟议重构；在该提案落地前，本 note 仍是已发布五步技能的记录。

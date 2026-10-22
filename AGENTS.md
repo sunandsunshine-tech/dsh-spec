@@ -14,13 +14,15 @@ The repository is being rebuilt on the `refactor/architecture` branch. `skills/`
 ## Repository layout
 
 ```
-skills/   the deliverable: one directory per skill, each with its own entry and references
+skills/   the deliverable: one directory per skill, with its entry, references and any bundled script/
+package/  skill script sources, one directory per skill; bundled into the work draft's script/
 scripts/  this repository's own checks, not shipped — verify-dco.ts and submit-vendored.ts
 scripts/dsh-spec-manager/  the removed manager's engine, kept while the installed skills call it
 tests/    the functional suite for those checks — node --test 'tests/**/*.test.ts'
 submodules/dsh/    the extraction baseline — .gitmodules
 .agents/skills/    the installed copies, kept for use during the refactor — this file
 .agents/dsh-spec/  what this repository decided: the decision records and the applied norms — notes/README.md
+.agents/dsh-spec-skill-forge/  the forge's default working directory: record/, draft/, review/
 docs/              the documents a person reads; no tier, no budget, and no gate
 ```
 
@@ -37,12 +39,23 @@ node scripts/verify-dco.ts --base=<ref> --head=<sha>
 
 node scripts/submit-vendored.ts --dry-run
   # prints the dependency-submission payload and posts nothing
+
+vp run build:work
+  # bundles the skill's script source into the work draft's script/
+vp run copy:review
+  # copies the work draft's script into the review draft
+vp run land:skills
+  # copies the accepted work draft into skills/<name>/
+
+vp run refresh:skills
+  # copies skills/ into the installed .agents/skills/ copies
 ```
 
-Node ≥ 22.19 or ≥ 24 is the only requirement: the checks are TypeScript that Node strips by itself, and the suite runs on `node --test`. There is no build step and no package manager. CI runs both on every pull request and on each push to `main` (`.github/workflows/checks.yml`). `git` is needed for the commit range; `gh` only for the bot-identity half of the DCO check.
+Node ≥ 22.19 or ≥ 24 and Vite+ (`vp`) are the toolchain. Repository-level checks are TypeScript that Node strips by itself and run directly. Each skill's script source lives under `package/<name>/`; `vp run build:work` writes the self-contained artifact into the work draft's `script/`. `vp run copy:review` copies it into the review draft, and `vp run land:skills` copies the accepted work draft into `skills/<name>/` only after review. The suite runs on `node --test`. CI runs it on every pull request and on each push to `main` (`.github/workflows/checks.yml`). `git` is needed for the commit range; `gh` only for the bot-identity half of the DCO check.
 
 ## Environment
 
+- **Skill scripts are bundled per skill and landed only after review.** A skill's script source lives at `package/<skill-name>/`; `vp run build:work` writes the self-contained artifact to the work draft's `script/`. `vp run copy:review` copies it into the review draft. `vp run land:skills` copies the accepted work draft into `skills/<skill-name>/` after the driver accepts the review draft. Scripts under `scripts/` are repository-level, are not bundled, and run directly with Node.
 - **A host that resolves into a reserved range may still be reachable.** Where DNS or the network stack hands back a fake-IP address (for example `198.18.0.0/15`), the web tools can refuse the host as non-public even though it answers; fetch it with `curl` instead of recording a dead link, and apply the same reading to a citation a check could not retrieve.
 
 ## Boundaries
@@ -51,7 +64,6 @@ The generic rules live in the `dsh-spec:norms` hook at the end of this file. The
 
 - **Ask before changing what the package claims to be generic.** A part that assumes one ecosystem is the defect this package exists to avoid.
 - **A check that passes on an empty corpus is worse than no check.** A gate exits non-zero when it finds nothing to check; keep it that way.
-- **A skill draft in progress lives in `docs/skills-draft/`.** The forge skill asks where its draft goes and this repository answers here, so a round of forging reads as a diff rather than as a fresh copy.
 - **Prefer the design an adopter can migrate more cheaply.** Where two designs are equal for the
   architecture and the plan, take the one an adopter's accumulated content would survive — a
   directory that can gain files over a file that has to become one, a format that can gain

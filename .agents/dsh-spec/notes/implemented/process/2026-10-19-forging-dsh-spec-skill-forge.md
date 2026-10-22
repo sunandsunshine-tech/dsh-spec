@@ -98,4 +98,8 @@ The functional suite: `node --test 'tests/**/*.test.ts'` → 39/39 pass, 25 of t
 
 The judgement checks: trigger quality is unverified — this environment has no agent harness in a target audience's environment to load the forged skill; the reason is recorded rather than a pass. The script design check passes: the gate is non-interactive, documents `--help` with examples and exit codes, prints structured output with `--json`, separates stdout from stderr, and exits 0/1/2 meaningfully.
 
-The records and links: `dsh-spec notes check --all` → 23 notes, structure and format consistent; `translation-pair check` on this note → consistent; `md-links check` on the touched files → all links resolve.
+The records and links: `dsh-spec notes check --all` → 24 notes, structure and format consistent; `translation-pair check` on this note → consistent; `md-links check` on the touched files → all links resolve.
+
+## Related
+
+- [Forging dsh-spec-skill-forge (2026-10-21 proposal)](../../proposed/process/2026-10-21-forging-dsh-spec-skill-forge.md) — a proposed composition-first redesign; this note remains the record of the shipped five-step skill until that proposal ships.

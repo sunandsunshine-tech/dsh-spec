@@ -1,0 +1,16 @@
+{
+  "name": "dsh-spec",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "package/*"
+  ],
+  "scripts": {
+    "build:work": "vp -C package/dsh-spec-skill-forge pack verify-skill-spec.ts --out-dir ../../.agents/dsh-spec-skill-forge/draft/dsh-spec-skill-forge/script --format esm --platform node --target node22 --clean",
+    "copy:review": "mkdir -p .agents/dsh-spec-skill-forge/review/dsh-spec-skill-forge/script && cp .agents/dsh-spec-skill-forge/draft/dsh-spec-skill-forge/script/verify-skill-spec.mjs .agents/dsh-spec-skill-forge/review/dsh-spec-skill-forge/script/verify-skill-spec.mjs",
+    "land:skills": "rsync -a --delete .agents/dsh-spec-skill-forge/draft/dsh-spec-skill-forge/ skills/dsh-spec-skill-forge/",
+    "refresh:skill-forge": "rsync -a --delete skills/dsh-spec-skill-forge/ .agents/skills/dsh-spec-skill-forge/",
+    "refresh:skill-agent-team": "rsync -a --delete skills/dsh-spec-agent-team/ .agents/skills/dsh-spec-agent-team/",
+    "refresh:skills": "pnpm run refresh:skill-forge && pnpm run refresh:skill-agent-team"
+  }
+}
