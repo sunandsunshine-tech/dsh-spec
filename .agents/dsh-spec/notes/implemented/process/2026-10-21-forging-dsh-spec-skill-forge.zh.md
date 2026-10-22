@@ -52,15 +52,15 @@ SOP 步骤可以嵌套。每一层都有自己的任务、所需 Docs 和 Script
 
 ### Verification
 
-`node skills/dsh-spec-skill-forge/script/verify-skill-spec.mjs skills/dsh-spec-skill-forge --strict-budget --name-max 64 --description-max 1024 --compatibility-max 500 --max-lines 500 --max-tokens 5000 --cjk-tokens-per-char 0.6 --other-tokens-per-char 0.3` → 11 checks, 0 failed, 181 lines, ~3,363 tokens，strict budget 通过。脚本默认值约 3,437 tokens，也通过。三个 SOP 步骤整体路由到 `references/`，使正文留在预算内。
+`node skills/dsh-spec-skill-forge/script/verify-skill-spec.mjs skills/dsh-spec-skill-forge --strict-budget --name-max 64 --description-max 1024 --compatibility-max 500 --max-lines 500 --max-tokens 5000 --cjk-tokens-per-char 0.6 --other-tokens-per-char 0.3` → 11 checks, 0 failed, 181 lines, ~3,399 tokens，strict budget 通过。脚本默认值约 3,473 tokens，也通过。三个 SOP 步骤整体路由到 `references/`，使正文留在预算内。
 
-检查器用打包的 `yaml` 解析 frontmatter；测试覆盖非法 YAML、非 mapping frontmatter、重复键、字段类型、metadata map、`allowed-tools` 空格和数值参数。`node --test 'tests/**/*.test.ts'` → 47 通过。`vp run build:work` 和 `vp run copy:review` 生成一致的工作/审查脚本。`dsh-spec notes check --all` → 24 条记录，具名 translation pair 和改动的 Markdown 链接检查通过。`dsh-spec check --all` 仍报一个既有的 `norm-reference` 失败，因为本分支没有 `.agents/skills/dsh-spec-manager/references/norms.json`；这是 installed-skills 状态，不是本技能的问题。
+检查器用打包的 `yaml` 解析 frontmatter；测试覆盖非法 YAML、非 mapping frontmatter、重复键、字段类型、metadata map、`allowed-tools` 空格和数值参数。`node --test 'tests/**/*.test.ts'` → 47 通过。`vp run build:work` 和 `vp run copy:review` 生成一致的工作/审查脚本。`dsh-spec notes check --all` → 23 条活跃记录，`notes-archived check --all` → 6 件冻结产物，具名 translation pair 和改动的 Markdown 链接检查通过。`dsh-spec check --all` 仍报一个既有的 `norm-reference` 失败，因为本分支没有 `.agents/skills/dsh-spec-manager/references/norms.json`；这是 installed-skills 状态，不是本技能的问题。
 
 外部触发质量、冷启动和任务效用仍未验证：本环境没有位于目标受众环境、能加载被锻造技能的 agent harness。它们记录为缺口，不记为通过。
 
 ### Review and landing
 
-审查草稿是中文正文加英文触发，生成在 `.agents/dsh-spec-skill-forge/review/dsh-spec-skill-forge/`。驾驶员接受后，`vp run land:skills` 把工作草稿复制到 `skills/dsh-spec-skill-forge/`，`vp run refresh:skills` 刷新已安装副本，草稿和审查目录已删除。
+审查草稿是中文正文加英文触发，生成在 `.agents/dsh-spec-skill-forge/review/dsh-spec-skill-forge/`。驾驶员接受后，`vp run land:skills` 把工作草稿复制到 `skills/dsh-spec-skill-forge/`，`vp run refresh:skills` 刷新已安装副本，草稿和审查目录已删除；只删除该技能的 `draft/<名称>/` 和 `review/<名称>/`，共享父目录仅在为空时删除。
 
 ## Alternatives considered
 
@@ -82,7 +82,7 @@ SOP 步骤可以嵌套。每一层都有自己的任务、所需 Docs 和 Script
 
 锻造技能在形状上更小，有一条组成规则、一个技能结构、嵌套步骤断言、带规范链接的成果断言和参数化检查器。YAML 解析器及其打包给落地脚本增加约 240 KB，但技能仍然自包含，不需要安装。
 
-因为 SOP 步骤整体路由到三份 reference，正文是 181 行、约 3,363 tokens。正文保留步骤顺序和引用；加载一个步骤需要它的 reference。这是预算路由的代价。
+因为 SOP 步骤整体路由到三份 reference，正文是 181 行、约 3,399 tokens。正文保留步骤顺序和引用；加载一个步骤需要它的 reference。这是预算路由的代价。
 
 工作/审查/落地流程保证 `skills/` 等于被接受的草稿。代价是测试在草稿存在时针对工作草稿，落地后回退到落地脚本。
 
@@ -90,4 +90,4 @@ SOP 步骤可以嵌套。每一层都有自己的任务、所需 Docs 和 Script
 
 ## Related
 
-- [锻造 dsh-spec-skill-forge（2026-10-19，已实现）](2026-10-19-forging-dsh-spec-skill-forge.zh.md) —— 本 note 取代的旧五步记录。
+- [锻造 dsh-spec-skill-forge（2026-10-19，已归档）](../../archived/process/2026-10-19-forging-dsh-spec-skill-forge.md) —— 本 note 取代的旧五步记录。

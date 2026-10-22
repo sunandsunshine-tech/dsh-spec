@@ -103,7 +103,7 @@ Regenerate or update it when the work draft changes. Remove it when either holds
 - The structure check or skill-specification assertion fails.
 - Review is not needed.
 
-Do not update the review draft in an autonomous loop.
+Do not update the review draft in an autonomous loop. After landing, delete only `draft/<name>/` and `review/<name>/`. Remove a shared parent directory only when it is empty.
 
 ### Resources and ownership
 

@@ -45,7 +45,7 @@ vp run build:work
 vp run copy:review
   # copies the work draft's script into the review draft
 vp run land:skills
-  # copies the accepted work draft into skills/<name>/
+  # copies the accepted work draft into skills/<name>/ and removes that skill's draft/review
 
 vp run refresh:skills
   # copies skills/ into the installed .agents/skills/ copies

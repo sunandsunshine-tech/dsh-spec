@@ -1,6 +1,7 @@
 # Agent Note: Forging dsh-spec-skill-forge
 
 Status: implemented
+Archived: 2026-10-22
 
 [English](2026-10-19-forging-dsh-spec-skill-forge.md) | 中文
 

@@ -52,15 +52,15 @@ A skill's script source lives under `package/<name>/`. `vp run build:work` bundl
 
 ### Verification
 
-`node skills/dsh-spec-skill-forge/script/verify-skill-spec.mjs skills/dsh-spec-skill-forge --strict-budget --name-max 64 --description-max 1024 --compatibility-max 500 --max-lines 500 --max-tokens 5000 --cjk-tokens-per-char 0.6 --other-tokens-per-char 0.3` → 11 checks, 0 failed, 181 lines, ~3,363 tokens, strict budget passes. The script defaults report ~3,437 tokens and also pass. Three SOP steps are routed whole into `references/` to keep the body inside budget.
+`node skills/dsh-spec-skill-forge/script/verify-skill-spec.mjs skills/dsh-spec-skill-forge --strict-budget --name-max 64 --description-max 1024 --compatibility-max 500 --max-lines 500 --max-tokens 5000 --cjk-tokens-per-char 0.6 --other-tokens-per-char 0.3` → 11 checks, 0 failed, 181 lines, ~3,399 tokens, strict budget passes. The script defaults report ~3,473 tokens and also pass. Three SOP steps are routed whole into `references/` to keep the body inside budget.
 
-The checker parses frontmatter with the bundled `yaml` parser; its tests cover invalid YAML, non-mapping frontmatter, duplicate keys, field types, metadata maps, `allowed-tools` spacing and the numeric parameters. `node --test 'tests/**/*.test.ts'` → 47 pass. `vp run build:work` and `vp run copy:review` produce identical work and review scripts. `dsh-spec notes check --all` → 24 notes, and the named translation pairs and changed Markdown links check clean. `dsh-spec check --all` still reports a pre-existing `norm-reference` failure because the branch has no `.agents/skills/dsh-spec-manager/references/norms.json`; that is the installed-skills state, not this skill.
+The checker parses frontmatter with the bundled `yaml` parser; its tests cover invalid YAML, non-mapping frontmatter, duplicate keys, field types, metadata maps, `allowed-tools` spacing and the numeric parameters. `node --test 'tests/**/*.test.ts'` → 47 pass. `vp run build:work` and `vp run copy:review` produce identical work and review scripts. `dsh-spec notes check --all` → 23 active notes, `notes-archived check --all` → 6 frozen artifacts, and the named translation pairs and changed Markdown links check clean. `dsh-spec check --all` still reports a pre-existing `norm-reference` failure because the branch has no `.agents/skills/dsh-spec-manager/references/norms.json`; that is the installed-skills state, not this skill.
 
 External trigger quality, cold start and task utility remain unverified: this environment has no agent harness in the target audience's environment. They are recorded as a gap, not a pass.
 
 ### Review and landing
 
-The review draft was generated in Chinese with an English trigger at `.agents/dsh-spec-skill-forge/review/dsh-spec-skill-forge/`. The driver accepted it, `vp run land:skills` copied the work draft into `skills/dsh-spec-skill-forge/`, `vp run refresh:skills` refreshed the installed copies, and the draft and review directories were deleted.
+The review draft was generated in Chinese with an English trigger at `.agents/dsh-spec-skill-forge/review/dsh-spec-skill-forge/`. The driver accepted it, `vp run land:skills` copied the work draft into `skills/dsh-spec-skill-forge/`, `vp run refresh:skills` refreshed the installed copies, and the draft and review directories were deleted; only this skill's `draft/<name>/` and `review/<name>/` were removed, and the shared parents only when empty.
 
 ## Alternatives considered
 
@@ -90,4 +90,4 @@ The remaining evidence gap is external: trigger quality, cold start and represen
 
 ## Related
 
-- [Forging dsh-spec-skill-forge (2026-10-19, implemented)](2026-10-19-forging-dsh-spec-skill-forge.md) — the previous five-step record this note supersedes.
+- [Forging dsh-spec-skill-forge (2026-10-19, archived)](../../archived/process/2026-10-19-forging-dsh-spec-skill-forge.md) — the previous five-step record this note supersedes.

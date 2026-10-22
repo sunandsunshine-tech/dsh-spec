@@ -11,6 +11,8 @@ vp run copy:review
 vp run land:skills
 ```
 
+`land:skills` copies the accepted work draft and removes only that skill's `draft/<name>/` and `review/<name>/`; a shared parent is removed only when empty.
+
 The source layout mirrors the first level of `skills/`:
 
 | Source | Work draft artifact |
