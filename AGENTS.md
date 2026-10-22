@@ -9,16 +9,16 @@ The repository is being rebuilt on the `refactor/architecture` branch. `skills/`
 - `skills/dsh-spec-skill-forge/SKILL.md` — forging a skill from an idea, a source, or an existing skill.
 - `skills/dsh-spec-agent-team/SKILL.md` — orchestrating a team the driver explicitly requests.
 - `.agents/skills/` — the installed copies an agent loads. They are deployed state, kept for use during the refactor and not the deliverable; never edit them.
-- `scripts/` — the checks that belong to this repository rather than to a skill: `verify-dco.ts` and `submit-vendored.ts`. `scripts/dsh-spec-manager/` is the mechanism the installed skills still call; it is kept while the refactor runs and is not the deliverable.
+- `scripts/` — the checks and tooling that belong to this repository rather than to a skill: `verify-dco.ts`, `submit-vendored.ts` and `refresh-skills.ts`. `scripts/dsh-spec-manager/` is the mechanism the installed skills still call; it is kept while the refactor runs and is not the deliverable.
 
 ## Repository layout
 
 ```
 skills/   the deliverable: one directory per skill, with its entry, references and any bundled script/
-package/  skill script sources, one directory per skill; bundled into the work draft's script/
-scripts/  this repository's own checks, not shipped — verify-dco.ts and submit-vendored.ts
+package/  skill script sources, one directory per skill, with its vite.config.ts; bundled into the work draft's script/
+scripts/  this repository's own checks and tooling, not shipped — verify-dco.ts, submit-vendored.ts, refresh-skills.ts
 scripts/dsh-spec-manager/  the removed manager's engine, kept while the installed skills call it
-tests/    the functional suite for those checks — node --test 'tests/**/*.test.ts'
+tests/    the functional suite for those checks and the workspace tooling — pnpm test
 submodules/dsh/    the extraction baseline — .gitmodules
 .agents/skills/    the installed copies, kept for use during the refactor — this file
 .agents/dsh-spec/  what this repository decided: the decision records and the applied norms — notes/README.md
@@ -29,9 +29,16 @@ docs/              the documents a person reads; no tier, no budget, and no gate
 ## Commands
 
 ```sh
-node --test 'tests/**/*.test.ts'
-  # the functional suite: what the DCO gate decides about a range, and the payload the
-  # vendored-notices submission posts
+pnpm run format
+  # formats the TypeScript sources with the project's Oxfmt settings
+pnpm run format:check
+  # checks the source formatting
+
+pnpm test
+  # the functional suite: what the DCO gate decides about a range, the payload the vendored-notices
+  # submission posts, the skill gate, and the draft lifecycle
+pnpm run test:watch
+  # the suite in watch mode
 
 node scripts/verify-dco.ts --base=<ref> --head=<sha>
   # every commit in the range carries a Signed-off-by trailer that matches its author; a commit
@@ -40,22 +47,23 @@ node scripts/verify-dco.ts --base=<ref> --head=<sha>
 node scripts/submit-vendored.ts --dry-run
   # prints the dependency-submission payload and posts nothing
 
-vp run build:work
-  # bundles the skill's script source into the work draft's script/
-vp run copy:review
-  # copies the work draft's script into the review draft
-vp run land:skills
-  # copies the accepted work draft into skills/<name>/ and removes that skill's draft/review
-
-vp run refresh:skills
+pnpm run skill:draft
+  # copies skills/dsh-spec-skill-forge/ into the work draft
+pnpm run skill:build
+  # bundles the skill's scripts into the work draft's script/
+pnpm run skill:review
+  # mirrors the work draft's script into the review draft
+pnpm run skill:land
+  # copies the accepted work draft into skills/ and removes its draft and review directories
+pnpm run skill:refresh
   # copies skills/ into the installed .agents/skills/ copies
 ```
 
-Node ≥ 22.19 or ≥ 24 and Vite+ (`vp`) are the toolchain. Repository-level checks are TypeScript that Node strips by itself and run directly. Each skill's script source lives under `package/<name>/`; `vp run build:work` writes the self-contained artifact into the work draft's `script/`. `vp run copy:review` copies it into the review draft, and `vp run land:skills` copies the accepted work draft into `skills/<name>/` only after review. The suite runs on `node --test`. CI runs it on every pull request and on each push to `main` (`.github/workflows/checks.yml`). `git` is needed for the commit range; `gh` only for the bot-identity half of the DCO check.
+Node ≥ 22.19 or ≥ 24, pnpm and Vite+ (`vp`) are the toolchain. Source formatting is Oxfmt through `vp fmt`, configured in the root `vite.config.ts` and checked with `pnpm run format:check`. Repository-level checks and tooling are TypeScript that Node strips by itself and run directly. Each skill's script source lives under `package/<name>/` and its `vite.config.ts` names the entries; `pnpm run skill:build` writes the self-contained artifacts into the work draft's `script/`. The forging skill's `script/forge.mjs` runs the draft lifecycle: `draft`, `review` and `land`; `land` writes the landing directory and removes only that skill's `draft/<name>/` and `review/<name>/`. `pnpm run skill:refresh` mirrors `skills/` into the installed copies. The suite runs on `node --test` through `pnpm test`. CI runs it on every pull request and on each push to `main` (`.github/workflows/checks.yml`). `git` is needed for the commit range; `gh` only for the bot-identity half of the DCO check.
 
 ## Environment
 
-- **Skill scripts are bundled per skill and landed only after review.** A skill's script source lives at `package/<skill-name>/`; `vp run build:work` writes the self-contained artifact to the work draft's `script/`. `vp run copy:review` copies it into the review draft. `vp run land:skills` copies the accepted work draft into `skills/<skill-name>/` after the driver accepts the review draft. Scripts under `scripts/` are repository-level, are not bundled, and run directly with Node.
+- **Skill scripts are bundled per skill and landed only after review.** A skill's script source lives at `package/<skill-name>/` with a `vite.config.ts` naming its entries; `pnpm run skill:build` writes the self-contained artifacts to the work draft's `script/`. `pnpm run skill:review` mirrors that script into the review draft. The forging skill's `script/forge.mjs` copies the accepted work draft into the landing directory and removes only that skill's `draft/<name>/` and `review/<name>/`; the shared draft and review directories stay. Installed copies are refreshed with `pnpm run skill:refresh`. Scripts under `scripts/` are repository-level, are not bundled, and run directly with Node.
 - **A host that resolves into a reserved range may still be reachable.** Where DNS or the network stack hands back a fake-IP address (for example `198.18.0.0/15`), the web tools can refuse the host as non-public even though it answers; fetch it with `curl` instead of recording a dead link, and apply the same reading to a citation a check could not retrieve.
 
 ## Boundaries

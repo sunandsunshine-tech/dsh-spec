@@ -9,17 +9,20 @@ By the time a pull request is opened, its commits carry a `Signed-off-by:` trail
 Each command below runs from the repository root and prints what it checked.
 
 ```sh
-node --test 'tests/**/*.test.ts'
+pnpm run format:check
+pnpm test
 node scripts/verify-dco.ts --base=origin/main
 ```
 
-`node --test 'tests/**/*.test.ts'` is the functional suite: what the DCO check decides about a range, and the payload the vendored-notices submission posts.
+`pnpm run format:check` checks the TypeScript sources against the project's Oxfmt settings.
+
+`pnpm test` is the functional suite: what the DCO check decides about a range, the payload the vendored-notices submission posts, the skill gate, the draft lifecycle and the installed-copy refresh.
 
 `node scripts/verify-dco.ts --base=origin/main` reads a commit range and asserts that every commit carries a `Signed-off-by:` trailer matching its author; a commit claiming a bot identity is verified against GitHub as well.
 
-Every change owes these two checks, and CI runs both on every pull request.
+Every change owes these checks. CI runs the suite and the DCO check on every pull request; the format check needs the Vite+ toolchain locally.
 
-Node 22.19 or newer is the only requirement: the checks are TypeScript that Node strips by itself, the suite runs on `node --test`, and there is no build step.
+Node 22.19 or newer, pnpm and the Vite+ toolchain are the requirements: the checks are TypeScript that Node strips by itself, the suite runs on `node --test`, and running them needs no build step.
 
 ## Pull request lifecycle
 

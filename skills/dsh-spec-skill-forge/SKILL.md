@@ -1,7 +1,7 @@
 ---
 name: dsh-spec-skill-forge
 description: "Use when creating, writing, rewriting, forging, improving, auditing, verifying, adapting, or migrating an Agent Skill (SKILL.md) — its description, structure, triggers, or specification conformance need work — from an idea, reference material, or one or more existing skills. Produces the skill directory and a record of the decisions behind it. Not for merely installing, loading, or using an installed skill. 用于创建、编写、改写、锻造、优化、核验、适配或迁移技能（Agent Skill / SKILL.md）。确定技能描述、触发时机、结构与规范符合性，产出技能目录与锻造记录。不用于安装、加载或使用已安装的技能。"
-compatibility: "Requires Node.js 22.19+ or 24+ for script/verify-skill-spec.mjs. No build step or install."
+compatibility: "Requires Node.js 22.19+ or 24+ for the bundled scripts. No build step or install."
 ---
 
 # Skill forging
@@ -103,7 +103,7 @@ Regenerate or update it when the work draft changes. Remove it when either holds
 - The structure check or skill-specification assertion fails.
 - Review is not needed.
 
-Do not update the review draft in an autonomous loop. After landing, delete only `draft/<name>/` and `review/<name>/`. Remove a shared parent directory only when it is empty.
+Do not update the review draft in an autonomous loop. `script/forge.mjs` performs the lifecycle: `draft`, `review` and `land`, with `--help` listing the interface. After landing, delete `draft/<name>/` and `review/<name>/`; the shared directories stay.
 
 ### Resources and ownership
 

@@ -1,0 +1,19 @@
+# Bilingual-pair consistency record for 2026-10-22-the-draft-lifecycle-belongs-to-the-skill.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/implemented/process/2026-10-22-the-draft-lifecycle-belongs-to-the-skill.md
+/agent-note-the-draft-lifecycle-belongs-to-the-forging-skill:
+  en: ec98ef94bcfe8028
+  zh: 8709886f46a39220
+/agent-note-the-draft-lifecycle-belongs-to-the-forging-skill/problem:
+  en: d8665e53e0e7a619
+  zh: dc6ce1d67ef595fa
+/agent-note-the-draft-lifecycle-belongs-to-the-forging-skill/decision:
+  en: acc84a41b3fb9067
+  zh: 7b6df3fa10a88ad6
+/agent-note-the-draft-lifecycle-belongs-to-the-forging-skill/alternatives-considered:
+  en: 637af0babc6b9921
+  zh: cd86d2fc127ed4b3
+/agent-note-the-draft-lifecycle-belongs-to-the-forging-skill/consequences:
+  en: 2284b94e9e595a9b
+  zh: ca83da16849b8124

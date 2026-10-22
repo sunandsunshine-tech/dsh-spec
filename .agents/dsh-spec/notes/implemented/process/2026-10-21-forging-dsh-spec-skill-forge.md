@@ -22,7 +22,7 @@ The checker parses frontmatter as YAML with the bundled `yaml` parser. It valida
 
 The default forge directory is `.agents/dsh-spec-skill-forge/`, with `record/<name>.md`, `draft/<name>/` and `review/<name>/`. The declaration may override each default. Language uses the defaults: delivery English, review the adopter's language (Chinese here), and additional trigger language the review language. The work draft and landed artifact are English with a Chinese trigger. A review draft is Chinese with an English trigger. Reviews are projections, not new judgments.
 
-A skill's script source lives under `package/<name>/`. `vp run build:work` bundles it into the work draft's `script/`, `vp run copy:review` copies it into the review draft, and `vp run land:skills` copies the accepted work draft into `skills/<name>/`. `vp run refresh:skills` refreshes the installed copies. The forge's gate source is `package/dsh-spec-skill-forge/verify-skill-spec.ts`; the landed gate is `skills/dsh-spec-skill-forge/script/verify-skill-spec.mjs`.
+A skill's script source lives under `package/<name>/` with a `vite.config.ts` that names the bundle entries. `pnpm run skill:build` bundles them into the work draft's `script/`; `pnpm run skill:review` mirrors that script into the review draft; `pnpm run skill:land` copies the accepted work draft into the landing directory and removes only the work draft and the review draft; `pnpm run skill:refresh` refreshes the installed copies. The forge's gate source is `package/dsh-spec-skill-forge/verify-skill-spec.ts` and its lifecycle source is `package/dsh-spec-skill-forge/forge.ts`; the landed scripts are `skills/dsh-spec-skill-forge/script/verify-skill-spec.mjs` and `skills/dsh-spec-skill-forge/script/forge.mjs`.
 
 ### Forging settings
 
@@ -30,7 +30,7 @@ A skill's script source lives under `package/<name>/`. `vp run build:work` bundl
 |---|---|
 | Mode | iteration; the skill applied to itself |
 | Upstream | the previous five-step skill and its references, a 318-line Chinese backup that was removed, the prior implemented note, and the design conversation |
-| Draft parent / forged skill's parent | `.agents/dsh-spec-skill-forge/draft/` / `skills/dsh-spec-skill-forge/`; the draft and review were removed after landing |
+| Draft parent / forged skill's parent | `.agents/dsh-spec-skill-forge/draft/` / `skills/dsh-spec-skill-forge/`; the draft and review were removed after landing, and the shared directories stayed |
 | Languages | defaults: delivery English, review Chinese (the adopter's language), additional trigger Chinese; landed artifact English with a Chinese trigger |
 | Description | English trigger sentence plus a Chinese trigger; no body concepts; no "explain/completed" |
 | Record | this note |
@@ -52,15 +52,15 @@ A skill's script source lives under `package/<name>/`. `vp run build:work` bundl
 
 ### Verification
 
-`node skills/dsh-spec-skill-forge/script/verify-skill-spec.mjs skills/dsh-spec-skill-forge --strict-budget --name-max 64 --description-max 1024 --compatibility-max 500 --max-lines 500 --max-tokens 5000 --cjk-tokens-per-char 0.6 --other-tokens-per-char 0.3` → 11 checks, 0 failed, 181 lines, ~3,399 tokens, strict budget passes. The script defaults report ~3,473 tokens and also pass. Three SOP steps are routed whole into `references/` to keep the body inside budget.
+`node skills/dsh-spec-skill-forge/script/verify-skill-spec.mjs skills/dsh-spec-skill-forge --strict-budget --name-max 64 --description-max 1024 --compatibility-max 500 --max-lines 500 --max-tokens 5000 --cjk-tokens-per-char 0.6 --other-tokens-per-char 0.3` → 11 checks, 0 failed, 181 lines, ~3,420 tokens, strict budget passes. The script defaults report ~3,494 tokens and also pass. Three SOP steps are routed whole into `references/` to keep the body inside budget.
 
-The checker parses frontmatter with the bundled `yaml` parser; its tests cover invalid YAML, non-mapping frontmatter, duplicate keys, field types, metadata maps, `allowed-tools` spacing and the numeric parameters. `node --test 'tests/**/*.test.ts'` → 47 pass. `vp run build:work` and `vp run copy:review` produce identical work and review scripts. `dsh-spec notes check --all` → 23 active notes, `notes-archived check --all` → 6 frozen artifacts, and the named translation pairs and changed Markdown links check clean. `dsh-spec check --all` still reports a pre-existing `norm-reference` failure because the branch has no `.agents/skills/dsh-spec-manager/references/norms.json`; that is the installed-skills state, not this skill.
+The checker parses frontmatter with the bundled `yaml` parser; its tests cover invalid YAML, non-mapping frontmatter, duplicate keys, field types, metadata maps, `allowed-tools` spacing and the numeric parameters. `pnpm test` → 66 pass, including 15 lifecycle cases and 4 installed-copy cases. `pnpm run skill:build` writes both scripts into the work draft, and `pnpm run skill:land` copies that work draft into `skills/dsh-spec-skill-forge/`. `dsh-spec notes check --all` → 24 active notes, `notes-archived check --all` → 6 frozen artifacts, and the named translation pairs and changed Markdown links check clean. `dsh-spec check --all` still reports a pre-existing `norm-reference` failure because the branch has no `.agents/skills/dsh-spec-manager/references/norms.json`; that is the installed-skills state, not this skill.
 
 External trigger quality, cold start and task utility remain unverified: this environment has no agent harness in the target audience's environment. They are recorded as a gap, not a pass.
 
 ### Review and landing
 
-The review draft was generated in Chinese with an English trigger at `.agents/dsh-spec-skill-forge/review/dsh-spec-skill-forge/`. The driver accepted it, `vp run land:skills` copied the work draft into `skills/dsh-spec-skill-forge/`, `vp run refresh:skills` refreshed the installed copies, and the draft and review directories were deleted; only this skill's `draft/<name>/` and `review/<name>/` were removed, and the shared parents only when empty.
+The review draft was generated in Chinese with an English trigger at `.agents/dsh-spec-skill-forge/review/dsh-spec-skill-forge/`. The driver accepted it, `pnpm run skill:land` copied the work draft into `skills/dsh-spec-skill-forge/`, `pnpm run skill:refresh` refreshed the installed copies, and the draft and review directories were deleted; only this skill's `draft/<name>/` and `review/<name>/` were removed, and the shared directories stayed.
 
 ## Alternatives considered
 
@@ -82,7 +82,7 @@ The review draft was generated in Chinese with an English trigger at `.agents/ds
 
 The forge is smaller in shape and has one composition rule, one skill structure, nested step assertions, a specification-linked outcome assertion and a parameterized checker. The YAML parser and its bundle add about 240 KB to the landed script, but the skill stays self-contained and needs no install.
 
-The body is 181 lines and about 3,363 tokens because the SOP steps are routed whole into three references. The body keeps the step order and references; loading a step now needs its reference. That is the budget route's deliberate cost.
+The body is 181 lines and about 3,420 tokens because the SOP steps are routed whole into three references. The body keeps the step order and references; loading a step now needs its reference. That is the budget route's deliberate cost.
 
 The work/review/landing flow keeps `skills/` equal to the accepted draft. The trade-off is that tests target the work draft while it exists and fall back to the landed script after landing.
 
@@ -91,3 +91,4 @@ The remaining evidence gap is external: trigger quality, cold start and represen
 ## Related
 
 - [Forging dsh-spec-skill-forge (2026-10-19, archived)](../../archived/process/2026-10-19-forging-dsh-spec-skill-forge.md) — the previous five-step record this note supersedes.
+- [The draft lifecycle belongs to the forging skill (2026-10-22)](2026-10-22-the-draft-lifecycle-belongs-to-the-skill.md) — the lifecycle CLI and the package command structure that implements the Drafts rule.
