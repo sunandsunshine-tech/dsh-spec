@@ -2,7 +2,7 @@
 
 分析对象：`submodules/dsh` @ `dsh-v0.2.1-rc.2`（`687f282e86`），只读。范围：9 个技能；文件数 3（prose、trim）或 2（find-simpl）或 1（其余），`dsh-doc` 14 个；合计 2,117 行 / 179,199 字节 / 约 53.8K tokens（英文按 0.3 tokens/char 估算，与锻造技能的默认估算口径一致；行数/字节均取自 `wc -l -c`）。
 
-判定框架：本仓 Agent Note《The forge marks the abstraction ceiling》（`.agents/dsh-spec/notes/implemented/process/2026-10-22-the-forge-marks-the-abstraction-ceiling.md`）的三锚点测试；forge 的 Docs/SOP/Script、keep/adapt/re-bind/dissolve、one home per fact、body < 5000 tokens 预算（`skills/dsh-spec-skill-forge/references/3-recomposition.md`、`script/verify-skill-spec.mjs` 默认 `--max-lines 500 --max-tokens 5000`）；包的三根支柱（`AGENTS.md`：decision records、prose discipline、change workflow）与 README 的两项承诺（"Decisions stay put"、"The two languages stay together"）。
+判定框架：本仓 Agent Note《The forge marks the abstraction ceiling》（`.agents/dsh-spec/notes/implemented/process/2026-10-22-the-forge-marks-the-abstraction-ceiling.md`）的三锚点测试；forge 的 Docs/SOP/Script、keep/adapt/re-bind/dissolve、one home per fact，以及交付内容须满足 agentskills.io 的 guides（`skills/dsh-spec-skill-forge/SKILL.md`；脚本仍报告默认体量上限）；包的三根支柱（`AGENTS.md`：decision records、prose discipline、change workflow）与 README 的两项承诺（"Decisions stay put"、"The two languages stay together"）。
 
 关键背景（会改变结论）：
 
@@ -429,7 +429,7 @@
 
 **Q8. 合并技能的 body 预算与拆分粒度**
 - 事实：forge 默认 body < 5,000 tokens、< 500 行；合并 prose+trim 上游合计约 5.7K tokens（body 2.9K+2.3K），合并 pre-push+code-review 约 6.6K tokens。
-- 建议：合并后 body 只放触发、边界、全局定义/规则、SOP 步骤顺序与断言；评审/审计/泄漏等大块材料**按步骤整段路由到 `references/<step>.md`**（forge 允许的预算路径，见 `references/3-recomposition.md` 步骤 3 与 budget 路由）。这会在加载步骤时多一次 reference 读取，是预算的既定成本。
+- 建议：合并后 body 只放触发、边界、全局定义/规则、SOP 步骤；评审/审计/泄漏等大块材料按需放进 `references/<step>.md`。forge 不再以预算为路由理由；体量只由脚本报告，是否可接受由 Agent Skills guides 判断。
 
 ---
 
@@ -438,4 +438,4 @@
 - 上游技能：`submodules/dsh/.agents/skills/<name>/SKILL.md` 及其 references/templates（本档案结构一节的行数/字节均来自 `wc -l -c`）；`agent-experience` 真文件在 `submodules/dsh/packages/preset/agent-preset/skills/agent-experience/SKILL.md`（`SKILL.md` 是 symlink）。
 - 0.2.0→0.2.1：`git -C submodules/dsh diff dsh-v0.2.0-rc.2 dsh-v0.2.1-rc.2 -- .agents/skills/<name>`。
 - 前次移植：`git show main:skills/<name>/SKILL.md`（8 个；`dsh-doc` 从未移植），`.agents/skills/` 部署副本与 `main` 相同（已核对）。
-- 判定框架与包契约：`.agents/dsh-spec/notes/implemented/process/2026-10-22-the-forge-marks-the-abstraction-ceiling.md`、`skills/dsh-spec-skill-forge/SKILL.md` 及 `references/1-intent.md`、`2-analyze-and-dispose.md`、`3-recomposition.md`、`.agents/dsh-spec/notes/implemented/process/2026-09-21-the-shipped-skill-text-is-an-extraction.md`、`.agents/dsh-spec/notes/README.md`、`.agents/dsh-spec/norms/norms.md`（经 AGENTS.md 的 norms 摘要）、`package/README.md`、`scripts/dsh-spec-manager/scripts/i18n-scope.ts`。
+- 判定框架与包契约：`.agents/dsh-spec/notes/implemented/process/2026-10-22-the-forge-marks-the-abstraction-ceiling.md`、`skills/dsh-spec-skill-forge/SKILL.md` 及 `skills/dsh-spec-skill-forge/SKILL.md`、`offline-skill-authoring.md`、`.agents/dsh-spec/notes/implemented/process/2026-09-21-the-shipped-skill-text-is-an-extraction.md`、`.agents/dsh-spec/notes/README.md`、`.agents/dsh-spec/norms/norms.md`（经 AGENTS.md 的 norms 摘要）、`package/README.md`、`scripts/dsh-spec-manager/scripts/i18n-scope.ts`。
