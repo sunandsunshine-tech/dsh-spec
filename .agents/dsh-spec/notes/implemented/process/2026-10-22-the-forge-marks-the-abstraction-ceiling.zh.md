@@ -14,7 +14,7 @@ Status: implemented
 
 - 对象闭合：Agent Skill 有外部固定的形态——`SKILL.md` 入口、frontmatter、references 与 scripts、负责触发的 description。
 - 产物闭合：技能目录加一份记录，字段、语言与落地位置都是固定的。
-- 标准有锚：Agent Skills 规范、`verify-skill-spec.mjs`、token 预算、Docs/SOP/Script 与四式处置。多数检查是机械的，其余可以直接判断。
+- 标准有锚：Agent Skills 规范、`verify-skill-spec.mjs`、token 预算、正向/负向/验证三类锚点与四式处置。多数检查是机械的，其余可以直接判断。
 
 比锻造技能更抽象的技能，必然丢掉至少一个锚点：开放的对象 schema、自由形态的产物，或只指向对象自身断言的判据。锚点一丢，可接受输出的空间就超过提示能约束的量，收敛无论措辞或模型规模都会失败。
 

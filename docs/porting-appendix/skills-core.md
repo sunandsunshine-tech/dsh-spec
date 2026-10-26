@@ -2,12 +2,12 @@
 
 分析对象：`submodules/dsh` @ `dsh-v0.2.1-rc.2`（`687f282e86`），只读。范围：9 个技能；文件数 3（prose、trim）或 2（find-simpl）或 1（其余），`dsh-doc` 14 个；合计 2,117 行 / 179,199 字节 / 约 53.8K tokens（英文按 0.3 tokens/char 估算，与锻造技能的默认估算口径一致；行数/字节均取自 `wc -l -c`）。
 
-判定框架：本仓 Agent Note《The forge marks the abstraction ceiling》（`.agents/dsh-spec/notes/implemented/process/2026-10-22-the-forge-marks-the-abstraction-ceiling.md`）的三锚点测试；forge 的 Docs/SOP/Script、keep/adapt/re-bind/dissolve、one home per fact，以及交付内容须满足 agentskills.io 的 guides（`skills/dsh-spec-skill-forge/SKILL.md`；脚本仍报告默认体量上限）；包的三根支柱（`AGENTS.md`：decision records、prose discipline、change workflow）与 README 的两项承诺（"Decisions stay put"、"The two languages stay together"）。
+判定框架：本仓 Agent Note《The forge marks the abstraction ceiling》（`.agents/dsh-spec/notes/implemented/process/2026-10-22-the-forge-marks-the-abstraction-ceiling.md`）的三锚点测试；forge 的锚点模型（正向/负向/验证）、keep/adapt/re-bind/dissolve、one home per fact，以及交付内容须满足 agentskills.io 的 guides（`skills/dsh-spec-skill-forge/SKILL.md`；脚本仍报告默认体量上限）；包的三根支柱（`AGENTS.md`：decision records、prose discipline、change workflow）与 README 的两项承诺（"Decisions stay put"、"The two languages stay together"）。
 
 关键背景（会改变结论）：
 
 - **前次 v0.4.0 的 10 技能集已从 `skills/` 移除，但 `main` 分支的移植版仍在**：9 个里有 8 个在前次移植过（只有 `dsh-doc` 从未移植），且 `.agents/skills/` 的部署副本与 `main` 完全一致。前次的做法是"抽取式移植"：保留原文，只替换引用与去掉 DSH 专名（见 Note《The shipped skill text is an extraction》）。它是**成本基线**，不是可直接复用的设计：它依赖已删除的 `dsh-spec-manager` 技能与 `.agents/skills/dsh-spec-manager/scripts/dsh-spec.ts` 路径，且把 DSH 文档契约抄进了自己的 `references/`。
-- **forge 的骨架决定脚本归属**：每技能脚本源在 `package/<skill>/`，由 `vite.config.ts` 打包成自包含 `script/*.mjs`；没有跨技能共享脚本的机制（`package/README.md`）。因此凡是需要 DSH gate 的技能，要么自带脚本，要么把规则降为 prose。
+- **forge 的骨架决定脚本归属**：每技能脚本源在 `package/<skill>/`，由 `vite.config.ts` 打包成自包含 `scripts/*.mjs`；没有跨技能共享脚本的机制（`package/README.md`）。因此凡是需要 DSH gate 的技能，要么自带脚本，要么把规则降为 prose。
 - **0.2.0→0.2.1 漂移很小**（下文的"差异触达行数"是 diff 增删行合计，只作重写规模参照，不等于被改的独立行数）：agent-experience 0 行、archive 0、prose 0、translate 0；code-review +16/−8、find-simpl +6/−8（含 references）、doc 4/4（仅 templates/persistence-change.md）、pre-push +1、trim 2。对抽取友好，唯独 code-review 每版都在增加 DSH 专属检查，直接抽取会持续再分叉。
 - 基线实为 19 个技能目录：本组 9 个 + 同伴组 10 个（cordis-styling-nitpicking、dsh-ci-test-reliability、dsh-client-ui-ux、dsh-create-upgrade-guide、dsh-error-handling、dsh-merging-stacked-prs、dsh-official-plugin-artwork、dsh-responsive-ui、dsh-speed-up-perf、record-browser-gif）。交叉引用统计：prose-standard 被 8 个技能引用（枢纽）、pre-push-checks 6 个、dsh-doc 3 个、trim-cot 2 个、code-review 1 个、agent-experience 0。
 

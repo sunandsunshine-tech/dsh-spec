@@ -13,10 +13,10 @@
     "format:check": "vp fmt --check",
     "test": "node --test 'tests/**/*.test.ts'",
     "test:watch": "node --test --watch 'tests/**/*.test.ts'",
-    "skill:draft": "node skills/dsh-spec-skill-forge/script/forge.mjs draft dsh-spec-skill-forge --from skills/dsh-spec-skill-forge",
+    "skill:draft": "node skills/dsh-spec-skill-forge/scripts/forge.mjs draft dsh-spec-skill-forge --from skills/dsh-spec-skill-forge",
     "skill:build": "vp -C package/dsh-spec-skill-forge pack",
-    "skill:review": "node skills/dsh-spec-skill-forge/script/forge.mjs review dsh-spec-skill-forge",
-    "skill:land": "node skills/dsh-spec-skill-forge/script/forge.mjs land dsh-spec-skill-forge --into skills/dsh-spec-skill-forge",
+    "skill:review": "node skills/dsh-spec-skill-forge/scripts/forge.mjs review dsh-spec-skill-forge",
+    "skill:land": "node skills/dsh-spec-skill-forge/scripts/forge.mjs land dsh-spec-skill-forge --into skills/dsh-spec-skill-forge",
     "skill:refresh": "node scripts/refresh-skills.ts"
   }
 }

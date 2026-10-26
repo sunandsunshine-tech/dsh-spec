@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Source for script/verify-skill-spec.mjs — the mechanical half of Agent Skills conformance.
+// Source for scripts/verify-skill-spec.mjs — the mechanical half of Agent Skills conformance.
 //
 // dependencies   yaml (bundled); node: builtins only
 // runtime        Node.js 22.19+ or 24+
@@ -11,10 +11,10 @@
 // The numeric limits are CLI options. Their defaults are the values current at the
 // time of writing; a caller passes the current specification's values when they change.
 // Trigger quality and script design are judgement, not counting; they stay out of
-// this script and live in the skill's references/spec-checks.md.
+// this script and live in the Agent Skills guides the skill names.
 
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
-import { basename, dirname, join, relative, resolve } from 'node:path'
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parseDocument } from 'yaml'
 
@@ -47,8 +47,11 @@ exit: 0 every check passed · 1 a check failed · 2 usage error`
 const REQUIRED = ['name', 'description']
 const OPTIONAL = ['license', 'compatibility', 'metadata', 'allowed-tools']
 const NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
-const SCRIPT = /script\/[A-Za-z0-9._-]+\.(?:ts|mjs|js|py|sh)/g
+// Both directory names are in use: the guides name `scripts/`, this repository's package writes `script/`.
+// The left boundary keeps `proofscript/` from matching and checks the captured path only.
+const SCRIPT = /(?:^|[^A-Za-z0-9._/-])((?:scripts?)\/[A-Za-z0-9._-]+\.(?:ts|mjs|js|py|sh))/g
 const LINK = /\]\(([^)\s]+)\)/g
+const FENCE = /^ {0,3}(```|~~~)[^\n]*\n[\s\S]*?^ {0,3}\1[^\n]*$/gm
 
 const limits = {
   nameMax: 64,
@@ -145,7 +148,8 @@ if (!existsSync(skillFile)) {
 } else if (!statSync(skillFile).isFile()) {
   record('SKILL.md', false, 'not a regular file')
 } else {
-  const text = readFileSync(skillFile, 'utf8')
+  const raw = readFileSync(skillFile, 'utf8')
+  const text = raw.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n')
   const lines = text.split('\n')
   const lineCount = text.endsWith('\n') ? lines.length - 1 : lines.length
   record('SKILL.md', true, `${lineCount} lines`)
@@ -244,7 +248,7 @@ if (!existsSync(skillFile)) {
   }
 
   const codeSpans = [...text.matchAll(/`([^`\n]+)`/g)].map((match) => match[1])
-  const mentions = [...new Set(codeSpans.flatMap((span) => [...span.matchAll(SCRIPT)].map((match) => match[0])))]
+  const mentions = [...new Set(codeSpans.flatMap((span) => [...span.matchAll(SCRIPT)].map((match) => match[1])))]
   const missingScripts = mentions.filter((path) => !existsSync(join(root, path)))
   record('script mentions', missingScripts.length === 0, mentions.length ? mentions.join(', ') : 'none mentioned')
 
@@ -257,14 +261,18 @@ if (!existsSync(skillFile)) {
   const escaped: string[] = []
   const deep: string[] = []
   for (const file of files) {
-    for (const match of readFileSync(file, 'utf8').matchAll(LINK)) {
+    const markdown = readFileSync(file, 'utf8')
+      .replace(/^\uFEFF/, '')
+      .replace(/\r\n/g, '\n')
+      .replace(FENCE, '')
+    for (const match of markdown.matchAll(LINK)) {
       const target = match[1]
       if (/^[a-z][a-z0-9+.-]*:|^#/.test(target)) continue
       links.push(target)
       const resolved = resolve(dirname(file), target)
-      if (!resolved.startsWith(`${root}/`)) escaped.push(target)
+      if (!isInside(root, resolved)) escaped.push(target)
       else if (!existsSync(resolved)) broken.push(target)
-      else if (relative(root, resolved).split('/').length > 2) deep.push(target)
+      else if (pathComponents(relative(root, resolved)).length > 2) deep.push(target)
     }
   }
   record(
@@ -291,7 +299,9 @@ if (!existsSync(skillFile)) {
         : `${referenceFiles.length} reference(s) named`,
   )
 
-  const characters = [...text]
+  const bodyStart = lines[0] === '---' ? lines.indexOf('---', 1) : -1
+  const bodyText = bodyStart >= 0 ? lines.slice(bodyStart + 1).join('\n') : text
+  const characters = [...bodyText]
   const ideograph = /[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/
   const cjkOther = /[\u3000-\u303f\uff00-\uffef]/
   let ideographs = 0
@@ -303,7 +313,7 @@ if (!existsSync(skillFile)) {
     else others += 1
   }
   const estimate = Math.ceil((ideographs + cjkOthers) * limits.cjkTokensPerChar + others * limits.otherTokensPerChar)
-  const withinBudget = lineCount < limits.maxLines && estimate <= limits.maxTokens
+  const withinBudget = lineCount < limits.maxLines && estimate < limits.maxTokens
   const budgetDetail = withinBudget
     ? `${lineCount} lines, ~${estimate} tokens at ${limits.cjkTokensPerChar} CJK / ${limits.otherTokensPerChar.toFixed(3)} other tokens/char (limit: under ${limits.maxLines} lines and ${limits.maxTokens} tokens)`
     : `OVER the limit — ${lineCount} lines, ~${estimate} tokens at ${limits.cjkTokensPerChar} CJK / ${limits.otherTokensPerChar.toFixed(3)} other tokens/char (limit: under ${limits.maxLines} lines and ${limits.maxTokens} tokens); route content out, then rerun with --strict-budget`
@@ -327,4 +337,13 @@ function markdownFiles(dir: string): string[] {
     else if (entry.name.endsWith('.md')) out.push(path)
   }
   return out
+}
+
+function isInside(parent: string, child: string): boolean {
+  const path = relative(parent, child)
+  return path === '' || (!path.startsWith('..') && !path.startsWith(sep) && !isAbsolute(path))
+}
+
+function pathComponents(path: string): string[] {
+  return path === '' ? [] : path.split(/[\\/]/)
 }

@@ -14,8 +14,8 @@ import { dirname, join } from 'node:path'
 import { runScript } from './helpers/cli.ts'
 import { REPO_ROOT } from './helpers/fixtures.ts'
 
-const workDraftGate = '.agents/dsh-spec-skill-forge/draft/dsh-spec-skill-forge/script/verify-skill-spec.mjs'
-const landedGate = 'skills/dsh-spec-skill-forge/script/verify-skill-spec.mjs'
+const workDraftGate = '.agents/dsh-spec-skill-forge/draft/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs'
+const landedGate = 'skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs'
 const gate = existsSync(workDraftGate) ? workDraftGate : landedGate
 
 /** Build a skill directory holding one SKILL.md, and return its path. */
@@ -413,4 +413,106 @@ test('a link deeper than one level fails', () => {
   } finally {
     rmSync(parent, { recursive: true, force: true })
   }
+})
+
+test('a scripts/ mention passes when the file exists and fails when it does not', () => {
+  withSkill(
+    'scripts-plural',
+    '---\nname: scripts-plural\ndescription: Names a script under scripts/.\n---\n\nRun `scripts/real.mjs`.\n',
+    (root) => {
+      mkdirSync(join(root, 'scripts'), { recursive: true })
+      writeFileSync(join(root, 'scripts', 'real.mjs'), 'console.log("real")\n')
+      const existing = runScript(gate, [root])
+      assert.equal(existing.status, 0, existing.output)
+      assert.match(existing.output, /ok {3}script mentions — scripts\/real\.mjs/)
+      const absent = runScript(gate, [root, '--json'])
+      assert.equal(absent.status, 0, absent.output)
+      writeFileSync(
+        join(root, 'SKILL.md'),
+        '---\nname: scripts-plural\ndescription: Names a script.\n---\n\nRun `scripts/absent.mjs`.\n',
+      )
+      const missing = runScript(gate, [root])
+      assert.equal(missing.status, 1, missing.output)
+      assert.match(missing.output, /FAIL script mentions/)
+    },
+  )
+})
+
+test('a script mention inside another word is not matched', () => {
+  withSkill(
+    'proofscript',
+    '---\nname: proofscript\ndescription: Names a path that is not a scripts directory.\n---\n\nRun `proofscript/run.js`.\n',
+    (root) => {
+      mkdirSync(join(root, 'proofscript'), { recursive: true })
+      writeFileSync(join(root, 'proofscript', 'run.js'), 'console.log("run")\n')
+      const result = runScript(gate, [root])
+      assert.equal(result.status, 0, result.output)
+      assert.match(result.output, /none mentioned/)
+    },
+  )
+})
+
+test('a SKILL.md with a byte-order mark passes', () => {
+  withSkill(
+    'bom-skill',
+    '\uFEFF---\nname: bom-skill\ndescription: Starts with a byte-order mark.\n---\n\nBody.\n',
+    (root) => {
+      const result = runScript(gate, [root])
+      assert.equal(result.status, 0, result.output)
+      assert.match(result.output, /ok {3}frontmatter/)
+    },
+  )
+})
+
+test('a SKILL.md with CRLF line endings passes', () => {
+  withSkill(
+    'crlf-skill',
+    '---\r\nname: crlf-skill\r\ndescription: Uses CRLF line endings.\r\n---\r\n\r\nBody.\r\n',
+    (root) => {
+      const result = runScript(gate, [root])
+      assert.equal(result.status, 0, result.output)
+      assert.match(result.output, /ok {3}frontmatter/)
+    },
+  )
+})
+
+test('a link to the skill root is not an escaping link', () => {
+  withSkill(
+    'root-link',
+    '---\nname: root-link\ndescription: Links to its own root.\n---\n\nSee [the root](.).\n',
+    (root) => {
+      const result = runScript(gate, [root])
+      assert.equal(result.status, 0, result.output)
+      assert.match(result.output, /ok {3}links stay inside/)
+    },
+  )
+})
+
+test('a link inside a fenced code block is an example, not a link', () => {
+  withSkill(
+    'fenced-link',
+    '---\nname: fenced-link\ndescription: Shows a link inside a code fence.\n---\n\n```md\n[outside](../../etc/passwd)\n```\n',
+    (root) => {
+      const result = runScript(gate, [root])
+      assert.equal(result.status, 0, result.output)
+      assert.match(result.output, /ok {3}links stay inside/)
+    },
+  )
+})
+
+test('the line limit is exclusive at its boundary', () => {
+  withSkill('line-boundary', '---\nname: line-boundary\ndescription: Counts lines.\n---\n\nBody.\n', (root) => {
+    const result = runScript(gate, [root, '--max-lines', '6', '--strict-budget'])
+    assert.equal(result.status, 1, result.output)
+    assert.match(result.output, /FAIL budget/)
+  })
+})
+
+test('the token budget counts the body, not the frontmatter', () => {
+  const description = 'D'.repeat(1000)
+  withSkill('body-budget', `---\nname: body-budget\ndescription: ${description}\n---\n\nBody.\n`, (root) => {
+    const result = runScript(gate, [root, '--max-tokens', '50', '--strict-budget'])
+    assert.equal(result.status, 0, result.output)
+    assert.match(result.output, /ok {3}budget/)
+  })
 })

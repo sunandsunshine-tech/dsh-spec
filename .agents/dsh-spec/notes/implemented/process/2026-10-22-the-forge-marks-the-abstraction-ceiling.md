@@ -14,7 +14,7 @@ The forge `dsh-spec-skill-forge` is at the ceiling. Its abstraction is admissibl
 
 - Object closed: an Agent Skill has an externally fixed form — a `SKILL.md` entry, frontmatter, references and scripts, a description that triggers.
 - Artifact closed: a skill directory plus one record, with fixed fields, languages and landing.
-- Criteria anchored: the Agent Skills specification, `verify-skill-spec.mjs`, the token budget, Docs/SOP/Script and the four dispositions. Most checks are mechanical, and the rest are directly judgeable.
+- Criteria anchored: the Agent Skills specification, `verify-skill-spec.mjs`, the token budget, the positive/negative/verification anchors and the four dispositions. Most checks are mechanical, and the rest are directly judgeable.
 
 A skill more abstract than the forge drops at least one anchor: an open object schema, a free-form artifact, or criteria that refer only to the object's own assertions. Once an anchor is gone, the space of acceptable outputs exceeds what a prompt can constrain, and convergence fails regardless of wording or model scale.
 

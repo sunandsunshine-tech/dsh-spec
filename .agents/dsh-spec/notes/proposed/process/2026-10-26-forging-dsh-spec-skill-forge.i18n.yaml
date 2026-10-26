@@ -1,0 +1,37 @@
+# Bilingual-pair consistency record for 2026-10-26-forging-dsh-spec-skill-forge.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/proposed/process/2026-10-26-forging-dsh-spec-skill-forge.md
+/agent-note-forge-the-skill-forge-around-precise-anchors:
+  en: 8f9d7e143c83792a
+  zh: 0a094f0bc8401102
+/agent-note-forge-the-skill-forge-around-precise-anchors/problem:
+  en: 3e19fac9b61180b0
+  zh: 3ed33560d2b2c7cc
+/agent-note-forge-the-skill-forge-around-precise-anchors/proposal:
+  en: 994104eeccca13a6
+  zh: c6496894435bffb8
+/agent-note-forge-the-skill-forge-around-precise-anchors/proposal/settings:
+  en: eda32f0894f22d30
+  zh: 0a2a5b0d7204a56c
+/agent-note-forge-the-skill-forge-around-precise-anchors/proposal/dispositions:
+  en: 6f533b934f63652f
+  zh: 8891591da1219293
+/agent-note-forge-the-skill-forge-around-precise-anchors/proposal/exclusions:
+  en: 3cef59f290b061ba
+  zh: 859a2fb2c440924b
+/agent-note-forge-the-skill-forge-around-precise-anchors/proposal/verification:
+  en: b57703575ca2c0e7
+  zh: 2580a10d04458f3e
+/agent-note-forge-the-skill-forge-around-precise-anchors/proposal/unverified:
+  en: 77af997c40d557b5
+  zh: 8fe4136f5d9765b5
+/agent-note-forge-the-skill-forge-around-precise-anchors/alternatives-considered:
+  en: 46ea07a9b346e075
+  zh: c51f53a420024f83
+/agent-note-forge-the-skill-forge-around-precise-anchors/acceptance-criteria:
+  en: 5624503ea803f727
+  zh: ade49c74d8dd5fa5
+/agent-note-forge-the-skill-forge-around-precise-anchors/risks:
+  en: 076e720d36e8d673
+  zh: 147ce5c3348b7b23
