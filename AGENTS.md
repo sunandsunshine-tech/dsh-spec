@@ -14,14 +14,14 @@ The repository is being rebuilt on the `refactor/architecture` branch. `skills/`
 
 ```
 skills/   the deliverable: one directory per skill, with its entry, references and any bundled script/
-package/  skill script sources, one directory per skill, with its vite.config.ts; bundled into the work draft's script/
+package/  skill script sources, one directory per skill, with its vite.config.ts; bundled into the work directory's scripts/
 scripts/  this repository's own checks and tooling, not shipped — verify-dco.ts, submit-vendored.ts, refresh-skills.ts
 scripts/dsh-spec-manager/  the removed manager's engine, kept while the installed skills call it
 tests/    the functional suite for those checks and the workspace tooling — pnpm test
 submodules/dsh/    the extraction baseline — .gitmodules
 .agents/skills/    the installed copies, kept for use during the refactor — this file
 .agents/dsh-spec/  what this repository decided: the decision records and the applied norms — notes/README.md
-.agents/dsh-spec-skill-forge/  the forge's default working directory: record/, draft/, review/
+.agents/dsh-spec-skill-forge/  the forge's default working directory: record/ and the work directories <name>/; translation pairs sit beside their sources
 docs/              the documents a person reads; no tier, no budget, and no gate
 ```
 
@@ -47,22 +47,22 @@ node scripts/submit-vendored.ts --dry-run
   # prints the dependency-submission payload and posts nothing
 
 pnpm run skill:draft
-  # copies skills/dsh-spec-skill-forge/ into the work draft
+  # copies skills/dsh-spec-skill-forge/ into the work directory
 pnpm run skill:build
-  # bundles the skill's scripts into the work draft's script/
+  # bundles the skill's scripts into the work directory's scripts/
 pnpm run skill:review
-  # mirrors the work draft's script into the review draft
-pnpm run skill:land
-  # copies the accepted work draft into skills/ and removes its draft and review directories
+  # records the work directory's translation pairs
+pnpm run skill:publish
+  # copies the work directory into skills/ and removes the work directory
 pnpm run skill:refresh
   # copies skills/ into the installed .agents/skills/ copies
 ```
 
-Node ≥ 22.19 or ≥ 24, pnpm and Vite+ (`vp`) are the toolchain. Source formatting is Oxfmt through `vp fmt`, configured in the root `vite.config.ts` and checked with `pnpm run format:check`. Repository-level checks and tooling are TypeScript that Node strips by itself and run directly. Each skill's script source lives under `package/<name>/` and its `vite.config.ts` names the entries; `pnpm run skill:build` writes the self-contained artifacts into the work draft's `script/`. The forging skill's `script/forge.mjs` runs the draft lifecycle: `draft`, `review` and `land`; `land` writes the landing directory and removes only that skill's `draft/<name>/` and `review/<name>/`. `pnpm run skill:refresh` mirrors `skills/` into the installed copies. The suite runs on `node --test` through `pnpm test`. CI runs it on every pull request and on each push to `main` (`.github/workflows/checks.yml`). `git` is needed for the commit range; `gh` only for the bot-identity half of the DCO check.
+Node ≥ 22.19 or ≥ 24, pnpm and Vite+ (`vp`) are the toolchain. Source formatting is Oxfmt through `vp fmt`, configured in the root `vite.config.ts` and checked with `pnpm run format:check`. Repository-level checks and tooling are TypeScript that Node strips by itself and run directly. Each skill's script source lives under `package/<name>/` and its `vite.config.ts` names the entries; `pnpm run skill:build` writes the self-contained artifacts into the work directory's `scripts/`. The forging skill's `scripts/forge.mjs` runs the lifecycle: `draft`, `review` and `publish`; `publish` removes the translation pairs from the work directory, copies the work directory into the landing directory, then removes the work directory. The gate and `review --check` are separate read-only checks. `pnpm run skill:refresh` mirrors `skills/` into the installed copies. The suite runs on `node --test` through `pnpm test`. CI runs it on every pull request and on each push to `main` (`.github/workflows/checks.yml`). `git` is needed for the commit range; `gh` only for the bot-identity half of the DCO check.
 
 ## Environment
 
-- **Skill scripts are bundled per skill and landed only after review.** A skill's script source lives at `package/<skill-name>/` with a `vite.config.ts` naming its entries; `pnpm run skill:build` writes the self-contained artifacts to the work draft's `script/`. `pnpm run skill:review` mirrors that script into the review draft. The forging skill's `script/forge.mjs` copies the accepted work draft into the landing directory and removes only that skill's `draft/<name>/` and `review/<name>/`; the shared draft and review directories stay. Installed copies are refreshed with `pnpm run skill:refresh`. Scripts under `scripts/` are repository-level, are not bundled, and run directly with Node.
+- **Skill scripts are bundled per skill and published only after review.** A skill's script source lives at `package/<skill-name>/` with a `vite.config.ts` naming its entries; `pnpm run skill:build` writes the self-contained artifacts to the work directory's `scripts/`. `pnpm run skill:review` records the work directory's translation pairs. The forging skill's `scripts/forge.mjs` removes the translation pairs from the work directory, copies the work directory into the landing directory, and removes the work directory; the shared forge directory and its record stay. The gate and `review --check` are separate read-only checks. Installed copies are refreshed with `pnpm run skill:refresh`. Scripts under `scripts/` are repository-level, are not bundled, and run directly with Node.
 - **A host that resolves into a reserved range may still be reachable.** Where DNS or the network stack hands back a fake-IP address (for example `198.18.0.0/15`), the web tools can refuse the host as non-public even though it answers; fetch it with `curl` instead of recording a dead link, and apply the same reading to a citation a check could not retrieve.
 
 ## Boundaries

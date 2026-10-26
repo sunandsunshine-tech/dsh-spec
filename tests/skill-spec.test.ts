@@ -8,13 +8,13 @@
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { runScript } from './helpers/cli.ts'
 import { REPO_ROOT } from './helpers/fixtures.ts'
 
-const workDraftGate = '.agents/dsh-spec-skill-forge/draft/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs'
+const workDraftGate = '.agents/dsh-spec-skill-forge/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs'
 const landedGate = 'skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs'
 const gate = existsSync(workDraftGate) ? workDraftGate : landedGate
 
@@ -151,14 +151,24 @@ test('non-string required and optional fields fail', () => {
   )
 })
 
-test('allowed-tools must be a single-space-separated string', () => {
+test('allowed-tools accepts repeated spaces and rejects commas', () => {
   withSkill(
     'spaced-tools',
     '---\nname: spaced-tools\ndescription: Has doubled spaces.\nallowed-tools: "Read  Write"\n---\n\nBody.\n',
     (root) => {
       const result = runScript(gate, [root])
+      assert.equal(result.status, 0, result.output)
+      assert.match(result.output, /ok {3}allowed-tools/)
+    },
+  )
+  withSkill(
+    'comma-tools',
+    '---\nname: comma-tools\ndescription: Has a comma.\nallowed-tools: "Read,Write"\n---\n\nBody.\n',
+    (root) => {
+      const result = runScript(gate, [root])
       assert.equal(result.status, 1, result.output)
       assert.match(result.output, /FAIL allowed-tools/)
+      assert.match(result.output, /without commas/)
     },
   )
 })
@@ -265,25 +275,22 @@ test('--json prints a parseable summary', () => {
   )
 })
 
-test('an over-default body is reported and only --strict-budget fails it', () => {
+test('an over-default body fails the budget', () => {
   const body = `---\nname: over-budget\ndescription: Runs long.\n---\n\n${'line\n'.repeat(510)}`
   withSkill('over-budget', body, (root) => {
     const loose = runScript(gate, [root])
-    assert.equal(loose.status, 0, loose.output)
-    assert.match(loose.output, /OVER the limit/)
-    const strict = runScript(gate, [root, '--strict-budget'])
-    assert.equal(strict.status, 1, strict.output)
-    assert.match(strict.output, /FAIL budget/)
+    assert.equal(loose.status, 1, loose.output)
+    assert.match(loose.output, /FAIL budget/)
   })
 })
 
 test('--chars-per-token re-estimates the budget for another tokenizer', () => {
   const body = `---\nname: ratio-budget\ndescription: Estimates with a ratio.\n---\n\n${'word '.repeat(5000)}`
   withSkill('ratio-budget', body, (root) => {
-    const strict = runScript(gate, [root, '--strict-budget'])
+    const strict = runScript(gate, [root])
     assert.equal(strict.status, 1, strict.output)
     assert.match(strict.output, /0\.303 other tokens\/char/)
-    const lenient = runScript(gate, [root, '--strict-budget', '--chars-per-token', '5.2'])
+    const lenient = runScript(gate, [root, '--chars-per-token', '5.2'])
     assert.equal(lenient.status, 0, lenient.output)
     assert.match(lenient.output, /0\.192 other tokens\/char/)
   })
@@ -308,10 +315,10 @@ test('--name-max, --description-max, --max-lines and --max-tokens are parameters
       const description = runScript(gate, [root, '--description-max', '10'])
       assert.equal(description.status, 1, description.output)
       assert.match(description.output, /FAIL description/)
-      const lines = runScript(gate, [root, '--max-lines', '1', '--strict-budget'])
+      const lines = runScript(gate, [root, '--max-lines', '1'])
       assert.equal(lines.status, 1, lines.output)
       assert.match(lines.output, /FAIL budget/)
-      const tokens = runScript(gate, [root, '--max-tokens', '1', '--strict-budget'])
+      const tokens = runScript(gate, [root, '--max-tokens', '1'])
       assert.equal(tokens.status, 1, tokens.output)
       assert.match(tokens.output, /FAIL budget/)
     },
@@ -323,16 +330,9 @@ test('--cjk-tokens-per-char and --other-tokens-per-char adjust the estimate', ()
     'rate-params',
     '---\nname: rate-params\ndescription: A body of CJK characters.\n---\n\n' + '字'.repeat(4600),
     (root) => {
-      const strict = runScript(gate, [root, '--strict-budget'])
+      const strict = runScript(gate, [root])
       assert.equal(strict.status, 1, strict.output)
-      const lenient = runScript(gate, [
-        root,
-        '--strict-budget',
-        '--cjk-tokens-per-char',
-        '0.6',
-        '--other-tokens-per-char',
-        '0.3',
-      ])
+      const lenient = runScript(gate, [root, '--cjk-tokens-per-char', '0.6', '--other-tokens-per-char', '0.3'])
       assert.equal(lenient.status, 0, lenient.output)
       assert.match(lenient.output, /0\.6 CJK/)
     },
@@ -343,12 +343,12 @@ test('CJK characters are charged conservatively in the budget', () => {
   const skill = (name: string, count: number) =>
     `---\nname: ${name}\ndescription: Counts CJK.\n---\n\n${'字'.repeat(count)}`
   withSkill('cjk-over', skill('cjk-over', 4600), (root) => {
-    const strict = runScript(gate, [root, '--strict-budget'])
+    const strict = runScript(gate, [root])
     assert.equal(strict.status, 1, strict.output)
     assert.match(strict.output, /FAIL budget/)
   })
   withSkill('cjk-under', skill('cjk-under', 4400), (root) => {
-    const strict = runScript(gate, [root, '--strict-budget'])
+    const strict = runScript(gate, [root])
     assert.equal(strict.status, 0, strict.output)
   })
 })
@@ -502,7 +502,7 @@ test('a link inside a fenced code block is an example, not a link', () => {
 
 test('the line limit is exclusive at its boundary', () => {
   withSkill('line-boundary', '---\nname: line-boundary\ndescription: Counts lines.\n---\n\nBody.\n', (root) => {
-    const result = runScript(gate, [root, '--max-lines', '6', '--strict-budget'])
+    const result = runScript(gate, [root, '--max-lines', '6'])
     assert.equal(result.status, 1, result.output)
     assert.match(result.output, /FAIL budget/)
   })
@@ -511,8 +511,294 @@ test('the line limit is exclusive at its boundary', () => {
 test('the token budget counts the body, not the frontmatter', () => {
   const description = 'D'.repeat(1000)
   withSkill('body-budget', `---\nname: body-budget\ndescription: ${description}\n---\n\nBody.\n`, (root) => {
-    const result = runScript(gate, [root, '--max-tokens', '50', '--strict-budget'])
+    const result = runScript(gate, [root, '--max-tokens', '50'])
     assert.equal(result.status, 0, result.output)
     assert.match(result.output, /ok {3}budget/)
   })
+})
+
+test('a relative link with a fragment resolves to its file', () => {
+  withSkill(
+    'fragment-link',
+    '---\nname: fragment-link\ndescription: Links to a fragment.\n---\n\nSee [notes](references/notes.md#details).\n',
+    (root) => {
+      mkdirSync(join(root, 'references'), { recursive: true })
+      writeFileSync(join(root, 'references', 'notes.md'), '# Notes\n\n## Details\n')
+      const result = runScript(gate, [root])
+      assert.equal(result.status, 0, result.output)
+      assert.match(result.output, /ok {3}links resolve/)
+    },
+  )
+})
+
+test('a reference path named in the body must exist', () => {
+  withSkill(
+    'missing-reference-target',
+    '---\nname: missing-reference-target\ndescription: Names a missing reference.\n---\n\nRead `references/missing.md` for details.\n',
+    (root) => {
+      const result = runScript(gate, [root])
+      assert.equal(result.status, 1, result.output)
+      assert.match(result.output, /FAIL reference targets/)
+    },
+  )
+})
+
+test('a script path in plain text must exist', () => {
+  withSkill(
+    'plain-script',
+    '---\nname: plain-script\ndescription: Names a script in prose.\n---\n\nRun scripts/missing.mjs.\n',
+    (root) => {
+      const result = runScript(gate, [root])
+      assert.equal(result.status, 1, result.output)
+      assert.match(result.output, /FAIL script mentions/)
+    },
+  )
+})
+
+test('a translated pair beside a reference is not a second reference', () => {
+  withSkill(
+    'paired-reference',
+    '---\nname: paired-reference\ndescription: Has a translated reference.\n---\n\nRead `references/notes.md`.\n',
+    (root) => {
+      mkdirSync(join(root, 'references'), { recursive: true })
+      writeFileSync(join(root, 'references', 'notes.md'), '# Notes\n')
+      writeFileSync(join(root, 'references', 'notes.zh.md'), '# 笔记\n')
+      writeFileSync(join(root, 'references', 'notes.ja.md'), '# ノート\n')
+      writeFileSync(
+        join(root, 'references', 'notes.i18n.yaml'),
+        'source: notes.md\nlanguage: zh\nsource_sha: 000000000000\n',
+      )
+      const result = runScript(gate, [root])
+      assert.equal(result.status, 0, result.output)
+      assert.match(result.output, /ok {3}reference mentions/)
+    },
+  )
+})
+
+test('a leading ./ script path is checked', () => {
+  withSkill(
+    'dot-script',
+    '---\nname: dot-script\ndescription: Names a dot script.\n---\n\nRun `./scripts/missing.mjs`.\n',
+    (root) => {
+      const result = runScript(gate, [root])
+      assert.equal(result.status, 1, result.output)
+      assert.match(result.output, /FAIL script mentions/)
+    },
+  )
+})
+
+test('a fenced script command is checked', () => {
+  withSkill(
+    'fenced-script',
+    '---\nname: fenced-script\ndescription: Names a fenced script.\n---\n\n```sh\nnode scripts/missing.mjs\n```\n',
+    (root) => {
+      const result = runScript(gate, [root])
+      assert.equal(result.status, 1, result.output)
+      assert.match(result.output, /FAIL script mentions/)
+    },
+  )
+})
+
+test('a script with another extension is checked', () => {
+  withSkill(
+    'ruby-script',
+    '---\nname: ruby-script\ndescription: Names a ruby script.\n---\n\nRun `scripts/missing.rb`.\n',
+    (root) => {
+      const result = runScript(gate, [root])
+      assert.equal(result.status, 1, result.output)
+      assert.match(result.output, /FAIL script mentions/)
+    },
+  )
+})
+
+test('a nested script path is checked', () => {
+  withSkill(
+    'nested-script',
+    '---\nname: nested-script\ndescription: Names a nested script.\n---\n\nRun `scripts/lib/missing.mjs`.\n',
+    (root) => {
+      const result = runScript(gate, [root])
+      assert.equal(result.status, 1, result.output)
+      assert.match(result.output, /FAIL script mentions/)
+    },
+  )
+})
+
+test('a shipped but unnamed script fails script coverage', () => {
+  withSkill(
+    'unnamed-script',
+    '---\nname: unnamed-script\ndescription: Ships an unnamed script.\n---\n\nBody.\n',
+    (root) => {
+      mkdirSync(join(root, 'scripts'), { recursive: true })
+      writeFileSync(join(root, 'scripts', 'extra.mjs'), 'console.log(1)\n')
+      const result = runScript(gate, [root])
+      assert.equal(result.status, 1, result.output)
+      assert.match(result.output, /FAIL script coverage/)
+    },
+  )
+})
+
+test('a leading ./ reference target is checked', () => {
+  withSkill(
+    'dot-reference',
+    '---\nname: dot-reference\ndescription: Names a dot reference.\n---\n\nSee `./references/missing.md`.\n',
+    (root) => {
+      const result = runScript(gate, [root])
+      assert.equal(result.status, 1, result.output)
+      assert.match(result.output, /FAIL reference targets/)
+    },
+  )
+})
+
+test('a plain reference deeper than one level fails', () => {
+  withSkill(
+    'deep-reference',
+    '---\nname: deep-reference\ndescription: Names a deep reference.\n---\n\nSee `references/sub/missing.md`.\n',
+    (root) => {
+      const result = runScript(gate, [root])
+      assert.equal(result.status, 1, result.output)
+      assert.match(result.output, /FAIL reference targets/)
+    },
+  )
+})
+
+test('a whitespace-only description fails', () => {
+  withSkill('blank-description', '---\nname: blank-description\ndescription: "   "\n---\n\nBody.\n', (root) => {
+    const result = runScript(gate, [root])
+    assert.equal(result.status, 1, result.output)
+    assert.match(result.output, /FAIL description/)
+  })
+})
+
+test('the name limit is a parameter, defaulting to the current specification', () => {
+  const name = 'a'.repeat(70)
+  withSkill(name, `---\nname: ${name}\ndescription: A long name.\n---\n\nBody.\n`, (root) => {
+    const defaulted = runScript(gate, [root])
+    assert.equal(defaulted.status, 1, defaulted.output)
+    assert.match(defaulted.output, /FAIL name/)
+    const raised = runScript(gate, [root, '--name-max', '100'])
+    assert.equal(raised.status, 0, raised.output)
+  })
+})
+
+test('a references file instead of a directory fails without a crash', () => {
+  withSkill(
+    'references-file',
+    '---\nname: references-file\ndescription: Has a references file.\n---\n\nBody.\n',
+    (root) => {
+      writeFileSync(join(root, 'references'), 'not a directory\n')
+      const result = runScript(gate, [root])
+      assert.equal(result.status, 1, result.output)
+      assert.match(result.output, /FAIL references directory/)
+      assert.doesNotMatch(result.output, /ENOTDIR|at markdownFiles/)
+    },
+  )
+})
+
+test('reference-style and HTML links are resolved', () => {
+  withSkill(
+    'reference-link',
+    '---\nname: reference-link\ndescription: Uses reference links.\n---\n\n[notes][n] and <a href="references/also.md">also</a>.\n\n[n]: references/missing.md\n',
+    (root) => {
+      const result = runScript(gate, [root])
+      assert.equal(result.status, 1, result.output)
+      assert.match(result.output, /FAIL links resolve/)
+    },
+  )
+})
+
+test('a link in the frontmatter description is not a body link', () => {
+  withSkill(
+    'frontmatter-link',
+    '---\nname: frontmatter-link\ndescription: "See [docs](references/missing.md)."\n---\n\nBody.\n',
+    (root) => {
+      const result = runScript(gate, [root])
+      assert.equal(result.status, 0, result.output)
+      assert.match(result.output, /ok {3}links resolve/)
+    },
+  )
+})
+
+test('a symlinked reference that escapes the skill fails containment', () => {
+  withSkill(
+    'symlink-link',
+    '---\nname: symlink-link\ndescription: Links through a symlink.\n---\n\nSee [evil](references/evil.md).\n',
+    (root) => {
+      mkdirSync(join(root, 'references'), { recursive: true })
+      symlinkSync('/etc/hostname', join(root, 'references', 'evil.md'))
+      const result = runScript(gate, [root])
+      assert.equal(result.status, 1, result.output)
+      assert.match(result.output, /FAIL links stay inside/)
+    },
+  )
+})
+
+test('the line budget defaults to the current specification and is a parameter', () => {
+  const body = `---\nname: long-budget\ndescription: Runs long.\n---\n\n${'line\n'.repeat(510)}`
+  withSkill('long-budget', body, (root) => {
+    const defaulted = runScript(gate, [root])
+    assert.equal(defaulted.status, 1, defaulted.output)
+    assert.match(defaulted.output, /FAIL budget/)
+    const raised = runScript(gate, [root, '--max-lines', '1000'])
+    assert.equal(raised.status, 0, raised.output)
+  })
+})
+
+test('a BCP 47 translation tag is ignored as a reference pair', () => {
+  withSkill(
+    'bcp47-pair',
+    '---\nname: bcp47-pair\ndescription: Has a traditional Chinese pair.\n---\n\nRead `references/notes.md`.\n',
+    (root) => {
+      mkdirSync(join(root, 'references'), { recursive: true })
+      writeFileSync(join(root, 'references', 'notes.md'), '# Notes\n')
+      writeFileSync(join(root, 'references', 'notes.zh-Hant-TW.md'), '# 筆記\n')
+      const result = runScript(gate, [root])
+      assert.equal(result.status, 0, result.output)
+    },
+  )
+})
+
+test('the specification minimal frontmatter-only skill passes', () => {
+  withSkill('frontmatter-only', '---\nname: frontmatter-only\ndescription: Minimal skill.\n---\n', (root) => {
+    const result = runScript(gate, [root])
+    assert.equal(result.status, 0, result.output)
+  })
+})
+
+test('kana and Hangul are charged as CJK in the budget', () => {
+  withSkill('kana-budget', `---\nname: kana-budget\ndescription: Kana body.\n---\n\n${'あ'.repeat(6000)}\n`, (root) => {
+    const result = runScript(gate, [root])
+    assert.equal(result.status, 1, result.output)
+    assert.match(result.output, /FAIL budget/)
+  })
+  withSkill(
+    'hangul-budget',
+    `---\nname: hangul-budget\ndescription: Hangul body.\n---\n\n${'한'.repeat(6000)}\n`,
+    (root) => {
+      const result = runScript(gate, [root])
+      assert.equal(result.status, 1, result.output)
+      assert.match(result.output, /FAIL budget/)
+    },
+  )
+})
+
+test('an absolute link inside the skill fails as non-relative', () => {
+  withSkill(
+    'absolute-link',
+    (() => {
+      return '---\nname: absolute-link\ndescription: Uses an absolute link.\n---\n\n\n'
+    })(),
+    (root) => {
+      mkdirSync(join(root, 'references'), { recursive: true })
+      writeFileSync(join(root, 'references', 'guide.md'), '# Guide\n')
+      const absolute = join(root, 'references', 'guide.md')
+      writeFileSync(
+        join(root, 'SKILL.md'),
+        `---\nname: absolute-link\ndescription: Uses an absolute link.\n---\n\nSee [guide](${absolute}).\n`,
+      )
+      const result = runScript(gate, [root])
+      assert.equal(result.status, 1, result.output)
+      assert.match(result.output, /FAIL links stay inside/)
+      assert.match(result.output, /absolute:/)
+    },
+  )
 })

@@ -1,10 +1,12 @@
+const entry = process.env.SKILL_ENTRY ?? 'verify-skill-spec.ts'
+
 export default {
   pack: {
-    entry: ['verify-skill-spec.ts', 'forge.ts'],
-    outDir: '../../.agents/dsh-spec-skill-forge/draft/dsh-spec-skill-forge/scripts',
+    entry: [entry],
+    outDir: '../../.agents/dsh-spec-skill-forge/dsh-spec-skill-forge/scripts',
     format: 'esm',
     platform: 'node',
     target: 'node22',
-    clean: true,
+    clean: process.env.SKILL_CLEAN !== '0',
   },
 }

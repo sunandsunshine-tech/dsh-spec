@@ -1,13 +1,12 @@
 #!/usr/bin/env node
 import { createRequire } from "node:module";
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { basename, dirname, join, relative, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-//#region \0rolldown/runtime.js
+import { cpSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { basename, dirname, join, relative, resolve, sep } from "node:path";
+// \0rolldown/runtime.js
 var __commonJSMin = (cb, mod) => () => (mod || (cb((mod = { exports: {} }).exports, mod, mod.exports), cb = null), mod.exports);
 var __require = /* #__PURE__ */ (() => createRequire(import.meta.url))();
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/identity.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/identity.js
 var require_identity = /* @__PURE__ */ __commonJSMin(((exports) => {
 	const ALIAS = Symbol.for("yaml.alias");
 	const DOC = Symbol.for("yaml.document");
@@ -56,8 +55,7 @@ var require_identity = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.isScalar = isScalar;
 	exports.isSeq = isSeq;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/visit.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/visit.js
 var require_visit = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var identity = require_identity();
 	const BREAK = Symbol("break visit");
@@ -247,8 +245,7 @@ var require_visit = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.visit = visit;
 	exports.visitAsync = visitAsync;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/doc/directives.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/doc/directives.js
 var require_directives = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var identity = require_identity();
 	var visit = require_visit();
@@ -411,8 +408,7 @@ var require_directives = /* @__PURE__ */ __commonJSMin(((exports) => {
 	Directives.defaultTags = { "!!": "tag:yaml.org,2002:" };
 	exports.Directives = Directives;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/doc/anchors.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/doc/anchors.js
 var require_anchors = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var identity = require_identity();
 	var visit = require_visit();
@@ -478,8 +474,7 @@ var require_anchors = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.createNodeAnchors = createNodeAnchors;
 	exports.findNewAnchor = findNewAnchor;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/doc/applyReviver.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/doc/applyReviver.js
 var require_applyReviver = /* @__PURE__ */ __commonJSMin(((exports) => {
 	/**
 	* Applies the JSON.parse reviver algorithm as defined in the ECMA-262 spec,
@@ -520,8 +515,7 @@ var require_applyReviver = /* @__PURE__ */ __commonJSMin(((exports) => {
 	}
 	exports.applyReviver = applyReviver;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/toJS.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/toJS.js
 var require_toJS = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var identity = require_identity();
 	/**
@@ -557,8 +551,7 @@ var require_toJS = /* @__PURE__ */ __commonJSMin(((exports) => {
 	}
 	exports.toJS = toJS;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/Node.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/Node.js
 var require_Node = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var applyReviver = require_applyReviver();
 	var identity = require_identity();
@@ -591,8 +584,7 @@ var require_Node = /* @__PURE__ */ __commonJSMin(((exports) => {
 	};
 	exports.NodeBase = NodeBase;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/Alias.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/Alias.js
 var require_Alias = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var anchors = require_anchors();
 	var visit = require_visit();
@@ -687,8 +679,7 @@ var require_Alias = /* @__PURE__ */ __commonJSMin(((exports) => {
 	}
 	exports.Alias = Alias;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/Scalar.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/Scalar.js
 var require_Scalar = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var identity = require_identity();
 	var Node = require_Node();
@@ -714,8 +705,7 @@ var require_Scalar = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.Scalar = Scalar;
 	exports.isScalarValue = isScalarValue;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/doc/createNode.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/doc/createNode.js
 var require_createNode = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var Alias = require_Alias();
 	var identity = require_identity();
@@ -777,8 +767,7 @@ var require_createNode = /* @__PURE__ */ __commonJSMin(((exports) => {
 	}
 	exports.createNode = createNode;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/Collection.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/Collection.js
 var require_Collection = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var createNode = require_createNode();
 	var identity = require_identity();
@@ -898,8 +887,7 @@ var require_Collection = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.collectionFromPath = collectionFromPath;
 	exports.isEmptyPath = isEmptyPath;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/stringify/stringifyComment.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/stringify/stringifyComment.js
 var require_stringifyComment = /* @__PURE__ */ __commonJSMin(((exports) => {
 	/**
 	* Stringifies a comment.
@@ -918,8 +906,7 @@ var require_stringifyComment = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.lineComment = lineComment;
 	exports.stringifyComment = stringifyComment;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/stringify/foldFlowLines.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/stringify/foldFlowLines.js
 var require_foldFlowLines = /* @__PURE__ */ __commonJSMin(((exports) => {
 	const FOLD_FLOW = "flow";
 	const FOLD_BLOCK = "block";
@@ -1038,8 +1025,7 @@ var require_foldFlowLines = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.FOLD_QUOTED = FOLD_QUOTED;
 	exports.foldFlowLines = foldFlowLines;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/stringify/stringifyString.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/stringify/stringifyString.js
 var require_stringifyString = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var Scalar = require_Scalar();
 	var foldFlowLines = require_foldFlowLines();
@@ -1262,8 +1248,7 @@ var require_stringifyString = /* @__PURE__ */ __commonJSMin(((exports) => {
 	}
 	exports.stringifyString = stringifyString;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/stringify/stringify.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/stringify/stringify.js
 var require_stringify = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var anchors = require_anchors();
 	var identity = require_identity();
@@ -1370,8 +1355,7 @@ var require_stringify = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.createStringifyContext = createStringifyContext;
 	exports.stringify = stringify;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/stringify/stringifyPair.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/stringify/stringifyPair.js
 var require_stringifyPair = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var identity = require_identity();
 	var Scalar = require_Scalar();
@@ -1467,8 +1451,7 @@ var require_stringifyPair = /* @__PURE__ */ __commonJSMin(((exports) => {
 	}
 	exports.stringifyPair = stringifyPair;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/log.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/log.js
 var require_log = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var node_process = __require("process");
 	function debug(logLevel, ...messages) {
@@ -1483,8 +1466,7 @@ var require_log = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.debug = debug;
 	exports.warn = warn;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/merge.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/merge.js
 var require_merge = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var identity = require_identity();
 	var Scalar = require_Scalar();
@@ -1526,8 +1508,7 @@ var require_merge = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.isMergeKey = isMergeKey;
 	exports.merge = merge;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/addPairToJSMap.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/addPairToJSMap.js
 var require_addPairToJSMap = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var log = require_log();
 	var merge = require_merge();
@@ -1577,8 +1558,7 @@ var require_addPairToJSMap = /* @__PURE__ */ __commonJSMin(((exports) => {
 	}
 	exports.addPairToJSMap = addPairToJSMap;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/Pair.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/Pair.js
 var require_Pair = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var createNode = require_createNode();
 	var stringifyPair = require_stringifyPair();
@@ -1610,8 +1590,7 @@ var require_Pair = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.Pair = Pair;
 	exports.createPair = createPair;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/stringify/stringifyCollection.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/stringify/stringifyCollection.js
 var require_stringifyCollection = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var identity = require_identity();
 	var stringify = require_stringify();
@@ -1728,8 +1707,7 @@ var require_stringifyCollection = /* @__PURE__ */ __commonJSMin(((exports) => {
 	}
 	exports.stringifyCollection = stringifyCollection;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/YAMLMap.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/YAMLMap.js
 var require_YAMLMap = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var stringifyCollection = require_stringifyCollection();
 	var addPairToJSMap = require_addPairToJSMap();
@@ -1837,8 +1815,7 @@ var require_YAMLMap = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.YAMLMap = YAMLMap;
 	exports.findPair = findPair;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/common/map.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/common/map.js
 var require_map = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var identity = require_identity();
 	var YAMLMap = require_YAMLMap();
@@ -1854,8 +1831,7 @@ var require_map = /* @__PURE__ */ __commonJSMin(((exports) => {
 		createNode: (schema, obj, ctx) => YAMLMap.YAMLMap.from(schema, obj, ctx)
 	};
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/YAMLSeq.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/nodes/YAMLSeq.js
 var require_YAMLSeq = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var createNode = require_createNode();
 	var stringifyCollection = require_stringifyCollection();
@@ -1960,8 +1936,7 @@ var require_YAMLSeq = /* @__PURE__ */ __commonJSMin(((exports) => {
 	}
 	exports.YAMLSeq = YAMLSeq;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/common/seq.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/common/seq.js
 var require_seq = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var identity = require_identity();
 	var YAMLSeq = require_YAMLSeq();
@@ -1977,8 +1952,7 @@ var require_seq = /* @__PURE__ */ __commonJSMin(((exports) => {
 		createNode: (schema, obj, ctx) => YAMLSeq.YAMLSeq.from(schema, obj, ctx)
 	};
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/common/string.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/common/string.js
 var require_string = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var stringifyString = require_stringifyString();
 	exports.string = {
@@ -1992,8 +1966,7 @@ var require_string = /* @__PURE__ */ __commonJSMin(((exports) => {
 		}
 	};
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/common/null.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/common/null.js
 var require_null = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var Scalar = require_Scalar();
 	const nullTag = {
@@ -2007,8 +1980,7 @@ var require_null = /* @__PURE__ */ __commonJSMin(((exports) => {
 	};
 	exports.nullTag = nullTag;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/core/bool.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/core/bool.js
 var require_bool$1 = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var Scalar = require_Scalar();
 	const boolTag = {
@@ -2026,8 +1998,7 @@ var require_bool$1 = /* @__PURE__ */ __commonJSMin(((exports) => {
 	};
 	exports.boolTag = boolTag;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/stringify/stringifyNumber.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/stringify/stringifyNumber.js
 var require_stringifyNumber = /* @__PURE__ */ __commonJSMin(((exports) => {
 	function stringifyNumber({ format, minFractionDigits, tag, value }) {
 		if (typeof value === "bigint") return String(value);
@@ -2047,8 +2018,7 @@ var require_stringifyNumber = /* @__PURE__ */ __commonJSMin(((exports) => {
 	}
 	exports.stringifyNumber = stringifyNumber;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/core/float.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/core/float.js
 var require_float$1 = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var Scalar = require_Scalar();
 	var stringifyNumber = require_stringifyNumber();
@@ -2088,8 +2058,7 @@ var require_float$1 = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.floatExp = floatExp;
 	exports.floatNaN = floatNaN;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/core/int.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/core/int.js
 var require_int$1 = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var stringifyNumber = require_stringifyNumber();
 	const intIdentify = (value) => typeof value === "bigint" || Number.isInteger(value);
@@ -2129,8 +2098,7 @@ var require_int$1 = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.intHex = intHex;
 	exports.intOct = intOct;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/core/schema.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/core/schema.js
 var require_schema$2 = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var map = require_map();
 	var _null = require_null();
@@ -2153,8 +2121,7 @@ var require_schema$2 = /* @__PURE__ */ __commonJSMin(((exports) => {
 		float.float
 	];
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/json/schema.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/json/schema.js
 var require_schema$1 = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var Scalar = require_Scalar();
 	var map = require_map();
@@ -2215,8 +2182,7 @@ var require_schema$1 = /* @__PURE__ */ __commonJSMin(((exports) => {
 		}
 	});
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/binary.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/binary.js
 var require_binary = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var node_buffer = __require("buffer");
 	var Scalar = require_Scalar();
@@ -2271,8 +2237,7 @@ var require_binary = /* @__PURE__ */ __commonJSMin(((exports) => {
 		}
 	};
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/pairs.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/pairs.js
 var require_pairs = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var identity = require_identity();
 	var Pair = require_Pair();
@@ -2332,8 +2297,7 @@ var require_pairs = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.pairs = pairs;
 	exports.resolvePairs = resolvePairs;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/omap.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/omap.js
 var require_omap = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var identity = require_identity();
 	var toJS = require_toJS();
@@ -2397,8 +2361,7 @@ var require_omap = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.YAMLOMap = YAMLOMap;
 	exports.omap = omap;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/bool.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/bool.js
 var require_bool = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var Scalar = require_Scalar();
 	function boolStringify({ value, source }, ctx) {
@@ -2424,8 +2387,7 @@ var require_bool = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.falseTag = falseTag;
 	exports.trueTag = trueTag;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/float.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/float.js
 var require_float = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var Scalar = require_Scalar();
 	var stringifyNumber = require_stringifyNumber();
@@ -2468,8 +2430,7 @@ var require_float = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.floatExp = floatExp;
 	exports.floatNaN = floatNaN;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/int.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/int.js
 var require_int = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var stringifyNumber = require_stringifyNumber();
 	const intIdentify = (value) => typeof value === "bigint" || Number.isInteger(value);
@@ -2541,8 +2502,7 @@ var require_int = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.intHex = intHex;
 	exports.intOct = intOct;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/set.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/set.js
 var require_set = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var identity = require_identity();
 	var Pair = require_Pair();
@@ -2610,8 +2570,7 @@ var require_set = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.YAMLSet = YAMLSet;
 	exports.set = set;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/timestamp.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/timestamp.js
 var require_timestamp = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var stringifyNumber = require_stringifyNumber();
 	/** Internal types handle bigint as number, because TS can't figure it out. */
@@ -2693,8 +2652,7 @@ var require_timestamp = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.intTime = intTime;
 	exports.timestamp = timestamp;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/schema.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/yaml-1.1/schema.js
 var require_schema = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var map = require_map();
 	var _null = require_null();
@@ -2733,8 +2691,7 @@ var require_schema = /* @__PURE__ */ __commonJSMin(((exports) => {
 		timestamp.timestamp
 	];
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/tags.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/tags.js
 var require_tags = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var map = require_map();
 	var _null = require_null();
@@ -2819,8 +2776,7 @@ var require_tags = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.coreKnownTags = coreKnownTags;
 	exports.getTags = getTags;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/Schema.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/schema/Schema.js
 var require_Schema = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var identity = require_identity();
 	var map = require_map();
@@ -2847,8 +2803,7 @@ var require_Schema = /* @__PURE__ */ __commonJSMin(((exports) => {
 		}
 	};
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/stringify/stringifyDocument.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/stringify/stringifyDocument.js
 var require_stringifyDocument = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var identity = require_identity();
 	var stringify = require_stringify();
@@ -2909,8 +2864,7 @@ var require_stringifyDocument = /* @__PURE__ */ __commonJSMin(((exports) => {
 	}
 	exports.stringifyDocument = stringifyDocument;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/doc/Document.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/doc/Document.js
 var require_Document = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var Alias = require_Alias();
 	var Collection = require_Collection();
@@ -3190,8 +3144,7 @@ var require_Document = /* @__PURE__ */ __commonJSMin(((exports) => {
 	}
 	exports.Document = Document;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/errors.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/errors.js
 var require_errors = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var YAMLError = class extends Error {
 		constructor(name, pos, code, message) {
@@ -3243,8 +3196,7 @@ var require_errors = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.YAMLWarning = YAMLWarning;
 	exports.prettifyError = prettifyError;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/resolve-props.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/resolve-props.js
 var require_resolve_props = /* @__PURE__ */ __commonJSMin(((exports) => {
 	function resolveProps(tokens, { flow, indicator, next, offset, onError, parentIndent, startOnNewline }) {
 		let spaceBefore = false;
@@ -3350,8 +3302,7 @@ var require_resolve_props = /* @__PURE__ */ __commonJSMin(((exports) => {
 	}
 	exports.resolveProps = resolveProps;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/util-contains-newline.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/util-contains-newline.js
 var require_util_contains_newline = /* @__PURE__ */ __commonJSMin(((exports) => {
 	function containsNewline(key) {
 		if (!key) return null;
@@ -3379,8 +3330,7 @@ var require_util_contains_newline = /* @__PURE__ */ __commonJSMin(((exports) => 
 	}
 	exports.containsNewline = containsNewline;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/util-flow-indent-check.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/util-flow-indent-check.js
 var require_util_flow_indent_check = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var utilContainsNewline = require_util_contains_newline();
 	function flowIndentCheck(indent, fc, onError) {
@@ -3391,8 +3341,7 @@ var require_util_flow_indent_check = /* @__PURE__ */ __commonJSMin(((exports) =>
 	}
 	exports.flowIndentCheck = flowIndentCheck;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/util-map-includes.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/util-map-includes.js
 var require_util_map_includes = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var identity = require_identity();
 	function mapIncludes(ctx, items, search) {
@@ -3403,8 +3352,7 @@ var require_util_map_includes = /* @__PURE__ */ __commonJSMin(((exports) => {
 	}
 	exports.mapIncludes = mapIncludes;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/resolve-block-map.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/resolve-block-map.js
 var require_resolve_block_map = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var Pair = require_Pair();
 	var YAMLMap = require_YAMLMap();
@@ -3491,8 +3439,7 @@ var require_resolve_block_map = /* @__PURE__ */ __commonJSMin(((exports) => {
 	}
 	exports.resolveBlockMap = resolveBlockMap;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/resolve-block-seq.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/resolve-block-seq.js
 var require_resolve_block_seq = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var YAMLSeq = require_YAMLSeq();
 	var resolveProps = require_resolve_props();
@@ -3536,8 +3483,7 @@ var require_resolve_block_seq = /* @__PURE__ */ __commonJSMin(((exports) => {
 	}
 	exports.resolveBlockSeq = resolveBlockSeq;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/resolve-end.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/resolve-end.js
 var require_resolve_end = /* @__PURE__ */ __commonJSMin(((exports) => {
 	function resolveEnd(end, offset, reqSpace, onError) {
 		let comment = "";
@@ -3574,8 +3520,7 @@ var require_resolve_end = /* @__PURE__ */ __commonJSMin(((exports) => {
 	}
 	exports.resolveEnd = resolveEnd;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/resolve-flow-collection.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/resolve-flow-collection.js
 var require_resolve_flow_collection = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var identity = require_identity();
 	var Pair = require_Pair();
@@ -3737,8 +3682,7 @@ var require_resolve_flow_collection = /* @__PURE__ */ __commonJSMin(((exports) =
 	}
 	exports.resolveFlowCollection = resolveFlowCollection;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/compose-collection.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/compose-collection.js
 var require_compose_collection = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var identity = require_identity();
 	var Scalar = require_Scalar();
@@ -3789,8 +3733,7 @@ var require_compose_collection = /* @__PURE__ */ __commonJSMin(((exports) => {
 	}
 	exports.composeCollection = composeCollection;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/resolve-block-scalar.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/resolve-block-scalar.js
 var require_resolve_block_scalar = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var Scalar = require_Scalar();
 	function resolveBlockScalar(ctx, scalar, onError) {
@@ -3966,8 +3909,7 @@ var require_resolve_block_scalar = /* @__PURE__ */ __commonJSMin(((exports) => {
 	}
 	exports.resolveBlockScalar = resolveBlockScalar;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/resolve-flow-scalar.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/resolve-flow-scalar.js
 var require_resolve_flow_scalar = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var Scalar = require_Scalar();
 	var resolveEnd = require_resolve_end();
@@ -4171,8 +4113,7 @@ var require_resolve_flow_scalar = /* @__PURE__ */ __commonJSMin(((exports) => {
 	}
 	exports.resolveFlowScalar = resolveFlowScalar;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/compose-scalar.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/compose-scalar.js
 var require_compose_scalar = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var identity = require_identity();
 	var Scalar = require_Scalar();
@@ -4232,8 +4173,7 @@ var require_compose_scalar = /* @__PURE__ */ __commonJSMin(((exports) => {
 	}
 	exports.composeScalar = composeScalar;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/util-empty-scalar-position.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/util-empty-scalar-position.js
 var require_util_empty_scalar_position = /* @__PURE__ */ __commonJSMin(((exports) => {
 	function emptyScalarPosition(offset, before, pos) {
 		if (before) {
@@ -4259,8 +4199,7 @@ var require_util_empty_scalar_position = /* @__PURE__ */ __commonJSMin(((exports
 	}
 	exports.emptyScalarPosition = emptyScalarPosition;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/compose-node.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/compose-node.js
 var require_compose_node = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var Alias = require_Alias();
 	var identity = require_identity();
@@ -4350,8 +4289,7 @@ var require_compose_node = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.composeEmptyNode = composeEmptyNode;
 	exports.composeNode = composeNode;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/compose-doc.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/compose-doc.js
 var require_compose_doc = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var Document = require_Document();
 	var composeNode = require_compose_node();
@@ -4392,8 +4330,7 @@ var require_compose_doc = /* @__PURE__ */ __commonJSMin(((exports) => {
 	}
 	exports.composeDoc = composeDoc;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/composer.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/compose/composer.js
 var require_composer = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var node_process = __require("process");
 	var directives = require_directives();
@@ -4590,8 +4527,7 @@ var require_composer = /* @__PURE__ */ __commonJSMin(((exports) => {
 	};
 	exports.Composer = Composer;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/parse/cst-scalar.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/parse/cst-scalar.js
 var require_cst_scalar = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var resolveBlockScalar = require_resolve_block_scalar();
 	var resolveFlowScalar = require_resolve_flow_scalar();
@@ -4857,8 +4793,7 @@ var require_cst_scalar = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.resolveAsScalar = resolveAsScalar;
 	exports.setScalarValue = setScalarValue;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/parse/cst-stringify.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/parse/cst-stringify.js
 var require_cst_stringify = /* @__PURE__ */ __commonJSMin(((exports) => {
 	/**
 	* Stringify a CST document, token, or collection item
@@ -4908,8 +4843,7 @@ var require_cst_stringify = /* @__PURE__ */ __commonJSMin(((exports) => {
 	}
 	exports.stringify = stringify;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/parse/cst-visit.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/parse/cst-visit.js
 var require_cst_visit = /* @__PURE__ */ __commonJSMin(((exports) => {
 	const BREAK = Symbol("break visit");
 	const SKIP = Symbol("skip children");
@@ -4999,8 +4933,7 @@ var require_cst_visit = /* @__PURE__ */ __commonJSMin(((exports) => {
 	}
 	exports.visit = visit;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/parse/cst.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/parse/cst.js
 var require_cst = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var cstScalar = require_cst_scalar();
 	var cstStringify = require_cst_stringify();
@@ -5078,8 +5011,7 @@ var require_cst = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.prettyToken = prettyToken;
 	exports.tokenType = tokenType;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/parse/lexer.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/parse/lexer.js
 var require_lexer = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var cst = require_cst();
 	function isEmpty(ch) {
@@ -5611,8 +5543,7 @@ var require_lexer = /* @__PURE__ */ __commonJSMin(((exports) => {
 	};
 	exports.Lexer = Lexer;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/parse/line-counter.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/parse/line-counter.js
 var require_line_counter = /* @__PURE__ */ __commonJSMin(((exports) => {
 	/**
 	* Tracks newlines during parsing in order to provide an efficient API for
@@ -5658,8 +5589,7 @@ var require_line_counter = /* @__PURE__ */ __commonJSMin(((exports) => {
 	};
 	exports.LineCounter = LineCounter;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/parse/parser.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/parse/parser.js
 var require_parser = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var node_process = __require("process");
 	var cst = require_cst();
@@ -6524,8 +6454,7 @@ var require_parser = /* @__PURE__ */ __commonJSMin(((exports) => {
 	};
 	exports.Parser = Parser;
 }));
-//#endregion
-//#region node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/public-api.js
+// node_modules/.pnpm/yaml@2.9.1/node_modules/yaml/dist/public-api.js
 var require_public_api = /* @__PURE__ */ __commonJSMin(((exports) => {
 	var composer = require_composer();
 	var Document = require_Document();
@@ -6613,8 +6542,7 @@ var require_public_api = /* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.parseDocument = parseDocument;
 	exports.stringify = stringify;
 }));
-//#endregion
-//#region verify-skill-spec.ts
+// forge.ts
 var import_dist = (/* @__PURE__ */ __commonJSMin(((exports) => {
 	var composer = require_composer();
 	var Document = require_Document();
@@ -6661,257 +6589,484 @@ var import_dist = (/* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.visit = visit.visit;
 	exports.visitAsync = visit.visitAsync;
 })))();
-const USAGE = `usage: verify-skill-spec.mjs [<skill-dir>] [options] [--help]
+const DEFAULT_FORGE = ".agents/dsh-spec-skill-forge";
+const HASH_LENGTH = 12;
+const RESERVED = /* @__PURE__ */ new Set(["record"]);
+const USAGE = `usage: forge.mjs <command> [options]
 
-Check a skill directory against the Agent Skills specification. With no directory,
-check the one this script is installed in.
+Forge a skill in one work directory, keep its translation pairs and publish a plain copy.
 
-  <skill-dir>                 the skill to check; default is this script's parent's parent
-  --json                      print a JSON summary ({ root, results }) instead of lines
-  --strict-budget             fail when SKILL.md exceeds the line or token limits
-  --name-max <n>              maximum name length (default 64)
-  --description-max <n>       maximum description length (default 1024)
-  --compatibility-max <n>     maximum compatibility length (default 500)
-  --max-lines <n>             maximum SKILL.md lines (default 500)
-  --max-tokens <n>            maximum body tokens (default 5000)
-  --cjk-tokens-per-char <n>   tokens per CJK character (default 1.1)
-  --other-tokens-per-char <n> tokens per non-CJK character (default 0.303)
-  --chars-per-token <n>       compatibility alias for --other-tokens-per-char (1/n)
-  --help                      print this and exit 0
+commands:
+  draft   <name> [--from <skill-dir>]  create the work directory, optionally seeded from a skill
+  review  <name> [--check]             record translation pairs, or list the pairs to translate again
+  publish <name> --into <skill-dir>    copy the work directory to the landing directory and remove the draft
 
-examples:
-  verify-skill-spec.mjs
-  verify-skill-spec.mjs skills/my-skill
-  verify-skill-spec.mjs skills/my-skill --strict-budget --json
-  verify-skill-spec.mjs skills/my-skill --max-lines 500 --max-tokens 5000
+options:
+  --forge <dir>   forge directory (default: ${DEFAULT_FORGE})
+  --from <dir>    skill directory copied into a new work directory (draft only)
+  --into <dir>    landing directory (publish only)
+  --check         list out-of-date or missing translation pairs instead of writing records (review only)
+  --dry-run       print the actions and change nothing
+  --json          print a JSON summary instead of lines
+  --help, -h      print this and exit 0
 
-exit: 0 every check passed · 1 a check failed · 2 usage error`;
-const REQUIRED = ["name", "description"];
-const OPTIONAL = [
-	"license",
-	"compatibility",
-	"metadata",
-	"allowed-tools"
-];
+The work directory is ${DEFAULT_FORGE}/<name>; it is the authority. A translation pair is a
+translation beside its source plus a record: <source-basename>.<lang>.md and
+<source-basename>.i18n.yaml; SKILL.md pairs with SKILL.<lang>.md and SKILL.i18n.yaml. Only .md
+files are paired; scripts and assets are not translated. review records the source hash in each
+pair's record after the translation is written; review --check compares the recorded hash with the
+source and lists the pairs to translate again, plus pairs whose translation or record is missing.
+The pairs live in the work directory beside their sources.
+
+publish removes the translation pairs from the work directory, copies the work directory to the
+landing directory, and then removes the work directory. An existing landing directory is replaced; the acceptance and the
+VCS are the authorization and rollback. The gate and review --check are separate read-only checks;
+publish does not run them. Publishing requires SKILL.md; the work directory's SKILL.md name and
+the landing directory name must match the skill name. record is reserved for the record directory.
+
+exit: 0 every action succeeded · 1 an action or precondition failed · 2 usage error
+
+With --json, the summary is printed after the run; usage and precondition failures print an error
+to stderr.`;
 const NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const SCRIPT = /script\/[A-Za-z0-9._-]+\.(?:ts|mjs|js|py|sh)/g;
-const LINK = /\]\(([^)\s]+)\)/g;
-const limits = {
-	nameMax: 64,
-	descriptionMax: 1024,
-	compatibilityMax: 500,
-	maxLines: 500,
-	maxTokens: 5e3,
-	cjkTokensPerChar: 1.1,
-	otherTokensPerChar: 1 / 3.3
-};
+var ForgeError = class extends Error {};
+const TRANSLATION = /^(.*)\.([A-Za-z]{2,3}(?:-[A-Za-z0-9]{1,8})*)\.md$/;
+function isPairFile(name) {
+	return name.endsWith(".i18n.yaml") || TRANSLATION.test(name);
+}
+function translationOf(path) {
+	const match = TRANSLATION.exec(path);
+	if (match?.[1] === void 0 || match[2] === void 0) return void 0;
+	return {
+		source: `${match[1]}.md`,
+		language: match[2]
+	};
+}
+/** Every authored Markdown file, excluding translation pairs. */
+function sourceFiles(root) {
+	const files = [];
+	const walk = (dir, prefix) => {
+		for (const entry of readdirSync(dir, { withFileTypes: true })) {
+			const name = prefix ? `${prefix}/${entry.name}` : entry.name;
+			if (entry.isDirectory()) walk(join(dir, entry.name), name);
+			else if (entry.isFile() && entry.name.endsWith(".md") && !TRANSLATION.test(entry.name)) files.push(name);
+		}
+	};
+	if (!isDirectory(root)) return files;
+	walk(root, "");
+	return files.sort();
+}
+/** Every translated file and every pair record in the work directory. */
+function pairFiles(root) {
+	const files = [];
+	const walk = (dir, prefix) => {
+		for (const entry of readdirSync(dir, { withFileTypes: true })) {
+			const name = prefix ? `${prefix}/${entry.name}` : entry.name;
+			if (entry.isDirectory()) walk(join(dir, entry.name), name);
+			else if (entry.isFile() && isPairFile(entry.name)) files.push(name);
+		}
+	};
+	if (!isDirectory(root)) return files;
+	walk(root, "");
+	return files.sort();
+}
+function recordPath(source) {
+	return source.replace(/\.md$/, ".i18n.yaml");
+}
+function recordSource(path) {
+	return path.replace(/\.i18n\.yaml$/, ".md");
+}
+function readRecord(path) {
+	let text;
+	try {
+		text = readFileSync(path, "utf8");
+	} catch {
+		return {};
+	}
+	for (const line of text.split(/\r?\n/)) {
+		const match = /^source_sha:\s*(\S+)\s*$/.exec(line);
+		if (match?.[1] !== void 0) return { sourceSha: match[1] };
+	}
+	return {};
+}
+function writeRecord(path, sourceSha) {
+	writeFileSync(path, `source_sha: ${sourceSha}\n`);
+}
+/** Every translation pair, keyed by its source path. */
+function translationPairs(root) {
+	const pairs = [];
+	for (const path of pairFiles(root)) {
+		const info = translationOf(path);
+		if (info !== void 0) pairs.push({
+			...info,
+			translation: path
+		});
+	}
+	return pairs;
+}
+/** The translation pairs that are missing, out of date, or orphaned. */
+function pairIssues(root) {
+	const sources = sourceFiles(root);
+	const translations = translationPairs(root);
+	const records = pairFiles(root).filter((path) => path.endsWith(".i18n.yaml"));
+	const hasPairs = translations.length > 0 || records.length > 0;
+	const missingTranslations = [];
+	const missingRecords = [];
+	const stale = [];
+	const orphans = [];
+	const multiple = [];
+	if (!hasPairs) return {
+		hasPairs,
+		missingTranslations,
+		missingRecords,
+		stale,
+		orphans,
+		multiple
+	};
+	const bySource = /* @__PURE__ */ new Map();
+	for (const pair of translations) {
+		const list = bySource.get(pair.source) ?? [];
+		list.push({
+			language: pair.language,
+			translation: pair.translation
+		});
+		bySource.set(pair.source, list);
+	}
+	for (const source of sources) {
+		const pairs = (bySource.get(source) ?? []).sort((left, right) => left.translation.localeCompare(right.translation));
+		if (pairs.length === 0) {
+			missingTranslations.push(source);
+			continue;
+		}
+		if (pairs.length > 1) multiple.push(source);
+		pairs[0];
+		const record = recordPath(source);
+		if (!existsSync(join(root, record))) {
+			missingRecords.push(source);
+			continue;
+		}
+		if (readRecord(join(root, record)).sourceSha !== hashFile(join(root, source))) stale.push(source);
+	}
+	for (const pair of translations) if (!sources.includes(pair.source)) orphans.push(pair.translation);
+	for (const record of records) if (!sources.includes(recordSource(record))) orphans.push(record);
+	return {
+		hasPairs,
+		missingTranslations,
+		missingRecords,
+		stale,
+		orphans,
+		multiple
+	};
+}
+function pairIssueText(issues) {
+	const lines = [];
+	if (issues.missingTranslations.length) lines.push(`missing translations for: ${issues.missingTranslations.join(", ")}`);
+	if (issues.missingRecords.length) lines.push(`missing records for: ${issues.missingRecords.join(", ")}`);
+	if (issues.stale.length) lines.push(`out of date: ${issues.stale.join(", ")}`);
+	if (issues.orphans.length) lines.push(`without a source: ${issues.orphans.join(", ")}`);
+	if (issues.multiple.length) lines.push(`more than one translation for: ${issues.multiple.join(", ")}`);
+	return lines.join("; ");
+}
 const usageError = (message) => {
 	console.error(`Error: ${message}`);
 	console.error(USAGE);
 	process.exit(2);
 };
-const results = [];
-const record = (check, ok, detail) => {
-	results.push({
-		check,
-		ok,
-		detail
-	});
-};
-const argv = process.argv.slice(2);
-if (argv.includes("--help") || argv.includes("-h")) {
-	console.log(USAGE);
-	process.exit(0);
-}
-const numericOptions = /* @__PURE__ */ new Map([
-	["--name-max", {
-		set: (value) => limits.nameMax = value,
-		integer: true,
-		positive: true
-	}],
-	["--description-max", {
-		set: (value) => limits.descriptionMax = value,
-		integer: true,
-		positive: true
-	}],
-	["--compatibility-max", {
-		set: (value) => limits.compatibilityMax = value,
-		integer: true,
-		positive: true
-	}],
-	["--max-lines", {
-		set: (value) => limits.maxLines = value,
-		integer: true,
-		positive: true
-	}],
-	["--max-tokens", {
-		set: (value) => limits.maxTokens = value,
-		integer: true,
-		positive: true
-	}],
-	["--cjk-tokens-per-char", {
-		set: (value) => limits.cjkTokensPerChar = value,
-		integer: false,
-		positive: true
-	}],
-	["--other-tokens-per-char", {
-		set: (value) => limits.otherTokensPerChar = value,
-		integer: false,
-		positive: true
-	}]
-]);
-const readNumber = (name, raw, integer) => {
-	const value = Number(raw);
-	if (!raw || !Number.isFinite(value) || value <= 0) usageError(`${name} needs a positive number, got ${raw ?? "(missing)"}`);
-	if (integer && !Number.isInteger(value)) usageError(`${name} needs an integer, got ${raw}`);
-	return value;
-};
-const flags = /* @__PURE__ */ new Set();
-const positionals = [];
-for (let i = 0; i < argv.length; i += 1) {
-	const arg = argv[i];
-	if (arg === "--json" || arg === "--strict-budget") {
-		flags.add(arg);
-		continue;
+const relativeToCwd = (path) => relative(process.cwd(), path) || ".";
+/** The kind of the path itself: a symlink is a symlink, not its target. */
+function entryKind(path) {
+	try {
+		const stats = lstatSync(path);
+		if (stats.isSymbolicLink()) return "symlink";
+		if (stats.isDirectory()) return "directory";
+		if (stats.isFile()) return "file";
+		return "other";
+	} catch {
+		return "missing";
 	}
-	if (arg.startsWith("--")) {
-		const [name, inline] = arg.includes("=") ? [arg.slice(0, arg.indexOf("=")), arg.slice(arg.indexOf("=") + 1)] : [arg, void 0];
-		if (name === "--chars-per-token") {
-			const raw = inline ?? argv[i += 1];
-			const value = readNumber(name, raw, false);
-			if (value <= 1 || value > 10) usageError(`${name} needs a number greater than 1 and at most 10, got ${raw}`);
-			limits.otherTokensPerChar = 1 / value;
+}
+function isDirectory(path) {
+	return entryKind(path) === "directory";
+}
+function removeTree(path) {
+	rmSync(path, {
+		recursive: true,
+		force: true
+	});
+}
+/** The frontmatter values of a SKILL.md, or undefined when it has no parseable mapping. */
+function frontmatterValues(root) {
+	let text;
+	try {
+		text = readFileSync(join(root, "SKILL.md"), "utf8");
+	} catch {
+		return;
+	}
+	const lines = text.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n").split("\n");
+	if (lines[0] !== "---") return void 0;
+	const close = lines.indexOf("---", 1);
+	if (close < 0) return void 0;
+	const document = (0, import_dist.parseDocument)(lines.slice(1, close).join("\n"), { uniqueKeys: true });
+	if (document.errors.length > 0) return void 0;
+	const data = document.toJS();
+	if (data === null || typeof data !== "object" || Array.isArray(data)) return void 0;
+	return data;
+}
+function frontmatterString(root, key) {
+	const value = frontmatterValues(root)?.[key];
+	return typeof value === "string" ? value : void 0;
+}
+/** The short sha256 prefix a pair record stores for one source file. */
+function hashFile(path) {
+	return createHash("sha256").update(readFileSync(path)).digest("hex").slice(0, HASH_LENGTH);
+}
+function isInside(parent, child) {
+	const path = relative(parent, child);
+	return path === "" || !path.startsWith("..") && !path.startsWith(sep);
+}
+/** The name a skill directory declares in its SKILL.md frontmatter, if any. */
+function readSkillName(root) {
+	return frontmatterString(root, "name")?.trim();
+}
+function parse(argv) {
+	if (argv.length === 0) usageError("missing command");
+	if (argv.includes("--help") || argv.includes("-h")) {
+		console.log(USAGE);
+		process.exit(0);
+	}
+	const command = argv[0];
+	if (command !== "draft" && command !== "review" && command !== "publish") usageError(`unknown command: ${command}`);
+	let forge = resolve(process.cwd(), DEFAULT_FORGE);
+	let from;
+	let into;
+	let check = false;
+	let dryRun = false;
+	let json = false;
+	const positionals = [];
+	for (let index = 1; index < argv.length; index += 1) {
+		const arg = argv[index];
+		if (arg === "--dry-run") {
+			dryRun = true;
 			continue;
 		}
-		const option = numericOptions.get(name);
-		if (!option) usageError(`unknown option: ${name}`);
-		const raw = inline ?? argv[i += 1];
-		option.set(readNumber(name, raw, option.integer));
-		continue;
+		if (arg === "--json") {
+			json = true;
+			continue;
+		}
+		if (arg === "--check") {
+			check = true;
+			continue;
+		}
+		const take = (name) => {
+			if (arg === name) {
+				const value = argv[index + 1];
+				if (value === void 0 || value.startsWith("-")) usageError(`${name} needs a value`);
+				index += 1;
+				return value;
+			}
+			if (arg.startsWith(`${name}=`)) {
+				const value = arg.slice(name.length + 1);
+				if (value === "") usageError(`${name} needs a value`);
+				return value;
+			}
+		};
+		const forgeValue = take("--forge");
+		if (forgeValue !== void 0) {
+			forge = resolve(process.cwd(), forgeValue);
+			continue;
+		}
+		const fromValue = take("--from");
+		if (fromValue !== void 0) {
+			from = resolve(process.cwd(), fromValue);
+			continue;
+		}
+		const intoValue = take("--into");
+		if (intoValue !== void 0) {
+			into = resolve(process.cwd(), intoValue);
+			continue;
+		}
+		if (arg.startsWith("-")) usageError(`unknown option: ${arg}`);
+		positionals.push(arg);
 	}
-	if (arg.startsWith("-")) usageError(`unknown option: ${arg}`);
-	positionals.push(arg);
+	if (positionals.length !== 1) usageError(positionals.length === 0 ? "missing skill name" : `expected one skill name, got ${positionals.length}`);
+	const name = positionals[0];
+	if (!NAME.test(name)) usageError(`invalid skill name: ${name}`);
+	if (RESERVED.has(name)) usageError(`reserved skill name: ${name}`);
+	if (command === "draft" && (into !== void 0 || check)) usageError("draft takes --from, not --into or --check");
+	if (command === "review" && (from !== void 0 || into !== void 0)) usageError("review takes --check, not --from or --into");
+	if (command === "publish" && (from !== void 0 || check)) usageError("publish takes --into, not --from or --check");
+	if (command === "publish" && into === void 0) usageError("publish needs --into <skill-dir>");
+	return {
+		command,
+		name,
+		forge,
+		from,
+		into,
+		check,
+		dryRun,
+		json
+	};
 }
-if (positionals.length > 1) usageError(`expected one skill directory, got ${positionals.length}: ${positionals.join(", ")}`);
-const asJson = flags.has("--json");
-const strictBudget = flags.has("--strict-budget");
-const root = positionals[0] ? resolve(positionals[0]) : resolve(dirname(fileURLToPath(import.meta.url)), "..");
-if (!existsSync(root) || !statSync(root).isDirectory()) {
-	console.error(`Error: ${root} is not a directory`);
-	console.error(USAGE);
-	process.exit(2);
+function planDraft(options) {
+	const work = join(options.forge, options.name);
+	const workKind = entryKind(work);
+	if (workKind !== "missing") {
+		if (workKind !== "directory") throw new ForgeError(`the work path exists but is not a directory: ${relativeToCwd(work)}`);
+		if (options.from !== void 0) throw new ForgeError(`the work directory already exists at ${relativeToCwd(work)}; remove it before seeding from ${relativeToCwd(options.from)}`);
+		return [{
+			label: "draft",
+			detail: `already exists at ${relativeToCwd(work)}`,
+			run: () => {}
+		}];
+	}
+	if (options.from === void 0) return [{
+		label: "create",
+		detail: relativeToCwd(work),
+		run: () => mkdirSync(work, { recursive: true })
+	}];
+	const from = options.from;
+	if (entryKind(from) !== "directory") throw new ForgeError(`${relativeToCwd(from)} is not a directory`);
+	if (entryKind(join(from, "SKILL.md")) !== "file") throw new ForgeError(`${relativeToCwd(from)} has no SKILL.md`);
+	return [{
+		label: "create",
+		detail: `${relativeToCwd(work)} from ${relativeToCwd(from)}`,
+		run: () => {
+			mkdirSync(dirname(work), { recursive: true });
+			cpSync(from, work, { recursive: true });
+		}
+	}];
 }
-const skillFile = join(root, "SKILL.md");
-if (!existsSync(skillFile)) record("SKILL.md", false, "missing at the skill root");
-else if (!statSync(skillFile).isFile()) record("SKILL.md", false, "not a regular file");
-else {
-	const text = readFileSync(skillFile, "utf8");
-	const lines = text.split("\n");
-	const lineCount = text.endsWith("\n") ? lines.length - 1 : lines.length;
-	record("SKILL.md", true, `${lineCount} lines`);
-	const close = lines[0] === "---" ? lines.indexOf("---", 1) : -1;
-	if (close < 0) record("frontmatter", false, "no --- block at the top");
-	else {
-		const block = lines.slice(1, close).join("\n");
-		const doc = (0, import_dist.parseDocument)(block, { uniqueKeys: true });
-		if (doc.errors.length > 0) record("frontmatter", false, `YAML: ${doc.errors[0].message}`);
-		else {
-			let data;
-			let mapData;
-			try {
-				data = doc.toJS();
-				mapData = doc.toJS({ mapAsMap: true });
-			} catch (error) {
-				data = void 0;
-				mapData = void 0;
-				record("frontmatter", false, `YAML: ${error instanceof Error ? error.message : String(error)}`);
+function planReview(options) {
+	const work = join(options.forge, options.name);
+	if (entryKind(work) !== "directory") throw new ForgeError(`work directory not found: ${relativeToCwd(work)}; run draft first`);
+	const issues = pairIssues(work);
+	if (options.check) {
+		if (!issues.hasPairs) return [{
+			label: "check",
+			detail: "no translation pairs",
+			run: () => {}
+		}];
+		if (issues.missingTranslations.length || issues.missingRecords.length || issues.stale.length || issues.orphans.length || issues.multiple.length) throw new ForgeError(`translation pairs are out of date: ${pairIssueText(issues)}`);
+		return [{
+			label: "check",
+			detail: "translation pairs are up to date",
+			run: () => {}
+		}];
+	}
+	if (!issues.hasPairs) return [{
+		label: "review",
+		detail: "no translation pairs",
+		run: () => {}
+	}];
+	if (issues.missingTranslations.length) throw new ForgeError(`missing translations for: ${issues.missingTranslations.join(", ")}`);
+	if (issues.orphans.length) throw new ForgeError(`translations without a source: ${issues.orphans.join(", ")}`);
+	if (issues.multiple.length) throw new ForgeError(`more than one translation for: ${issues.multiple.join(", ")}; keep one language`);
+	const translations = new Map(translationPairs(work).map((pair) => [pair.source, pair]));
+	const actions = [];
+	for (const source of sourceFiles(work)) {
+		const pair = translations.get(source);
+		if (pair === void 0) throw new ForgeError(`missing translation for: ${source}`);
+		const record = recordPath(source);
+		const sourceSha = hashFile(join(work, source));
+		actions.push({
+			label: "record",
+			detail: `${record} (${pair.language}, source_sha ${sourceSha})`,
+			run: () => writeRecord(join(work, record), sourceSha)
+		});
+	}
+	return actions;
+}
+function planPublish(options) {
+	const work = join(options.forge, options.name);
+	const target = resolve(options.into);
+	if (entryKind(work) !== "directory") throw new ForgeError(`work directory not found: ${relativeToCwd(work)}; run draft first`);
+	if (entryKind(join(work, "SKILL.md")) !== "file") throw new ForgeError(`the work directory has no SKILL.md: ${relativeToCwd(work)}`);
+	const draftName = readSkillName(work);
+	if (draftName !== options.name) throw new ForgeError(`the work directory declares ${draftName ?? "no name"}, expected ${options.name}`);
+	if (basename(target) !== options.name) throw new ForgeError(`the landing directory is not ${options.name}: its name is ${basename(target)}`);
+	if (isInside(options.forge, target) || isInside(target, options.forge) || isInside(work, target) || isInside(target, work)) throw new ForgeError(`the landing directory must be outside the forge and work directories: ${relativeToCwd(target)}`);
+	return [
+		{
+			label: "prepare",
+			detail: relativeToCwd(dirname(target)),
+			run: () => mkdirSync(dirname(target), { recursive: true })
+		},
+		{
+			label: "pairs",
+			detail: "translation pairs in the work directory",
+			run: () => {
+				for (const pair of pairFiles(work)) rmSync(join(work, pair), { force: true });
 			}
-			if (data === void 0) {} else if (data === null || typeof data !== "object" || Array.isArray(data)) record("frontmatter", false, "YAML must be a mapping");
-			else {
-				const fields = data;
-				const keys = Object.keys(fields);
-				const unknown = keys.filter((key) => !REQUIRED.includes(key) && !OPTIONAL.includes(key));
-				record("frontmatter fields", unknown.length === 0, unknown.length ? `unknown: ${unknown.join(", ")}` : keys.join(", "));
-				const name = fields.name;
-				record("name", typeof name === "string" && name.length > 0 && name.length <= limits.nameMax && NAME.test(name) && name === basename(root), typeof name === "string" ? `${name} (dir: ${basename(root)})` : "(missing or not a string)");
-				const description = typeof fields.description === "string" ? [...fields.description] : [];
-				record("description", typeof fields.description === "string" && description.length > 0 && description.length <= limits.descriptionMax, `${description.length} characters`);
-				if (keys.includes("compatibility")) {
-					const compatibility = typeof fields.compatibility === "string" ? [...fields.compatibility] : [];
-					record("compatibility", typeof fields.compatibility === "string" && compatibility.length > 0 && compatibility.length <= limits.compatibilityMax, `${compatibility.length} characters`);
-				}
-				for (const key of ["license", "allowed-tools"]) {
-					if (!keys.includes(key)) continue;
-					const value = fields[key];
-					record(key, typeof value === "string" && value.length > 0 && (key !== "allowed-tools" || value.trim() === value && !/[\n\r\t]/.test(value) && !/ {2,}/.test(value)), typeof value === "string" ? `${value.length} characters` : "not a string");
-				}
-				if (keys.includes("metadata")) {
-					const metadata = mapData instanceof Map ? mapData.get("metadata") : void 0;
-					const entries = metadata instanceof Map ? [...metadata.entries()] : [];
-					const badKeys = entries.filter(([key]) => typeof key !== "string");
-					const badValues = entries.filter(([, value]) => typeof value !== "string");
-					record("metadata", metadata instanceof Map && badKeys.length === 0 && badValues.length === 0, badKeys.length ? `a key must be a string: ${badKeys.length} found` : badValues.length ? `a value must be a string: ${badValues.length} found` : `${entries.length} string entries`);
-				}
+		},
+		{
+			label: "copy",
+			detail: `${relativeToCwd(work)} → ${relativeToCwd(target)}`,
+			run: () => {
+				removeTree(target);
+				cpSync(work, target, { recursive: true });
 			}
+		},
+		{
+			label: "remove",
+			detail: `${relativeToCwd(work)} (work directory)`,
+			run: () => removeTree(work)
+		}
+	];
+}
+function execute(actions, dryRun) {
+	const results = [];
+	for (const action of actions) {
+		if (dryRun) {
+			results.push({
+				action: action.label,
+				ok: true,
+				would: true,
+				detail: action.detail
+			});
+			continue;
+		}
+		try {
+			action.run();
+			results.push({
+				action: action.label,
+				ok: true,
+				detail: action.detail
+			});
+		} catch (error) {
+			results.push({
+				action: action.label,
+				ok: false,
+				detail: error instanceof Error ? error.message : String(error)
+			});
+			return results;
 		}
 	}
-	const codeSpans = [...text.matchAll(/`([^`\n]+)`/g)].map((match) => match[1]);
-	const mentions = [...new Set(codeSpans.flatMap((span) => [...span.matchAll(SCRIPT)].map((match) => match[0])))];
-	record("script mentions", mentions.filter((path) => !existsSync(join(root, path))).length === 0, mentions.length ? mentions.join(", ") : "none mentioned");
-	const files = [skillFile];
-	const referencesDir = join(root, "references");
-	if (existsSync(referencesDir)) files.push(...markdownFiles(referencesDir));
-	const links = [];
-	const broken = [];
-	const escaped = [];
-	const deep = [];
-	for (const file of files) for (const match of readFileSync(file, "utf8").matchAll(LINK)) {
-		const target = match[1];
-		if (/^[a-z][a-z0-9+.-]*:|^#/.test(target)) continue;
-		links.push(target);
-		const resolved = resolve(dirname(file), target);
-		if (!resolved.startsWith(`${root}/`)) escaped.push(target);
-		else if (!existsSync(resolved)) broken.push(target);
-		else if (relative(root, resolved).split("/").length > 2) deep.push(target);
+	return results;
+}
+function report(results, options) {
+	if (options.json) console.log(JSON.stringify({
+		command: options.command,
+		dryRun: options.dryRun,
+		results
+	}, null, 2));
+	else {
+		for (const result of results) console.log(`${result.would ? "would" : result.ok ? "ok  " : "FAIL"} ${result.action} — ${result.detail}`);
+		const failed = results.filter((result) => !result.ok).length;
+		console.log(`${results.length} action(s), ${failed} failed${options.dryRun ? " (dry run)" : ""}`);
 	}
-	record("links stay inside", escaped.length === 0, escaped.length ? `escaping: ${escaped.join(", ")}` : `${links.length} relative link(s)`);
-	record("links resolve", broken.length === 0, broken.length ? `missing: ${broken.join(", ")}` : "all resolve");
-	record("link depth", deep.length === 0, deep.length ? `deeper than one level: ${deep.join(", ")}` : "nothing deeper than one level");
-	const referenceFiles = existsSync(referencesDir) ? markdownFiles(referencesDir) : [];
-	const unnamed = referenceFiles.map((file) => relative(root, file)).filter((path) => !text.includes(path));
-	record("reference mentions", unnamed.length === 0, referenceFiles.length === 0 ? "none shipped" : unnamed.length ? `not named in SKILL.md: ${unnamed.join(", ")}` : `${referenceFiles.length} reference(s) named`);
-	const characters = [...text];
-	const ideograph = /[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/;
-	const cjkOther = /[\u3000-\u303f\uff00-\uffef]/;
-	let ideographs = 0;
-	let cjkOthers = 0;
-	let others = 0;
-	for (const char of characters) if (ideograph.test(char)) ideographs += 1;
-	else if (cjkOther.test(char)) cjkOthers += 1;
-	else others += 1;
-	const estimate = Math.ceil((ideographs + cjkOthers) * limits.cjkTokensPerChar + others * limits.otherTokensPerChar);
-	const withinBudget = lineCount < limits.maxLines && estimate <= limits.maxTokens;
-	const budgetDetail = withinBudget ? `${lineCount} lines, ~${estimate} tokens at ${limits.cjkTokensPerChar} CJK / ${limits.otherTokensPerChar.toFixed(3)} other tokens/char (limit: under ${limits.maxLines} lines and ${limits.maxTokens} tokens)` : `OVER the limit — ${lineCount} lines, ~${estimate} tokens at ${limits.cjkTokensPerChar} CJK / ${limits.otherTokensPerChar.toFixed(3)} other tokens/char (limit: under ${limits.maxLines} lines and ${limits.maxTokens} tokens); route content out, then rerun with --strict-budget`;
-	record("budget", !strictBudget || withinBudget, budgetDetail);
+	process.exit(results.every((result) => result.ok) ? 0 : 1);
 }
-if (asJson) console.log(JSON.stringify({
-	root: relative(process.cwd(), root),
-	results
-}, null, 2));
-else {
-	for (const item of results) console.log(`${item.ok ? "ok  " : "FAIL"} ${item.check} — ${item.detail}`);
-	const failed = results.filter((item) => !item.ok).length;
-	console.log(`${results.length} check(s), ${failed} failed`);
-}
-process.exit(results.some((item) => !item.ok) ? 1 : 0);
-function markdownFiles(dir) {
-	const out = [];
-	for (const entry of readdirSync(dir, { withFileTypes: true })) {
-		const path = join(dir, entry.name);
-		if (entry.isDirectory()) out.push(...markdownFiles(path));
-		else if (entry.name.endsWith(".md")) out.push(path);
+function main() {
+	const options = parse(process.argv.slice(2));
+	try {
+		return report(execute(options.command === "draft" ? planDraft(options) : options.command === "review" ? planReview(options) : planPublish(options), options.dryRun), options);
+	} catch (error) {
+		if (error instanceof ForgeError) {
+			console.error(`Error: ${error.message}`);
+			process.exit(1);
+		}
+		throw error;
 	}
-	return out;
 }
-//#endregion
+main();
 export {};

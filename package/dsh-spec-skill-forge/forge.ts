@@ -1,88 +1,69 @@
 #!/usr/bin/env node
-// Source for scripts/forge.mjs — the work-draft, review-draft and landing lifecycle.
+// Source for scripts/forge.mjs — the work-directory, translation-pair and publish lifecycle.
 //
 // dependencies   none; node: builtins only
 // runtime        Node.js 22.19+ or 24+
-// input          a command, a skill name, the forge directory and, for landing, a landing directory
+// input          a command, a skill name, the forge directory and, for publishing, a landing directory
 // output         one line per action on stdout, or a JSON summary with --json
 // exit           0 every action succeeded · 1 an action or precondition failed · 2 usage error
 
-import {
-  cpSync,
-  existsSync,
-  mkdirSync,
-  readFileSync,
-  readlinkSync,
-  readdirSync,
-  renameSync,
-  rmSync,
-  rmdirSync,
-  statSync,
-  writeFileSync,
-} from 'node:fs'
+import { cpSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { basename, dirname, join, relative, resolve, sep } from 'node:path'
+import { parseDocument } from 'yaml'
 
 const DEFAULT_FORGE = '.agents/dsh-spec-skill-forge'
 const HASH_LENGTH = 12
-const STAMP_KEY = 'forge-review'
-const STAMP_VALUE = /^source=(\S+) source_sha=([0-9a-f]+) stale=(true|false)$/
-const SHARED_DIRS = ['scripts', 'script', 'assets'] as const
-const PROJECTION_SKIP = new Set<string>(SHARED_DIRS)
-const PLACEHOLDER =
-  '<!-- Translate the work draft source; keep concepts and names aligned, introduce no new concept, do not transcribe word for word. -->'
+const RESERVED = new Set(['record'])
 
 const USAGE = `usage: forge.mjs <command> [options]
 
-Create, review and land the skill drafts the forging skill keeps in its forge directory.
+Forge a skill in one work directory, keep its translation pairs and publish a plain copy.
 
 commands:
-  draft  <name> [--from <skill-dir>]   create the work draft, optionally seeded from a skill directory
-  review <name> [--copy|--accept|--remove]  project the work draft, accept the projection, or remove it
-  land   <name> --into <skill-dir> [--allow-stale]  copy the work draft to the landing directory, then remove both drafts
+  draft   <name> [--from <skill-dir>]  create the work directory, optionally seeded from a skill
+  review  <name> [--check]             record translation pairs, or list the pairs to translate again
+  publish <name> --into <skill-dir>    copy the work directory to the landing directory and remove the draft
 
 options:
   --forge <dir>   forge directory (default: ${DEFAULT_FORGE})
-  --from <dir>    skill directory copied into a new work draft (draft only)
-  --into <dir>    landing directory (land only)
-  --copy          write the review projection as a straight copy of the work draft (review only)
-  --accept        clear stale and refresh the source hashes (review only)
-  --remove        remove the review draft (review only)
-  --allow-stale   land a projection that is stale or whose source hash differs (land only)
+  --from <dir>    skill directory copied into a new work directory (draft only)
+  --into <dir>    landing directory (publish only)
+  --check         list out-of-date or missing translation pairs instead of writing records (review only)
   --dry-run       print the actions and change nothing
   --json          print a JSON summary instead of lines
   --help, -h      print this and exit 0
 
-The work draft is the authority. The review draft is its projection: every .md carries the
-provenance in its frontmatter metadata map under the forge-review key —
-source=<path> source_sha=<hash> stale=<true|false> — so the review file stays a parseable
-Markdown document; scripts/ and assets/ are copied byte-for-byte with no stamp. review
-scaffolds missing files, marks changed sources stale, prints the files to translate and the
-files waiting for accept; review --accept clears stale after translation; review --copy writes
-a straight same-language copy. land refuses a missing, stale or mismatched projection unless
---allow-stale is given.
+The work directory is ${DEFAULT_FORGE}/<name>; it is the authority. A translation pair is a
+translation beside its source plus a record: <source-basename>.<lang>.md and
+<source-basename>.i18n.yaml; SKILL.md pairs with SKILL.<lang>.md and SKILL.i18n.yaml. Only .md
+files are paired; scripts and assets are not translated. review records the source hash in each
+pair's record after the translation is written; review --check compares the recorded hash with the
+source and lists the pairs to translate again, plus pairs whose translation or record is missing.
+The pairs live in the work directory beside their sources.
 
-The landing directory becomes an exact copy of the work draft. Landing requires SKILL.md in the
-work draft; an existing landing directory must be empty or hold this skill's SKILL.md under the
-skill's name. Landing removes only draft/<name>/ and review/<name>/; the shared draft/ and
-review/ directories stay.
+publish removes the translation pairs from the work directory, copies the work directory to the
+landing directory, and then removes the work directory. An existing landing directory is replaced; the acceptance and the
+VCS are the authorization and rollback. The gate and review --check are separate read-only checks;
+publish does not run them. Publishing requires SKILL.md; the work directory's SKILL.md name and
+the landing directory name must match the skill name. record is reserved for the record directory.
 
-exit: 0 every action succeeded · 1 an action or precondition failed · 2 usage error`
+exit: 0 every action succeeded · 1 an action or precondition failed · 2 usage error
+
+With --json, the summary is printed after the run; usage and precondition failures print an error
+to stderr.`
 
 const NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 
 class ForgeError extends Error {}
 
 interface Options {
-  command: 'draft' | 'review' | 'land'
+  command: 'draft' | 'review' | 'publish'
   name: string
   forge: string
   from?: string
   into?: string
-  copy: boolean
-  accept: boolean
-  remove: boolean
-  allowStale: boolean
+  check: boolean
   dryRun: boolean
   json: boolean
 }
@@ -91,12 +72,159 @@ interface Action {
   readonly label: string
   readonly detail: string
   readonly run: () => void
+  readonly readOnly?: boolean
 }
 
 interface Result {
   readonly action: string
   readonly ok: boolean
   readonly detail: string
+  readonly would?: boolean
+}
+
+interface PairRecord {
+  readonly sourceSha?: string
+}
+
+interface PairIssues {
+  readonly hasPairs: boolean
+  readonly missingTranslations: string[]
+  readonly missingRecords: string[]
+  readonly stale: string[]
+  readonly orphans: string[]
+  readonly multiple: string[]
+}
+
+const TRANSLATION = /^(.*)\.([A-Za-z]{2,3}(?:-[A-Za-z0-9]{1,8})*)\.md$/
+
+function isPairFile(name: string): boolean {
+  return name.endsWith('.i18n.yaml') || TRANSLATION.test(name)
+}
+
+function translationOf(path: string): { source: string; language: string } | undefined {
+  const match = TRANSLATION.exec(path)
+  if (match?.[1] === undefined || match[2] === undefined) return undefined
+  return { source: `${match[1]}.md`, language: match[2] }
+}
+
+/** Every authored Markdown file, excluding translation pairs. */
+function sourceFiles(root: string): string[] {
+  const files: string[] = []
+  const walk = (dir: string, prefix: string): void => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const name = prefix ? `${prefix}/${entry.name}` : entry.name
+      if (entry.isDirectory()) walk(join(dir, entry.name), name)
+      else if (entry.isFile() && entry.name.endsWith('.md') && !TRANSLATION.test(entry.name)) files.push(name)
+    }
+  }
+  if (!isDirectory(root)) return files
+  walk(root, '')
+  return files.sort()
+}
+
+/** Every translated file and every pair record in the work directory. */
+function pairFiles(root: string): string[] {
+  const files: string[] = []
+  const walk = (dir: string, prefix: string): void => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const name = prefix ? `${prefix}/${entry.name}` : entry.name
+      if (entry.isDirectory()) walk(join(dir, entry.name), name)
+      else if (entry.isFile() && isPairFile(entry.name)) files.push(name)
+    }
+  }
+  if (!isDirectory(root)) return files
+  walk(root, '')
+  return files.sort()
+}
+
+function recordPath(source: string): string {
+  return source.replace(/\.md$/, '.i18n.yaml')
+}
+
+function recordSource(path: string): string {
+  return path.replace(/\.i18n\.yaml$/, '.md')
+}
+
+function readRecord(path: string): PairRecord {
+  let text: string
+  try {
+    text = readFileSync(path, 'utf8')
+  } catch {
+    return {}
+  }
+  for (const line of text.split(/\r?\n/)) {
+    const match = /^source_sha:\s*(\S+)\s*$/.exec(line)
+    if (match?.[1] !== undefined) return { sourceSha: match[1] }
+  }
+  return {}
+}
+
+function writeRecord(path: string, sourceSha: string): void {
+  writeFileSync(path, `source_sha: ${sourceSha}\n`)
+}
+
+/** Every translation pair, keyed by its source path. */
+function translationPairs(root: string): { source: string; language: string; translation: string }[] {
+  const pairs: { source: string; language: string; translation: string }[] = []
+  for (const path of pairFiles(root)) {
+    const info = translationOf(path)
+    if (info !== undefined) pairs.push({ ...info, translation: path })
+  }
+  return pairs
+}
+
+/** The translation pairs that are missing, out of date, or orphaned. */
+function pairIssues(root: string): PairIssues {
+  const sources = sourceFiles(root)
+  const translations = translationPairs(root)
+  const records = pairFiles(root).filter((path) => path.endsWith('.i18n.yaml'))
+  const hasPairs = translations.length > 0 || records.length > 0
+  const missingTranslations: string[] = []
+  const missingRecords: string[] = []
+  const stale: string[] = []
+  const orphans: string[] = []
+  const multiple: string[] = []
+  if (!hasPairs) return { hasPairs, missingTranslations, missingRecords, stale, orphans, multiple }
+  const bySource = new Map<string, { language: string; translation: string }[]>()
+  for (const pair of translations) {
+    const list = bySource.get(pair.source) ?? []
+    list.push({ language: pair.language, translation: pair.translation })
+    bySource.set(pair.source, list)
+  }
+  for (const source of sources) {
+    const pairs = (bySource.get(source) ?? []).sort((left, right) => left.translation.localeCompare(right.translation))
+    if (pairs.length === 0) {
+      missingTranslations.push(source)
+      continue
+    }
+    if (pairs.length > 1) multiple.push(source)
+    const pair = pairs[0] as { language: string; translation: string }
+    const record = recordPath(source)
+    if (!existsSync(join(root, record))) {
+      missingRecords.push(source)
+      continue
+    }
+    const value = readRecord(join(root, record))
+    if (value.sourceSha !== hashFile(join(root, source))) stale.push(source)
+  }
+  for (const pair of translations) {
+    if (!sources.includes(pair.source)) orphans.push(pair.translation)
+  }
+  for (const record of records) {
+    if (!sources.includes(recordSource(record))) orphans.push(record)
+  }
+  return { hasPairs, missingTranslations, missingRecords, stale, orphans, multiple }
+}
+
+function pairIssueText(issues: PairIssues): string {
+  const lines: string[] = []
+  if (issues.missingTranslations.length)
+    lines.push(`missing translations for: ${issues.missingTranslations.join(', ')}`)
+  if (issues.missingRecords.length) lines.push(`missing records for: ${issues.missingRecords.join(', ')}`)
+  if (issues.stale.length) lines.push(`out of date: ${issues.stale.join(', ')}`)
+  if (issues.orphans.length) lines.push(`without a source: ${issues.orphans.join(', ')}`)
+  if (issues.multiple.length) lines.push(`more than one translation for: ${issues.multiple.join(', ')}`)
+  return lines.join('; ')
 }
 
 const usageError = (message: string): never => {
@@ -107,212 +235,109 @@ const usageError = (message: string): never => {
 
 const relativeToCwd = (path: string): string => relative(process.cwd(), path) || '.'
 
-const isDirectory = (path: string): boolean => {
+type EntryKind = 'missing' | 'file' | 'directory' | 'symlink' | 'other'
+
+/** The kind of the path itself: a symlink is a symlink, not its target. */
+function entryKind(path: string): EntryKind {
   try {
-    return statSync(path).isDirectory()
+    const stats = lstatSync(path)
+    if (stats.isSymbolicLink()) return 'symlink'
+    if (stats.isDirectory()) return 'directory'
+    if (stats.isFile()) return 'file'
+    return 'other'
   } catch {
-    return false
+    return 'missing'
   }
 }
 
-const removeTree = (path: string): void => {
+function isDirectory(path: string): boolean {
+  return entryKind(path) === 'directory'
+}
+
+function removeTree(path: string): void {
   rmSync(path, { recursive: true, force: true })
 }
 
-/** The `name` a skill directory declares in its SKILL.md frontmatter, if any. */
-function readSkillName(root: string): string | undefined {
+/** The frontmatter values of a SKILL.md, or undefined when it has no parseable mapping. */
+function frontmatterValues(root: string): Record<string, unknown> | undefined {
   let text: string
   try {
     text = readFileSync(join(root, 'SKILL.md'), 'utf8')
   } catch {
     return undefined
   }
-  const lines = text.split(/\r?\n/)
+  const lines = text
+    .replace(/^\uFEFF/, '')
+    .replace(/\r\n/g, '\n')
+    .split('\n')
   if (lines[0] !== '---') return undefined
-  for (const line of lines.slice(1)) {
-    if (line === '---') break
-    const match = /^name:\s*(.+)$/.exec(line)
-    if (!match) continue
-    const value = match[1]
-      .replace(/\s+#.*$/, '')
-      .trim()
-      .replace(/^['"]|['"]$/g, '')
-    if (value.length > 0) return value
-  }
-  return undefined
+  const close = lines.indexOf('---', 1)
+  if (close < 0) return undefined
+  const document = parseDocument(lines.slice(1, close).join('\n'), { uniqueKeys: true })
+  if (document.errors.length > 0) return undefined
+  const data: unknown = document.toJS()
+  if (data === null || typeof data !== 'object' || Array.isArray(data)) return undefined
+  return data as Record<string, unknown>
 }
 
-/** Hash every file under `root`, keyed by its relative path. */
+function frontmatterString(root: string, key: string): string | undefined {
+  const value = frontmatterValues(root)?.[key]
+  return typeof value === 'string' ? value : undefined
+}
+
+/** The short sha256 prefix a pair record stores for one source file. */
+function hashFile(path: string): string {
+  return createHash('sha256').update(readFileSync(path)).digest('hex').slice(0, HASH_LENGTH)
+}
+
+/** Every file under a directory with its content hash, or an empty map when it is not a directory. */
 function hashTree(root: string): Map<string, string> {
   const files = new Map<string, string>()
-  if (!isDirectory(root)) return files
+  if (entryKind(root) !== 'directory') return files
   const walk = (dir: string, prefix: string): void => {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
-      const path = join(dir, entry.name)
       const name = prefix ? `${prefix}/${entry.name}` : entry.name
-      if (entry.isDirectory()) walk(path, name)
-      else if (entry.isFile()) files.set(name, createHash('sha256').update(readFileSync(path)).digest('hex'))
-      else if (entry.isSymbolicLink()) files.set(name, `link:${readlinkSync(path)}`)
+      if (entry.isSymbolicLink())
+        throw new ForgeError(`a symlink is not accepted: ${relativeToCwd(join(dir, entry.name))}`)
+      else if (entry.isDirectory()) walk(join(dir, entry.name), name)
+      else if (entry.isFile()) files.set(name, hashFile(join(dir, entry.name)))
+      else throw new ForgeError(`a non-regular entry is not accepted: ${relativeToCwd(join(dir, entry.name))}`)
     }
   }
   walk(root, '')
   return files
 }
 
-/** Whether one path is the same as, or inside, another. */
 function isInside(parent: string, child: string): boolean {
   const path = relative(parent, child)
   return path === '' || (!path.startsWith('..') && !path.startsWith(sep))
 }
 
-function treesEqual(left: string, right: string): boolean {
-  const expected = hashTree(left)
-  const actual = hashTree(right)
-  if (expected.size !== actual.size) return false
-  for (const [path, hash] of expected) {
-    if (actual.get(path) !== hash) return false
-  }
-  return true
+/** The name a skill directory declares in its SKILL.md frontmatter, if any. */
+function readSkillName(root: string): string | undefined {
+  return frontmatterString(root, 'name')?.trim()
 }
 
-/** The short sha256 prefix a review stamp records for one work draft file. */
-function hashFile(path: string): string {
-  return createHash('sha256').update(readFileSync(path)).digest('hex').slice(0, HASH_LENGTH)
-}
-
-function stampValue(source: string, sourceSha: string, stale: boolean): string {
-  return `source=${source} source_sha=${sourceSha} stale=${stale}`
-}
-
-interface Stamp {
-  readonly source: string
-  readonly sourceSha: string
-  readonly stale: boolean
-}
-
-/** Split a Markdown document into its YAML frontmatter block and the body after it. */
-function splitFrontmatter(text: string): { block?: string; body: string } {
-  const lines = text
-    .replace(/^\uFEFF/, '')
-    .replace(/\r\n/g, '\n')
-    .split('\n')
-  if (lines[0] !== '---') return { body: text.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n') }
-  const close = lines.indexOf('---', 1)
-  if (close < 0) return { body: text.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n') }
-  return { block: lines.slice(1, close).join('\n'), body: lines.slice(close + 1).join('\n') }
-}
-
-/** Read a review file's forge-review metadata entry, or undefined when it carries none. */
-function readStamp(path: string): Stamp | undefined {
-  let text: string
-  try {
-    text = readFileSync(path, 'utf8')
-  } catch {
-    return undefined
-  }
-  const { block } = splitFrontmatter(text)
-  if (block === undefined) return undefined
-  const line = block.split('\n').find((entry) => /^\s+forge-review:/.test(entry))
-  if (line === undefined) return undefined
-  const raw = line.replace(/^\s+forge-review:\s*/, '').trim()
-  const value = raw.replace(/^['"]|['"]$/g, '')
-  const match = STAMP_VALUE.exec(value)
-  if (!match) return undefined
-  return { source: match[1], sourceSha: match[2], stale: match[3] === 'true' }
-}
-
-/**
- * Write the forge-review entry into the frontmatter metadata block. The entry replaces an
- * existing one or is inserted under `metadata:`; the frontmatter is created when absent.
- */
-function writeStamp(path: string, source: string, sourceSha: string, stale: boolean): void {
-  const { block, body } = splitFrontmatter(readFileSync(path, 'utf8'))
-  const lines = block === undefined ? [] : block.split('\n')
-  const entry = `  ${STAMP_KEY}: ${JSON.stringify(stampValue(source, sourceSha, stale))}`
-  if (lines.some((line) => /^metadata:\s*[{[]/.test(line)))
-    throw new ForgeError(`review frontmatter metadata must be block style for the forge-review stamp: ${path}`)
-  const metadataAt = lines.findIndex((line) => /^metadata:\s*$/.test(line))
-  if (metadataAt >= 0) {
-    let end = metadataAt + 1
-    while (end < lines.length && (lines[end].trim() === '' || /^\s+\S/.test(lines[end]))) end += 1
-    const existing = lines.findIndex(
-      (line, index) => index > metadataAt && index < end && /^\s+forge-review:/.test(line),
-    )
-    if (existing >= 0) lines[existing] = entry
-    else lines.splice(metadataAt + 1, 0, entry)
-  } else {
-    lines.push('metadata:', entry)
-  }
-  writeFileSync(path, `---\n${lines.join('\n')}\n---\n${body}`)
-}
-
-/** The work draft's authored markdown, the files the review projection covers. */
-function projectionFiles(root: string): string[] {
-  const files: string[] = []
-  if (!isDirectory(root)) return files
-  const walk = (dir: string, prefix: string): void => {
-    for (const entry of readdirSync(dir, { withFileTypes: true })) {
-      const name = prefix ? `${prefix}/${entry.name}` : entry.name
-      if (entry.isDirectory()) {
-        if (prefix === '' && PROJECTION_SKIP.has(entry.name)) continue
-        walk(join(dir, entry.name), name)
-      } else if (entry.isFile() && entry.name.endsWith('.md')) {
-        files.push(name)
-      }
-    }
-  }
-  walk(root, '')
-  return files.sort()
-}
-
-/** Every review file whose stamp names a source, plus the source's current hash. */
-function assertProjection(draft: string, review: string, allowStale: boolean): void {
-  const sources = projectionFiles(draft)
-  const reviewed = projectionFiles(review)
-  for (const source of sources) {
-    const target = join(review, source)
-    if (!existsSync(target)) throw new ForgeError(`review projection is missing ${source}; run review`)
-    const stamp = readStamp(target)
-    if (stamp === undefined) throw new ForgeError(`review file has no forge-review stamp: ${source}`)
-    if (stamp.source !== source) throw new ForgeError(`review stamp names ${stamp.source}, expected ${source}`)
-    if (allowStale) continue
-    if (stamp.stale) throw new ForgeError(`review projection is stale: ${source}`)
-    const current = hashFile(join(draft, source))
-    if (stamp.sourceSha !== current) throw new ForgeError(`review source hash differs: ${source}`)
-  }
-  for (const source of reviewed) {
-    if (!sources.includes(source)) throw new ForgeError(`review file has no source in the work draft: ${source}`)
-  }
-}
-
-function assertTreesEqual(expected: string, actual: string, label: string): void {
-  const left = hashTree(expected)
-  const right = hashTree(actual)
-  const missing = [...left.keys()].filter((path) => !right.has(path))
-  const extra = [...right.keys()].filter((path) => !left.has(path))
-  const changed = [...left.keys()].filter((path) => right.has(path) && left.get(path) !== right.get(path))
-  if (missing.length === 0 && extra.length === 0 && changed.length === 0) return
-  const detail = [
-    ...missing.map((path) => `missing ${path}`),
-    ...extra.map((path) => `extra ${path}`),
-    ...changed.map((path) => `changed ${path}`),
-  ]
-  throw new ForgeError(`${label} does not match: ${detail.slice(0, 3).join(', ')}`)
+/** The description a skill directory declares in its SKILL.md frontmatter, if any. */
+function readSkillDescription(root: string): string | undefined {
+  return frontmatterString(root, 'description')?.trim()
 }
 
 /** Replace one directory with the staged one, keeping the previous directory until the swap ends. */
 function swapDir(stage: string, target: string, backup: string): void {
+  const targetKind = entryKind(target)
+  if (targetKind === 'symlink') throw new ForgeError(`the landing path is a symlink: ${relativeToCwd(target)}`)
+  if (targetKind !== 'missing' && targetKind !== 'directory')
+    throw new ForgeError(`the landing path is not a directory: ${relativeToCwd(target)}`)
   removeTree(backup)
-  if (existsSync(target)) renameSync(target, backup)
+  if (targetKind === 'directory') renameSync(target, backup)
   try {
     renameSync(stage, target)
   } catch (error) {
-    if (existsSync(backup)) renameSync(backup, target)
+    if (entryKind(backup) === 'directory') renameSync(backup, target)
     throw error
   }
-  removeTree(backup)
 }
-
 function parse(argv: string[]): Options {
   if (argv.length === 0) usageError('missing command')
   if (argv.includes('--help') || argv.includes('-h')) {
@@ -320,15 +345,12 @@ function parse(argv: string[]): Options {
     process.exit(0)
   }
   const command = argv[0]
-  if (command !== 'draft' && command !== 'review' && command !== 'land') usageError(`unknown command: ${command}`)
+  if (command !== 'draft' && command !== 'review' && command !== 'publish') usageError(`unknown command: ${command}`)
 
   let forge = resolve(process.cwd(), DEFAULT_FORGE)
   let from: string | undefined
   let into: string | undefined
-  let copy = false
-  let accept = false
-  let remove = false
-  let allowStale = false
+  let check = false
   let dryRun = false
   let json = false
   const positionals: string[] = []
@@ -343,20 +365,8 @@ function parse(argv: string[]): Options {
       json = true
       continue
     }
-    if (arg === '--copy') {
-      copy = true
-      continue
-    }
-    if (arg === '--accept') {
-      accept = true
-      continue
-    }
-    if (arg === '--remove') {
-      remove = true
-      continue
-    }
-    if (arg === '--allow-stale') {
-      allowStale = true
+    if (arg === '--check') {
+      check = true
       continue
     }
     const take = (name: string): string | undefined => {
@@ -366,7 +376,11 @@ function parse(argv: string[]): Options {
         index += 1
         return value
       }
-      if (arg.startsWith(`${name}=`)) return arg.slice(name.length + 1)
+      if (arg.startsWith(`${name}=`)) {
+        const value = arg.slice(name.length + 1)
+        if (value === '') usageError(`${name} needs a value`)
+        return value
+      }
       return undefined
     }
     const forgeValue = take('--forge')
@@ -392,334 +406,187 @@ function parse(argv: string[]): Options {
     usageError(positionals.length === 0 ? 'missing skill name' : `expected one skill name, got ${positionals.length}`)
   const name = positionals[0]
   if (!NAME.test(name)) usageError(`invalid skill name: ${name}`)
-  if (command === 'draft' && (into !== undefined || copy || accept || remove || allowStale))
-    usageError('draft takes --from, not a review or landing option')
-  if (command === 'review') {
-    if (from !== undefined || into !== undefined || allowStale)
-      usageError('review takes --copy, --accept or --remove, not --from, --into or --allow-stale')
-    if ([copy, accept, remove].filter(Boolean).length > 1)
-      usageError('review takes at most one of --copy, --accept and --remove')
-  }
-  if (command === 'land' && (from !== undefined || copy || accept || remove))
-    usageError('land takes --into and --allow-stale, not --from, --copy, --accept or --remove')
-  if (command === 'land' && into === undefined) usageError('land needs --into <skill-dir>')
-  return { command, name, forge, from, into, copy, accept, remove, allowStale, dryRun, json }
+  if (RESERVED.has(name)) usageError(`reserved skill name: ${name}`)
+  if (command === 'draft' && (into !== undefined || check)) usageError('draft takes --from, not --into or --check')
+  if (command === 'review' && (from !== undefined || into !== undefined))
+    usageError('review takes --check, not --from or --into')
+  if (command === 'publish' && (from !== undefined || check)) usageError('publish takes --into, not --from or --check')
+  if (command === 'publish' && into === undefined) usageError('publish needs --into <skill-dir>')
+  return { command, name, forge, from, into, check, dryRun, json }
 }
 
 function planDraft(options: Options): Action[] {
-  const draft = join(options.forge, 'draft', options.name)
-  if (existsSync(draft)) {
-    if (options.from !== undefined) {
+  const work = join(options.forge, options.name)
+  const workKind = entryKind(work)
+  if (workKind !== 'missing') {
+    if (workKind !== 'directory')
+      throw new ForgeError(`the work path exists but is not a directory: ${relativeToCwd(work)}`)
+    if (options.from !== undefined)
       throw new ForgeError(
-        `the work draft already exists at ${relativeToCwd(draft)}; remove it before seeding from ${relativeToCwd(options.from)}`,
+        `the work directory already exists at ${relativeToCwd(work)}; remove it before seeding from ${relativeToCwd(options.from)}`,
       )
-    }
-    return [{ label: 'draft', detail: `already exists at ${relativeToCwd(draft)}`, run: () => {} }]
+    return [{ label: 'draft', detail: `already exists at ${relativeToCwd(work)}`, run: () => {} }]
   }
-  if (options.from === undefined) {
-    return [{ label: 'create', detail: relativeToCwd(draft), run: () => mkdirSync(draft, { recursive: true }) }]
-  }
+  if (options.from === undefined)
+    return [{ label: 'create', detail: relativeToCwd(work), run: () => mkdirSync(work, { recursive: true }) }]
   const from = options.from
-  if (!isDirectory(from)) throw new ForgeError(`${relativeToCwd(from)} is not a directory`)
-  const files = hashTree(from).size
+  if (entryKind(from) !== 'directory') throw new ForgeError(`${relativeToCwd(from)} is not a directory`)
+  if (entryKind(join(from, 'SKILL.md')) !== 'file') throw new ForgeError(`${relativeToCwd(from)} has no SKILL.md`)
   return [
     {
       label: 'create',
-      detail: `${relativeToCwd(draft)} from ${relativeToCwd(from)} (${files} file(s))`,
+      detail: `${relativeToCwd(work)} from ${relativeToCwd(from)}`,
       run: () => {
-        removeTree(draft)
-        mkdirSync(dirname(draft), { recursive: true })
-        cpSync(from, draft, { recursive: true })
+        mkdirSync(dirname(work), { recursive: true })
+        cpSync(from, work, { recursive: true })
       },
-    },
-    {
-      label: 'verify',
-      detail: `matches ${relativeToCwd(from)}`,
-      run: () => assertTreesEqual(from, draft, 'work draft'),
     },
   ]
 }
 
 function planReview(options: Options): Action[] {
-  const draft = join(options.forge, 'draft', options.name)
-  const review = join(options.forge, 'review', options.name)
-  if (!isDirectory(draft)) throw new ForgeError(`work draft not found: ${relativeToCwd(draft)}`)
+  const work = join(options.forge, options.name)
+  if (entryKind(work) !== 'directory')
+    throw new ForgeError(`work directory not found: ${relativeToCwd(work)}; run draft first`)
+  const issues = pairIssues(work)
 
-  if (options.remove) {
-    if (!existsSync(review))
-      return [{ label: 'review', detail: `no review draft at ${relativeToCwd(review)}`, run: () => {} }]
-    return [
-      { label: 'remove', detail: relativeToCwd(review), run: () => removeTree(review) },
-      {
-        label: 'verify',
-        detail: 'the review draft is gone',
-        run: () => {
-          if (existsSync(review)) throw new ForgeError(`review draft still exists: ${relativeToCwd(review)}`)
-        },
-      },
-    ]
+  if (options.check) {
+    if (!issues.hasPairs) return [{ label: 'check', detail: 'no translation pairs', run: () => {} }]
+    if (
+      issues.missingTranslations.length ||
+      issues.missingRecords.length ||
+      issues.stale.length ||
+      issues.orphans.length ||
+      issues.multiple.length
+    )
+      throw new ForgeError(`translation pairs are out of date: ${pairIssueText(issues)}`)
+    return [{ label: 'check', detail: 'translation pairs are up to date', run: () => {} }]
   }
 
-  const sources = projectionFiles(draft)
+  if (!issues.hasPairs) return [{ label: 'review', detail: 'no translation pairs', run: () => {} }]
+  if (issues.missingTranslations.length)
+    throw new ForgeError(`missing translations for: ${issues.missingTranslations.join(', ')}`)
+  if (issues.orphans.length) throw new ForgeError(`translations without a source: ${issues.orphans.join(', ')}`)
+  if (issues.multiple.length)
+    throw new ForgeError(`more than one translation for: ${issues.multiple.join(', ')}; keep one language`)
 
-  if (options.accept) {
-    if (!existsSync(review)) throw new ForgeError(`review draft not found: ${relativeToCwd(review)}; run review first`)
-    const accepted: string[] = []
-    for (const source of sources) {
-      const target = join(review, source)
-      if (!existsSync(target)) throw new ForgeError(`review projection is missing ${source}; run review`)
-      const stamp = readStamp(target)
-      if (stamp === undefined) throw new ForgeError(`review file has no forge-review stamp: ${source}`)
-      if (stamp.source !== source) throw new ForgeError(`review stamp names ${stamp.source}, expected ${source}`)
-      accepted.push(source)
-    }
-    for (const source of projectionFiles(review)) {
-      if (!sources.includes(source)) throw new ForgeError(`review file has no source in the work draft: ${source}`)
-    }
-    return [
-      {
-        label: 'accept',
-        detail: accepted.length ? accepted.join(', ') : 'nothing to accept',
-        run: () => {
-          for (const source of accepted) writeStamp(join(review, source), source, hashFile(join(draft, source)), false)
-        },
-      },
-      {
-        label: 'verify',
-        detail: 'the review projection matches the work draft',
-        run: () => assertProjection(draft, review, false),
-      },
-    ]
-  }
-
+  const translations = new Map(translationPairs(work).map((pair) => [pair.source, pair]))
   const actions: Action[] = []
-  if (!existsSync(review)) {
-    actions.push({ label: 'create', detail: relativeToCwd(review), run: () => mkdirSync(review, { recursive: true }) })
+  for (const source of sourceFiles(work)) {
+    const pair = translations.get(source)
+    if (pair === undefined) throw new ForgeError(`missing translation for: ${source}`)
+    const record = recordPath(source)
+    const sourceSha = hashFile(join(work, source))
+    actions.push({
+      label: 'record',
+      detail: `${record} (${pair.language}, source_sha ${sourceSha})`,
+      run: () => writeRecord(join(work, record), sourceSha),
+    })
   }
-
-  for (const directory of SHARED_DIRS) {
-    const from = join(draft, directory)
-    const to = join(review, directory)
-    if (isDirectory(from)) {
-      const files = hashTree(from).size
-      actions.push({
-        label: 'copy',
-        detail: `${relativeToCwd(from)} (${files} file(s)) → ${relativeToCwd(to)}`,
-        run: () => {
-          removeTree(to)
-          mkdirSync(dirname(to), { recursive: true })
-          cpSync(from, to, { recursive: true })
-          assertTreesEqual(from, to, `review ${directory}`)
-        },
-      })
-    } else {
-      actions.push({
-        label: 'remove',
-        detail: `${relativeToCwd(to)} (the work draft has no ${directory})`,
-        run: () => removeTree(to),
-      })
-    }
-  }
-
-  const translate: string[] = []
-  const accept: string[] = []
-  for (const source of sources) {
-    const from = join(draft, source)
-    const to = join(review, source)
-    const sourceSha = hashFile(from)
-    if (options.copy) {
-      actions.push({
-        label: 'copy',
-        detail: `${relativeToCwd(from)} → ${relativeToCwd(to)} (stamp)`,
-        run: () => {
-          mkdirSync(dirname(to), { recursive: true })
-          writeFileSync(to, readFileSync(from, 'utf8'))
-          writeStamp(to, source, sourceSha, false)
-        },
-      })
-      continue
-    }
-    if (!existsSync(to)) {
-      actions.push({
-        label: 'create',
-        detail: `${relativeToCwd(to)} (stamp)`,
-        run: () => {
-          mkdirSync(dirname(to), { recursive: true })
-          writeFileSync(to, `${PLACEHOLDER}\n`)
-          writeStamp(to, source, sourceSha, true)
-        },
-      })
-      translate.push(source)
-      continue
-    }
-    const stamp = readStamp(to)
-    if (stamp === undefined) throw new ForgeError(`review file has no forge-review stamp: ${source}`)
-    if (stamp.source !== source) throw new ForgeError(`review stamp names ${stamp.source}, expected ${source}`)
-    if (stamp.sourceSha !== sourceSha) {
-      actions.push({
-        label: 'stale',
-        detail: `${source} (source changed)`,
-        run: () => writeStamp(to, source, sourceSha, true),
-      })
-      translate.push(source)
-      continue
-    }
-    if (stamp.stale) accept.push(source)
-  }
-
-  for (const source of projectionFiles(review)) {
-    if (!sources.includes(source)) {
-      actions.push({
-        label: 'remove',
-        detail: `${relativeToCwd(join(review, source))} (no source in the work draft)`,
-        run: () => removeTree(join(review, source)),
-      })
-    }
-  }
-
-  actions.push({ label: 'translate', detail: translate.length ? translate.join(', ') : 'none', run: () => {} })
-  if (accept.length) actions.push({ label: 'accept', detail: accept.join(', '), run: () => {} })
-  actions.push({
-    label: 'verify',
-    detail: 'the review projection is consistent with the work draft',
-    run: () => assertProjection(draft, review, true),
-  })
   return actions
 }
 
-function planLand(options: Options): Action[] {
-  const draft = join(options.forge, 'draft', options.name)
-  const review = join(options.forge, 'review', options.name)
-  const target = options.into as string
-  if (!isDirectory(draft)) throw new ForgeError(`work draft not found: ${relativeToCwd(draft)}`)
-  if (!existsSync(join(draft, 'SKILL.md')))
-    throw new ForgeError(`the work draft has no SKILL.md: ${relativeToCwd(draft)}`)
-  if (isInside(options.forge, target) || isInside(target, options.forge)) {
-    throw new ForgeError('the landing directory must stay outside the forge directory')
-  }
-  if (existsSync(target)) {
-    if (!isDirectory(target)) throw new ForgeError(`the landing path is not a directory: ${relativeToCwd(target)}`)
-    if (readdirSync(target).length > 0) {
-      const existingName = readSkillName(target)
-      if (existingName === undefined) {
-        throw new ForgeError(`the landing directory is not a skill: ${relativeToCwd(target)}`)
-      }
-      if (basename(target) !== options.name || existingName !== options.name) {
-        throw new ForgeError(
-          `the landing directory holds ${existingName} at ${basename(target)}, not ${options.name}: ${relativeToCwd(target)}`,
-        )
-      }
-    }
-  }
-  if (existsSync(review)) {
-    assertProjection(draft, review, options.allowStale)
-    for (const directory of SHARED_DIRS) {
-      if (!treesEqual(join(draft, directory), join(review, directory)))
-        throw new ForgeError(`review draft ${directory}/ is out of date; run review ${options.name}`)
-    }
-  }
-
-  const staging = join(options.forge, 'staging', options.name)
-  const backup = join(options.forge, 'staging', `${options.name}.previous`)
-  const actions: Action[] = [
+function planPublish(options: Options): Action[] {
+  const work = join(options.forge, options.name)
+  const target = resolve(options.into as string)
+  if (entryKind(work) !== 'directory')
+    throw new ForgeError(`work directory not found: ${relativeToCwd(work)}; run draft first`)
+  if (entryKind(join(work, 'SKILL.md')) !== 'file')
+    throw new ForgeError(`the work directory has no SKILL.md: ${relativeToCwd(work)}`)
+  const draftName = readSkillName(work)
+  if (draftName !== options.name)
+    throw new ForgeError(`the work directory declares ${draftName ?? 'no name'}, expected ${options.name}`)
+  if (basename(target) !== options.name)
+    throw new ForgeError(`the landing directory is not ${options.name}: its name is ${basename(target)}`)
+  if (
+    isInside(options.forge, target) ||
+    isInside(target, options.forge) ||
+    isInside(work, target) ||
+    isInside(target, work)
+  )
+    throw new ForgeError(
+      `the landing directory must be outside the forge and work directories: ${relativeToCwd(target)}`,
+    )
+  return [
     {
-      label: 'stage',
-      detail: `${relativeToCwd(draft)} → ${relativeToCwd(staging)}`,
+      label: 'prepare',
+      detail: relativeToCwd(dirname(target)),
+      run: () => mkdirSync(dirname(target), { recursive: true }),
+    },
+    {
+      label: 'pairs',
+      detail: 'translation pairs in the work directory',
       run: () => {
-        removeTree(staging)
-        mkdirSync(dirname(staging), { recursive: true })
-        cpSync(draft, staging, { recursive: true })
-        assertTreesEqual(draft, staging, 'staged draft')
+        for (const pair of pairFiles(work)) rmSync(join(work, pair), { force: true })
       },
     },
     {
-      label: 'swap',
-      detail: `${relativeToCwd(staging)} → ${relativeToCwd(target)}`,
+      label: 'copy',
+      detail: `${relativeToCwd(work)} → ${relativeToCwd(target)}`,
       run: () => {
-        mkdirSync(dirname(target), { recursive: true })
-        swapDir(staging, target, backup)
+        removeTree(target)
+        cpSync(work, target, { recursive: true })
       },
     },
     {
-      label: 'verify',
-      detail: `${relativeToCwd(target)} matches the work draft`,
-      run: () => assertTreesEqual(draft, target, 'landed skill'),
+      label: 'remove',
+      detail: `${relativeToCwd(work)} (work directory)`,
+      run: () => removeTree(work),
     },
-    { label: 'remove', detail: relativeToCwd(draft), run: () => removeTree(draft) },
   ]
-  if (existsSync(review))
-    actions.push({ label: 'remove', detail: relativeToCwd(review), run: () => removeTree(review) })
-  actions.push({
-    label: 'clean',
-    detail: relativeToCwd(dirname(staging)),
-    run: () => {
-      try {
-        rmdirSync(dirname(staging))
-      } catch {
-        // The staging directory still holds something else.
-      }
-    },
-  })
-  return actions
 }
 
 function execute(actions: Action[], dryRun: boolean): Result[] {
   const results: Result[] = []
   for (const action of actions) {
     if (dryRun) {
-      results.push({ action: action.label, ok: true, detail: action.detail })
+      results.push({ action: action.label, ok: true, would: true, detail: action.detail })
       continue
     }
     try {
       action.run()
       results.push({ action: action.label, ok: true, detail: action.detail })
     } catch (error) {
-      results.push({ action: action.label, ok: false, detail: error instanceof Error ? error.message : String(error) })
-      break
+      results.push({
+        action: action.label,
+        ok: false,
+        detail: error instanceof Error ? error.message : String(error),
+      })
+      return results
     }
   }
   return results
 }
 
-function report(options: Options, results: Result[]): never {
-  const failed = results.filter((result) => !result.ok).length
+function report(results: Result[], options: Options): never {
   if (options.json) {
-    console.log(
-      JSON.stringify(
-        {
-          command: options.command,
-          name: options.name,
-          forge: relativeToCwd(options.forge),
-          dryRun: options.dryRun,
-          results,
-        },
-        null,
-        2,
-      ),
-    )
+    console.log(JSON.stringify({ command: options.command, dryRun: options.dryRun, results }, null, 2))
   } else {
-    for (const result of results) {
-      const mark = result.ok ? (options.dryRun ? 'would' : 'ok  ') : 'FAIL'
-      console.log(`${mark} ${result.action} — ${result.detail}`)
-    }
+    for (const result of results)
+      console.log(`${result.would ? 'would' : result.ok ? 'ok  ' : 'FAIL'} ${result.action} — ${result.detail}`)
+    const failed = results.filter((result) => !result.ok).length
     console.log(`${results.length} action(s), ${failed} failed${options.dryRun ? ' (dry run)' : ''}`)
   }
-  process.exit(failed === 0 ? 0 : 1)
+  process.exit(results.every((result) => result.ok) ? 0 : 1)
 }
 
-try {
+function main(): never {
   const options = parse(process.argv.slice(2))
-  const actions =
-    options.command === 'draft'
-      ? planDraft(options)
-      : options.command === 'review'
-        ? planReview(options)
-        : planLand(options)
-  report(options, execute(actions, options.dryRun))
-} catch (error) {
-  if (error instanceof ForgeError) {
-    console.error(`Error: ${error.message}`)
-    process.exit(1)
+  try {
+    const actions =
+      options.command === 'draft'
+        ? planDraft(options)
+        : options.command === 'review'
+          ? planReview(options)
+          : planPublish(options)
+    return report(execute(actions, options.dryRun), options)
+  } catch (error) {
+    if (error instanceof ForgeError) {
+      console.error(`Error: ${error.message}`)
+      process.exit(1)
+    }
+    throw error
   }
-  throw error
 }
+
+main()

@@ -22,7 +22,7 @@ on the same property.
 | `dco.test.ts` | `scripts/verify-dco.ts`: the trailer half, decided from `git log` alone, and the bot-identity half, decided against a `gh` stand-in. |
 | `vendored-submission.test.ts` | `scripts/submit-vendored.ts`: the payload the dependency-submission endpoint requires, printed by a dry run. |
 | `skill-spec.test.ts` | `skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs`: the mechanical half of Agent Skills conformance. |
-| `forge-lifecycle.test.ts` | `skills/dsh-spec-skill-forge/scripts/forge.mjs`: the work draft, review draft and landing lifecycle, including the landing cleanup scope. |
+| `forge-lifecycle.test.ts` | `skills/dsh-spec-skill-forge/scripts/forge.mjs`: the work directory, translation-pair and publish lifecycle, including the pair exclusion and cleanup scope. |
 | `refresh-skills.test.ts` | `scripts/refresh-skills.ts`: each skill under `skills/` replaces its installed copy, and other installed skills stay alone. |
 | `repository-shape.test.ts` | The tree invariants the tooling relies on: every package script is one command, and every landed skill has an identical installed copy. |
 

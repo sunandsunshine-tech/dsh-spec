@@ -13,9 +13,11 @@
 // Trigger quality and script design are judgement, not counting; they stay out of
 // this script and live in the Agent Skills guides the skill names.
 
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs'
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import MarkdownIt from 'markdown-it'
+import { parseFragment } from 'parse5'
 import { parseDocument } from 'yaml'
 
 const USAGE = `usage: verify-skill-spec.mjs [<skill-dir>] [options] [--help]
@@ -23,14 +25,17 @@ const USAGE = `usage: verify-skill-spec.mjs [<skill-dir>] [options] [--help]
 Check a skill directory against the Agent Skills specification. With no directory,
 check the one this script is installed in.
 
+Frontmatter keys are a closed set: name, description, license, compatibility, metadata and
+allowed-tools; any other top-level key fails. allowed-tools is a space-separated string without
+commas.
+
   <skill-dir>                 the skill to check; default is this script's parent's parent
   --json                      print a JSON summary ({ root, results }) instead of lines
-  --strict-budget             fail when SKILL.md exceeds the line or token limits
   --name-max <n>              maximum name length (default 64)
   --description-max <n>       maximum description length (default 1024)
   --compatibility-max <n>     maximum compatibility length (default 500)
-  --max-lines <n>             maximum SKILL.md lines (default 500)
-  --max-tokens <n>            maximum body tokens (default 5000)
+  --max-lines <n>             SKILL.md must stay under this line count (default 500, the current specification value)
+  --max-tokens <n>            body tokens must stay under this count (default 5000, the current specification value)
   --cjk-tokens-per-char <n>   tokens per CJK character (default 1.1)
   --other-tokens-per-char <n> tokens per non-CJK character (default 0.303)
   --chars-per-token <n>       compatibility alias for --other-tokens-per-char (1/n)
@@ -39,24 +44,33 @@ check the one this script is installed in.
 examples:
   verify-skill-spec.mjs
   verify-skill-spec.mjs skills/my-skill
-  verify-skill-spec.mjs skills/my-skill --strict-budget --json
+  verify-skill-spec.mjs skills/my-skill --json
   verify-skill-spec.mjs skills/my-skill --max-lines 500 --max-tokens 5000
 
-exit: 0 every check passed · 1 a check failed · 2 usage error`
+exit: 0 every check passed · 1 a check failed · 2 usage error
+
+With --json, the summary is printed after the checks; usage failures print an error to stderr.`
 
 const REQUIRED = ['name', 'description']
 const OPTIONAL = ['license', 'compatibility', 'metadata', 'allowed-tools']
+const TRANSLATION_FILE = /(^|\/)[^/]+\.[A-Za-z]{2,3}(?:-[A-Za-z0-9]{1,8})*\.md$/
+
 const NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 // Both directory names are in use: the guides name `scripts/`, this repository's package writes `script/`.
 // The left boundary keeps `proofscript/` from matching and checks the captured path only.
-const SCRIPT = /(?:^|[^A-Za-z0-9._/-])((?:scripts?)\/[A-Za-z0-9._-]+\.(?:ts|mjs|js|py|sh))/g
-const LINK = /\]\(([^)\s]+)\)/g
-const FENCE = /^ {0,3}(```|~~~)[^\n]*\n[\s\S]*?^ {0,3}\1[^\n]*$/gm
+const SCRIPT = /(?:^|[^A-Za-z0-9._/-])((?:\.\/)?(?:scripts?)\/[A-Za-z0-9._/-]+\.[A-Za-z0-9]+)/g
+const REFERENCE = /(?:^|[^A-Za-z0-9._/-])((?:\.\/)?references\/[A-Za-z0-9._/-]+\.md)/g
+const SPEC_NAME_MAX = 64
+const SPEC_DESCRIPTION_MAX = 1024
+const SPEC_COMPATIBILITY_MAX = 500
+const SPEC_MAX_LINES = 500
+const SPEC_MAX_TOKENS = 5000
+const markdown = new MarkdownIt({ html: true })
 
 const limits = {
-  nameMax: 64,
-  descriptionMax: 1024,
-  compatibilityMax: 500,
+  nameMax: SPEC_NAME_MAX,
+  descriptionMax: SPEC_DESCRIPTION_MAX,
+  compatibilityMax: SPEC_COMPATIBILITY_MAX,
   maxLines: 500,
   maxTokens: 5000,
   cjkTokensPerChar: 1.1,
@@ -83,7 +97,14 @@ if (argv.includes('--help') || argv.includes('-h')) {
 const numericOptions = new Map<string, { set: (value: number) => void; integer: boolean; positive: boolean }>([
   ['--name-max', { set: (value) => (limits.nameMax = value), integer: true, positive: true }],
   ['--description-max', { set: (value) => (limits.descriptionMax = value), integer: true, positive: true }],
-  ['--compatibility-max', { set: (value) => (limits.compatibilityMax = value), integer: true, positive: true }],
+  [
+    '--compatibility-max',
+    {
+      set: (value) => (limits.compatibilityMax = value),
+      integer: true,
+      positive: true,
+    },
+  ],
   ['--max-lines', { set: (value) => (limits.maxLines = value), integer: true, positive: true }],
   ['--max-tokens', { set: (value) => (limits.maxTokens = value), integer: true, positive: true }],
   ['--cjk-tokens-per-char', { set: (value) => (limits.cjkTokensPerChar = value), integer: false, positive: true }],
@@ -105,7 +126,7 @@ const flags = new Set<string>()
 const positionals: string[] = []
 for (let i = 0; i < argv.length; i += 1) {
   const arg = argv[i]
-  if (arg === '--json' || arg === '--strict-budget') {
+  if (arg === '--json') {
     flags.add(arg)
     continue
   }
@@ -133,7 +154,6 @@ for (let i = 0; i < argv.length; i += 1) {
 if (positionals.length > 1)
   usageError(`expected one skill directory, got ${positionals.length}: ${positionals.join(', ')}`)
 const asJson = flags.has('--json')
-const strictBudget = flags.has('--strict-budget')
 const root = positionals[0] ? resolve(positionals[0]) : resolve(dirname(fileURLToPath(import.meta.url)), '..')
 
 if (!existsSync(root) || !statSync(root).isDirectory()) {
@@ -153,6 +173,8 @@ if (!existsSync(skillFile)) {
   const lines = text.split('\n')
   const lineCount = text.endsWith('\n') ? lines.length - 1 : lines.length
   record('SKILL.md', true, `${lineCount} lines`)
+  const bodyStart = lines[0] === '---' ? lines.indexOf('---', 1) : -1
+  const bodyText = bodyStart >= 0 ? lines.slice(bodyStart + 1).join('\n') : text
 
   const close = lines[0] === '---' ? lines.indexOf('---', 1) : -1
   if (close < 0) {
@@ -200,21 +222,23 @@ if (!existsSync(skillFile)) {
           typeof name === 'string' ? `${name} (dir: ${basename(root)})` : '(missing or not a string)',
         )
 
-        const description = typeof fields.description === 'string' ? [...fields.description] : []
+        const descriptionText = typeof fields.description === 'string' ? fields.description : undefined
+        const description = descriptionText === undefined ? [] : [...descriptionText]
         record(
           'description',
-          typeof fields.description === 'string' &&
-            description.length > 0 &&
+          descriptionText !== undefined &&
+            descriptionText.trim().length > 0 &&
             description.length <= limits.descriptionMax,
           `${description.length} characters`,
         )
 
         if (keys.includes('compatibility')) {
-          const compatibility = typeof fields.compatibility === 'string' ? [...fields.compatibility] : []
+          const compatibilityText = typeof fields.compatibility === 'string' ? fields.compatibility : undefined
+          const compatibility = compatibilityText === undefined ? [] : [...compatibilityText]
           record(
             'compatibility',
-            typeof fields.compatibility === 'string' &&
-              compatibility.length > 0 &&
+            compatibilityText !== undefined &&
+              compatibilityText.trim().length > 0 &&
               compatibility.length <= limits.compatibilityMax,
             `${compatibility.length} characters`,
           )
@@ -225,8 +249,17 @@ if (!existsSync(skillFile)) {
           const ok =
             typeof value === 'string' &&
             value.length > 0 &&
-            (key !== 'allowed-tools' || (value.trim() === value && !/[\n\r\t]/.test(value) && !/ {2,}/.test(value)))
-          record(key, ok, typeof value === 'string' ? `${value.length} characters` : 'not a string')
+            (key !== 'allowed-tools' || /^\S+(?: +\S+)*$/.test(value)) &&
+            (key !== 'allowed-tools' || !value.includes(','))
+          record(
+            key,
+            ok,
+            typeof value !== 'string'
+              ? 'not a string'
+              : ok
+                ? `${value.length} characters`
+                : `not a space-separated string without commas: ${value.length} characters`,
+          )
         }
         if (keys.includes('metadata')) {
           const metadata = mapData instanceof Map ? mapData.get('metadata') : undefined
@@ -247,38 +280,101 @@ if (!existsSync(skillFile)) {
     }
   }
 
-  const codeSpans = [...text.matchAll(/`([^`\n]+)`/g)].map((match) => match[1])
-  const mentions = [...new Set(codeSpans.flatMap((span) => [...span.matchAll(SCRIPT)].map((match) => match[1])))]
-  const missingScripts = mentions.filter((path) => !existsSync(join(root, path)))
-  record('script mentions', missingScripts.length === 0, mentions.length ? mentions.join(', ') : 'none mentioned')
+  const normalizePath = (value: string): string => value.replace(/^\.\//, '').replace(/\\/g, '/')
+  const scriptMentions = [...new Set([...bodyText.matchAll(SCRIPT)].map((match) => normalizePath(match[1] as string)))]
+  const missingScripts = scriptMentions.filter((path) => !existsSync(join(root, path)))
+  record(
+    'script mentions',
+    missingScripts.length === 0,
+    missingScripts.length
+      ? `missing: ${missingScripts.join(', ')}`
+      : scriptMentions.length
+        ? scriptMentions.join(', ')
+        : 'none mentioned',
+  )
+  const shippedScripts = scriptFiles(root)
+  const namedScripts = new Set(scriptMentions)
+  const unmentionedScripts = shippedScripts.filter((path) => !namedScripts.has(path) && !bodyText.includes(path))
+  record(
+    'script coverage',
+    unmentionedScripts.length === 0,
+    unmentionedScripts.length
+      ? `not named in SKILL.md: ${unmentionedScripts.join(', ')}`
+      : shippedScripts.length
+        ? `${shippedScripts.length} script(s) named`
+        : 'none shipped',
+  )
+
+  const referencesDir = join(root, 'references')
+  let referencesIsDirectory = false
+  if (existsSync(referencesDir)) {
+    try {
+      referencesIsDirectory = statSync(referencesDir).isDirectory()
+    } catch {
+      referencesIsDirectory = false
+    }
+    record(
+      'references directory',
+      referencesIsDirectory,
+      referencesIsDirectory ? relative(root, referencesDir) : 'references is not a directory',
+    )
+  }
 
   const files = [skillFile]
-  const referencesDir = join(root, 'references')
-  if (existsSync(referencesDir)) files.push(...markdownFiles(referencesDir))
+  if (referencesIsDirectory) files.push(...markdownFiles(referencesDir).filter((file) => !TRANSLATION_FILE.test(file)))
 
   const links: string[] = []
   const broken: string[] = []
   const escaped: string[] = []
+  const absolute: string[] = []
   const deep: string[] = []
+  const realRoot = realpathSync(root)
   for (const file of files) {
-    const markdown = readFileSync(file, 'utf8')
-      .replace(/^\uFEFF/, '')
-      .replace(/\r\n/g, '\n')
-      .replace(FENCE, '')
-    for (const match of markdown.matchAll(LINK)) {
-      const target = match[1]
-      if (/^[a-z][a-z0-9+.-]*:|^#/.test(target)) continue
+    const markdownText = bodyOf(
+      readFileSync(file, 'utf8')
+        .replace(/^\uFEFF/, '')
+        .replace(/\r\n/g, '\n'),
+    )
+    for (const rawTarget of linksFromMarkdown(markdownText)) {
+      const target = rawTarget.trim()
+      if (/^[a-z][a-z0-9+.-]*:/i.test(target) || target.startsWith('#') || target.startsWith('//')) continue
+      let targetPath = target.split(/[?#]/, 1)[0] as string
+      try {
+        targetPath = decodeURIComponent(targetPath)
+      } catch {
+        // keep the undecoded path
+      }
+      targetPath = targetPath.replace(/^<|>$/g, '')
+      if (targetPath === '') continue
+      if (isAbsolute(targetPath)) {
+        absolute.push(target)
+        continue
+      }
       links.push(target)
-      const resolved = resolve(dirname(file), target)
+      const resolved = resolve(dirname(file), targetPath)
       if (!isInside(root, resolved)) escaped.push(target)
       else if (!existsSync(resolved)) broken.push(target)
-      else if (pathComponents(relative(root, resolved)).length > 2) deep.push(target)
+      else {
+        let realTarget: string
+        try {
+          realTarget = realpathSync(resolved)
+        } catch {
+          broken.push(target)
+          continue
+        }
+        if (!isInside(realRoot, realTarget)) escaped.push(target)
+        else if (pathComponents(relative(root, resolved)).length > 2) deep.push(target)
+      }
     }
   }
   record(
     'links stay inside',
-    escaped.length === 0,
-    escaped.length ? `escaping: ${escaped.join(', ')}` : `${links.length} relative link(s)`,
+    escaped.length === 0 && absolute.length === 0,
+    escaped.length
+      ? `escaping: ${escaped.join(', ')}`
+      : absolute.length
+        ? `absolute: ${absolute.join(', ')}`
+        : `${links.length} relative link(s)`,
   )
   record('links resolve', broken.length === 0, broken.length ? `missing: ${broken.join(', ')}` : 'all resolve')
   record(
@@ -287,8 +383,13 @@ if (!existsSync(skillFile)) {
     deep.length ? `deeper than one level: ${deep.join(', ')}` : 'nothing deeper than one level',
   )
 
-  const referenceFiles = existsSync(referencesDir) ? markdownFiles(referencesDir) : []
-  const unnamed = referenceFiles.map((file) => relative(root, file)).filter((path) => !text.includes(path))
+  const referenceFiles = referencesIsDirectory
+    ? markdownFiles(referencesDir).filter((file) => !TRANSLATION_FILE.test(file))
+    : []
+  const normalizedText = bodyText.replace(/\\/g, '/')
+  const unnamed = referenceFiles
+    .map((file) => relative(root, file).replace(/\\/g, '/'))
+    .filter((path) => !normalizedText.includes(path))
   record(
     'reference mentions',
     unnamed.length === 0,
@@ -299,25 +400,40 @@ if (!existsSync(skillFile)) {
         : `${referenceFiles.length} reference(s) named`,
   )
 
-  const bodyStart = lines[0] === '---' ? lines.indexOf('---', 1) : -1
-  const bodyText = bodyStart >= 0 ? lines.slice(bodyStart + 1).join('\n') : text
+  const referenced = [
+    ...new Set(
+      [...bodyText.matchAll(REFERENCE)].map((match) => normalizePath(match[1] as string).split(/[?#]/, 1)[0] as string),
+    ),
+  ]
+  const missingReferences = referenced.filter((path) => !existsSync(join(root, path)))
+  const deepReferences = referenced.filter((path) => pathComponents(path).length > 2)
+  record(
+    'reference targets',
+    missingReferences.length === 0 && deepReferences.length === 0,
+    missingReferences.length
+      ? `missing: ${missingReferences.join(', ')}`
+      : deepReferences.length
+        ? `deeper than one level: ${deepReferences.join(', ')}`
+        : referenced.length
+          ? `${referenced.length} path(s) named`
+          : 'none named',
+  )
+
   const characters = [...bodyText]
-  const ideograph = /[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/
-  const cjkOther = /[\u3000-\u303f\uff00-\uffef]/
-  let ideographs = 0
-  let cjkOthers = 0
+  const cjk =
+    /[\u1100-\u11ff\u2e80-\u2fff\u3000-\u303f\u3040-\u30ff\u3100-\u31ff\u3400-\u4dbf\u4e00-\u9fff\ua960-\ua97f\uac00-\ud7af\uf900-\ufaff\ufe30-\ufe4f\uff00-\uffef]|[\u{20000}-\u{2fa1f}]/u
+  let cjkCount = 0
   let others = 0
   for (const char of characters) {
-    if (ideograph.test(char)) ideographs += 1
-    else if (cjkOther.test(char)) cjkOthers += 1
+    if (cjk.test(char)) cjkCount += 1
     else others += 1
   }
-  const estimate = Math.ceil((ideographs + cjkOthers) * limits.cjkTokensPerChar + others * limits.otherTokensPerChar)
+  const estimate = Math.ceil(cjkCount * limits.cjkTokensPerChar + others * limits.otherTokensPerChar)
   const withinBudget = lineCount < limits.maxLines && estimate < limits.maxTokens
   const budgetDetail = withinBudget
     ? `${lineCount} lines, ~${estimate} tokens at ${limits.cjkTokensPerChar} CJK / ${limits.otherTokensPerChar.toFixed(3)} other tokens/char (limit: under ${limits.maxLines} lines and ${limits.maxTokens} tokens)`
-    : `OVER the limit — ${lineCount} lines, ~${estimate} tokens at ${limits.cjkTokensPerChar} CJK / ${limits.otherTokensPerChar.toFixed(3)} other tokens/char (limit: under ${limits.maxLines} lines and ${limits.maxTokens} tokens); route content out, then rerun with --strict-budget`
-  record('budget', !strictBudget || withinBudget, budgetDetail)
+    : `OVER the limit — ${lineCount} lines, ~${estimate} tokens at ${limits.cjkTokensPerChar} CJK / ${limits.otherTokensPerChar.toFixed(3)} other tokens/char (limit: under ${limits.maxLines} lines and ${limits.maxTokens} tokens)`
+  record('budget', withinBudget, budgetDetail)
 }
 
 if (asJson) {
@@ -328,6 +444,77 @@ if (asJson) {
   console.log(`${results.length} check(s), ${failed} failed`)
 }
 process.exit(results.some((item) => !item.ok) ? 1 : 0)
+
+/** The Markdown after the YAML frontmatter, when the frontmatter closes. */
+function bodyOf(source: string): string {
+  const lines = source.split('\n')
+  if (lines[0] !== '---') return source
+  const close = lines.indexOf('---', 1)
+  return close < 0 ? source : lines.slice(close + 1).join('\n')
+}
+
+/** Links and images from one Markdown document, including reference-style and HTML forms. */
+function linksFromMarkdown(source: string): string[] {
+  const links: string[] = []
+  for (const token of markdown.parse(source, {})) {
+    if (token.type === 'html_block' && token.content) links.push(...htmlLinks(token.content))
+    if (token.type !== 'inline' || !token.children) continue
+    for (const child of token.children) {
+      if (child.type === 'link_open') {
+        const href = child.attrGet('href')
+        if (href) links.push(href)
+      } else if (child.type === 'image') {
+        const src = child.attrGet('src')
+        if (src) links.push(src)
+      } else if (child.type === 'html_inline' && child.content) {
+        links.push(...htmlLinks(child.content))
+      }
+    }
+  }
+  return links
+}
+
+/** The href and src attributes of a raw HTML fragment, or nothing when it does not parse. */
+function htmlLinks(source: string): string[] {
+  try {
+    const fragment = parseFragment(source)
+    const links: string[] = []
+    const walk = (node: unknown): void => {
+      const candidate = node as { attrs?: { name: string; value: string }[]; childNodes?: unknown[] }
+      for (const attribute of candidate.attrs ?? []) {
+        if (attribute.name === 'href' || attribute.name === 'src') links.push(attribute.value)
+      }
+      for (const child of candidate.childNodes ?? []) walk(child)
+    }
+    walk(fragment)
+    return links
+  } catch {
+    return []
+  }
+}
+
+/** Every regular file under scripts/ and the legacy script/, relative to the skill root. */
+function scriptFiles(root: string): string[] {
+  const files: string[] = []
+  const walk = (dir: string): void => {
+    let entries: ReturnType<typeof readdirSync>
+    try {
+      entries = readdirSync(dir, { withFileTypes: true })
+    } catch {
+      return
+    }
+    for (const entry of entries) {
+      const path = join(dir, entry.name)
+      if (entry.isDirectory()) walk(path)
+      else if (entry.isFile()) files.push(relative(root, path).replace(/\\/g, '/'))
+    }
+  }
+  for (const name of ['scripts', 'script']) {
+    const dir = join(root, name)
+    if (existsSync(dir)) walk(dir)
+  }
+  return files.sort()
+}
 
 function markdownFiles(dir: string): string[] {
   const out: string[] = []
