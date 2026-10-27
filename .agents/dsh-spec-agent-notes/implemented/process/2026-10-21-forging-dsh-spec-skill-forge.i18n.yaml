@@ -1,0 +1,34 @@
+# Bilingual-pair consistency record for 2026-10-21-forging-dsh-spec-skill-forge.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec-agent-notes/implemented/process/2026-10-21-forging-dsh-spec-skill-forge.md
+/agent-note-forging-dsh-spec-skill-forge-as-a-composition-first-skill:
+  en: 0791c0bfa9f6f340
+  zh: 014bead1dbc8df02
+/agent-note-forging-dsh-spec-skill-forge-as-a-composition-first-skill/problem:
+  en: d3f3c7e61e8a5694
+  zh: 09d3da160ada6487
+/agent-note-forging-dsh-spec-skill-forge-as-a-composition-first-skill/decision:
+  en: 7b5a72d0c0e308f8
+  zh: 44b73063facdafc2
+/agent-note-forging-dsh-spec-skill-forge-as-a-composition-first-skill/decision/forging-settings:
+  en: 92b6ec889b7199b9
+  zh: c7ee1dd1e8f1b491
+/agent-note-forging-dsh-spec-skill-forge-as-a-composition-first-skill/decision/dispositions:
+  en: 0fd37ce25948294f
+  zh: d030866ed8868a27
+/agent-note-forging-dsh-spec-skill-forge-as-a-composition-first-skill/decision/verification:
+  en: 584bb906915ee74d
+  zh: 0ac4857a31e24a39
+/agent-note-forging-dsh-spec-skill-forge-as-a-composition-first-skill/decision/review-and-landing:
+  en: 6306760f186146d1
+  zh: e1f8d82922b58d21
+/agent-note-forging-dsh-spec-skill-forge-as-a-composition-first-skill/alternatives-considered:
+  en: 942517557bc60ee0
+  zh: ffa2ef3b812bcd4b
+/agent-note-forging-dsh-spec-skill-forge-as-a-composition-first-skill/consequences:
+  en: a3f2f596ca5c8112
+  zh: c8717e183709f9d3
+/agent-note-forging-dsh-spec-skill-forge-as-a-composition-first-skill/related:
+  en: c08358150f561aeb
+  zh: 5054d9edf137709a

@@ -1,6 +1,0 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
-#   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/archived/process/2026-10-02-the-agent-team-workflow-ships-as-a-skill.md
-2026-10-02-the-agent-team-workflow-ships-as-a-skill.md: fb2f905fe4e6ffa14d3e1669f8a7c84e94ecb99f
-2026-10-02-the-agent-team-workflow-ships-as-a-skill.zh.md: d35c362b6716626d46eba8b63af491ce92f56c5e

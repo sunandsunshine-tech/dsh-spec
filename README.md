@@ -66,9 +66,9 @@ Each skill is installed at the revision you name, and `gh skill update` refreshe
 
 | Who | Job |
 |---|---|
-| `skills/` | The deliverable: the skill, with its own entry |
+| `skills/` | The deliverable: the skills, each with its own entry |
 | `.agents/skills/` | Installed copies an agent loads, tracked in git; written only by an install, so an edit there is lost |
-| `.agents/dsh-spec/notes/` | The decision records: what was decided, what lost, what was given up. The format is [`notes/README.md`](.agents/dsh-spec/notes/README.md) |
+| `.agents/dsh-spec-agent-notes/` | The decision records: what was decided, what lost, what was given up. The format and workflow are in [the `dsh-spec-agent-notes` skill](skills/dsh-spec-agent-notes/SKILL.md) |
 | `docs/` | Pages written for people, including the vocabulary both languages share; nothing governs this folder |
 | `scripts/` | What belongs to this repository and is not shipped: [`verify-dco.ts`](scripts/verify-dco.ts) and [`submit-vendored.ts`](scripts/submit-vendored.ts) |
 | `tests/` | The functional suite for those checks — `node --test 'tests/**/*.test.ts'` |
@@ -78,7 +78,7 @@ Each skill is installed at the revision you name, and `gh skill update` refreshe
 
 - [`AGENTS.md`](AGENTS.md) — the rules that hold in every session, and the commands this repository actually runs.
 - [`skills/dsh-spec-skill-forge/SKILL.md`](skills/dsh-spec-skill-forge/SKILL.md) — the skill-authoring entry.
-- [`.agents/dsh-spec/notes/README.md`](.agents/dsh-spec/notes/README.md) — the decision-record contract, which is the pattern describing itself.
+- [The `dsh-spec-agent-notes` skill](skills/dsh-spec-agent-notes/SKILL.md) — the decision-record contract and lifecycle.
 
 ## License
 

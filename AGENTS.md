@@ -2,11 +2,12 @@
 
 This repository holds `skills/` — a set of Agent Skills carrying a development pattern: decision records, prose discipline, and the change workflow. Read a skill's `SKILL.md` before changing anything under it, because its files are the deliverable.
 
-The repository is being rebuilt on the `refactor/architecture` branch. `skills/` currently holds one skill, [the skill forge](skills/dsh-spec-skill-forge/SKILL.md); the rest of the set was removed while the architecture is worked out. The engine the installed skills still call is kept under `scripts/dsh-spec-manager/`.
+The repository is being rebuilt on the `refactor/architecture` branch. `skills/` currently holds [the skill forge](skills/dsh-spec-skill-forge/SKILL.md), [the agent-experience skill](skills/dsh-spec-agent-experience/SKILL.md) and [the agent-notes skill](skills/dsh-spec-agent-notes/SKILL.md); the rest of the set was removed while the architecture is worked out. The engine the installed skills still call is kept under `scripts/dsh-spec-manager/`.
 
 ## Reading order
 
 - `skills/dsh-spec-skill-forge/SKILL.md` — forging a skill from an idea, a source, or an existing skill.
+- `skills/dsh-spec-agent-notes/SKILL.md` — the decision-record lifecycle the repository itself uses.
 - `.agents/skills/` — the installed copies an agent loads. They are deployed state, kept for use during the refactor and not the deliverable; never edit them.
 - `scripts/` — the checks and tooling that belong to this repository rather than to a skill: `verify-dco.ts`, `submit-vendored.ts` and `refresh-skills.ts`. `scripts/dsh-spec-manager/` is the mechanism the installed skills still call; it is kept while the refactor runs and is not the deliverable.
 
@@ -20,7 +21,8 @@ scripts/dsh-spec-manager/  the removed manager's engine, kept while the installe
 tests/    the functional suite for those checks and the workspace tooling — pnpm test
 submodules/dsh/    the extraction baseline — .gitmodules
 .agents/skills/    the installed copies, kept for use during the refactor — this file
-.agents/dsh-spec/  what this repository decided: the decision records and the applied norms — notes/README.md
+.agents/dsh-spec/  what this repository decided: the applied norms — norms/norms.md
+.agents/dsh-spec-agent-notes/  the decision records: proposed, implemented, rejected and the frozen archive
 .agents/dsh-spec-skill-forge/  the forge's default working directory: record/ and the work directories <name>/; translation pairs sit beside their sources
 docs/              the documents a person reads; no tier, no budget, and no gate
 ```
@@ -77,12 +79,12 @@ The generic rules live in the `dsh-spec:norms` hook at the end of this file. The
   fields over one that has to be rewritten, a name that can stay. Migration is cheap here and
   expensive there, and the gap only widens as adopters hold more of their own edits; when the
   change is likely and the insurance costs little now, buy it, and when the odds are a guess,
-  ask. [Migration cost is a design constraint](.agents/dsh-spec/notes/implemented/process/2026-09-22-migration-cost-is-a-design-constraint.md).
+  ask. [Migration cost is a design constraint](.agents/dsh-spec-agent-notes/implemented/process/2026-09-22-migration-cost-is-a-design-constraint.md).
 - **Never edit `submodules/dsh/`.** It is the pinned baseline a re-extraction diffs against, and its content is not ours. Fetch it at the revision `git submodule status` records.
-- **A forging's decision record is an Agent Note.** A forging records its decisions at `.agents/dsh-spec/notes/proposed/process/YYYY-MM-DD-forging-<skill-name>.md` — the day the forging starts and the skill name — and the note moves to `implemented/` when the forged skill ships. The notes contract owns its body; the record's contents are those the forge skill names, placed in that contract's sections. No second working record exists; when no decision mechanism is named and no driver answers, the forge skill's fallback file applies instead.
-- **A development branch follows this repository's own pull-request lifecycle.** [The pull-request lifecycle](.agents/dsh-spec/notes/implemented/process/2026-09-21-the-pull-request-lifecycle.md) owns the states, the tidy before acceptance, before review and before the merge, the commit convention, the PR description and the merge each kind of pull request uses.
-- **A note or report that carries external text names its source.** [Three rules from a memory pipeline](.agents/dsh-spec/notes/implemented/process/2026-09-20-three-rules-from-a-memory-pipeline.md).
-- **Asking the maintainer to merge names the act and carries the change's description, as a question the maintainer answers.** [The review handover and the merge need authorization](.agents/dsh-spec/notes/implemented/process/2026-09-23-the-review-handover-and-the-merge-need-authorization.md).
+- **A forging's decision record is an Agent Note.** A forging records its decisions at `.agents/dsh-spec-agent-notes/proposed/process/YYYY-MM-DD-forging-<skill-name>.md` — the day the forging starts and the skill name — and the note moves to `implemented/` when the forged skill ships. The notes contract owns its body; the record's contents are those the forge skill names, placed in that contract's sections. No second working record exists; when no decision mechanism is named and no driver answers, the forge skill's fallback file applies instead.
+- **A development branch follows this repository's own pull-request lifecycle.** [The pull-request lifecycle](.agents/dsh-spec-agent-notes/implemented/process/2026-09-21-the-pull-request-lifecycle.md) owns the states, the tidy before acceptance, before review and before the merge, the commit convention, the PR description and the merge each kind of pull request uses.
+- **A note or report that carries external text names its source.** [Three rules from a memory pipeline](.agents/dsh-spec-agent-notes/implemented/process/2026-09-20-three-rules-from-a-memory-pipeline.md).
+- **Asking the maintainer to merge names the act and carries the change's description, as a question the maintainer answers.** [The review handover and the merge need authorization](.agents/dsh-spec-agent-notes/implemented/process/2026-09-23-the-review-handover-and-the-merge-need-authorization.md).
 
 ## Conventions
 
@@ -94,23 +96,23 @@ The generic rules live in the `dsh-spec:norms` hook at the end of this file. The
   wrong reader, and a sentence that addresses its reader — to ask, to answer back, or to justify — is
   an interaction that never happened. Every sentence of a draft is checked against one question —
   does it state the fact, or does it address the reader?
-  [A text names its reader](.agents/dsh-spec/notes/implemented/process/2026-09-23-a-text-names-its-reader.md).
+  [A text names its reader](.agents/dsh-spec-agent-notes/implemented/process/2026-09-23-a-text-names-its-reader.md).
 - **Each side of a pair is written in its own idiom, in an order a reader can follow.** Each side is
   written the way its own language says it, and so is anything said to the maintainer. Which language
   a text is in is settled elsewhere: by the pair's contract, by this set's own text being English
   because an agent reads it, and by the language of the ask. Order the content by cause and effect,
   conclusion first, so every sentence is established by the one before it. Whether both sides say the
   same thing is the writer's responsibility.
-  [Each side is written in its own idiom, in an order a reader can follow](.agents/dsh-spec/notes/implemented/process/2026-09-22-each-side-is-written-in-its-own-idiom.md).
+  [Each side is written in its own idiom, in an order a reader can follow](.agents/dsh-spec-agent-notes/implemented/process/2026-09-22-each-side-is-written-in-its-own-idiom.md).
 
 ## Documentation
 
 | Fact | Home |
 |---|---|
 | Standing orders an agent needs in every session | this file |
-| Orders specific to one subtree | that subtree's `AGENTS.md` (the notes tree has its own three) |
-| Decision rationale: the why, and what was given up | `.agents/dsh-spec/notes/` |
-| A forging's decision record | `.agents/dsh-spec/notes/<lifecycle>/process/YYYY-MM-DD-forging-<skill-name>.md` |
+| Orders specific to one subtree | that subtree's `AGENTS.md`, when it has one |
+| Decision rationale: the why, and what was given up | `.agents/dsh-spec-agent-notes/` |
+| A forging's decision record | `.agents/dsh-spec-agent-notes/<lifecycle>/process/YYYY-MM-DD-forging-<skill-name>.md` |
 | The package's own contract and workflows | `skills/` — see [the skill forge](skills/dsh-spec-skill-forge/SKILL.md) |
 | What this repository decided about applying the pattern | the same notes tree, and the standing entries above |
 | A past incident's durable lesson | the notes tree, in its `bug-fix` class |
@@ -123,7 +125,7 @@ Keep each rule self-contained while linking the document that owns its rationale
 <!-- dsh-spec:agent-notes -->
 ## Decision records
 
-Add or update an Agent Note in the same change only for lasting decision rationale that code, tests, and existing documentation do not explain; mechanical or local edits are exempt ([scope](.agents/dsh-spec/notes/README.md#when-to-write-one)). Archived notes are frozen: never edit them or treat them as current authority ([archive policy](.agents/dsh-spec/notes/README.md#archiving-and-deletion)).
+The decision records live in `.agents/dsh-spec-agent-notes/`; load the `dsh-spec-agent-notes` skill before writing, moving, consolidating or archiving one. Mechanical or local edits are exempt, and archived notes are frozen: never edit them or treat them as current authority ([the skill](skills/dsh-spec-agent-notes/SKILL.md)).
 
 <!-- /dsh-spec:agent-notes -->
 

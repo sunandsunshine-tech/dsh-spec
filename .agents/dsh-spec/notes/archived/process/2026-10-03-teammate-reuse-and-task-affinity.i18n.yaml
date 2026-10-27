@@ -1,6 +1,0 @@
-# Bilingual-pair consistency record (references/i18n-contract.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
-#   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec/notes/archived/process/2026-10-03-teammate-reuse-and-task-affinity.md
-2026-10-03-teammate-reuse-and-task-affinity.md: 6bbce27596038a1df61161cbc9d9d7ad60e52037
-2026-10-03-teammate-reuse-and-task-affinity.zh.md: 2ee00260015adb35a6675cde6e67f26d4f733e7a

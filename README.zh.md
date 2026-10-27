@@ -66,9 +66,9 @@ gh skill install sunandsunshine-tech/dsh-spec dsh-spec-skill-forge@latest --dir 
 
 | 谁 | 职责 |
 |---|---|
-| `skills/` | 交付物:技能,各有自己的入口 |
+| `skills/` | 交付物:各个技能,各有自己的入口 |
 | `.agents/skills/` | agent 加载的安装副本,随 git 一起走;只有安装命令会写这里,在那里的手改会丢 |
-| `.agents/dsh-spec/notes/` | 决策记录:决定了什么、什么落选、放弃了什么。格式见 [`notes/README.md`](.agents/dsh-spec/notes/README.zh.md) |
+| `.agents/dsh-spec-agent-notes/` | 决策记录:决定了什么、什么落选、放弃了什么。格式与流程见 [`dsh-spec-agent-notes` 技能](skills/dsh-spec-agent-notes/SKILL.md) |
 | `docs/` | 写给人看的页面,包括两种语言共用的术语表;这个目录不受任何机制管辖 |
 | `scripts/` | 只属于本仓库、不随包发布的东西:[`verify-dco.ts`](scripts/verify-dco.ts) 和 [`submit-vendored.ts`](scripts/submit-vendored.ts) |
 | `tests/` | 检验这些检查的功能套件 —— `node --test 'tests/**/*.test.ts'` |
@@ -78,7 +78,7 @@ gh skill install sunandsunshine-tech/dsh-spec dsh-spec-skill-forge@latest --dir 
 
 - [`AGENTS.md`](AGENTS.md) —— 每次会话都要遵守的规则,以及本仓库真正跑的命令。
 - [`skills/dsh-spec-skill-forge/SKILL.md`](skills/dsh-spec-skill-forge/SKILL.md) —— 锻造技能的入口。
-- [`.agents/dsh-spec/notes/README.md`](.agents/dsh-spec/notes/README.zh.md) —— 决策记录的约定,也是这套做法对自己的说明。
+- [`dsh-spec-agent-notes` 技能](skills/dsh-spec-agent-notes/SKILL.md) —— 决策记录的约定与生命周期。
 
 ## 许可证
 

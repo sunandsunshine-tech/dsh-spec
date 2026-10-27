@@ -14,7 +14,7 @@
     "test": "node --test 'tests/**/*.test.ts'",
     "test:watch": "node --test --watch 'tests/**/*.test.ts'",
     "skill:draft": "node skills/dsh-spec-skill-forge/scripts/forge.mjs draft dsh-spec-skill-forge --from skills/dsh-spec-skill-forge",
-    "skill:build": "node package/dsh-spec-skill-forge/build.ts",
+    "skill:build": "node scripts/build-skills.ts",
     "skill:review": "node skills/dsh-spec-skill-forge/scripts/forge.mjs review dsh-spec-skill-forge",
     "skill:publish": "node skills/dsh-spec-skill-forge/scripts/forge.mjs publish dsh-spec-skill-forge --into skills/dsh-spec-skill-forge",
     "skill:refresh": "node scripts/refresh-skills.ts"

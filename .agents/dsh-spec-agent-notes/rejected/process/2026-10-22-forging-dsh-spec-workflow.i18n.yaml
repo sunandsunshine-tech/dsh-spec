@@ -1,0 +1,46 @@
+# Bilingual-pair consistency record for 2026-10-22-forging-dsh-spec-workflow.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec-agent-notes/rejected/process/2026-10-22-forging-dsh-spec-workflow.md
+/agent-note-forging-dsh-spec-workflow-from-an-applied-four-artifact-analysis:
+  en: e27aa23a34158506
+  zh: d48da4968a5ba0fc
+/agent-note-forging-dsh-spec-workflow-from-an-applied-four-artifact-analysis/problem:
+  en: dd0749d5930110ec
+  zh: 0c35c1ea95c69bd1
+/agent-note-forging-dsh-spec-workflow-from-an-applied-four-artifact-analysis/proposal:
+  en: fbe612ef500758e8
+  zh: 3eadce5f25566797
+/agent-note-forging-dsh-spec-workflow-from-an-applied-four-artifact-analysis/proposal/forging-settings:
+  en: 43aeeee4e14b7774
+  zh: 2edd6637ea4382f7
+/agent-note-forging-dsh-spec-workflow-from-an-applied-four-artifact-analysis/proposal/workflow-deconstruction:
+  en: 77542e10241b2fe4
+  zh: ac84e9261451e9ac
+/agent-note-forging-dsh-spec-workflow-from-an-applied-four-artifact-analysis/proposal/collection:
+  en: 702060d1281ed000
+  zh: 83d25ffd8bb60bca
+/agent-note-forging-dsh-spec-workflow-from-an-applied-four-artifact-analysis/proposal/deconstruction-units:
+  en: 9092b6ab4ff915f3
+  zh: ba7bbdb7c3aeeefd
+/agent-note-forging-dsh-spec-workflow-from-an-applied-four-artifact-analysis/proposal/dispositions:
+  en: 1af5432f72613910
+  zh: 79aa137b69015030
+/agent-note-forging-dsh-spec-workflow-from-an-applied-four-artifact-analysis/proposal/verification:
+  en: 25c4193d22d58111
+  zh: 85e396ad4ada36a4
+/agent-note-forging-dsh-spec-workflow-from-an-applied-four-artifact-analysis/proposal/review-and-landing:
+  en: 2dd4419003785593
+  zh: 810cd6c251cee79a
+/agent-note-forging-dsh-spec-workflow-from-an-applied-four-artifact-analysis/alternatives-considered:
+  en: 717e07b8e13c7381
+  zh: bce2708db8661c71
+/agent-note-forging-dsh-spec-workflow-from-an-applied-four-artifact-analysis/acceptance-criteria:
+  en: 9b4a36fe05c18ed9
+  zh: 50ece4ef524f2127
+/agent-note-forging-dsh-spec-workflow-from-an-applied-four-artifact-analysis/risks:
+  en: f3543c3a09fc948f
+  zh: 5010e5f802f53aa6
+/agent-note-forging-dsh-spec-workflow-from-an-applied-four-artifact-analysis/related:
+  en: 9e6255eba463be8b
+  zh: f690faf269d6e853

@@ -1,0 +1,31 @@
+# Bilingual-pair consistency record for 2026-10-22-the-agent-team-workflow-is-removed.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec-agent-notes/implemented/process/2026-10-22-the-agent-team-workflow-is-removed.md
+/agent-note-the-agent-team-workflow-is-removed:
+  en: 8653153ca3fac60b
+  zh: 6ab71d3ecbbbde65
+/agent-note-the-agent-team-workflow-is-removed/problem:
+  en: a8c094ee818d9a11
+  zh: 2f799a27aef2144d
+/agent-note-the-agent-team-workflow-is-removed/decision:
+  en: 7551dcd4c1291fef
+  zh: c38f87fa40209e94
+/agent-note-the-agent-team-workflow-is-removed/decision/what-was-given-up:
+  en: 2801c33b0adec655
+  zh: c29ecaef3899ea38
+/agent-note-the-agent-team-workflow-is-removed/decision/reintroduction-condition:
+  en: dd63c519fdf524e4
+  zh: 3ffdb1377cc6ce4d
+/agent-note-the-agent-team-workflow-is-removed/alternatives-considered:
+  en: 030d0dc712325eed
+  zh: e83487a5d17e309d
+/agent-note-the-agent-team-workflow-is-removed/consequences:
+  en: efad53b2af15c0ca
+  zh: 08e01db8ee599a46
+/agent-note-the-agent-team-workflow-is-removed/testing:
+  en: 9418e11c686ea2dd
+  zh: c21914abc0a68059
+/agent-note-the-agent-team-workflow-is-removed/related:
+  en: 9f5eca0322b066bd
+  zh: 1e1a3ec01037a6fd
