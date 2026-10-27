@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import { createRequire } from "node:module";
-import { cpSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
-import { createHash } from "node:crypto";
+import { cpSync, lstatSync, mkdirSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import { basename, dirname, join, relative, resolve, sep } from "node:path";
 // \0rolldown/runtime.js
 var __commonJSMin = (cb, mod) => () => (mod || (cb((mod = { exports: {} }).exports, mod, mod.exports), cb = null), mod.exports);
@@ -6590,182 +6589,104 @@ var import_dist = (/* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.visitAsync = visit.visitAsync;
 })))();
 const DEFAULT_FORGE = ".agents/dsh-spec-skill-forge";
-const HASH_LENGTH = 12;
 const RESERVED = /* @__PURE__ */ new Set(["record"]);
 const USAGE = `usage: forge.mjs <command> [options]
 
-Forge a skill in one work directory, keep its translation pairs and publish a plain copy.
+Forge a skill in one work directory, keep its declared review drafts and publish a plain copy.
 
 commands:
   draft   <name> [--from <skill-dir>]  create the work directory, optionally seeded from a skill
-  review  <name> [--check]             record translation pairs, or list the pairs to translate again
-  publish <name> --into <skill-dir>    copy the work directory to the landing directory and remove the draft
+  pair    <name> [--companion <suffix>]...
+                                      report the declared review drafts (read-only)
+  publish <name> --into <skill-dir> [--companion <suffix>]...
+                                      copy the work directory to the landing directory and remove the work directory
 
 options:
   --forge <dir>   forge directory (default: ${DEFAULT_FORGE})
   --from <dir>    skill directory copied into a new work directory (draft only)
   --into <dir>    landing directory (publish only)
-  --check         list out-of-date or missing translation pairs instead of writing records (review only)
+  --companion <suffix>
+                  a declared review-draft suffix (repeatable; for example .zh.md or .i18n.yaml)
   --dry-run       print the actions and change nothing
   --json          print a JSON summary instead of lines
   --help, -h      print this and exit 0
 
-The work directory is ${DEFAULT_FORGE}/<name>; it is the authority. A translation pair is a
-translation beside its source plus a record: <source-basename>.<lang>.md and
-<source-basename>.i18n.yaml; SKILL.md pairs with SKILL.<lang>.md and SKILL.i18n.yaml. Only .md
-files are paired; scripts and assets are not translated. review records the source hash in each
-pair's record after the translation is written; review --check compares the recorded hash with the
-source and lists the pairs to translate again, plus pairs whose translation or record is missing.
-The pairs live in the work directory beside their sources.
+The work directory is ${DEFAULT_FORGE}/<name>; it is the authority. A review draft is a regular file beside its .md source whose name ends with a declared suffix. A suffix follows the notes companion shape and cannot be .md. The adopter declares suffixes with repeated --companion; with none there are no review drafts. A source may carry no draft, one draft or several, and overlapping declarations resolve to the longest suffix. With no declaration, pair lists possible review drafts: a regular file whose shortest dotted suffix resolves to an existing .md source. A file is a review draft only when its suffix is declared; undeclared candidates are reported and publish copies them as ordinary content.
 
-publish removes the translation pairs from the work directory, copies the work directory to the
-landing directory, and then removes the work directory. An existing landing directory is replaced; the acceptance and the
-VCS are the authorization and rollback. The gate and review --check are separate read-only checks;
-publish does not run them. Publishing requires SKILL.md; the work directory's SKILL.md name and
-the landing directory name must match the skill name. record is reserved for the record directory.
+pair reports each draft/source pair and fails on a draft without a source. It writes nothing and does not decide whether a pair is current; the project's pairing gate owns companion consistency.
+
+publish removes the declared drafts before copying; remove any review-draft-only content from the work-draft sources before publishing. Pass the same --companion set as pair; a file whose suffix is not declared is ordinary work-directory content. An existing landing directory is replaced; the acceptance and the VCS are the authorization and rollback. The gate is a separate read-only check; publish does not run it. Publishing requires SKILL.md; the work directory's SKILL.md name and the landing directory name must match the skill name. record is reserved for the record directory.
 
 exit: 0 every action succeeded · 1 an action or precondition failed · 2 usage error
 
-With --json, the summary is printed after the run; usage and precondition failures print an error
-to stderr.`;
+With --json, the summary is printed after the run; usage and precondition failures print an error to stderr.`;
 const NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const COMPANION = /^\.[A-Za-z0-9._-]*[A-Za-z0-9]$/;
 var ForgeError = class extends Error {};
-const TRANSLATION = /^(.*)\.([A-Za-z]{2,3}(?:-[A-Za-z0-9]{1,8})*)\.md$/;
-function isPairFile(name) {
-	return name.endsWith(".i18n.yaml") || TRANSLATION.test(name);
+/** Longest suffix first, so overlapping declarations never depend on argument order. */
+function orderedCompanions(companions) {
+	return [...companions].sort((left, right) => right.length - left.length || left.localeCompare(right));
 }
-function translationOf(path) {
-	const match = TRANSLATION.exec(path);
-	if (match?.[1] === void 0 || match[2] === void 0) return void 0;
-	return {
-		source: `${match[1]}.md`,
-		language: match[2]
-	};
+function companionSuffixOf(name, companions) {
+	return orderedCompanions(companions).find((suffix) => name.endsWith(suffix));
 }
-/** Every authored Markdown file, excluding translation pairs. */
-function sourceFiles(root) {
+/** Every regular file under the work directory whose name the predicate accepts. */
+function walkFiles(root, accept) {
 	const files = [];
 	const walk = (dir, prefix) => {
 		for (const entry of readdirSync(dir, { withFileTypes: true })) {
 			const name = prefix ? `${prefix}/${entry.name}` : entry.name;
 			if (entry.isDirectory()) walk(join(dir, entry.name), name);
-			else if (entry.isFile() && entry.name.endsWith(".md") && !TRANSLATION.test(entry.name)) files.push(name);
+			else if (entry.isFile() && accept(entry.name)) files.push(name);
 		}
 	};
 	if (!isDirectory(root)) return files;
 	walk(root, "");
 	return files.sort();
 }
-/** Every translated file and every pair record in the work directory. */
-function pairFiles(root) {
-	const files = [];
-	const walk = (dir, prefix) => {
-		for (const entry of readdirSync(dir, { withFileTypes: true })) {
-			const name = prefix ? `${prefix}/${entry.name}` : entry.name;
-			if (entry.isDirectory()) walk(join(dir, entry.name), name);
-			else if (entry.isFile() && isPairFile(entry.name)) files.push(name);
-		}
-	};
-	if (!isDirectory(root)) return files;
-	walk(root, "");
-	return files.sort();
-}
-function recordPath(source) {
-	return source.replace(/\.md$/, ".i18n.yaml");
-}
-function recordSource(path) {
-	return path.replace(/\.i18n\.yaml$/, ".md");
-}
-function readRecord(path) {
-	let text;
-	try {
-		text = readFileSync(path, "utf8");
-	} catch {
-		return {};
-	}
-	for (const line of text.split(/\r?\n/)) {
-		const match = /^source_sha:\s*(\S+)\s*$/.exec(line);
-		if (match?.[1] !== void 0) return { sourceSha: match[1] };
-	}
-	return {};
-}
-function writeRecord(path, sourceSha) {
-	writeFileSync(path, `source_sha: ${sourceSha}\n`);
-}
-/** Every translation pair, keyed by its source path. */
-function translationPairs(root) {
-	const pairs = [];
-	for (const path of pairFiles(root)) {
-		const info = translationOf(path);
-		if (info !== void 0) pairs.push({
-			...info,
-			translation: path
+/** Every declared review draft, with the source its name points at. */
+function declaredCompanions(root, companions) {
+	const drafts = [];
+	for (const draft of walkFiles(root, (name) => companionSuffixOf(name, companions) !== void 0)) {
+		const suffix = companionSuffixOf(basename(draft), companions);
+		if (suffix === void 0) continue;
+		drafts.push({
+			draft,
+			source: `${draft.slice(0, -suffix.length)}.md`,
+			suffix
 		});
 	}
-	return pairs;
+	return drafts.sort((left, right) => left.draft.localeCompare(right.draft));
 }
-/** The translation pairs that are missing, out of date, or orphaned. */
-function pairIssues(root) {
-	const sources = sourceFiles(root);
-	const translations = translationPairs(root);
-	const records = pairFiles(root).filter((path) => path.endsWith(".i18n.yaml"));
-	const hasPairs = translations.length > 0 || records.length > 0;
-	const missingTranslations = [];
-	const missingRecords = [];
-	const stale = [];
-	const orphans = [];
-	const multiple = [];
-	if (!hasPairs) return {
-		hasPairs,
-		missingTranslations,
-		missingRecords,
-		stale,
-		orphans,
-		multiple
-	};
-	const bySource = /* @__PURE__ */ new Map();
-	for (const pair of translations) {
-		const list = bySource.get(pair.source) ?? [];
-		list.push({
-			language: pair.language,
-			translation: pair.translation
-		});
-		bySource.set(pair.source, list);
-	}
-	for (const source of sources) {
-		const pairs = (bySource.get(source) ?? []).sort((left, right) => left.translation.localeCompare(right.translation));
-		if (pairs.length === 0) {
-			missingTranslations.push(source);
-			continue;
-		}
-		if (pairs.length > 1) multiple.push(source);
-		pairs[0];
-		const record = recordPath(source);
-		if (!existsSync(join(root, record))) {
-			missingRecords.push(source);
-			continue;
-		}
-		if (readRecord(join(root, record)).sourceSha !== hashFile(join(root, source))) stale.push(source);
-	}
-	for (const pair of translations) if (!sources.includes(pair.source)) orphans.push(pair.translation);
-	for (const record of records) if (!sources.includes(recordSource(record))) orphans.push(record);
-	return {
-		hasPairs,
-		missingTranslations,
-		missingRecords,
-		stale,
-		orphans,
-		multiple
-	};
+/** Declared drafts whose source is not a regular file. */
+function orphanCompanions(root, companions) {
+	return declaredCompanions(root, companions).filter((pair) => entryKind(join(root, pair.source)) !== "file").map((pair) => pair.draft);
 }
-function pairIssueText(issues) {
-	const lines = [];
-	if (issues.missingTranslations.length) lines.push(`missing translations for: ${issues.missingTranslations.join(", ")}`);
-	if (issues.missingRecords.length) lines.push(`missing records for: ${issues.missingRecords.join(", ")}`);
-	if (issues.stale.length) lines.push(`out of date: ${issues.stale.join(", ")}`);
-	if (issues.orphans.length) lines.push(`without a source: ${issues.orphans.join(", ")}`);
-	if (issues.multiple.length) lines.push(`more than one translation for: ${issues.multiple.join(", ")}`);
-	return lines.join("; ");
+/**
+* Possible review drafts discovered without declarations: a regular file whose
+* shortest dotted suffix resolves to an existing .md source beside it.
+*/
+function candidateCompanions(root) {
+	const files = walkFiles(root, () => true);
+	const fileSet = new Set(files);
+	const candidates = [];
+	for (const draft of files) {
+		const name = basename(draft);
+		const firstDot = name.indexOf(".");
+		if (firstDot <= 0) continue;
+		for (let index = name.length - 1; index >= firstDot; index -= 1) {
+			if (name[index] !== ".") continue;
+			if (name.slice(index) === ".md") continue;
+			const source = `${draft.slice(0, draft.length - name.length)}${name.slice(0, index)}.md`;
+			if (source === draft || !fileSet.has(source)) continue;
+			candidates.push({
+				draft,
+				source
+			});
+			break;
+		}
+	}
+	return candidates.sort((left, right) => left.draft.localeCompare(right.draft));
 }
 const usageError = (message) => {
 	console.error(`Error: ${message}`);
@@ -6816,10 +6737,6 @@ function frontmatterString(root, key) {
 	const value = frontmatterValues(root)?.[key];
 	return typeof value === "string" ? value : void 0;
 }
-/** The short sha256 prefix a pair record stores for one source file. */
-function hashFile(path) {
-	return createHash("sha256").update(readFileSync(path)).digest("hex").slice(0, HASH_LENGTH);
-}
 function isInside(parent, child) {
 	const path = relative(parent, child);
 	return path === "" || !path.startsWith("..") && !path.startsWith(sep);
@@ -6835,11 +6752,11 @@ function parse(argv) {
 		process.exit(0);
 	}
 	const command = argv[0];
-	if (command !== "draft" && command !== "review" && command !== "publish") usageError(`unknown command: ${command}`);
+	if (command !== "draft" && command !== "pair" && command !== "publish") usageError(`unknown command: ${command}`);
 	let forge = resolve(process.cwd(), DEFAULT_FORGE);
 	let from;
 	let into;
-	let check = false;
+	let companions = [];
 	let dryRun = false;
 	let json = false;
 	const positionals = [];
@@ -6851,10 +6768,6 @@ function parse(argv) {
 		}
 		if (arg === "--json") {
 			json = true;
-			continue;
-		}
-		if (arg === "--check") {
-			check = true;
 			continue;
 		}
 		const take = (name) => {
@@ -6885,6 +6798,12 @@ function parse(argv) {
 			into = resolve(process.cwd(), intoValue);
 			continue;
 		}
+		const companionValue = take("--companion");
+		if (companionValue !== void 0) {
+			if (!COMPANION.test(companionValue) || companionValue === ".md") usageError(`--companion must be a suffix such as .zh.md, got ${JSON.stringify(companionValue)}`);
+			if (!companions.includes(companionValue)) companions.push(companionValue);
+			continue;
+		}
 		if (arg.startsWith("-")) usageError(`unknown option: ${arg}`);
 		positionals.push(arg);
 	}
@@ -6892,9 +6811,9 @@ function parse(argv) {
 	const name = positionals[0];
 	if (!NAME.test(name)) usageError(`invalid skill name: ${name}`);
 	if (RESERVED.has(name)) usageError(`reserved skill name: ${name}`);
-	if (command === "draft" && (into !== void 0 || check)) usageError("draft takes --from, not --into or --check");
-	if (command === "review" && (from !== void 0 || into !== void 0)) usageError("review takes --check, not --from or --into");
-	if (command === "publish" && (from !== void 0 || check)) usageError("publish takes --into, not --from or --check");
+	if (command === "draft" && (into !== void 0 || companions.length > 0)) usageError("draft takes --from, not --into or --companion");
+	if (command === "pair" && (from !== void 0 || into !== void 0)) usageError("pair takes --companion, not --from or --into");
+	if (command === "publish" && from !== void 0) usageError("publish takes --into, not --from");
 	if (command === "publish" && into === void 0) usageError("publish needs --into <skill-dir>");
 	return {
 		command,
@@ -6902,7 +6821,7 @@ function parse(argv) {
 		forge,
 		from,
 		into,
-		check,
+		companions,
 		dryRun,
 		json
 	};
@@ -6936,44 +6855,42 @@ function planDraft(options) {
 		}
 	}];
 }
-function planReview(options) {
+function planPair(options) {
 	const work = join(options.forge, options.name);
 	if (entryKind(work) !== "directory") throw new ForgeError(`work directory not found: ${relativeToCwd(work)}; run draft first`);
-	const issues = pairIssues(work);
-	if (options.check) {
-		if (!issues.hasPairs) return [{
-			label: "check",
-			detail: "no translation pairs",
+	const candidates = candidateCompanions(work);
+	if (options.companions.length === 0) {
+		if (candidates.length === 0) return [{
+			label: "pair",
+			detail: "no review drafts or possible companions",
 			run: () => {}
 		}];
-		if (issues.missingTranslations.length || issues.missingRecords.length || issues.stale.length || issues.orphans.length || issues.multiple.length) throw new ForgeError(`translation pairs are out of date: ${pairIssueText(issues)}`);
-		return [{
-			label: "check",
-			detail: "translation pairs are up to date",
+		return candidates.map((candidate) => ({
+			label: "candidate",
+			detail: `${candidate.draft} → ${candidate.source} (undeclared)`,
 			run: () => {}
-		}];
+		}));
 	}
-	if (!issues.hasPairs) return [{
-		label: "review",
-		detail: "no translation pairs",
+	const drafts = declaredCompanions(work, options.companions);
+	const orphans = orphanCompanions(work, options.companions);
+	if (orphans.length) throw new ForgeError(`declared review drafts without a source: ${orphans.join(", ")}`);
+	const declared = new Set(drafts.map((pair) => pair.draft));
+	const undeclared = candidates.filter((candidate) => !declared.has(candidate.draft));
+	if (drafts.length === 0 && undeclared.length === 0) return [{
+		label: "pair",
+		detail: `declared suffixes matched no review drafts: ${options.companions.join(", ")}`,
 		run: () => {}
 	}];
-	if (issues.missingTranslations.length) throw new ForgeError(`missing translations for: ${issues.missingTranslations.join(", ")}`);
-	if (issues.orphans.length) throw new ForgeError(`translations without a source: ${issues.orphans.join(", ")}`);
-	if (issues.multiple.length) throw new ForgeError(`more than one translation for: ${issues.multiple.join(", ")}; keep one language`);
-	const translations = new Map(translationPairs(work).map((pair) => [pair.source, pair]));
-	const actions = [];
-	for (const source of sourceFiles(work)) {
-		const pair = translations.get(source);
-		if (pair === void 0) throw new ForgeError(`missing translation for: ${source}`);
-		const record = recordPath(source);
-		const sourceSha = hashFile(join(work, source));
-		actions.push({
-			label: "record",
-			detail: `${record} (${pair.language}, source_sha ${sourceSha})`,
-			run: () => writeRecord(join(work, record), sourceSha)
-		});
-	}
+	const actions = drafts.map((pair) => ({
+		label: "pair",
+		detail: `${pair.draft} → ${pair.source}`,
+		run: () => {}
+	}));
+	for (const candidate of undeclared) actions.push({
+		label: "candidate",
+		detail: `${candidate.draft} → ${candidate.source} (undeclared)`,
+		run: () => {}
+	});
 	return actions;
 }
 function planPublish(options) {
@@ -6985,33 +6902,34 @@ function planPublish(options) {
 	if (draftName !== options.name) throw new ForgeError(`the work directory declares ${draftName ?? "no name"}, expected ${options.name}`);
 	if (basename(target) !== options.name) throw new ForgeError(`the landing directory is not ${options.name}: its name is ${basename(target)}`);
 	if (isInside(options.forge, target) || isInside(target, options.forge) || isInside(work, target) || isInside(target, work)) throw new ForgeError(`the landing directory must be outside the forge and work directories: ${relativeToCwd(target)}`);
-	return [
-		{
-			label: "prepare",
-			detail: relativeToCwd(dirname(target)),
-			run: () => mkdirSync(dirname(target), { recursive: true })
-		},
-		{
-			label: "pairs",
-			detail: "translation pairs in the work directory",
-			run: () => {
-				for (const pair of pairFiles(work)) rmSync(join(work, pair), { force: true });
-			}
-		},
-		{
-			label: "copy",
-			detail: `${relativeToCwd(work)} → ${relativeToCwd(target)}`,
-			run: () => {
-				removeTree(target);
-				cpSync(work, target, { recursive: true });
-			}
-		},
-		{
-			label: "remove",
-			detail: `${relativeToCwd(work)} (work directory)`,
-			run: () => removeTree(work)
+	const declared = declaredCompanions(work, options.companions);
+	const orphans = orphanCompanions(work, options.companions);
+	if (orphans.length) throw new ForgeError(`declared review drafts without a source: ${orphans.join(", ")}`);
+	const actions = [{
+		label: "prepare",
+		detail: relativeToCwd(dirname(target)),
+		run: () => mkdirSync(dirname(target), { recursive: true })
+	}];
+	actions.push({
+		label: "pairs",
+		detail: "declared review drafts in the work directory",
+		run: () => {
+			for (const pair of declared) rmSync(join(work, pair.draft), { force: true });
 		}
-	];
+	});
+	actions.push({
+		label: "copy",
+		detail: `${relativeToCwd(work)} → ${relativeToCwd(target)}`,
+		run: () => {
+			removeTree(target);
+			cpSync(work, target, { recursive: true });
+		}
+	}, {
+		label: "remove",
+		detail: `${relativeToCwd(work)} (work directory)`,
+		run: () => removeTree(work)
+	});
+	return actions;
 }
 function execute(actions, dryRun) {
 	const results = [];
@@ -7059,7 +6977,7 @@ function report(results, options) {
 function main() {
 	const options = parse(process.argv.slice(2));
 	try {
-		return report(execute(options.command === "draft" ? planDraft(options) : options.command === "review" ? planReview(options) : planPublish(options), options.dryRun), options);
+		return report(execute(options.command === "draft" ? planDraft(options) : options.command === "pair" ? planPair(options) : planPublish(options), options.dryRun), options);
 	} catch (error) {
 		if (error instanceof ForgeError) {
 			console.error(`Error: ${error.message}`);

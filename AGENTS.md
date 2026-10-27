@@ -23,7 +23,7 @@ submodules/dsh/    the extraction baseline — .gitmodules
 .agents/skills/    the installed copies, kept for use during the refactor — this file
 .agents/dsh-spec/  what this repository decided: the applied norms — norms/norms.md
 .agents/dsh-spec-agent-notes/  the decision records: proposed, implemented, rejected and the frozen archive
-.agents/dsh-spec-skill-forge/  the forge's default working directory: record/ and the work directories <name>/; translation pairs sit beside their sources
+.agents/dsh-spec-skill-forge/  the forge's default working directory: record/ and the work directories <name>/; declared review drafts sit beside their sources
 docs/              the documents a person reads; no tier, no budget, and no gate
 ```
 
@@ -52,19 +52,19 @@ pnpm run skill:draft
   # copies skills/dsh-spec-skill-forge/ into the work directory
 pnpm run skill:build
   # bundles the skill's scripts into the work directory's scripts/
-pnpm run skill:review
-  # records the work directory's translation pairs
+pnpm run skill:pair
+  # reports the work directory's declared review drafts
 pnpm run skill:publish
   # copies the work directory into skills/ and removes the work directory
 pnpm run skill:refresh
   # copies skills/ into the installed .agents/skills/ copies
 ```
 
-Node ≥ 22.19 or ≥ 24, pnpm and Vite+ (`vp`) are the toolchain. Source formatting is Oxfmt through `vp fmt`, configured in the root `vite.config.ts` and checked with `pnpm run format:check`. Repository-level checks and tooling are TypeScript that Node strips by itself and run directly. Each skill's script source lives under `package/<name>/` and its `vite.config.ts` names the entries; `pnpm run skill:build` writes the self-contained artifacts into the work directory's `scripts/`. The forging skill's `scripts/forge.mjs` runs the lifecycle: `draft`, `review` and `publish`; `publish` removes the translation pairs from the work directory, copies the work directory into the landing directory, then removes the work directory. The gate and `review --check` are separate read-only checks. `pnpm run skill:refresh` mirrors `skills/` into the installed copies. The suite runs on `node --test` through `pnpm test`. CI runs it on every pull request and on each push to `main` (`.github/workflows/checks.yml`). `git` is needed for the commit range; `gh` only for the bot-identity half of the DCO check.
+Node ≥ 22.19 or ≥ 24, pnpm and Vite+ (`vp`) are the toolchain. Source formatting is Oxfmt through `vp fmt`, configured in the root `vite.config.ts` and checked with `pnpm run format:check`. Repository-level checks and tooling are TypeScript that Node strips by itself and run directly. Each skill's script source lives under `package/<name>/` and its `vite.config.ts` names the entries; `pnpm run skill:build` writes the self-contained artifacts into the work directory's `scripts/`. The forging skill's `scripts/forge.mjs` runs the lifecycle: `draft`, `pair` and `publish`; `publish` removes the declared review drafts from the work directory, copies the work directory into the landing directory, then removes the work directory. The gate and `pair` are separate read-only checks. `pnpm run skill:refresh` mirrors `skills/` into the installed copies. The suite runs on `node --test` through `pnpm test`. CI runs it on every pull request and on each push to `main` (`.github/workflows/checks.yml`). `git` is needed for the commit range; `gh` only for the bot-identity half of the DCO check.
 
 ## Environment
 
-- **Skill scripts are bundled per skill and published only after review.** A skill's script source lives at `package/<skill-name>/` with a `vite.config.ts` naming its entries; `pnpm run skill:build` writes the self-contained artifacts to the work directory's `scripts/`. `pnpm run skill:review` records the work directory's translation pairs. The forging skill's `scripts/forge.mjs` removes the translation pairs from the work directory, copies the work directory into the landing directory, and removes the work directory; the shared forge directory and its record stay. The gate and `review --check` are separate read-only checks. Installed copies are refreshed with `pnpm run skill:refresh`. Scripts under `scripts/` are repository-level, are not bundled, and run directly with Node.
+- **Skill scripts are bundled per skill and published only after review.** A skill's script source lives at `package/<skill-name>/` with a `vite.config.ts` naming its entries; `pnpm run skill:build` writes the self-contained artifacts to the work directory's `scripts/`. `pnpm run skill:pair` reports the work directory's declared review drafts. The forging skill's `scripts/forge.mjs` removes the declared review drafts from the work directory, copies the work directory into the landing directory, and removes the work directory; the shared forge directory and its record stay. The gate and `pair` are separate read-only checks. Installed copies are refreshed with `pnpm run skill:refresh`. Scripts under `scripts/` are repository-level, are not bundled, and run directly with Node.
 - **A host that resolves into a reserved range may still be reachable.** Where DNS or the network stack hands back a fake-IP address (for example `198.18.0.0/15`), the web tools can refuse the host as non-public even though it answers; fetch it with `curl` instead of recording a dead link, and apply the same reading to a citation a check could not retrieve.
 
 ## Boundaries

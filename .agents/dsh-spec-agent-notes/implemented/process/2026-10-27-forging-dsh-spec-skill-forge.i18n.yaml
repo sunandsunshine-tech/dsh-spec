@@ -1,0 +1,25 @@
+# Bilingual-pair consistency record for 2026-10-27-forging-dsh-spec-skill-forge.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec-agent-notes/implemented/process/2026-10-27-forging-dsh-spec-skill-forge.md
+/agent-note-declarative-review-drafts-in-the-skill-forge:
+  en: 8bf8bde1326feeb5
+  zh: 6c4c485cdaad8c0c
+/agent-note-declarative-review-drafts-in-the-skill-forge/problem:
+  en: b931aa4a24ed6203
+  zh: a48151c16408c047
+/agent-note-declarative-review-drafts-in-the-skill-forge/decision:
+  en: bbba692c1da7756c
+  zh: 8d4499d67680c94b
+/agent-note-declarative-review-drafts-in-the-skill-forge/design:
+  en: 1182089b01e009fb
+  zh: db4e39cde6625820
+/agent-note-declarative-review-drafts-in-the-skill-forge/forging-record:
+  en: 6cec183d63cb0a50
+  zh: a7ed2f2c48927cb9
+/agent-note-declarative-review-drafts-in-the-skill-forge/alternatives-considered:
+  en: a6c1c7539b83cb33
+  zh: 356c5eb317d7bafa
+/agent-note-declarative-review-drafts-in-the-skill-forge/consequences:
+  en: ada408dd9d16ab75
+  zh: ac8aca5d2696eebb

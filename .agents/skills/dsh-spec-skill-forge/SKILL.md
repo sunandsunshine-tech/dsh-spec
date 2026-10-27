@@ -12,7 +12,7 @@ Choose the anchoring form that fits how determinate the goal and task are — a 
 
 ## Tools
 
-- `scripts/forge.mjs` — creates the work directory, records translation pairs and publishes the work directory. Its `--help` lists the commands and options.
+- `scripts/forge.mjs` — creates the work directory, reports declared review drafts and publishes the work directory. Its `--help` lists the commands and options.
 - `scripts/verify-skill-spec.mjs` — the mechanical gate. Its `--help` lists the limits and options; it reports one line per check.
 
 Run `forge.mjs` from the project root; the gate takes the skill directory as its argument.
@@ -39,6 +39,8 @@ Every requirement, prohibition, condition or fixed choice in the source is a sou
 
 Collect only design-changing material; stop when new material changes nothing. Without an upstream, the request's requirements are the source. A fact the request and the declaration cannot confirm becomes a ruling — the decision that best fits the purpose, changes least and is reversible, recorded — not an invention.
 
+Only the request, the current contract and the adopter's declaration decide what the new design must satisfy. An existing decision record explains an earlier choice; it supplies a requirement only where one of them keeps that requirement in force.
+
 ### Disposition
 
 For each unit take the first applicable disposition:
@@ -60,9 +62,11 @@ A requirement a command can decide exactly becomes a script. A requirement only 
 
 ### Review
 
-A review is needed when the review language differs from the delivery language, or when the adopter asks for one. A review copy is a translation pair: `<source-basename>.<lang>.md` beside its source `.md` and `<source-basename>.i18n.yaml` recording the source hash; for `SKILL.md` the pair is `SKILL.<lang>.md` and `SKILL.i18n.yaml`. `<lang>` is the review language. Write the translation, then run `review` to record the hash; `review --check` lists pairs whose source changed, whose translation is missing, or whose record is missing. Translate those again and rerun. Only `.md` files are paired; scripts and assets are not translated.
+A review starts when the adopter declares review-draft suffixes with repeated `--companion <suffix>`; a review draft is a regular file beside its `.md` source whose name ends with a declared suffix. With no declaration there are no declared review drafts. Declaring a suffix does not require every source to carry a draft: a source may carry no draft, one draft or several, and overlapping suffixes resolve to the longest declaration. A declared suffix follows the notes companion shape and cannot be `.md`; it may name a translation or a project pairing record, for example `.zh.md` or `.i18n.yaml`. The project's pairing gate may write its record beside a draft; declare it like any companion. With no declaration, `pair` lists possible review drafts: a regular file whose shortest dotted suffix resolves to an existing `.md` source. A file is a review draft only when its suffix is declared; undeclared candidates are reported and `publish` copies them as ordinary content.
 
-The work directory is the only authority; a translation keeps concepts and names aligned, introduces no new concept and does not transcribe word for word. Pairs live beside their sources in the work directory; `publish` removes them from the work directory, copies the work directory, and then removes the work directory. The final review submits the pairs and the record, and waits for the adopter to accept, change or reject the submission.
+The delivery side's description leads with the delivery language and appends the additional trigger language. A review draft reverses that order: its own language first, the delivery language as the additional trigger language. When the languages match, the review draft uses one language.
+
+Write a draft, then run `pair` with the same declarations. It reports each draft/source pair and fails on a draft without a source; it writes nothing. The project's pairing gate owns whether the pair is current; the forge neither writes nor checks a consistency record. Pass the same `--companion` set to `publish`: it refuses an orphan draft, removes the declared drafts from the work directory, copies the work directory, and then removes the work directory. Before `publish`, remove any review-draft-only content from the work-draft sources. A file whose suffix is not declared is copied as ordinary content. The work directory is the only authority; a draft keeps concepts and names aligned and introduces no new concept. The final review submits the drafts and waits for the adopter to accept, change or reject the submission.
 
 ## Verification
 
@@ -74,9 +78,9 @@ Every requirement carries a verification anchor at the most precise level availa
 | Judged | A named guide or reference decides it; state one conclusion per item. | One conclusion per item |
 | Unverified | No precise check exists for the item. | The item and the reason |
 
-Run the gate as a separate read-only check; it reports one line per check and its `--help` lists the options. `publish` does not run the gate. When review is needed, run `review --check` so that an out-of-date pair fails.
+Run the gate as a separate read-only check; it reports one line per check and its `--help` lists the options. `publish` does not run the gate. When review is needed, run `pair` so that an orphan draft fails and the project pairing gate can check the pair.
 
-**Complete**: every source constraint has one disposition row with its home; every requirement of the forged skill carries one anchor; the gate passed with the parameters used; every judged item has a conclusion; every unverified item carries its reason; the translation pairs are current when review was needed; the record carries the evidence, the pages read and the rulings.
+**Complete**: every source constraint has one disposition row with its home; every requirement of the forged skill carries one anchor; the gate passed with the parameters used; every judged item has a conclusion; every unverified item carries its reason; the declared review drafts are paired and the project pairing gate has been run when review was needed; the record carries the evidence, the pages read and the rulings.
 
 **Failure**: fix and rerun; never claim a failed or unrun check as passed. An unresolved gap: record a ruling.
 
@@ -89,5 +93,5 @@ Write at the location the adopter's declaration or existing decision-record mech
 | Setting | Default |
 |---|---|
 | Delivery language | English |
-| Review language | The adopter's language; without an adopter, the request's language |
-| Additional trigger language | The review language, appended to the description's trigger keywords; when it equals the delivery language, name another or omit it |
+| Review drafts | None until the adopter declares suffixes with `--companion`; a suffix names a language, variant or pairing record. |
+| Additional trigger language | The adopter's review language, appended to the description's trigger keywords; when it equals the delivery language, name another or omit it |

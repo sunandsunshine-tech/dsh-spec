@@ -1,8 +1,8 @@
 /**
- * The skill's work-directory, translation-pair and simple-copy publish lifecycle.
+ * The skill's work-directory, declared-review-draft and simple-copy publish lifecycle.
  *
- * publish is a plain overwrite: copy the work directory, excluding the translation pairs, then
- * remove the work directory. The gate and review --check are separate read-only checks; publish
+ * publish is a plain overwrite: copy the work directory, excluding the declared review drafts,
+ * then remove the work directory. The gate and review are separate read-only checks; publish
  * does not run them and keeps no backup. The VCS is the rollback.
  */
 
@@ -46,9 +46,9 @@ function seedWork(ws: Workspace, name = 'alpha'): void {
   ws.write(`${FORGE}/${name}/scripts/run.mjs`, 'console.log("alpha")\n')
 }
 
-/** Write the Chinese translation beside one source. */
-function translate(ws: Workspace, name: string, source: string, text: string): void {
-  ws.write(`${FORGE}/${name}/${source.replace(/\.md$/, '.zh.md')}`, text)
+/** Write a review draft beside one source with a declared suffix. */
+function translate(ws: Workspace, name: string, source: string, text: string, suffix = '.zh.md'): void {
+  ws.write(`${FORGE}/${name}/${source.replace(/\.md$/, suffix)}`, text)
 }
 
 test('draft creates the work directory', () => {
@@ -135,82 +135,201 @@ test('--forge selects another forge directory', () => {
   })
 })
 
-test('review with no translation pairs succeeds', () => {
+test('pair with no declared drafts succeeds', () => {
   withWorkspace((ws) => {
     seedWork(ws)
-    const result = forge(ws, 'review', 'alpha')
+    const result = forge(ws, 'pair', 'alpha')
     assert.equal(result.status, 0, result.output)
-    assert.match(result.stdout, /no translation pairs/)
+    assert.match(result.stdout, /no review drafts or possible companions/)
   })
 })
 
-test('review records every translation pair', () => {
+test('pair lists possible review drafts without declarations', () => {
   withWorkspace((ws) => {
     seedWork(ws)
     translate(ws, 'alpha', 'SKILL.md', '# Alpha 译文\n')
-    translate(ws, 'alpha', 'references/notes.md', '# 笔记\n')
-    const result = forge(ws, 'review', 'alpha')
+    ws.write(`${FORGE}/alpha/SKILL.i18n.yaml`, 'en: 0\nzh: 0\n')
+    const result = forge(ws, 'pair', 'alpha')
     assert.equal(result.status, 0, result.output)
-    assert.match(ws.read(`${FORGE}/alpha/SKILL.i18n.yaml`), /^source_sha: [0-9a-f]{12}$/m)
-    assert.equal(ws.exists(`${FORGE}/alpha/references/notes.i18n.yaml`), true)
+    assert.match(result.stdout, /SKILL\.zh\.md → SKILL\.md \(undeclared\)/)
+    assert.match(result.stdout, /SKILL\.i18n\.yaml → SKILL\.md \(undeclared\)/)
   })
 })
 
-test('review refuses a missing translation when pairs exist', () => {
+test('pair reports undeclared candidates beside declared pairs', () => {
   withWorkspace((ws) => {
     seedWork(ws)
     translate(ws, 'alpha', 'SKILL.md', '# Alpha 译文\n')
-    const result = forge(ws, 'review', 'alpha')
-    assert.equal(result.status, 1, result.output)
-    assert.match(result.stderr, /missing translations for: references\/notes\.md/)
-  })
-})
-
-test('review --check passes after review', () => {
-  withWorkspace((ws) => {
-    seedWork(ws)
-    translate(ws, 'alpha', 'SKILL.md', '# Alpha 译文\n')
-    translate(ws, 'alpha', 'references/notes.md', '# 笔记\n')
-    assert.equal(forge(ws, 'review', 'alpha').status, 0)
-    const result = forge(ws, 'review', 'alpha', '--check')
+    ws.write(`${FORGE}/alpha/SKILL.i18n.yaml`, 'en: 0\nzh: 0\n')
+    const result = forge(ws, 'pair', 'alpha', '--companion', '.zh.md')
     assert.equal(result.status, 0, result.output)
-    assert.match(result.stdout, /translation pairs are up to date/)
+    assert.match(result.stdout, /pair — SKILL\.zh\.md → SKILL\.md/)
+    assert.match(result.stdout, /candidate — SKILL\.i18n\.yaml → SKILL\.md \(undeclared\)/)
   })
 })
 
-test('review --check reports a changed source', () => {
+test('pair candidate discovery is heuristic', () => {
   withWorkspace((ws) => {
     seedWork(ws)
-    translate(ws, 'alpha', 'SKILL.md', '# Alpha 译文\n')
-    translate(ws, 'alpha', 'references/notes.md', '# 笔记\n')
-    assert.equal(forge(ws, 'review', 'alpha').status, 0)
-    ws.write(`${FORGE}/alpha/SKILL.md`, `${skillText('alpha')}Changed.\n`)
-    const result = forge(ws, 'review', 'alpha', '--check')
-    assert.equal(result.status, 1, result.output)
-    assert.match(result.stderr, /out of date: SKILL\.md/)
+    ws.write(`${FORGE}/alpha/SKILL.backup`, '# backup\n')
+    ws.write(`${FORGE}/alpha/SKILL.notes.md`, '# notes\n')
+    const result = forge(ws, 'pair', 'alpha')
+    assert.equal(result.status, 0, result.output)
+    assert.match(result.stdout, /SKILL\.backup → SKILL\.md \(undeclared\)/)
+    assert.match(result.stdout, /SKILL\.notes\.md → SKILL\.md \(undeclared\)/)
   })
 })
 
-test('review --check reports missing records and orphan translations', () => {
+test('pair candidate discovery uses the shortest dotted suffix', () => {
+  withWorkspace((ws) => {
+    seedWork(ws)
+    ws.write(`${FORGE}/alpha/SKILL.i18n.md`, '# record\n')
+    ws.write(`${FORGE}/alpha/SKILL.i18n.yaml`, 'en: 0\nzh: 0\n')
+    const result = forge(ws, 'pair', 'alpha')
+    assert.equal(result.status, 0, result.output)
+    assert.match(result.stdout, /SKILL\.i18n\.yaml → SKILL\.i18n\.md \(undeclared\)/)
+  })
+})
+
+test('pair reports declared pairs and writes no records', () => {
   withWorkspace((ws) => {
     seedWork(ws)
     translate(ws, 'alpha', 'SKILL.md', '# Alpha 译文\n')
-    translate(ws, 'alpha', 'references/notes.md', '# 笔记\n')
-    assert.equal(forge(ws, 'review', 'alpha', '--check').status, 1)
+    const result = forge(ws, 'pair', 'alpha', '--companion', '.zh.md')
+    assert.equal(result.status, 0, result.output)
+    assert.match(result.stdout, /SKILL\.zh\.md → SKILL\.md/)
+    assert.equal(ws.exists(`${FORGE}/alpha/SKILL.i18n.yaml`), false)
+  })
+})
+
+test('pair does not require a draft for every source', () => {
+  withWorkspace((ws) => {
+    seedWork(ws)
+    translate(ws, 'alpha', 'SKILL.md', '# Alpha 译文\n')
+    const result = forge(ws, 'pair', 'alpha', '--companion', '.zh.md')
+    assert.equal(result.status, 0, result.output)
+    assert.doesNotMatch(result.stdout, /references\/notes\.zh\.md/)
+  })
+})
+
+test('pair pairs several declared companions with one source', () => {
+  withWorkspace((ws) => {
+    seedWork(ws)
+    translate(ws, 'alpha', 'SKILL.md', '# Alpha 译文\n', '.zh.md')
+    translate(ws, 'alpha', 'SKILL.md', '# Alpha français\n', '.fr.md')
+    ws.write(`${FORGE}/alpha/SKILL.i18n.yaml`, 'en: 0\nzh: 0\n')
+    const result = forge(
+      ws,
+      'pair',
+      'alpha',
+      '--companion',
+      '.zh.md',
+      '--companion',
+      '.fr.md',
+      '--companion',
+      '.i18n.yaml',
+    )
+    assert.equal(result.status, 0, result.output)
+    assert.match(result.stdout, /SKILL\.zh\.md → SKILL\.md/)
+    assert.match(result.stdout, /SKILL\.fr\.md → SKILL\.md/)
+    assert.match(result.stdout, /SKILL\.i18n\.yaml → SKILL\.md/)
+  })
+})
+
+test('pair refuses a declared draft without a source', () => {
+  withWorkspace((ws) => {
+    seedWork(ws)
     ws.write(`${FORGE}/alpha/references/ghost.zh.md`, '# 无源\n')
-    const result = forge(ws, 'review', 'alpha', '--check')
+    const result = forge(ws, 'pair', 'alpha', '--companion', '.zh.md')
     assert.equal(result.status, 1, result.output)
-    assert.match(result.stderr, /without a source: references\/ghost\.zh\.md/)
+    assert.match(result.stderr, /declared review drafts without a source: references\/ghost\.zh\.md/)
   })
 })
 
-test('review accepts a BCP 47 language tag', () => {
+test('pair resolves overlapping suffixes by the longest declaration', () => {
   withWorkspace((ws) => {
     seedWork(ws)
-    ws.write(`${FORGE}/alpha/SKILL.zh-Hant-TW.md`, '# Alpha\n')
-    ws.write(`${FORGE}/alpha/references/notes.zh-Hant-TW.md`, '# 筆記\n')
-    assert.equal(forge(ws, 'review', 'alpha').status, 0)
-    assert.equal(forge(ws, 'review', 'alpha', '--check').status, 0)
+    ws.write(`${FORGE}/alpha/SKILL.zh.review.md`, '# Alpha review\n')
+    let result = forge(ws, 'pair', 'alpha', '--companion', '.review.md', '--companion', '.zh.review.md')
+    assert.equal(result.status, 0, result.output)
+    assert.match(result.stdout, /SKILL\.zh\.review\.md → SKILL\.md/)
+    result = forge(ws, 'pair', 'alpha', '--companion', '.zh.review.md', '--companion', '.review.md')
+    assert.equal(result.status, 0, result.output)
+    assert.match(result.stdout, /SKILL\.zh\.review\.md → SKILL\.md/)
+  })
+})
+
+test('pair accepts a declared pairing record as a companion', () => {
+  withWorkspace((ws) => {
+    seedWork(ws)
+    ws.write(`${FORGE}/alpha/SKILL.i18n.yaml`, 'en: 0\nzh: 0\n')
+    const result = forge(ws, 'pair', 'alpha', '--companion', '.i18n.yaml')
+    assert.equal(result.status, 0, result.output)
+    assert.match(result.stdout, /SKILL\.i18n\.yaml → SKILL\.md/)
+  })
+})
+
+test('pair reports a declaration that matches no draft', () => {
+  withWorkspace((ws) => {
+    seedWork(ws)
+    const result = forge(ws, 'pair', 'alpha', '--companion', '.zh.md')
+    assert.equal(result.status, 0, result.output)
+    assert.match(result.stdout, /declared suffixes matched no review drafts: \.zh\.md/)
+  })
+})
+
+test('pair refuses invalid companion suffixes', () => {
+  withWorkspace((ws) => {
+    seedWork(ws)
+    for (const suffix of ['.md', '.', 'zh.md', '.zh/']) {
+      const result = forge(ws, 'pair', 'alpha', '--companion', suffix)
+      assert.equal(result.status, 2, result.output)
+      assert.match(result.stderr, /--companion must be a suffix such as \.zh\.md/)
+    }
+  })
+})
+
+test('review is no longer a command', () => {
+  withWorkspace((ws) => {
+    seedWork(ws)
+    const result = forge(ws, 'review', 'alpha')
+    assert.equal(result.status, 2, result.output)
+    assert.match(result.stderr, /unknown command: review/)
+  })
+})
+
+test('pair refuses --check', () => {
+  withWorkspace((ws) => {
+    seedWork(ws)
+    const result = forge(ws, 'pair', 'alpha', '--check')
+    assert.equal(result.status, 2, result.output)
+    assert.match(result.stderr, /unknown option: --check/)
+  })
+})
+
+test('pair --json summarizes declared pairs without writing', () => {
+  withWorkspace((ws) => {
+    seedWork(ws)
+    translate(ws, 'alpha', 'SKILL.md', '# Alpha 译文\n')
+    const result = forge(ws, 'pair', 'alpha', '--companion', '.zh.md', '--json')
+    assert.equal(result.status, 0, result.output)
+    const summary = JSON.parse(result.stdout) as { command: string; results: { action: string }[] }
+    assert.equal(summary.command, 'pair')
+    assert.deepEqual(
+      summary.results.map((row) => row.action),
+      ['pair'],
+    )
+    assert.equal(ws.exists(`${FORGE}/alpha/SKILL.i18n.yaml`), false)
+  })
+})
+
+test('pair --dry-run changes nothing', () => {
+  withWorkspace((ws) => {
+    seedWork(ws)
+    translate(ws, 'alpha', 'SKILL.md', '# Alpha 译文\n')
+    const result = forge(ws, 'pair', 'alpha', '--companion', '.zh.md', '--dry-run')
+    assert.equal(result.status, 0, result.output)
+    assert.match(result.stdout, /would pair — SKILL\.zh\.md → SKILL\.md/)
   })
 })
 
@@ -225,17 +344,49 @@ test('publish copies the work directory and removes it', () => {
   })
 })
 
-test('publish excludes translation pairs from the target', () => {
+test('publish excludes declared companions from the target', () => {
   withWorkspace((ws) => {
     seedWork(ws)
     translate(ws, 'alpha', 'SKILL.md', '# Alpha 译文\n')
-    translate(ws, 'alpha', 'references/notes.md', '# 笔记\n')
-    assert.equal(forge(ws, 'review', 'alpha').status, 0)
-    const result = forge(ws, 'publish', 'alpha', '--into', 'skills/alpha')
+    ws.write(`${FORGE}/alpha/SKILL.i18n.yaml`, 'en: 0\nzh: 0\n')
+    assert.equal(forge(ws, 'pair', 'alpha', '--companion', '.zh.md', '--companion', '.i18n.yaml').status, 0)
+    const result = forge(
+      ws,
+      'publish',
+      'alpha',
+      '--into',
+      'skills/alpha',
+      '--companion',
+      '.zh.md',
+      '--companion',
+      '.i18n.yaml',
+    )
     assert.equal(result.status, 0, result.output)
     assert.equal(ws.exists('skills/alpha/SKILL.zh.md'), false)
     assert.equal(ws.exists('skills/alpha/SKILL.i18n.yaml'), false)
-    assert.equal(ws.exists('skills/alpha/references/notes.zh.md'), false)
+    assert.equal(ws.exists('skills/alpha/SKILL.md'), true)
+  })
+})
+
+test('publish copies a file whose suffix is not declared', () => {
+  withWorkspace((ws) => {
+    seedWork(ws)
+    ws.write(`${FORGE}/alpha/references/extra.fr.md`, '# Extra\n')
+    const result = forge(ws, 'publish', 'alpha', '--into', 'skills/alpha', '--companion', '.zh.md')
+    assert.equal(result.status, 0, result.output)
+    assert.equal(ws.exists('skills/alpha/references/extra.fr.md'), true)
+  })
+})
+
+test('publish refuses a declared draft without a source', () => {
+  withWorkspace((ws) => {
+    seedWork(ws)
+    ws.write(`${FORGE}/alpha/references/ghost.zh.md`, '# 无源\n')
+    const result = forge(ws, 'publish', 'alpha', '--into', 'skills/alpha', '--companion', '.zh.md')
+    assert.equal(result.status, 1, result.output)
+    assert.match(result.stderr, /declared review drafts without a source/)
+    assert.equal(ws.exists('skills/alpha'), false)
+    assert.equal(ws.exists(`${FORGE}/alpha/references/ghost.zh.md`), true)
   })
 })
 
