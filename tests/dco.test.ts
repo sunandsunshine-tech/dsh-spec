@@ -47,14 +47,17 @@ interface GhFacts {
  * @returns the environment that puts it before every other `gh` on the machine.
  */
 function stubGh(fixture: Fixture, facts: GhFacts): Record<string, string | undefined> {
-  const payload = Buffer.from(JSON.stringify({
-    author: { type: facts.type, login: facts.login },
-    commit: { verification: { verified: facts.verified } },
-  }), 'utf8').toString('base64')
+  const payload = Buffer.from(
+    JSON.stringify({
+      author: { type: facts.type, login: facts.login },
+      commit: { verification: { verified: facts.verified } },
+    }),
+    'utf8',
+  ).toString('base64')
   const script = [
     '#!/bin/sh',
     `payload=$(printf '%s' '${payload}' | base64 -d)`,
-    'filter=$(printf \'%s\\n\' "$*" | sed -n \'s/.*--jq //p\')',
+    "filter=$(printf '%s\\n' \"$*\" | sed -n 's/.*--jq //p')",
     'if [ -n "$filter" ]; then printf \'%s\' "$payload" | jq -r "$filter"; else printf \'%s\' "$payload"; fi',
     `exit ${facts.fail === true ? 1 : 0}`,
     '',
@@ -72,12 +75,17 @@ function stubGh(fixture: Fixture, facts: GhFacts): Record<string, string | undef
  * @param fixture - the fixture whose last commit the range names.
  * @param env - extra environment, notably the `PATH` that carries a `gh` stand-in.
  */
-function gate(fixture: Fixture, env: Record<string, string | undefined> = {}): { status: number, output: string } {
-  return runScript('scripts/verify-dco.ts', [
-    `--root=${fixture.root}`,
-    `--base=${fixture.git('rev-parse', 'HEAD~1').stdout.trim()}`,
-    `--head=${fixture.git('rev-parse', 'HEAD').stdout.trim()}`,
-  ], fixture.root, { env })
+function gate(fixture: Fixture, env: Record<string, string | undefined> = {}): { status: number; output: string } {
+  return runScript(
+    'scripts/verify-dco.ts',
+    [
+      `--root=${fixture.root}`,
+      `--base=${fixture.git('rev-parse', 'HEAD~1').stdout.trim()}`,
+      `--head=${fixture.git('rev-parse', 'HEAD').stdout.trim()}`,
+    ],
+    fixture.root,
+    { env },
+  )
 }
 
 /**
@@ -187,7 +195,10 @@ test('a Dependabot commit without the fixed trailer fails', () => {
 })
 
 test('an unrelated bot’s fixed trailer address is not accepted', () => {
-  const fixture = signed('other-app[bot] <12345+other-app[bot]@users.noreply.github.com>', `Signed-off-by: other-app[bot] <${BOT_TRAILER_ADDRESS}>`)
+  const fixture = signed(
+    'other-app[bot] <12345+other-app[bot]@users.noreply.github.com>',
+    `Signed-off-by: other-app[bot] <${BOT_TRAILER_ADDRESS}>`,
+  )
   try {
     // No allowlisted bot matches that address, so the exact comparison decides it — and the trailer
     // names no author, so it fails without GitHub being asked.
@@ -222,7 +233,11 @@ test('an empty range fails rather than passing vacuously', () => {
     fixture.write('file.txt', 'base\n')
     fixture.commit('base')
     const head = fixture.git('rev-parse', 'HEAD').stdout.trim()
-    const result = runScript('scripts/verify-dco.ts', [`--root=${fixture.root}`, `--base=${head}`, `--head=${head}`], fixture.root)
+    const result = runScript(
+      'scripts/verify-dco.ts',
+      [`--root=${fixture.root}`, `--base=${head}`, `--head=${head}`],
+      fixture.root,
+    )
 
     assert.equal(result.status, 1, result.output)
     assert.match(result.stderr, /holds no commit/)

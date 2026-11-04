@@ -30,7 +30,7 @@ export interface Fixture {
   /** Remove a file, as a deletion looks to git. */
   remove(rel: string): void
   /** Run git in the fixture and return its result. */
-  git(...args: string[]): { status: number, stdout: string, stderr: string }
+  git(...args: string[]): { status: number; stdout: string; stderr: string }
   /** Stage everything and commit it. */
   commit(message: string): void
   /** Every repository-relative path, including untracked ones, sorted. */
@@ -46,7 +46,7 @@ export interface Fixture {
  */
 export function makeFixture(files: Record<string, string> = {}): Fixture {
   const root = mkdtempSync(join(tmpdir(), 'dsh-spec-test-'))
-  const gitRun = (...args: string[]): { status: number, stdout: string, stderr: string } => {
+  const gitRun = (...args: string[]): { status: number; stdout: string; stderr: string } => {
     const result = spawnSync('git', args, { cwd: root, encoding: 'utf8' })
     return { status: result.status ?? 1, stdout: result.stdout ?? '', stderr: result.stderr ?? '' }
   }

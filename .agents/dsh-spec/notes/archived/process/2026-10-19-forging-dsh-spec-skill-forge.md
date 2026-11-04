@@ -1,6 +1,7 @@
 # Agent Note: Forging dsh-spec-skill-forge
 
 Status: implemented
+Archived: 2026-10-22
 
 English | [中文](2026-10-19-forging-dsh-spec-skill-forge.zh.md)
 
@@ -98,4 +99,8 @@ The functional suite: `node --test 'tests/**/*.test.ts'` → 39/39 pass, 25 of t
 
 The judgement checks: trigger quality is unverified — this environment has no agent harness in a target audience's environment to load the forged skill; the reason is recorded rather than a pass. The script design check passes: the gate is non-interactive, documents `--help` with examples and exit codes, prints structured output with `--json`, separates stdout from stderr, and exits 0/1/2 meaningfully.
 
-The records and links: `dsh-spec notes check --all` → 23 notes, structure and format consistent; `translation-pair check` on this note → consistent; `md-links check` on the touched files → all links resolve.
+The records and links: `dsh-spec notes check --all` → 24 notes, structure and format consistent; `translation-pair check` on this note → consistent; `md-links check` on the touched files → all links resolve.
+
+## Related
+
+- [Forging dsh-spec-skill-forge (2026-10-21, implemented)](2026-10-21-forging-dsh-spec-skill-forge.md) — the composition-first redesign that superseded the five-step skill recorded here.

@@ -39,7 +39,10 @@ test('scanned is the instant the endpoint dates the snapshot with', () => {
 })
 
 test('the notice file is the manifest, and each package resolves as a direct runtime dependency', () => {
-  const manifests = payload().manifests as Record<string, { resolved: Record<string, { package_url: string, relationship: string, scope: string }> }>
+  const manifests = payload().manifests as Record<
+    string,
+    { resolved: Record<string, { package_url: string; relationship: string; scope: string }> }
+  >
   const entry = manifests['THIRD_PARTY_NOTICES.md']
   assert.ok(entry, 'the payload does not name the file the packages were read from')
   const names = Object.keys(entry.resolved)
