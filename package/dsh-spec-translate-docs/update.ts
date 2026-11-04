@@ -1,4 +1,11 @@
 /**
+ * SPDX-License-Identifier: MIT
+ *
+ * Extracted from the DeepSeek Harness bilingual-document mechanism at the pinned
+ * `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`); the skill-root
+ * THIRD_PARTY_NOTICES names the upstream paths and the relation.
+ */
+/**
  * Update-path orchestration: recover the last-confirmed pair from Git, choose the narrowest safely
  * mapped briefing granularity, render the briefing, and apply the mechanical splice when the
  * change is confined to fenced code. Adapted from the upstream briefing CLI.
@@ -25,14 +32,13 @@ import {
 } from './brief.ts'
 import { parseMarkdown } from './markdown.ts'
 import { generatedRegions, maskGeneratedRegions } from './regions.ts'
-import type { PairCorpus } from './pairing.ts'
+import type { PairCorpus } from './corpus.ts'
 import { translationStructureDiff, translationStructureSignature } from './pairing.ts'
 import {
   computeTranslationPairingRecord,
   parseTranslationPairingRecord,
   translationPairingRecordDiff,
   type TranslationPairingRecord,
-  type TranslationPairingRecordContext,
 } from './pairing-record.ts'
 import { DEFAULT_SOURCE_LANGUAGE, type Language, type PairPaths } from './targets.ts'
 
@@ -44,7 +50,7 @@ function shellQuote(value: string): string {
   return "'" + value.replace(/'/g, "'\\''") + "'"
 }
 
-/** The declaration flags a generated command repeats, so it runs as printed. */
+/** The standing-instructions flags a generated command repeats, so it runs as printed. */
 function commandFlags(corpus: PairCorpus): string {
   const flags = [
     ...corpus.select.map((glob) => ' --select ' + shellQuote(glob)),
@@ -73,11 +79,6 @@ function git(root: string, args: string[], allowedExitCodes: number[] = [0]): st
   return result.stdout ?? ''
 }
 
-/** The record inputs shared by one pair's two sides. */
-export function recordContext(corpus: PairCorpus, target: Language): TranslationPairingRecordContext {
-  return { base: { repoRoot: corpus.root, isPairSource: (sourcePath) => corpus.isPaired(sourcePath) }, target }
-}
-
 /**
  * Whether the record's selected target matches the pair's current contents.
  * @param record - parsed aggregate record.
@@ -87,7 +88,7 @@ export function recordContext(corpus: PairCorpus, target: Language): Translation
  * @param counterpart - counterpart text.
  * @returns true when the selected target and source hashes agree.
  */
-export function recordMatches(
+function recordMatches(
   record: TranslationPairingRecord,
   corpus: PairCorpus,
   paths: PairPaths,
@@ -97,19 +98,14 @@ export function recordMatches(
   try {
     const current = computeTranslationPairingRecord(
       paths,
-      masked(source),
-      masked(counterpart),
-      recordContext(corpus, paths.target),
+      maskGeneratedRegions(source),
+      maskGeneratedRegions(counterpart),
+      corpus.recordContext(paths.target),
     )
     return translationPairingRecordDiff(record, current, record.sourceCode, paths.target.code).length === 0
   } catch {
     return false
   }
-}
-
-/** Mask generated regions, throwing a readable error when the markers are malformed. */
-function masked(text: string): string {
-  return maskGeneratedRegions(text)
 }
 
 /** Replace the last-confirmed region blocks with the current ones, keeping the last prose. */
@@ -128,18 +124,17 @@ function alignRegions(current: string, last: string): string {
 
 /** Both sides at the newest commit whose contents produce the confirmed record. */
 function lastConfirmed(
-  root: string,
   corpus: PairCorpus,
   paths: PairPaths,
   recordText: string,
 ): { source: string; counterpart: string } | undefined {
   const record = parseTranslationPairingRecord(recordText)
   if (record === undefined) return undefined
-  const log = tryGit(root, ['log', '--format=%H', '--', paths.source, paths.counterpart])
+  const log = tryGit(corpus.root, ['log', '--format=%H', '--', paths.source, paths.counterpart])
   if (log === undefined) return undefined
   for (const commit of log.split('\n').filter(Boolean)) {
-    const source = tryGit(root, ['show', commit + ':' + paths.source])
-    const counterpart = tryGit(root, ['show', commit + ':' + paths.counterpart])
+    const source = tryGit(corpus.root, ['show', commit + ':' + paths.source])
+    const counterpart = tryGit(corpus.root, ['show', commit + ':' + paths.counterpart])
     if (source === undefined || counterpart === undefined || source === '' || counterpart === '') continue
     if (!recordMatches(record, corpus, paths, source, counterpart)) continue
     return { source, counterpart }
@@ -188,7 +183,6 @@ export interface PairRuntimeState {
 
 /**
  * Load one pair's recorded and current state, or explain why it cannot be briefed.
- * @param root - project root.
  * @param corpus - the corpus.
  * @param paths - the pair.
  * @param record - the record file text.
@@ -197,18 +191,17 @@ export interface PairRuntimeState {
  * @returns the drifted state, or a precondition message.
  */
 export function loadPairState(
-  root: string,
   corpus: PairCorpus,
   paths: PairPaths,
   record: string,
   sourceCurrent: string,
   counterpartCurrent: string,
 ): PairRuntimeState | string {
-  const confirmed = lastConfirmed(root, corpus, paths, record)
+  const confirmed = lastConfirmed(corpus, paths, record)
   if (confirmed !== undefined) {
     return {
-      sourceDrifted: masked(sourceCurrent) !== masked(confirmed.source),
-      counterpartDrifted: masked(counterpartCurrent) !== masked(confirmed.counterpart),
+      sourceDrifted: maskGeneratedRegions(sourceCurrent) !== maskGeneratedRegions(confirmed.source),
+      counterpartDrifted: maskGeneratedRegions(counterpartCurrent) !== maskGeneratedRegions(confirmed.counterpart),
       sourceLast: confirmed.source,
       counterpartLast: confirmed.counterpart,
     }
@@ -232,7 +225,7 @@ interface PlannedBrief {
   scope: BriefScope
   changedText: string
   mechanicalResult?: string | undefined
-  /** The declaration's scope and exclusion flags, passed to every generated command. */
+  /** The standing instructions' scope and exclusion flags, passed to every generated command. */
   contextFlags: string
 }
 
@@ -247,8 +240,8 @@ function planScope(
   terminology: string,
   sourceLanguage: Language,
 ): PlannedBrief {
-  const sourceCurrentMasked = masked(sourceCurrent)
-  const counterpartMasked = masked(counterpartCurrent)
+  const sourceCurrentMasked = maskGeneratedRegions(sourceCurrent)
+  const counterpartMasked = maskGeneratedRegions(counterpartCurrent)
   const wholeChangedText = sourceLastMasked + '\n' + sourceCurrentMasked
   if (bothDrifted) {
     return {
@@ -377,7 +370,7 @@ export function planBriefing(options: {
     const sourceCurrent = sourceIsSource ? options.sourceCurrent : options.counterpartCurrent
     const counterpartCurrent = sourceIsSource ? options.counterpartCurrent : options.sourceCurrent
     const planned = planScope(
-      masked(sourceLast),
+      maskGeneratedRegions(sourceLast),
       alignRegions(sourceCurrent, sourceLast),
       sourceCurrent,
       counterpartCurrent,
@@ -394,7 +387,7 @@ export function planBriefing(options: {
       counterpartPath,
       sourceCurrent,
       counterpartCurrent,
-      diff: diffTexts(corpus.root, masked(sourceLast), masked(sourceCurrent)),
+      diff: diffTexts(corpus.root, maskGeneratedRegions(sourceLast), maskGeneratedRegions(sourceCurrent)),
       scope: planned.scope,
       changedText: planned.changedText,
       mechanicalResult: planned.mechanicalResult,
@@ -454,21 +447,11 @@ export function mechanicalUpdateErrors(corpus: PairCorpus, plan: BriefPlan): str
   }
   const changedRole = plan.direction === 'source-to-target' ? ('source' as const) : ('counterpart' as const)
   const contexts = {
-    source: {
-      repoRoot: corpus.root,
-      sourcePath: plan.paths.source,
-      side: { role: 'source' as const, target: plan.paths.target },
-      isPairSource: (path: string) => corpus.isPaired(path),
-    },
-    counterpart: {
-      repoRoot: corpus.root,
-      sourcePath: plan.paths.counterpart,
-      side: { role: 'counterpart' as const, target: plan.paths.target },
-      isPairSource: (path: string) => corpus.isPaired(path),
-    },
+    source: corpus.linkContext(plan.paths, 'source'),
+    counterpart: corpus.linkContext(plan.paths, 'counterpart'),
   }
-  const changedText = masked(plan.sourceCurrent)
-  const resultText = masked(plan.mechanicalResult)
+  const changedText = maskGeneratedRegions(plan.sourceCurrent)
+  const resultText = maskGeneratedRegions(plan.mechanicalResult)
   const changedTree: Nodes = parseMarkdown(changedText)
   const resultTree: Nodes = parseMarkdown(resultText)
   const changedSignature =

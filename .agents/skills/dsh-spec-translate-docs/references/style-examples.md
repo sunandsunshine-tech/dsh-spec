@@ -1,7 +1,7 @@
 # Style examples
 
 Default voice-calibration guidance and reviewed English-to-Chinese passages. A project may replace
-this whole file through its declaration; when it does, read the declared style file instead. The
+this whole file through its standing instructions; when it does, read the declared style file instead. The
 binding priority is in [translation rules](translation-rules.md).
 
 ## How to use these samples
@@ -17,8 +17,8 @@ target side alone once and rewrite phrasing whose awkwardness only appears in is
 
 ## Default file and project replacement
 
-This is the skill's default style file. The project's declaration may name its own style file in
-any location or format; that file replaces this one wholesale. When the declaration names none,
+This is the skill's default style file. The project's standing instructions may name its own style file in
+any location or format; that file replaces this one wholesale. When they name none,
 this default is used. The script never reads style files; only the agent does.
 
 ## What a sample is

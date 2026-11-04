@@ -84,10 +84,8 @@ A proposal above the forge is reconsidered only when it names the formal anchor 
 
 ## Testing
 
-- `node scripts/dsh-spec-manager/scripts/dsh-spec.ts notes check --all --root .` → 27 Agent Notes checked, structure consistent; format consistent.
-- `node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair check` on this pair and on the two rejected pairs → all consistent.
-- `node scripts/dsh-spec-manager/scripts/dsh-spec.ts md-links check` on this note and its Chinese side → ok.
-- `pnpm test` → 82 tests, 82 pass, 0 fail.
+- `node scripts/verify-corpus.ts --base-ref=HEAD` → every skill entry, the notes tree and archive, the maintained translation pairs and the vendored notices pass.
+- `pnpm test` → the functional suite passes.
 
 ## Related
 

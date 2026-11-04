@@ -41,7 +41,7 @@ A pointer states three things: the target, what the target contains, and the con
 
 A relative link resolves from the AGENTS.md file's directory to a document that exists at the repository's current state; an external URL names a stable resource. A link that no longer resolves is a defect of the same class as a stale command.
 
-When detail leaves the file and no document owns it, it lives where the project's declaration says; without a declaration, in `.agents/dsh-spec-agents-md/` beside the AGENTS.md that links it, created on first use. Only agent-facing detail that no human document owns goes there; anything a person must read belongs in the documentation the person reads. The extracted files are repository content, committed with the AGENTS.md that links them; the pointer contract and the update boundary apply to them unchanged.
+When detail leaves the file and no document owns it, it lives where the project's standing instructions say; without standing instructions, in `.agents/dsh-spec-agents-md/` beside the AGENTS.md that links it, created on first use. Only agent-facing detail that no human document owns goes there; anything a person must read belongs in the documentation the person reads. The extracted files are repository content, committed with the AGENTS.md that links them; the pointer contract and the update boundary apply to them unchanged.
 
 ## The scope of a file
 

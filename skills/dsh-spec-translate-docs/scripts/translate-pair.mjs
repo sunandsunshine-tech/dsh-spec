@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// Generated from package/dsh-spec-translate-docs/translate-pair.ts by `pnpm run skill:build`; edit the source and rebuild. Bundled third-party code is covered by the skill-root THIRD_PARTY_NOTICES.
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, isAbsolute, join, matchesGlob, posix, resolve } from "node:path";
 import { createHash } from "node:crypto";
@@ -15,7 +16,7 @@ var __exportAll = (all, no_symbols) => {
 	if (!no_symbols) __defProp(target, Symbol.toStringTag, { value: "Module" });
 	return target;
 };
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/mdast-util-to-string@4.0.0/node_modules/mdast-util-to-string/lib/index.js
+// node_modules/.pnpm/mdast-util-to-string@4.0.0/node_modules/mdast-util-to-string/lib/index.js
 /**
 * @typedef {import('mdast').Nodes} Nodes
 *
@@ -96,7 +97,7 @@ function all(values, includeImageAlt, includeHtml) {
 function node(value) {
 	return Boolean(value && typeof value === "object");
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/character-entities@2.0.2/node_modules/character-entities/index.js
+// node_modules/.pnpm/character-entities@2.0.2/node_modules/character-entities/index.js
 /**
 * Map of named character references.
 *
@@ -2229,7 +2230,7 @@ const characterEntities = {
 	zwj: "‍",
 	zwnj: "‌"
 };
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/decode-named-character-reference@1.3.0/node_modules/decode-named-character-reference/index.js
+// node_modules/.pnpm/decode-named-character-reference@1.3.0/node_modules/decode-named-character-reference/index.js
 const own$1 = {}.hasOwnProperty;
 /**
 * Decode a single character reference (without the `&` or `;`).
@@ -2245,7 +2246,7 @@ const own$1 = {}.hasOwnProperty;
 function decodeNamedCharacterReference(value) {
 	return own$1.call(characterEntities, value) ? characterEntities[value] : false;
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-util-chunked@2.0.1/node_modules/micromark-util-chunked/index.js
+// node_modules/.pnpm/micromark-util-chunked@2.0.1/node_modules/micromark-util-chunked/index.js
 /**
 * Like `Array#splice`, but smarter for giant arrays.
 *
@@ -2314,7 +2315,7 @@ function push(list, items) {
 	}
 	return items;
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-util-combine-extensions@2.0.1/node_modules/micromark-util-combine-extensions/index.js
+// node_modules/.pnpm/micromark-util-combine-extensions@2.0.1/node_modules/micromark-util-combine-extensions/index.js
 /**
 * @import {
 *   Extension,
@@ -2384,7 +2385,7 @@ function constructs(existing, list) {
 	while (++index < list.length) (list[index].add === "after" ? existing : before).push(list[index]);
 	splice(existing, 0, 0, before);
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-util-decode-numeric-character-reference@2.0.2/node_modules/micromark-util-decode-numeric-character-reference/index.js
+// node_modules/.pnpm/micromark-util-decode-numeric-character-reference@2.0.2/node_modules/micromark-util-decode-numeric-character-reference/index.js
 /**
 * Turn the number (in string form as either hexa- or plain decimal) coming from
 * a numeric character reference into a character.
@@ -2404,7 +2405,7 @@ function decodeNumericCharacterReference(value, base) {
 	if (code < 9 || code === 11 || code > 13 && code < 32 || code > 126 && code < 160 || code > 55295 && code < 57344 || code > 64975 && code < 65008 || (code & 65535) === 65535 || (code & 65535) === 65534 || code > 1114111) return "�";
 	return String.fromCodePoint(code);
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-util-normalize-identifier@2.0.1/node_modules/micromark-util-normalize-identifier/index.js
+// node_modules/.pnpm/micromark-util-normalize-identifier@2.0.1/node_modules/micromark-util-normalize-identifier/index.js
 /**
 * Normalize an identifier (as found in references, definitions).
 *
@@ -2427,7 +2428,7 @@ function decodeNumericCharacterReference(value, base) {
 function normalizeIdentifier(value) {
 	return value.replace(/[\t\n\r ]+/g, " ").replace(/^ | $/g, "").toLowerCase().toUpperCase();
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-util-character@2.1.1/node_modules/micromark-util-character/index.js
+// node_modules/.pnpm/micromark-util-character@2.1.1/node_modules/micromark-util-character/index.js
 /**
 * @import {Code} from 'micromark-util-types'
 */
@@ -2654,7 +2655,7 @@ function regexCheck(regex) {
 		return code !== null && code > -1 && regex.test(String.fromCharCode(code));
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-factory-space@2.1.0/node_modules/micromark-factory-space/index.js
+// node_modules/.pnpm/micromark-factory-space@2.1.0/node_modules/micromark-factory-space/index.js
 /**
 * @import {Effects, State, TokenType} from 'micromark-util-types'
 */
@@ -2760,7 +2761,7 @@ function factorySpaceMinMax(effects, ok, nok, type, min, max) {
 		return size >= min ? ok(code) : nok(code);
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark@4.0.3/node_modules/micromark/lib/initialize/content.js
+// node_modules/.pnpm/micromark@4.0.3/node_modules/micromark/lib/initialize/content.js
 /**
 * @import {
 *   InitialConstruct,
@@ -2826,7 +2827,7 @@ function initializeContent(effects) {
 		return data;
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-util-edit-map@1.0.0/node_modules/micromark-util-edit-map/index.js
+// node_modules/.pnpm/micromark-util-edit-map@1.0.0/node_modules/micromark-util-edit-map/index.js
 /**
 * @import {Event} from 'micromark-util-types'
 */
@@ -2971,7 +2972,7 @@ function addImplementation$1(editMap, at, remove, add, before) {
 	editMap.map.push(change);
 	editMap.index.set(at, change);
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark@4.0.3/node_modules/micromark/lib/initialize/document.js
+// node_modules/.pnpm/micromark@4.0.3/node_modules/micromark/lib/initialize/document.js
 /**
 * @import {
 *   Construct,
@@ -3190,7 +3191,7 @@ function initializeDocument(effects) {
 function tokenizeContainer(effects, ok, nok) {
 	return factorySpace(effects, effects.attempt(this.parser.constructs.document, ok, nok), "linePrefix", this.parser.constructs.disable.null.includes("codeIndented") ? void 0 : 4);
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-util-classify-character@2.0.1/node_modules/micromark-util-classify-character/index.js
+// node_modules/.pnpm/micromark-util-classify-character@2.0.1/node_modules/micromark-util-classify-character/index.js
 /**
 * @import {Code} from 'micromark-util-types'
 */
@@ -3212,7 +3213,7 @@ function classifyCharacter(code) {
 	if (code === null || markdownLineEndingOrSpace(code) || unicodeWhitespace(code)) return 1;
 	if (unicodePunctuation(code)) return 2;
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-util-resolve-all@2.0.1/node_modules/micromark-util-resolve-all/index.js
+// node_modules/.pnpm/micromark-util-resolve-all@2.0.1/node_modules/micromark-util-resolve-all/index.js
 /**
 * @import {Event, Resolver, TokenizeContext} from 'micromark-util-types'
 */
@@ -3241,7 +3242,7 @@ function resolveAll(constructs, events, context) {
 	}
 	return events;
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/attention.js
+// node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/attention.js
 /**
 * @import {
 *   Code,
@@ -3448,7 +3449,7 @@ function movePoint(point, offset) {
 	point.offset += offset;
 	point._bufferIndex += offset;
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/autolink.js
+// node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/autolink.js
 /**
 * @import {
 *   Construct,
@@ -3658,7 +3659,7 @@ function tokenizeAutolink(effects, ok, nok) {
 		return nok(code);
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/blank-line.js
+// node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/blank-line.js
 /**
 * @import {
 *   Construct,
@@ -3714,7 +3715,7 @@ function tokenizeBlankLine(effects, ok, nok) {
 		return code === null || markdownLineEnding(code) ? ok(code) : nok(code);
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/block-quote.js
+// node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/block-quote.js
 /**
 * @import {
 *   Construct,
@@ -3840,7 +3841,7 @@ function tokenizeBlockQuoteContinuation(effects, ok, nok) {
 function exit$1(effects) {
 	effects.exit("blockQuote");
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/character-escape.js
+// node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/character-escape.js
 /**
 * @import {
 *   Construct,
@@ -3899,7 +3900,7 @@ function tokenizeCharacterEscape(effects, ok, nok) {
 		return nok(code);
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/character-reference.js
+// node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/character-reference.js
 /**
 * @import {
 *   Code,
@@ -4036,7 +4037,7 @@ function tokenizeCharacterReference(effects, ok, nok) {
 		return nok(code);
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/partial-non-lazy-continuation.js
+// node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/partial-non-lazy-continuation.js
 /** @type {Construct} */
 const nonLazyContinuation = {
 	partial: true,
@@ -4083,7 +4084,7 @@ function tokenizeNonLazyContinuation(effects, ok, nok) {
 		return self.parser.lazy[self.now().line] ? nok(code) : ok(code);
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/code-fenced.js
+// node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/code-fenced.js
 /**
 * @import {
 *   Code,
@@ -4463,7 +4464,7 @@ function tokenizeCodeFenced(effects, ok, nok) {
 		}
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/code-indented.js
+// node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/code-indented.js
 /**
 * @import {
 *   Construct,
@@ -4594,7 +4595,7 @@ function tokenizeFurtherStart(effects, ok, nok) {
 		return markdownLineEnding(code) ? furtherStart(code) : nok(code);
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/code-text.js
+// node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/code-text.js
 /**
 * @import {
 *   Construct,
@@ -4778,7 +4779,7 @@ function tokenizeCodeText(effects, ok, nok) {
 		return data(code);
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-util-subtokenize@2.1.0/node_modules/micromark-util-subtokenize/lib/splice-buffer.js
+// node_modules/.pnpm/micromark-util-subtokenize@2.1.0/node_modules/micromark-util-subtokenize/lib/splice-buffer.js
 /**
 * Some of the internal operations of micromark do lots of editing
 * operations on very large arrays. This runs into problems with two
@@ -5007,7 +5008,7 @@ function chunkedPush(list, right) {
 		chunkStart += 1e4;
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-util-subtokenize@2.1.0/node_modules/micromark-util-subtokenize/index.js
+// node_modules/.pnpm/micromark-util-subtokenize@2.1.0/node_modules/micromark-util-subtokenize/index.js
 /**
 * @import {Chunk, Event, Token} from 'micromark-util-types'
 */
@@ -5161,7 +5162,7 @@ function subcontent(events, eventIndex) {
 	}
 	return gaps;
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/content.js
+// node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/content.js
 /**
 * @import {
 *   Construct,
@@ -5293,7 +5294,7 @@ function tokenizeContinuation(effects, ok, nok) {
 		return effects.interrupt(self.parser.constructs.flow, nok, ok)(code);
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-factory-destination@2.0.1/node_modules/micromark-factory-destination/index.js
+// node_modules/.pnpm/micromark-factory-destination@2.0.1/node_modules/micromark-factory-destination/index.js
 /**
 * @import {Effects, State, TokenType} from 'micromark-util-types'
 */
@@ -5476,7 +5477,7 @@ function factoryDestination(effects, ok, nok, type, literalType, literalMarkerTy
 		return raw(code);
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-factory-label@2.0.1/node_modules/micromark-factory-label/index.js
+// node_modules/.pnpm/micromark-factory-label@2.0.1/node_modules/micromark-factory-label/index.js
 /**
 * @import {
 *   Effects,
@@ -5609,7 +5610,7 @@ function factoryLabel(effects, ok, nok, type, markerType, stringType) {
 		return labelInside(code);
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-factory-title@2.0.1/node_modules/micromark-factory-title/index.js
+// node_modules/.pnpm/micromark-factory-title@2.0.1/node_modules/micromark-factory-title/index.js
 /**
 * @import {
 *   Code,
@@ -5753,7 +5754,7 @@ function factoryTitle(effects, ok, nok, type, markerType, stringType) {
 		return inside(code);
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-factory-whitespace@2.0.1/node_modules/micromark-factory-whitespace/index.js
+// node_modules/.pnpm/micromark-factory-whitespace@2.0.1/node_modules/micromark-factory-whitespace/index.js
 /**
 * @import {Effects, State} from 'micromark-util-types'
 */
@@ -5792,7 +5793,7 @@ function factoryWhitespace(effects, ok) {
 		return ok(code);
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/definition.js
+// node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/definition.js
 /**
 * @import {
 *   Construct,
@@ -6006,7 +6007,7 @@ function tokenizeTitleBefore(effects, ok, nok) {
 		return code === null || markdownLineEnding(code) ? ok(code) : nok(code);
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/hard-break-escape.js
+// node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/hard-break-escape.js
 /**
 * @import {
 *   Construct,
@@ -6062,7 +6063,7 @@ function tokenizeHardBreakEscape(effects, ok, nok) {
 		return nok(code);
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/heading-atx.js
+// node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/heading-atx.js
 /**
 * @import {
 *   Construct,
@@ -6242,7 +6243,7 @@ function tokenizeHeadingAtx(effects, ok, nok) {
 		return data;
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-util-html-tag-name@2.0.1/node_modules/micromark-util-html-tag-name/index.js
+// node_modules/.pnpm/micromark-util-html-tag-name@2.0.1/node_modules/micromark-util-html-tag-name/index.js
 /**
 * List of lowercase HTML “block” tag names.
 *
@@ -6340,7 +6341,7 @@ const htmlRawNames = [
 	"style",
 	"textarea"
 ];
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/html-flow.js
+// node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/html-flow.js
 /**
 * @import {
 *   Code,
@@ -7065,7 +7066,7 @@ function tokenizeBlankLineBefore(effects, ok, nok) {
 		return effects.attempt(blankLine, ok, nok);
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/html-text.js
+// node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/html-text.js
 /**
 * @import {
 *   Code,
@@ -7678,7 +7679,7 @@ function tokenizeHtmlText(effects, ok, nok) {
 		return returnState(code);
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/label-end.js
+// node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/label-end.js
 /**
 * @import {
 *   Construct,
@@ -8146,7 +8147,7 @@ function tokenizeReferenceCollapsed(effects, ok, nok) {
 		return nok(code);
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/label-start-image.js
+// node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/label-start-image.js
 /**
 * @import {
 *   Construct,
@@ -8244,7 +8245,7 @@ function tokenizeLabelStartImage(effects, ok, nok) {
 		return ok(code);
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/label-start-link.js
+// node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/label-start-link.js
 /**
 * @import {
 *   Construct,
@@ -8297,7 +8298,7 @@ function tokenizeLabelStartLink(effects, ok, nok) {
 		return ok(code);
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/line-ending.js
+// node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/line-ending.js
 /**
 * @import {
 *   Construct,
@@ -8326,7 +8327,7 @@ function tokenizeLineEnding(effects, ok) {
 		return factorySpace(effects, ok, "linePrefix");
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/thematic-break.js
+// node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/thematic-break.js
 /**
 * @import {
 *   Code,
@@ -8420,7 +8421,7 @@ function tokenizeThematicBreak(effects, ok, nok) {
 		return markdownSpace(code) ? factorySpace(effects, atBreak, "whitespace")(code) : atBreak(code);
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/list.js
+// node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/list.js
 /**
 * @import {
 *   Code,
@@ -8591,7 +8592,7 @@ function tokenizeListItemPrefixWhitespace(effects, ok, nok) {
 		return !markdownSpace(code) && tail && tail[1].type === "listItemPrefixWhitespace" ? ok(code) : nok(code);
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/setext-underline.js
+// node_modules/.pnpm/micromark-core-commonmark@2.0.4/node_modules/micromark-core-commonmark/lib/setext-underline.js
 /**
 * @import {
 *   Code,
@@ -8744,7 +8745,7 @@ function tokenizeSetextUnderline(effects, ok, nok) {
 		return nok(code);
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark@4.0.3/node_modules/micromark/lib/initialize/flow.js
+// node_modules/.pnpm/micromark@4.0.3/node_modules/micromark/lib/initialize/flow.js
 /**
 * @import {
 *   InitialConstruct,
@@ -8790,7 +8791,7 @@ function initializeFlow(effects) {
 		return initial;
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark@4.0.3/node_modules/micromark/lib/initialize/text.js
+// node_modules/.pnpm/micromark@4.0.3/node_modules/micromark/lib/initialize/text.js
 /**
 * @import {
 *   Code,
@@ -8965,7 +8966,7 @@ function resolveAllLineSuffixes(events, context) {
 	editMap.consume(events);
 	return events;
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark@4.0.3/node_modules/micromark/lib/constructs.js
+// node_modules/.pnpm/micromark@4.0.3/node_modules/micromark/lib/constructs.js
 /**
 * @import {Extension} from 'micromark-util-types'
 */
@@ -9042,7 +9043,7 @@ const insideSpan = { null: [attention, resolver] };
 const attentionMarkers = { null: [42, 95] };
 /** @satisfies {Extension['disable']} */
 const disable = { null: [] };
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark@4.0.3/node_modules/micromark/lib/create-tokenizer.js
+// node_modules/.pnpm/micromark@4.0.3/node_modules/micromark/lib/create-tokenizer.js
 /**
 * @import {
 *   Chunk,
@@ -9508,7 +9509,7 @@ function serializeChunks(chunks, expandTabs) {
 	}
 	return result.join("");
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark@4.0.3/node_modules/micromark/lib/parse.js
+// node_modules/.pnpm/micromark@4.0.3/node_modules/micromark/lib/parse.js
 /**
 * @import {
 *   Create,
@@ -9551,7 +9552,7 @@ function parse(options) {
 		}
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark@4.0.3/node_modules/micromark/lib/postprocess.js
+// node_modules/.pnpm/micromark@4.0.3/node_modules/micromark/lib/postprocess.js
 /**
 * @import {Event} from 'micromark-util-types'
 */
@@ -9565,7 +9566,7 @@ function postprocess(events) {
 	while (!subtokenize(events));
 	return events;
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark@4.0.3/node_modules/micromark/lib/preprocess.js
+// node_modules/.pnpm/micromark@4.0.3/node_modules/micromark/lib/preprocess.js
 /**
 * @import {Chunk, Code, Encoding, Value} from 'micromark-util-types'
 */
@@ -9656,7 +9657,7 @@ function preprocess() {
 		return chunks;
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-util-decode-string@2.0.1/node_modules/micromark-util-decode-string/index.js
+// node_modules/.pnpm/micromark-util-decode-string@2.0.1/node_modules/micromark-util-decode-string/index.js
 const characterEscapeOrReference = /\\([!-/:-@[-`{-~])|&(#(?:\d{1,7}|x[\da-f]{1,6})|[\da-z]{1,31});/gi;
 /**
 * Decode markdown strings (which occur in places such as fenced code info
@@ -9692,7 +9693,7 @@ function decode($0, $1, $2) {
 	}
 	return decodeNamedCharacterReference($2) || $0;
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/unist-util-stringify-position@4.0.0/node_modules/unist-util-stringify-position/lib/index.js
+// node_modules/.pnpm/unist-util-stringify-position@4.0.0/node_modules/unist-util-stringify-position/lib/index.js
 /**
 * @typedef {import('unist').Node} Node
 * @typedef {import('unist').Point} Point
@@ -9755,7 +9756,7 @@ function position(pos) {
 function index(value) {
 	return value && typeof value === "number" ? value : 1;
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/mdast-util-from-markdown@2.0.3/node_modules/mdast-util-from-markdown/lib/index.js
+// node_modules/.pnpm/mdast-util-from-markdown@2.0.3/node_modules/mdast-util-from-markdown/lib/index.js
 /**
 * @import {
 *   Break,
@@ -10724,7 +10725,7 @@ function defaultOnError(left, right) {
 		end: right.end
 	}) + ") is still open");
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/ccount@2.0.1/node_modules/ccount/index.js
+// node_modules/.pnpm/ccount@2.0.1/node_modules/ccount/index.js
 /**
 * Count how often a character (or substring) is used in a string.
 *
@@ -10746,12 +10747,12 @@ function ccount(value, character) {
 	}
 	return count;
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/escape-string-regexp@5.0.0/node_modules/escape-string-regexp/index.js
+// node_modules/.pnpm/escape-string-regexp@5.0.0/node_modules/escape-string-regexp/index.js
 function escapeStringRegexp(string) {
 	if (typeof string !== "string") throw new TypeError("Expected a string");
 	return string.replace(/[|\\{}()[\]^$+*?.]/g, "\\$&").replace(/-/g, "\\x2d");
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/unist-util-is@6.0.1/node_modules/unist-util-is/lib/index.js
+// node_modules/.pnpm/unist-util-is@6.0.1/node_modules/unist-util-is/lib/index.js
 /**
 * Generate an assertion from a test.
 *
@@ -10864,7 +10865,7 @@ function ok() {
 function looksLikeANode(value) {
 	return value !== null && typeof value === "object" && "type" in value;
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/unist-util-visit-parents@6.1.0/node_modules/unist-util-visit-parents/lib/color.node.js
+// node_modules/.pnpm/unist-util-visit-parents@6.1.0/node_modules/unist-util-visit-parents/lib/color.node.js
 /**
 * Color a string.
 *
@@ -10876,7 +10877,7 @@ function looksLikeANode(value) {
 function color(d) {
 	return "\x1B[33m" + d + "\x1B[39m";
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/unist-util-visit-parents@6.1.0/node_modules/unist-util-visit-parents/lib/index.js
+// node_modules/.pnpm/unist-util-visit-parents@6.1.0/node_modules/unist-util-visit-parents/lib/index.js
 /**
 * @import {Node as UnistNode, Parent as UnistParent} from 'unist'
 */
@@ -11333,7 +11334,7 @@ function toResult(value) {
 	if (typeof value === "number") return [true, value];
 	return value === null || value === void 0 ? empty : [value];
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/mdast-util-find-and-replace@3.0.4/node_modules/mdast-util-find-and-replace/lib/index.js
+// node_modules/.pnpm/mdast-util-find-and-replace@3.0.4/node_modules/mdast-util-find-and-replace/lib/index.js
 /**
 * @import {Nodes, Parents, PhrasingContent, Root, Text} from 'mdast'
 * @import {BuildVisitor, Test, VisitorResult} from 'unist-util-visit-parents'
@@ -11535,7 +11536,7 @@ function toFunction(replace) {
 		return replace;
 	};
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/mdast-util-gfm-autolink-literal@2.0.1/node_modules/mdast-util-gfm-autolink-literal/lib/index.js
+// node_modules/.pnpm/mdast-util-gfm-autolink-literal@2.0.1/node_modules/mdast-util-gfm-autolink-literal/lib/index.js
 /**
 * @import {RegExpMatchObject, ReplaceFunction} from 'mdast-util-find-and-replace'
 * @import {CompileContext, Extension as FromMarkdownExtension, Handle as FromMarkdownHandle, Transform as FromMarkdownTransform} from 'mdast-util-from-markdown'
@@ -11714,7 +11715,7 @@ function previous(match, email) {
 	const code = match.input.charCodeAt(match.index - 1);
 	return (match.index === 0 || unicodeWhitespace(code) || unicodePunctuation(code)) && (!email || code !== 47);
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/mdast-util-gfm-footnote@2.1.0/node_modules/mdast-util-gfm-footnote/lib/index.js
+// node_modules/.pnpm/mdast-util-gfm-footnote@2.1.0/node_modules/mdast-util-gfm-footnote/lib/index.js
 /**
 * @import {
 *   CompileContext,
@@ -11848,7 +11849,7 @@ function gfmFootnoteFromMarkdown() {
 		}
 	};
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/mdast-util-gfm-strikethrough@2.0.1/node_modules/mdast-util-gfm-strikethrough/lib/index.js
+// node_modules/.pnpm/mdast-util-gfm-strikethrough@2.0.1/node_modules/mdast-util-gfm-strikethrough/lib/index.js
 handleDelete.attention = attentionDelete;
 handleDelete.peek = peekDelete;
 /**
@@ -11928,7 +11929,7 @@ function attentionDelete() {
 function peekDelete() {
 	return "~";
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/mdast-util-gfm-table@2.0.0/node_modules/mdast-util-gfm-table/lib/index.js
+// node_modules/.pnpm/mdast-util-gfm-table@2.0.0/node_modules/mdast-util-gfm-table/lib/index.js
 /**
 * @typedef {import('mdast').InlineCode} InlineCode
 * @typedef {import('mdast').Table} Table
@@ -12052,7 +12053,7 @@ function exitCodeText(token) {
 function replace($0, $1) {
 	return $1 === "|" ? $1 : $0;
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/mdast-util-gfm-task-list-item@2.0.0/node_modules/mdast-util-gfm-task-list-item/lib/index.js
+// node_modules/.pnpm/mdast-util-gfm-task-list-item@2.0.0/node_modules/mdast-util-gfm-task-list-item/lib/index.js
 /**
 * @typedef {import('mdast').ListItem} ListItem
 * @typedef {import('mdast').Paragraph} Paragraph
@@ -12120,7 +12121,7 @@ function exitParagraphWithTaskListItem(token) {
 	}
 	this.exit(token);
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/mdast-util-gfm@3.1.0/node_modules/mdast-util-gfm/lib/index.js
+// node_modules/.pnpm/mdast-util-gfm@3.1.0/node_modules/mdast-util-gfm/lib/index.js
 /**
 * @import {Extension as FromMarkdownExtension} from 'mdast-util-from-markdown'
 * @import {Options} from 'mdast-util-gfm'
@@ -12143,7 +12144,7 @@ function gfmFromMarkdown() {
 		gfmTaskListItemFromMarkdown()
 	];
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-extension-gfm-autolink-literal@2.1.0/node_modules/micromark-extension-gfm-autolink-literal/lib/syntax.js
+// node_modules/.pnpm/micromark-extension-gfm-autolink-literal@2.1.0/node_modules/micromark-extension-gfm-autolink-literal/lib/syntax.js
 /**
 * @import {Code, ConstructRecord, Event, Extension, Previous, State, TokenizeContext, Tokenizer} from 'micromark-util-types'
 */
@@ -12843,7 +12844,7 @@ function previousUnbalanced(events) {
 	if (events.length > 0 && !result) events[events.length - 1][1]._gfmAutolinkLiteralWalkedInto = true;
 	return result;
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-extension-gfm-footnote@2.1.0/node_modules/micromark-extension-gfm-footnote/lib/syntax.js
+// node_modules/.pnpm/micromark-extension-gfm-footnote@2.1.0/node_modules/micromark-extension-gfm-footnote/lib/syntax.js
 /**
 * @import {Event, Exiter, Extension, Resolver, State, Token, TokenizeContext, Tokenizer} from 'micromark-util-types'
 */
@@ -13261,7 +13262,7 @@ function tokenizeIndent(effects, ok, nok) {
 		return tail && tail[1].type === "gfmFootnoteDefinitionIndent" && tail[2].sliceSerialize(tail[1], true).length === 4 ? ok(code) : nok(code);
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-extension-gfm-strikethrough@2.1.0/node_modules/micromark-extension-gfm-strikethrough/lib/syntax.js
+// node_modules/.pnpm/micromark-extension-gfm-strikethrough@2.1.0/node_modules/micromark-extension-gfm-strikethrough/lib/syntax.js
 /**
 * @import {Options} from 'micromark-extension-gfm-strikethrough'
 * @import {Event, Extension, Resolver, State, Token, TokenizeContext, Tokenizer} from 'micromark-util-types'
@@ -13401,7 +13402,7 @@ function gfmStrikethrough(options) {
 		}
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-extension-gfm-table@2.1.2/node_modules/micromark-extension-gfm-table/lib/edit-map.js
+// node_modules/.pnpm/micromark-extension-gfm-table@2.1.2/node_modules/micromark-extension-gfm-table/lib/edit-map.js
 /**
 * @import {Event} from 'micromark-util-types'
 */
@@ -13511,7 +13512,7 @@ function addImplementation(editMap, at, remove, add) {
 	editMap.map.push(change);
 	editMap.index.set(at, change);
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-extension-gfm-table@2.1.2/node_modules/micromark-extension-gfm-table/lib/infer.js
+// node_modules/.pnpm/micromark-extension-gfm-table@2.1.2/node_modules/micromark-extension-gfm-table/lib/infer.js
 /**
 * @import {Event} from 'micromark-util-types'
 */
@@ -13548,7 +13549,7 @@ function gfmTableAlign(events, index) {
 	}
 	return align;
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-extension-gfm-table@2.1.2/node_modules/micromark-extension-gfm-table/lib/syntax.js
+// node_modules/.pnpm/micromark-extension-gfm-table@2.1.2/node_modules/micromark-extension-gfm-table/lib/syntax.js
 /**
 * @import {Event, Extension, Point, Resolver, State, Token, TokenizeContext, Tokenizer} from 'micromark-util-types'
 */
@@ -14264,7 +14265,7 @@ function getPoint(events, index) {
 	const side = event[0] === "enter" ? "start" : "end";
 	return event[1][side];
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-extension-gfm-task-list-item@2.1.0/node_modules/micromark-extension-gfm-task-list-item/lib/syntax.js
+// node_modules/.pnpm/micromark-extension-gfm-task-list-item@2.1.0/node_modules/micromark-extension-gfm-task-list-item/lib/syntax.js
 /**
 * @import {Extension, State, TokenizeContext, Tokenizer} from 'micromark-util-types'
 */
@@ -14382,7 +14383,7 @@ function spaceThenNonSpace(effects, ok, nok) {
 		return code === null ? nok(code) : ok(code);
 	}
 }
-// ../../../dsh-spec-translate-docs/package/dsh-spec-translate-docs/node_modules/.pnpm/micromark-extension-gfm@3.0.0/node_modules/micromark-extension-gfm/index.js
+// node_modules/.pnpm/micromark-extension-gfm@3.0.0/node_modules/micromark-extension-gfm/index.js
 /**
 * @typedef {import('micromark-extension-gfm-footnote').HtmlOptions} HtmlOptions
 * @typedef {import('micromark-extension-gfm-strikethrough').Options} Options
@@ -14410,6 +14411,13 @@ function gfm(options) {
 	]);
 }
 // markdown.ts
+/**
+* SPDX-License-Identifier: MIT
+*
+* Extracted from the DeepSeek Harness bilingual-document mechanism at the pinned
+* `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`); the skill-root
+* THIRD_PARTY_NOTICES names the upstream paths and the relation.
+*/
 /**
 * Shared Markdown parsing and traversal for the pairing mechanism. The subset is adapted from
 * the upstream documentation gates; the prose-line, fence and heading helpers those gates use
@@ -14523,6 +14531,22 @@ function markdownDestination(source, node) {
 		url: source.slice(absolute.start, absolute.end)
 	};
 }
+// signature.ts
+/**
+* SPDX-License-Identifier: MIT
+*
+* Extracted from the DeepSeek Harness bilingual-document mechanism at the pinned
+* `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`); the skill-root
+* THIRD_PARTY_NOTICES names the upstream paths and the relation.
+*/
+/**
+* Source-bound target signatures. H(sourceHash || targetContentHash), truncated to 16 hex.
+* Kept free of Markdown dependencies so the mechanism's vector test needs no install.
+*/
+/** Bind a target content hash to the source hash it was confirmed against. */
+function bindTarget(sourceHash, targetHash) {
+	return createHash("sha256").update(sourceHash + "\n" + targetHash).digest("hex").slice(0, 16);
+}
 // targets.ts
 /** The default target when no --target is passed. */
 const DEFAULT_TARGET = {
@@ -14602,6 +14626,10 @@ function pairPaths(source, target) {
 		target
 	};
 }
+/** The de-duplication key for one pair: its source path and target code in one string. */
+function pairKey(paths) {
+	return paths.source + "\0" + paths.target.code;
+}
 /** Normalize any pair artifact path or bare stem to its source Markdown path. */
 function normalizePairArgument(argument) {
 	const normalized = argument.split("\\").join("/").replace(/^\.\//, "");
@@ -14651,6 +14679,13 @@ function selectPairs(argument, declared, restrict, existingTargets) {
 	}));
 }
 // pairing-links.ts
+/**
+* SPDX-License-Identifier: MIT
+*
+* Extracted from the DeepSeek Harness bilingual-document mechanism at the pinned
+* `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`); the skill-root
+* THIRD_PARTY_NOTICES names the upstream paths and the relation.
+*/
 /**
 * Locale-aware resolution, validation and normalization of the relative document links a pair
 * carries. Adapted from the upstream bilingual-document link rules: the pair corpus predicate and
@@ -14761,12 +14796,10 @@ function visitDocumentLinkNodes(markdown, skippedOffsets, visitor, tree = parseM
 	visitMarkdown(tree, (node) => {
 		if (node.type === "linkReference") referencedIdentifiers.add(node.identifier);
 	});
-	const seenOffsets = /* @__PURE__ */ new Set();
 	visitMarkdown(tree, (node) => {
 		const offset = node.position?.start.offset;
 		if (node.type === "link" && offset !== void 0 && skippedOffsets.has(offset)) return;
 		if (node.type === "link") {
-			if (offset !== void 0) seenOffsets.add(offset);
 			let destination;
 			try {
 				destination = markdownDestination(markdown, node);
@@ -14896,16 +14929,14 @@ function semanticTranslationLinkNodeTarget(node, markdown, context) {
 	const resolved = resolveTranslationLink(node.url, context, destination.url);
 	return resolved === void 0 ? destination.url : SEMANTIC_LINK_PREFIX + resolved.base + resolved.suffix;
 }
-// signature.ts
-/**
-* Source-bound target signatures. H(sourceHash || targetContentHash), truncated to 16 hex.
-* Kept free of Markdown dependencies so the mechanism's vector test needs no install.
-*/
-/** Bind a target content hash to the source hash it was confirmed against. */
-function bindTarget(sourceHash, targetHash) {
-	return createHash("sha256").update(sourceHash + "\n" + targetHash).digest("hex").slice(0, 16);
-}
 // pairing-record.ts
+/**
+* SPDX-License-Identifier: MIT
+*
+* Extracted from the DeepSeek Harness bilingual-document mechanism at the pinned
+* `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`); the skill-root
+* THIRD_PARTY_NOTICES names the upstream paths and the relation.
+*/
 /**
 * Aggregate, section-keyed consistency records. One foo.i18n.yaml per source holds, for every
 * heading section, the source content hash and one target signature per target. A target signature
@@ -14998,9 +15029,6 @@ function slug(text) {
 function sectionHash(blocks) {
 	return createHash("sha256").update(blocks.join("\n")).digest("hex").slice(0, 16);
 }
-function sideSectionsFor(markdown, normalized, tree) {
-	return sideSections(markdown, normalized, tree);
-}
 /**
 * Compute the source hash and bound target signature for one pair.
 * @param paths - the pair.
@@ -15030,8 +15058,8 @@ function computeTranslationPairingRecord(paths, source, counterpart, context, tr
 	};
 	const normalizedSource = normalizeTranslationMarkdownLinkEdits(source, sourceContext, trees?.source);
 	const normalizedCounterpart = normalizeTranslationMarkdownLinkEdits(counterpart, counterpartContext, trees?.counterpart);
-	const sourceSections = sideSectionsFor(source, normalizedSource, trees?.source);
-	const counterpartSections = sideSectionsFor(counterpart, normalizedCounterpart, trees?.counterpart);
+	const sourceSections = sideSections(source, normalizedSource, trees?.source);
+	const counterpartSections = sideSections(counterpart, normalizedCounterpart, trees?.counterpart);
 	if (sourceSections.length !== counterpartSections.length) throw new Error(paths.source + " has " + String(sourceSections.length - 1) + " heading(s) but " + paths.counterpart + " has " + String(counterpartSections.length - 1));
 	const record = /* @__PURE__ */ new Map();
 	const ancestors = [];
@@ -15207,6 +15235,394 @@ function translationPairingRecordDiff(recorded, current, sourceCode, targetCode)
 	}
 	return out;
 }
+// switchers.ts
+/**
+* SPDX-License-Identifier: MIT
+*
+* Extracted from the DeepSeek Harness bilingual-document mechanism at the pinned
+* `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`); the skill-root
+* THIRD_PARTY_NOTICES names the upstream paths and the relation.
+*/
+/**
+* Language-switcher parsing and matching: the canonical paragraph's parts, accepted link
+* destinations, link offsets, the counterpart backlink, and the located source and counterpart
+* switchers. The switcher is the unique paragraph in the H1 section whose labels and links match
+* the canonical line; its position is free.
+*/
+function plainText(node) {
+	if ("value" in node && (node.type === "text" || node.type === "inlineCode")) return node.value;
+	return "children" in node ? node.children.map(plainText).join("") : "";
+}
+function paragraphParts(paragraph) {
+	const parts = [];
+	for (const child of paragraph.children) if (child.type === "text") parts.push({
+		kind: "text",
+		text: child.value
+	});
+	else if (child.type === "link") parts.push({
+		kind: "link",
+		text: plainText(child),
+		url: child.url
+	});
+	else return void 0;
+	return parts;
+}
+function acceptedDestination(url, expected) {
+	if (url === basename(expected)) return true;
+	if (/^https?:\/\//.test(url)) try {
+		return new URL(url).pathname.endsWith("/" + expected);
+	} catch {
+		return false;
+	}
+	return false;
+}
+function switcherParagraphs(tree, markdown) {
+	const offset = /^---\n[\s\S]*?\n---(?:\n|$)/.exec(markdown)?.[0].length ?? 0;
+	if (tree.type !== "root") return [];
+	const start = tree.children.findIndex((node) => node.type === "heading" && node.depth === 1 && (node.position?.start.offset ?? 0) >= offset);
+	if (start < 0) return [];
+	const paragraphs = [];
+	for (const node of tree.children.slice(start + 1)) {
+		if (node.type === "heading") break;
+		if (node.type === "paragraph") paragraphs.push(node);
+	}
+	return paragraphs;
+}
+const LINK_PLACEHOLDER = "\0";
+function paragraphShape(paragraph) {
+	const parts = paragraphParts(paragraph);
+	if (parts === void 0) return void 0;
+	let skeleton = "";
+	const links = [];
+	for (const part of parts) if (part.kind === "link") {
+		skeleton += LINK_PLACEHOLDER;
+		links.push(part);
+	} else skeleton += part.text;
+	return {
+		skeleton,
+		links
+	};
+}
+function linkOffsets(paragraph) {
+	const offsets = /* @__PURE__ */ new Set();
+	for (const child of paragraph.children) if (child.type === "link" && child.position?.start.offset !== void 0) offsets.add(child.position.start.offset);
+	return offsets;
+}
+/**
+* Read the counterpart switcher: one backlink to the source, then the target label.
+* @param tree - parsed counterpart.
+* @param markdown - exact Markdown the tree parses.
+* @param sourcePath - the pair's source path.
+* @returns the switcher, or undefined when no paragraph has the canonical shape.
+*/
+function counterpartSwitcher(tree, markdown, sourcePath) {
+	for (const paragraph of switcherParagraphs(tree, markdown)) {
+		const shape = paragraphShape(paragraph);
+		if (shape === void 0 || shape.links.length !== 1) continue;
+		const link = shape.links[0];
+		if (!acceptedDestination(link.url ?? "", sourcePath)) continue;
+		if (!shape.skeleton.startsWith("\0 | ")) continue;
+		const trailing = shape.skeleton.slice(4).trim();
+		if (trailing === "") continue;
+		return {
+			sourceLabel: link.text,
+			targetLabel: trailing,
+			paragraph
+		};
+	}
+}
+/**
+* Locate both sides' canonical switchers and the source offsets their links occupy.
+* @param corpus - the corpus, for declared names, recognized targets and generated sources.
+* @param paths - the pair.
+* @param sourceText - masked source Markdown.
+* @param sourceTree - parse of the masked source.
+* @param counterpartText - masked counterpart Markdown.
+* @param counterpartTree - parse of the masked counterpart.
+* @param sourceCode - the source language code recorded for the pair.
+* @param sourceName - a source display name supplied by the caller, if any.
+* @returns the matched switcher, its link offsets and every violation.
+*/
+function locateSwitchers(corpus, paths, sourceText, sourceTree, counterpartText, counterpartTree, sourceCode, sourceName) {
+	const errors = [];
+	const sourceParagraphs = switcherParagraphs(sourceTree, sourceText);
+	const counterpartParagraphs = switcherParagraphs(counterpartTree, counterpartText);
+	const generatedSource = corpus.isGeneratedSource(paths.source);
+	const selected = counterpartSwitcher(counterpartTree, counterpartText, paths.source);
+	const targetLabel = corpus.declared.find((target) => target.code === paths.target.code)?.name ?? selected?.targetLabel ?? paths.target.code;
+	const sourceLabel = selected?.sourceLabel ?? sourceName ?? sourceCode;
+	let matchedCounterpart;
+	const counterpartSkeleton = "\0 | " + targetLabel;
+	for (const paragraph of counterpartParagraphs) {
+		const shape = paragraphShape(paragraph);
+		if (shape === void 0 || shape.skeleton !== counterpartSkeleton || shape.links.length !== 1) continue;
+		const first = shape.links[0];
+		if (first.text !== sourceLabel || !acceptedDestination(first.url ?? "", paths.source)) continue;
+		if (matchedCounterpart !== void 0) {
+			errors.push(paths.counterpart + ": more than one canonical language switcher paragraph (lines " + String(matchedCounterpart.position?.start.line ?? 0) + " and " + String(paragraph.position?.start.line ?? 0) + ")");
+			break;
+		}
+		matchedCounterpart = paragraph;
+	}
+	if (generatedSource) {
+		if (matchedCounterpart === void 0) errors.push(paths.counterpart + ": missing or non-canonical language switcher; expected " + JSON.stringify("[" + sourceLabel + "](" + basename(paths.source) + ") | " + targetLabel));
+		return {
+			sourceOffsets: /* @__PURE__ */ new Set(),
+			counterpartOffsets: matchedCounterpart === void 0 ? /* @__PURE__ */ new Set() : linkOffsets(matchedCounterpart),
+			errors,
+			sourceLabel,
+			targetLabel
+		};
+	}
+	const counterparts = [];
+	const labels = [];
+	const sourceLabels = /* @__PURE__ */ new Set();
+	for (const target of corpus.recognized) {
+		const pair = pairPaths(paths.source, target);
+		if (!corpus.fileExists(pair.counterpart)) continue;
+		let info;
+		if (target.code === paths.target.code) info = selected;
+		else {
+			const text = corpus.readFile(pair.counterpart);
+			const tree = text === void 0 ? void 0 : parseMarkdown(text);
+			if (text !== void 0 && tree !== void 0) info = counterpartSwitcher(tree, text, paths.source);
+		}
+		if (info !== void 0) sourceLabels.add(info.sourceLabel);
+		const name = target.code === paths.target.code ? targetLabel : corpus.declared.find((declared) => declared.code === target.code)?.name ?? info?.targetLabel ?? target.code;
+		counterparts.push(pair.counterpart);
+		labels.push(name);
+	}
+	if (sourceLabels.size > 1) errors.push(paths.source + ": counterpart switchers disagree on the source label: " + JSON.stringify([...sourceLabels]));
+	const expectedSource = [sourceLabel, ...labels.map((label, index) => "[" + label + "](" + basename(counterparts[index]) + ")")].join(" | ");
+	const expectedSkeleton = [sourceLabel, ...labels.map(() => LINK_PLACEHOLDER)].join(" | ");
+	let matchedSource;
+	for (const paragraph of sourceParagraphs) {
+		const shape = paragraphShape(paragraph);
+		if (shape === void 0 || shape.skeleton !== expectedSkeleton || shape.links.length !== labels.length) continue;
+		let valid = true;
+		for (const [index, link] of shape.links.entries()) if (link.text !== labels[index] || !acceptedDestination(link.url ?? "", counterparts[index])) valid = false;
+		if (!valid) continue;
+		if (matchedSource !== void 0) {
+			errors.push(paths.source + ": more than one canonical language switcher paragraph (lines " + String(matchedSource.position?.start.line ?? 0) + " and " + String(paragraph.position?.start.line ?? 0) + ")");
+			break;
+		}
+		matchedSource = paragraph;
+	}
+	if (matchedSource === void 0) errors.push(paths.source + ": missing or non-canonical language switcher; expected " + JSON.stringify(expectedSource));
+	if (matchedCounterpart === void 0) errors.push(paths.counterpart + ": missing or non-canonical language switcher; expected " + JSON.stringify("[" + sourceLabel + "](" + basename(paths.source) + ") | " + targetLabel));
+	return {
+		sourceOffsets: matchedSource === void 0 ? /* @__PURE__ */ new Set() : linkOffsets(matchedSource),
+		counterpartOffsets: matchedCounterpart === void 0 ? /* @__PURE__ */ new Set() : linkOffsets(matchedCounterpart),
+		errors,
+		sourceLabel,
+		targetLabel
+	};
+}
+// corpus.ts
+/**
+* SPDX-License-Identifier: MIT
+*
+* Extracted from the DeepSeek Harness bilingual-document mechanism at the pinned
+* `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`); the skill-root
+* THIRD_PARTY_NOTICES names the upstream paths and the relation.
+*/
+/**
+* Pair discovery and the corpus: the repository walk and its prunes, the recognized language set,
+* the existing targets of one source, pair languages, and pair discovery from counterpart files
+* and aggregate-record entries.
+*
+* The gate only checks pairs that already exist. Creation and update follow the project's
+* standing instructions or the user's instruction; this module never requires a source to be paired.
+*/
+const PRUNE_SEGMENTS = /* @__PURE__ */ new Set([
+	"node_modules",
+	"vendor",
+	"dist",
+	"build",
+	"out",
+	"target",
+	"coverage",
+	"__pycache__",
+	".venv",
+	".cache",
+	".pnpm-store",
+	".git"
+]);
+const PRUNE_TREES = [".agents/skills", ".agents/dsh-spec-translate-docs"];
+function prunedDirectory(relative) {
+	if (relative.split("/").some((segment) => PRUNE_SEGMENTS.has(segment))) return true;
+	return PRUNE_TREES.some((tree) => relative === tree || relative.endsWith("/" + tree));
+}
+function walkRepository(root) {
+	const out = [];
+	const descend = (relative) => {
+		const absolute = relative === "" ? root : resolve(root, relative);
+		let entries;
+		try {
+			entries = readdirSync(absolute, { withFileTypes: true });
+		} catch {
+			return;
+		}
+		for (const entry of entries.sort((left, right) => left.name.localeCompare(right.name))) {
+			const next = relative === "" ? entry.name : relative + "/" + entry.name;
+			if (entry.isSymbolicLink()) continue;
+			if (entry.isDirectory()) {
+				if (prunedDirectory(next)) continue;
+				descend(next);
+				continue;
+			}
+			if (!entry.isFile()) continue;
+			if (entry.name.endsWith(".md") || entry.name.endsWith(".i18n.yaml")) out.push(next);
+		}
+	};
+	descend("");
+	return out;
+}
+function statFileSync(root, repoPath) {
+	try {
+		return statSync(resolve(root, repoPath)).isFile();
+	} catch {
+		return false;
+	}
+}
+/**
+* Build the corpus from the declared targets and the records that exist.
+* @param options - root, declared targets, generated globs and content plane.
+* @returns the corpus.
+*/
+function buildCorpus(options) {
+	const fileExists = (repoPath) => options.repositoryFileExists !== void 0 ? options.repositoryFileExists(repoPath) : statFileSync(options.root, repoPath);
+	const readFile = (repoPath) => options.repositoryReadFile !== void 0 ? options.repositoryReadFile(repoPath) : (() => {
+		try {
+			return readFileSync(resolve(options.root, repoPath), "utf8");
+		} catch {
+			return;
+		}
+	})();
+	const found = new Map(options.targets.map((target) => [target.code, target]));
+	const recorded = /* @__PURE__ */ new Map();
+	for (const file of walkRepository(options.root)) {
+		const counterpart = languageFromCounterpartFilename(file);
+		if (counterpart !== void 0 && !found.has(counterpart.code)) found.set(counterpart.code, counterpart);
+		if (!file.endsWith(".i18n.yaml")) continue;
+		const text = readFile(file);
+		if (text === void 0) continue;
+		const record = parseTranslationPairingRecord(text);
+		if (record === void 0) continue;
+		const source = file.replace(/\.i18n\.yaml$/, ".md");
+		const targets = recorded.get(source) ?? /* @__PURE__ */ new Set();
+		for (const values of record.entries.values()) for (const code of values.keys()) {
+			if (code === record.sourceCode) continue;
+			targets.add(code);
+			if (!found.has(code)) found.set(code, {
+				code,
+				name: code
+			});
+		}
+		recorded.set(source, targets);
+	}
+	const recognized = [...found.values()].sort((left, right) => left.code.localeCompare(right.code));
+	const hasPairArtifacts = (sourcePath) => recognized.some((target) => {
+		const paths = pairPaths(sourcePath, target);
+		return fileExists(paths.counterpart) || fileExists(paths.record);
+	});
+	const isPaired = (path) => {
+		const named = languageFromCounterpartFilename(path);
+		if (named !== void 0) return hasPairArtifacts(path.slice(0, -counterpartSuffix(named).length) + ".md");
+		if (!path.endsWith(".md")) return false;
+		return hasPairArtifacts(path);
+	};
+	const existingTargets = (source) => {
+		const codes = recorded.get(source);
+		return recognized.filter((target) => (codes?.has(target.code) ?? false) || fileExists(pairPaths(source, target).counterpart));
+	};
+	const linkBase = {
+		repoRoot: options.root,
+		isPairSource: isPaired,
+		repositoryFileExists: fileExists
+	};
+	const generated = [...options.generated ?? []];
+	return {
+		root: options.root,
+		declared: [...options.targets],
+		recognized,
+		fileExists,
+		readFile,
+		isPaired,
+		existingTargets,
+		linkContext: (paths, role) => ({
+			...linkBase,
+			sourcePath: role === "source" ? paths.source : paths.counterpart,
+			side: {
+				role,
+				target: paths.target
+			}
+		}),
+		recordContext: (target) => ({
+			base: linkBase,
+			target
+		}),
+		isGeneratedSource: (path) => generated.some((pattern) => matchesGlob(path, pattern)),
+		generated,
+		select: [...options.select ?? []],
+		skip: [...options.skip ?? []],
+		terminology: [...options.terminology ?? []]
+	};
+}
+/**
+* Derive the pair's source and target display names from the counterpart switcher.
+* @param paths - the pair.
+* @param corpus - the corpus.
+* @param sourceCode - the source language code recorded for the pair.
+* @returns source and target languages; names fall back to declared names or codes.
+*/
+function pairLanguages(paths, corpus, sourceCode) {
+	const text = corpus.readFile(paths.counterpart);
+	const tree = text === void 0 ? void 0 : parseMarkdown(text);
+	const info = text !== void 0 && tree !== void 0 ? counterpartSwitcher(tree, text, paths.source) : void 0;
+	const declaredTarget = corpus.declared.find((target) => target.code === paths.target.code);
+	return {
+		source: {
+			code: sourceCode,
+			name: info?.sourceLabel ?? sourceCode
+		},
+		target: {
+			code: paths.target.code,
+			name: declaredTarget?.name ?? info?.targetLabel ?? paths.target.code
+		}
+	};
+}
+/**
+* Discover existing pair artifacts: counterpart files and aggregate record entries.
+* @param corpus - the pair corpus.
+* @returns discovered pairs, sorted by source then target.
+*/
+function discoverPairs(corpus) {
+	const seen = /* @__PURE__ */ new Map();
+	const add = (paths) => {
+		const key = pairKey(paths);
+		if (seen.has(key)) return;
+		seen.set(key, {
+			paths,
+			present: {
+				source: corpus.fileExists(paths.source),
+				counterpart: corpus.fileExists(paths.counterpart),
+				record: corpus.fileExists(paths.record)
+			}
+		});
+	};
+	for (const file of walkRepository(corpus.root)) {
+		const named = languageFromCounterpartFilename(file);
+		if (named !== void 0) {
+			add(pairPaths(file.slice(0, -counterpartSuffix(named).length) + ".md", named));
+			continue;
+		}
+		if (!file.endsWith(".i18n.yaml")) continue;
+		const source = file.replace(/\.i18n\.yaml$/, ".md");
+		for (const target of corpus.existingTargets(source)) add(pairPaths(source, target));
+	}
+	return [...seen.values()].sort((left, right) => left.paths.source.localeCompare(right.paths.source) || left.paths.target.code.localeCompare(right.paths.target.code));
+}
 // regions.ts
 const BEGIN_MARKER = /^<!-- BEGIN GENERATED (\S+)(?: [^>]*)? -->$/;
 const END_MARKER = /^<!-- END GENERATED (\S+) -->$/;
@@ -15361,123 +15777,6 @@ function regionMismatch(left, right, normalize) {
 }
 // pairing.ts
 /**
-* Pair discovery, structural signatures, switch-line location, region comparison, selection
-* filtering and the existing-pair check for v2.
-*
-* The gate only checks pairs that already exist. Creation and update are declaration- or
-* instruction-driven; this module never requires a source to be paired.
-*/
-const PRUNE_SEGMENTS = /* @__PURE__ */ new Set([
-	"node_modules",
-	"vendor",
-	"dist",
-	"build",
-	"out",
-	"target",
-	"coverage",
-	"__pycache__",
-	".venv",
-	".cache",
-	".pnpm-store",
-	".git"
-]);
-const PRUNE_TREES = [".agents/skills", ".agents/dsh-spec-translate-docs"];
-function globMatch(path, pattern) {
-	return matchesGlob(path, pattern);
-}
-function prunedDirectory(relative) {
-	if (relative.split("/").some((segment) => PRUNE_SEGMENTS.has(segment))) return true;
-	return PRUNE_TREES.some((tree) => relative === tree || relative.endsWith("/" + tree));
-}
-function walkRepository(root) {
-	const out = [];
-	const descend = (relative) => {
-		const absolute = relative === "" ? root : resolve(root, relative);
-		let entries;
-		try {
-			entries = readdirSync(absolute, { withFileTypes: true });
-		} catch {
-			return;
-		}
-		for (const entry of entries.sort((left, right) => left.name.localeCompare(right.name))) {
-			const next = relative === "" ? entry.name : relative + "/" + entry.name;
-			if (entry.isSymbolicLink()) continue;
-			if (entry.isDirectory()) {
-				if (prunedDirectory(next)) continue;
-				descend(next);
-				continue;
-			}
-			if (!entry.isFile()) continue;
-			if (entry.name.endsWith(".md") || entry.name.endsWith(".i18n.yaml")) out.push(next);
-		}
-	};
-	descend("");
-	return out;
-}
-function statFileSync(root, repoPath) {
-	try {
-		return statSync(resolve(root, repoPath)).isFile();
-	} catch {
-		return false;
-	}
-}
-/**
-* Build the corpus from the declared targets and the records that exist.
-* @param options - root, declared targets, generated globs and content plane.
-* @returns the corpus.
-*/
-function buildCorpus(options) {
-	const fileExists = (repoPath) => options.repositoryFileExists !== void 0 ? options.repositoryFileExists(repoPath) : statFileSync(options.root, repoPath);
-	const readFile = (repoPath) => options.repositoryReadFile !== void 0 ? options.repositoryReadFile(repoPath) : (() => {
-		try {
-			return readFileSync(resolve(options.root, repoPath), "utf8");
-		} catch {
-			return;
-		}
-	})();
-	const found = new Map(options.targets.map((target) => [target.code, target]));
-	for (const file of walkRepository(options.root)) {
-		const counterpart = languageFromCounterpartFilename(file);
-		if (counterpart !== void 0 && !found.has(counterpart.code)) found.set(counterpart.code, counterpart);
-		if (!file.endsWith(".i18n.yaml")) continue;
-		const text = readFile(file);
-		if (text === void 0) continue;
-		const record = parseTranslationPairingRecord(text);
-		if (record === void 0) continue;
-		for (const values of record.entries.values()) for (const code of values.keys()) {
-			if (code === record.sourceCode || found.has(code)) continue;
-			found.set(code, {
-				code,
-				name: code
-			});
-		}
-	}
-	const recognized = [...found.values()].sort((left, right) => left.code.localeCompare(right.code));
-	const hasPairArtifacts = (sourcePath) => recognized.some((target) => {
-		const paths = pairPaths(sourcePath, target);
-		return fileExists(paths.counterpart) || fileExists(paths.record);
-	});
-	const generated = [...options.generated ?? []];
-	return {
-		root: options.root,
-		declared: [...options.targets],
-		recognized,
-		fileExists,
-		readFile,
-		isPaired: (path) => {
-			const named = languageFromCounterpartFilename(path);
-			if (named !== void 0) return hasPairArtifacts(path.slice(0, -counterpartSuffix(named).length) + ".md");
-			if (!path.endsWith(".md")) return false;
-			return hasPairArtifacts(path);
-		},
-		isGeneratedSource: (path) => generated.some((pattern) => globMatch(path, pattern)),
-		generated,
-		select: [...options.select ?? []],
-		skip: [...options.skip ?? []],
-		terminology: [...options.terminology ?? []]
-	};
-}
-/**
 * Collect the ordered structural signature, skipping the switcher paragraph's links.
 * @param tree - parsed Markdown.
 * @param linkContext - root, source path, side and corpus predicate.
@@ -15531,179 +15830,6 @@ function translationStructureDiff(source, counterpart) {
 	compare("links", source.links, counterpart.links);
 	return out;
 }
-function plainText(node) {
-	if ("value" in node && (node.type === "text" || node.type === "inlineCode")) return node.value;
-	return "children" in node ? node.children.map(plainText).join("") : "";
-}
-function paragraphParts(paragraph) {
-	const parts = [];
-	for (const child of paragraph.children) if (child.type === "text") parts.push({
-		kind: "text",
-		text: child.value
-	});
-	else if (child.type === "link") parts.push({
-		kind: "link",
-		text: plainText(child),
-		url: child.url
-	});
-	else return void 0;
-	return parts;
-}
-function acceptedDestination(url, expected) {
-	if (url === basename(expected)) return true;
-	if (/^https?:\/\//.test(url)) try {
-		return new URL(url).pathname.endsWith("/" + expected);
-	} catch {
-		return false;
-	}
-	return false;
-}
-function switcherParagraphs(tree, markdown) {
-	const offset = /^---\n[\s\S]*?\n---(?:\n|$)/.exec(markdown)?.[0].length ?? 0;
-	if (tree.type !== "root") return [];
-	const start = tree.children.findIndex((node) => node.type === "heading" && node.depth === 1 && (node.position?.start.offset ?? 0) >= offset);
-	if (start < 0) return [];
-	const paragraphs = [];
-	for (const node of tree.children.slice(start + 1)) {
-		if (node.type === "heading") break;
-		if (node.type === "paragraph") paragraphs.push(node);
-	}
-	return paragraphs;
-}
-const LINK_PLACEHOLDER = "\0";
-function paragraphShape(paragraph) {
-	const parts = paragraphParts(paragraph);
-	if (parts === void 0) return void 0;
-	let skeleton = "";
-	const links = [];
-	for (const part of parts) if (part.kind === "link") {
-		skeleton += LINK_PLACEHOLDER;
-		links.push(part);
-	} else skeleton += part.text;
-	return {
-		skeleton,
-		links
-	};
-}
-function linkOffsets(paragraph) {
-	const offsets = /* @__PURE__ */ new Set();
-	for (const child of paragraph.children) if (child.type === "link" && child.position?.start.offset !== void 0) offsets.add(child.position.start.offset);
-	return offsets;
-}
-function counterpartSwitcher(tree, markdown, sourcePath) {
-	for (const paragraph of switcherParagraphs(tree, markdown)) {
-		const shape = paragraphShape(paragraph);
-		if (shape === void 0 || shape.links.length !== 1) continue;
-		const link = shape.links[0];
-		if (!acceptedDestination(link.url ?? "", sourcePath)) continue;
-		if (!shape.skeleton.startsWith("\0 | ")) continue;
-		const trailing = shape.skeleton.slice(4).trim();
-		if (trailing === "") continue;
-		return {
-			sourceLabel: link.text,
-			targetLabel: trailing,
-			paragraph
-		};
-	}
-}
-/**
-* Derive the pair's source and target display names from the counterpart switcher.
-* @param paths - the pair.
-* @param corpus - the corpus.
-* @param readFile - repository reader.
-* @param sourceCode - the source language code recorded for the pair.
-* @returns source and target languages; names fall back to declared names or codes.
-*/
-function pairLanguages(paths, corpus, readFile, sourceCode) {
-	const text = readFile(paths.counterpart);
-	const tree = text === void 0 ? void 0 : parseMarkdown(text);
-	const info = text !== void 0 && tree !== void 0 ? counterpartSwitcher(tree, text, paths.source) : void 0;
-	const declaredTarget = corpus.declared.find((target) => target.code === paths.target.code);
-	return {
-		source: {
-			code: sourceCode,
-			name: info?.sourceLabel ?? sourceCode
-		},
-		target: {
-			code: paths.target.code,
-			name: declaredTarget?.name ?? info?.targetLabel ?? paths.target.code
-		}
-	};
-}
-function locateSwitchers(options, sourceText, counterpartText, sourceCode, sourceName) {
-	const { corpus, paths, readFile } = options;
-	const errors = [];
-	const sourceTree = parseMarkdown(sourceText);
-	const counterpartTree = parseMarkdown(counterpartText);
-	const sourceParagraphs = switcherParagraphs(sourceTree, sourceText);
-	const counterpartParagraphs = switcherParagraphs(counterpartTree, counterpartText);
-	const generatedSource = corpus.isGeneratedSource(paths.source);
-	const selected = counterpartSwitcher(counterpartTree, counterpartText, paths.source);
-	const targetLabel = corpus.declared.find((target) => target.code === paths.target.code)?.name ?? selected?.targetLabel ?? paths.target.code;
-	const sourceLabel = selected?.sourceLabel ?? sourceName ?? sourceCode;
-	let matchedCounterpart;
-	const counterpartSkeleton = "\0 | " + targetLabel;
-	for (const paragraph of counterpartParagraphs) {
-		const shape = paragraphShape(paragraph);
-		if (shape === void 0 || shape.skeleton !== counterpartSkeleton || shape.links.length !== 1) continue;
-		const first = shape.links[0];
-		if (first.text !== sourceLabel || !acceptedDestination(first.url ?? "", paths.source)) continue;
-		if (matchedCounterpart !== void 0) {
-			errors.push(paths.counterpart + ": more than one canonical language switcher paragraph (lines " + String(matchedCounterpart.position?.start.line ?? 0) + " and " + String(paragraph.position?.start.line ?? 0) + ")");
-			break;
-		}
-		matchedCounterpart = paragraph;
-	}
-	if (generatedSource) {
-		if (matchedCounterpart === void 0) errors.push(paths.counterpart + ": missing or non-canonical language switcher; expected " + JSON.stringify("[" + sourceLabel + "](" + basename(paths.source) + ") | " + targetLabel));
-		return {
-			sourceOffsets: /* @__PURE__ */ new Set(),
-			counterpartOffsets: matchedCounterpart === void 0 ? /* @__PURE__ */ new Set() : linkOffsets(matchedCounterpart),
-			errors,
-			sourceLabel,
-			targetLabel
-		};
-	}
-	const counterparts = [];
-	const labels = [];
-	const sourceLabels = /* @__PURE__ */ new Set();
-	for (const target of corpus.recognized) {
-		const pair = pairPaths(paths.source, target);
-		if (!corpus.fileExists(pair.counterpart)) continue;
-		const text = readFile(pair.counterpart);
-		const tree = text === void 0 ? void 0 : parseMarkdown(text);
-		const info = text !== void 0 && tree !== void 0 ? counterpartSwitcher(tree, text, paths.source) : void 0;
-		if (info !== void 0) sourceLabels.add(info.sourceLabel);
-		const name = target.code === paths.target.code ? targetLabel : corpus.declared.find((declared) => declared.code === target.code)?.name ?? info?.targetLabel ?? target.code;
-		counterparts.push(pair.counterpart);
-		labels.push(name);
-	}
-	if (sourceLabels.size > 1) errors.push(paths.source + ": counterpart switchers disagree on the source label: " + JSON.stringify([...sourceLabels]));
-	const expectedSource = [sourceLabel, ...labels.map((label, index) => "[" + label + "](" + basename(counterparts[index]) + ")")].join(" | ");
-	const expectedSkeleton = [sourceLabel, ...labels.map(() => LINK_PLACEHOLDER)].join(" | ");
-	let matchedSource;
-	for (const paragraph of sourceParagraphs) {
-		const shape = paragraphShape(paragraph);
-		if (shape === void 0 || shape.skeleton !== expectedSkeleton || shape.links.length !== labels.length) continue;
-		let valid = true;
-		for (const [index, link] of shape.links.entries()) if (link.text !== labels[index] || !acceptedDestination(link.url ?? "", counterparts[index])) valid = false;
-		if (!valid) continue;
-		if (matchedSource !== void 0) {
-			errors.push(paths.source + ": more than one canonical language switcher paragraph (lines " + String(matchedSource.position?.start.line ?? 0) + " and " + String(paragraph.position?.start.line ?? 0) + ")");
-			break;
-		}
-		matchedSource = paragraph;
-	}
-	if (matchedSource === void 0) errors.push(paths.source + ": missing or non-canonical language switcher; expected " + JSON.stringify(expectedSource));
-	if (matchedCounterpart === void 0) errors.push(paths.counterpart + ": missing or non-canonical language switcher; expected " + JSON.stringify("[" + sourceLabel + "](" + basename(paths.source) + ") | " + targetLabel));
-	return {
-		sourceOffsets: matchedSource === void 0 ? /* @__PURE__ */ new Set() : linkOffsets(matchedSource),
-		counterpartOffsets: matchedCounterpart === void 0 ? /* @__PURE__ */ new Set() : linkOffsets(matchedCounterpart),
-		errors,
-		sourceLabel,
-		targetLabel
-	};
-}
 function regionsOf(text) {
 	try {
 		return { regions: generatedRegions(text) };
@@ -15714,65 +15840,74 @@ function regionsOf(text) {
 		};
 	}
 }
+/** The masked text's tree, or the error that prevented masking or parsing it. */
+function maskedTreeOf(text) {
+	try {
+		return { tree: parseMarkdown(maskGeneratedRegions(text)) };
+	} catch (error) {
+		return { error: error instanceof Error ? error.message : String(error) };
+	}
+}
+/** Count the authored headings above each region in the masked tree. */
+function regionAnchors(regions, tree) {
+	const headings = tree.children.filter((node) => node.type === "heading").map((node) => node.position?.start.line ?? 0);
+	return regions.map((region) => ({
+		slug: region.slug,
+		anchor: headings.filter((line) => line < region.begin + 1).length
+	}));
+}
+/**
+* Compare the authored-section anchor of every generated region across one pair.
+* @param sourceRegions - regions of the source, in document order.
+* @param sourceTree - the source's masked tree.
+* @param counterpartRegions - regions of the counterpart, in document order.
+* @param counterpartTree - the counterpart's masked tree.
+* @returns the first drifting region's slug, or undefined when every anchor agrees.
+*/
+function regionAnchorDrift(sourceRegions, sourceTree, counterpartRegions, counterpartTree) {
+	const sourceAnchors = regionAnchors(sourceRegions, sourceTree);
+	const counterpartAnchors = regionAnchors(counterpartRegions, counterpartTree);
+	for (const [index, anchor] of sourceAnchors.entries()) {
+		const other = counterpartAnchors[index];
+		if (other === void 0 || other.slug !== anchor.slug || other.anchor !== anchor.anchor) return { slug: anchor.slug };
+	}
+}
+function regionMismatchMessage(mismatch, label) {
+	return label + ": generated region " + JSON.stringify(mismatch.slug) + " " + mismatch.reason + "; regenerate both sides";
+}
+function regionAnchorMessage(paths, slug) {
+	return paths.source + " <-> " + paths.counterpart + ": generated region " + JSON.stringify(slug) + " sits under a different authored section; regenerate both sides";
+}
 /**
 * Report a current generated-region disagreement between the two sides of one pair.
 * @param corpus - the corpus.
-* @param root - project root.
 * @param paths - the pair.
-* @param readFile - repository file reader.
 * @returns a precondition message, or undefined when the regions agree.
 */
-function regionDrift(corpus, root, paths, readFile) {
-	const source = readFile(paths.source);
-	const counterpart = readFile(paths.counterpart);
+function regionDrift(corpus, paths) {
+	const source = corpus.readFile(paths.source);
+	const counterpart = corpus.readFile(paths.counterpart);
 	if (source === void 0 || counterpart === void 0) return void 0;
 	const sourceRegions = regionsOf(source);
 	const counterpartRegions = regionsOf(counterpart);
 	if (sourceRegions.error !== void 0) return paths.source + ": " + sourceRegions.error;
 	if (counterpartRegions.error !== void 0) return paths.counterpart + ": " + counterpartRegions.error;
-	const sourceContext = {
-		repoRoot: root,
-		sourcePath: paths.source,
-		side: {
-			role: "source",
-			target: paths.target
-		},
-		isPairSource: (path) => corpus.isPaired(path),
-		repositoryFileExists: (path) => readFile(path) !== void 0
-	};
-	const mismatch = regionMismatch(sourceRegions.regions, counterpartRegions.regions, (text) => normalizeTranslationMarkdownLinkEdits(text, sourceContext).content);
-	if (mismatch !== void 0) return paths.source + " [" + paths.target.code + "]: generated region " + JSON.stringify(mismatch.slug) + " " + mismatch.reason + "; regenerate both sides";
-	const sourceAnchors = regionAnchors(source);
-	const counterpartAnchors = regionAnchors(counterpart);
-	if (sourceAnchors.error !== void 0) return paths.source + ": " + sourceAnchors.error;
-	if (counterpartAnchors.error !== void 0) return paths.counterpart + ": " + counterpartAnchors.error;
-	for (const [index, anchor] of sourceAnchors.anchors.entries()) {
-		const other = counterpartAnchors.anchors[index];
-		if (other === void 0 || other.slug !== anchor.slug || other.anchor !== anchor.anchor) return paths.source + " <-> " + paths.counterpart + ": generated region " + JSON.stringify(anchor.slug) + " sits under a different authored section; regenerate both sides";
-	}
-}
-function regionAnchors(text) {
-	try {
-		const regions = generatedRegions(text);
-		const headings = parseMarkdown(maskGeneratedRegions(text)).children.filter((node) => node.type === "heading").map((node) => node.position?.start.line ?? 0);
-		return { anchors: regions.map((region) => ({
-			slug: region.slug,
-			anchor: headings.filter((line) => line < region.begin + 1).length
-		})) };
-	} catch (error) {
-		return {
-			anchors: [],
-			error: error instanceof Error ? error.message : String(error)
-		};
-	}
+	const mismatch = regionMismatch(sourceRegions.regions, counterpartRegions.regions, (text) => normalizeTranslationMarkdownLinkEdits(text, corpus.linkContext(paths, "source")).content);
+	if (mismatch !== void 0) return regionMismatchMessage(mismatch, paths.source + " [" + paths.target.code + "]");
+	const sourceMasked = maskedTreeOf(source);
+	if ("error" in sourceMasked) return paths.source + ": " + sourceMasked.error;
+	const counterpartMasked = maskedTreeOf(counterpart);
+	if ("error" in counterpartMasked) return paths.counterpart + ": " + counterpartMasked.error;
+	const drift = regionAnchorDrift(sourceRegions.regions, sourceMasked.tree, counterpartRegions.regions, counterpartMasked.tree);
+	return drift === void 0 ? void 0 : regionAnchorMessage(paths, drift.slug);
 }
 /**
 * Check one existing pair: completeness, regions, record, switchers, structure and link locale.
-* @param options - corpus, pair and reader.
+* @param corpus - the corpus.
+* @param paths - the pair.
 * @returns the pair's state and every violation.
 */
-function checkPair(options) {
-	const { paths, corpus, readFile } = options;
+function checkPair(corpus, paths) {
 	const errors = [];
 	const state = (next) => ({
 		paths,
@@ -15780,9 +15915,9 @@ function checkPair(options) {
 		errors
 	});
 	const label = paths.source + " [" + paths.target.code + "]";
-	const source = readFile(paths.source);
-	const counterpart = readFile(paths.counterpart);
-	const record = readFile(paths.record);
+	const source = corpus.readFile(paths.source);
+	const counterpart = corpus.readFile(paths.counterpart);
+	const record = corpus.readFile(paths.record);
 	const missing = [
 		source === void 0 ? paths.source : void 0,
 		counterpart === void 0 ? paths.counterpart : void 0,
@@ -15804,32 +15939,8 @@ function checkPair(options) {
 	const counterpartRegions = regionsOf(counterpartText);
 	if (sourceRegions.error !== void 0) errors.push(paths.source + ": " + sourceRegions.error);
 	if (counterpartRegions.error !== void 0) errors.push(paths.counterpart + ": " + counterpartRegions.error);
-	const sourceContext = {
-		repoRoot: options.root,
-		sourcePath: paths.source,
-		side: {
-			role: "source",
-			target: paths.target
-		},
-		isPairSource: (path) => corpus.isPaired(path),
-		repositoryFileExists: (path) => readFile(path) !== void 0
-	};
-	const counterpartContext = {
-		repoRoot: options.root,
-		sourcePath: paths.counterpart,
-		side: {
-			role: "counterpart",
-			target: paths.target
-		},
-		isPairSource: (path) => corpus.isPaired(path),
-		repositoryFileExists: (path) => readFile(path) !== void 0
-	};
-	if (sourceRegions.error === void 0 && counterpartRegions.error === void 0) {
-		const mismatch = regionMismatch(sourceRegions.regions, counterpartRegions.regions, (text) => normalizeTranslationMarkdownLinkEdits(text, sourceContext).content);
-		if (mismatch !== void 0) errors.push(paths.source + " <-> " + paths.counterpart + ": generated region " + JSON.stringify(mismatch.slug) + " " + mismatch.reason + "; regenerate both sides");
-		const anchors = regionDrift(corpus, options.root, paths, readFile);
-		if (anchors !== void 0 && /different authored section/.test(anchors)) errors.push(anchors);
-	}
+	const sourceContext = corpus.linkContext(paths, "source");
+	const counterpartContext = corpus.linkContext(paths, "counterpart");
 	let sourceMasked = sourceText;
 	let counterpartMasked = counterpartText;
 	try {
@@ -15840,18 +15951,19 @@ function checkPair(options) {
 	}
 	const sourceTree = parseMarkdown(sourceMasked);
 	const counterpartTree = parseMarkdown(counterpartMasked);
-	const switchers = locateSwitchers(options, sourceMasked, counterpartMasked, parsed.sourceCode, void 0);
+	if (sourceRegions.error === void 0 && counterpartRegions.error === void 0) {
+		const mismatch = regionMismatch(sourceRegions.regions, counterpartRegions.regions, (text) => normalizeTranslationMarkdownLinkEdits(text, sourceContext).content);
+		if (mismatch !== void 0) errors.push(regionMismatchMessage(mismatch, paths.source + " <-> " + paths.counterpart));
+		else {
+			const drift = regionAnchorDrift(sourceRegions.regions, sourceTree, counterpartRegions.regions, counterpartTree);
+			if (drift !== void 0) errors.push(regionAnchorMessage(paths, drift.slug));
+		}
+	}
+	const switchers = locateSwitchers(corpus, paths, sourceMasked, sourceTree, counterpartMasked, counterpartTree, parsed.sourceCode, void 0);
 	errors.push(...switchers.errors);
 	let current;
 	try {
-		current = computeTranslationPairingRecord(paths, sourceMasked, counterpartMasked, {
-			base: {
-				repoRoot: options.root,
-				isPairSource: (path) => corpus.isPaired(path),
-				repositoryFileExists: (path) => readFile(path) !== void 0
-			},
-			target: paths.target
-		});
+		current = computeTranslationPairingRecord(paths, sourceMasked, counterpartMasked, corpus.recordContext(paths.target));
 	} catch (error) {
 		errors.push(label + " <-> " + paths.counterpart + ": " + (error instanceof Error ? error.message : String(error)));
 		return state("out-of-sync");
@@ -15870,50 +15982,6 @@ function checkPair(options) {
 	for (const violation of [...translationLinkLocaleViolations(sourceMasked, sourceContext, sourceTree, switchers.sourceOffsets), ...translationLinkLocaleViolations(counterpartMasked, counterpartContext, counterpartTree, switchers.counterpartOffsets)]) errors.push(violation.sourcePath + ":" + String(violation.line) + ": link target " + JSON.stringify(violation.url) + " uses the wrong locale; expected " + JSON.stringify(violation.expectedUrl));
 	for (const divergence of translationStructureDiff(translationStructureSignature(sourceTree, sourceContext, sourceMasked, switchers.sourceOffsets), translationStructureSignature(counterpartTree, counterpartContext, counterpartMasked, switchers.counterpartOffsets))) errors.push(label + " <-> " + paths.counterpart + ": " + divergence);
 	return errors.length > 0 ? state("out-of-sync") : state("ok");
-}
-/**
-* Discover existing pair artifacts: counterpart files and aggregate record entries.
-* @param options - root and corpus.
-* @returns discovered pairs, sorted by source then target.
-*/
-function discoverPairs(options) {
-	const { corpus } = options;
-	const seen = /* @__PURE__ */ new Map();
-	const add = (paths) => {
-		const key = paths.source + " zero " + paths.target.code;
-		if (seen.has(key)) return;
-		seen.set(key, {
-			paths,
-			present: {
-				source: corpus.fileExists(paths.source),
-				counterpart: corpus.fileExists(paths.counterpart),
-				record: corpus.fileExists(paths.record)
-			}
-		});
-	};
-	for (const file of walkRepository(options.root)) {
-		const named = languageFromCounterpartFilename(file);
-		if (named !== void 0) {
-			add(pairPaths(file.slice(0, -counterpartSuffix(named).length) + ".md", named));
-			continue;
-		}
-		if (!file.endsWith(".i18n.yaml")) continue;
-		const text = corpus.readFile(file);
-		if (text === void 0) continue;
-		const parsed = parseTranslationPairingRecord(text);
-		if (parsed === void 0) continue;
-		const source = file.replace(/\.i18n\.yaml$/, ".md");
-		const codes = /* @__PURE__ */ new Set();
-		for (const values of parsed.entries.values()) for (const code of values.keys()) codes.add(code);
-		for (const code of codes) {
-			if (code === parsed.sourceCode) continue;
-			add(pairPaths(source, corpus.recognized.find((candidate) => candidate.code === code) ?? {
-				code,
-				name: code
-			}));
-		}
-	}
-	return [...seen.values()].sort((left, right) => left.paths.source.localeCompare(right.paths.source) || left.paths.target.code.localeCompare(right.paths.target.code));
 }
 // brief.ts
 function linesOf(markdown) {
@@ -16291,6 +16359,13 @@ function renderTranslationBrief(input) {
 }
 // update.ts
 /**
+* SPDX-License-Identifier: MIT
+*
+* Extracted from the DeepSeek Harness bilingual-document mechanism at the pinned
+* `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`); the skill-root
+* THIRD_PARTY_NOTICES names the upstream paths and the relation.
+*/
+/**
 * Update-path orchestration: recover the last-confirmed pair from Git, choose the narrowest safely
 * mapped briefing granularity, render the briefing, and apply the mechanical splice when the
 * change is confined to fenced code. Adapted from the upstream briefing CLI.
@@ -16301,7 +16376,7 @@ const COMMAND = "node <skill-dir>/scripts/translate-pair.mjs";
 function shellQuote(value) {
 	return "'" + value.replace(/'/g, "'\\''") + "'";
 }
-/** The declaration flags a generated command repeats, so it runs as printed. */
+/** The standing-instructions flags a generated command repeats, so it runs as printed. */
 function commandFlags(corpus) {
 	const flags = [
 		...corpus.select.map((glob) => " --select " + shellQuote(glob)),
@@ -16339,16 +16414,6 @@ function git(root, args, allowedExitCodes = [0]) {
 	if (!allowedExitCodes.includes(result.status ?? -1)) throw new Error("git " + args.join(" ") + " failed: " + (result.stderr ?? ""));
 	return result.stdout ?? "";
 }
-/** The record inputs shared by one pair's two sides. */
-function recordContext(corpus, target) {
-	return {
-		base: {
-			repoRoot: corpus.root,
-			isPairSource: (sourcePath) => corpus.isPaired(sourcePath)
-		},
-		target
-	};
-}
 /**
 * Whether the record's selected target matches the pair's current contents.
 * @param record - parsed aggregate record.
@@ -16360,14 +16425,10 @@ function recordContext(corpus, target) {
 */
 function recordMatches(record, corpus, paths, source, counterpart) {
 	try {
-		return translationPairingRecordDiff(record, computeTranslationPairingRecord(paths, masked(source), masked(counterpart), recordContext(corpus, paths.target)), record.sourceCode, paths.target.code).length === 0;
+		return translationPairingRecordDiff(record, computeTranslationPairingRecord(paths, maskGeneratedRegions(source), maskGeneratedRegions(counterpart), corpus.recordContext(paths.target)), record.sourceCode, paths.target.code).length === 0;
 	} catch {
 		return false;
 	}
-}
-/** Mask generated regions, throwing a readable error when the markers are malformed. */
-function masked(text) {
-	return maskGeneratedRegions(text);
 }
 /** Replace the last-confirmed region blocks with the current ones, keeping the last prose. */
 function alignRegions(current, last) {
@@ -16383,10 +16444,10 @@ function alignRegions(current, last) {
 	return lines.join("\n");
 }
 /** Both sides at the newest commit whose contents produce the confirmed record. */
-function lastConfirmed(root, corpus, paths, recordText) {
+function lastConfirmed(corpus, paths, recordText) {
 	const record = parseTranslationPairingRecord(recordText);
 	if (record === void 0) return void 0;
-	const log = tryGit(root, [
+	const log = tryGit(corpus.root, [
 		"log",
 		"--format=%H",
 		"--",
@@ -16395,8 +16456,8 @@ function lastConfirmed(root, corpus, paths, recordText) {
 	]);
 	if (log === void 0) return void 0;
 	for (const commit of log.split("\n").filter(Boolean)) {
-		const source = tryGit(root, ["show", commit + ":" + paths.source]);
-		const counterpart = tryGit(root, ["show", commit + ":" + paths.counterpart]);
+		const source = tryGit(corpus.root, ["show", commit + ":" + paths.source]);
+		const counterpart = tryGit(corpus.root, ["show", commit + ":" + paths.counterpart]);
 		if (source === void 0 || counterpart === void 0 || source === "" || counterpart === "") continue;
 		if (!recordMatches(record, corpus, paths, source, counterpart)) continue;
 		return {
@@ -16427,7 +16488,6 @@ function diffTexts(root, before, after) {
 }
 /**
 * Load one pair's recorded and current state, or explain why it cannot be briefed.
-* @param root - project root.
 * @param corpus - the corpus.
 * @param paths - the pair.
 * @param record - the record file text.
@@ -16435,11 +16495,11 @@ function diffTexts(root, before, after) {
 * @param counterpartCurrent - current counterpart text.
 * @returns the drifted state, or a precondition message.
 */
-function loadPairState(root, corpus, paths, record, sourceCurrent, counterpartCurrent) {
-	const confirmed = lastConfirmed(root, corpus, paths, record);
+function loadPairState(corpus, paths, record, sourceCurrent, counterpartCurrent) {
+	const confirmed = lastConfirmed(corpus, paths, record);
 	if (confirmed !== void 0) return {
-		sourceDrifted: masked(sourceCurrent) !== masked(confirmed.source),
-		counterpartDrifted: masked(counterpartCurrent) !== masked(confirmed.counterpart),
+		sourceDrifted: maskGeneratedRegions(sourceCurrent) !== maskGeneratedRegions(confirmed.source),
+		counterpartDrifted: maskGeneratedRegions(counterpartCurrent) !== maskGeneratedRegions(confirmed.counterpart),
 		sourceLast: confirmed.source,
 		counterpartLast: confirmed.counterpart
 	};
@@ -16454,8 +16514,8 @@ function loadPairState(root, corpus, paths, record, sourceCurrent, counterpartCu
 }
 /** Choose the narrowest safely mapped granularity for one drifted side. */
 function planScope(sourceLastMasked, sourceLastAligned, sourceCurrent, counterpartCurrent, direction, bothDrifted, terminology, sourceLanguage) {
-	const sourceCurrentMasked = masked(sourceCurrent);
-	const counterpartMasked = masked(counterpartCurrent);
+	const sourceCurrentMasked = maskGeneratedRegions(sourceCurrent);
+	const counterpartMasked = maskGeneratedRegions(counterpartCurrent);
 	const wholeChangedText = sourceLastMasked + "\n" + sourceCurrentMasked;
 	if (bothDrifted) return {
 		scope: {
@@ -16536,7 +16596,7 @@ function planBriefing(options) {
 		const sourceLast = sourceIsSource ? state.sourceLast : state.counterpartLast;
 		const sourceCurrent = sourceIsSource ? options.sourceCurrent : options.counterpartCurrent;
 		const counterpartCurrent = sourceIsSource ? options.counterpartCurrent : options.sourceCurrent;
-		const planned = planScope(masked(sourceLast), alignRegions(sourceCurrent, sourceLast), sourceCurrent, counterpartCurrent, direction, state.sourceDrifted && state.counterpartDrifted, options.terminology, options.sourceLanguage);
+		const planned = planScope(maskGeneratedRegions(sourceLast), alignRegions(sourceCurrent, sourceLast), sourceCurrent, counterpartCurrent, direction, state.sourceDrifted && state.counterpartDrifted, options.terminology, options.sourceLanguage);
 		plans.push({
 			paths,
 			direction,
@@ -16545,7 +16605,7 @@ function planBriefing(options) {
 			counterpartPath,
 			sourceCurrent,
 			counterpartCurrent,
-			diff: diffTexts(corpus.root, masked(sourceLast), masked(sourceCurrent)),
+			diff: diffTexts(corpus.root, maskGeneratedRegions(sourceLast), maskGeneratedRegions(sourceCurrent)),
 			scope: planned.scope,
 			changedText: planned.changedText,
 			mechanicalResult: planned.mechanicalResult,
@@ -16582,27 +16642,11 @@ function mechanicalUpdateErrors(corpus, plan) {
 	if (plan.scope.kind !== "mechanical" || plan.mechanicalResult === void 0) throw new Error("brief: " + plan.paths.source + " [" + plan.paths.target.code + "] is not a code-fence-only change");
 	const changedRole = plan.direction === "source-to-target" ? "source" : "counterpart";
 	const contexts = {
-		source: {
-			repoRoot: corpus.root,
-			sourcePath: plan.paths.source,
-			side: {
-				role: "source",
-				target: plan.paths.target
-			},
-			isPairSource: (path) => corpus.isPaired(path)
-		},
-		counterpart: {
-			repoRoot: corpus.root,
-			sourcePath: plan.paths.counterpart,
-			side: {
-				role: "counterpart",
-				target: plan.paths.target
-			},
-			isPairSource: (path) => corpus.isPaired(path)
-		}
+		source: corpus.linkContext(plan.paths, "source"),
+		counterpart: corpus.linkContext(plan.paths, "counterpart")
 	};
-	const changedText = masked(plan.sourceCurrent);
-	const resultText = masked(plan.mechanicalResult);
+	const changedText = maskGeneratedRegions(plan.sourceCurrent);
+	const resultText = maskGeneratedRegions(plan.mechanicalResult);
 	const changedTree = parseMarkdown(changedText);
 	const resultTree = parseMarkdown(resultText);
 	return translationStructureDiff(changedRole === "source" ? translationStructureSignature(changedTree, contexts.source, changedText, /* @__PURE__ */ new Set()) : translationStructureSignature(changedTree, contexts.counterpart, changedText, /* @__PURE__ */ new Set()), changedRole === "source" ? translationStructureSignature(resultTree, contexts.counterpart, resultText, /* @__PURE__ */ new Set()) : translationStructureSignature(resultTree, contexts.source, resultText, /* @__PURE__ */ new Set()));
@@ -16614,9 +16658,16 @@ function writeBrief(corpus, plan) {
 }
 // translate-pair.ts
 /**
-* The v2 pairing CLI: list/check/write existing pairs, brief minimal updates, initialise
-* terminology, and render or splice a generated region. Creation and update are declaration- or
-* instruction-driven; the gate never requires a source to be paired.
+* SPDX-License-Identifier: MIT
+*
+* Extracted from the DeepSeek Harness bilingual-document mechanism at the pinned
+* `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`); the skill-root
+* THIRD_PARTY_NOTICES names the upstream paths and the relation.
+*/
+/**
+* The pairing CLI: list/check/write existing pairs, brief minimal updates, initialise
+* terminology, and render or splice a generated region. Creation and update follow the project's
+* standing instructions or the user's instruction; the gate never requires a source to be paired.
 *
 * Exit codes: 0 clean or written, 1 violations or nothing to record, 2 usage or a precondition.
 */
@@ -16641,12 +16692,14 @@ const USAGE = [
 	"  --root <dir>                  project root (default: working directory)",
 	"  --apply                       brief only: apply a code-fence-only update",
 	"  --all                         write only: record every existing pair",
+	"  --help, -h                    print this and exit 0",
 	"",
 	"Region options:",
 	"  region render --slug <slug> --body <file|->",
 	"  region splice <file> --slug <slug> --body <file|->"
 ].join("\n");
 var UsageError = class extends Error {};
+const TARGET_SELECTION_HINT = "a non-default target needs --target <lang>";
 function assertGlob(flag, pattern) {
 	let brackets = 0;
 	let braces = 0;
@@ -16688,7 +16741,7 @@ function parseOptions(argv) {
 		regionBody: void 0
 	};
 	const verb = argv[0];
-	if (verb === void 0 || verb.startsWith("-")) throw new UsageError(USAGE);
+	if (verb === void 0 || verb.startsWith("-")) throw new UsageError("a verb is required");
 	let index = 1;
 	if (verb === "region") {
 		options.regionAction = argv[index];
@@ -16787,6 +16840,7 @@ function parseOptions(argv) {
 		if (options.pairs.length > 0 || options.apply || options.all || options.generated.length > 0 || options.select.length > 0 || options.skip.length > 0 || options.sourceLanguage !== void 0) throw new UsageError("init accepts only --target, --root and --terminology");
 	}
 	if (options.sourceLanguage !== void 0 && verb !== "write") throw new UsageError("--source-lang belongs to write");
+	options.root = resolve(options.root);
 	return {
 		verb,
 		options
@@ -16814,7 +16868,7 @@ function corpusOf(options) {
 }
 function terminologyPath(options, target) {
 	const override = options.terminology.find((entry) => entry.code === target.code);
-	if (override !== void 0) return override.path;
+	if (override !== void 0) return isAbsolute(override.path) ? override.path : join(options.root, override.path);
 	const name = target.code === DEFAULT_TARGET.code ? "terminology.md" : "terminology." + target.code + ".md";
 	return join(options.root, ".agents", "dsh-spec-translate-docs", name);
 }
@@ -16824,61 +16878,31 @@ function readTerminology(options, target) {
 	if (content === void 0) throw new UsageError("terminology table missing for " + target.code + ": run init --target " + target.code + "=" + target.name + " (expected " + path + ")");
 	return content;
 }
-function existingTargets(options, source) {
-	const found = /* @__PURE__ */ new Map();
-	const recordText = readRepositoryFile(options.root, recordPath(source));
-	if (recordText !== void 0) {
-		const parsed = parseTranslationPairingRecord(recordText);
-		if (parsed !== void 0) for (const values of parsed.entries.values()) for (const code of values.keys()) {
-			if (code === parsed.sourceCode) continue;
-			const declared = options.targets.find((target) => target.code === code);
-			found.set(code, declared ?? {
-				code,
-				name: code
-			});
-		}
-	}
-	for (const name of walkCounterparts(options.root, source)) {
-		const language = languageFromCounterpartFilename(name);
-		if (language === void 0) continue;
-		const declared = options.targets.find((target) => target.code === language.code);
-		found.set(language.code, declared ?? language);
-	}
-	return [...found.values()].sort((left, right) => left.code.localeCompare(right.code));
-}
-function walkCounterparts(root, source) {
-	const dir = join(root, source.replace(/[^/]*$/, ""));
-	try {
-		return readdirSync(dir);
-	} catch {
-		return [];
-	}
-}
 function selected(options, corpus) {
 	const seen = /* @__PURE__ */ new Set();
 	const pairs = [];
-	for (const argument of options.pairs) for (const pair of selectPairs(argument, corpus.declared, options.restrict, (source) => existingTargets(options, source))) {
+	for (const argument of options.pairs) for (const pair of selectPairs(argument, corpus.declared, options.restrict, (source) => corpus.existingTargets(source))) {
 		const paths = pairPaths(pair.source, pair.target);
-		const key = paths.source + " zero " + pair.target.code;
+		const key = pairKey(paths);
 		if (seen.has(key)) continue;
 		seen.add(key);
 		pairs.push(paths);
 	}
 	return pairs.sort((left, right) => left.source.localeCompare(right.source) || left.target.code.localeCompare(right.target.code));
 }
+function assertNamedSelections(options, corpus, verb) {
+	for (const argument of options.pairs) {
+		if (selectPairs(argument, corpus.declared, options.restrict, (source) => corpus.existingTargets(source)).length > 0) continue;
+		throw new UsageError(verb === "check" ? "check selected no existing pair; nothing to check is not a green check; " + TARGET_SELECTION_HINT : verb === "write" ? "write named no existing pair; nothing to record" : "brief selected no existing pair; nothing to brief is not a green brief");
+	}
+}
 function passesFilters(options, source) {
-	if (options.select.length > 0 && !options.select.some((pattern) => match(pattern, source))) return false;
-	if (options.skip.some((pattern) => match(pattern, source))) return false;
+	if (options.select.length > 0 && !options.select.some((pattern) => matchesGlob(source, pattern))) return false;
+	if (options.skip.some((pattern) => matchesGlob(source, pattern))) return false;
 	return true;
 }
-function match(pattern, value) {
-	return matchesGlob(value, pattern);
-}
 function discoveredPairs(options, corpus) {
-	return discoverPairs({
-		root: options.root,
-		corpus
-	}).map((pair) => pair.paths).filter((paths) => passesFilters(options, paths.source));
+	return discoverPairs(corpus).map((pair) => pair.paths).filter((paths) => passesFilters(options, paths.source));
 }
 function namedPairAbsent(options, paths) {
 	return readRepositoryFile(options.root, paths.source) === void 0 && readRepositoryFile(options.root, paths.counterpart) === void 0 && readRepositoryFile(options.root, paths.record) === void 0;
@@ -16886,18 +16910,14 @@ function namedPairAbsent(options, paths) {
 function verbList(options) {
 	const corpus = corpusOf(options);
 	const pairs = options.pairs.length > 0 ? selected(options, corpus) : discoveredPairs(options, corpus);
+	if (options.pairs.length > 0 && pairs.length === 0) console.error("translate-pair: no pair was selected for " + options.pairs.join(", ") + "; a non-default target needs --target <lang>");
 	const counts = {
 		ok: 0,
 		"out-of-sync": 0,
 		missing: 0
 	};
 	for (const paths of pairs) {
-		const check = checkPair({
-			root: options.root,
-			corpus,
-			paths,
-			readFile: (path) => readRepositoryFile(options.root, path)
-		});
+		const check = checkPair(corpus, paths);
 		counts[check.state] = (counts[check.state] ?? 0) + 1;
 		console.log(check.state.padEnd(12) + " " + paths.source + " [" + paths.target.code + "]");
 	}
@@ -16906,18 +16926,14 @@ function verbList(options) {
 }
 function verbCheck(options) {
 	const corpus = corpusOf(options);
+	if (options.pairs.length > 0) assertNamedSelections(options, corpus, "check");
 	const pairs = options.pairs.length > 0 ? selected(options, corpus) : discoveredPairs(options, corpus);
 	if (options.pairs.length > 0) {
 		for (const paths of pairs) if (namedPairAbsent(options, paths)) throw new UsageError(paths.source + " [" + paths.target.code + "] names no pair on disk");
 	}
-	if (pairs.length === 0) throw new UsageError("check selected no existing pair; nothing to check is not a green check");
+	if (pairs.length === 0) throw new UsageError("check selected no existing pair; nothing to check is not a green check" + (options.pairs.length > 0 ? "; " + TARGET_SELECTION_HINT : ""));
 	const problems = [];
-	for (const paths of pairs) problems.push(...checkPair({
-		root: options.root,
-		corpus,
-		paths,
-		readFile: (path) => readRepositoryFile(options.root, path)
-	}).errors);
+	for (const paths of pairs) problems.push(...checkPair(corpus, paths).errors);
 	if (problems.length > 0) {
 		console.error("translate-pair: pairing rules violated:");
 		for (const problem of problems) console.error("  " + problem);
@@ -16930,6 +16946,7 @@ function verbWrite(options) {
 	if (options.pairs.length === 0 && !options.all) throw new UsageError("write requires the pair(s) you confirmed, or --all to re-record existing pairs");
 	if (options.pairs.length > 0 && options.all) throw new UsageError("write takes either named pairs or --all, not both");
 	const corpus = corpusOf(options);
+	if (options.pairs.length > 0) assertNamedSelections(options, corpus, "write");
 	const candidates = options.pairs.length > 0 ? selected(options, corpus) : discoveredPairs(options, corpus);
 	const groups = /* @__PURE__ */ new Map();
 	for (const paths of candidates) {
@@ -16968,7 +16985,7 @@ function verbWrite(options) {
 				if (options.pairs.length > 0) throw new UsageError("cannot record " + source + " [" + paths.target.code + "]: missing " + paths.counterpart);
 				continue;
 			}
-			const computed = computeTranslationPairingRecord(paths, maskGeneratedRegions(sourceText), maskGeneratedRegions(counterpartText), recordContext(corpus, paths.target));
+			const computed = computeTranslationPairingRecord(paths, maskGeneratedRegions(sourceText), maskGeneratedRegions(counterpartText), corpus.recordContext(paths.target));
 			record = updateTranslationPairingRecord(record, sourceCode, paths.target.code, computed);
 			updated = true;
 		}
@@ -17010,18 +17027,18 @@ function verbWrite(options) {
 	console.log("translate-pair: " + String(written) + " record(s) written; run the check to validate the pairs.");
 	return 0;
 }
-function loadPair(options, corpus, paths) {
-	const recordText = readRepositoryFile(options.root, paths.record);
-	const sourceText = readRepositoryFile(options.root, paths.source);
-	const counterpartText = readRepositoryFile(options.root, paths.counterpart);
+function loadPair(corpus, paths) {
+	const recordText = corpus.readFile(paths.record);
+	const sourceText = corpus.readFile(paths.source);
+	const counterpartText = corpus.readFile(paths.counterpart);
 	if (recordText === void 0 || sourceText === void 0 || counterpartText === void 0) return paths.source + " [" + paths.target.code + "]: incomplete pair (missing " + [
 		paths.source,
 		paths.counterpart,
 		paths.record
-	].filter((path) => readRepositoryFile(options.root, path) === void 0).join(", ") + "); a new counterpart is whole-document translation work, not a minimal update";
+	].filter((path) => corpus.readFile(path) === void 0).join(", ") + "); a new counterpart is whole-document translation work, not a minimal update";
 	const parsed = parseTranslationPairingRecord(recordText);
 	if (parsed === void 0) return paths.record + ": malformed consistency record";
-	const languages = pairLanguages(paths, corpus, (path) => readRepositoryFile(options.root, path), parsed.sourceCode);
+	const languages = pairLanguages(paths, corpus, parsed.sourceCode);
 	return {
 		source: languages.source,
 		target: languages.target,
@@ -17031,22 +17048,25 @@ function loadPair(options, corpus, paths) {
 }
 function verbBrief(options) {
 	const corpus = corpusOf(options);
+	if (options.pairs.length > 0) assertNamedSelections(options, corpus, "brief");
 	const pairs = options.pairs.length > 0 ? selected(options, corpus) : discoveredPairs(options, corpus);
 	if (pairs.length === 0) throw new UsageError("brief selected no existing pair; nothing to brief is not a green brief");
 	const plans = [];
 	const drifts = [];
+	const skipped = [];
 	for (const paths of pairs) {
-		const drift = regionDrift(corpus, options.root, paths, (path) => readRepositoryFile(options.root, path));
+		const drift = regionDrift(corpus, paths);
 		if (drift !== void 0) drifts.push(drift);
-		const loaded = loadPair(options, corpus, paths);
+		const loaded = loadPair(corpus, paths);
 		if (typeof loaded === "string") {
 			if (options.pairs.length > 0) throw new UsageError(loaded);
+			skipped.push(loaded);
 			continue;
 		}
-		const recordText = readRepositoryFile(options.root, paths.record);
-		const state = loadPairState(options.root, corpus, paths, recordText, loaded.sourceText, loaded.counterpartText);
+		const state = loadPairState(corpus, paths, corpus.readFile(paths.record), loaded.sourceText, loaded.counterpartText);
 		if (typeof state === "string") {
 			if (options.pairs.length > 0) throw new UsageError(state);
+			skipped.push(state);
 			continue;
 		}
 		if (!state.sourceDrifted && !state.counterpartDrifted) {
@@ -17068,11 +17088,24 @@ function verbBrief(options) {
 		});
 	}
 	if (drifts.length > 0) throw new UsageError(drifts.join("; ") + "; a brief cannot reconcile a generated region");
+	const reportSkipped = () => {
+		for (const reason of skipped) console.error("translate-pair: " + reason);
+		console.error("translate-pair: " + String(skipped.length) + " pair(s) could not be briefed; nothing was assumed consistent.");
+	};
+	if (skipped.length > 0 && options.apply) {
+		reportSkipped();
+		console.error("translate-pair: --apply wrote nothing because a pair could not be briefed.");
+		return 2;
+	}
 	if (options.apply) {
 		const prose = plans.filter((entry) => entry.plan.scope.kind !== "mechanical" || entry.plan.mechanicalResult === void 0);
 		if (prose.length > 0) throw new UsageError("--apply needs a code-fence-only change, but " + prose.map((entry) => entry.plan.paths.source + " [" + entry.plan.paths.target.code + "]").join(", ") + " has prose changes; run the briefing without --apply and translate the prose");
 	}
 	if (plans.length === 0) {
+		if (skipped.length > 0) {
+			reportSkipped();
+			return 2;
+		}
 		console.log("translate-pair: every recorded pair matches its consistency record; nothing to brief.");
 		return 0;
 	}
@@ -17087,6 +17120,10 @@ function verbBrief(options) {
 	}
 	console.log(plans.map((entry) => renderBrief(entry.plan, entry.terminology)).join("\n\n---\n\n"));
 	if (options.apply) console.error("translate-pair: " + String(plans.length) + " mechanical update(s) applied and structure-validated; record the pairs after review.");
+	if (skipped.length > 0) {
+		reportSkipped();
+		return 2;
+	}
 	return 0;
 }
 function verbInit(options) {
@@ -17137,38 +17174,63 @@ function verbRegion(options) {
 		throw new UsageError(error instanceof Error ? error.message : String(error));
 	}
 }
+/** Print one usage diagnostic and the help hint, then exit 2. */
+function usageError(message) {
+	console.error("translate-pair: " + message);
+	console.error("run \"translate-pair --help\" for usage");
+	process.exitCode = 2;
+}
 function main() {
-	const { verb, options } = parseOptions(process.argv.slice(2));
-	switch (verb) {
+	const argv = process.argv.slice(2);
+	if (argv.includes("--help") || argv.includes("-h")) {
+		console.log(USAGE);
+		return;
+	}
+	let parsed;
+	try {
+		parsed = parseOptions(argv);
+	} catch (error) {
+		if (error instanceof UsageError) {
+			usageError(error.message);
+			return;
+		}
+		throw error;
+	}
+	let code;
+	switch (parsed.verb) {
 		case "list":
-			process.exit(verbList(options));
+			code = verbList(parsed.options);
 			break;
 		case "check":
-			process.exit(verbCheck(options));
+			code = verbCheck(parsed.options);
 			break;
 		case "write":
-			process.exit(verbWrite(options));
+			code = verbWrite(parsed.options);
 			break;
 		case "brief":
-			process.exit(verbBrief(options));
+			code = verbBrief(parsed.options);
 			break;
 		case "init":
-			process.exit(verbInit(options));
+			code = verbInit(parsed.options);
 			break;
 		case "region":
-			process.exit(verbRegion(options));
+			code = verbRegion(parsed.options);
 			break;
-		default: throw new UsageError("unknown verb: " + verb);
+		default:
+			usageError("unknown verb: " + parsed.verb);
+			return;
 	}
+	process.exitCode = code;
 }
 try {
 	main();
 } catch (error) {
 	if (error instanceof UsageError) {
 		console.error("translate-pair: " + error.message);
-		process.exit(2);
+		process.exitCode = 2;
+	} else {
+		console.error("translate-pair: " + (error instanceof Error ? error.message : String(error)));
+		process.exitCode = 1;
 	}
-	console.error("translate-pair: " + (error instanceof Error ? error.message : String(error)));
-	process.exit(1);
 }
 export {};

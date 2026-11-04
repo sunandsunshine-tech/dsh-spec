@@ -1,5 +1,12 @@
 /**
- * The language and pair-path model for v2: a source document, one counterpart per target
+ * SPDX-License-Identifier: MIT
+ *
+ * Extracted from the DeepSeek Harness bilingual-document mechanism at the pinned
+ * `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`); the skill-root
+ * THIRD_PARTY_NOTICES names the upstream paths and the relation.
+ */
+/**
+ * The language and pair-path model: a source document, one counterpart per target
  * language, and one aggregate multi-language consistency record per source.
  *
  * A source carries no language suffix; the source language is a property of the pair, read from
@@ -29,7 +36,7 @@ const LANGUAGE_CODE = /^[a-z]{2,3}(?:-[A-Za-z0-9]{1,8})*$/
  * @returns the language.
  * @throws Error when the code is malformed or the required display name is missing.
  */
-export function parseLanguage(
+function parseLanguage(
   value: string,
   flag: string,
   options: { requireDisplay: boolean; defaultLanguage?: Language },
@@ -106,6 +113,11 @@ export function pairPaths(source: string, target: Language): PairPaths {
     record: recordPath(source),
     target,
   }
+}
+
+/** The de-duplication key for one pair: its source path and target code in one string. */
+export function pairKey(paths: PairPaths): string {
+  return paths.source + '\u0000' + paths.target.code
 }
 
 /** Normalize any pair artifact path or bare stem to its source Markdown path. */

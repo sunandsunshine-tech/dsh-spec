@@ -12,9 +12,9 @@ Status: implemented
 
 本包交付 `dsh-spec-pr-description`，作为对固定版本的上游技能的改编，该技能位于 `submodules/dsh/.agents/skills/dsh-pr-description/SKILL.md`（`submodules/dsh` 固定于 `dsh-v0.2.2-alpha.2`，`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`）。
 
-落地目录包含 `SKILL.md`、`references/ai-usage.md`、`references/default-conventions.md` 与 `THIRD_PARTY_NOTICES`；安装副本镜像到 `.agents/skills/dsh-spec-pr-description/`。根 `THIRD_PARTY_NOTICES.md` 的改编技能段落点名该技能；根 `README.md` 的技能表按维护者的指示保持原样。
+落地目录包含 `SKILL.md`、`references/ai-usage.md`、`references/default-conventions.md` 与 `THIRD_PARTY_NOTICES`；安装副本镜像到 `.agents/skills/dsh-spec-pr-description/`。根 `THIRD_PARTY_NOTICES.md` 的改编技能段落点名该技能，根 `README.md` 的技能表列出它。
 
-技能把上游机制作为义务保留：描述陈述改动为何存在（带同项目受跟踪 Issue 引用，或一句无 Issue 的说明）、改了什么、由什么证明，以及 AI Usage 声明。它保留测试设计形式、测试条目与 proof 块纪律、以四类为典型示例的一般披露义务、AI Usage 模型（五个级别、五个阶段、5% 倍数评级、固定于 AI-DECLARATION 0.1.2 的徽章与声明块、更新时机、决策记录规则，以及必需的参考文件加载）、更新触发条件与回读验证。四小节结构、标题与标签是项目模板可以替换的默认；AI Usage 块在任何结构下都保留其标记与表格。项目约定提供取值、形式、位置与示例；它们绝不取消义务。
+技能把上游机制作为义务保留：描述陈述改动为何存在（带同项目受跟踪 Issue 引用，或一句无 Issue 的说明）、改了什么、由什么证明，以及 AI Usage 声明。它保留测试设计形式、测试条目与 proof 块纪律、以四类为典型示例的一般披露义务、AI Usage 模型（五个级别、五个阶段、5% 倍数评级、固定于 AI-DECLARATION 0.1.2 的徽章与声明块、更新时机、决策记录规则，以及必需的参考文件加载）、更新触发条件与回读验证。回读具体检查 AI-DECLARATION 块：badge URL 与其 level 对应、declaration line 的 level 等于 badge、版本为 0.1.2，非英语描述保留英文 stage/level 标识符并在描述语言中给出呈现。四小节结构、标题与标签是项目模板可以替换的默认；AI Usage 块在任何结构下都保留其标记与表格。项目约定提供取值、形式、位置与示例；它们绝不取消义务。
 
 技能消解或重绑仓库专有的指涉：声明路由、标签与 Priority 校验、Project Priority 与 Start Date 机制、文档预算取值、GUI GIF 强制要求、具体工具与产物路径。重绑后的默认值位于其使用点，`references/default-conventions.md` 为不声明任何约定的项目提供一份可采用的工作默认（引用形式、可选标签与优先级、Project 字段、状态、Start Date 行为、GitHub 命令），明确标记为示例与默认值，而不是义务。`user-invocable: false` 无法由本包封闭的 frontmatter 集合承载，并作为偏离记录在技能根 `THIRD_PARTY_NOTICES` 中。
 
@@ -24,7 +24,7 @@ Status: implemented
 
 ### 处置摘要
 
-锻造记录的处置表以一处位置、一种处置与一个归属覆盖每个来源单元，锚点为每项要求点名一项检查。承载：四块内容及其内容要求、固定英文标签的默认词汇、测试设计形式与测试条目纪律、以四类为示例的一般披露义务、AI Usage 模型及其更新时机、创建与更新状态，以及回读验证。重绑：小节结构（默认且可替换）、描述语言（现有描述 → 文档 → 请求）、Issue 引用（声明语法、跟踪器惯例形式或具名链接，并配一句话的无 Issue 路径）、正文路径与工具（项目默认值、GitHub 示例），以及披露的形式、取值、位置与示例（项目约定）。消解：声明表与缺失路由、标签、Priority、Project 与生命周期的校验要求、文档预算取值、GUI GIF 强制要求、仓库工具与产物路径，以及显式的仓库级 AI 声明规则。新增：可采用的 `default-conventions` reference、保留的 GitHub 示例、必需的回读验证（无脚本偏离），以及许可证与通知。
+处置摘要以一处位置、一种处置与一个归属覆盖每个来源单元，锚点为每项要求点名一项检查。承载：四块内容及其内容要求、固定英文标签的默认词汇、测试设计形式与测试条目纪律、以四类为示例的一般披露义务、AI Usage 模型及其更新时机、创建与更新状态，以及回读验证。重绑：小节结构（默认且可替换）、描述语言（现有描述 → 文档 → 请求）、Issue 引用（声明语法、跟踪器惯例形式或具名链接，并配一句话的无 Issue 路径）、正文路径与工具（项目默认值、GitHub 示例），以及披露的形式、取值、位置与示例（项目约定）。消解：声明表与缺失路由、标签、Priority、Project 与生命周期的校验要求、文档预算取值、GUI GIF 强制要求、仓库工具与产物路径，以及显式的仓库级 AI 声明规则。新增：可采用的 `default-conventions` reference、保留的 GitHub 示例、对 AI-DECLARATION 块的必需回读验证（badge/level/版本与语言标识符；无脚本偏离），以及许可证与通知。
 
 ## 备选方案
 
@@ -46,4 +46,4 @@ Status: implemented
 
 ## 后果
 
-描述现在是一项已落地的技能，带安装副本、两个 reference、一份技能根通知文件与一条根通知条目；中文记录配对为下一位维护者保留这项决策。默认结构可替换，因此两个采用者可以以不同方式呈现四块内容；AI Usage 块及其模型保持固定。可执行性来自回读，而不是脚本，因此结构验证取决于写作者的回读。`user-invocable: false` 未被承载，可选默认约定是示例，没有任何测试针对真实采用者检验它们。触发质量靠判断，而非测量：description 的关键词集合经过评审，但没有针对真实用户提示词运行过。本记录的中文配对在落地时写出，翻译评审覆盖的是技能草稿，而不是这份配对。forge 分支已在本地 squash 合并进 `refactor/dsh-skills`；未推送任何内容，也未打开 pull request。回退落地提交会恢复被移除的工作目录与已发布的副本。
+描述是一项已落地的技能，带安装副本、两个 reference、一份技能根通知文件与一条根通知条目；中文记录配对为下一位维护者保留这项决策。默认结构可替换，因此两个采用者可以以不同方式呈现四块内容；AI Usage 块及其模型保持固定。可执行性来自回读，而不是脚本，因此结构验证取决于写作者的回读。`user-invocable: false` 未被承载，可选默认约定是示例，没有任何测试针对真实采用者检验它们。触发质量靠判断，而非测量：description 的关键词集合没有针对真实用户提示词运行过。本记录的中文配对与记录一致。变更在 `refactor/dsh-skills` 上并已 push；未打开 pull request。回退落地提交会恢复被移除的工作目录与已发布的副本。

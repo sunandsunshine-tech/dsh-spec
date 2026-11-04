@@ -10,7 +10,7 @@ The set extracts DeepSeek Harness's development pattern as skills, and one part 
 
 ## Decision
 
-`dsh-spec-error-handling` ships from `skills/dsh-spec-error-handling/`, and its installed copy at `.agents/skills/dsh-spec-error-handling/` mirrors it byte for byte. The forge work directory was published and removed. The skill is one `SKILL.md` for software-engineering projects of any kind — applications, libraries, command-line tools, services, embedded and batch systems. Its body carries the four upstream units — typed, structured failures; handling, recovery or stopping; localized, actionable, visible reports; foundations — in the upstream wording where the sense holds, with the product-specific referents and the runtime assumptions adapted; every adaptation is recorded in the disposition table and the presupposition audit below.
+`dsh-spec-error-handling` ships from `skills/dsh-spec-error-handling/`, and its installed copy at `.agents/skills/dsh-spec-error-handling/` mirrors it byte for byte. The skill is one `SKILL.md` for software-engineering projects of any kind — applications, libraries, command-line tools, services, embedded and batch systems. Its body carries the four upstream units — typed, structured failures; handling, recovery or stopping; localized, actionable, visible reports; foundations — in the upstream wording where the sense holds, with the product-specific referents and the runtime assumptions adapted; every adaptation is recorded in the disposition table and the presupposition audit below.
 
 The skill is prose-only. No rule in the source is decidable by a command: whether a failure has an owning API, a containment rule and a guarantee, and whether a final report is actionable, are judgments about a design. A bundled script would have to invent a check the source does not state. The body stays far inside the specification's size budget, so the skill ships no reference file either. It has no environment requirements and therefore no `compatibility` field.
 
@@ -18,21 +18,21 @@ The skill is prose-only. No rule in the source is decidable by a command: whethe
 
 ### Source and revision
 
-Source: `submodules/dsh/.agents/skills/dsh-error-handling/SKILL.md` — the only file the upstream skill carries — at the pinned submodule revision `1f81c047fc48fa190a683e469daa699857e9afe8` (`dsh-v0.2.1-rc.3`). The file is 30 lines; its SHA-256 is `fcde7e278056263f7b93b6854fe05d0b492bdf09739f4f4f3537e8ffd30a1c2d`.
+Source: `submodules/dsh/.agents/skills/dsh-error-handling/SKILL.md` — the only file the upstream skill carries — at the source revision read `1f81c047fc48fa190a683e469daa699857e9afe8` (`dsh-v0.2.1-rc.3`); the repository's current pinned baseline is `f3803c96974ad4a94195fb97e5c637e9c2a3afe3` (`dsh-v0.2.2-alpha.2`). The file is 30 lines; its SHA-256 is `fcde7e278056263f7b93b6854fe05d0b492bdf09739f4f4f3537e8ffd30a1c2d`.
 
-A forge worktree does not check out submodules, so `submodules/dsh` is empty inside the worktree; the file was read at the main checkout, `/home/dreamstar/ideaProjects/dsh-spec/submodules/dsh/.agents/skills/dsh-error-handling/SKILL.md`, whose `git submodule status` reports the pinned revision above and a clean tree. The submodule was read, not fetched or edited.
+The file is read from the `submodules/dsh` checkout at that revision; the submodule is read, not fetched or edited.
 
-Adopter declarations read: `AGENTS.md` — its standing orders, boundaries and conventions.
+Adopter declaration: `AGENTS.md` — its standing orders, boundaries and conventions.
 
-Read for the repository's procedure and record format, not as design sources: `CONTRIBUTING.md` (commit convention, DCO, bilingual pairs), `skills/dsh-spec-agent-notes/references/notes-contract.md` (this record's format), `skills/dsh-spec-skill-forge/SKILL.md` (the forging procedure), and the landed skills and earlier records of this repository (format and precedent only; none of their wording is carried into the skill). The `dsh-spec-agent-experience` port was read for the repository's precedent on a ported skill's shape and provenance treatment.
+Read for the repository's procedure and record format, not as design sources: `CONTRIBUTING.md` (commit convention, DCO, bilingual pairs), `skills/dsh-spec-agent-notes/references/notes-contract.md` (this record's format), `skills/dsh-spec-skill-forge/SKILL.md` (the forging procedure), the repository's skills and earlier records (format and precedent only; none of their wording is carried into the skill), and the `dsh-spec-agent-experience` skill for the repository's precedent on a ported skill's shape and provenance treatment.
 
-Not read as design sources: any other session's output, any parallel forging result, any skill outside this repository's tree, and the installed copies under `.agents/skills/`.
+Not read as design sources: skills outside this repository's tree and the installed copies under `.agents/skills/`.
 
 ### Adapted target text
 
-The six adapted units, exactly as the landed skill carries them, against the upstream sentence each replaces:
+The six adapted units, exactly as the skill carries them, against the upstream sentence each replaces:
 
-| Unit | Upstream | Planned target text |
+| Unit | Upstream | Target text |
 |---|---|---|
 | N11a | `## Catch, recover, or stop` | `## Handle, recover, or stop` |
 | N12 | For each failure, define handling and reporting owners, containment, and guarantees in the owning API documentation: valid invariants, absent/partial/committed/unknown effects, and cleanup responsibility. | For each failure, define handling and reporting owners, containment, and guarantees in the owning API's documentation or the project's equivalent record of the API's contract: valid invariants, absent/partial/committed/unknown effects, and cleanup responsibility. |
@@ -92,7 +92,7 @@ The English sentence is the delivery language and carries the upstream trigger s
 
 ### Constraint dispositions
 
-Dispositions use the forge skill's values: **Keep** carries the original wording and sense with language and layout adjustments; **Adapt** instantiates a target value; **Re-bind** abstracts a vanished referent to its purpose and makes the target's equivalent concrete; **Dissolve** records that the referent is gone and what check takes over. Home `SK` = the landed `SKILL.md`.
+Dispositions use the forge skill's values: **Keep** carries the original wording and sense with language and layout adjustments; **Adapt** instantiates a target value; **Re-bind** abstracts a vanished referent to its purpose and makes the target's equivalent concrete; **Dissolve** records that the referent is gone and what check takes over. Home `SK` = the `SKILL.md`.
 
 | # | Source | Constraint | Disposition | Home | Basis |
 |---|---|---|---|---|---|
@@ -138,14 +138,14 @@ Dispositions use the forge skill's values: **Keep** carries the original wording
 | R4 | `assertNever` is re-bound to an unreachable-branch or failed-invariant defect; such a defect may remain a plain error and containment still never turns it into success. | The helper is a source-repository convention; a general project reaches the same purpose with its own exhaustiveness or assertion mechanism, and the rule is about the defect's kind, not the helper's name. | Restore the helper's name, which narrows the rule to one ecosystem. |
 | R5 | "Package error conventions" becomes the error conventions of the package, module or service that owns the failure. | The concrete owning unit is what makes the rule reusable rather than a slogan; a general project's unit may be a package, a module or a service, and the rule names the unit that owns the failure. | Widen the unit to the project. |
 | R6 | The Foundations section and its external link are carried unchanged. | The three works are software-engineering literature; the link is external and absolute, so the gate does not treat it as a local dependency. | Remove the section, which drops the source's rationale for the rules. |
-| R7 | The landed skill declares provenance from outside the loaded text: its frontmatter `license` field names a skill-root `THIRD_PARTY_NOTICES`, and the root `THIRD_PARTY_NOTICES.md` lists it among the adapted skills. | The repository's adapted-skill convention requires the declaration for an installed copy; the notice carries the upstream path, revision, relation and both MIT notices, and the root notice registers the skill. | Remove the notice and the root registration. |
-| R8 | The skill's Chinese review draft (`.zh.md`) and its pairing record (`.i18n.yaml`) were created only at the stop, checked by the project pairing gate, and removed by publish; this record carries its Chinese companion and consistency record. | The request confines translation pairing to the stop; the note pair was completed at the final review and moved with the record. | Remove the note companion and its consistency record. |
+| R7 | The skill declares provenance from outside the loaded text: its frontmatter `license` field names a skill-root `THIRD_PARTY_NOTICES`, and the root `THIRD_PARTY_NOTICES.md` lists it among the adapted skills. | The repository's adapted-skill convention requires the declaration for an installed copy; the notice carries the upstream path, revision, relation and both MIT notices, and the root notice registers the skill. | Remove the notice and the root registration. |
+| R8 | The skill's Chinese review draft (`.zh.md`) and its pairing record (`.i18n.yaml`) exist only at the stop, are checked by the project pairing gate, and are removed by `publish`; this record carries its Chinese companion and consistency record. | The request confines translation pairing to the stop; the note pair is completed at the final review. | Remove the note companion and its consistency record. |
 | R9 | This record ships in `implemented/process/` with the skill. | The notes contract moves a record from `proposed/` to `implemented/` when the decision ships. | Move it back to `proposed/process/` if the landing is reverted. |
 | R10 | The target scope is software projects of any kind: applications, libraries, command-line tools, services, embedded and batch systems. The text assumes no UI, no default-enabled logs, no API-documentation practice, no application runtime, and no single failure model. | The request names software engineering as the domain; a rule that only holds for a product-shaped application is not applicable there, and the set exists to be installed into arbitrary projects. | Narrow the scope and state the surface assumptions in the description. |
-| R11 | A source sentence is carried verbatim only when its runtime or product assumption holds in the target scope or its clause is vacuous where absent; otherwise it is adapted with role-based or conditional wording, and the conclusion is recorded as a row in § Presupposition audit and, where it changes, as an adaptation row in § Constraint dispositions. | The first stop recorded "domain-neutral" for a sentence that assumes a product runtime; verbatim fidelity is not generality. The audit makes each assumption explicit and checkable. | Rewrite a row or the policy. |
+| R11 | A source sentence is carried verbatim only when its runtime or product assumption holds in the target scope or its clause is vacuous where absent; otherwise it is adapted with role-based or conditional wording, and the conclusion is recorded as a row in § Presupposition audit and, where it changes, as an adaptation row in § Constraint dispositions. | A sentence that assumes a product runtime is not domain-neutral; verbatim fidelity is not generality. The audit makes each assumption explicit and checkable. | Rewrite a row or the policy. |
 | R12 | The exception vocabulary becomes handling/failure vocabulary in the heading and the two sentences that name it (N11a, N15, N27); "failure" covers exceptions, result values and other explicit failure models. | The source is TypeScript, but the target scope includes languages whose failures are values; the ownership, containment and verification rules survive the vocabulary change. | Restore the exception words, which narrows the skill to one failure model. |
 | R13 | Where the source names a reporting surface or a documentation practice, the target names the surface the affected user or system actually uses, and the contract record may be the owning API's documentation or the project's equivalent record (N12, N21, N23). | The target scope includes projects with no UI or default logs and with no API documentation; the rule keeps its required content and its conditional "where one exists". | Restore a fixed surface or documentation practice. |
-| R14 | The landing rebased the forge branch onto `refactor/dsh-skills` at `f1a68d0` and squash-merged it as one commit; nothing is pushed. | The maintained skill set had advanced while the forging waited, and a rebased branch keeps the landed change a single commit on the current head. | Revert the squash commit. |
+| R14 | The landing is one commit on `refactor/dsh-skills` based on `f1a68d0`. | The maintained skill set advances independently; a single commit on the current head keeps the landing one reversible change. | Revert the commit. |
 
 ### Requirement anchors
 
@@ -176,12 +176,12 @@ Every disposition row is the anchor for the requirement it carries; § Presuppos
 ## Consequences
 
 - The set ships `dsh-spec-error-handling` from `skills/dsh-spec-error-handling/` with an identical installed copy; the skill directory is the deliverable inventory, and the installed copies mirror it.
-- The landed body differs from upstream on 10 of its 30 lines — the name, the description, the H1, the two re-binds (N6 and N10) and the six adapted units (the heading, N12, N15, N21, N23 and N27); the other 20 lines are byte-identical, and the four sections and their order are carried.
+- The body differs from upstream on 10 of its 30 lines — the name, the description, the H1, the two re-binds (N6 and N10) and the six adapted units (the heading, N12, N15, N21, N23 and N27); the other 20 lines are byte-identical, and the four sections and their order are carried.
 - The skill assumes no UI, default-enabled logs, API-documentation practice, application runtime or single failure model; a project maps the rules onto the surface it actually uses, and § Presupposition audit records the classification for every carried unit.
 - Costs: six units depart from the source's wording, and the generalized reporting and documentation wording (N12, N23) is necessarily less concrete than the source's product examples; the trigger evaluation remains unmeasured; the record is paired with its Chinese companion.
-- Risks: over-generalization can lose the source's force; a sentence outside the audit can still carry an unrecorded assumption; an adaptation can drift; the description can compete with a code-review skill; and the landing is a local commit that is not pushed.
+- Risks: over-generalization can lose the source's force; a sentence outside the audit can still carry an unrecorded assumption; an adaptation can drift; the description can compete with a code-review skill.
 - **Executor adherence is judged, not measured.** Whether an agent applies the rules is judgment; no command decides it, so the skill's effect rests on the review.
 - **Presupposition classification is a judgment.** Whether a sentence's runtime assumption is shared, vacuous or unshared is decided per sentence in § Presupposition audit, and review checks the classification against the target scope.
 - **Mechanism parity is judged, not mechanically provable.** Fidelity to the upstream mechanism is checked against the source text by review.
-- What was given up: verbatim fidelity on the six adapted units, a per-file provenance header, and the record's Chinese pair.
-- Rollback: revert the squash commit on `refactor/dsh-skills` and refresh the installed copies again; `submodules/dsh` is untouched, so no upstream pin needs repair.
+- What was given up: verbatim fidelity on the six adapted units and a per-file provenance header.
+- Rollback: revert the landing commit on `refactor/dsh-skills` and refresh the installed copies; `submodules/dsh` is untouched, so no upstream pin needs repair.

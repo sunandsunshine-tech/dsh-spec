@@ -32,7 +32,7 @@ A gate cannot tell an asked-for row from an inferred one. It reads the table and
 
 - `.agents/dsh-spec-translate-docs/terminology.md` is one row shorter, and its own preamble states who decides the rows that remain.
 - The rule's home is project-owned: it lives in the table's own preamble instead of inside the shipped pairing contract, which does not state it.
-- Verification: `dsh-spec.ts check --all --root .` ends `check notes: ok` and `check notes-archived: ok`, and `md-links check` and `translation-pair check` exit zero over the files this change leaves.
+- Verification: `pnpm test` and `node scripts/verify-corpus.ts --base-ref=HEAD` pass, and `node skills/dsh-spec-translate-docs/scripts/translate-pair.mjs check --skip .agents/dsh-spec-agent-notes/archived/** --skip 'submodules/**'` reports the maintained pairs consistent.
 
 What the decision cost is a rule that no gate enforces: a row added without the maintainer's word passes every check, because the check is the conversation itself. What it bought is a table whose rows are decisions a maintainer made, with its next editor told so before adding one.
 

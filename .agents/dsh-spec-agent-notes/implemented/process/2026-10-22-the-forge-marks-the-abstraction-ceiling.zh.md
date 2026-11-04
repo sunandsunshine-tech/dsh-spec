@@ -84,10 +84,8 @@ Status: implemented
 
 ## Testing
 
-- `node scripts/dsh-spec-manager/scripts/dsh-spec.ts notes check --all --root .` → 检查 27 条 Agent Note，结构一致；格式一致。
-- `node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair check` 对本对以及两个否决对 → 一致。
-- `node scripts/dsh-spec-manager/scripts/dsh-spec.ts md-links check` 对本 note 与中文侧 → 通过。
-- `pnpm test` → 82 项测试，82 通过，0 失败。
+- `node scripts/verify-corpus.ts --base-ref=HEAD` → 每个技能入口、笔记树与归档、维护的翻译配对与 vendored notices 全部通过。
+- `pnpm test` → 功能套件通过。
 
 ## Related
 

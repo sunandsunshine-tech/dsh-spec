@@ -1,8 +1,9 @@
 /**
- * The v2 pairing mechanism's functional cases: aggregate multi-language records, per-file source
+ * The pairing mechanism's functional cases: aggregate multi-language records, per-file source
  * languages, existing-pair discovery and selection, switchers, structure, generated regions,
  * briefing, the region helper CLI and the CLI's failure modes. The suite invokes the built bundle
- * at the work-draft path with the landed fallback.
+ * at the work-draft path with the landed fallback, and imports the split corpus and switcher
+ * modules directly for their pure-logic cases.
  */
 
 import { test } from 'node:test'
@@ -11,12 +12,16 @@ import { spawnSync } from 'node:child_process'
 import { existsSync, readFileSync, symlinkSync } from 'node:fs'
 import { join } from 'node:path'
 import { makeFixture, REPO_ROOT } from './helpers/fixtures.ts'
+import { skillBundlePath } from './helpers/bundles.ts'
 import type { Fixture } from './helpers/fixtures.ts'
 import { bindTarget } from '../package/dsh-spec-translate-docs/signature.ts'
+import type { PairCorpus } from '../package/dsh-spec-translate-docs/corpus.ts'
+import { buildCorpus, discoverPairs, pairLanguages } from '../package/dsh-spec-translate-docs/corpus.ts'
+import { parseMarkdown } from '../package/dsh-spec-translate-docs/markdown.ts'
+import { locateSwitchers } from '../package/dsh-spec-translate-docs/switchers.ts'
+import { pairPaths } from '../package/dsh-spec-translate-docs/targets.ts'
 
-const workDraft = '.agents/dsh-spec-skill-forge/dsh-spec-translate-docs/scripts/translate-pair.mjs'
-const landed = 'skills/dsh-spec-translate-docs/scripts/translate-pair.mjs'
-const binary = existsSync(join(REPO_ROOT, workDraft)) ? join(REPO_ROOT, workDraft) : join(REPO_ROOT, landed)
+const binary = skillBundlePath('dsh-spec-translate-docs', 'translate-pair.mjs')
 
 interface Outcome {
   status: number
@@ -25,11 +30,19 @@ interface Outcome {
   output: string
 }
 
-function run(cwd: string, ...args: string[]): Outcome {
-  const result = spawnSync(process.execPath, [binary, ...args], { cwd, encoding: 'utf8' })
+function spawnPair(cwd: string, args: string[], input?: string): Outcome {
+  const result = spawnSync(process.execPath, [binary, ...args], { cwd, encoding: 'utf8', input })
   const stdout = result.stdout ?? ''
   const stderr = result.stderr ?? ''
   return { status: result.status ?? -1, stdout, stderr, output: stdout + stderr }
+}
+
+function run(cwd: string, ...args: string[]): Outcome {
+  return spawnPair(cwd, args)
+}
+
+function runWithInput(cwd: string, input: string, ...args: string[]): Outcome {
+  return spawnPair(cwd, args, input)
 }
 
 interface TargetSpec {
@@ -118,6 +131,59 @@ test('init writes a terminology template and never overwrites it', () => {
     assert.equal(second.status, 0, second.output)
     assert.match(second.output, /already exists/)
     assert.equal(fixture.read('.agents/dsh-spec-translate-docs/terminology.md'), template)
+  } finally {
+    fixture.dispose()
+  }
+})
+
+test('init resolves a relative --root against the working directory', () => {
+  const fixture = makeFixture()
+  try {
+    fixture.write('nested/.keep', '')
+    const first = run(fixture.root, 'init', '--root', 'nested', '--target', 'zh=中文')
+    assert.equal(first.status, 0, first.output)
+    const path = 'nested/.agents/dsh-spec-translate-docs/terminology.md'
+    const template = fixture.read(path)
+    const second = run(fixture.root, 'init', '--root', 'nested', '--target', 'zh=中文')
+    assert.equal(second.status, 0, second.output)
+    assert.match(second.output, /already exists/)
+    assert.equal(fixture.read(path), template)
+  } finally {
+    fixture.dispose()
+  }
+})
+
+test('init resolves a relative --terminology under --root and never overwrites cwd', () => {
+  const fixture = makeFixture()
+  try {
+    fixture.write('custom-terms.md', 'KEEP ME\n')
+    fixture.write('nested/.keep', '')
+    const first = run(
+      fixture.root,
+      'init',
+      '--root',
+      'nested',
+      '--target',
+      'zh=中文',
+      '--terminology',
+      'zh=custom-terms.md',
+    )
+    assert.equal(first.status, 0, first.output)
+    assert.match(fixture.read('nested/custom-terms.md'), /# Terminology/)
+    assert.equal(fixture.read('custom-terms.md'), 'KEEP ME\n')
+    const second = run(
+      fixture.root,
+      'init',
+      '--root',
+      'nested',
+      '--target',
+      'zh=中文',
+      '--terminology',
+      'zh=custom-terms.md',
+    )
+    assert.equal(second.status, 0, second.output)
+    assert.match(second.output, /already exists/)
+    assert.equal(fixture.read('custom-terms.md'), 'KEEP ME\n')
   } finally {
     fixture.dispose()
   }
@@ -511,6 +577,32 @@ test('the region helper CLI renders and splices, and refuses an unknown slug', (
   }
 })
 
+test('the region helper reads a body from stdin', () => {
+  const fixture = makeFixture()
+  try {
+    const rendered = runWithInput(fixture.root, 'new', 'region', 'render', '--slug', 'catalog', '--body', '-')
+    assert.equal(rendered.status, 0, rendered.output)
+    assert.equal(rendered.stdout, '<!-- BEGIN GENERATED catalog -->\nnew\n<!-- END GENERATED catalog -->\n')
+    const region = '<!-- BEGIN GENERATED catalog -->\nold\n<!-- END GENERATED catalog -->'
+    pair(fixture, 'docs/foo.md', 'English', 'Guide', 'Intro.\n\n' + region, [zh('指南', '简介。\n\n' + region)])
+    const spliced = runWithInput(
+      fixture.root,
+      'new',
+      'region',
+      'splice',
+      'docs/foo.md',
+      '--slug',
+      'catalog',
+      '--body',
+      '-',
+    )
+    assert.equal(spliced.status, 0, spliced.output)
+    assert.match(fixture.read('docs/foo.md'), /<!-- BEGIN GENERATED catalog -->\nnew\n<!-- END GENERATED catalog -->/)
+  } finally {
+    fixture.dispose()
+  }
+})
+
 test('a generated source passes with --generated and fails without it', () => {
   const fixture = makeFixture()
   try {
@@ -617,6 +709,113 @@ test('a pair-less brief finds drifted pairs and aligned region regeneration says
   }
 })
 
+test('a pair-less brief reports pairs it cannot brief instead of declaring them consistent', () => {
+  const fixture = makeFixture()
+  try {
+    pair(fixture, 'docs/foo.md', 'English', 'Guide', 'Intro.', [zh()])
+    pair(fixture, 'docs/bar.md', 'English', 'Bar', 'Body.', [zh('栏', '正文。')])
+    terminology(fixture, '')
+    assert.equal(writeRecord(fixture, 'docs/foo.md').status, 0)
+    assert.equal(writeRecord(fixture, 'docs/bar.md').status, 0)
+    // foo's confirmed state is unrecoverable: nothing is committed, and the record no longer matches the edited pair.
+    fixture.write('docs/foo.md', fixture.read('docs/foo.md').replace('Intro.', 'Intro changed.'))
+    // bar's record is malformed.
+    fixture.write('docs/bar.i18n.yaml', 'not a pairing record\n')
+    const all = run(fixture.root, 'brief', '--target', 'zh=中文')
+    assert.equal(all.status, 2, all.output)
+    assert.match(all.stderr, /no recoverable last-confirmed commit/)
+    assert.match(all.stderr, /malformed consistency record/)
+    assert.doesNotMatch(all.stdout, /every recorded pair matches/)
+  } finally {
+    fixture.dispose()
+  }
+})
+
+test('a pair-less brief emits briefable pairs and reports skipped ones with exit 2', () => {
+  const fixture = makeFixture()
+  try {
+    pair(fixture, 'docs/good.md', 'English', 'Good', 'Intro.', [zh('好', '简介。')])
+    pair(fixture, 'docs/bad.md', 'English', 'Bad', 'Body.', [zh('坏', '正文。')])
+    terminology(fixture, '')
+    assert.equal(writeRecord(fixture, 'docs/good.md').status, 0)
+    assert.equal(writeRecord(fixture, 'docs/bad.md').status, 0)
+    fixture.commit('pairs')
+    fixture.write('docs/good.md', fixture.read('docs/good.md').replace('Intro.', 'Intro changed.'))
+    fixture.write('docs/bad.i18n.yaml', 'not a pairing record\n')
+    const all = run(fixture.root, 'brief', '--target', 'zh=中文')
+    assert.equal(all.status, 2, all.output)
+    assert.match(all.stdout, /docs\/good\.md/)
+    assert.match(all.stdout, /Intro changed\./)
+    assert.match(all.stderr, /docs\/bad\.i18n\.yaml/)
+    assert.match(all.stderr, /malformed consistency record/)
+    assert.match(all.stderr, /could not be briefed/)
+  } finally {
+    fixture.dispose()
+  }
+})
+
+test('--apply with a skipped pair stays atomic and writes nothing', () => {
+  const fixture = makeFixture()
+  try {
+    const fence = String.fromCharCode(96).repeat(3)
+    pair(fixture, 'docs/code.md', 'English', 'Code', fence + '\ntext\nold value\n' + fence, [
+      zh('代码', fence + '\ntext\nold value\n' + fence),
+    ])
+    pair(fixture, 'docs/bad.md', 'English', 'Bad', 'Body.', [zh('坏', '正文。')])
+    terminology(fixture, '')
+    assert.equal(writeRecord(fixture, 'docs/code.md').status, 0)
+    assert.equal(writeRecord(fixture, 'docs/bad.md').status, 0)
+    fixture.commit('pairs')
+    fixture.write('docs/code.md', fixture.read('docs/code.md').replace('old value', 'new value'))
+    fixture.write('docs/bad.i18n.yaml', 'not a pairing record\n')
+    const counterpart = fixture.read('docs/code.zh.md')
+    const blocked = run(fixture.root, 'brief', '--apply', '--target', 'zh=中文')
+    assert.equal(blocked.status, 2, blocked.output)
+    assert.equal(blocked.stdout, '')
+    assert.match(blocked.stderr, /malformed consistency record/)
+    assert.match(blocked.stderr, /--apply wrote nothing/)
+    assert.equal(fixture.read('docs/code.zh.md'), counterpart)
+    fixture.remove('docs/bad.md')
+    fixture.remove('docs/bad.zh.md')
+    fixture.remove('docs/bad.i18n.yaml')
+    const applied = run(fixture.root, 'brief', '--apply', '--target', 'zh=中文')
+    assert.equal(applied.status, 0, applied.output)
+    assert.match(fixture.read('docs/code.zh.md'), /new value/)
+    assert.equal(run(fixture.root, 'check', 'docs/code.md', '--target', 'zh=中文').status, 0)
+  } finally {
+    fixture.dispose()
+  }
+})
+
+test('write naming a pair that does not exist exits 2', () => {
+  const fixture = makeFixture()
+  try {
+    assert.equal(run(fixture.root, 'write', 'docs/missing.md').status, 2)
+    assert.equal(run(fixture.root, 'write', 'docs/missing.md', '--target', 'zh=中文').status, 2)
+  } finally {
+    fixture.dispose()
+  }
+})
+
+test('a named argument that selects no pair fails even beside a valid one', () => {
+  const fixture = makeFixture()
+  try {
+    pair(fixture, 'docs/good.md', 'English', 'Good', 'Intro.', [zh('好', '简介。')])
+    terminology(fixture, '')
+    assert.equal(writeRecord(fixture, 'docs/good.md').status, 0)
+    fixture.commit('pair')
+    assert.equal(run(fixture.root, 'check', 'docs/missing.md', 'docs/good.md').status, 2)
+    assert.equal(run(fixture.root, 'write', 'docs/missing.md', 'docs/good.md').status, 2)
+    fixture.write('docs/good.md', fixture.read('docs/good.md').replace('Intro.', 'Intro changed.'))
+    const brief = run(fixture.root, 'brief', 'docs/missing.md', 'docs/good.md')
+    assert.equal(brief.status, 2)
+    assert.equal(brief.stdout, '')
+    assert.match(brief.stderr, /brief selected no existing pair/)
+  } finally {
+    fixture.dispose()
+  }
+})
+
 test('hidden and vendored trees follow the default prune list', () => {
   const fixture = makeFixture()
   try {
@@ -635,6 +834,29 @@ test('hidden and vendored trees follow the default prune list', () => {
     assert.match(list.stdout, /submodules\/module\/x\.md/)
     assert.doesNotMatch(list.stdout, /node_modules/)
     assert.doesNotMatch(list.stdout, /\.agents\/skills/)
+  } finally {
+    fixture.dispose()
+  }
+})
+
+test('--root resolves the repository from any working directory', () => {
+  const fixture = makeFixture()
+  try {
+    pair(fixture, 'docs/foo.md', 'English', 'Guide', 'Intro.', [zh()])
+    terminology(fixture, '')
+    assert.equal(writeRecord(fixture, 'docs/foo.md').status, 0)
+    fixture.commit('pair')
+    const listed = run(REPO_ROOT, 'list', '--root', fixture.root)
+    assert.equal(listed.status, 0, listed.output)
+    assert.match(listed.stdout, /ok +docs\/foo\.md \[zh\]/)
+    const checked = run(REPO_ROOT, 'check', 'docs/foo.md', '--target', 'zh=中文', '--root', fixture.root)
+    assert.equal(checked.status, 0, checked.output)
+    assert.match(checked.output, /1 pair\(s\) consistent/)
+    fixture.write('docs/foo.md', fixture.read('docs/foo.md').replace('Intro.', 'Intro changed.'))
+    const brief = run(REPO_ROOT, 'brief', 'docs/foo.md', '--target', 'zh=中文', '--root', fixture.root)
+    assert.equal(brief.status, 0, brief.output)
+    // Commands printed by the briefing repeat --root so they run from the caller's directory.
+    assert.ok(brief.stdout.includes('--root ' + "'" + fixture.root + "'"), brief.stdout)
   } finally {
     fixture.dispose()
   }
@@ -663,7 +885,7 @@ test('CLI failure modes: legacy flags, malformed targets, write modes and source
   }
 })
 
-test('the shipped description and style references reflect the v2 design', () => {
+test('the shipped description and style references reflect the declared design', () => {
   const workDraft = join(REPO_ROOT, '.agents/dsh-spec-skill-forge/dsh-spec-translate-docs')
   const skillDir = existsSync(join(workDraft, 'SKILL.md'))
     ? workDraft
@@ -846,6 +1068,49 @@ test('named arguments select the documented aggregate sets', () => {
     const narrowed = run(fixture.root, 'check', 'docs/foo.i18n.yaml', '--target', 'zh=中文')
     assert.equal(narrowed.status, 0, narrowed.output)
     assert.match(narrowed.output, /1 pair\(s\) consistent/)
+  } finally {
+    fixture.dispose()
+  }
+})
+
+test('list names one pair in source, counterpart, record and stem form', () => {
+  const fixture = makeFixture()
+  try {
+    pair(fixture, 'docs/foo.md', 'English', 'Guide', 'Intro.', [zh()])
+    pair(fixture, 'docs/bar.md', 'English', 'Bar', 'Body.', [zh('栏', '正文。')])
+    pair(fixture, 'docs/bare.md', 'English', 'Bare', 'Body.', [zh('裸', '正文。')])
+    assert.equal(writeRecord(fixture, 'docs/foo.md').status, 0)
+    assert.equal(writeRecord(fixture, 'docs/bar.md').status, 0)
+    for (const argument of ['docs/foo.md', 'docs/foo.zh.md', 'docs/foo.i18n.yaml', 'docs/foo']) {
+      const listed = run(fixture.root, 'list', argument)
+      assert.equal(listed.status, 0, listed.output)
+      assert.match(listed.stdout, /ok +docs\/foo\.md \[zh\]/, argument)
+      assert.doesNotMatch(listed.stdout, /docs\/bar\.md/, argument)
+      assert.match(listed.stdout, /1 ok, 0 out-of-sync, 0 missing/, argument)
+    }
+    const unrecorded = run(fixture.root, 'list', 'docs/bare.md')
+    assert.equal(unrecorded.status, 0, unrecorded.output)
+    assert.match(unrecorded.stdout, /missing +docs\/bare\.md \[zh\]/)
+    assert.match(unrecorded.stdout, /0 ok, 0 out-of-sync, 1 missing/)
+  } finally {
+    fixture.dispose()
+  }
+})
+
+test('a named source does not inherit a target from a sibling counterpart', () => {
+  const fixture = makeFixture()
+  try {
+    pair(fixture, 'docs/bar.md', 'English', 'Bar', 'Body.', [zh('栏', '正文。')])
+    assert.equal(writeRecord(fixture, 'docs/bar.md').status, 0)
+    fixture.write('docs/foo.md', '# Guide\n\nIntro.\n')
+    const named = run(fixture.root, 'check', 'docs/foo.md')
+    assert.equal(named.status, 2, named.output)
+    assert.match(named.output, /no existing pair/)
+    assert.match(named.output, /--target <lang>/)
+    const listed = run(fixture.root, 'list', 'docs/foo.md')
+    assert.equal(listed.status, 0, listed.output)
+    assert.match(listed.stdout, /0 ok, 0 out-of-sync, 0 missing/)
+    assert.match(listed.stderr, /--target <lang>/)
   } finally {
     fixture.dispose()
   }
@@ -1146,4 +1411,94 @@ test('sequential per-target writes converge without confirming untouched targets
   } finally {
     fixture.dispose()
   }
+})
+
+test('the corpus derives recognized targets and existing artifacts from files and records', () => {
+  const fixture = makeFixture()
+  try {
+    fixture.write('docs/guide.md', '# Guide\n\nIntro.\n')
+    fixture.write('docs/guide.zh.md', '# 指南\n\n简介。\n')
+    fixture.write('docs/guide.ja.md', '# ガイド\n\nはじめに。\n')
+    fixture.write('docs/note.md', '# Note\n\nBody.\n')
+    fixture.write('docs/note.i18n.yaml', '/note:\n  en: 0123456789abcdef\n  fr: fedcba9876543210\n')
+    const corpus = buildCorpus({ root: fixture.root, targets: [{ code: 'zh', name: '中文' }] })
+    assert.deepEqual(
+      corpus.recognized.map((language) => language.code),
+      ['fr', 'ja', 'zh'],
+    )
+    assert.deepEqual(
+      corpus.existingTargets('docs/guide.md').map((language) => language.code),
+      ['ja', 'zh'],
+    )
+    assert.deepEqual(
+      corpus.existingTargets('docs/note.md').map((language) => language.code),
+      ['fr'],
+    )
+    assert.equal(corpus.isPaired('docs/guide.zh.md'), true)
+    assert.equal(corpus.isPaired('docs/note.md'), true)
+    assert.equal(corpus.isPaired('docs/note.i18n.yaml'), false)
+    assert.deepEqual(
+      discoverPairs(corpus).map((pair) => pair.paths.source + ' [' + pair.paths.target.code + ']'),
+      ['docs/guide.md [ja]', 'docs/guide.md [zh]', 'docs/note.md [fr]'],
+    )
+  } finally {
+    fixture.dispose()
+  }
+})
+
+test('pairLanguages reads the counterpart switcher and prefers a declared target name', () => {
+  const paths = pairPaths('docs/guide.md', { code: 'ja', name: 'ja' })
+  const counterpart = '# ガイド\n\n[English](guide.md) | にほんご\n\nはじめに。\n'
+  const readFile = (path: string): string | undefined => (path === paths.counterpart ? counterpart : undefined)
+  const declared = pairLanguages(
+    paths,
+    { readFile, declared: [{ code: 'ja', name: '日本語' }] } as unknown as PairCorpus,
+    'en',
+  )
+  assert.deepEqual(declared.source, { code: 'en', name: 'English' })
+  assert.deepEqual(declared.target, { code: 'ja', name: '日本語' })
+  const learned = pairLanguages(paths, { readFile, declared: [] } as unknown as PairCorpus, 'en')
+  assert.deepEqual(learned.target, { code: 'ja', name: 'にほんご' })
+})
+
+test('locateSwitchers matches a canonical pair and reports a missing source switcher', () => {
+  const paths = pairPaths('docs/guide.md', { code: 'zh', name: '中文' })
+  const source = '# Guide\n\nEnglish | [中文](guide.zh.md)\n\nIntro.\n'
+  const counterpart = '# 指南\n\n[English](guide.md) | 中文\n\n简介。\n'
+  const corpus = {
+    declared: [{ code: 'zh', name: '中文' }],
+    recognized: [{ code: 'zh', name: '中文' }],
+    fileExists: (path: string) => path === paths.counterpart,
+    readFile: (path: string) => (path === paths.counterpart ? counterpart : undefined),
+    isGeneratedSource: () => false,
+  } as unknown as PairCorpus
+  const matched = locateSwitchers(
+    corpus,
+    paths,
+    source,
+    parseMarkdown(source),
+    counterpart,
+    parseMarkdown(counterpart),
+    'en',
+    undefined,
+  )
+  assert.deepEqual(matched.errors, [])
+  assert.equal(matched.sourceLabel, 'English')
+  assert.equal(matched.targetLabel, '中文')
+  assert.equal(matched.sourceOffsets.size, 1)
+  assert.equal(matched.counterpartOffsets.size, 1)
+  const bare = '# Guide\n\nIntro.\n'
+  const missing = locateSwitchers(
+    corpus,
+    paths,
+    bare,
+    parseMarkdown(bare),
+    counterpart,
+    parseMarkdown(counterpart),
+    'en',
+    undefined,
+  )
+  assert.match(missing.errors.join('\n'), /missing or non-canonical language switcher/)
+  assert.equal(missing.sourceOffsets.size, 0)
+  assert.equal(missing.counterpartOffsets.size, 1)
 })

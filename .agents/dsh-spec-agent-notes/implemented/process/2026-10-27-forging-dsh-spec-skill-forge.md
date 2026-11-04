@@ -6,7 +6,7 @@ English | [中文](2026-10-27-forging-dsh-spec-skill-forge.zh.md)
 
 ## Problem
 
-The forge owns a pairing mechanism of its own. Its old `review` command infers translation pairs from filenames, writes `.i18n.yaml` records containing a source hash, and `review --check` decides whether a draft is current. The forge therefore acts as both the draft producer and the draft consistency gate.
+The forge owns a pairing mechanism of its own. Its `review` command infers translation pairs from filenames, writes `.i18n.yaml` records containing a source hash, and `review --check` decides whether a draft is current. The forge therefore acts as both the draft producer and the draft consistency gate.
 
 The notes mechanism separates those jobs. A project declares companion suffixes; the notes skill pairs and moves a note with its companions; the project's pairing gate owns whether the two sides agree. The forge should follow the same division: pairing is declarative, and consistency remains the adopter's gate's business.
 
@@ -21,7 +21,7 @@ The forge uses declared companions instead of its own pair record:
 - The forge writes no `.i18n.yaml`, stores no source hash, and has no `pair --check`. Whether a pair is current is decided by the project's own pairing gate; the forge does not import that gate, and the review draft names the translation skill only as an availability-qualified example.
 - Before `publish`, the adopter removes review-draft-only content from the work-draft sources; `publish` copies the sources unchanged.
 - Cross-skill guidance: the forge names the optional notes, translation, prose and prompt skills only as availability-qualified examples; the Agent Skills best practices outrank the prose and prompt requirements.
-- Delivery language is English; the review language is Chinese, paired only at the stop; the additional trigger language is Chinese, already present in the description.
+- Delivery language is English; the review language is Chinese, paired only at the stop; the additional trigger language is Chinese, present in the description.
 
 ## Design
 
@@ -45,15 +45,15 @@ The review drafts and their pairing records are ordinary work-directory content 
 | `SKILL.md § Defaults`: `Review language` default | Adapt | `Review drafts` default: none until declared; suffix names the language or record kind | The declaration replaces an inferred language default |
 | `forge.ts` pair/publish pair removal | Adapt | Read-only pair report and declaration-driven publish removal | The forge no longer writes or checks pair records |
 | `AGENTS.md`, `package/AGENTS.md`, `package.json` wording and commands | Adapt | Declarative companion wording and candidate CLI invocations | The repository's forge skill uses declared companions |
-| Historical forge skill § Languages: a review draft reverses the description's additional trigger language | Re-bind | `SKILL.md § Review` | The earlier skill stated the rule; the simplified skill lost it, and the missing trigger language exposed the loss |
+| Historical forge skill § Languages: a review draft reverses the description's additional trigger language | Re-bind | `SKILL.md § Review` | The rule belongs in the current skill; without it the review draft omits the additional trigger language |
 | An existing decision record | Re-bind | `SKILL.md § Source` | Only the request, the current contract and the declaration decide; the record supplies a requirement only where one of them keeps that requirement in force |
 | Adopter declaration: forging record location | Keep | `.agents/dsh-spec-agent-notes/implemented/process/2026-10-27-forging-dsh-spec-skill-forge.md` | The notes mechanism's default root and the repository's `forging-<skill-name>` record convention |
 
-Unchanged: the guiding principle, tool names, Stop/Intent/Source/Disposition/Script conversion/Verification/Defaults sections, the verification anchor table, the gate mechanics, and the description/trigger. The Record and Review sections now carry the optional sibling references.
+Unchanged: the guiding principle, tool names, Stop/Intent/Source/Disposition/Script conversion/Verification sections, the verification anchor table, the gate mechanics, and the description/trigger. The Record and Review sections carry the optional sibling references.
 
 ## Alternatives considered
 
-**Keep the forge's source-hash record and add declarative suffixes.** That was the first attempt: it makes declarations configurable but leaves the forge owning a second pairing mechanism. The notes mechanism does not put consistency records in the skill; the forge should not either.
+**Keep the forge's source-hash record and add declarative suffixes.** It makes declarations configurable but leaves the forge owning a second pairing mechanism. The notes mechanism does not put consistency records in the skill; the forge should not either.
 
 **Copy the `dsh-translate-docs` section-hash record into the forge.** The forge would then own a second implementation of the project's pairing gate and depend on that gate's format. Pairing a draft and deciding whether it is current are different jobs; the adopter's gate already owns the second.
 
@@ -63,9 +63,10 @@ Unchanged: the guiding principle, tool names, Stop/Intent/Source/Disposition/Scr
 
 ## Consequences
 
-- The forge now owns declarations, pair/source reporting, orphan refusal and publish removal; it owns no source hash, no consistency record and no `--check`.
+- The forge owns declarations, pair/source reporting, orphan refusal and publish removal; it owns no source hash, no consistency record and no `--check`.
 - The project's pairing gate owns whether a pair is current; the forge does not import or invoke it. Review drafts and their `.i18n.yaml` records remain adopter content and are removed by `publish`.
 - `publish` removes declared companions and copies the work-draft sources unchanged. Review-draft-only content in those sources must be removed by the operator before publishing; a forgotten switcher, backlink or removed-draft link lands.
 - The `pair` command is read-only. Its no-declaration report lists candidate companions by suffix relation; the shortest-suffix rule and proximity to a `.md` source make it a heuristic, and it never deletes.
+- The [2026-10-26 record](2026-10-26-forging-dsh-spec-skill-forge.md) owns the forge's anchor design; this record partially supersedes that record's review-command and pair-record design.
 - The description-reversal rule and the current-source rule for earlier decision records are in the skill body; both are judged in review rather than mechanically checked.
 - Costs and open risks: the forge cannot detect stale translations; manual source cleanup is unverified; `publish` is not transactional and removes declared drafts before copying; the candidate heuristic can report false positives. The VCS is the rollback.

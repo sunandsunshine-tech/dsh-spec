@@ -10,9 +10,9 @@ Find changes that remove maintained obligations: APIs, representations, lifecycl
 
 ## Establish scope and constraints
 
-Read the project's declaration (`AGENTS.md`, `CLAUDE.md`, or the file it points to) and the documents it names for architecture, design constraints and testing before judging a subsystem. When the project has no declaration, read its README and module documentation for the same constraints. Consult the active decision records for intentional decisions, and use the project's record workflow for a new record. Archived records are historical examples, not current authority: never inspect, verify or repair their outbound links.
+Read the project's standing instructions (`AGENTS.md`, `CLAUDE.md`, or the file it points to) and the documents they name for architecture, design constraints and testing before judging a subsystem. When the project has no standing instructions, read its README and module documentation for the same constraints. Consult the active decision records for intentional decisions, and use the project's record workflow for a new record. Archived records are historical examples, not current authority: never inspect, verify or repair their outbound links.
 
-Some designs are intentional even when they look redundant. The project declaration, its decision records, or the user may protect a design; do not propose deleting one unless the user explicitly overrides that constraint. Unused members within a protected design remain candidates when their removal preserves its purpose.
+Some designs are intentional even when they look redundant. The project's standing instructions, its decision records, or the user may protect a design; do not propose deleting one unless the user explicitly overrides that constraint. Unused members within a protected design remain candidates when their removal preserves its purpose.
 
 For a broad request, divide independent domains among subagents. Give each a bounded domain — a subsystem, package or layer, or one kind of surface such as runtime core, integrations, user interfaces, configuration and composition, or scripts, tests and documentation — and require consumer evidence and rejected alternatives from each. Inspect substantial production machinery as well as obvious unused symbols; do not stop after the first promising deletion.
 

@@ -12,7 +12,7 @@ The package ships the forge, the decision-record, agent-experience, prose-standa
 
 The package ships `dsh-spec-pre-push-checks` as a create-mode adaptation of the upstream skill at `submodules/dsh/.agents/skills/dsh-pre-push-checks/SKILL.md` (`submodules/dsh` pinned at `dsh-v0.2.2-alpha.2`, `f3803c96974ad4a94195fb97e5c637e9c2a3afe3`). It keeps the upstream mechanism: confirm the checkout and branch; verify the base before inspecting scope; produce one complete outgoing-scope report; select the narrowest evidence whose regression would fail the change; do not duplicate what hooks or CI already decide; rehearse fully only in the named cases; protect history-rewriting pushes; validate immediately after an automated rewrite-and-publish; and prove environment-specific failures instead of reinterpreting them. The wording is repository-neutral: the adopter's own commands, hooks, workflows and layout conventions are discovered from its declarations, and where upstream names a deepseek-harness file, profile, snapshot tree or sibling skill, this skill generalizes the rule or leaves it to those conventions.
 
-The landed directory holds `SKILL.md`, `scripts/change-scope.mjs` and `THIRD_PARTY_NOTICES`, mirrored to `.agents/skills/dsh-spec-pre-push-checks/`; the script's source and build wiring stay in `package/dsh-spec-pre-push-checks/`, its tests in `tests/change-scope.test.ts`, and the suite's inventory row in `tests/AGENTS.md`. The superseded upstream-named installed copy `.agents/skills/dsh-pre-push-checks/` is removed; the root `AGENTS.md` skills list and the adapted-skill enumeration in the root `THIRD_PARTY_NOTICES.md` name the skill. Historical release notes keep their text.
+The landed directory holds `SKILL.md`, `scripts/change-scope.mjs` and `THIRD_PARTY_NOTICES`, mirrored to `.agents/skills/dsh-spec-pre-push-checks/`; the script's source and build wiring stay in `package/dsh-spec-pre-push-checks/`, its tests in `tests/change-scope.test.ts`, and the suite's inventory row in `tests/AGENTS.md`. The superseded upstream-named installed copy `.agents/skills/dsh-pre-push-checks/` is removed; the root `README.md` skill table and the adapted-skill enumeration in the root `THIRD_PARTY_NOTICES.md` name the skill.
 
 - Delivery and languages: English delivery with the Chinese trigger vocabulary appended to the description; this record is English with its Chinese `.zh.md` pair and `.i18n.yaml` consistency record.
 
@@ -83,8 +83,8 @@ One row per unit, one disposition label. "Basis" states the target-domain fact, 
 | U16 | adapt | Closing paragraph of "Select relevant evidence": do not repeat a passing check because commit or push follows; in particular do not re-run the typecheck solely to duplicate a hook | The rule is general; the named hook and typecheck are the upstream repository's instance |
 | U17 | adapt | Closing paragraph: pass filters the way the launcher forwards them, keeping the pnpm form as an example; check the selected test count before treating a filtered run as evidence | The forwarding rule is general; pnpm/Vitest are the common realization and stay illustrative |
 | U18 | adapt | "### Focus unit coverage on the affected source": selection and coverage are separate; name owning tests and source scope through the runner's coverage-include mechanism; thresholds still apply inside the scope; use dependency/related discovery when owners are unclear; select undiscoverable behavior explicitly; never suppress no-tests, lower thresholds or narrow the include to hide an uncovered affected file; add owning tests or narrow only when the excluded modules cannot be affected | Mechanism preserved; the concrete flags are the runner's |
-| U19 | adapt | "Full local rehearsal": the three named cases survive; the inventory is the current workflow and package scripts; do not recreate a removed aggregate | `check:pre-push` is the deepseek-harness aggregate; its absence is stated generically |
-| U20 | adapt | "Protect history-rewriting pushes": rebase allowed; fetch and record the OID; `--force-with-lease=<branch>:<observed-oid>`; a stack or automation tool must supply equivalent lease protection; raw `--force` never; after any rewrite, refetch and re-audit threads, approvals, mergeability and checks; pre-rewrite hashes and anchors are not evidence | The lease mechanism is general; the tool names become examples |
+| U19 | adapt | "Full local rehearsal": the three named cases survive; the inventory is the current workflow and package scripts; do not invent an aggregate check the repository does not provide | `check:pre-push` is the deepseek-harness aggregate; its absence is stated generically |
+| U20 | adapt | "Protect history-rewriting pushes": rebase where the repository's instructions allow it; fetch and record the OID; `--force-with-lease=<branch>:<observed-oid>`; a stack or automation tool must supply equivalent lease protection; raw `--force` never; after any rewrite, refetch and re-audit threads, approvals, mergeability and checks; pre-rewrite hashes and anchors are not evidence | The lease mechanism is general; the tool names become examples |
 | U21 | re-bind | "### Validate after an automated rewrite and publish": a tool may fetch, rebase and publish as one operation, with `gh stack sync` named as the example; the before/after sequence and the repair path are carried | The mechanism (validation cannot sit between rewrite and publication) is real for any adopter whose tooling publishes for them; the deepseek-harness tool is an instance, not the mechanism |
 | U22 | adapt | "Handle failures": stop and fix or explain; do not push and hope; block the merge after a failed automated publish and repair; prove an environment-specific failure with the exact command, failing test and platform mismatch, confirm the non-platform evidence, prefer a cross-platform fix, bypass a hook only when the user asks or agrees and report what failed | Domain-neutral; only the hook and CI nouns are generalized |
 | U23 | adapt | "Push procedure": run the checks once; commit, inspect fixer changes, push with the lease, verify the remote ref; inspect remote CI and report pending as pending; when no checks are reported, read mergeability before suspecting the push, resolve the conflict rather than adding empty history, and confirm paths with `git merge-tree`; the automated-publish exception uses its own sequence; the GitHub commands stay inside an explicit "when the review platform is GitHub" example while the provider-neutral rule stands alone | The GitHub realization is illustrative; the constraint is provider-neutral |
@@ -93,7 +93,7 @@ Coverage: each unit has exactly one row and one home. U11 and U12 are the two di
 
 ### The bundled change-scope report
 
-The report is the mechanical half of the skill. Its source is `package/dsh-spec-pre-push-checks/change-scope.ts`, wired like the other skill packages (`build.ts` runs `vp pack`, `vite.config.ts` names the entry and the landing directory's `scripts/` output, `package.json` is the private package marker); `node scripts/build-skills.ts dsh-spec-pre-push-checks` bundles it to `skills/dsh-spec-pre-push-checks/scripts/change-scope.mjs`, the committed artifact the skill runs.
+The report is the mechanical half of the skill. Its source is `package/dsh-spec-pre-push-checks/change-scope.ts`, wired like the other skill packages (`build.ts` runs `vp pack`, `vite.config.ts` names the entry and the work directory's `scripts/` output, `package.json` is the private package marker); `node scripts/build-skills.ts dsh-spec-pre-push-checks --publish` copies the bundle to `skills/dsh-spec-pre-push-checks/scripts/change-scope.mjs`, the committed artifact the skill runs; the default build writes the work directory, and `--publish` copies it into `skills/`.
 
 - Usage: `node <skill-dir>/scripts/change-scope.mjs --base <ref> [--head <ref>]`; it runs inside the project's Git checkout and prints one JSON report to stdout.
 - Output: `formatVersion` (1), `repositoryRoot`, `input` (`base`, `head`), `resolved` (`baseSha`, `headSha`, `mergeBaseSha`) and `paths` (`committed`, `staged`, `unstaged`, `untracked`), each path list sorted and deduplicated; committed paths are relative to the resolved merge base.
@@ -107,48 +107,46 @@ The report is the mechanical half of the skill. Its source is `package/dsh-spec-
 - **U11 and U12 are dissolved, not re-bound.** A fixed expected-output or profile placement has no equivalent means in an unspecified software-engineering repository: inventing a tree would be a new mechanism. The adopter's conventions and the owning test lane's command take over.
 - **U6 is re-bound to evidence kinds, not to a sibling skill.** The package ships no reliability skill, so naming one would point an adopter at a skill it does not have; the evidence kinds are the portable content.
 - **U21 is re-bound rather than dissolved.** Automated rewrite-and-publish tooling is a real mechanism for software-engineering adopters, and the ordering exception is part of the upstream execution mechanism the forging must keep; the tool name becomes an example.
-- **The report is bundled rather than called from the adopter.** The package's architecture bundles the scripts a skill needs; the legacy engine's copy is not a deliverable and is kept only for installed skills.
-- **The report's rendering is carried from the legacy engine's verbatim upstream port; its CLI surface is adapted.** The port is the same MIT-licensed upstream file the repository already carries, so the proven report contract and its provenance are kept; the `--help` and exit-code adaptation follows the script-interface guidance and is stated and tested.
+- **The report is bundled rather than called from the adopter.** The package's architecture bundles the scripts a skill needs; the legacy engine's copy is not a deliverable and is gone with the engine.
+- **The report's rendering is carried from the upstream script's verbatim port; its CLI surface is adapted.** The port is the same MIT-licensed upstream file, so the proven report contract and its provenance are kept; the `--help` and exit-code adaptation follows the script-interface guidance and is stated and tested.
 - **Attribution travels outside the loaded text.** The baseline's convention makes the skill-root `THIRD_PARTY_NOTICES` the carrier and the frontmatter `license` field its pointer, because a header or a comment inside the text would be loaded as instructions; this skill follows that convention for both the adapted skill text and the ported report, and relies on no bundler comment behaviour.
 - **`<skill-dir>` is the directory containing `SKILL.md`, not this package's install path.** The command needs a way to name the bundled report, but hardcoding `.agents/skills/dsh-spec-pre-push-checks` would make a generic skill assume one client's install layout; the placeholder is defined without a path so every adopter resolves it in its own tree.
 - **The record uses the repository's own legacy implementation as an implementation basis, not as a design source.** The upstream skill states the requirement, that port carries its field contract, and no other source informs the record.
-- **The review drafts are declared, not optional.** The repository's bilingual convention declares the two suffixes; the Chinese skill draft and its pairing record are current at the stop, and this record's Chinese pair is written at landing.
-- **Landing follows the maintainer's authorization.** Publish into `skills/`, mirror into `.agents/skills/`, remove the superseded installed copy, update the root documentation, move and pair this record, and squash-merge the branch; nothing is pushed.
-- **Superseded content is removed at landing.** The upstream-named installed copy goes; the historical release notes and the legacy installed copies' prose stay as they are.
-- **The record's Chinese pair is written at landing.** The landing follows the package's bilingual practice.
+- **The review drafts are declared, not optional.** The repository's bilingual convention declares the two suffixes; the Chinese skill draft and its pairing record are checked before the handoff, and this record carries its Chinese pair.
+- **The publish state is pushed.** The skill is published into `skills/`, mirrored into `.agents/skills/`, the superseded installed copy is removed and the root documentation names the new skill; the landing commit is pushed, with no pull request opened.
 
 ### Anchors per requirement
 
 | Requirement | Anchor | Evidence |
 |---|---|---|
-| U1 description triggers | judged | Independent review accepted the description wording; the trigger rate is unverified |
-| U2 intro: evidence once, one ordering exception, hooks/CI ownership | judged | Independent review, mechanism walk U1-U23 |
-| U3 inspect step 1 | judged | Independent review |
-| U4 verified base and the report contract | mechanical | `node --test tests/change-scope.test.ts` (10 pass); probes of `--help`/0, a report/0, failures/1, usage/2 |
-| U5 narrowest evidence | judged | Independent review |
-| U6 asynchronous/resource-owning evidence bullet | judged | Independent review |
-| U7 tested behavior bullet | judged | Independent review |
-| U8 typecheck and generated types | judged | Independent review |
-| U9 documentation bullet | judged | Independent review |
-| U10 observable output bullet | judged | Independent review |
-| U11 and U12 dissolved placement rules | judged | Independent review verified that no fixed output tree or profile path is carried |
-| U13 build and packaging bullet | judged | Independent review |
-| U14 current build output before claiming completion | judged | Independent review |
-| U15 external behavior bullet | judged | Independent review |
-| U16 no repeated check, no hook duplication | judged | Independent review |
-| U17 filter forwarding and selected count | judged | Independent review |
-| U18 coverage focus | judged | Independent review |
-| U19 full local rehearsal | judged | Independent review |
-| U20 history-rewriting protection | judged | Independent review |
-| U21 automated rewrite and publish validation | judged | Independent review |
-| U22 failure handling | judged | Independent review |
-| U23 push procedure | judged | Independent review |
-| Agent Skills specification and budget | mechanical | `14 check(s), 0 failed`; 108 lines, ~2983 tokens |
+| U1 description triggers | judged | one conclusion on the description against U1; the trigger rate is unverified |
+| U2 intro: evidence once, one ordering exception, hooks/CI ownership | judged | one conclusion on the intro against U1–U23 |
+| U3 inspect step 1 | judged | one conclusion on the step against U3 |
+| U4 verified base and the report contract | mechanical | `node --test tests/change-scope.test.ts` (11 pass); probes of `--help`/0, a report/0, failures/1, usage/2 |
+| U5 narrowest evidence | judged | one conclusion on the selection rule against U5 |
+| U6 asynchronous/resource-owning evidence bullet | judged | one conclusion on the bullet against U6 |
+| U7 tested behavior bullet | judged | one conclusion on the bullet against U7 |
+| U8 typecheck and generated types | judged | one conclusion on the bullet against U8 |
+| U9 documentation bullet | judged | one conclusion on the bullet against U9 |
+| U10 observable output bullet | judged | one conclusion on the bullet against U10 |
+| U11 and U12 dissolved placement rules | judged | one conclusion that no fixed output tree or profile path is carried (U11–U12) |
+| U13 build and packaging bullet | judged | one conclusion on the bullet against U13 |
+| U14 current build output before claiming completion | judged | one conclusion on the bullet against U14 |
+| U15 external behavior bullet | judged | one conclusion on the bullet against U15 |
+| U16 no repeated check, no hook duplication | judged | one conclusion on the rule against U16 |
+| U17 filter forwarding and selected count | judged | one conclusion on the rule against U17 |
+| U18 coverage focus | judged | one conclusion on the coverage rules against U18 |
+| U19 full local rehearsal | judged | one conclusion on the rehearsal cases against U19 |
+| U20 history-rewriting protection | judged | one conclusion on the protection rules against U20 |
+| U21 automated rewrite and publish validation | judged | one conclusion on the validation sequence against U21 |
+| U22 failure handling | judged | one conclusion on the failure rules against U22 |
+| U23 push procedure | judged | one conclusion on the push procedure against U23 |
+| Agent Skills specification and budget | mechanical | `14 check(s), 0 failed`; 108 lines, ~3035 tokens |
 | Attribution travels with the skill | mechanical | The landed `license` field names `THIRD_PARTY_NOTICES`; the file carries the upstream and repository notices plus the adapted text's and the port's origins |
-| Repository suite and format | mechanical | `pnpm test` 216/216; `pnpm run format:check` clean |
-| Review drafts removed at landing | mechanical | `publish` reports the declared drafts removed; the draft-only switcher is absent from the landed `SKILL.md` |
-| Record paired | mechanical | `translation-pair check` reports 1 named pair consistent |
-| Trigger quality | unverified | No trigger-evaluation harness in this repository; the human review judges the description |
+| Repository suite and format | mechanical | `pnpm test` passes; `pnpm run format:check` clean |
+| Review drafts absent from the landed skill | mechanical | No declared draft file sits beside the landed `SKILL.md`, and the draft-only switcher is absent |
+| Record paired | mechanical | `translate-pair check` reports 1 named pair consistent |
+| Trigger quality | unverified | No trigger-evaluation harness in this repository; the activation rate is unmeasured |
 
 ## Alternatives considered
 
@@ -156,23 +154,23 @@ The report is the mechanical half of the skill. Its source is `package/dsh-spec-
 
 **Dissolve every mechanism that does not exist in this repository.** It lost because the check-selection mechanism is what the skill is for: dropping the change-scope report, the lease-protected rewrite or the automated-publish validation would leave generic advice where the upstream skill has an executable procedure. The disposition table keeps the mechanism and adapts only its value or name.
 
-**Rely on the adopter's own change-scope command and write no script.** It lost because the new skill set is self-contained per skill and the legacy engine that currently carries the report is kept only while the old installed skills call it; an adopter that installs this skill alone would otherwise have no report command. The equivalent means is bundled with the skill so the procedure is executable with only Git and Node.
+**Rely on the adopter's own change-scope command and write no script.** It lost because the new skill set is self-contained per skill and the legacy engine that carried the report is gone; an adopter that installs this skill alone would otherwise have no report command. The equivalent means is bundled with the skill so the procedure is executable with only Git and Node.
 
 **Keep the prose-only Git commands for the scope inspection instead of bundling a report.** It lost because U4's report is a fixed, versioned structure the rest of the selection reads from, and two executors writing their own `git diff` pipeline would not reach the same set of paths (merge-base resolution, staged/unstaged/untracked separation, path encoding). A command the skill ships is the mechanical anchor; the judgment stays prose.
 
 **Ship the ported report verbatim, without `--help` and with a single failure exit.** It lost because the `using-scripts` page makes a documented `--help` and distinct documented exit codes part of an agent-usable script; a verbatim copy would also make the skill's stated interface false. The adaptation is bounded to the CLI wrapper, recorded in the source header and the notices, and tested; the report rendering stays untouched.
 
-**Land without removing the superseded installed copy.** It lost because the upstream-named copy would stay installed beside its replacement, the manifest would still advertise it, and two descriptions would compete; the maintainer's landing order removes it and its manifest entry.
+**Publish without removing the superseded installed copy.** It lost because the upstream-named copy would stay installed beside its replacement, the manifest would still advertise it, and two descriptions would compete; the installed copy and its manifest entry are removed.
 
-**Keep the record English-only.** It lost because every landed forging record in this repository carries its Chinese pair and the notes contract allows companions; the landing follows that practice.
+**Keep the record English-only.** It lost because every landed forging record in this repository carries its Chinese pair and the notes contract allows companions; this record follows that practice.
 
 ## Consequences
 
-- **One report.** The report exists once, in the landed skill, which the repository owns and which carries the notices; the legacy engine and its copy went with the manager.
-- **The report differs from the upstream port in its command-line interface.** The CLI adaptation (`--help`, exit codes) diverges from the legacy copy while the report rendering does not. The divergence is small, recorded in the source header and the notices, and covered by tests; a future reader should not assume the two copies are interchangeable.
+- **One report.** The report exists once, in the landed skill, which the repository owns and which carries the notices; the legacy engine and its copy are gone.
+- **The report differs from the upstream port in its command-line interface.** The CLI adaptation (`--help`, exit codes) diverges from the upstream port while the report rendering does not. The divergence is small, recorded in the source header and the notices, and covered by tests; a future reader should not assume the two copies are interchangeable.
 - **The generic selection bullets can read as a checklist.** Upstream's concrete surfaces make the skill useful; generalizing them can produce advice an agent already knows. The dissolve rows leave adopter conventions to the adopter instead of inventing paths, and the review keeps an item only when the agent could get it wrong without the skill.
 - **The report is not proven on Windows.** The implementation handles CRLF and NUL-delimited path bytes and rejects non-UTF-8 Git output, but the tests run on Linux only; a Windows path or encoding defect would surface for an adopter first.
 - **An adopter that also installs upstream `dsh-pre-push-checks` sees two similar descriptions.** The generic description leads with the same moments and the automated-publish trigger; which skill activates is the harness's choice. This repository removes the upstream-named installed copy, so its own cost is gone.
 - **What the skill gives up.** It states no stack-validation sequence as detailed as the upstream one, no repository-specific path rules, and no guarantee about a platform's CI behaviour beyond the GitHub example it names. Those are the deliberate dissolves and adaptations; an adopter that needs them keeps its own documentation.
-- **Landing removes content.** The upstream-named installed copy is gone; a project that relied on them has the new skill's bundled report instead. The historical release notes are the only remaining prose that presents the old skill as shipped.
+- **The old copy is removed.** The upstream-named installed copy is gone; a project that relied on it has the new skill's bundled report instead.
 - **The record's pair adds maintenance.** The notes gate checks the pair structurally and the pairing gate its hashes, so an edit to either side must be mirrored and re-recorded in the same change.

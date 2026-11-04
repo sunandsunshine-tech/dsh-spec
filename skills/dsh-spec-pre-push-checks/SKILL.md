@@ -52,11 +52,11 @@ Never use a no-tests suppression, lower a threshold, or narrow the source scope 
 
 ## Full local rehearsal
 
-Run the complete local approximation only when the user explicitly requests it, while diagnosing a CI failure, or when the change spans the repository so broadly that no narrower set is credible. Use the current workflow and package scripts as the inventory; do not recreate an aggregate check the repository removed.
+Run the complete local approximation only when the user explicitly requests it, while diagnosing a CI failure, or when the change spans the repository so broadly that no narrower set is credible. Use the current workflow and package scripts as the inventory; do not invent an aggregate check the repository does not provide.
 
 ## Protect history-rewriting pushes
 
-Rebase is allowed for a standalone branch and for a branch in a stack, including after review. Before a standalone history rewrite, fetch the current remote branch and record its exact OID; publish with `--force-with-lease=<branch>:<observed-oid>` so a concurrent update aborts the push. A stack tool or other automation that publishes branches it manages supplies lease protection for the branches it manages; if it does not, record the OID and use the lease yourself. Raw `--force` is never allowed.
+Where the repository's instructions allow a history rewrite, rebase is an option for a standalone branch and for a branch in a stack, including after review. Before a standalone history rewrite, fetch the current remote branch and record its exact OID; publish with `--force-with-lease=<branch>:<observed-oid>` so a concurrent update aborts the push. A stack tool or other automation that publishes branches it manages supplies lease protection for the branches it manages; if it does not, record the OID and use the lease yourself. Raw `--force` is never allowed.
 
 After any rewritten push, fetch the live heads again and re-audit unresolved review threads, approvals, mergeability and checks. Commit hashes and inline-comment anchors from before the rewrite are not current evidence.
 

@@ -59,13 +59,11 @@ First compare any existing stack entries with the expected chain. One existing s
 When any dependent PR is not yet in that official stack:
 
 1. Compare every `author.login` exactly.
-2. If all authors match, link the chain automatically in bottom-to-top order:
+2. If all authors match, link the chain automatically in bottom-to-top order. Before running it: pass pull-request URLs — the extension pushes branch arguments and can create PRs, and a numeric argument that matches no PR is treated as a branch name; obtain each URL with `gh pr view <pr> --json url`, or compose `https://github.com/<owner>/<repo>/pull/<n>`; link only open pull requests, and treat a closed or merged entry as a stop and ask before changing state.
 
    ```sh
    gh stack link --base <trunk> <bottom-pr-url> ... <top-pr-url>
    ```
-
-   Pass pull-request URLs: the extension pushes branch arguments and can create PRs, and a numeric argument that matches no PR is treated as a branch name. Obtain each URL with `gh pr view <pr> --json url`, or compose `https://github.com/<owner>/<repo>/pull/<n>`. Link only open pull requests; treat a closed or merged entry as a stop and ask before changing state.
 3. If authors differ or any author is unavailable, ask the user whether to link before changing GitHub state.
 4. Re-query GraphQL and require one stack number, the expected trunk, the complete PR set, and the expected positions and base chain.
 
@@ -88,11 +86,11 @@ Re-query the official stack immediately before merging. Require every selected P
 
 The merge method is the landing repository's policy: pass the method its instructions prescribe or its GitHub merge settings name. When neither prescribes one, use `merge`.
 
-Resolve every blocker through its owning PR or stop and report it. Do not bypass merge requirements.
+Resolve every blocker through its owning PR or stop and report it.
 
 ## Merge through the stack API
 
-Merge the whole stack by its official stack number, or an explicitly requested partial landing through the boundary PR:
+Merge the whole stack by its official stack number, or an explicitly requested partial landing through the boundary PR. Substitute the stack number (or the boundary PR's number) and exactly one merge method chosen in § Preflight the merge range:
 
 ```sh
 gh stack merge <stack-number> --yes --<merge|squash|rebase>
@@ -111,7 +109,7 @@ Wait for every selected PR to report `MERGED`; a queued request is not a complet
 gh pr view <pr> --json number,state,mergedAt,mergeCommit,baseRefName,headRefName
 ```
 
-For a partial landing, re-query the official stack and verify that every remaining PR is still linked in the expected order and targets the stack trunk or the layer below it. Layers that already report `MERGED` are already landed. Re-check current heads, review state and CI because GitHub may have rebased the remaining layers.
+For a partial landing, re-query the official stack and verify that every remaining PR is still linked in the expected order and targets the stack trunk or the layer below it. Layers that already report `MERGED` are already landed. Re-check current heads, review state and CI because GitHub may have rebased the remaining layers. When a merge queue reports some selected PRs as `MERGED` while others remain queued, treat the queued remainder as unlanded: re-query the official stack and report the queue state instead of waiting indefinitely.
 
 Delete branches only in a separate final pass after the corresponding PRs report `MERGED`. Before deleting each branch, require GitHub to report no open PR still using it as a base:
 

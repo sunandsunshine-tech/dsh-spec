@@ -1,0 +1,19 @@
+# Pairing consistency record for 2026-11-02-forging-records-state-current-facts.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-11-02-forging-records-state-current-facts.md --target <lang>
+/agent-note-forging-records-state-current-facts:
+  en: 2aeaecc1032b8b19
+  zh: a285e177fcf7aab0
+/agent-note-forging-records-state-current-facts/problem:
+  en: 01e1195290429c2d
+  zh: e34e2bdcefabd0c9
+/agent-note-forging-records-state-current-facts/decision:
+  en: 37fe41d2039ebf7c
+  zh: be8b380a6ddea79f
+/agent-note-forging-records-state-current-facts/alternatives-considered:
+  en: e9dd0f00c752abfc
+  zh: 294b46eb1a8cae63
+/agent-note-forging-records-state-current-facts/consequences:
+  en: 37e2bee959f1f209
+  zh: 625f3940ce898ef5

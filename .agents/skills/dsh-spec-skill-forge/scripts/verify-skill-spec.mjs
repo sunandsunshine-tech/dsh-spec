@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// Generated from package/dsh-spec-skill-forge/verify-skill-spec.ts by `pnpm run skill:build`; edit the source and rebuild. Bundled third-party code is covered by the skill-root THIRD_PARTY_NOTICES.
 import { createRequire } from "node:module";
 import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from "node:fs";
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
@@ -18828,7 +18829,7 @@ var import_dist = (/* @__PURE__ */ __commonJSMin(((exports) => {
 	exports.visit = visit.visit;
 	exports.visitAsync = visit.visitAsync;
 })))();
-const USAGE = `usage: verify-skill-spec.mjs [<skill-dir>] [options] [--help]
+const USAGE = `usage: verify-skill-spec.mjs [<skill-dir>] [options] [-h|--help]
 
 Check a skill directory against the Agent Skills specification. With no directory,
 check the one this script is installed in.
@@ -18847,7 +18848,7 @@ commas.
   --cjk-tokens-per-char <n>   tokens per CJK character (default 1.1)
   --other-tokens-per-char <n> tokens per non-CJK character (default 0.303)
   --chars-per-token <n>       compatibility alias for --other-tokens-per-char (1/n)
-  --help                      print this and exit 0
+  -h, --help                  print this and exit 0
 
 examples:
   verify-skill-spec.mjs
@@ -18873,258 +18874,281 @@ const SPEC_NAME_MAX = 64;
 const SPEC_DESCRIPTION_MAX = 1024;
 const SPEC_COMPATIBILITY_MAX = 500;
 const markdown = new MarkdownItCallable({ html: true });
-const limits = {
-	nameMax: SPEC_NAME_MAX,
-	descriptionMax: SPEC_DESCRIPTION_MAX,
-	compatibilityMax: SPEC_COMPATIBILITY_MAX,
-	maxLines: 500,
-	maxTokens: 5e3,
-	cjkTokensPerChar: 1.1,
-	otherTokensPerChar: 1 / 3.3
-};
-const usageError = (message) => {
-	console.error(`Error: ${message}`);
-	console.error(USAGE);
-	process.exit(2);
-};
-const results = [];
-const record = (check, ok, detail) => {
-	results.push({
-		check,
-		ok,
-		detail
-	});
-};
-const argv = process.argv.slice(2);
-if (argv.includes("--help") || argv.includes("-h")) {
-	console.log(USAGE);
-	process.exit(0);
+/** A request the command line cannot honour; the caller reports it with exit 2. */
+var UsageError = class extends Error {};
+function usageError(message) {
+	throw new UsageError(message);
 }
-const numericOptions = /* @__PURE__ */ new Map([
-	["--name-max", {
-		set: (value) => limits.nameMax = value,
-		integer: true,
-		positive: true
-	}],
-	["--description-max", {
-		set: (value) => limits.descriptionMax = value,
-		integer: true,
-		positive: true
-	}],
-	["--compatibility-max", {
-		set: (value) => limits.compatibilityMax = value,
-		integer: true,
-		positive: true
-	}],
-	["--max-lines", {
-		set: (value) => limits.maxLines = value,
-		integer: true,
-		positive: true
-	}],
-	["--max-tokens", {
-		set: (value) => limits.maxTokens = value,
-		integer: true,
-		positive: true
-	}],
-	["--cjk-tokens-per-char", {
-		set: (value) => limits.cjkTokensPerChar = value,
-		integer: false,
-		positive: true
-	}],
-	["--other-tokens-per-char", {
-		set: (value) => limits.otherTokensPerChar = value,
-		integer: false,
-		positive: true
-	}]
-]);
-const readNumber = (name, raw, integer) => {
+/** A numeric option value, rejected with the usage when it is not usable. */
+function readNumber(name, raw, integer) {
 	const value = Number(raw);
 	if (!raw || !Number.isFinite(value) || value <= 0) usageError(`${name} needs a positive number, got ${raw ?? "(missing)"}`);
 	if (integer && !Number.isInteger(value)) usageError(`${name} needs an integer, got ${raw}`);
 	return value;
-};
-const flags = /* @__PURE__ */ new Set();
-const positionals = [];
-for (let i = 0; i < argv.length; i += 1) {
-	const arg = argv[i];
-	if (arg === "--json") {
-		flags.add(arg);
-		continue;
+}
+/**
+* Parse the command line. --help wins over every option error, as the usage promises;
+* a usage error throws, so the returned options are the whole run's input.
+*/
+function parseArgs(argv) {
+	if (argv.includes("--help") || argv.includes("-h")) {
+		console.log(USAGE);
+		return;
 	}
-	if (arg.startsWith("--")) {
-		const [name, inline] = arg.includes("=") ? [arg.slice(0, arg.indexOf("=")), arg.slice(arg.indexOf("=") + 1)] : [arg, void 0];
-		if (name === "--chars-per-token") {
-			const raw = inline ?? argv[i += 1];
-			const value = readNumber(name, raw, false);
-			if (value <= 1 || value > 10) usageError(`${name} needs a number greater than 1 and at most 10, got ${raw}`);
-			limits.otherTokensPerChar = 1 / value;
+	const limits = {
+		nameMax: SPEC_NAME_MAX,
+		descriptionMax: SPEC_DESCRIPTION_MAX,
+		compatibilityMax: SPEC_COMPATIBILITY_MAX,
+		maxLines: 500,
+		maxTokens: 5e3,
+		cjkTokensPerChar: 1.1,
+		otherTokensPerChar: 1 / 3.3
+	};
+	const numericOptions = /* @__PURE__ */ new Map([
+		["--name-max", {
+			key: "nameMax",
+			integer: true
+		}],
+		["--description-max", {
+			key: "descriptionMax",
+			integer: true
+		}],
+		["--compatibility-max", {
+			key: "compatibilityMax",
+			integer: true
+		}],
+		["--max-lines", {
+			key: "maxLines",
+			integer: true
+		}],
+		["--max-tokens", {
+			key: "maxTokens",
+			integer: true
+		}],
+		["--cjk-tokens-per-char", {
+			key: "cjkTokensPerChar",
+			integer: false
+		}],
+		["--other-tokens-per-char", {
+			key: "otherTokensPerChar",
+			integer: false
+		}]
+	]);
+	let json = false;
+	const positionals = [];
+	for (let index = 0; index < argv.length; index += 1) {
+		const arg = argv[index];
+		if (arg === "--json") {
+			json = true;
 			continue;
 		}
-		const option = numericOptions.get(name);
-		if (!option) usageError(`unknown option: ${name}`);
-		const raw = inline ?? argv[i += 1];
-		option.set(readNumber(name, raw, option.integer));
-		continue;
-	}
-	if (arg.startsWith("-")) usageError(`unknown option: ${arg}`);
-	positionals.push(arg);
-}
-if (positionals.length > 1) usageError(`expected one skill directory, got ${positionals.length}: ${positionals.join(", ")}`);
-const asJson = flags.has("--json");
-const root = positionals[0] ? resolve(positionals[0]) : resolve(dirname(fileURLToPath(import.meta.url)), "..");
-if (!existsSync(root) || !statSync(root).isDirectory()) {
-	console.error(`Error: ${root} is not a directory`);
-	console.error(USAGE);
-	process.exit(2);
-}
-const skillFile = join(root, "SKILL.md");
-if (!existsSync(skillFile)) record("SKILL.md", false, "missing at the skill root");
-else if (!statSync(skillFile).isFile()) record("SKILL.md", false, "not a regular file");
-else {
-	const text = readFileSync(skillFile, "utf8").replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
-	const lines = text.split("\n");
-	const lineCount = text.endsWith("\n") ? lines.length - 1 : lines.length;
-	record("SKILL.md", true, `${lineCount} lines`);
-	const bodyStart = lines[0] === "---" ? lines.indexOf("---", 1) : -1;
-	const bodyText = bodyStart >= 0 ? lines.slice(bodyStart + 1).join("\n") : text;
-	const close = lines[0] === "---" ? lines.indexOf("---", 1) : -1;
-	if (close < 0) record("frontmatter", false, "no --- block at the top");
-	else {
-		const block = lines.slice(1, close).join("\n");
-		const doc = (0, import_dist.parseDocument)(block, { uniqueKeys: true });
-		if (doc.errors.length > 0) record("frontmatter", false, `YAML: ${doc.errors[0].message}`);
-		else {
-			let data;
-			let mapData;
-			try {
-				data = doc.toJS();
-				mapData = doc.toJS({ mapAsMap: true });
-			} catch (error) {
-				data = void 0;
-				mapData = void 0;
-				record("frontmatter", false, `YAML: ${error instanceof Error ? error.message : String(error)}`);
-			}
-			if (data === void 0) {} else if (data === null || typeof data !== "object" || Array.isArray(data)) record("frontmatter", false, "YAML must be a mapping");
-			else {
-				const fields = data;
-				const keys = Object.keys(fields);
-				const unknown = keys.filter((key) => !REQUIRED.includes(key) && !OPTIONAL.includes(key));
-				record("frontmatter fields", unknown.length === 0, unknown.length ? `unknown: ${unknown.join(", ")}` : keys.join(", "));
-				const name = fields.name;
-				record("name", typeof name === "string" && name.length > 0 && name.length <= limits.nameMax && NAME.test(name) && name === basename(root), typeof name === "string" ? `${name} (dir: ${basename(root)})` : "(missing or not a string)");
-				const descriptionText = typeof fields.description === "string" ? fields.description : void 0;
-				const description = descriptionText === void 0 ? [] : [...descriptionText];
-				record("description", descriptionText !== void 0 && descriptionText.trim().length > 0 && description.length <= limits.descriptionMax, `${description.length} characters`);
-				if (keys.includes("compatibility")) {
-					const compatibilityText = typeof fields.compatibility === "string" ? fields.compatibility : void 0;
-					const compatibility = compatibilityText === void 0 ? [] : [...compatibilityText];
-					record("compatibility", compatibilityText !== void 0 && compatibilityText.trim().length > 0 && compatibility.length <= limits.compatibilityMax, `${compatibility.length} characters`);
-				}
-				for (const key of ["license", "allowed-tools"]) {
-					if (!keys.includes(key)) continue;
-					const value = fields[key];
-					const ok = typeof value === "string" && value.length > 0 && (key !== "allowed-tools" || /^\S+(?: +\S+)*$/.test(value)) && (key !== "allowed-tools" || !value.includes(","));
-					record(key, ok, typeof value !== "string" ? "not a string" : ok ? `${value.length} characters` : `not a space-separated string without commas: ${value.length} characters`);
-				}
-				if (keys.includes("metadata")) {
-					const metadata = mapData instanceof Map ? mapData.get("metadata") : void 0;
-					const entries = metadata instanceof Map ? [...metadata.entries()] : [];
-					const badKeys = entries.filter(([key]) => typeof key !== "string");
-					const badValues = entries.filter(([, value]) => typeof value !== "string");
-					record("metadata", metadata instanceof Map && badKeys.length === 0 && badValues.length === 0, badKeys.length ? `a key must be a string: ${badKeys.length} found` : badValues.length ? `a value must be a string: ${badValues.length} found` : `${entries.length} string entries`);
-				}
-			}
-		}
-	}
-	const normalizePath = (value) => value.replace(/^\.\//, "").replace(/\\/g, "/");
-	const scriptMentions = [...new Set([...bodyText.matchAll(SCRIPT)].map((match) => normalizePath(match[1])))];
-	const missingScripts = scriptMentions.filter((path) => !existsSync(join(root, path)));
-	record("script mentions", missingScripts.length === 0, missingScripts.length ? `missing: ${missingScripts.join(", ")}` : scriptMentions.length ? scriptMentions.join(", ") : "none mentioned");
-	const shippedScripts = scriptFiles(root);
-	const namedScripts = new Set(scriptMentions);
-	const unmentionedScripts = shippedScripts.filter((path) => !namedScripts.has(path) && !bodyText.includes(path));
-	record("script coverage", unmentionedScripts.length === 0, unmentionedScripts.length ? `not named in SKILL.md: ${unmentionedScripts.join(", ")}` : shippedScripts.length ? `${shippedScripts.length} script(s) named` : "none shipped");
-	const referencesDir = join(root, "references");
-	let referencesIsDirectory = false;
-	if (existsSync(referencesDir)) {
-		try {
-			referencesIsDirectory = statSync(referencesDir).isDirectory();
-		} catch {
-			referencesIsDirectory = false;
-		}
-		record("references directory", referencesIsDirectory, referencesIsDirectory ? relative(root, referencesDir) : "references is not a directory");
-	}
-	const files = [skillFile];
-	if (referencesIsDirectory) files.push(...markdownFiles(referencesDir).filter((file) => !TRANSLATION_FILE.test(file)));
-	const links = [];
-	const broken = [];
-	const escaped = [];
-	const absolute = [];
-	const deep = [];
-	const realRoot = realpathSync(root);
-	for (const file of files) {
-		const markdownText = bodyOf(readFileSync(file, "utf8").replace(/^\uFEFF/, "").replace(/\r\n/g, "\n"));
-		for (const rawTarget of linksFromMarkdown(markdownText)) {
-			const target = rawTarget.trim();
-			if (/^[a-z][a-z0-9+.-]*:/i.test(target) || target.startsWith("#") || target.startsWith("//")) continue;
-			let targetPath = target.split(/[?#]/, 1)[0];
-			try {
-				targetPath = decodeURIComponent(targetPath);
-			} catch {}
-			targetPath = targetPath.replace(/^<|>$/g, "");
-			if (targetPath === "") continue;
-			if (isAbsolute(targetPath)) {
-				absolute.push(target);
+		if (arg.startsWith("--")) {
+			const equals = arg.indexOf("=");
+			const name = equals < 0 ? arg : arg.slice(0, equals);
+			const inline = equals < 0 ? void 0 : arg.slice(equals + 1);
+			if (name === "--chars-per-token") {
+				const raw = inline ?? argv[index += 1];
+				const value = readNumber(name, raw, false);
+				if (value <= 1 || value > 10) usageError(`${name} needs a number greater than 1 and at most 10, got ${raw}`);
+				limits.otherTokensPerChar = 1 / value;
 				continue;
 			}
-			links.push(target);
-			const resolved = resolve(dirname(file), targetPath);
-			if (!isInside(root, resolved)) escaped.push(target);
-			else if (!existsSync(resolved)) broken.push(target);
+			const option = numericOptions.get(name);
+			if (!option) usageError(`unknown option: ${name}`);
+			const raw = inline ?? argv[index += 1];
+			limits[option.key] = readNumber(name, raw, option.integer);
+			continue;
+		}
+		if (arg.startsWith("-")) usageError(`unknown option: ${arg}`);
+		positionals.push(arg);
+	}
+	if (positionals.length > 1) usageError(`expected one skill directory, got ${positionals.length}: ${positionals.join(", ")}`);
+	return {
+		root: positionals[0] ? resolve(positionals[0]) : resolve(dirname(fileURLToPath(import.meta.url)), ".."),
+		json,
+		limits
+	};
+}
+/** Check one skill directory, in the order the specification presents the checks. */
+function checkSkill(root, limits) {
+	const results = [];
+	const record = (check, ok, detail) => {
+		results.push({
+			check,
+			ok,
+			detail
+		});
+	};
+	const skillFile = join(root, "SKILL.md");
+	if (!existsSync(skillFile)) record("SKILL.md", false, "missing at the skill root");
+	else if (!statSync(skillFile).isFile()) record("SKILL.md", false, "not a regular file");
+	else {
+		const text = readFileSync(skillFile, "utf8").replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
+		const lines = text.split("\n");
+		const lineCount = text.endsWith("\n") ? lines.length - 1 : lines.length;
+		record("SKILL.md", true, `${lineCount} lines`);
+		const close = lines[0] === "---" ? lines.indexOf("---", 1) : -1;
+		const bodyText = close >= 0 ? lines.slice(close + 1).join("\n") : text;
+		if (close < 0) record("frontmatter", false, "no --- block at the top");
+		else {
+			const block = lines.slice(1, close).join("\n");
+			const doc = (0, import_dist.parseDocument)(block, { uniqueKeys: true });
+			if (doc.errors.length > 0) record("frontmatter", false, `YAML: ${doc.errors[0].message}`);
 			else {
-				let realTarget;
+				let data;
 				try {
-					realTarget = realpathSync(resolved);
-				} catch {
-					broken.push(target);
-					continue;
+					data = doc.toJS({ mapAsMap: true });
+				} catch (error) {
+					data = void 0;
+					record("frontmatter", false, `YAML: ${error instanceof Error ? error.message : String(error)}`);
 				}
-				if (!isInside(realRoot, realTarget)) escaped.push(target);
-				else if (pathComponents(relative(root, resolved)).length > 2) deep.push(target);
+				if (data === void 0) {} else if (!(data instanceof Map)) record("frontmatter", false, "YAML must be a mapping");
+				else {
+					const fields = Object.fromEntries(data);
+					const keys = Object.keys(fields);
+					const unknown = keys.filter((key) => !REQUIRED.includes(key) && !OPTIONAL.includes(key));
+					record("frontmatter fields", unknown.length === 0, unknown.length ? `unknown: ${unknown.join(", ")}` : keys.join(", "));
+					const name = fields.name;
+					record("name", typeof name === "string" && name.length > 0 && name.length <= limits.nameMax && NAME.test(name) && name === basename(root), typeof name === "string" ? `${name} (dir: ${basename(root)})` : "(missing or not a string)");
+					const descriptionText = typeof fields.description === "string" ? fields.description : void 0;
+					const description = descriptionText === void 0 ? [] : [...descriptionText];
+					record("description", descriptionText !== void 0 && descriptionText.trim().length > 0 && description.length <= limits.descriptionMax, `${description.length} characters`);
+					if (keys.includes("compatibility")) {
+						const compatibilityText = typeof fields.compatibility === "string" ? fields.compatibility : void 0;
+						const compatibility = compatibilityText === void 0 ? [] : [...compatibilityText];
+						record("compatibility", compatibilityText !== void 0 && compatibilityText.trim().length > 0 && compatibility.length <= limits.compatibilityMax, `${compatibility.length} characters`);
+					}
+					for (const key of ["license", "allowed-tools"]) {
+						if (!keys.includes(key)) continue;
+						const value = fields[key];
+						const ok = typeof value === "string" && value.length > 0 && (key !== "allowed-tools" || /^\S+(?: +\S+)*$/.test(value)) && (key !== "allowed-tools" || !value.includes(","));
+						record(key, ok, typeof value !== "string" ? "not a string" : ok ? `${value.length} characters` : `not a space-separated string without commas: ${value.length} characters`);
+					}
+					if (keys.includes("metadata")) {
+						const metadata = data.get("metadata");
+						const entries = metadata instanceof Map ? [...metadata.entries()] : [];
+						const badKeys = entries.filter(([key]) => typeof key !== "string");
+						const badValues = entries.filter(([, value]) => typeof value !== "string");
+						record("metadata", metadata instanceof Map && badKeys.length === 0 && badValues.length === 0, badKeys.length ? `a key must be a string: ${badKeys.length} found` : badValues.length ? `a value must be a string: ${badValues.length} found` : `${entries.length} string entries`);
+					}
+				}
 			}
 		}
+		const normalizePath = (value) => value.replace(/^\.\//, "").replace(/\\/g, "/");
+		const scriptMentions = [...new Set([...bodyText.matchAll(SCRIPT)].map((match) => normalizePath(match[1])))];
+		const missingScripts = scriptMentions.filter((path) => !existsSync(join(root, path)));
+		record("script mentions", missingScripts.length === 0, missingScripts.length ? `missing: ${missingScripts.join(", ")}` : scriptMentions.length ? scriptMentions.join(", ") : "none mentioned");
+		const shippedScripts = scriptFiles(root);
+		const namedScripts = new Set(scriptMentions);
+		const unmentionedScripts = shippedScripts.filter((path) => !namedScripts.has(path) && !bodyText.includes(path));
+		record("script coverage", unmentionedScripts.length === 0, unmentionedScripts.length ? `not named in SKILL.md: ${unmentionedScripts.join(", ")}` : shippedScripts.length ? `${shippedScripts.length} script(s) named` : "none shipped");
+		const referencesDir = join(root, "references");
+		let referencesIsDirectory = false;
+		if (existsSync(referencesDir)) {
+			try {
+				referencesIsDirectory = statSync(referencesDir).isDirectory();
+			} catch {
+				referencesIsDirectory = false;
+			}
+			record("references directory", referencesIsDirectory, referencesIsDirectory ? relative(root, referencesDir) : "references is not a directory");
+		}
+		const referenceFiles = referencesIsDirectory ? markdownFiles(referencesDir).filter((file) => !TRANSLATION_FILE.test(file)) : [];
+		const files = [skillFile, ...referenceFiles];
+		const links = [];
+		const broken = [];
+		const escaped = [];
+		const absolute = [];
+		const deep = [];
+		const realRoot = realpathSync(root);
+		for (const file of files) {
+			const markdownText = file === skillFile ? bodyText : bodyOf(readFileSync(file, "utf8").replace(/^\uFEFF/, "").replace(/\r\n/g, "\n"));
+			for (const rawTarget of linksFromMarkdown(markdownText)) {
+				const target = rawTarget.trim();
+				if (/^[a-z][a-z0-9+.-]*:/i.test(target) || target.startsWith("#") || target.startsWith("//")) continue;
+				let targetPath = target.split(/[?#]/, 1)[0];
+				try {
+					targetPath = decodeURIComponent(targetPath);
+				} catch {}
+				targetPath = targetPath.replace(/^<|>$/g, "");
+				if (targetPath === "") continue;
+				if (isAbsolute(targetPath)) {
+					absolute.push(target);
+					continue;
+				}
+				links.push(target);
+				const resolved = resolve(dirname(file), targetPath);
+				if (!isInside(root, resolved)) escaped.push(target);
+				else if (!existsSync(resolved)) broken.push(target);
+				else {
+					let realTarget;
+					try {
+						realTarget = realpathSync(resolved);
+					} catch {
+						broken.push(target);
+						continue;
+					}
+					if (!isInside(realRoot, realTarget)) escaped.push(target);
+					else if (pathComponents(relative(root, resolved)).length > 2) deep.push(target);
+				}
+			}
+		}
+		record("links stay inside", escaped.length === 0 && absolute.length === 0, escaped.length ? `escaping: ${escaped.join(", ")}` : absolute.length ? `absolute: ${absolute.join(", ")}` : `${links.length} relative link(s)`);
+		record("links resolve", broken.length === 0, broken.length ? `missing: ${broken.join(", ")}` : "all resolve");
+		record("link depth", deep.length === 0, deep.length ? `deeper than one level: ${deep.join(", ")}` : "nothing deeper than one level");
+		const normalizedText = bodyText.replace(/\\/g, "/");
+		const unnamed = referenceFiles.map((file) => relative(root, file).replace(/\\/g, "/")).filter((path) => !normalizedText.includes(path));
+		record("reference mentions", unnamed.length === 0, referenceFiles.length === 0 ? "none shipped" : unnamed.length ? `not named in SKILL.md: ${unnamed.join(", ")}` : `${referenceFiles.length} reference(s) named`);
+		const referenced = [...new Set([...bodyText.matchAll(REFERENCE)].map((match) => normalizePath(match[1]).split(/[?#]/, 1)[0]))];
+		const missingReferences = referenced.filter((path) => !existsSync(join(root, path)));
+		const deepReferences = referenced.filter((path) => pathComponents(path).length > 2);
+		record("reference targets", missingReferences.length === 0 && deepReferences.length === 0, missingReferences.length ? `missing: ${missingReferences.join(", ")}` : deepReferences.length ? `deeper than one level: ${deepReferences.join(", ")}` : referenced.length ? `${referenced.length} path(s) named` : "none named");
+		const characters = [...bodyText];
+		const cjk = /[\u1100-\u11ff\u2e80-\u2fff\u3000-\u303f\u3040-\u30ff\u3100-\u31ff\u3400-\u4dbf\u4e00-\u9fff\ua960-\ua97f\uac00-\ud7af\uf900-\ufaff\ufe30-\ufe4f\uff00-\uffef]|[\u{20000}-\u{2fa1f}]/u;
+		let cjkCount = 0;
+		let others = 0;
+		for (const char of characters) if (cjk.test(char)) cjkCount += 1;
+		else others += 1;
+		const estimate = Math.ceil(cjkCount * limits.cjkTokensPerChar + others * limits.otherTokensPerChar);
+		const withinBudget = lineCount < limits.maxLines && estimate < limits.maxTokens;
+		record("budget", withinBudget, withinBudget ? `${lineCount} lines, ~${estimate} tokens at ${limits.cjkTokensPerChar} CJK / ${limits.otherTokensPerChar.toFixed(3)} other tokens/char (limit: under ${limits.maxLines} lines and ${limits.maxTokens} tokens)` : `OVER the limit — ${lineCount} lines, ~${estimate} tokens at ${limits.cjkTokensPerChar} CJK / ${limits.otherTokensPerChar.toFixed(3)} other tokens/char (limit: under ${limits.maxLines} lines and ${limits.maxTokens} tokens)`);
 	}
-	record("links stay inside", escaped.length === 0 && absolute.length === 0, escaped.length ? `escaping: ${escaped.join(", ")}` : absolute.length ? `absolute: ${absolute.join(", ")}` : `${links.length} relative link(s)`);
-	record("links resolve", broken.length === 0, broken.length ? `missing: ${broken.join(", ")}` : "all resolve");
-	record("link depth", deep.length === 0, deep.length ? `deeper than one level: ${deep.join(", ")}` : "nothing deeper than one level");
-	const referenceFiles = referencesIsDirectory ? markdownFiles(referencesDir).filter((file) => !TRANSLATION_FILE.test(file)) : [];
-	const normalizedText = bodyText.replace(/\\/g, "/");
-	const unnamed = referenceFiles.map((file) => relative(root, file).replace(/\\/g, "/")).filter((path) => !normalizedText.includes(path));
-	record("reference mentions", unnamed.length === 0, referenceFiles.length === 0 ? "none shipped" : unnamed.length ? `not named in SKILL.md: ${unnamed.join(", ")}` : `${referenceFiles.length} reference(s) named`);
-	const referenced = [...new Set([...bodyText.matchAll(REFERENCE)].map((match) => normalizePath(match[1]).split(/[?#]/, 1)[0]))];
-	const missingReferences = referenced.filter((path) => !existsSync(join(root, path)));
-	const deepReferences = referenced.filter((path) => pathComponents(path).length > 2);
-	record("reference targets", missingReferences.length === 0 && deepReferences.length === 0, missingReferences.length ? `missing: ${missingReferences.join(", ")}` : deepReferences.length ? `deeper than one level: ${deepReferences.join(", ")}` : referenced.length ? `${referenced.length} path(s) named` : "none named");
-	const characters = [...bodyText];
-	const cjk = /[\u1100-\u11ff\u2e80-\u2fff\u3000-\u303f\u3040-\u30ff\u3100-\u31ff\u3400-\u4dbf\u4e00-\u9fff\ua960-\ua97f\uac00-\ud7af\uf900-\ufaff\ufe30-\ufe4f\uff00-\uffef]|[\u{20000}-\u{2fa1f}]/u;
-	let cjkCount = 0;
-	let others = 0;
-	for (const char of characters) if (cjk.test(char)) cjkCount += 1;
-	else others += 1;
-	const estimate = Math.ceil(cjkCount * limits.cjkTokensPerChar + others * limits.otherTokensPerChar);
-	const withinBudget = lineCount < limits.maxLines && estimate < limits.maxTokens;
-	record("budget", withinBudget, withinBudget ? `${lineCount} lines, ~${estimate} tokens at ${limits.cjkTokensPerChar} CJK / ${limits.otherTokensPerChar.toFixed(3)} other tokens/char (limit: under ${limits.maxLines} lines and ${limits.maxTokens} tokens)` : `OVER the limit — ${lineCount} lines, ~${estimate} tokens at ${limits.cjkTokensPerChar} CJK / ${limits.otherTokensPerChar.toFixed(3)} other tokens/char (limit: under ${limits.maxLines} lines and ${limits.maxTokens} tokens)`);
+	return {
+		results,
+		failed: results.filter((item) => !item.ok).length
+	};
 }
-if (asJson) console.log(JSON.stringify({
-	root: relative(process.cwd(), root),
-	results
-}, null, 2));
-else {
+/** Print the checks: one line each, or the JSON summary. */
+function render(results, options) {
+	if (options.json) {
+		console.log(JSON.stringify({
+			root: relative(process.cwd(), options.root),
+			results
+		}, null, 2));
+		return;
+	}
 	for (const item of results) console.log(`${item.ok ? "ok  " : "FAIL"} ${item.check} — ${item.detail}`);
 	const failed = results.filter((item) => !item.ok).length;
 	console.log(`${results.length} check(s), ${failed} failed`);
 }
-process.exit(results.some((item) => !item.ok) ? 1 : 0);
+/** Run the command line; the exit code is the checks' verdict. */
+function main() {
+	try {
+		const options = parseArgs(process.argv.slice(2));
+		if (options === void 0) return;
+		if (!existsSync(options.root) || !statSync(options.root).isDirectory()) usageError(`${options.root} is not a directory`);
+		const { results, failed } = checkSkill(options.root, options.limits);
+		render(results, options);
+		process.exitCode = failed === 0 ? 0 : 1;
+	} catch (error) {
+		if (error instanceof UsageError) {
+			console.error(`verify-skill-spec.mjs: ${error.message}`);
+			console.error("run \"verify-skill-spec.mjs --help\" for usage");
+			process.exitCode = 2;
+			return;
+		}
+		throw error;
+	}
+}
 /** The Markdown after the YAML frontmatter, when the frontmatter closes. */
 function bodyOf(source) {
 	const lines = source.split("\n");
@@ -19202,4 +19226,15 @@ function isInside(parent, child) {
 function pathComponents(path) {
 	return path === "" ? [] : path.split(/[\\/]/);
 }
+/** Whether Node was asked to run this file, rather than importing it. */
+function isEntryPoint() {
+	const entry = process.argv[1];
+	if (entry === void 0) return false;
+	try {
+		return realpathSync(entry) === realpathSync(fileURLToPath(import.meta.url));
+	} catch {
+		return false;
+	}
+}
+if (isEntryPoint()) main();
 export {};

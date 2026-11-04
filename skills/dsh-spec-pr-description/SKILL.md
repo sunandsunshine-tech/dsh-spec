@@ -86,6 +86,7 @@ Before the description is considered written, read it back — the required vali
 - the AI Usage table has one row per stage in the fixed order, keyed by the English stage identifiers;
 - every level is one of `hint`, `assist`, `pair`, `copilot`, `auto`, `n/a`;
 - the badge level equals the highest stage level, ignoring `n/a`;
+- the AI-DECLARATION block matches `references/ai-usage.md` §Section format: the badge URL matches its level, the declaration line's level equals the badge, the version is 0.1.2, and a non-English description keeps the stage and level identifiers in English with a rendering in the description's language;
 - AI Usage matches the current code and review state, and no superseded section remains.
 
 Update the description when it no longer matches the change and after a handled review round; a handled review round ends when its fixes are published and its comments are answered. Rewrite the affected sections so they state the work as it now stands: the description is not a change history.

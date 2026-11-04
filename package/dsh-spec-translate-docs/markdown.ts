@@ -1,4 +1,11 @@
 /**
+ * SPDX-License-Identifier: MIT
+ *
+ * Extracted from the DeepSeek Harness bilingual-document mechanism at the pinned
+ * `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`); the skill-root
+ * THIRD_PARTY_NOTICES names the upstream paths and the relation.
+ */
+/**
  * Shared Markdown parsing and traversal for the pairing mechanism. The subset is adapted from
  * the upstream documentation gates; the prose-line, fence and heading helpers those gates use
  * are not needed here.

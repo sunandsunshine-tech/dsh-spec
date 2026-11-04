@@ -1,4 +1,11 @@
 /**
+ * SPDX-License-Identifier: MIT
+ *
+ * Extracted from the DeepSeek Harness bilingual-document mechanism at the pinned
+ * `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`); the skill-root
+ * THIRD_PARTY_NOTICES names the upstream paths and the relation.
+ */
+/**
  * Aggregate, section-keyed consistency records. One foo.i18n.yaml per source holds, for every
  * heading section, the source content hash and one target signature per target. A target signature
  * binds the source hash: H(sourceHash || targetContentHash). Any source change therefore invalidates
@@ -46,7 +53,7 @@ const KEY_LINE = /^(\/[^\s:#]*):$/
 const HASH_LINE = /^ {2}([a-z]{2,3}(?:-[A-Za-z0-9]{1,8})*): ([0-9a-f]{16})$/
 
 /** One top-level Markdown node, located in the text that sections() slices. */
-export interface TopLevelBlock {
+interface TopLevelBlock {
   node: RootContent
   start: number | undefined
   end: number | undefined
@@ -93,7 +100,7 @@ function isParseNeutralEdit(markdown: string, edit: TranslationLinkDestinationEd
  * @param edits - normalization edits of markdown in ascending source order.
  * @returns the moved blocks, or undefined when an edit is not provably parse-neutral.
  */
-export function normalizedTopLevelBlocks(
+function normalizedTopLevelBlocks(
   markdown: string,
   tree: Nodes,
   edits: readonly TranslationLinkDestinationEdit[],
@@ -150,18 +157,6 @@ function sectionHash(blocks: string[]): string {
   return createHash('sha256').update(blocks.join('\n')).digest('hex').slice(0, 16)
 }
 
-function sectionsFor(markdown: string, blocks: readonly TopLevelBlock[]): Section[] {
-  return sections(markdown, blocks)
-}
-
-function sideSectionsFor(
-  markdown: string,
-  normalized: TranslationLinkNormalization,
-  tree: Nodes | undefined,
-): Section[] {
-  return sideSections(markdown, normalized, tree)
-}
-
 /**
  * Compute the source hash and bound target signature for one pair.
  * @param paths - the pair.
@@ -195,8 +190,8 @@ export function computeTranslationPairingRecord(
     counterpartContext,
     trees?.counterpart,
   )
-  const sourceSections = sideSectionsFor(source, normalizedSource, trees?.source)
-  const counterpartSections = sideSectionsFor(counterpart, normalizedCounterpart, trees?.counterpart)
+  const sourceSections = sideSections(source, normalizedSource, trees?.source)
+  const counterpartSections = sideSections(counterpart, normalizedCounterpart, trees?.counterpart)
   if (sourceSections.length !== counterpartSections.length) {
     throw new Error(
       paths.source +

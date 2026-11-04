@@ -1,0 +1,19 @@
+# Pairing consistency record for 2026-11-03-skill-vocabulary-uses-standing-instructions.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-11-03-skill-vocabulary-uses-standing-instructions.md --target <lang>
+/agent-note-the-skill-set-names-the-project-s-instructions-as-standing-instructions:
+  en: ea7bf783907535fc
+  zh: 777cb2131a9cd1aa
+/agent-note-the-skill-set-names-the-project-s-instructions-as-standing-instructions/problem:
+  en: 8240617fe015494c
+  zh: 26d31a7b3985b21d
+/agent-note-the-skill-set-names-the-project-s-instructions-as-standing-instructions/decision:
+  en: e6121e62190a9642
+  zh: c0031244430f010a
+/agent-note-the-skill-set-names-the-project-s-instructions-as-standing-instructions/alternatives-considered:
+  en: 448ee31ba30b495f
+  zh: 9fd1fe1d98a29a65
+/agent-note-the-skill-set-names-the-project-s-instructions-as-standing-instructions/consequences:
+  en: 8cd15d62e2870716
+  zh: 3e07ff2bb91f24c0

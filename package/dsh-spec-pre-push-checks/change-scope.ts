@@ -9,8 +9,8 @@
 /** Report the explicit committed and worktree scope of a repository change. */
 
 import { spawnSync } from 'node:child_process'
+import { realpathSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { resolve } from 'node:path'
 import { parseArgs, TextDecoder } from 'node:util'
 
 const USAGE = `usage: change-scope.mjs --base <ref> [--head <ref>] [--help]
@@ -290,12 +290,21 @@ function main(argv: string[], cwd: string): void {
     process.stdout.write(renderChangeScope(argv, cwd))
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
-    process.stderr.write(`change-scope: ${message}\n`)
-    process.exitCode = error instanceof UsageError ? 2 : 1
+    process.stderr.write(`change-scope.mjs: ${message}\n`)
+    if (error instanceof UsageError) {
+      process.stderr.write('run "change-scope.mjs --help" for usage\n')
+      process.exitCode = 2
+    } else {
+      process.exitCode = 1
+    }
   }
 }
 
 const entryPath = process.argv[1]
-if (entryPath !== undefined && resolve(entryPath) === fileURLToPath(import.meta.url)) {
-  main(process.argv.slice(2), process.cwd())
+try {
+  if (entryPath !== undefined && realpathSync(entryPath) === realpathSync(fileURLToPath(import.meta.url))) {
+    main(process.argv.slice(2), process.cwd())
+  }
+} catch {
+  // A missing or unreadable entry path is not this module; running the command line would be wrong.
 }

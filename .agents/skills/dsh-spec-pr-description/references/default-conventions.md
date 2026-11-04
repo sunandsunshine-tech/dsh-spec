@@ -24,7 +24,7 @@ A project that declares no conventions of its own can take this file as its work
 
 ## Structure and language (pointer)
 
-- The default structure, the four content blocks and the language order are stated in the entry; with no declaration, the default applies as written.
+- The default structure, the four content blocks and the language order are stated in the entry; with no declared structure, the default applies as written.
 
 ## Drafting and tools (optional examples)
 

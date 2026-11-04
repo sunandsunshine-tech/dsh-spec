@@ -49,6 +49,7 @@ const NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 const COMPANION = /^\.[A-Za-z0-9._-]*[A-Za-z0-9]$/
 
 class ForgeError extends Error {}
+class UsageError extends Error {}
 
 interface Options {
   command: 'draft' | 'pair' | 'publish'
@@ -153,9 +154,7 @@ function candidateCompanions(root: string): CandidateCompanion[] {
 }
 
 const usageError = (message: string): never => {
-  console.error(`Error: ${message}`)
-  console.error(USAGE)
-  process.exit(2)
+  throw new UsageError(message)
 }
 
 const relativeToCwd = (path: string): string => relative(process.cwd(), path) || '.'
@@ -220,11 +219,11 @@ function readSkillName(root: string): string | undefined {
   return frontmatterString(root, 'name')?.trim()
 }
 
-function parse(argv: string[]): Options {
+function parse(argv: string[]): Options | undefined {
   if (argv.length === 0) usageError('missing command')
   if (argv.includes('--help') || argv.includes('-h')) {
     console.log(USAGE)
-    process.exit(0)
+    return undefined
   }
   const command = argv[0]
   if (command !== 'draft' && command !== 'pair' && command !== 'publish') usageError(`unknown command: ${command}`)
@@ -451,7 +450,7 @@ function execute(actions: Action[], dryRun: boolean): Result[] {
   return results
 }
 
-function report(results: Result[], options: Options): never {
+function report(results: Result[], options: Options): void {
   if (options.json) {
     console.log(JSON.stringify({ command: options.command, dryRun: options.dryRun, results }, null, 2))
   } else {
@@ -460,11 +459,23 @@ function report(results: Result[], options: Options): never {
     const failed = results.filter((result) => !result.ok).length
     console.log(`${results.length} action(s), ${failed} failed${options.dryRun ? ' (dry run)' : ''}`)
   }
-  process.exit(results.every((result) => result.ok) ? 0 : 1)
+  process.exitCode = results.every((result) => result.ok) ? 0 : 1
 }
 
-function main(): never {
-  const options = parse(process.argv.slice(2))
+function main(): void {
+  let options: Options | undefined
+  try {
+    options = parse(process.argv.slice(2))
+  } catch (error) {
+    if (error instanceof UsageError) {
+      console.error(`forge.mjs: ${error.message}`)
+      console.error('run "forge.mjs --help" for usage')
+      process.exitCode = 2
+      return
+    }
+    throw error
+  }
+  if (options === undefined) return
   try {
     const actions =
       options.command === 'draft'
@@ -472,11 +483,12 @@ function main(): never {
         : options.command === 'pair'
           ? planPair(options)
           : planPublish(options)
-    return report(execute(actions, options.dryRun), options)
+    report(execute(actions, options.dryRun), options)
   } catch (error) {
     if (error instanceof ForgeError) {
-      console.error(`Error: ${error.message}`)
-      process.exit(1)
+      console.error(`forge.mjs: ${error.message}`)
+      process.exitCode = 1
+      return
     }
     throw error
   }

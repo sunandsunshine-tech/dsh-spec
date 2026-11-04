@@ -24,6 +24,39 @@
 
 import { execFileSync } from 'node:child_process'
 
+const USAGE = `usage: verify-dco.ts [--root=<dir>] [--base=<ref>] [--head=<ref>]
+
+Check that every commit in the given range carries a Signed-off-by trailer naming its author.
+Environment: DCO_ROOT, DCO_BASE and DCO_HEAD are fallbacks for the three options.
+
+options:
+  --root=<dir>  the checkout to read (default: .)
+  --base=<ref>  the range start (default: origin/main)
+  --head=<ref>  the range end (default: HEAD)
+  --help, -h    print this and exit 0`
+
+const args = process.argv.slice(2)
+if (args.includes('--help') || args.includes('-h')) {
+  console.log(USAGE)
+  process.exit(0)
+}
+const unknown = args.filter((arg) => !/^--(base|head|root)=/.test(arg))
+if (unknown.length > 0) {
+  console.error('verify-dco.ts: unknown option: ' + unknown.join(' '))
+  console.error('run "verify-dco.ts --help" for usage')
+  process.exit(2)
+}
+for (const name of ['root', 'base', 'head']) {
+  const flag = '--' + name + '='
+  const hit = args.find((argument) => argument.startsWith(flag))
+  const value = hit === undefined ? undefined : hit.slice(flag.length)
+  if (value !== undefined && (value === '' || value.startsWith('-'))) {
+    console.error('verify-dco.ts: ' + flag + ' needs a value')
+    console.error('run "verify-dco.ts --help" for usage')
+    process.exit(2)
+  }
+}
+
 const US = '\u001f'
 const RS = '\u001e'
 
@@ -35,6 +68,17 @@ function arg(name: string, fallback: string): string {
 const root = arg('root', '.')
 const base = arg('base', 'origin/main')
 const head = arg('head', 'HEAD')
+for (const [label, value] of [
+  ['DCO_ROOT', root],
+  ['DCO_BASE', base],
+  ['DCO_HEAD', head],
+] as const) {
+  if (value === '' || value.startsWith('-')) {
+    console.error('verify-dco.ts: ' + label + ' needs a value')
+    console.error('run "verify-dco.ts --help" for usage')
+    process.exit(2)
+  }
+}
 const range = `${base}..${head}`
 
 function git(...a: string[]): string {

@@ -96,8 +96,8 @@ A change starts as a decision record: the note states what was decided, what los
 |---|---|
 | `skills/` | The deliverable: the skills, each with its own entry |
 | `package/` | Skill script sources, bundled into the work directory before landing |
-| `scripts/` | Repository tooling that is not shipped: DCO, vendored notices, the skill build and refresh |
-| `tests/` | The functional suite for that tooling |
+| `scripts/` | Repository tooling that is not shipped: DCO, corpus gate, vendored notices, the bundle build/verify and refresh |
+| `tests/` | The functional suite for the repository tooling and the shipped script contracts |
 | `.agents/skills/` | Installed copies an agent loads: written by `gh skill install` or `pnpm run skill:refresh`, so an edit there is lost |
 | `.agents/dsh-spec-agent-notes/` | The decision records |
 | `.agents/dsh-spec-agents-md/` | Agent-facing detail the root `AGENTS.md` links |

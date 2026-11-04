@@ -96,8 +96,8 @@ gh skill install sunandsunshine-tech/dsh-spec --all --dir .agents/skills
 |---|---|
 | `skills/` | 交付物：各个技能，各有自己的入口 |
 | `package/` | 技能脚本源码，落地前打包进工作目录 |
-| `scripts/` | 不对外发布的仓库工具：DCO、随包依赖通知、技能的构建与刷新 |
-| `tests/` | 检验这些工具的功能套件 |
+| `scripts/` | 不对外发布的仓库工具：DCO、语料门禁、随包依赖通知、bundle 构建/校验与刷新 |
+| `tests/` | 仓库工具与已发布脚本契约的功能套件 |
 | `.agents/skills/` | agent 加载的安装副本：由 `gh skill install` 或 `pnpm run skill:refresh` 写入，在那里的手改会丢 |
 | `.agents/dsh-spec-agent-notes/` | 决策记录 |
 | `.agents/dsh-spec-agents-md/` | 根 `AGENTS.md` 链接的、面向 agent 的细节 |

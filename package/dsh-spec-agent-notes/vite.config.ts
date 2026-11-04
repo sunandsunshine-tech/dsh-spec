@@ -1,7 +1,9 @@
+const outRoot = process.env.SKILL_OUT_ROOT ?? '../../.agents/dsh-spec-skill-forge'
+
 export default {
   pack: {
     entry: ['notes.ts'],
-    outDir: '../../.agents/dsh-spec-skill-forge/dsh-spec-agent-notes/scripts',
+    outDir: outRoot + '/dsh-spec-agent-notes/scripts',
     format: 'esm',
     platform: 'node',
     target: 'node22',

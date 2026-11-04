@@ -8,15 +8,13 @@
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { runScript } from './helpers/cli.ts'
-import { REPO_ROOT } from './helpers/fixtures.ts'
+import { skillBundle } from './helpers/bundles.ts'
 
-const workDraftGate = '.agents/dsh-spec-skill-forge/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs'
-const landedGate = 'skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs'
-const gate = existsSync(workDraftGate) ? workDraftGate : landedGate
+const gate = skillBundle('dsh-spec-skill-forge', 'verify-skill-spec.mjs')
 
 /** Build a skill directory holding one SKILL.md, and return its path. */
 function skillDir(name: string, body: string): string {
@@ -101,7 +99,8 @@ test('a missing script named inside a command fails', () => {
 })
 
 test('the selected gate passes its own skill', () => {
-  const result = runScript(gate)
+  // The landed skill, not the gate's parent directory: a work draft may hold only the built scripts.
+  const result = runScript(gate, ['skills/dsh-spec-skill-forge'])
   assert.equal(result.status, 0, result.output)
   assert.match(result.output, /0 failed/)
 })
@@ -110,6 +109,13 @@ test('--help prints usage and exits 0', () => {
   const result = runScript(gate, ['--help'])
   assert.equal(result.status, 0, result.output)
   assert.match(result.output, /usage: verify-skill-spec\.mjs/)
+})
+
+test('-h prints the same usage as --help and exits 0', () => {
+  const short = runScript(gate, ['-h'])
+  const long = runScript(gate, ['--help'])
+  assert.equal(short.status, 0, short.output)
+  assert.equal(short.stdout, long.stdout)
 })
 
 test('the reported line count matches the file', () => {
@@ -246,7 +252,11 @@ test('a duplicate frontmatter key fails', () => {
 test('an unknown option exits 2 with an error', () => {
   const result = runScript(gate, ['--bogus'])
   assert.equal(result.status, 2, result.output)
-  assert.match(result.output, /Error: unknown option: --bogus/)
+  assert.equal(result.stdout, '')
+  assert.match(
+    result.stderr,
+    /^verify-skill-spec\.mjs: unknown option: --bogus\nrun "verify-skill-spec\.mjs --help" for usage\n$/,
+  )
 })
 
 test('a second skill directory exits 2 as ambiguous', () => {
@@ -261,11 +271,16 @@ test('a path that is not a directory exits 2 with an error', () => {
   rmSync(parent, { recursive: true, force: true })
   const result = runScript(gate, [absent])
   assert.equal(result.status, 2, result.output)
-  assert.match(result.output, /Error: .* is not a directory/)
+  assert.equal(result.stdout, '')
+  assert.match(
+    result.stderr,
+    /^verify-skill-spec\.mjs: .* is not a directory\nrun "verify-skill-spec\.mjs --help" for usage\n$/,
+  )
 })
 
 test('--json prints a parseable summary', () => {
-  const result = runScript(gate, ['--json'])
+  // The landed skill, for the same reason as the self-check above.
+  const result = runScript(gate, ['skills/dsh-spec-skill-forge', '--json'])
   assert.equal(result.status, 0, result.output)
   const summary = JSON.parse(result.stdout) as { results: { ok: boolean }[] }
   assert.ok(Array.isArray(summary.results) && summary.results.length > 0)
@@ -801,4 +816,12 @@ test('an absolute link inside the skill fails as non-relative', () => {
       assert.match(result.output, /absolute:/)
     },
   )
+})
+
+test('a tagged YAML root is rejected as frontmatter that is not a mapping', () => {
+  withSkill('tagged-root', '---\n!!set\n? a\n? b\n---\n\nBody.\n', (root) => {
+    const result = runScript(gate, [root])
+    assert.equal(result.status, 1, result.output)
+    assert.match(result.output, /FAIL frontmatter — YAML must be a mapping/)
+  })
 })

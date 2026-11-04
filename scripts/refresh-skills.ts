@@ -104,77 +104,83 @@ function swapDir(stage: string, target: string, backup: string): void {
   removeTree(backup)
 }
 
-const args = process.argv.slice(2)
-if (args.includes('--help') || args.includes('-h')) {
-  console.log(USAGE)
-  process.exit(0)
-}
-let dryRun = false
-for (const arg of args) {
-  if (arg === '--dry-run') {
-    dryRun = true
-    continue
+function main(): void {
+  const args = process.argv.slice(2)
+  if (args.includes('--help') || args.includes('-h')) {
+    console.log(USAGE)
+    return
   }
-  console.error(`Error: unknown option: ${arg}`)
-  console.error(USAGE)
-  process.exit(2)
-}
-
-const cwd = process.cwd()
-const skillsDir = join(cwd, 'skills')
-const installedDir = join(cwd, '.agents', 'skills')
-const stagingRoot = join(cwd, '.agents', '.refresh')
-const skills = isDirectory(skillsDir)
-  ? readdirSync(skillsDir, { withFileTypes: true })
-      .filter((entry) => entry.isDirectory() && !entry.name.startsWith('.'))
-      .map((entry) => entry.name)
-      .sort()
-  : []
-
-if (skills.length === 0) {
-  console.error(`Error: no skills under ${relativeToCwd(skillsDir)}; nothing to synchronize`)
-  process.exit(1)
-}
-
-const results: Result[] = []
-for (const name of skills) {
-  const source = join(skillsDir, name)
-  const destination = join(installedDir, name)
-  const stage = join(stagingRoot, name)
-  const backup = join(stagingRoot, `${name}.previous`)
-
-  try {
-    const files = hashTree(source).size
-    if (dryRun) {
-      results.push({ skill: name, ok: true, detail: `would mirror ${files} file(s)` })
+  let dryRun = false
+  for (const arg of args) {
+    if (arg === '--dry-run') {
+      dryRun = true
       continue
     }
-    removeTree(stage)
-    mkdirSync(stagingRoot, { recursive: true })
-    cpSync(source, stage, { recursive: true })
-    assertTreesEqual(source, stage, `${name} staging`)
-    mkdirSync(dirname(destination), { recursive: true })
-    swapDir(stage, destination, backup)
-    assertTreesEqual(source, destination, name)
-    results.push({ skill: name, ok: true, detail: `mirrored ${files} file(s)` })
-  } catch (error) {
-    results.push({ skill: name, ok: false, detail: error instanceof Error ? error.message : String(error) })
-    if (existsSync(backup)) console.error(`warning: a failed swap kept ${relativeToCwd(backup)} for inspection`)
-    else removeTree(stage)
-    break
+    console.error(`refresh-skills.ts: unknown option: ${arg}`)
+    console.error('run "refresh-skills.ts --help" for usage')
+    process.exitCode = 2
+    return
   }
+
+  const cwd = process.cwd()
+  const skillsDir = join(cwd, 'skills')
+  const installedDir = join(cwd, '.agents', 'skills')
+  const stagingRoot = join(cwd, '.agents', '.refresh')
+  const skills = isDirectory(skillsDir)
+    ? readdirSync(skillsDir, { withFileTypes: true })
+        .filter((entry) => entry.isDirectory() && !entry.name.startsWith('.'))
+        .map((entry) => entry.name)
+        .sort()
+    : []
+
+  if (skills.length === 0) {
+    console.error(`refresh-skills.ts: no skills under ${relativeToCwd(skillsDir)}; nothing to synchronize`)
+    process.exitCode = 1
+    return
+  }
+
+  const results: Result[] = []
+  for (const name of skills) {
+    const source = join(skillsDir, name)
+    const destination = join(installedDir, name)
+    const stage = join(stagingRoot, name)
+    const backup = join(stagingRoot, `${name}.previous`)
+
+    try {
+      const files = hashTree(source).size
+      if (dryRun) {
+        results.push({ skill: name, ok: true, detail: `would mirror ${files} file(s)` })
+        continue
+      }
+      removeTree(stage)
+      mkdirSync(stagingRoot, { recursive: true })
+      cpSync(source, stage, { recursive: true })
+      assertTreesEqual(source, stage, `${name} staging`)
+      mkdirSync(dirname(destination), { recursive: true })
+      swapDir(stage, destination, backup)
+      assertTreesEqual(source, destination, name)
+      results.push({ skill: name, ok: true, detail: `mirrored ${files} file(s)` })
+    } catch (error) {
+      results.push({ skill: name, ok: false, detail: error instanceof Error ? error.message : String(error) })
+      if (existsSync(backup)) console.error(`warning: a failed swap kept ${relativeToCwd(backup)} for inspection`)
+      else removeTree(stage)
+      break
+    }
+  }
+
+  try {
+    rmdirSync(stagingRoot)
+  } catch {
+    // The staging directory still holds a failed copy; leave it for inspection.
+  }
+
+  const failed = results.filter((result) => !result.ok).length
+  for (const result of results) {
+    const mark = result.ok ? (dryRun ? 'would' : 'ok  ') : 'FAIL'
+    console.log(`${mark} ${result.skill} — ${result.detail}`)
+  }
+  console.log(`${results.length} skill(s), ${failed} failed${dryRun ? ' (dry run)' : ''}`)
+  process.exitCode = failed === 0 ? 0 : 1
 }
 
-try {
-  rmdirSync(stagingRoot)
-} catch {
-  // The staging directory still holds a failed copy; leave it for inspection.
-}
-
-const failed = results.filter((result) => !result.ok).length
-for (const result of results) {
-  const mark = result.ok ? (dryRun ? 'would' : 'ok  ') : 'FAIL'
-  console.log(`${mark} ${result.skill} — ${result.detail}`)
-}
-console.log(`${results.length} skill(s), ${failed} failed${dryRun ? ' (dry run)' : ''}`)
-process.exit(failed === 0 ? 0 : 1)
+main()

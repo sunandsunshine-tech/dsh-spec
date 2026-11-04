@@ -32,7 +32,7 @@ Status: implemented
 
 - `.agents/dsh-spec-translate-docs/terminology.md` 少了一行，由这张表自己的前言说明余下的行由谁决定。
 - 这条规则的归属是项目自己的：它住在表自己的前言里，而不写在随包发布的配对约定里，约定也不再陈述它。
-- 验证：`dsh-spec.ts check --all --root .` 以 `check notes: ok` 与 `check notes-archived: ok` 结束，`md-links check` 与 `translation-pair check` 在本次改动留下的文件上以零退出。
+- 验证：`pnpm test` 与 `node scripts/verify-corpus.ts --base-ref=HEAD` 通过，`node skills/dsh-spec-translate-docs/scripts/translate-pair.mjs check --skip .agents/dsh-spec-agent-notes/archived/** --skip 'submodules/**'` 报告维护的配对一致。
 
 这一决定的代价是一条没有门禁执行的规则：未经维护者首肯而添加的一行能通过所有检查，因为这项检查就是对话本身。它换来的是：这张表的每一行都是维护者做出的决定，而它的下一位编辑在添加之前会被告知这一点。
 

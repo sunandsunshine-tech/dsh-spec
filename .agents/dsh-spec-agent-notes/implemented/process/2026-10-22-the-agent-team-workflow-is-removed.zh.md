@@ -48,11 +48,8 @@ Status: implemented
 ## Testing
 
 - `git ls-files skills/dsh-spec-agent-team .agents/skills/dsh-spec-agent-team` → 无输出。
-- `pnpm test` → 82 项测试,82 通过,0 失败。
-- `node scripts/dsh-spec-manager/scripts/dsh-spec.ts notes check --all --root .` → 检查 26 条 Agent Note,结构一致;格式一致。
-- `node scripts/dsh-spec-manager/scripts/dsh-spec.ts notes-archived check --all --root .` → 12 件冻结产物,跨 6 个类别。
-- `node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair check` 对改动过的配对 → 一致。
-- `node scripts/dsh-spec-manager/scripts/dsh-spec.ts md-links check` 对改动过的文件 → 通过。
+- `pnpm test` → 功能套件通过。
+- `node scripts/verify-corpus.ts --base-ref=HEAD` → 每个技能入口、笔记树与归档、维护的翻译配对与 vendored notices 全部通过。
 
 ## Related
 

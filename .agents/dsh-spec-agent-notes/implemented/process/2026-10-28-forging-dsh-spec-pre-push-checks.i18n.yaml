@@ -9,8 +9,8 @@
   en: cb27c8fe0897070f
   zh: 218123c695e2ff4b
 /agent-note-forging-dsh-spec-pre-push-checks-from-the-upstream-dsh-pre-push-checks-skill/decision:
-  en: 61809cbc3c6db3a8
-  zh: 933bdcf6c6acd271
+  en: 2275068a52b1f725
+  zh: 42b3bc87d0a9fa26
 /agent-note-forging-dsh-spec-pre-push-checks-from-the-upstream-dsh-pre-push-checks-skill/decision/intent-and-boundaries:
   en: c92d788562f94527
   zh: a17812dfc15e2d98
@@ -18,20 +18,20 @@
   en: bd6d49769780363f
   zh: bdbaf68caec60d3c
 /agent-note-forging-dsh-spec-pre-push-checks-from-the-upstream-dsh-pre-push-checks-skill/decision/dispositions:
-  en: 26ae64082d73bc58
-  zh: 642e54cfe8bc7b61
+  en: 55adfbce62d6be24
+  zh: 90a06456eb65d2f1
 /agent-note-forging-dsh-spec-pre-push-checks-from-the-upstream-dsh-pre-push-checks-skill/decision/the-bundled-change-scope-report:
-  en: 031ef511927a215e
-  zh: cc084849232e5968
+  en: a2c9e8770cbc31b4
+  zh: c8351d4a6509836c
 /agent-note-forging-dsh-spec-pre-push-checks-from-the-upstream-dsh-pre-push-checks-skill/decision/rulings:
-  en: 519ac91973dfcfc6
-  zh: 69907f9a41cb0f53
+  en: e740ef20b88b4f32
+  zh: 239ca11cea585cc9
 /agent-note-forging-dsh-spec-pre-push-checks-from-the-upstream-dsh-pre-push-checks-skill/decision/anchors-per-requirement:
-  en: 9d3ed212be1760c1
-  zh: 04ebe143d9baedb0
+  en: 136dc3e2fb93efb1
+  zh: b46f493b8eeda2d4
 /agent-note-forging-dsh-spec-pre-push-checks-from-the-upstream-dsh-pre-push-checks-skill/alternatives-considered:
-  en: 81636d608addc6f8
-  zh: d4abb241db7cce20
+  en: f0cb19d9e88f9b92
+  zh: 072874453f7b1861
 /agent-note-forging-dsh-spec-pre-push-checks-from-the-upstream-dsh-pre-push-checks-skill/consequences:
-  en: 5b162525f8684fe3
-  zh: bd42a8da87978845
+  en: 671c0e39f52bf4c4
+  zh: 619640a5a7fb76e1
