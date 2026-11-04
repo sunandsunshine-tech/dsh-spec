@@ -12,47 +12,18 @@ Status: implemented
 
 本包发布 `dsh-spec-find-simplifications`，作为上游 `dsh-find-simplifications` 技能面向软件工程领域的适配版本。落地目录包含 `SKILL.md`、`references/historical-patterns.md` 与 `THIRD_PARTY_NOTICES`；技能被镜像到 `.agents/skills/`，被取代的上游同名安装副本被移除。`SKILL.md` 保留上游的小节名称与每个小节承载的机制——确立范围与约束；六个发现问题；可达性与权衡证明；归属与失败语义；仅当净减少时才替换基础设施；记录、合并与验证——并按处置表记录进行适配。参考保留七个校准模式，作为产品中立的原型。frontmatter 承载名称、带中文触发关键词的泛化描述（R8），以及一个指向技能根来源声明的 license 字段。
 
-### 落地设置
-
-| 设置 | 值 | 依据 |
-|---|---|---|
-| 技能名 | `dsh-spec-find-simplifications` | 请求 |
-| 目标领域 | 软件工程中的一般项目，而非 DeepSeek Harness | 请求 |
-| 语言 | 英文交付；中文审查草稿与中文触发关键词 | 本包的双语实践（R8） |
-| 上游来源 | `submodules/dsh` 的 `dsh-v0.2.1-rc.3`（`1f81c047fc48fa190a683e469daa699857e9afe8`），两个文件 | 固定基线 |
-| 落地目录 | `skills/dsh-spec-find-simplifications/` —— `SKILL.md`、`references/historical-patterns.md`、`THIRD_PARTY_NOTICES` | R5；落地惯例 |
-| 安装副本 | `.agents/skills/dsh-spec-find-simplifications/`，由 `pnpm run skill:refresh` 刷新 | 仓库实践 |
-| 记录 | 本笔记位于 `implemented/process/`，带中文对侧 | 笔记约定 |
-| 审查草稿 | 两份 `.zh.md` 与 `.i18n.yaml` 记录；停止时最新；发布前随切换行一并移除 | R12 |
-| 被取代内容 | `.agents/skills/dsh-find-simplifications/` 及其 manifest 条目被移除 | 维护者的落地指令 |
-| 脚本 | 无 | R5 |
-| 分支 | 从 `ba6e3d7` 压合合并进 `refactor/dsh-skills` | 请求 |
-| 运行时与工具 | 无；优先 `rg`，带 R11 回退 | 来源 |
+- 交付与语言：英文交付，附中文触发关键词；每个工作目录来源各带一份中文 `.zh.md` 审查草稿与其 `.i18n.yaml` 记录，`publish` 将其移除，落地来源只有英文（R8、R12）。
+- 不随附脚本、package 源、测试或运行时依赖；`rg` 是首选搜索工具，回退到项目自己的工具（R5、R11）。
+- 已发布流程的修订在原位进行：不建锻造工作目录、不执行 `publish`、不新增审查草稿；流程文件、其安装副本与本记录一同改动，集成评审与全仓库测试套件是验收（R20）。
 
 ## 来源与修订
 
-上游来源读自固定子模块 `submodules/dsh` 的 `dsh-v0.2.1-rc.3`，提交 `1f81c047fc48fa190a683e469daa699857e9afe8`。子模块在超级项目检出 `/home/dreamstar/ideaProjects/dsh-spec` 中已初始化，那便是阅读根：在那里运行 `git submodule status` 报出 ` 1f81c047fc48fa190a683e469daa699857e9afe8 submodules/dsh (dsh-v0.2.1-rc.3)`，`git -C submodules/dsh status --short` 报出干净工作树，`git -C submodules/dsh ls-tree -r --name-only HEAD -- .agents/skills/dsh-find-simplifications` 恰好列出所读的两个文件。锻造 worktree 自身的 `submodules/dsh` 未初始化（在那里 `git submodule status` 打印 `-1f81...`），所以上述命令属于超级项目检出，而非 worktree。
+上游来源是固定子模块 `submodules/dsh`，位于 `dsh-v0.2.2-alpha.2`（`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`）。
 
 - `.agents/skills/dsh-find-simplifications/SKILL.md` —— 流程。
 - `.agents/skills/dsh-find-simplifications/references/historical-patterns.md` —— 校准参考。
 
 上游技能不带脚本，也没有其他参考文件。
-
-采用者声明读作目标约定而非设计内容：`AGENTS.md`、`.agents/dsh-spec/norms/norms.md`、`docs/terminology.md`、`README.md`、`CONTRIBUTING.md` 与 `docs/templates/goal-brief.md`。用于记录与评审要求的机制文档：`skills/dsh-spec-skill-forge/SKILL.md`、其 `references/offline-skill-authoring.md` 兜底（未用；在线页面可读）、`skills/dsh-spec-agent-notes/SKILL.md` 与其 `references/notes-contract.md`。
-
-2026-10-28 在线阅读的 Agent Skills 页面（写技能之前）：
-
-- `https://agentskills.io/llms.txt`
-- `https://agentskills.io/specification.md`
-- `https://agentskills.io/skill-creation/best-practices.md`
-- `https://agentskills.io/skill-creation/optimizing-descriptions.md`
-- `https://agentskills.io/skill-creation/using-scripts.md`
-
-每个页面都可读；离线兜底未使用。
-
-不作为来源阅读：`/home/dreamstar/ideaProjects/` 下的其他 `dsh-spec-*` worktree、锻造时的本仓库其他技能，以及任何更早会话的叙述。
-
-分支于 2026-10-28 从 `609514c` rebase 到 `refactor/dsh-skills` 的 `ba6e3d7`，在停止后调整之前；该基线已发布 `dsh-spec-prose-standard`。兄弟技能名遵循已落地技能的括号示例惯例：绑定规则保持泛化，具体实例以「如有」条件放在括号里，如 `skills/dsh-spec-prose-standard/SKILL.md`（「项目的常驻指令（例如根 `AGENTS.md` 或它指向的文件）」）。
 
 ## 目标裁定
 
@@ -61,27 +32,33 @@ Status: implemented
 | R1 | 目标领域是软件工程中的一般项目，而非 DeepSeek Harness。来源的产品名、仓库树、包词汇与受保护设计被适配或消解。 | 请求点名目标受众与领域；原样移植会把另一个项目的指涉交给采用者。 | 改写指涉并重跑处置表。 |
 | R2 | 项目文档指涉重绑到项目自身的声明及其指定文档。项目没有声明时，读其 README 与模块文档取得同样的约束；该回退是一条目标裁定并带自身风险，不是上游主张，项目有声明时以声明为准。 | 目的是读取真正约束项目的文档；等价手段是陈述这些约束的文档，而非固定路径。 | 重新点名固定文档路径，或去掉回退。 |
 | R3 | 受保护的有意设计是由项目声明、其决策记录或用户保护的设计；来源点名的两个 LLM adapter 与其持久化缝被消解。没有用户明确覆盖，不得提议删除受保护设计。 | 那些设计在一般项目中不存在；发明受保护清单会造出来源没有的机制。 | 给技能加入项目点名的受保护设计。 |
-| R4 | 兄弟技能只作括号内的示例出现；绑定规则是项目自身的约定或流程。文字引用点名 `dsh-spec-prose-standard`，决策记录引用点名 `dsh-spec-agent-notes`，检查选择引用点名 `dsh-spec-pre-push-checks`（移植中），各自以示例形式并以其可用性限定，因此只安装不同子集的采用者仍遵循自己的实践。 | 基线已发布文字与笔记两个兄弟技能，pre-push-checks 兄弟技能正在移植，已落地技能本就用括号示例承载泛化规则的具体实例；示例名保持与上游对齐而不构成硬依赖。 | 把某兄弟技能点名为要求，或去掉示例名。 |
+| R4 | 兄弟技能只作括号内的示例出现；绑定规则是项目自身的约定或流程。文字引用点名 `dsh-spec-prose-standard`，决策记录引用点名 `dsh-spec-agent-notes`，检查选择引用点名 `dsh-spec-pre-push-checks`，各自以示例形式并以其可用性限定，因此只安装不同子集的采用者仍遵循自己的实践。 | 基线已发布文字、笔记与检查选择三个兄弟技能，已落地技能本就用括号示例承载泛化规则的具体实例；示例名保持与上游对齐而不构成硬依赖。 | 把某兄弟技能点名为要求，或去掉示例名。 |
 | R5 | 技能不带脚本、不带 package 源、不带测试。 | 上游机制同样没有：可达性证据、权衡与归属判断无法由命令精确裁决，搜索工具属于项目环境。加脚本会造出来源没有的机制，并带来请求未要求的维护面。 | 加入脚本及其 package 源与仓库测试。 |
 | R6 | 校准参考以 `references/historical-patterns.md` 承载来源的七个模式；归档笔记链接与来源决策名消解为产品中立的原型，保留每项决策的场景、被删构件、保留义务与失败模式，冻结归档指令仍作为对项目自身记录的指导。 | 参考的功能是校准；产品中立原型保留校准证据而去掉来源产品的角色名，链接则会越出技能并被门禁拒绝。 | 恢复来源角色名，或删除示例。 |
 | R7 | 来源的仓库结构与产品词汇被适配：package/app/python/profile 清单变为通用搜索面；固定五领域划分变为通用领域示例；model-facing 变为 consumer-facing，model-written mount 变为动态解析的消费方，model-visible 变为公开或生成，product API 变为动态消费面，transcript renderer 变为展示层，JSDoc 变为 API 文档，engine floor 变为运行时下限，compiler faces 变为构建与编译器表面，per-workspace 变为按区域，draft PR 变为可见的未完成改动。 | 这些是目标领域事实，不是机制变化；句子的规则在词汇变化后仍成立。 | 若目标又成为那个产品，恢复来源词汇。 |
 | R8 | 交付语言为英文；描述追加中文触发关键词；审查草稿为中文并反转描述顺序，如锻造技能的 Review 规则所述。 | 请求是中文，本包的 agent 读英文，审查草稿面向维护者的语言。 | 改变语言设置。 |
 | R9 | 每处适配都是记录在案的偏离：处置表列出每一项来源约束及其处置、目标位置、依据与验证锚点，记录可追溯到上游文件与行。 | `AGENTS.md` 要求技能改动要么镜像上游，要么记录刻意偏离。 | 放弃该表并原样承载来源。 |
-| R10 | 落地遵循维护者授权：技能发布到 `skills/`、镜像到 `.agents/skills/`，锻造分支压合合并；不 push。 | 锻造停在最终评审接受；维护者于 2026-10-28 评审提交并指示落地。 | 还原落地提交，并从本地备份分支恢复锻造 worktree。 |
+| R10 | 落地遵循维护者授权：技能发布到 `skills/`、镜像到 `.agents/skills/`，锻造分支压合合并；不 push。 | 锻造停在最终评审接受，维护者授权落地。 | 还原落地提交，并从本地备份分支恢复锻造 worktree。 |
 | R11 | `rg` 是首选搜索工具，如上游点名；没有它的项目用自己的搜索工具。 | 搜索工具名是来源事实，不是文字技能可安装的依赖。 | 点名别的工具，或安装一个工具。 |
 | R12 | 两个工作目录来源各带一份中文审查草稿与其 `.i18n.yaml` 记录。`publish` 移除声明的草稿文件；操作者在发布前从工作草稿来源中移除仅属审查草稿的内容——切换行与回链。 | 锻造评审实践会配对每个工作目录来源；落地技能文件只有英文，`publish` 只复制纯源文件。 | 去掉切换行后无草稿发布。 |
 | R13 | 当项目对某个表面没有声明检查时，技能运行 `git diff --check` 并报告该表面没有项目检查，而不是发明一个。 | `evidence.claims` 与不发明机制的规则：没有运行的检查不能声称。 | 去掉回退，在无声明检查时停下。 |
-| R14 | 笔记自身的中文对侧在锻造期间推迟到最终人工审查；落地时写入并配对。 | 请求推迟笔记配对；评审已完成，落地遵循本包的双语实践。 | 若后续评审否决译文，删除对侧。 |
+| R14 | 本记录带其中文对侧，在落地时写入并配对，遵循本包的双语实践。 | 本包为维护者的语言配对每条持久记录。 | 若后续评审否决译文，删除对侧。 |
+| R15 | alpha.2 的这句「被审查代码引入的要求、检查与决策记录是待评估的设计选择，不是其区分必要性的独立证据」随来源的 Agent Notes 适配为项目的决策记录一并承载。 | 来源的 Agent Notes 即其决策记录语料；该规则说的是被审查代码所引入构件的证据地位，属领域中立（R2、R7）。 | 恢复来源笔记词汇，或删去该句。 |
+| R16 | alpha.2 的 CLI 与配置透传条款被承载：沿权威读取与优先级，找出在使用前已被遮蔽的转发值。 | CLI 与配置是通用软件表面，该条款增加的是一种追踪手法，而非产品指涉。 | 删去该条款。 |
+| R17 | alpha.2 的区分、字段与 adapter 规则被承载：先问该区分、字段或 adapter 是否真的需要；在新增传输或协议专属标记之前，沿发射方以及授权或能力检查追踪既有来源字段与判别式；宽泛的信封类别不必带有来源字段的含义；把删除区分与迁移其声明分开考虑；说明每个备选方案各自接纳哪些输入或能力；保留必需的授权、驻留、持久性与归属行为。来源的 model-facing 按 R7 变为 consumer-facing，其 transport-specific marker 变为 transport- or protocol-specific。 | 适配 model-facing 后，这些条款即产品中立；marker 指向协议边界，而非产品事实。 | 删去这些条款，或恢复来源措辞。 |
+| R18 | alpha.2 的维护成本规则被承载：把项目既有的生产者/消费方扩展点与对远处核心代码或共享声明的改动相比较，并把项目归属约定应用于该比较；把不必要的概念移近其归属方不会消除其维护成本。来源指向其防御模式归属规则的直接链接被重绑到采用项目的声明及其陈述的归属约定。 | 该链接点名来源仓库中的文档；等价手段是项目自身的声明，此项比较需要的是约定，而非其来源位置（R2）。 | 再次点名来源文档，或删去该比较。 |
+| R19 | 候选记录在归属者、有效生产者/消费方路径、消失项、保留项与保留理由之外，新增能力与兼容性影响。 | 能力与兼容性属领域中立，并补全来源候选格式已承载的权衡记录。 | 删去这两项影响。 |
+| R20 | 已落地技能的修订在原位进行：不建锻造工作目录、不执行 `publish`、不新增审查草稿；流程文件与其安装副本一同改动，记录原位更新，集成评审与全仓库测试套件是验收。 | 技能已落地，而该增量是同一流程的小修订；重新锻造只会重复工作目录与评审机制，而产物不变。 | 重新锻造到工作目录并覆盖发布同名技能。 |
 
 ## 约束处置
 
-处置使用锻造技能的值：**保留**原意原样承载，仅调整语言与版式；**适配**实例化目标值；**重绑**把消失的指涉抽象到目的并找到目标等价手段；**消解**记录指涉已消失以及由什么接管。`SK` 是 `SKILL.md`；`HP` 是 `references/historical-patterns.md`。位置列中，`§ Establish scope`、`§ Search`、`§ Prove`、`§ Preserve`、`§ Replace` 与 `§ Record` 缩写 § Target shape 中点名的六个目标小节。锚点列指向 § Verification anchors 中裁决该承载要求的行。
+处置使用锻造技能的值：**保留**原意原样承载，仅调整语言与版式；**适配**实例化目标值；**重绑**把消失的指涉抽象到目的并找到目标等价手段；**消解**记录指涉已消失以及由什么接管。`SK` 是 `SKILL.md`；`HP` 是 `references/historical-patterns.md`。位置列中，`§ Establish scope`、`§ Search`、`§ Prove`、`§ Preserve`、`§ Replace` 与 `§ Record` 缩写 S0 所记来源顺序中的六个目标小节。锚点列指向 § Verification anchors 中裁决该承载要求的行。
 
 ### 技能条目
 
 | # | 来源 | 约束 | 处置 | 位置 | 依据 | 锚点 |
 |---|---|---|---|---|---|---|
-| S0 | `SKILL.md:10,18,29,43,49,55` | 正文有六个固定阶段，按此顺序：确立范围与约束、查找可移除的义务、证明可达性与权衡、保留归属与失败语义、仅当净减少时才替换基础设施、记录与合并与验证。 | 保留 | `SK` 正文结构（§ Target shape 第 3–8 项） | 上游文本；顺序即流程 | A1 |
+| S0 | `SKILL.md:10,18,29,43,49,55` | 正文有六个固定阶段，按此顺序：确立范围与约束、查找可移除的义务、证明可达性与权衡、保留归属与失败语义、仅当净减少时才替换基础设施、记录与合并与验证。 | 保留 | `SK` 正文结构（按来源顺序的六个小节） | 上游文本；顺序即流程 | A1 |
 | S1 | `SKILL.md:2` | 技能名 `dsh-find-simplifications`。 | 适配 | `SK` frontmatter `name` | 目标名 `dsh-spec-find-simplifications`；请求 | A0 |
 | S2 | `SKILL.md:3` | 描述：在代码、API、配置、测试与文字中查找有证据支撑的简化；撰写或合并提案，标记小型内联清理，或评估另一分支上的简化；触发于移除死代码、重复、投机性或维护成本过高的行为与基础设施。 | 适配 | `SK` frontmatter `description` | 产品名变为一般项目；动作清单与移除意图保留；按 R8 追加中文关键词 | A0, A12 |
 | S3 | `SKILL.md:6` | 标题点名仓库。 | 适配 | `SK` H1 | 仓库名是来源指涉；标题保留查找意图 | A0 |
@@ -98,12 +75,19 @@ Status: implemented
 | S12 | `SKILL.md:16` | 对宽泛请求，在 subagent 间划分独立领域；给每个有界领域；要求每个给出消费方证据与被否决的替代方案；除明显未使用符号外也检查大量生产机制；不要在第一项有希望的删除后停下。 | 保留 | `SK` § Establish scope 第 3 段 | 上游文本；领域中立 | A3 |
 | S12b | `SKILL.md:16` | 来源固定五个领域——loop 与持久化；model/tool 组装；Host/Client/SDK；subprocess 与执行 provider；组合/脚本/测试/文档——作为宽泛请求的划分。 | 适配 | `SK` § Establish scope 第 3 段 | 该划分映照来源产品的架构；目标改为通用领域示例（R7） | A3 |
 | S13 | `SKILL.md:20` | 用列举的问题引导发现；候选需要校准时阅读 historical-patterns 的相关小节；示例说明决策，不是当前删除清单。 | 适配 | `SK` § Search 引言 | 指导与参考角色保留；参考以 `references/historical-patterns.md` 承载（R6） | A4, A11 |
+| S13b | `SKILL.md:20` | 被审查代码引入的要求、检查与决策记录是待评估的设计选择，不是其区分必要性的独立证据。 | 适配 | `SK` § Search 引言 | 来源的 Agent Notes 变为项目的决策记录（R15）；证据地位规则保留 | A4 |
 | S14 | `SKILL.md:22` | Q1：声明的功能有完整效果路径——生产者、转换、provider 或 endpoint 支持、可观察结果；被复制到各处的字段仍可能没有 setter、没有读取者，或只有拒绝它的实现；除调用方外也搜索构造器与判别式发射方。 | 保留 | `SK` § Search Q1 | 上游文本；领域中立 | A4 |
-| S15 | `SKILL.md:23` | Q2：哪些区分改变消费方动作；若干内部状态可能只需一个面向消费方的状态或一个可用标识符；保留控制授权、驻留、持久性或归属的内部区分；移除只招致不可用选择的公开区分。 | 适配 | `SK` § Search Q2 | model-facing 变为 consumer-facing（R7）；区分规则保留 | A4 |
+| S14b | `SKILL.md:22` | CLI 与配置透传：沿权威读取与优先级，找出在使用前已被遮蔽的转发值。 | 保留 | `SK` § Search Q1 | 上游文本；CLI 与配置是通用表面（R16） | A4 |
+| S15 | `SKILL.md:23` | Q2：哪些区分改变消费方动作；若干内部状态可能只需一个面向消费方的状态或一个可用标识符；保留必需的授权、驻留、持久性与归属行为；移除只招致不可用选择的公开区分。 | 适配 | `SK` § Search Q2 | model-facing 变为 consumer-facing（R7）；改写后的保留条款仍承载区分规则（R17） | A4 |
+| S15b | `SKILL.md:23` | 先问该区分、字段或 adapter 是否真的需要。 | 保留 | `SK` § Search Q2 | 上游文本（R17） | A4 |
+| S15c | `SKILL.md:23` | 在新增传输或协议专属标记之前，沿发射方以及授权或能力检查追踪既有来源字段与判别式；宽泛的信封类别不必带有来源字段的含义。 | 适配 | `SK` § Search Q2 | 来源的 transport-specific marker 变为 transport- or protocol-specific（R17）；追踪规则保留 | A4 |
+| S15d | `SKILL.md:23` | 把删除区分与迁移其声明分开考虑，并说明每个备选方案各自接纳哪些输入或能力。 | 保留 | `SK` § Search Q2 | 上游文本（R17） | A4 |
 | S16 | `SKILL.md:24` | Q3：更小的显式行为可能移除子系统——固定间隔、调用方提供的时区或上报的激活失败可消除通用日历、持久化默认值或自动回滚；指出放弃的能力与删除的机制；生产调用方使这成为行为决策而非自动否决；实施留在用户授权内。 | 保留 | `SK` § Search Q3 | 上游文本；示例保留 | A4 |
 | S17 | `SKILL.md:25` | Q4：消费方可在需要时读取权威值；派生或复用可一并删除订阅、保留数据、过期响应处理与恢复路径；寻找复制的历史、晋升台账、失效事件后再读取的做法、共享投影流旁的功能缓存；先确定所需观察时刻。 | 保留 | `SK` § Search Q4 | 上游文本；两种策略与删除清单保留 | A4 |
 | S18 | `SKILL.md:26` | Q5：组合被误当策略；可选服务存在、provider 方法或同级工具可表达可用性而不决定部署；显式配置或调用方意图操作可移除注册表与依赖检查；当归属或完成时机不同时保留独立操作。 | 保留 | `SK` § Search Q5 | 上游文本 | A4 |
-| S19 | `SKILL.md:27` | Q6：完整维护成本由谁拥有；追踪透传配置、重复应用树、被产品使用的演示启动器、只用于解析的 workspace、带自身升级生命周期的安装助手；比较整个被移除系统与替代方案，包括残留粘合；搬移复杂度或加门禁让重复定义相等不算移除。 | 保留 | `SK` § Search Q6 | 上游文本 | A4 |
+| S19 | `SKILL.md:27` | Q6：完整维护成本由谁拥有；追踪重复应用树、被产品使用的演示启动器、只用于解析的 workspace、带自身升级生命周期的安装助手；比较整个被移除系统与替代方案，包括残留粘合；搬移复杂度或加门禁让重复定义相等不算消除其维护成本。 | 保留 | `SK` § Search Q6 | 上游文本；按来源修订，透传配置条目移入 Q1（S14b） | A4 |
+| S19b | `SKILL.md:27` | 对必需行为，把项目既有的生产者/消费方扩展点与对远处核心代码或共享声明的改动相比较，并把项目归属约定应用于该比较。 | 重绑 | `SK` § Search Q6 | 来源链接其防御模式归属规则；等价手段是项目声明及其陈述的归属约定（R2、R18） | A4 |
+| S19c | `SKILL.md:27` | 把不必要的概念移近其归属方不会消除其维护成本。 | 保留 | `SK` § Search Q6 | 上游文本；在维护成本句内承载（R18） | A4 |
 | S20 | `SKILL.md:31` | 先用 `rg`，再读匹配；搜索精确符号、属性读写、判别式、事件与 wire 字符串、配置键、包名，以及 `.method(` 与 `method(` 两种形式。 | 保留 | `SK` § Prove 第 1 段 | 上游文本；`rg` 是来源事实，带 R11 回退 | A5 |
 | S21 | `SKILL.md:31` | 测试与声明可表明约定，却不证明存在已交付的生产者或消费方。 | 保留 | `SK` § Prove 第 1 段 | 上游文本 | A5 |
 | S22 | `SKILL.md:33` | 包括 `packages/*/*/src`、`apps/`、`python/`、运行时脚本、随包 profile 与 overlay、包清单与导出、loader 解析、生成的运行时产物与已安装包消费方。 | 适配 | `SK` § Prove 第 2 段 | 来源树名变为通用搜索面（R7） | A5 |
@@ -111,7 +95,7 @@ Status: implemented
 | S24 | `SKILL.md:33` | 顺着生成的目录找到消费方：被 model 写出的 plugin mount 使用的目录是动态产品 API，而仅文档列出不是固定调用方。 | 适配 | `SK` § Prove 第 2 段 | model 写出的 mount 变为动态解析的消费方，产品 API 变为动态消费面（R7） | A5 |
 | S25 | `SKILL.md:33` | 公开的第三方扩展路径即使仓库内零调用点也可能是有意的。 | 保留 | `SK` § Prove 第 2 段 | 上游文本 | A5 |
 | S26 | `SKILL.md:33` | 静态未使用代码检查器必须覆盖 manifest 驱动的加载、生成产物与编译器表面，而不维护平行的按 workspace 例外清单。 | 适配 | `SK` § Prove 第 2 段 | 编译器表面与按 workspace 变为构建与编译器表面与按区域（R7）；覆盖规则保留 | A5 |
-| S27 | `SKILL.md:35` | 对每个候选记录当前归属、有效生产者/消费方路径、消失什么、保留什么，以及保留它的最强理由。 | 保留 | `SK` § Prove 第 3 段 | 上游文本 | A5 |
+| S27 | `SKILL.md:35` | 对每个候选记录当前归属、有效生产者/消费方路径、消失什么、保留什么、能力与兼容性影响，以及保留它的最强理由。 | 保留 | `SK` § Prove 第 3 段 | 上游文本；能力与兼容性属领域中立（R19） | A5 |
 | S28 | `SKILL.md:37–39` | 区分不可达或无人读取行为的移除、带明确损失的更窄公开或产品行为、受保护义务或证据不足。 | 保留 | `SK` § Prove 列表 | 上游文本 | A6 |
 | S29 | `SKILL.md:41` | 当候选破坏仍保留的义务、只是搬移同样复杂度或没有有意义的减少时否决它。 | 保留 | `SK` § Prove 第 4 段 | 上游文本 | A6 |
 | S30 | `SKILL.md:41` | 在提议改动层面理解否决理由；过时清单或混合提案的否决行为不裁决每个独立项；重新提议前刷新证据。 | 保留 | `SK` § Prove 第 4 段 | 上游文本 | A6 |
@@ -125,7 +109,7 @@ Status: implemented
 | S38 | `SKILL.md:59` | 决策相同时更新现有归属者；不要为保住候选数量创建重复笔记。 | 保留 | `SK` § Record 第 2 段 | 上游文本 | A9 |
 | S39 | `SKILL.md:61` | 每条新笔记需要一次通过归档笔记工作流的有范围取代检查，该工作流拥有保留、合并、三件套删除与冻结归档机制；代码调查不意味着全仓库笔记审计；保留部分取代与当前持久、wire、兼容或已否决替代方案义务。 | 重绑 | `SK` § Record 第 3 段 | 项目记录流程拥有归档；伴随文件删除替代三件套删除；使用集合时由 `dsh-spec-agent-notes` 技能拥有（R4） | A9 |
 | S40 | `SKILL.md:63` | 合并另一分支时，把其独立 diff 与目标基线比较，只移植有支持且不重叠的提案，合并重叠理由；关闭另一 PR 需要授权或明确归属。 | 保留 | `SK` § Record 第 4 段 | 上游文本；Git 术语是生态术语 | A10 |
-| S41 | `SKILL.md:65` | 纯文档笔记工作运行文档同步、lint 与 `git diff --check`；技能或注释编辑包含适用验证器；通过 pre-push-checks 技能选择其他检查。 | 重绑 | `SK` § Record 第 5 段 | 项目声明检查与其自身检查选择实践仍绑定，`dsh-spec-pre-push-checks` 仅在括号中作示例（移植中）；最小覆盖集、适用验证器与 `git diff --check` 保留，无检查时用 R13（R4） | A10 |
+| S41 | `SKILL.md:65` | 纯文档笔记工作运行文档同步、lint 与 `git diff --check`；技能或注释编辑包含适用验证器；通过 pre-push-checks 技能选择其他检查。 | 重绑 | `SK` § Record 第 5 段 | 项目声明检查与其自身检查选择实践仍绑定，`dsh-spec-pre-push-checks` 仅在括号中作示例；最小覆盖集、适用验证器与 `git diff --check` 保留，无检查时用 R13（R4） | A10 |
 | S42 | `SKILL.md:65` | 报告调查区域、有支持候选、有意义的否决或推迟、新增/合并/保留/删除的笔记，以及实际运行的命令。 | 保留 | `SK` § Record 第 5 段 | 上游文本 | A10 |
 | S43 | `SKILL.md:65` | 调查扩大时使用草稿 PR；不要把未验证搜索描述为穷尽。 | 适配 | `SK` § Record 第 5 段 | 一般项目可能用其他变更模型；指令保持变更可见地未完成并保留不穷尽规则（R7） | A10 |
 
@@ -155,8 +139,8 @@ Status: implemented
 | A1 | 正文保持来源六个阶段的来源顺序。 | 判断 | `SK` 标题；S0；评审者把标题序列与 `SKILL.md:10,18,29,43,49,55` 比对 |
 | A2 | 范围与受保护设计：项目声明及指定文档、活跃决策记录与记录流程、归档记录作为历史且出站链接不动、项目或用户声明的受保护设计及明确覆盖禁令与未使用成员例外（S7–S11c）。 | 判断 | `SK` § Establish scope 第 1–2 段；评审者逐条对照行与 R2–R4 |
 | A3 | 宽泛请求分派为有界 subagent 领域——通用，而非来源固定划分——要求消费方证据与被否决替代方案、检查大量机制、不在第一项删除后停下（S12、S12b）。 | 判断 | `SK` § Establish scope 第 3 段；R7；评审者把分派规则与 `SKILL.md:16` 比对 |
-| A4 | 六个发现问题在场，且各自带有使其可执行的示例；校准参考在候选需要处被点名（S13–S19）。 | 判断 | `SK` § Search；A11 的参考；评审者用 R7 词汇检查每个问题 |
-| A5 | 候选需要跨越搜索面的可达性证据，按入口分类；生成目录、扩展路径与检查器覆盖被处理；候选记录保存归属、有效生产者/消费方路径、移除、保留、最强保留理由（S20–S27）。 | 判断 | `SK` § Prove 第 1–3 段；评审者逐条对照行 |
+| A4 | 六个发现问题在场，且各自带有使其可执行的示例；被审查代码引入的要求、检查与决策记录是设计选择而非必要性的证据；CLI 与配置透传沿权威读取与优先级追踪；先问区分、字段或 adapter 是否真的需要，在新增传输或协议专属标记之前追踪既有来源字段与判别式，把删除区分与迁移其声明分开评估并说明各自接纳的输入或能力，保留必需的授权、驻留、持久性与归属行为；校准参考在候选需要处被点名（S13–S19，含 S13b、S14b、S15b–S15d、S19b、S19c）。 | 判断 | `SK` § Search；A11 的参考；评审者用 R7 词汇检查每个问题，并用 R15–R18 检查 alpha.2 条款 |
+| A5 | 候选需要跨越搜索面的可达性证据，按入口分类；生成目录、扩展路径与检查器覆盖被处理；候选记录保存归属、有效生产者/消费方路径、移除、保留、能力与兼容性影响、最强保留理由（S20–S27）。 | 判断 | `SK` § Prove 第 1–3 段；评审者逐条对照行与 R19 |
 | A6 | 三类裁决与否决规则在场，小型本地改进进入内联标记而非记录（S28–S31）。 | 判断 | `SK` § Prove 最后两段；评审者检查类别与标记规则 |
 | A7 | 归属、信任边界与异步失败语义被陈述，保留来源限定词，包括合并时必须保留的机制（S32、S33）。 | 判断 | `SK` § Preserve；评审者把两段与 `SKILL.md:45,47` 比对 |
 | A8 | 仅当净减少时才替换基础设施，包含被删实现与测试、维护成本、残余粘合、演练的不匹配与被测试的项目专属 shim（S34、S35）。 | 判断 | `SK` § Replace；评审者与 `SKILL.md:51,53` 比对 |
@@ -164,51 +148,12 @@ Status: implemented
 | A10 | 合并另一分支、关闭另一 PR、带无检查回退的检查选择、报告与可见未完成调查状态被陈述（S40–S43）。 | 判断 | `SK` § Record 第 4–5 段；R13；评审者检查条款清单 |
 | A11 | 校准参考按顺序保留七个模式及其规则，且没有链接越出技能（H0–H8）。 | 判断 + 机械 | `HP` 标题与文本；`SK` § Search 引言点名文件；门禁的参考与链接检查覆盖 A11 的机械半 |
 | A12 | 描述陈述移除意图与其表面，保留来源动作清单，追加评审语言触发关键词（S2、R8）。 | 判断 | `SK` frontmatter；评审者把描述与 `SKILL.md:3` 比对并检查追加的中文关键词 |
-| A13 | 技能符合 Agent Skills 规范：frontmatter 封闭集、名称匹配目录、描述不超过 1024 字符、参考被点名且只深一层、链接留在内部并可解析、正文少于 500 行与 5,000 tokens。 | 机械 | 落地：`node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs skills/dsh-spec-find-simplifications` → 14 checks, 0 failed；SKILL.md 66 行，约 3,167 tokens；description 414 字符；license 59 字符 |
+| A13 | 技能符合 Agent Skills 规范：frontmatter 封闭集、名称匹配目录、描述不超过 1024 字符、参考被点名且只深一层、链接留在内部并可解析、正文少于 500 行与 5,000 tokens。 | 机械 | `node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs skills/dsh-spec-find-simplifications` 裁决该项；实测：SKILL.md 66 行，约 3,472 tokens，description 414 字符，license 59 字符 |
 | A14 | 落地技能不带未解决的 DeepSeek Harness 产品指涉；兄弟技能只作括号示例出现，且没有规则依赖兄弟技能被安装。 | 判断 | § 来源；R1–R7；独立评审扫描落地文件中的来源产品名，并检查每个兄弟技能名位于泛化规则之后的括号中 |
-| A15 | 两个工作目录来源在发布前带最新的中文审查草稿与 `.i18n.yaml` 记录，落地来源只有英文。 | 判断 + 机械 | 发布前：`translation-pair check` 报 `2 named pair(s) consistent`，`forge.mjs pair` 报 4 declared drafts 对 2 sources，0 failed；切换行从英文来源移除，`publish` 移除声明的草稿与记录（R12）。 |
-| A16 | 记录是合法的 `implemented/process` 笔记，且 notes 检查在项目声明的伴随文件下通过。 | 机械 | 落地：`node .agents/skills/dsh-spec-agent-notes/scripts/notes.mjs check --root .agents/dsh-spec-agent-notes --companion .zh.md --companion .i18n.yaml` → `ok check — 38 note(s) and 76 companion(s) checked`，exit 0 |
-| A17 | 不做 push，落地是本地压合合并，未触碰的共享文件有记录。 | 机械 | 落地提交是本地提交且分支无 upstream；`git diff --stat ba6e3d7..HEAD` 只列落地文件；`submodules/dsh` 留在其固定提交；`skills/` 与 `.agents/skills/` 只承载已发布技能与其镜像。 |
+| A15 | 工作目录来源在发布前带最新的中文审查草稿与 `.i18n.yaml` 记录，落地来源只有英文。 | 判断 + 机械 | `translate-pair check` 裁决每份草稿配对；切换行从英文来源移除，`publish` 移除声明的草稿与记录（R12）。 |
+| A16 | 记录是合法的 `implemented/process` 笔记，且 notes 检查在项目声明的伴随文件下通过。 | 机械 | `node skills/dsh-spec-agent-notes/scripts/notes.mjs check --root .agents/dsh-spec-agent-notes --companion .zh.md --companion .i18n.yaml` 裁决该项。 |
+| A17 | 不做 push，落地是本地压合合并，未触碰的共享文件有记录。 | 机械 | 落地提交是本地提交且未 push，`submodules/dsh` 留在其固定提交，`skills/` 与 `.agents/skills/` 只承载已发布技能与其镜像。 |
 | A18 | 该适配能改善一般软件项目中的 agent 简化查找。 | 未验证 | 没有现场试验、没有安装技能评估、没有联网 harness 运行；来源流程与记录下来的适配是证据，维护者的评审是验收。 |
-
-## 评审
-
-一名独立设计审计者在任何技能文字存在之前评审了设计。D1 轮返回 `needs revision`——三项 major：锚点覆盖、丢失的 Q4 条款与重复的受保护设计禁令，另加九项 minor——修订后 D2 轮返回 `accept`，确认 56 行处置全部有锚点、来源行号准确。
-
-两位独立只读评审者检查了每个冻结快照。第 1 轮（`2b12ecb`，rebase 前）两位均 `accept`，中间共十一项 minor；第 2 轮（`c18bda3`，rebase 前）确认每项发现关闭并 `accept`；第 3 轮（`e887f25`，rebase 后）两位均 `accept`，其中 reviewer B 的两项记录/措辞 minor 已应用。第 3 轮停止后维护者要求三项修改——兄弟技能名使用括号示例形式（`dsh-spec-prose-standard`、`dsh-spec-agent-notes`，以及移植中的 `dsh-spec-pre-push-checks`）、rebase 到当前基线、产品中立原型保留每个模式的场景、删除清单、保留义务与失败模式——随后又要求把示例括号缩短为 `(use the … skill when available)`。对缩短的轻量评审返回 `accept`，一项措辞 minor 已应用。维护者于 2026-10-28 接受评审并授权落地；压合前的评审哈希指锻造分支。
-
-## 验证
-
-命令在落地 worktree 根运行，除非另有说明。
-
-| 检查 | 命令 | 结果 |
-|---|---|---|
-| 落地技能门禁 | `node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs skills/dsh-spec-find-simplifications` | 14 checks, 0 failed；SKILL.md 66 行，约 3,167 tokens；description 414 字符；license 59 字符 |
-| 笔记树与记录配对 | `node .agents/skills/dsh-spec-agent-notes/scripts/notes.mjs check --root .agents/dsh-spec-agent-notes --companion .zh.md --companion .i18n.yaml` | `ok check — 38 note(s) and 76 companion(s) checked`，exit 0 |
-| 记录配对一致性 | `node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair check .agents/dsh-spec-agent-notes/implemented/process/2026-10-28-forging-dsh-spec-find-simplifications.md .agents/dsh-spec-agent-notes/implemented/process/2026-09-21-the-shipped-skill-text-is-an-extraction.md` | 两对均一致，exit 0 |
-| 安装副本 | `pnpm run skill:refresh` | 5 个技能被镜像，0 failed；`.agents/skills/dsh-spec-find-simplifications/` 与 `skills/dsh-spec-find-simplifications/` 一致 |
-| 仓库测试套件 | `pnpm test` | 206 tests, 206 pass, 0 fail（含安装副本一致性用例） |
-| 格式 | `pnpm run format:check` | 匹配来源均已格式化，exit 0 |
-| 来源隔离 | `grep -rniE 'deepseek\|harness\|jsonl\|llm\|model-facing\|model-written\|model-visible' skills/dsh-spec-find-simplifications/` | 唯一匹配的是技能根 `THIRD_PARTY_NOTICES` 的来源声明行；技能文本本身没有来源产品指涉，集合兄弟技能名位于括号中 |
-| 被取代技能移除 | `ls .agents/skills/` 与 `grep -n 'dsh-find-simplifications' scripts/dsh-spec-manager/references/manifest.json` | 无 `dsh-find-simplifications` 安装目录，也无 manifest 条目；仅剩旧名引用是历史发布说明 |
-| 空白与范围 | `git diff --check ba6e3d7..HEAD` 与 `git diff --stat ba6e3d7..HEAD` | 干净；范围是落地技能、其安装副本、被移除的旧技能、文档、记录与其对侧 |
-| 提交 trailer | `node scripts/verify-dco.ts --base=ba6e3d7 --head=HEAD` | 八个锻造提交都带命名其作者的 Signed-off-by，且没有声称 bot 身份；落地提交以 `--signoff` 创建 |
-
-## 落地
-
-工作目录被发布到 `skills/dsh-spec-find-simplifications/`；锻造 `publish` 移除声明的审查草稿与工作目录。落地加入 license 字段与技能根 `THIRD_PARTY_NOTICES`，把技能镜像到 `.agents/skills/`，删除被取代的 `.agents/skills/dsh-find-simplifications/` 及其 `scripts/dsh-spec-manager/references/manifest.json` 条目，在 `AGENTS.md` 与根 `THIRD_PARTY_NOTICES.md` 中列出该技能，更新抽取笔记的路径引用及其对侧，把本笔记移到 `implemented/process/` 并写入中文对侧。锻造分支压合为一个落地提交并快进到 `refactor/dsh-skills`；不做 push。
-
-## 未验证项
-
-- 该适配能否改善一般软件项目中的简化查找，在此无法机械验证：没有现场试验，也没有安装技能评估。来源流程是证据；维护者的评审是验收。
-- 触发质量靠判断而非测量：Agent Skills 页面描述的触发率评估需要安装该技能的 harness 与重复运行，本次变更不搭建，请求的约束也不会安装。描述是来源描述加追加评审语言的适配。
-- 产品中立原型的校准价值是判断：它们说明记录决策而非陈述规则，决策不同的项目可能有不同校准。
-- 无声明项目的回退（其 README 与模块文档）是目标裁定（R2）；完全无处陈述约束的项目得到更少保护，这是项目的属性而非机制缺口。
-- 无检查回退（R13）报告缺口，而非为声明无检查的项目证明变更；报告规则是可用锚点。
-- 报告与检查选择是给 agent 的指令，不是门禁：执行者是否遵循与任何文字要求同一类，由评审判断。
-- 检查选择兄弟技能 `dsh-spec-pre-push-checks` 在移植期间被点名；示例不构成依赖，项目自身实践仍是绑定规则（R4）。
-- 示例形式的名字可能被跳过括号的执行者读成要求；规则先陈述泛化实践，第 3 轮检查该形式。
-- 笔记的中文对侧在落地时是最新的；配对记录证明最新性，不证明译文质量，那属于维护者评审。
 
 ## 备选方案
 
@@ -216,11 +161,11 @@ Status: implemented
 
 **消解校准参考，只留 SKILL.md。** 它落败因为参考是来源机制的一部分：未使用符号搜索无法定论其价值的候选，正是记录模式校准决策处，删除该文件会丢掉流程的这一部分。
 
-**把锻造技能绑定到本仓库自己的路径**（`AGENTS.md`、`.agents/dsh-spec-agent-notes`、`docs/terminology.md`）。它落败因为技能交付给采用项目而非本仓库：项目自己的声明是指涉，固定仓库路径只是换件外衣的另一个项目指涉。
+**把锻造技能绑定到本仓库自己的路径**（`AGENTS.md`、`.agents/dsh-spec-agent-notes`、`.agents/dsh-spec-translate-docs/terminology.md`）。它落败因为技能交付给采用项目而非本仓库：项目自己的声明是指涉，固定仓库路径只是换件外衣的另一个项目指涉。
 
 **把兄弟技能点名为硬引用。** 它落败因为硬引用让技能依赖采用者未必安装的机制；括号示例保持对齐而不构成依赖（R4）。
 
-**在集合落地后仍不点名兄弟技能。** 它落败因为维护者要求示例形式名字：集合现已发布文字与笔记兄弟技能，检查选择兄弟技能正在移植，泛化规则加例名对有无该兄弟技能的采用者读来相同（R4）。
+**在集合落地后仍不点名兄弟技能。** 它落败因为维护者要求示例形式名字：集合现已发布文字、笔记与检查选择兄弟技能，泛化规则加例名对有无该兄弟技能的采用者读来相同（R4）。
 
 **随附扫描脚本。** 它落败因为来源不带脚本，这些判断是判断而非精确命令，脚本会造出来源没有的机制，同时带来请求未要求的维护面。
 
@@ -238,11 +183,18 @@ Status: implemented
 
 **发布但不移除被取代的安装副本。** 它落败因为新技能取代 `.agents/skills/dsh-find-simplifications/`；维护者要求移除旧技能及其关联条目，所以落地删除安装副本与 manifest 条目，并保持固定上游基线不动。
 
+**原样承载 alpha.2 增量。** 它落败因为其中两处指涉——Agent Notes 语料与防御模式归属规则链接——是来源仓库的事实；一般化保留规则而去掉指涉（R15、R18）。
+
+**以来源专属为由跳过 alpha.2 增量。** 它落败因为这两处指涉适配后，增量规则即产品中立；跳过会让已落地技能落后于其固定来源，违背 R9。
+
+**重新锻造到工作目录并覆盖发布已落地副本。** 它落败因为该修订只改同一流程中的五行且技能已落地；原位编辑让记录、安装副本与配对保持对齐，而不重复锻造工作目录与发布机制（R20）。
+
 ## 后果
 
 - 集合发布 `dsh-spec-find-simplifications` 于 `skills/dsh-spec-find-simplifications/`，其安装副本于 `.agents/skills/dsh-spec-find-simplifications/`；旧的上游同名安装副本与其 manifest 条目已移除。
-- 技能只有文字：六个上游阶段与七个校准模式作为记录在案的偏离（R1–R14）承载，外加三处目标侧回退——无声明读取（R2）、无 `rg` 搜索工具（R11）与无声明检查的缺口报告（R13）。
-- 锻造分支压合为一个落地提交并快进到 `refactor/dsh-skills`；§ 评审中的评审轮哈希是压合前的，存于本地备份分支。
-- **成本与限制。** 无声明的项目得到更少保护（R2）；声明无检查的项目得到缺口报告而非证明（R13）；技能输出质量只有文字、无机械检查（A18 未验证）；产品中立原型以来源产品具体性换取领域适配；示例形式兄弟技能名可能被跳过括号的执行者读成要求；触发描述与其他可能安装的分析技能重叠。
-- **与来源的偏离。** 来源点名它自己的文档、包、受保护设计、检查命令与兄弟技能；落地技能以采用项目的声明与约定、产品中立原型与可用性限定的示例名替代它们。
+- 技能只有文字：六个上游阶段与七个校准模式作为记录在案的裁定（R1–R20）承载，外加三处目标侧回退——无声明读取（R2）、无 `rg` 搜索工具（R11）与无声明检查的缺口报告（R13）。
+- 流程文件原位承载五项修订约束（R15–R19），不经重新锻造（R20）；其安装副本随之刷新。
+- 锻造分支压合为一个落地提交并快进到 `refactor/dsh-skills`。
+- **成本与限制。** 无声明的项目得到更少保护（R2）；声明无检查的项目得到缺口报告而非证明（R13）；技能输出质量只有文字、无机械检查（A18 未验证）；归属比较绑定到项目实际声明的归属约定（R18）；产品中立原型以来源产品具体性换取领域适配；示例形式兄弟技能名可能被跳过括号的执行者读成要求；触发描述与其他可能安装的分析技能重叠。
+- **与来源的偏离。** 来源点名它自己的文档、包、受保护设计、检查命令与兄弟技能，alpha.2 增量还点名其 Agent Notes 并链接其防御模式归属规则；落地技能以采用项目的声明与约定、产品中立原型与可用性限定的示例名替代它们（R15、R18）。
 - **回滚。** 还原落地提交；压合前的锻造分支保留为本地备份分支，被移除的安装副本留在仓库历史中。`submodules/dsh` 未被触碰。

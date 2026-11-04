@@ -14,20 +14,13 @@ Status: implemented
 
 1. **意图识别**——目标、边界、交付物、模式、语言、forge 目录、落地与记录位置、forge 设置；目标受众（含其领域）；采用环境的 Script 决定（运行时、工具、测试方式、运行时缺失即硬红线）。
 2. **收集、分析并处置**——收集 Docs、SOP 与 Script；列每条源约束；解构；执行 keep/adapt/re-bind/dissolve；校验覆盖与诚实。
-3. **编写技能内容**——写之前必须读 [Agent Skills Best Practices](https://agentskills.io/skill-creation/best-practices) 以及它关联的全部内容，并按原文执行。`references/offline-skill-authoring.md` 是仅当这些来源读不到时才读的离线提炼版；它不是第二权威，在线原文可读时以原文为准。
+3. **编写技能内容**——写之前必须读 [Agent Skills Best Practices](https://agentskills.io/skill-creation/best-practices) 以及它关联的全部内容，并按原文执行。`references/offline-skill-authoring.md` 是仅当这些来源读不到时才读的离线提炼版，提炼自 specification、best-practices、optimizing-descriptions、using-scripts 与 evaluating-skills 页面；它不是第二权威，在线原文可读时以原文为准。
 
 三步与全局规则都在 `SKILL.md`；离线 fallback 是 forge 唯一随包的 reference 文件。过程规则保留：interaction、languages、forge directory、record、drafts、紧凑的 format 规则、SSOT、unambiguity 与 hard red lines。脚本不变：`forge.mjs` 保留 draft/review/land 生命周期，`verify-skill-spec.mjs` 保留机械可判检查并仍报告体量；超量正文是记录在案的裁决，不是路由阶梯。
 
-### Settings
+**部分被[围绕精确锚点锻造技能](2026-10-26-forging-dsh-spec-skill-forge.zh.md)取代。** 那次重锻造以精确锚点正文与 draft/pair/publish 生命周期取代了这里描述的正文形态与 draft/review/land 生命周期；本记录仍拥有围绕 Agent Skills guides 重锻造、三步与 guides 作为内容权威的决定。
 
-| 设置 | 值 |
-|---|---|
-| 模式 | iterate；已落地的 forge 技能是工作草稿的来源 |
-| Forge 目录 / 落地 | `.agents/dsh-spec-skill-forge/` / `skills/dsh-spec-skill-forge/` |
-| 草稿 | 落地时删除工作草稿与评审草稿 |
-| 语言 | 交付英文；评审中文；触发中文 |
-| 记录 | 本笔记 |
-| 回滚 | 从上一提交恢复 `skills/dsh-spec-skill-forge/` 与本三元组 |
+- 交付语言为英文；评审语言与附加触发语言为中文。
 
 ### Dispositions
 
@@ -45,14 +38,6 @@ Status: implemented
 | 离线 fallback | keep | `references/offline-skill-authoring.md`，仅当在线来源不可达时读 |
 | 折叠的 `Docs / SOP / Script` 定义 | restore | 三条独立的全局定义 |
 | `SSOT` / `Unambiguity` 规则 | keep | 不变的全局规则（裁决：forge 层面质量，与 guides 不冲突） |
-
-### Verification
-
-- 对落地技能跑 `verify-skill-spec.mjs --strict-budget` → 11 项检查，0 失败；174 行，按脚本默认估算约 4,214 tokens；点名 1 份 reference。
-- 落地：工作草稿复制进 `skills/dsh-spec-skill-forge/`，草稿与评审目录被删除，`pnpm run skill:refresh` 使安装副本字节一致。
-- 落地后 `pnpm test`（82 项）与 `pnpm run format:check` 通过；本变更的提交通过 DCO。
-- 在线来源在 2026-10-23 可达；离线 fallback 于同日从 specification、best-practices、optimizing-descriptions、using-scripts 与 evaluating-skills 页面提炼。
-- 移植附录中 `3-recomposition.md` 与预算路由的引用已更新为落地的三步结构。
 
 ## Alternatives considered
 

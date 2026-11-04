@@ -19,7 +19,7 @@ A shipped skill file — and every template the skill set installs — deviates 
 1. **A reference change the shipped layout requires.** A check is addressed by name through the dispatcher instead of a package script, a contract moves into the skill's `references/`, a path names the notes tree or the engine directory.
 2. **A generalization that removes one project's specifics.** Its product name, package layout, linters, documentation tree, and private gates are replaced by what holds for any project that adopts the skill set.
 
-Everything else was removed or repaired in this change. A rule that belongs to the skill set moved to where its owner is — the manager, a reference document, or a project's own instructions — rather than staying in a capability that ships to every project. The terminology-table rule moved into `docs/AGENTS.md` beside the table it governs. `dsh-translate-docs` regained the two frontmatter keys that make it user-invoked, which is the mechanism its added prose had been describing in words. Two reference files renamed for no reason went back to their source names, so a directory diff compares like with like.
+Everything else was removed or repaired in this change. A rule that belongs to the skill set moved to where its owner is — the manager, a reference document, or a project's own instructions — rather than staying in a capability that ships to every project. The terminology-table rule moved beside the table it governs. `dsh-translate-docs` regained the two frontmatter keys that make it user-invoked, which is the mechanism its added prose had been describing in words. Two reference files renamed for no reason went back to their source names, so a directory diff compares like with like.
 
 Defects were repaired rather than reverted. Prose was restored where a rewrite had destroyed it, every reference now resolves to something the skill set ships or to a path a project owns, and no published command carries a workaround for this repository's environment.
 
@@ -44,7 +44,7 @@ Provenance and licence surfaces are not abstracted at all. Where a file came fro
 ## Consequences
 
 - A diff of any skill directory against `submodules/dsh/` shows reference changes and generalizations and nothing else, so a reviewer can attribute every remaining line to one of the two allowed causes.
-- The removed material is not lost: the manager keeps the record and the engine, the project README introduces the set, and the terminology rule lives in `docs/AGENTS.md`.
+- The removed material is not lost: the project README introduces the set, and the terminology rule lives in the shipped translation skill and its table.
 - No shipped skill names this repository's own gates, its sandbox workaround, or its vendored baseline any more; a consumer reads only paths it has, and the templates resolve the engine path as they are written instead of leaving a placeholder for a person.
 - What this costs is source fidelity of a different kind: wherever a sentence had to be generalized clause by clause, the skill's prose is further from the source's phrasing than a free rewrite would have left it.
 - Where the material is a judgement rather than a paraphrase, the abstraction and its cases ship together: `skills/dsh-spec-find-simplifications/references/historical-patterns.md` states for each pattern the forces that were weighed and what would reverse the verdict, and keeps the recorded cases beneath it as material a project replaces with its own.

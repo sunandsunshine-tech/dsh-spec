@@ -8,8 +8,6 @@ Status: implemented
 
 公开这个仓库要定下一组「改起来很贵」的决定:用哪个许可证、入站贡献带来什么权利、由哪份行为准则代言、AI 协助的贡献披露什么、公开的历史带着谁的身份、pull request 上跑什么、仓库页面摆哪些功能。每个决定都有站得住的答案,而那些答案当时只存在于公开工作自己的规划材料里,不是一份能活过那次会话的记录。
 
-随仓库开源的填表套装是同一个问题的另一面。`form.md`、`questions.md`、`checklist.md` 与 `sources.md` 任何仓库都能用,而对着它们写出的两份工作文件——填表结果与由它推导的规划——带着本组织的账号状态。公开的套装要展示一份填好的表单,而不带上填它时用的那个账号。
-
 ## Decision
 
 **许可证保持 MIT。** 上游与全部 vendored 包都是 MIT,本仓库的抽取物连同 `THIRD_PARTY_NOTICES.md` 与它一致。
@@ -26,11 +24,7 @@ Status: implemented
 
 **仓库页面保持最小。** 不加 homepage;Issues 开;Wiki、Discussions 与 Projects 关。
 
-**表单套装作为示例公开。** `example-answers.md` 与 `example-plan.md` 承载方法——答案总表、必须由维护者拍板的决定、被跳过的题、任务落点、带依赖与验收的执行编排——并去掉本组织的账号状态;`making-this-repository-public.md` 作为公开前那次审计的记录归档在它们旁边。两份工作文件不保留。
-
-**基线 pin 每次 dsh 发布都跟一次。** 固定一套动作:按 tag 浅克隆、逐个比对移植文件与 `submodules/dsh`、有变化就重搬并更新 `ports.json`、改四处 pin,最后跑 provenance 与全量门禁。
-
-两篇笔记各自拥有相邻的地盘，这里只链接、不复述：[the review handover and the merge need authorization](2026-09-23-the-review-handover-and-the-merge-need-authorization.zh.md) 拥有「一次授权该是什么」，以及为什么那两个行为各自需要一次；[the pull-request lifecycle](2026-09-21-the-pull-request-lifecycle.zh.md) 拥有那四个状态、验收前、评审前与合并前的整理、合并方式，以及 `Assisted-by:` trailer 在提交信息里的位置。
+**基线 pin 每次 dsh 发布都跟一次。** 固定一套动作：按 tag 浅克隆、逐个比对移植文件与 `submodules/dsh`、有变化就重搬、更新所记录的 pin，最后跑 provenance 与门禁。
 
 ## Alternatives considered
 
@@ -41,13 +35,12 @@ Status: implemented
 - **接受现有提交邮箱,或从树快照重建历史。** 两条都免掉改写。接受它输了:改写在任何 fork、clone 与不可变 release 出现之前最便宜;快照重建输了:它丢掉抽取所依赖的可复核历史。
 - **不上 CI,或让 vendored 快照定时提交。** 门禁在本地反正都会跑。不上 CI 输了:从不在 PR 上跑的检查,没法设为必需;定时器输了:依赖图谱会在新 advisory 出现时自行重算,而公开仓库的定时 workflow 停活 60 天后会被禁用。
 - **打开 Wiki、Discussions、Projects 与 homepage。** 每项都只是一个开关。它们输了:那会开出与仓库内已受门禁管理的文档重复的房间。
-- **把两份工作文件留在示例旁边。** 读者能拿它们对照。它们输了:它们带着组织私有的账号状态,而读者需要的是示例那部分。
 - **让 submodule 自动升级。** pin 会跟着 dsh 走。它输了:设计是「钉住 + 人工重抽取」,跟发布走的固定动作才让 provenance 门禁保持意义。
 
 ## Consequences
 
-**换来了什么。** 公开的每个决定各有一个落点,后来的维护者拿到的是写明的许可证、披露规则、身份改写与 CI 形状,而不是一份要重新拼出来的对话记录;填表套装也可被别的仓库复用,因为它的示例带的是方法,不是这个账号。
+**换来了什么。** 公开的每个决定各有一个落点,后来的维护者拿到的是写明的许可证、披露规则、身份改写与 CI 形状,而不是一份要重新拼出来的对话记录。
 
-**代价是什么。** 改写会换掉全部提交 SHA,已关闭 PR 对旧提交的引用随之失效;示例失去了让原始答案有说服力的具体账号证据,读者得在方法本身的基础上接受它。
+**代价是什么。** 改写会换掉全部提交 SHA，已关闭 PR 对旧提交的引用随之失效。
 
-**留给读者什么。** 规划把工作排了序：这些决定点名的基线 bump、策略文档、workflow 与脚本在各自所属的状态落地，任何平台行为都不早于授权它的那个状态——可见性切换、rulesets 与发布只在各自的状态、且只在维护者授权后发生；这样一次授权该是什么，由 [the review handover and the merge need authorization](2026-09-23-the-review-handover-and-the-merge-need-authorization.zh.md) 拥有。
+**留给读者什么。** 工作自己排了序：这些决定点名的基线 bump、策略文档、workflow 与脚本在各自所属的状态落地，任何平台行为都不早于授权它的那个状态——可见性切换、rulesets 与发布只在各自的状态、且只在维护者授权后发生。

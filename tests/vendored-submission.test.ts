@@ -2,10 +2,10 @@
  * The vendored-notices snapshot: the payload the dependency-submission endpoint accepts.
  *
  * The script submits what the bundled packages are, so the dependency graph shows them against this
- * repository rather than only against the project they were borrowed from. It had never run against
- * the live endpoint, and its first real run was rejected — `422 scanned is required` — after the
- * repository became public and the graph became available. These cases hold every field the endpoint
- * requires, so the next omission fails here instead of in a job nobody reads.
+ * repository rather than only against the project they were borrowed from. The endpoint rejects a
+ * payload that omits a required field — a missing `scanned` is answered `422 scanned is required` —
+ * so these cases hold every field it requires, and the next omission fails here instead of in a job
+ * nobody reads.
  */
 
 import assert from 'node:assert/strict'

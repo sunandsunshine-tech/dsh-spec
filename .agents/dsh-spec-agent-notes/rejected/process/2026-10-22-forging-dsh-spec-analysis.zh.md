@@ -127,4 +127,4 @@ Note 门禁也通过：`translation-pair check` 报告两条锻造记录一致�
 ## Related
 
 - [锻造 dsh-spec-workflow](2026-10-22-forging-dsh-spec-workflow.zh.md) —— 姊妹锻造；工作流对象的四产物分析记录在那里，并用本方法产出。
-- [锻造技能](../../implemented/process/2026-10-21-forging-dsh-spec-skill-forge.zh.md) —— 本次锻造遵循的组成纪律与精度参照。
+- [锻造技能（已归档）](../../archived/process/2026-10-21-forging-dsh-spec-skill-forge.zh.md) —— 本次锻造遵循的组成纪律与精度参照。

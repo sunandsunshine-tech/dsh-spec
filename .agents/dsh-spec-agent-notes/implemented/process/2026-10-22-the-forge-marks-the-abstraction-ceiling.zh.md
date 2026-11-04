@@ -46,7 +46,7 @@ Status: implemented
 
 ### 天花板上移的两种方式
 
-两条路径记录在 `docs/breaking-the-ceiling.md` 及其配图里。它们是解释，不是今天要提出的新技能。
+它们是解释，不是今天要提出的新技能。
 
 - 公共收敛契约：无数人把各自领域的对象、产物、验收、失败处理、来源与组合接口写成结构化、可执行、开放的知识，让锚点成为公共基础设施。
 - AI 在开放空间收敛：用“提出—执行—验证—修正”的闭环，加上内生锚点、不确定性校准与独立验证，而不是更长的提示。
@@ -79,7 +79,7 @@ Status: implemented
 - 泛化按域进行。每个域得到一个锻造式技能，带自己闭合的对象、产物与标准，而不是一个横跨所有域的技能。
 - 对没有 schema 的工作，具体提示仍是默认。上限检验与一般模型陈述的是理由，不是偏好。
 - 两个被否决的三件套留在 `rejected/`，作为这条否定性保证的证据，它们的 Status 行承载判决。
-- 推理的范围超出技能。`docs/breaking-the-ceiling.md`、`docs/abstraction-ceiling.svg` 与 `docs/breaking-the-ceiling.svg` 为人类读者记录三个天花板、地板与两条抬升路径。
+- 推理的范围超出技能。三个天花板、地板与两条抬升路径是关于什么使方法收敛的一般模型，后来的提案与之辩论，而不是重新发现它。
 - 仓库因此带有一条常驻规则，新技能被提出时会被读到；这是防止同类提案的代价。
 
 ## Testing
@@ -93,4 +93,4 @@ Status: implemented
 
 - [锻造 dsh-spec-analysis（已否决）](../../rejected/process/2026-10-22-forging-dsh-spec-analysis.zh.md) —— 第一次被否决的尝试。
 - [锻造 dsh-spec-workflow（已否决）](../../rejected/process/2026-10-22-forging-dsh-spec-workflow.zh.md) —— 第二次被否决的尝试。
-- [锻造 dsh-spec-skill-forge](2026-10-21-forging-dsh-spec-skill-forge.zh.md) —— 本 note 把它的抽象层级固定为上限。
+- [锻造 dsh-spec-skill-forge（已归档）](../../archived/process/2026-10-21-forging-dsh-spec-skill-forge.zh.md) —— 本 note 把它的抽象层级固定为上限。

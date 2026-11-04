@@ -1,0 +1,19 @@
+# Pairing consistency record for 2026-10-02-the-repository-applies-the-catalog.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/archived/process/2026-10-02-the-repository-applies-the-catalog.md --target <lang>
+/agent-note-the-repository-applies-the-catalog:
+  en: ec56c73ff6abe1a2
+  zh: 8e1f385b3495cc67
+/agent-note-the-repository-applies-the-catalog/problem:
+  en: 18da858d8edd6151
+  zh: 1582d9af74e516ce
+/agent-note-the-repository-applies-the-catalog/decision:
+  en: 2704461fdbee88e0
+  zh: 0e3ed4a3484209cd
+/agent-note-the-repository-applies-the-catalog/alternatives-considered:
+  en: db3f5ba0a2372efe
+  zh: bee20dd54d33433b
+/agent-note-the-repository-applies-the-catalog/consequences:
+  en: 28f463c094045f44
+  zh: 0ce540872d3383f1

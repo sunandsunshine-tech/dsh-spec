@@ -14,7 +14,7 @@ The record also cost something every change: a file to keep current, a tier in t
 
 **`work.md` is deleted, along with every surface that carried it**: its tier on both sides of the tier table, the standing order to update it, the composition map's section, and the documentation table's row. Those surfaces are gone with the documentation mechanism itself, and the record that introduced the artifact is consolidated here, with its English, Chinese, and consistency files deleted.
 
-**Continuity comes from what already exists.** A session resumes from the repository: the notes tree states what was decided and what is still proposed, the aggregate check reports what no longer holds, and `git log` states what shipped. Where the work record would have said "step 6 of 15", the acceptance criteria of the proposal say what remains, and the commit that closed each step says which criterion it met.
+**Continuity comes from what already exists.** A session resumes from the repository: the notes tree states what was decided and what is still proposed, the repository's checks report what no longer holds, and `git log` states what shipped. Where the work record would have said "step 6 of 15", the acceptance criteria of the proposal say what remains, and the commit that closed each step says which criterion it met.
 
 ## Alternatives considered
 
@@ -28,7 +28,7 @@ The record also cost something every change: a file to keep current, a tier in t
 
 ## Consequences
 
-Resuming an interrupted objective now means reading the proposals' acceptance criteria, the aggregate check, and the last few commits. That is several commands rather than one file, and it is the price the source project pays too.
+Resuming an interrupted objective now means reading the proposals' acceptance criteria, the repository's checks, and the last few commits. That is several commands rather than one file, and it is the price the source project pays too.
 
 Two things the record did that nothing replaces: the commands that resume a clone on a fresh machine, and one paragraph saying which step is next. The first is in `AGENTS.md` under Commands and in the root `README.md`; the second is derivable, which is what "reliably iterating without one" means.
 

@@ -127,4 +127,4 @@ Four review corrections shaped this forging. The first raised the precision and 
 ## Related
 
 - [Forging dsh-spec-workflow](2026-10-22-forging-dsh-spec-workflow.md) — the sibling forging; the workflow object's four-artifact analysis is recorded there and was produced with this method.
-- [The skill forge](../../implemented/process/2026-10-21-forging-dsh-spec-skill-forge.md) — the composition discipline and precision reference this forging follows.
+- [The skill forge (archived)](../../archived/process/2026-10-21-forging-dsh-spec-skill-forge.md) — the composition discipline and precision reference this forging follows.

@@ -6,11 +6,11 @@ Status: implemented
 
 ## 问题
 
-本次锻造的第一版设计（已在本分支被取代）只抽取了上游 `dsh-translate-docs` 的工作流映射，而把配对记录、语言切换行、一致性检查与术语纪律留给了一个本包并不交付的「采用者的配对机制」。新采用者安装该技能后，拿到的指引会止步于一个它并不拥有的机制；既有配对文档的日常维护不会归该技能负责；而这份交付物会成为本包中唯一不自包含的技能。
+只抽取上游 `dsh-translate-docs` 的工作流映射的锻造，会把配对记录、语言切换行、一致性检查与术语纪律留给一个本包并不交付的「采用者的配对机制」。新采用者安装该技能后，拿到的指引会止步于一个它并不拥有的机制；既有配对文档的日常维护不会归该技能负责；而这份交付物会成为本包中唯一不自包含的技能。
 
-误读在于把上游的项目内部布局当成了设计边界。上游把 `gen-translation-brief` 与 `verify-translation-pairing` 留在其仓库的 `scripts/` 里，把配对约定、翻译规则与术语纪律留在 `docs/i18n/` 里，但这些脚本、约定与 SKILL.md 是一个内聚的机制；这些文件之所以位于 SKILL.md 之外，只是因为该机制仅服务于那个仓库。本次锻造的目标是整套机制，将它抽取并泛化。
+把上游的项目内部布局当成设计边界是误读。上游把 `gen-translation-brief` 与 `verify-translation-pairing` 留在其仓库的 `scripts/` 里，把配对约定、翻译规则与术语纪律留在 `docs/i18n/` 里，但这些脚本、约定与 SKILL.md 是一个内聚的机制；这些文件之所以位于 SKILL.md 之外，只是因为该机制仅服务于那个仓库。本次锻造的目标是整套机制，将它抽取并泛化。
 
-以下是取代本分支早先裁定的直接用户裁决：
+以下是本技能请求的裁决：
 
 - 机制是自包含的：技能随附脚本，机械地检查配对并生成其记录；
 - 脚本只以上游为依据——本仓库的 manager 移植是历史遗留物，本次锻造将取代它，它不是来源；
@@ -25,43 +25,8 @@ Status: implemented
 
 将 `dsh-spec-translate-docs` 锻造为上游双语文档机制的自包含抽取：一个技能，其 SKILL.md 是工作流映射，`references/` 承载配对约定、翻译规则与文风样例约定，随附的 `scripts/translate-pair.mjs` 是机械的那一半——配对列举、检查、记录、区域比较、最小更新简报、机械拼接与术语模板初始化。范围级检查与评审汇报只把 `dsh-spec-pre-push-checks` 与 `dsh-spec-code-review` 作为可用性限定的示例点名；项目自己的检查与评审约定仍是约束规则。
 
-### v1 修订
-
-第一次停步与修订审计暴露了 R28–R50 所记录的、与用户意图及本仓库真实语料之间的差距：冻结／生成区域是 v1 能力，使用技能自己的标记格式（不兼容旧标记），其状态必须在实现之前完备；切换行按结构定位为 H1 之后唯一匹配的段落，而不是按版面位置定位；记录规范检查执行条目正文，同时忽略注释出处；公开 URL 的切换行目标通过其路径后缀被接受；默认发现清单保留 `.agents/skills` 与 `.agents/dsh-spec-translate-docs`，去掉 `submodules`；`--generated <glob>` 为生成器拥有的源文件豁免源侧切换行；显式的非默认目标需要显示名称，description 点名 Markdown；文风样例成为随附约定外加第三份参考。本分支在本次修订前已 rebase 到 `refactor/dsh-skills@806fd84`。迁移是一次按范围的批量重记录，覆盖 35 个活跃 Agent Note 配对与根 README 配对（共 36 个配对），使用 `write --all --scope …`；5 个归档冻结配对与已 pin 的 `submodules/dsh` 语料留在范围之外，永不重写。
-### v2 重新设计
-
-用户批准了第二次重新设计，它取代 v1 的语料完整性模型与固定的英文源语言；R51–R64 拥有这些决定，V29–V36 拥有其证据。机制现在是一道**既有配对一致性门禁**：检查校验存在的配对，而创建与更新由项目的声明或用户的指令驱动。
-
-- **门禁。** 只检查既有配对：聚合记录结构、记录的哈希、切换行、结构签名、生成区域相等性与小节锚点，以及链接 locale。完整性、排除产物规则与必需配对错误被移除。--select 与 --skip 选择既有配对；它们既不要求也不禁止配对。空检查以退出码 2 结束；在空仓库上运行 list 报告零行并以退出码 0 结束。
-- **语言。** 源语言与目标语言是配对的属性。源文件不带后缀；它的源语言是每条记录小节源哈希行上的代码，并在写入第一份记录时用 --source-lang 提供（仅当省略时默认 en）。目标是声明的，且可以因源文件而异；默认目标保持 zh=中文。
-- **记录。** 每个源文件一份 foo.i18n.yaml，扁平存储：每个小节有一个源哈希与每个目标各一份目标签名。目标签名是 H(sourceHash || targetContentHash)，因此源文件一经编辑，每份目标确认都会失效；write --target 只更新源哈希与那份签名，而 write --all 刷新每个既有目标，并丢弃对侧文件已消失的目标。不存在按目标或嵌套的记录文件。
-- **更新路径。** SKILL 携带三条：针对单个小节内一两个单元的轻量直接更新；针对其他既有配对改动的简报路径（包含仅代码围栏的 --apply）；以及针对新增配对的委派整篇文档翻译。编排者不翻译整篇文档。
-- **生成区域。** 标记外壳 A 沿用上游形状（BEGIN 可带尾注，END 精确，slug 是一个词元），同时技能保留围栏感知、独立成块、重复 slug 与标记形状的严格性。区域行在记录、小节键与结构签名中都被掩码；位置通过撰写侧小节锚点比较。脚本以区域 render 与区域 splice 作为强制正确性的生成器 CLI（命令行界面）暴露；它不携带 JavaScript 生成器 API。
-- **数据与行文。** 术语保持其默认值与表格格式；只有路径可由采用者声明。文风是一份可替换的 references/style-examples.md，承载默认指南与精选的上游英译中样例；项目声明的文风文件整体替换它，不可让步的优先级位于 translation-rules.md。出处只存在于通知中。
-- **移除。** 自动流水线的 translation-prompt.md 保持不搬运：它是供机器消费的提示词资产，用于固定的英中整篇文档生成，上游技能明确说明使用该技能的 agent 不渲染它。委派由 SKILL 与简报承载。
-- **迁移。** 既有配对一次性重记录为聚合格式；归档、冻结与 vendored 的目录树只是不被选中。不存在 v1 记录的兼容层，因为没有任何东西落地。
-
-**取代。** R51–R70 取代上文中仍读作现行内容的 v1 小节。v1 的目标形态、配对模型、配对选择、脚本接口、泛化行、R13/R17/R19/R22/R25/R27/R28/R28a/R28b/R32/R34/R35/R38/R39/R41/R43/R44/R49 以及 V2/V19/V26/V27 都成为历史；V29–V38 是 v2 的证据。继续沿用的现行规则是 R36/R47（生成源）、R40（autolink）、R45（记录正文相等）、R46（标签派生）、R50（已执行证据）以及 R51–R70。V15 的清理后行数为 95。
-
-**精化 1。** v2 停步之后，用户批准了两项改动：扁平记录现在存储与源绑定的目标签名 H(sourceHash || targetContentHash)，取代按目标的源哈希块，因此源文件的变化会使每份目标签名失效，而无需嵌套；文风是一份可替换的 references/style-examples.md（指南加样例），其机制优先级位于 translation-rules.md，出处只在通知中。R54/R58 与 V30/V34 承载修订后的规则。
-
-### 交付形态
-
-| 部分 | 目标落点 | 内容 |
-|---|---|---|
-| 技能入口 | 工作目录 `.agents/dsh-spec-skill-forge/dsh-spec-translate-docs/SKILL.md` | `## Invocation boundary`、`## What this skill is`、`## The project's declaration`（包含 pair-or-exclude 规则）、`## The pairing model`、`## Triage by change type`、`## The update path`、`## The whole-document path` 及其 `### Translate`、`## Find the work`、`## Finish the pair`、`## Responding to review`、`## Stop and hand over` |
-| 配对约定 | `references/pairing-contract.md` | 配对文件集与命名、多语言模型、配对选择、记录格式与规范正文、切换行规则与结构定位、范围／排除与 pair-or-exclude 维护规则、链接谓词、默认发现排除项、生成区域语法与比较、`--generated`、术语与文风样例数据路径、脚本动词、旗标、退出码与失败模式、检查裁决什么而评审拥有什么 |
-| 翻译规则 | `references/translation-rules.md` | 忠实性、结构保持、生成区域归属、术语纪律、行文与语域、目标语言排版委托给项目、待定术语、质量标准，以及项目的自有声明拥有文风这一规则 |
-| 文风样例约定 | `references/style-samples.md` | 什么是文风样例、其默认数据路径（`.agents/dsh-spec-translate-docs/style-samples.md`，或按目标的 `style-samples.<lang>.md`）、低于术语／忠实性／结构而高于描述性行文指南的优先级、维护方式与语言中立的校准原则；不复制任何 dsh 样本文本 |
-| 脚本 | `scripts/translate-pair.mjs` | 从 `package/dsh-spec-translate-docs/` 构建的一份自包含打包产物；动词 `list`、`check`、`write`、`brief`（带 `--apply`）、`init`；共享选项包含 `--generated <glob>` |
-| 脚本源 | `package/dsh-spec-translate-docs/` | 已移植并泛化的 TypeScript 模块、`package.json`（解析器版本已 pin）、`pnpm-lock.yaml`、`vite.config.ts`、`build.ts` |
-| 测试 | `tests/translation-docs.test.ts` 与 `tests/README.md` 中的一行 | 该机制的用例，改编自上游 spec，针对构建后的打包产物离线运行 |
-| 落地移交 | 本笔记的 Handoff 小节；已交付 SKILL.md 的停步小节保持采用者通用 | 从 `SKILL.md` 移除源侧评审草稿切换行，验证清理后的副本通过门禁，然后发布（移除 `SKILL.zh.md` 与 `SKILL.i18n.yaml`），再刷新安装副本；全部在人类授权之后进行 |
-| 许可面 | `license` frontmatter 字段 + 技能根 `THIRD_PARTY_NOTICES` | 上游文本、脚本与 spec 的出处、关系、修订、上游路径与 blob 哈希（包含 style-samples 原则）、上游 MIT 通知、随附 npm 包通知；解析出的打包产物的解析器闭包与共享根 `THIRD_PARTY_NOTICES.md` 有七行差异（一个包缺失，六个版本不同），更新该共享表是记录在案的移交项 |
-| 锻造记录 | `.agents/dsh-spec-agent-notes/implemented/process/2026-10-28-forging-dsh-spec-translate-docs.md` | 本笔记：设计、裁决、处置、证据、评审 |
-| 评审草稿 | 仅在停步时：`SKILL.zh.md` + `SKILL.i18n.yaml` | 中文评审草稿及其一致性记录，由技能自己的脚本产出并检查 |
-
-分支 `forge/dsh-spec-translate-docs` 位于独立 worktree `/home/dreamstar/ideaProjects/dsh-spec-translate-docs`，基于 `refactor/dsh-skills` 的 `806fd84`（v1 修订将它从 `ba6e3d7` rebase 而来）。本次重新设计把该分支重置到原始基线；只有本笔记在重置中幸存。没有任何发布、刷新、合并或推送；落地是人类评审的决定。
+- 交付语言是英文；评审语言是中文，由于评审语言与交付语言不同，description 追加中文触发语言。
+- 技能从 `skills/dsh-spec-translate-docs/` 与 `.agents/skills/` 下的安装镜像发布；术语表位于 `.agents/dsh-spec-translate-docs/terminology.md`；被取代的已安装 `dsh-translate-docs` 副本与旧 `scripts/dsh-spec-manager/` 引擎已移除（R70、R71）。
 
 ### 机制来源与出处
 
@@ -85,89 +50,42 @@ Status: implemented
 | `docs/i18n/README.md` | `7ed0a4bf7c36c6a2e927caf40f880b969ae95c04` | 69 | 改编：`references/pairing-contract.md` |
 | `docs/i18n/translation-rules.md` | `f268a09cf02e1a079065441271ffb304eb81d3ee` | 69 | 改编：`references/translation-rules.md` |
 | `docs/i18n/terminology.md` | `5971f886009f9b3c3da21b4b5237ecf8d6e4d744` | 215 | 改编为表格形状与默认数据路径；不搬运任何 dsh 术语 |
-| `docs/i18n/style-samples.md` | `b177b105233f9844abed5ce00a69f7fecdfe6210` | 87 | 改编：语言中立的校准原则被提炼进 `references/style-samples.md`；样本文本属于采用者，不被复制 |
+| `docs/i18n/style-samples.md` | `b177b105233f9844abed5ce00a69f7fecdfe6210` | 87 | 改编：语言中立的校准原则被提炼进 `references/style-examples.md`；样本文本属于采用者，不被复制 |
 | `docs/i18n/translation-prompt.md` | — | 263 | 消解：该流水线提示词是采用者的流水线资产 |
 | `scripts/translation-pairing.manifest.json` | `f9bb1549a2395e139e66d2f7e51f1c5df482c97e` | 13 | 消解：范围与排除项作为旗标从采用者的声明传入 |
 
 本仓库的 `scripts/dsh-spec-manager/` 翻译引擎**不是**本次锻造的来源。它是已落地技能本应取代的历史移植；实现只读取上游，且技能文本、脚本或测试都不点名它。
 
-许可：上游与本仓库均为 MIT。技能在其 `THIRD_PARTY_NOTICES` 中陈述关系与来源，按包的约定写在加载指令之外。打包产物的解析器包 pin 到上游锁文件所命名的版本（`mdast-util-from-markdown` 2.0.3、`mdast-util-gfm` 3.1.0、`micromark-extension-gfm` 3.0.0 及其运行时闭包）。解析出的打包产物的解析器闭包与共享根 `THIRD_PARTY_NOTICES.md` 存在差异：该表缺少 `micromark-util-edit-map@1.0.0`，且有六行携带较旧的版本（`micromark-factory-space` 2.0.1 对 2.1.0、`micromark` 4.0.2 对 4.0.3、`micromark-core-commonmark` 2.0.3 对 2.0.4、`unist-util-visit-parents` 6.0.2 对 6.1.0、`mdast-util-find-and-replace` 3.0.2 对 3.0.4、`mdast-util-gfm-strikethrough` 2.0.0 对 2.0.1）。更新该共享表是落地的移交项；技能根 `THIRD_PARTY_NOTICES` 记录确切的打包版本。技能根 `THIRD_PARTY_NOTICES` 列出被改编的上游文件与打包产物包含的 npm 包。
-
-### 配对模型
-
-- **一个配对是三个同级文件。** 源文档 `foo.md`（v1 中源语言是英文）；它的对侧文件 `foo.zh.md`（默认目标语言）或 `foo.<lang>.md`（另一个声明目标）；一致性记录 `foo.i18n.yaml`（默认目标）或 `foo.<lang>.i18n.yaml`（另一个目标）。配对整体合并：两侧与记录。
-- **记录以小节为键。** 每个仍携带语言相关内容的小节路径一条条目。键是小节的源标题 slug 路径（第一个标题之前的文本用 `/`；重复路径得到 `~2`、`~3`，……）；条目保存该小节中源文件与对侧文件的块的哈希，不含围栏代码块与生成区域（R28/R28a），后者已由约定要求逐字节一致。仅仅恰好相同的内容仍然会被哈希，因此仅代码或仅区域的改动不会触碰记录，而不同小节的独立编辑会改动不同的行。配对文档的链接目标在哈希之前归一化到其语义目标，因此仅 locale 的链接改写不会使记录失效；归一化谓词定义如下。规范记录注释点名 `references/pairing-contract.md` 与技能自己的 `write` 命令；注释行是检查忽略的出处（R30/R45），而从另一种机制迁移来的记录会重新记录一次，因为它带链接的哈希是用不同的哨兵计算的（R13/R34），不是因为注释。
-- **语言切换行。** 切换行是 H1 与下一个标题之间唯一一个标签／链接结构匹配规范行的顶层段落；`Status:` 之类的元数据段落可以位于它之前，且只有该段落的链接不受结构签名与 locale 检查约束。源侧读作 `English | [中文](foo.zh.md) | [日本語](foo.ja.md)`，按语言代码顺序列出每个既有对侧文件；对侧文件读作 `[English](foo.md) | 中文`。链接目标是相对对侧路径或一个 pathname 以它结尾的绝对 URL，而用 `--generated` 声明的生成源只豁免它自己一侧的切换行，对侧文件仍然要回链。
-- **语言模型。** v1 中源语言是英文（没有源语言选项；非英文源文件等待声明的模型）。目标以 `--target <lang>=<display>` 声明，可重复；`zh=中文` 是本包自有双语语料记录在案的默认值，采用者的声明提供真正的列表。一份文档可以携带多个对侧文件；每个对侧文件是自己的配对，每个配对单独记录。声明的目标后缀标识对侧文件，既有配对还会从其产物——带记录的对侧文件——被识别，因此配对已存在的文件即使声明没有点名其目标也会被维护，语言代码在声明点名它之前充当显示名称。不匹配任何声明后缀或既有配对后缀的 `.md` 是源文档；源文件不得用目标后缀语法命名——若用，它就是对侧文件，因此重命名源文件（声明目标是一份文档开始配对的方式，不是它保持为源文件的方式）。`zh=中文` 只在没有传入 `--target` 时是包的默认值；传入目标会替换它。
-- **范围与排除。** 采用者的声明说明哪些文档必须配对、配到哪些目标；agent 以可重复的 `--scope <glob>` 与 `--exclude <glob>` 旗标传入该范围。*已识别目标*是声明的目标、默认目标，或既有配对的目标。带范围时，完整性意味着每个范围内源文件都为每个声明目标有配对；范围内未配对的源文件是缺失配对，修法是配对它或把它加入声明的 `--exclude` 列表；配对建立后该排除项即被移除。没有范围时，各动词只触碰既有配对。被排除的源文件必须既没有对侧文件也没有记录；在被排除路径上发现配对产物即违规。对空语料的检查会失败，而不是静默通过。不存在持久化的清单，也不存在项目配置文件。
-- **链接谓词。** 一份文档属于配对语料，当且仅当所提供的范围与排除项这样说明；没有范围时，一份文档已经拥有至少一个已识别目标的对侧文件或记录，就属于配对语料。记录归一化与 locale 检查使用同一个谓词。项目的配对源文件与对侧文件在项目声明范围时必须通过同一组范围旗标，因此该谓词——以及记录归一化——在写入时与检查时相同。新增或移除配对会改变指向它的文档的谓词；约定要求在同一个变更中重新记录受影响的配对，检查会报告它们失去同步直至完成。
-- **预期 locale。** 指向属于配对语料目标的相对文档链接保持其语义目标：源侧链接到基础文档，语言 L 的对侧文件链接到该文档的 L 对侧文件。语料之外的目标保留撰写时的路径。切换行链接被豁免。
-- **术语。** 表是项目数据，每个目标语言一份文件：默认目标用 `.agents/dsh-spec-translate-docs/terminology.md`（`zh`），另一目标用 `.agents/dsh-spec-translate-docs/terminology.<lang>.md`，可用 `--terminology <lang>=<path>` 覆盖。一张或多张 Markdown 表；按列位置：1 源术语（英文）、2 目标译法、3 首次出现形式、4 禁用的译法、5 备注。`init` 在文件缺失时为单一目标写模板，且从不覆盖已有文件。简报引用变更触及的行；译者应用它们；约定拥有待定术语协议。
-- **Git 与运行时。** `brief` 动词需要 Git，因为它从产生记录状态的提交中恢复上次确认的文本；`list`、`check`、`write` 与 `init` 只读取工作树。运行时是 Node 22.19+ 或 24+；不安装任何东西，也不访问网络。
-- **检查裁决什么而评审拥有什么。** 检查裁决完整性、记录状态、切换行存在与规范结构、结构签名、生成区域相等性、被排除文件规则、生成源豁免与链接 locale。评审拥有翻译质量、术语决定、列表与表格顺序、非常规编号、行内代码、强调、含义与语气。
-
-### 配对选择与多目标任务流
-
-| 参数形式 | 选中的配对 |
-|---|---|
-| `foo.zh.md` 或 `foo.i18n.yaml` | `zh` 配对 |
-| `foo.<lang>.md` 或 `foo.<lang>.i18n.yaml` | 该已识别目标的配对 |
-| `foo.md` 或 `foo` | 该源文件每个已识别目标的配对；多个 `--target` 值选择多个配对 |
-| 不带配对参数（`brief`） | 每个已识别目标的每个既有配对 |
-
-点名的配对不需要 `--scope`：正因如此，技能自己停步时的评审草稿，以及声明语料之外的单个配对工作，才能被记录与检查。
-
-- 变更的撰写侧是其配对的更新源（两侧具有同等权威）：源文件编辑对该配对走源到目标路径，而对侧文件编辑先走目标到源路径并更新源文件。
-- 源文件一经改变，该源文件在其他每个声明目标上的配对都在同一个变更中维护：既有配对会被更新并重新记录，而声明范围内、配对尚不存在的源文件会经整篇文档路径翻译并记录——这就是声明下的日常维护。
-- 不触及源文件的纯翻译修正只在配对内处理：它可以更新对侧文件并重新记录该配对，而不触碰其他目标。约定将这一点陈述为唯一例外；在源文件中改变含义的修正不属于此列。
-- 带 `--scope` 的语料检查要求覆盖范围内每个源文件 × 每个声明目标。
-
-### 脚本接口
-
-`node <skill-dir>/scripts/translate-pair.mjs <verb> [options] [pairs...]`；从项目根目录运行，`--root <dir>` 覆盖它。
-
-| 动词 | 行为与退出 |
-|---|---|
-| `list [--scope …]… [--exclude …]… [--generated …]…` | 报告既有配对，或带范围时报告范围内每个源文件 × 声明目标，状态为 `ok`、`out-of-sync`、`missing` 或 `unrecognized`；区域不匹配或配对状态失败就是 `out-of-sync` 的含义；绝不因状态而失败，退出码 0 |
-| `check [pairs…] [--scope …]… [--exclude …]… [--generated …]…` | 校验完整配对：三个文件、记录正文与条目匹配、切换行、结构签名、生成区域比较、被排除文件规则、链接 locale。默认只检查点名的配对；范围会加上覆盖范围内每个源文件 × 声明目标的完整性。`0` 干净，`1` 违规或空语料，`2` 用法错误，或点名的参数没有指向磁盘上的任何配对 |
-| `write <pairs…> \| --all [--scope …]… [--exclude …]… [--generated …]…` | 重新计算并写入调用者确认过的配对的记录。`--all` 记录范围内每个完整配对，或没有范围时记录每个完整既有配对；它是不点名配对而记录的唯一方式。`0` 已写入（至少一个），`1` 无可记录，`2` 点名的配对不完整或用法错误 |
-| `brief [pairs…] [--apply] [--scope …]… [--exclude …]… [--generated …]…` | 为漂移的配对打印最小更新简报；不带配对参数时，它跨声明的目标发现每个漂移的既有配对。`0` 无可简报，`1` `--apply` 因计算出的拼接会破坏结构而被拒，`2` 点名的配对已一致、不完整、当前区域不一致的配对，或没有可恢复的上次确认提交；不带配对的运行以退出码 2 中止，并点名当前区域不一致的配对（半生成的配对是语料级重新生成错误，不是发现运行可以跳过的按配对的先决条件） |
-| `init [--target <lang>=<display>]` | 在缺失时从模板创建目标的术语文件；每次调用恰好一个目标（省略 = 默认；多于一个是用例错误）；`--generated`、`--scope`、`--exclude`、`--apply` 与 `--all` 被以退出码 2 拒绝；`0` 已创建或已存在（会打印是哪种），`2` 用法错误 |
-
-共享选项：`--target <lang>=<display>`（可重复；默认 `zh=中文`）、`--scope <glob>`、`--exclude <glob>`、`--terminology <lang>=<path>`（可重复；默认为上文）、`--generated <glob>`（仅语料动词）、`--root <dir>`、`--apply`（仅 brief）、`--all`（仅 write）。`init` 只接受 `--target`、`--root` 与 `--terminology`；语料动词接受 `--generated`。
-
-`--apply` 计算仅代码围栏的对侧文件，在写入任何内容之前校验结构签名，只在成功时写入；在并非仅代码围栏的变更上，它以退出码 2 结束且不写任何东西。目标的术语文件必须在翻译运行之前存在：更新路径与整篇文档路径会在缺失时为该目标运行 `init`，而 `brief` 在它存在之前以退出码 2 与 init 提示拒绝。
-
-`init` 写入的术语模板：一个标题、一段说明目标语言与列语义的短段落，以及一张空的五列表 `| English | <display> | First occurrence | Forbidden renderings | Note |` 及其分隔行 `|---|---|---|---|---|`。它只在文件缺失时写入。
+许可：上游与本仓库均为 MIT。技能在其 `THIRD_PARTY_NOTICES` 中陈述关系与来源，按包的约定写在加载指令之外。打包产物的解析器包 pin 到上游锁文件所命名的版本（`mdast-util-from-markdown` 2.0.3、`mdast-util-gfm` 3.1.0、`micromark-extension-gfm` 3.0.0 及其运行时闭包）。解析出的打包产物的解析器闭包登记在共享根 `THIRD_PARTY_NOTICES.md` 中；技能根 `THIRD_PARTY_NOTICES` 记录确切的打包版本，并列出被改编的上游文件与打包产物包含的 npm 包。
 
 ### 泛化与简化决定
 
 | 方面 | 上游 | 本技能 | 依据 |
 |---|---|---|---|
-| 源语言 | 英文，硬编码 | v1 中为英文；没有源语言选项 | 请求的默认值；非英文源文件需要声明的模型，记录为 v1 范围之外 |
+| 源语言 | 英文，硬编码 | 按配对：源文件的源语言记录在其记录各小节的源哈希行上，写入第一份记录时用 `--source-lang` 提供 | v2 的按文件语言模型；`en` 默认让常见情形保持廉价（R53） |
 | 目标语言 | 简体中文，硬编码 | 声明的 `--target <lang>=<display>`，可重复；默认 `zh=中文` | 采用者的语言；默认值保留抽取出的语料 |
 | 配对命名 | `.zh.md` + `.i18n.yaml` | 默认目标 `.zh.md`/`.i18n.yaml`（`zh`）；另一目标 `.<lang>.md`/`.<lang>.i18n.yaml` | 上游兼容加多语言配对 |
-| 配对选择 | 每个源文件一个配对 | 带目标后缀的路径选择一个配对，最长的记录后缀优先；源路径或裸词干选择该源文件已有的配对，`--target` 选择尚无产物的声明目标；点名的配对不需要范围 | 记录不得要求仓库从未有过的配对，非默认记录不得被默认后缀遮蔽，停步草稿与单配对维护保持可寻址 |
+| 配对选择 | 每个源文件一个配对 | 带目标后缀的路径选择一个配对，最长的记录后缀优先；源路径或裸词干选择该源文件已有的配对；点名的配对不需要选择旗标 | 记录不得要求仓库从未有过的配对，非默认记录不得被默认后缀遮蔽，单配对维护保持可寻址 |
 | 切换行校验 | 一个正则表达式接受了该配对的切换行 | 规范切换行按结构定位为 H1 小节中唯一一个标签与链接都匹配的顶层段落；位置自由（元数据可在前），文本／标签／顺序保持规范；只有该段落的链接被豁免；目标是相对对侧路径，或 pathname 后缀相同的绝对 URL | 固定的语言对泛化为声明的集合；版面位置不是语义，任意非切换行链接不能获得跨 locale 豁免 |
-| 范围发现 | 语料谓词 + 清单 | `--scope`/`--exclude` 旗标加记录在案的默认发现排除项；后缀不指向任何已识别目标的文件名是 `unrecognized` | 没有项目配置文件；agent 拥有声明事实；静默跳过会隐藏真实的语料文件 |
+| 发现 | 语料谓词 + 清单 | 仓库遍历加上记录在案的默认剪枝树；`--select`/`--skip` 收窄既有配对集；后缀不指向任何已识别目标的文件名是 `unrecognized` | 没有项目配置文件；静默跳过会隐藏真实的语料文件 |
 | 记录键 | `en`/`zh` | `en` 与目标语言代码 | 默认配对保持同样的 `en`/`zh` 键行 |
 | 记录注释 | `docs/i18n/README.md` + `pnpm run …` | `references/pairing-contract.md` + 技能的 `write` 命令，点名语言代码而不含显示名称 | 机制已交付；注释不含旗标，且对每次调用保持规范；迁移的记录重新记录一次（迁移成本已记录） |
-| 范围 | 语料谓词 + `manifest.json` | 来自采用者声明的 `--scope`/`--exclude` 旗标；除此之外是既有配对 | 没有项目配置文件；agent 拥有声明事实 |
-| 链接谓词 | 清单语料 | 提供范围时用范围，否则用存在性；归一化与 locale 检查共用它 | 无需清单的通用性；约定要求把同一范围传给 write 与 check |
+| 范围 | 语料谓词 + `manifest.json` | 采用者的声明陈述创建与更新；动词只触碰既有配对，`--select`/`--skip` 收窄它们 | 没有项目配置文件；声明是创建意图的唯一来源（R52） |
+| 链接谓词 | 清单语料 | 存在性：目标解析到其基准源，该源在有对侧文件或记录时属于语料；归一化与 locale 检查共用它（R61） | 无需清单的通用性 |
 | 多语言方向 | `en-to-zh`/`zh-to-en` | `source-to-target`/`target-to-source`，名称来自声明 | 标签名是语言中立的 |
 | 简报摘要 | 硬编码中英文排版 | 语言中立的规则摘要；目标排版委托给项目声明的文风 | 规则属于工作流；排版属于采用者 |
 | 术语匹配 | 英文／中文列，CJK 范围的目标匹配 | 按位置的列；ASCII 术语按词边界匹配，其他按子串匹配；仅当第 3 列非空时给出首次出现说明 | 表是项目数据；形状是按位置的 |
 | 术语文件 | 一份 `docs/i18n/terminology.md` | 每个目标语言一份文件，位于默认路径 | 表的译法列属于一个目标 |
-| 生成区域 | 标记协议；生成源不带切换行配对 | 技能自有标记格式的 v1 能力：区域在分节与签名之前被掩码，记录哈希中排除，在配对文档链接归一化后跨配对逐字节比较，单侧改动即违规；`--generated <glob>` 豁免源侧切换行 | 生成文档是真实的语料需求；旧标记／记录兼容性被明确放弃，因此格式是我们的 |
+| 生成区域 | 标记协议；生成源不带切换行配对 | 技能自有标记格式：区域在分节与签名之前被掩码，记录哈希中排除，在配对文档链接归一化后跨配对逐字节比较，单侧改动即违规；`--generated <glob>` 豁免源侧切换行 | 生成文档是真实的语料需求；旧标记／记录兼容性被明确放弃，因此格式是我们的 |
 | `--cached` 索引平面 | 支持 | 消解 | 技能的工作流检查工作树；hook 不在范围内 |
 | 公开仓库切换行 URL、生成源切换行豁免 | 支持 | 切换行目标可以是相对对侧路径，或 pathname 以它结尾的绝对 URL；`--generated <glob>` 声明生成器拥有的源文件，其源侧切换行被豁免而对侧回链仍然必需 | 两者都是通用的发布／生成事实，不是 dsh 语料常量 |
-| 文风样例、流水线提示词 | `docs/i18n` 下的文件 | 文风样例成为随附约定与第三份参考（原则与默认数据路径，不含样本文本）；流水线提示词保持消解 | 校准原则可迁移；样本文本与流水线模板是项目资产 |
+| 文风样例、流水线提示词 | `docs/i18n` 下的文件 | 文风是一份可替换的 `references/style-examples.md`，携带默认指导与选出的样例，项目声明风格整份替换它（R58）；流水线提示词保持消解 | 校准原则可迁移；样本文本与流水线模板是项目资产 |
 | 命令 | 两个 `pnpm run` 脚本 | 一个随附 CLI 加动词 | 一个自包含产物，一个命令面 |
-| 文档类别 | Markdown | v1 中为 Markdown | 结构模型与小节记录是 Markdown 概念 |
+| 文档类别 | Markdown | Markdown | 结构模型与小节记录是 Markdown 概念 |
 
 ### 自动维护与调用规则
 
-一条约束取代早先的两层路径：
+自动维护规则建立在一条约束上：
 
 - 既有配对作为任何触及任一侧的编辑的一部分被维护——带上对侧文件、重新记录它，并在同一个变更中检查该配对；
 - 采用者声明纳入范围的文档会作为日常维护为每个声明目标配对，走该配对需要的路径（已存在时走更新路径，不存在时走整篇文档路径）；
@@ -175,27 +93,6 @@ Status: implemented
 - 较重的单次工作——翻译声明未覆盖的文档，或声明未点名的语料——只在用户显式调用该技能或要求时运行。
 
 这就是「声明即授权」的读法：是声明，而非单独的调用，授权对其范围进行日常维护；显式调用支配范围之外的工作。
-
-### 设置
-
-| 设置 | 值 | 依据 |
-|---|---|---|
-| 技能名 | `dsh-spec-translate-docs` | 请求 |
-| 交付语言 | 英文 | 包约定 |
-| 评审语言 | 中文 | 请求的语言与包的双语实践 |
-| 附加触发语言 | 中文，追加到 description | 评审语言不同于交付语言 |
-| 候选 | `.agents/dsh-spec-skill-forge/dsh-spec-translate-docs/` | 锻造工作目录 |
-| 分支与 worktree | `forge/dsh-spec-translate-docs`，位于 `/home/dreamstar/ideaProjects/dsh-spec-translate-docs`，基于 `refactor/dsh-skills` 的 `806fd84`（为 v1 修订从 `ba6e3d7` rebase）；原始分支已为重新设计重置到基线 | 请求的基线；重新设计取代早先的设计及其产物 |
-| 上游来源 | 已 pin 的 `submodules/dsh`，位于 `1f81c047`，文件与 blob 见出处表 | 请求：仅上游 |
-| 脚本打包 | 用 `vp pack` 从 `package/dsh-spec-translate-docs/` 打进工作目录的 `scripts/`；一个入口、一个自包含 ESM 文件，目标 Node 22 | 仓库的打包约定；临时可行性证据记录了命令与输出 |
-| 运行时 | Node 22.19+ 或 24+；`brief` 动词需要 Git | 移植的机制；不安装，不访问网络 |
-| 源语言 | 第一份记录默认英文；按配对的源语言存储在记录中；`--source-lang` 一次性提供它 | v2 的按文件语言模型；默认值让常见情形保持廉价 |
-| 目标 | 声明的 `--target <lang>=<display>`，可重复；默认 `zh=中文` | 采用者的声明；包自己的双语默认值 |
-| 运行时默认值 | 默认目标 `zh=中文`；术语根 `.agents/dsh-spec-translate-docs/`；文风文件 `references/style-examples.md`；第一份记录的源语言 `en`；空选择对 check/brief 退出 2，对 write --all 退出 1，对 list 退出 0 | 约定在各自的选项／数据归属处拥有每个默认值 |
-| 评审草稿 | 仅在停步时：`SKILL.zh.md` + `SKILL.i18n.yaml`，由技能自己的脚本记录并检查 | 请求：停步前配对，而不是过程中配对 |
-| 评审轮次 | 实现前设计审计；按里程碑实现；独立评审；停步配对；每一轮都提交，无一落地 | 请求的工作方式 |
-| 落地 | 已落地到 `refactor/dsh-skills`：发布到 `skills/dsh-spec-translate-docs/`，镜像进 `.agents/skills/`，迁移 36 个配对，把术语移到其默认根；没有推送 | 仓库维护者的落地授权 |
-| 回滚点 | 分支 tip；工作目录可删除 | VCS 就是回滚 |
 
 ### 来源约束与处置（上游 SKILL.md，74 行）
 
@@ -206,7 +103,7 @@ Status: implemented
 | S3 | L4–L5 | `disable-model-invocation`、`user-invocable` | 消解 | 仅在正文中的调用边界 | 这些字段不在 Agent Skills 的封闭集合中，是 Claude Code 的扩展，在 dsh 与 Codex 中通过 `metadata` 无效，而禁用模型调用与自动维护相矛盾 |
 | S4 | L8 | 标题 `Translating DeepSeek-Harness docs` | 改编 | `# Translating paired documents` | 采用者中立的领域 |
 | S5 | L12 | 只在用户显式按名调用时运行扩展工作流 | 重绑 | `## Invocation boundary`：声明授权对其范围进行日常维护；显式调用支配范围之外的工作 | 用户的裁决；一个自动维护声明范围的技能 |
-| S6 | L12 | 绝不因普通文档工作、其他技能或推断出的需要而加载；日常翻译遵循 `docs/AGENTS.md` 中的一次性规则 | 重绑 | `## Invocation boundary` 与自动维护规则 | 技能现在拥有日常维护；采用者的文档不再需要承担它 |
+| S6 | L12 | 绝不因普通文档工作、其他技能或推断出的需要而加载；日常翻译遵循 `docs/AGENTS.md` 中的一次性规则 | 重绑 | `## Invocation boundary` 与自动维护规则 | 用户裁定；技能拥有日常维护，采用者的文档不需要承担它 |
 | S7 | L16 | 是指南，不是记忆；`foo.md ↔ foo.zh.md`；两侧同等权威；撰写侧是更新的源；措辞归译者，术语不归 | 改编 | `## What this skill is` | 配对变为声明的配对模型；术语仍归项目 |
 | S8 | L18 | 变更类型决定 | 保留 | `## Triage by change type` | 上游机制 |
 | S9 | L20 | 更新是廉价的：不读指南语料、不重读整篇文档、不做历史考据、只做最小编辑；绝不为应用一次更新而重译 | 保留 | `## Triage by change type` 与 `## The update path` | 上游机制 |
@@ -291,7 +188,7 @@ Status: implemented
 | R36 | `--generated <glob>` 是可重复的仓库相对 glob，由与范围相同的遍历／匹配器匹配源路径，标识生成器拥有的源文档。它唯一的效果是豁免源侧切换行；对侧回链、配对完整性、记录与区域规则不变。没有它时，缺失源侧切换行就是普通违规。匹配不到任何东西的 glob 不是错误；无效模式是用例错误，退出码 2。该旗标被 `check`、`list`、`write` 与 `brief`（语料动词）接受，被 `init` 拒绝；简报打印的每条命令都会重复它，它是项目传入的声明旗标的一部分。 | 生成源无法在不使生成器陈旧的情况下携带稳定切换行，而采用者的声明拥有哪些源文件是生成的 |
 | R37 | 生成区域与记录只通过掩码互动：重新生成的区域既不改变记录也不改变小节键，即使其中含标题；单侧改动使区域比较失败；只有区域之外的散文变化时才重新记录。 | 两个机制不得互相打架：记录确认已翻译的散文，区域比较确认生成的字节 |
 | R38 | 声明项目中的全语料命令（`list`、`check`、`write --all`、不带配对的 `brief`）传入声明旗标；点名配对命令保留 R17 的无范围例外。「语料之外」（范围允许清单：外来树、归档笔记、数据目录）意味着产物被允许且从不检查；「被排除」意味着产物不得存在。因为脚本无法读取声明（R7），裸命令禁令是由约定的范围与排除小节及正文 `## The project's declaration` 承载的正文／约定规则，而不是 CLI 规则。 | 子模块默认移除后的裸 `write --all` 会重写已 pin 的基线与冻结归档；声明是语料事实唯一所在之处 |
-| R39 | 本仓库的采用者声明（根 `AGENTS.md`，一次落地动作）陈述与迁移命令相同的范围 glob：`README.md`、`.agents/dsh-spec-agent-notes/implemented/**/*.md`、`.agents/dsh-spec-agent-notes/proposed/**/*.md`、`.agents/dsh-spec-agent-notes/rejected/**/*.md`；`--target zh=中文`；`--terminology zh=docs/terminology.md`；且没有 `submodules` 排除，因为已 pin 的子模块与归档笔记在范围允许清单之外。活跃目录含有未配对源文件，因此声明也显式排除它们，且没有产物会违反排除规则：`.agents/dsh-spec-agent-notes/implemented/process/2026-10-28-forging-dsh-spec-error-handling.md`、`.agents/dsh-spec-agent-notes/implemented/process/2026-10-28-forging-dsh-spec-merging-stacked-prs.md` 与 `.agents/dsh-spec-agent-notes/**/2026-10-28-forging-dsh-spec-translate-docs.md`（该 glob 在笔记从 proposed 移到 implemented 后仍有效）。维护规则：获得配对的笔记去掉其排除项；声明的目录中新增的未配对笔记要么配对，要么排除。迁移命令是：`write --all --scope README.md --scope '.agents/dsh-spec-agent-notes/implemented/**/*.md' --scope '.agents/dsh-spec-agent-notes/proposed/**/*.md' --scope '.agents/dsh-spec-agent-notes/rejected/**/*.md' --target zh=中文 --terminology zh=docs/terminology.md --exclude '.agents/dsh-spec-agent-notes/implemented/process/2026-10-28-forging-dsh-spec-error-handling.md' --exclude '.agents/dsh-spec-agent-notes/implemented/process/2026-10-28-forging-dsh-spec-merging-stacked-prs.md' --exclude '.agents/dsh-spec-agent-notes/**/2026-10-28-forging-dsh-spec-translate-docs.md'`，随后用同一选择运行 `check`；移交逐字复制它。分支 worktree 的 dry run 证明 36 配对重记录、归档／外来树不变量以及无排除时的缺失配对失败；已填充子模块的那一半属于落地后主检出的运行，因为本分支的 worktree 子模块未初始化，移交会说明这一点。 | 声明是采用者语料事实唯一所在之处，范围必须在完整性下闭合，而证据必须点名它实际检验了什么 |
+| R39 | 语料事实住在采用者声明里；落地时，根 `AGENTS.md` 陈述了迁移命令所用的同一组范围 glob：`README.md`、`.agents/dsh-spec-agent-notes/implemented/**/*.md`、`.agents/dsh-spec-agent-notes/proposed/**/*.md`、`.agents/dsh-spec-agent-notes/rejected/**/*.md`；`--target zh=中文`；`--terminology zh=docs/terminology.md`；且没有 `submodules` 排除，因为已 pin 的子模块与归档笔记在范围允许清单之外。活跃目录含有未配对源文件，因此声明也显式排除它们，且没有产物会违反排除规则：`.agents/dsh-spec-agent-notes/implemented/process/2026-10-28-forging-dsh-spec-error-handling.md`、`.agents/dsh-spec-agent-notes/implemented/process/2026-10-28-forging-dsh-spec-merging-stacked-prs.md` 与 `.agents/dsh-spec-agent-notes/**/2026-10-28-forging-dsh-spec-translate-docs.md`（该 glob 在笔记从 proposed 移到 implemented 后仍有效）。维护规则：获得配对的笔记去掉其排除项；声明的目录中新增的未配对笔记要么配对，要么排除。迁移命令是：`write --all --scope README.md --scope '.agents/dsh-spec-agent-notes/implemented/**/*.md' --scope '.agents/dsh-spec-agent-notes/proposed/**/*.md' --scope '.agents/dsh-spec-agent-notes/rejected/**/*.md' --target zh=中文 --terminology zh=docs/terminology.md --exclude '.agents/dsh-spec-agent-notes/implemented/process/2026-10-28-forging-dsh-spec-error-handling.md' --exclude '.agents/dsh-spec-agent-notes/implemented/process/2026-10-28-forging-dsh-spec-merging-stacked-prs.md' --exclude '.agents/dsh-spec-agent-notes/**/2026-10-28-forging-dsh-spec-translate-docs.md'`，随后用同一选择运行 `check`；移交逐字复制它。分支 worktree 的 dry run 证明 36 配对重记录、归档／外来树不变量以及无排除时的缺失配对失败；已填充子模块的那一半属于落地后主检出的运行，因为本分支的 worktree 子模块未初始化，移交会说明这一点。 | 声明是采用者语料事实唯一所在之处，范围必须在完整性下闭合，而证据必须点名它实际检验了什么 |
 | R40 | 记录解析与切换行匹配变得对 autolink 安全：没有 `[label]` 目标（例如 `<https://…>`）的链接节点必须在外观／绝对检查之后惰性解析，而不是崩溃；检验这一点的既有语料配对是一个测试用例。 | 修订的绿色迁移声明要求已接受的核心读取真实语料 |
 | R41 | 文风样例与术语数据是项目数据，不是语料文档：默认数据目录按 R32 在配对语料之外，从不配对，其缺失不是错误。自定义术语路径通过既有的 `--terminology` 覆盖传入；自定义文风样例路径以正文声明并由 agent 读取（脚本从不读取它）。恰好落在声明范围内的自定义数据路径必须加入声明的 `--exclude` 列表；由于该文件不携带配对产物，排除产物规则得到满足。 | 项目数据只有一个归属，且任何语料发现都不得要求它配对 |
 | R42 | 校验锚点随修订扩展（V20–V28）：区域语法／漂移／简报、切换定位器、记录正文／头、生成源与公开 URL、默认值／显示名／description、迁移 dry run、隐藏目录发现与区域／生成源集成。V2/V19 候选相应扩展。 | 修订需要与核心相同的机械证据 |
@@ -327,23 +224,16 @@ Status: implemented
 
 | # | 要求 | 锚点 | 证据或结论 |
 |---|---|---|---|
-| V1 | 设计在实现前被单独审计并接受；机制归属变化会重新审计 | 判断 | 评审日志中的设计审计裁定 |
-| V2 | 脚本按约定所述行事：记录计算／解析／渲染／规范正文；规范切换行按结构定位（正确、位于元数据之后、缺失、标签错误、多余链接、重复、行内代码引用、多目标列举、绝对 URL 后缀）；结构签名；链接 locale；范围、排除、生成 glob 与空语料；默认剪枝树对采用者排除（默认树下的完整配对被忽略；`--exclude` 目录下的完整配对使 `check` 以退出码 1 与排除产物消息结束；嵌套的 `packages/x/node_modules` 与嵌套的 `.agents/skills` 被剪枝）；隐藏目录遍历；被排除产物；声明范围时目标识别按范围过滤；配对选择；多目标完整性与批量记录的规范注释稳定性；list/check/write；简报粒度、目标到源、两侧同时改动、术语行与覆盖；机械化 `--apply`；`init`；按配对限定的简报命令按打印内容执行；只确认自己配对的简报命令；携带其上下文的按范围简报命令；带与不带声明旗标的按更新检查；非默认记录路径；纯翻译修正；无显示旗标的重记录稳定性；畸形／不配对区域、带标题的区域不透明度、单侧漂移、仅区域的简报、`--apply` 区域守卫（防御性，不计入）；生成源通过／失败与命令重复；manager 注释／重排的记录正文；autolink 解析；默认清单内容；裸非默认目标；以及除两个防御守卫（全有或全无拼接与区域交集）之外的每个文档化失败退出 | 机械 | `node --test tests/translation-docs.test.ts`（76 个用例），它以落地兜底在工作草稿路径定位打包产物，沿用 `tests/skill-spec.test.ts` 使用的模式 |
-| V3 | 打包产物自包含且在 Node 22.19+ 上运行 | 机械 | `pnpm run skill:build dsh-spec-translate-docs` 构建一个 ESM 文件；测试在不安装、不访问网络的情况下执行它；可行性证据小节记录临时命令与输出 |
-| V4 | 技能符合 Agent Skills 规范 | 机械 | `node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs .agents/dsh-spec-skill-forge/dsh-spec-translate-docs` 以退出码 0 结束，每行都是 `ok` 且 0 失败；修订运行报告 15 项检查、0 失败、97 行正文、约 3426 个 token 与一个 488 字符的 description，含三份参考。 |
+| V2 | 脚本按约定所述行事：记录计算／解析／渲染／规范正文；规范切换行按结构定位（正确、位于元数据之后、缺失、标签错误、多余链接、重复、行内代码引用、多目标列举、绝对 URL 后缀）；结构签名；链接 locale；选择旗标、生成 glob 与空语料；默认剪枝树对采用者跳过（默认树下的完整配对被忽略；隐藏目录遍历；声明选择时目标识别按选择过滤；配对选择；多目标选择与批量记录的规范注释稳定性；list/check/write；简报粒度、目标到源、两侧同时改动、术语行与覆盖；机械化 `--apply`；`init`；按配对限定的简报命令按打印内容执行；带与不带声明旗标的按更新检查；非默认记录路径；纯翻译修正；无显示旗标的重记录稳定性；畸形／不配对区域、带标题的区域不透明度、单侧漂移、仅区域的简报、`--apply` 区域守卫（防御性，不计入）；生成源通过／失败与命令重复；manager 注释／重排的记录正文；autolink 解析；默认清单内容；裸非默认目标；以及除两个防御守卫（全有或全无拼接与区域交集）之外的每个文档化失败退出 | 机械 | `node --test tests/translation-docs.test.ts`（76 个用例） |
+| V3 | 打包产物自包含且在 Node 22.19+ 上运行 | 机械 | `pnpm run skill:build dsh-spec-translate-docs` 构建一个 ESM 文件；测试在不安装、不访问网络的情况下执行它 |
+| V4 | 技能符合 Agent Skills 规范 | 机械 | `node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs skills/dsh-spec-translate-docs` 以退出码 0 结束，报告 15 项检查、0 失败、95 行正文、约 2892 个 token 与一个 556 字符的 description，含三份参考 |
 | V5 | 每份随附参考与脚本都在 SKILL.md 中被点名；链接可解析；正文在预算之内 | 机械 | 门禁的 `reference mentions`、`script coverage`、`links stay inside`、`links resolve`、`link depth` 与 `budget` 行 |
-| V6 | 许可与出处完整 | 判断加机械 | 门禁读取 `license` 字段；关于 `THIRD_PARTY_NOTICES` 的一项结论覆盖每个被改编的上游文本、脚本与 spec 文件以及随附 npm 包；根 vendored 表中七行不匹配或缺失是记录在案的移交项 |
+| V6 | 许可与出处完整 | 判断加机械 | 门禁读取 `license` 字段；关于 `THIRD_PARTY_NOTICES` 的一项结论覆盖每个被改编的上游文本、脚本与 spec 文件以及随附 npm 包；解析出的解析器闭包登记在共享根通知表中 |
 | V7 | 机制移植自上游，而非本仓库的 manager | 判断 | 关于模块与出处表映射、以及在技能、包与测试中扫描 `scripts/dsh-spec-manager` 的一项结论 |
 | V8 | 每个上游机制部分都被搬运或明确消解 | 判断 | 每个出处行与每个泛化行各一项结论，包括被消解的清单、索引平面与流水线提示词部分，以及被搬运的生成区域语法、区域比较、`--generated` 豁免与文风样例原则 |
 | V9 | 裁决得到实现：仅在正文中的调用、声明授权的维护、一个技能、目标声明、配对选择、按目标的术语与模板、无配置文件、停步自举 | 判断 | 每条裁决一项结论 |
-| V10 | 仓库套件保持绿色且格式化通过 | 机械 | `node --test 'tests/**/*.test.ts'` 与 `vp fmt --check` 输出；`tests/README.md` 增加新行 |
-| V11 | 停步的评审草稿由技能自己的脚本与锻造报告配对 | 机械，从项目根运行 | `node .agents/dsh-spec-skill-forge/dsh-spec-translate-docs/scripts/translate-pair.mjs write .agents/dsh-spec-skill-forge/dsh-spec-translate-docs/SKILL.md --target zh=中文 --root .`，随后同一命令以 `check` 运行，两者都退出 0 且检查打印一个配对一致；`node skills/dsh-spec-skill-forge/scripts/forge.mjs pair dsh-spec-translate-docs --companion .zh.md --companion .i18n.yaml` 报告两个伴随文件，0 失败。 |
-| V12 | 记录是一份符合规范的 proposed 笔记 | 机械 | `node skills/dsh-spec-agent-notes/scripts/notes.mjs check --root .agents/dsh-spec-agent-notes --companion .zh.md --companion .i18n.yaml` 以退出码 0 结束 |
-| V13 | 每个提交都带签署，且变更未落地 | 机械 | `node scripts/verify-dco.ts --base=refactor/dsh-skills`；`git status --porcelain -- skills .agents/skills` 与 `git diff --stat refactor/dsh-skills...HEAD -- skills .agents/skills` 为空；`git log --merges refactor/dsh-skills..HEAD` 为空；分支没有 upstream；没有运行 publish/refresh 命令 |
-| V14 | 独立评审接受产物 | 判断 | 评审日志中的评审裁定 |
-| V15 | 落地产物是干净的 | 机械 | 把工作目录复制到 `/tmp/landing-dry-run/dsh-spec-translate-docs`（basename 必须保持 `dsh-spec-translate-docs` 以通过门禁名称检查），移除源侧切换行与随之重复的空行（剩下 109 行），删除 `SKILL.zh.md` 与 `SKILL.i18n.yaml`，然后从项目根运行 `node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs /tmp/landing-dry-run/dsh-spec-translate-docs` → 每项检查 `ok` 且门禁的 `links resolve` 行显示没有移除任何东西 |
 | V16 | 工作流下的真实翻译质量 | 未验证 | 停步的评审草稿是首次运行；其质量属于人类评审 |
-| V17 | 中文之外的目标准行为 | 未验证 | v1 的测试覆盖 `zh` 与一个次要目标 fixture；其他语言共用代码路径但没有验收语料 |
+| V17 | 中文之外的目标准行为 | 未验证 | 当前测试覆盖 `zh` 与 `ja` fixture；其他语言共用代码路径但没有验收语料 |
 | V18 | 跨真实提示词的触发质量 | 未验证 | 此处没有 harness 也没有带标签的触发集；description 靠判断，边界由正文承载 |
 | V19 | CLI 失败模式、先决条件与空语料行为 | 机械 | V2 用例覆盖：点名没有文件点名的配对（2）；不完整的点名配对（write 为 2，check 为 1）；已一致的点名简报（2）；缺失的术语表（2，带 init 提示）；缺失上次确认提交（2，带提示，不打印原始 Git 错误）；对正文变更运行 `--apply`（2，不写任何内容）；在另一动词上使用 `--apply` 或 `--all`（2）；空范围（1）；文件已存在时的 `init`（0）；多于一个目标的 `init`（2）；空语料上的 `list`（0）；无法识别的范围内文件名（list 行、check 1、按范围 brief 2、write --all 2）；带范围旗标的按配对检查只报告其自身配对；生成 apply 与 write/check 命令携带不同于默认的 `--terminology` 覆盖与 `--root`，并按打印内容执行；批量写入保持规范注释稳定，随后一次无旗标重记录使它保持不变；不带显示名称的 `--target ja`（2）与 `init --target ja`（2）；无效的 `--generated` 模式（2）；带区域不匹配的点名简报（2，不写任何内容）；以及带区域不匹配的不带配对简报（2，点名配对） |
 | V20 | 冻结区域语法与不透明度 | 机械 | 畸形、嵌套 BEGIN、没有 BEGIN 的 END、slug 不匹配、未闭合区域与重复 slug 失败；围栏内的标记形状行是普通代码（包括区域内的围栏标记示例）；围栏之外、区域之内的标记形状行失败；紧邻段落行的标记失败，而文档边界处的标记通过；BEGIN 紧随区域内容、内容紧随 END 也通过；区域内的标题重新生成而不改变记录；`check` 为单侧漂移点名 slug |
@@ -362,44 +252,8 @@ Status: implemented
 | V33 | 区域外壳 A、锚点与 CLI | 机械 | BEGIN 尾注与上游风格 slug 可解析；空白／制表符畸形标记失败；围栏标记示例是普通代码；重复 slug、独立成块与未闭合规则失败；移动的区域使小节锚点失败，包括第一个标题之前的区域（锚点 0）；对齐的重新生成使记录不变；单侧区域使 check 与 brief 失败；region render 打印并拒绝标记形状的正文；region splice 恰好替换一个既有区域，校验整个文件，并在零个／多个匹配或无效正文时退出 2 |
 | V34 | description、文风文件与术语路径 | 机械 | 构建后的 description 点名 Markdown 与多种目标语言；style-examples.md 携带默认指南与样例；style-guide.md 已消失；translation-rules.md 拥有优先级；出处只在通知中；术语保持其默认值与路径覆盖 |
 | V35 | CLI 失败模式 | 机械 | write 不带配对或 --all 的用法错误；不完整的点名配对；畸形记录；空选择；未知选项／动词；无效 glob；裸非默认目标；在非 write 动词上使用 --source-lang；遗留旗标；--all 记录每个完整选中配对并丢弃退役目标 |
-| V36 | 全量回归与落地 | 机械 | 门禁 15/15（97 行工作草稿、约 2820 个 token；清理后落地 95 行、约 2892 个 token；556 字符 description，三份参考）；配对套件 46 个用例；全量套件 262；fmt；notes 38/76；落地 dry run 95 行；落地模拟 46/46；V11 配对一致 |
 | V37 | 按目标顺序写入 | 机械 | 源编辑后，编辑 zh 并写入 zh 使 ja 失败；编辑 ja 并写入 ja 使 zh 保持绿色且源哈希行不变；随后两个目标都检查为绿 |
 | V38 | 文风默认值的丰富度 | 机械 | style-examples.md 携带上游品质的校准点（误报／漏检、bilingual from birth、grandfathered、cookbook）以及新增的防御／测试／长段落样例组；translation-rules 仍是唯一的优先级归属；出处只在通知中 |
-
-### 可行性证据
-
-- **打包可行性。** `/tmp/pack-test` 的临时包声明了 `mdast-util-from-markdown@2.0.3`、`mdast-util-gfm@3.1.0` 与 `micromark-extension-gfm@3.0.0`；`pnpm install` 后 `vp pack` 产出一个 332.91 kB 的 `out/entry.mjs`（gzip 71.14 kB），`node out/entry.mjs` 打印 `tree children: 2 types: heading,table`。注册表安装与自包含打包对已 pin 的解析器栈有效。
-
-### 阅读的页面
-
-Agent Skills 页面，于 2026-10-28 在线阅读，全部可读；未使用锻造技能的离线回退：
-
-- `https://agentskills.io/llms.txt`
-- `https://agentskills.io/specification.md`
-- `https://agentskills.io/skill-creation/best-practices.md`
-- `https://agentskills.io/skill-creation/optimizing-descriptions.md`
-
-### 阅读的来源
-
-设计来源：
-
-- 出处表所列的上游技能、脚本、spec 与 `docs/i18n` 文件，读取自已 pin 的 `submodules/dsh` 的 `1f81c047`；
-- 采用者仓库中用于流程、而非用于技能设计的声明：`AGENTS.md`、`CONTRIBUTING.md`、`docs/AGENTS.md`、`.agents/dsh-spec/norms/norms.md`、`skills/dsh-spec-skill-forge/SKILL.md`、`skills/dsh-spec-agent-notes/SKILL.md` 及其约定、`package/README.md`、`package/dsh-spec-agent-notes/{package.json,vite.config.ts,build.ts}`、`scripts/build-skills.ts`、`tests/README.md`、`tests/helpers/*.ts`、`THIRD_PARTY_NOTICES.md`、`docs/templates/goal-brief.md`。
-
-未作为来源读取：本仓库的 `scripts/dsh-spec-manager/` 翻译引擎（被取代的遗留物）；该技能的旧安装副本；任何其他锻造记录或并行 worktree。本分支早先的锻造只为了运行那版设计的停步配对而读过 manager 的 CLI 参考与范围模块，那次阅读随该设计一起作废。
-
-### 评审顺序
-
-1. **设计。** 本记录；一次全新的独立设计审计；发现被折入；设计轮在实现之前提交。改变机制归属、状态或责任的发现会修改本记录并再次审计。
-2. **核心。** 移植 Markdown、配对、记录与链接模块，以及 `list`/`check`/`write` 动词；构建打包产物；编写核心测试；提交。
-3. **更新路径。** 移植简报、`--apply` 与 `init`；编写它们的测试；提交。
-4. **技能面。** 编写 `references/pairing-contract.md`、`references/translation-rules.md`、SKILL.md、`THIRD_PARTY_NOTICES` 与 `license` 字段；构建；运行门禁；提交；在同一轮中加入 `tests/README.md` 行。
-5. **评审。** 一次独立的产物评审；发现被折入；重审直至接受；提交。
-6. **停步。** 编写 `SKILL.zh.md`；加上两侧切换行；用技能自己的脚本记录并检查配对；运行落地 dry run（V15）；更新本记录的证据与评审日志；提交并等待人类评审。每一轮都提交，无一落地。
-
-## 落地
-
-技能已落地到 `skills/dsh-spec-translate-docs/`，并镜像到 `.agents/skills/dsh-spec-translate-docs/`。36 个活跃 README/Agent Note 配对已重记录并检查一致；术语表是 `.agents/dsh-spec-translate-docs/terminology.md`；`AGENTS.md` 承载双语配对声明，根通知点名被改编的技能。被取代的已安装 `dsh-translate-docs` 副本与遗留的 `scripts/dsh-spec-manager/` 引擎被移除。分支已并入 `refactor/dsh-skills`；没有推送。
 
 ## 考虑过的替代方案
 
@@ -423,26 +277,9 @@ Agent Skills 页面，于 2026-10-28 在线阅读，全部可读；未使用锻�
 
 **不写评审草稿就构建停步。** 它落败，因为请求要求停步前配对评审草稿，且人类评审中文草稿；该配对就是机制自己的证明。
 
-## 验证
-
-- 一次全新的独立设计审计接受 R51–R70 与 V29–V38；精化 1 的设计／产物评审（Review 12/13）、精化 2 的设计／产物评审（Review 14/15）与最终修剪评审（Review 16）在停步前完成。
-- 门禁只检查既有配对：聚合记录结构与按目标的哈希、切换行、结构签名、生成区域相等与小节锚点，以及链接 locale。它没有完整性规则，也没有排除产物规则；--select/--skip 过滤既有配对；空检查退出 2，空仓库上的 list 退出 0。
-- 每个源文件一份聚合 foo.i18n.yaml，扁平：每个目标一行源哈希行与一行目标签名行。write --target 更新源哈希与该目标签名；源编辑之后，其余签名仍绑定旧源并失败。write --all 刷新每个既有目标并丢弃退役目标；不存在按目标或嵌套的记录文件。
-- 源文件的源语言是每条记录小节源哈希行上的代码；不同文件可以使用不同源语言；--source-lang 提供第一份记录，在其他地方被拒绝；切换行源标签从对侧文件学习。
-- SKILL 携带带显式条件的轻量直接更新路径、简报路径与委派的整篇文档翻译；description 点名 Markdown 与多种声明目标语言。
-- 生成区域使用外壳 A，带围栏感知、独立成块与重复 slug 规则；掩码覆盖记录、小节键与签名；小节锚点捕获移动到另一撰写小节的区域；region render/splice 只写入有效区域并恰好替换一个既有区域。
-- references/style-examples.md 存在并携带默认指南加上游英译中样例；style-guide.md 已消失；项目声明的文风文件整体替换它；translation-rules.md 拥有优先级；出处只在通知中；文风文件在每次翻译前读取。
-- 术语保持其默认值、表格格式、init 与简报先决条件；只有路径可由采用者声明。
-- 门禁报告 15 项检查、0 失败；SKILL.md 点名脚本与三份参考，并保持在预算之内。
-- 仓库套件、格式化、notes 检查与 DCO 检查在 worktree 中通过；tests/README.md 描述 v2 文件。
-- 落地 dry run 通过：工作目录的副本去掉评审草稿与源侧切换行后，门禁为绿且不链接到任何被移除之物；落地模拟从 skills/ 运行配对套件。
-- 一次独立的产物评审接受该产物，无阻塞项、无重大问题。
-- 停步时，技能自己的 write 与 check 记录并校验聚合的 SKILL.i18n.yaml 与 SKILL.md 的一致性；锻造配对报告显示两个伴随文件；更早的提交不携带评审草稿。
-- skills/ 与 .agents/skills/ 仍与基线一致；分支没有 upstream，也没有合并；没有发布或刷新；本记录报告设计、裁决、出处、测试、评审结果与风险，并把落地决定留给人类。
-
 ## 后果
 
-- **门禁不再证明语料完整性。** 没有对侧文件的声明文档就不是配对；创建由声明、轻量路径与评审拥有。这是为按文件目标集与稳定门禁付出的明确代价。
+- **门禁不证明语料完整性。** 没有对侧文件的声明文档就不是配对；创建由声明、轻量路径与评审拥有。这是为按文件目标集与稳定门禁付出的明确代价。
 - **聚合记录每个目标一行目标签名。** 只为某个目标记录的源编辑会让其他签名绑定旧源并刻意失去同步；检查会捕获它，但工作流必须在同一个变更中更新每个既有目标。对同一源文件的并发编辑应串行。
 - **退役是批量操作。** 移除对侧文件需要移除其切换行链接，然后 write --all；点名的 write 从不丢弃目标。对侧文件已消失的条目在批量写入之前被报告为不完整。
 - **按文件的源语言依赖记录与对侧标签。** 不带 --source-lang 的第一份记录回退到 en；法文源文件必须提供该旗标一次。混合源语言按源文件创建，而不是由一次批量写入创建。
@@ -453,5 +290,5 @@ Agent Skills 页面，于 2026-10-28 在线阅读，全部可读；未使用锻�
 - **迁移是一次性的聚合重记录。** 选中的活跃语料被重记录一次；不存在 v1 记录兼容层，也没有按目标的记录读取器。归档、冻结与 vendored 目录树不被选中。
 - **项目声明是创建意图的唯一来源。** 脚本从不读取它；agent 传入 --select/--skip、目标、术语与生成 glob。忘记声明旗标的 CI 运行检查更少的配对，而不是错误的语料。
 - **隐藏与 vendored 目录树是采用者布局。** 遍历进入隐藏目录，只剪掉默认树；宽泛声明必须对冻结或 vendored 目录树使用 --skip。
-- **翻译质量不被机制验证。** 停步的评审草稿是工作流的首次运行；检查证明配对完整与一致，而不是行文读起来好。
-- **落地取代仓库当前的配对机制。** 声明与选中的重记录是人类评审之后的后续工作；本分支不修改 manager、安装副本、已 pin 的子模块或任何共享文件。
+- **翻译质量不被机制验证。** 检查证明配对一致，而不是行文读起来好；翻译质量属于人工评审。
+- **落地取代仓库当前的配对机制。** 声明与选中的重记录在人工评审之后完成；遗留 manager 引擎与被取代的安装副本已移除（R71）。

@@ -3,38 +3,44 @@
 # After editing either side, bring the other along and re-record with:
 #   node <skill-dir>/scripts/translate-pair.mjs write README.md --target <lang>
 /dsh-spec:
-  en: f665efe3686ac44d
-  zh: d5f7442a306c3bd2
+  en: 3d31a002368121df
+  zh: de3ce155b19d4fae
 /dsh-spec/prerequisites:
-  en: 925a568a5a1f494a
-  zh: f804b7c992ed382b
+  en: 65f3b66381c83445
+  zh: 4b932377d1086978
 /dsh-spec/install:
-  en: ccddd7e3b7b68417
-  zh: 812a2d9676523259
-/dsh-spec/install/install-by-hand:
-  en: 54e285f6820d1aac
-  zh: 9bac13c3ac22990a
+  en: 1d46a91a57606400
+  zh: 152b95374926cd16
 /dsh-spec/install/install-with-an-agent:
-  en: 70fb30e180f5b7ec
-  zh: 74a3daaabeff3152
-/dsh-spec/what-you-get:
-  en: 24d1100a4bc12efc
-  zh: da6b7270ed374b81
-/dsh-spec/the-skill:
-  en: 9813b4530e6d247d
-  zh: c20f4b1bbee6132e
-/dsh-spec/updating-the-skill-set:
-  en: 23bc9bd9b23c1dcb
-  zh: db0f948d0fe8739b
-/dsh-spec/working-in-a-project-that-has-it:
-  en: ec73ac5211a4b872
-  zh: 4ad5ca5e3be6c66d
+  en: a1c408ab71d6c4c3
+  zh: 427c555da5d08e4b
+/dsh-spec/the-skills:
+  en: 0c271388c599f354
+  zh: 15767d22804531e3
+/dsh-spec/the-skills/recording-decisions:
+  en: 97c4b9c42d2b3785
+  zh: 683d49fb05436744
+/dsh-spec/the-skills/shaping-instructions-and-text:
+  en: 9ebbc4a1c21ffd6e
+  zh: d64428643e877e51
+/dsh-spec/the-skills/reviewing-and-delivering-a-change:
+  en: 1495214e0eb77ea4
+  zh: 84f2e8013c320234
+/dsh-spec/the-skills/building-a-skill-set:
+  en: 8f972ea15ca920f3
+  zh: 8452d12a8f3d2926
+/dsh-spec/how-the-skills-fit-together:
+  en: 19ecbb32abe551d9
+  zh: a82abcde378eefc9
+/dsh-spec/working-in-a-project-that-has-them:
+  en: fb23f1e7852970a8
+  zh: 629ad7936864454b
 /dsh-spec/working-on-this-repository:
-  en: aba4c07ff643c918
-  zh: 94c0dc001a6bb757
+  en: 65a6d659827c346d
+  zh: 34f8fd8c243dd071
 /dsh-spec/read-next:
-  en: 1a35585bb48921e2
-  zh: cf73eeca953b880a
+  en: d390f1879140e6c2
+  zh: 511cfe33ef5d8550
 /dsh-spec/license:
-  en: 483760b9bb8b7642
-  zh: d6637e7e451ae556
+  en: e14f98700a78e1f1
+  zh: 82aa42878bf0dc50

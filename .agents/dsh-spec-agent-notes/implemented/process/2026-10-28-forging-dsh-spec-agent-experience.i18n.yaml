@@ -9,14 +9,11 @@
   en: 14b38adde0391f80
   zh: 7cf8615cdd32f2b4
 /agent-note-forging-dsh-spec-agent-experience-for-prompt-writing/decision:
-  en: 1cc9c004f413e158
-  zh: ae234cf1fc9b291a
+  en: 8ce1a4255a17bc5b
+  zh: 541d74d4e6520b11
 /agent-note-forging-dsh-spec-agent-experience-for-prompt-writing/decision/intent:
-  en: 03ee4049c3af024b
-  zh: 54b59dbe8a2a450f
-/agent-note-forging-dsh-spec-agent-experience-for-prompt-writing/decision/forging-settings:
-  en: 68979b4be9e762dd
-  zh: 968ff41ed17af3b1
+  en: a98184ab22196ace
+  zh: 5e1c8cc3c7d9426c
 /agent-note-forging-dsh-spec-agent-experience-for-prompt-writing/decision/source-constraints:
   en: 8454ea137c33a9e3
   zh: 5fe637e1c91e3032
@@ -29,27 +26,9 @@
 /agent-note-forging-dsh-spec-agent-experience-for-prompt-writing/decision/rulings:
   en: 29a23d6964f0869a
   zh: 6cd14e23c998c098
-/agent-note-forging-dsh-spec-agent-experience-for-prompt-writing/decision/provenance-research:
-  en: 5fe4b70834d6d2df
-  zh: 10871662e41fc857
-/agent-note-forging-dsh-spec-agent-experience-for-prompt-writing/decision/verification:
-  en: da690983af22b860
-  zh: 8c3602b7ce5b0cdc
-/agent-note-forging-dsh-spec-agent-experience-for-prompt-writing/decision/verification/verifying-the-gate-parameter:
-  en: 3fe1647ff4b6be57
-  zh: 9d4c8ff7015b2432
-/agent-note-forging-dsh-spec-agent-experience-for-prompt-writing/decision/reviews:
-  en: 505f7e99f24748b8
-  zh: b0c968f4c7159998
-/agent-note-forging-dsh-spec-agent-experience-for-prompt-writing/decision/pages-read:
-  en: c5ab607a00d298d2
-  zh: 791585642cedd38c
-/agent-note-forging-dsh-spec-agent-experience-for-prompt-writing/deferred:
-  en: 3c9b1ba00cb1e977
-  zh: 2013d0bb21fb52cc
 /agent-note-forging-dsh-spec-agent-experience-for-prompt-writing/alternatives-considered:
   en: 6fd76b62b79a32bb
   zh: 76235c641d64bbb7
 /agent-note-forging-dsh-spec-agent-experience-for-prompt-writing/consequences:
-  en: 63e77c2b892ab1c0
-  zh: d2b69ce329d00542
+  en: 7ffa1dcc74e594d4
+  zh: 45ff32ca3650941f

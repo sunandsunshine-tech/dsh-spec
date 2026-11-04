@@ -2,7 +2,7 @@
 
 The text of this skill is adapted from the DeepSeek Harness skill `dsh-find-simplifications` and generalised to finding simplifications in a software project.
 
-- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.1-rc.3` (`1f81c047fc48fa190a683e469daa699857e9afe8`).
+- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`).
 - Upstream paths:
   - `.agents/skills/dsh-find-simplifications/SKILL.md` — the procedure: scope and constraints, the discovery questions, reachability and trade-off proof, ownership and failure semantics, infrastructure replacement, and the record workflow.
   - `.agents/skills/dsh-find-simplifications/references/historical-patterns.md` — the seven calibration patterns.

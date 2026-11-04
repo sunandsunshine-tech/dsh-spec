@@ -2,7 +2,7 @@
 
 The text of this skill is adapted from the DeepSeek Harness skill `dsh-pre-push-checks`; its bundled report is ported from the upstream repository's `scripts/change-scope.ts`.
 
-- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.1-rc.3` (`1f81c047fc48fa190a683e469daa699857e9afe8`).
+- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`).
 - Upstream paths:
   - `.agents/skills/dsh-pre-push-checks/SKILL.md` — the source skill text.
   - `scripts/change-scope.ts` — the change-scope report, taken from upstream at `ddefc45fbc7f8e46dd73185e68295696d1297887`; the pinned baseline carries the same file content.

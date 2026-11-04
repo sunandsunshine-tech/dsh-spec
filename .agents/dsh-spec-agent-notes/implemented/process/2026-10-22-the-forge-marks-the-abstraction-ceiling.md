@@ -46,7 +46,7 @@ The floor is essential complexity plus human understanding and responsibility. T
 
 ### Two ways the ceiling can rise
 
-Two paths are documented in `docs/breaking-the-ceiling.md` and its figure. They are explanations, not proposals for new skills today.
+They are explanations, not proposals for new skills today.
 
 - Public convergence contracts: many people write their domains' object, artifact, acceptance, failure handling, provenance and composition interface as structured, executable, open knowledge, so anchors become public infrastructure.
 - AI convergence in open space: a propose-execute-verify-correct loop with internal anchors, uncertainty calibration and independent verification, rather than a longer prompt.
@@ -79,7 +79,7 @@ A proposal above the forge is reconsidered only when it names the formal anchor 
 - Generalization moves per domain. Each domain gets a forge-like skill with its own closed object, artifact and criteria instead of one skill spanning domains.
 - Concrete prompts remain the default for work without a schema. The ceiling test and the general model state the reason, not a preference.
 - The two rejected triplets stay in `rejected/` as evidence for the negative guarantee, and their status lines carry the verdict.
-- The reasoning extends beyond skills. `docs/breaking-the-ceiling.md`, `docs/abstraction-ceiling.svg` and `docs/breaking-the-ceiling.svg` record the three ceilings, the floor and the two lift paths for a human reader.
+- The reasoning extends beyond skills. The three ceilings, the floor and the two lift paths are a general model of what makes a method converge, and a later proposal argues against it rather than rediscovering it.
 - The repository carries a standing rule that is read when a new skill is proposed; that is the price of preventing the same class of proposal.
 
 ## Testing
@@ -93,4 +93,4 @@ A proposal above the forge is reconsidered only when it names the formal anchor 
 
 - [Forging dsh-spec-analysis (rejected)](../../rejected/process/2026-10-22-forging-dsh-spec-analysis.md) — the first rejected attempt.
 - [Forging dsh-spec-workflow (rejected)](../../rejected/process/2026-10-22-forging-dsh-spec-workflow.md) — the second rejected attempt.
-- [Forging dsh-spec-skill-forge](2026-10-21-forging-dsh-spec-skill-forge.md) — the skill whose abstraction level this note fixes as the ceiling.
+- [Forging dsh-spec-skill-forge (archived)](../../archived/process/2026-10-21-forging-dsh-spec-skill-forge.md) — the skill whose abstraction level this note fixes as the ceiling.

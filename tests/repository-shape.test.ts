@@ -2,8 +2,8 @@
  * Repository invariants the workspace tooling relies on.
  *
  * These cases read the working tree rather than a fixture: the package scripts stay single commands,
- * so no shell pipeline can hide a failure again, and every landed skill has an installed copy with
- * the same bytes, so `pnpm run skill:refresh` is verified against the tree it just produced.
+ * so no shell pipeline can hide a failure, and every landed skill has an installed copy with the
+ * same bytes, so `pnpm run skill:refresh` is verified against the tree it just produced.
  */
 
 import assert from 'node:assert/strict'

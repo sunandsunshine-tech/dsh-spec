@@ -10,7 +10,7 @@ Every skill carried a README pair beside its entry — what the skill is for, wh
 
 ## Decision
 
-The per-skill READMEs are removed, and the root README carries one table naming all eight skills and what each is for. The entry (`SKILL.md`) stays what an agent loads, and the references beside it stay the workflow's own material; a skill directory now holds those two things and nothing else. The engine's own `scripts/README.md` stays, because it documents the vendored bundle the gates parse Markdown with, and `manager-lifecycle.md` routes a reader to it.
+The per-skill READMEs are removed, and the root README carries one table naming every shipped skill and what each is for. The entry (`SKILL.md`) stays what an agent loads, and the references beside it stay the workflow's own material; a skill directory holds the entry, its references, and the scripts or notices its deliverable needs, and no README. The package README documents the skill script packages and how their bundles are built.
 
 ## Alternatives considered
 
@@ -23,8 +23,8 @@ The per-skill READMEs are removed, and the root README carries one table naming 
 ## Consequences
 
 - One overview, one home: the root README's table, in both languages.
-- Eight pairs fewer to record, and a skill directory that contains only what its agent loads plus its references.
-- The installed copy loses the READMEs on the next install: the prune removes files the revision no longer ships, which is what that mechanism was built for.
+- Eight pairs fewer to record, and a skill directory that contains only what its deliverable needs: the entry, its references, and any scripts or notices.
+- The installed copy loses the READMEs: it mirrors the landed skill, so a file the revision no longer ships does not survive a refresh.
 - What this costs is depth: a reader who wants to know what `dsh-pre-push-checks` does gets one line in a table rather than a page. The entry and its references remain the place to go deeper, and the line is what the table is for.
 - Verification: `dsh-spec.ts check --all --root .` ends `check notes: ok` and `check notes-archived: ok`; `verify-skill-structure.ts` conforms for all eight skill directories with no README present; `dsh-spec.ts upgrade` removes the twenty-four files from `.agents/skills/`.
 

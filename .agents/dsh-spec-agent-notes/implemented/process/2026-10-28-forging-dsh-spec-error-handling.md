@@ -14,44 +14,19 @@ The set extracts DeepSeek Harness's development pattern as skills, and one part 
 
 The skill is prose-only. No rule in the source is decidable by a command: whether a failure has an owning API, a containment rule and a guarantee, and whether a final report is actionable, are judgments about a design. A bundled script would have to invent a check the source does not state. The body stays far inside the specification's size budget, so the skill ships no reference file either. It has no environment requirements and therefore no `compatibility` field.
 
+- Delivery language is English; the review language is Chinese, and additional Chinese trigger language is appended to the description because the review language differs from delivery.
+
 ### Source and revision
 
 Source: `submodules/dsh/.agents/skills/dsh-error-handling/SKILL.md` — the only file the upstream skill carries — at the pinned submodule revision `1f81c047fc48fa190a683e469daa699857e9afe8` (`dsh-v0.2.1-rc.3`). The file is 30 lines; its SHA-256 is `fcde7e278056263f7b93b6854fe05d0b492bdf09739f4f4f3537e8ffd30a1c2d`.
 
 A forge worktree does not check out submodules, so `submodules/dsh` is empty inside the worktree; the file was read at the main checkout, `/home/dreamstar/ideaProjects/dsh-spec/submodules/dsh/.agents/skills/dsh-error-handling/SKILL.md`, whose `git submodule status` reports the pinned revision above and a clean tree. The submodule was read, not fetched or edited.
 
-Adopter declarations read: `AGENTS.md` — its standing orders, boundaries, conventions and norms hook — and the norms it cites, `.agents/dsh-spec/norms/norms.md`.
+Adopter declarations read: `AGENTS.md` — its standing orders, boundaries and conventions.
 
 Read for the repository's procedure and record format, not as design sources: `CONTRIBUTING.md` (commit convention, DCO, bilingual pairs), `skills/dsh-spec-agent-notes/references/notes-contract.md` (this record's format), `skills/dsh-spec-skill-forge/SKILL.md` (the forging procedure), and the landed skills and earlier records of this repository (format and precedent only; none of their wording is carried into the skill). The `dsh-spec-agent-experience` port was read for the repository's precedent on a ported skill's shape and provenance treatment.
 
 Not read as design sources: any other session's output, any parallel forging result, any skill outside this repository's tree, and the installed copies under `.agents/skills/`.
-
-Pages read online on 2026-10-28, before writing this design:
-
-- `https://agentskills.io/llms.txt`
-- `https://agentskills.io/specification.md`
-- `https://agentskills.io/skill-creation/best-practices.md`
-- `https://agentskills.io/skill-creation/optimizing-descriptions.md`
-
-Every page was readable; the forge skill's offline fallback was not used.
-
-### Supersession check
-
-The active notes tree was searched for a note that owns an error-handling decision or a prior forging of this skill: none exists. The records for other skills' forgings and the extraction record do not cover this subject, so this record supersedes nothing, and no older note is updated.
-
-### Revision after the first stop
-
-The round-1 stop handed the design to the maintainer. The maintainer found the generality gap named by the request's stop condition, "适用于软件工程" — applicable to software engineering: N23 was recorded as Keep with the basis "domain-neutral", but the sentence assumes a product with a UI and default-enabled logs, and the same class of assumption sits in the documentation clause (N12), the exception vocabulary (the section heading, N15 and N27) and the "receiving application" clause (N21). The directed revision is targeted, not a rewrite:
-
-- Adapt only the units whose runtime or product assumption the target scope does not share; carry the remaining units as before.
-- Take the target scope to be software projects of any kind, so the text cannot assume a UI, default-enabled logs, an API-documentation practice, an application runtime, or exceptions as the only failure model.
-- Turn the exception vocabulary into failure/handling vocabulary in the heading and the two sentences.
-- Keep the package/module/service unit (N6), the `assertNever` example (N10), the Foundations (R6) and the description (R3).
-- Keep the landing acts reserved, and rebase onto the maintained baseline at landing.
-- Run the design loop again: revise the design, audit it again, implement, then a second independent review.
-- Record the presupposition conclusions in § Presupposition audit; whether that audit becomes a standing question for later forgings is a maintainer decision and a shared-file change, recorded in the handover.
-
-The revision changed six source units — the section heading and N12, N15, N21, N23, N27 — and added the presupposition audit; no other sentence changed. The round-1 review drafts and their language switcher were withdrawn before the revision and rebuilt at the stop; the publish step removed them. The landed body is 31 lines with the six adapted units and the adapted-skill declaration, SHA-256 `b5d1ab8a…`.
 
 ### Adapted target text
 
@@ -115,25 +90,6 @@ The skill's frontmatter description, exactly (299 characters, under the specific
 
 The English sentence is the delivery language and carries the upstream trigger surface plus "implementing" and the software domain. The Chinese sentence is the additional trigger language. The excluded adjacent tasks are general code review, test strategy, and debugging a defect whose handling design is not in question: those tasks are outside this skill's trigger surface, and where an owning skill exists it is the installed `dsh-spec-code-review`, not this skill.
 
-### Settings
-
-| Setting | Value | Basis |
-|---|---|---|
-| Goal | forge and land `dsh-spec-error-handling` for software-engineering projects of any kind, then hand the result to the maintainer's review | the request |
-| Boundary | baseline `refactor/dsh-skills`; an independent worktree; no edits to `submodules/dsh`, other skills or shared helpers during the forging; the landing updates the skill list in `AGENTS.md` and refreshes the installed copies; nothing is pushed | the request and the landing instruction |
-| Skill name | `dsh-spec-error-handling` | the request |
-| Audience and domain | software-engineering projects of any kind — applications, libraries, command-line tools, services, embedded and batch systems; the reader applies the rules to the project being worked in | the request; the maintainer's scope ruling |
-| Adaptation policy | a source sentence is carried verbatim only when its runtime or product assumption holds in the target scope or its clause is vacuous where absent; otherwise it is adapted with role-based or conditional wording that preserves the mechanism, and the conclusion is recorded in § Presupposition audit | the maintainer's rulings; the presupposition audit |
-| Source | upstream `dsh-error-handling`, `.agents/skills/dsh-error-handling/SKILL.md` | the request |
-| Baseline | the forge branch was rebased onto `refactor/dsh-skills` at `f1a68d0` before landing and squash-merged into it as one commit | the landing instruction |
-| Landed directory | `skills/dsh-spec-error-handling/`; the installed copy is `.agents/skills/dsh-spec-error-handling/` | the forge lifecycle |
-| Delivery language | English | the forge default; the set's skills are written for agents in English |
-| Review language | Chinese; the review drafts were created and paired only at the stop, and the publish step removed them; this record carries its Chinese companion and consistency record (R8) | the request |
-| Additional trigger language | Chinese, appended to the description | the review language differs from the delivery language |
-| Script | none | no source rule is decidable by a command; a script would invent a mechanism |
-| Review | a design audit, a targeted re-audit after the design-level revision, and two independent review rounds, each accepted; the fix confirmations are recorded in § Review | the request's stop condition and working mode |
-| Landing acts | performed at landing: publish into `skills/`, installed-copy refresh, this record moved to `implemented/process/`, squash merge into `refactor/dsh-skills`; not pushed | the landing instruction |
-
 ### Constraint dispositions
 
 Dispositions use the forge skill's values: **Keep** carries the original wording and sense with language and layout adjustments; **Adapt** instantiates a target value; **Re-bind** abstracts a vanished referent to its purpose and makes the target's equivalent concrete; **Dissolve** records that the referent is gone and what check takes over. Home `SK` = the landed `SKILL.md`.
@@ -184,113 +140,16 @@ Dispositions use the forge skill's values: **Keep** carries the original wording
 | R6 | The Foundations section and its external link are carried unchanged. | The three works are software-engineering literature; the link is external and absolute, so the gate does not treat it as a local dependency. | Remove the section, which drops the source's rationale for the rules. |
 | R7 | The landed skill declares provenance from outside the loaded text: its frontmatter `license` field names a skill-root `THIRD_PARTY_NOTICES`, and the root `THIRD_PARTY_NOTICES.md` lists it among the adapted skills. | The repository's adapted-skill convention requires the declaration for an installed copy; the notice carries the upstream path, revision, relation and both MIT notices, and the root notice registers the skill. | Remove the notice and the root registration. |
 | R8 | The skill's Chinese review draft (`.zh.md`) and its pairing record (`.i18n.yaml`) were created only at the stop, checked by the project pairing gate, and removed by publish; this record carries its Chinese companion and consistency record. | The request confines translation pairing to the stop; the note pair was completed at the final review and moved with the record. | Remove the note companion and its consistency record. |
-| R9 | This record ships in `implemented/process/` with the skill. | `AGENTS.md` places a forging record in `proposed/` until the forged skill ships, then moves it. | Move it back to `proposed/process/` if the landing is reverted. |
+| R9 | This record ships in `implemented/process/` with the skill. | The notes contract moves a record from `proposed/` to `implemented/` when the decision ships. | Move it back to `proposed/process/` if the landing is reverted. |
 | R10 | The target scope is software projects of any kind: applications, libraries, command-line tools, services, embedded and batch systems. The text assumes no UI, no default-enabled logs, no API-documentation practice, no application runtime, and no single failure model. | The request names software engineering as the domain; a rule that only holds for a product-shaped application is not applicable there, and the set exists to be installed into arbitrary projects. | Narrow the scope and state the surface assumptions in the description. |
 | R11 | A source sentence is carried verbatim only when its runtime or product assumption holds in the target scope or its clause is vacuous where absent; otherwise it is adapted with role-based or conditional wording, and the conclusion is recorded as a row in § Presupposition audit and, where it changes, as an adaptation row in § Constraint dispositions. | The first stop recorded "domain-neutral" for a sentence that assumes a product runtime; verbatim fidelity is not generality. The audit makes each assumption explicit and checkable. | Rewrite a row or the policy. |
 | R12 | The exception vocabulary becomes handling/failure vocabulary in the heading and the two sentences that name it (N11a, N15, N27); "failure" covers exceptions, result values and other explicit failure models. | The source is TypeScript, but the target scope includes languages whose failures are values; the ownership, containment and verification rules survive the vocabulary change. | Restore the exception words, which narrows the skill to one failure model. |
-| R13 | Where the source names a reporting surface or a documentation practice, the target names the surface the affected user or system actually uses, and the contract record may be the owning API's documentation or the project's equivalent record (N12, N21, N23).
-| R14 | The landing rebased the forge branch onto `refactor/dsh-skills` at `f1a68d0` and squash-merged it as one commit; nothing is pushed. | The maintained skill set had advanced while the forging waited, and a rebased branch keeps the landed change a single commit on the current head. | Revert the squash commit. | | The target scope includes projects with no UI or default logs and with no API documentation; the rule keeps its required content and its conditional "where one exists". | Restore a fixed surface or documentation practice. |
+| R13 | Where the source names a reporting surface or a documentation practice, the target names the surface the affected user or system actually uses, and the contract record may be the owning API's documentation or the project's equivalent record (N12, N21, N23). | The target scope includes projects with no UI or default logs and with no API documentation; the rule keeps its required content and its conditional "where one exists". | Restore a fixed surface or documentation practice. |
+| R14 | The landing rebased the forge branch onto `refactor/dsh-skills` at `f1a68d0` and squash-merged it as one commit; nothing is pushed. | The maintained skill set had advanced while the forging waited, and a rebased branch keeps the landed change a single commit on the current head. | Revert the squash commit. |
 
 ### Requirement anchors
 
-Every disposition row is the anchor for the requirement it carries; § Presupposition audit covers every carried unit — the 31 disposition rows plus the three section headings that have no disposition row — and each row is the anchor for the assumption it records. N1 is mechanical: the skill gate checks the name and the directory match. N2-N30 and N11a are judged: the independent review records one conclusion per row against the upstream sentence, and a row whose carried sense differs from the source is a finding. The skill gate is the mechanical anchor for the skill's format, size and link integrity; the project pairing gate was the mechanical anchor for the review-draft pair at the stop. The trigger behaviour has no precise anchor and is recorded as unverified below.
-
-### Completion
-
-The forging's completion conditions were met before the landing: every upstream requirement has one disposition row with a home, every carried unit has a presupposition conclusion, every changed row states the part kept and the forcing fact, and every Keep row states why the source wording holds; the skill gate, the record gate, the repository suite and the review-draft pair passed; the design audit and its targeted re-audit accepted, and both independent review rounds accepted with the fix confirmations recorded in § Review; the record carries the goal, settings, dispositions, presupposition audit, pages read, check log, review conclusions, rulings, unverified items, risks and handover; and nothing was published, installed, merged or pushed until the maintainer authorized the landing.
-
-## Verification
-
-Every requirement carries a verification anchor: § Constraint dispositions gives each requirement its home, § Presupposition audit gives every carried unit its assumption conclusion, and the independent reviews recorded one conclusion per disposition row. The checks below ran on the landed tree and are reproducible from the repository root.
-
-- **Design audit, before forging.** An independent agent with a fresh context read the upstream file, the adopter declarations and this record, and resolved blockers, majors and minors before forging started; the design-level revision was audited again before implementation.
-- **Skill gate.** `node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs skills/dsh-spec-error-handling` → `13 check(s), 0 failed`: 31 lines, ~753 tokens, description 299 characters, license 59 characters. The gate checks the name against the directory, the closed frontmatter field set, the link and reference rules, and the line and token budget.
-- **Independent review, after forging.** Two fresh reviewers read the skill, the upstream file and this record; they ran the gates themselves and checked mechanism fidelity row by row, presupposition generality, domain fit, trigger wording, prose and the record's evidence. The rounds and their fix confirmations are recorded in § Review.
-- **Record gate.** `node .agents/skills/dsh-spec-agent-notes/scripts/notes.mjs check --root .agents/dsh-spec-agent-notes --companion .zh.md --companion .i18n.yaml` → `ok   check — 38 note(s) and 76 companion(s) checked` on the current tree.
-- **Repository suite.** `pnpm test` on the current tree → 262 tests, 262 pass, 0 fail.
-- **DCO.** every commit created for this forging carries a `Signed-off-by` naming its author (`node scripts/verify-dco.ts --base=609514c --head=HEAD` passed on the pre-rebase branch), and the landing commit passes the same check: `node scripts/verify-dco.ts --base=f1a68d0 --head=HEAD` → `verify-dco: 1 commit(s) in f1a68d0..HEAD carry a Signed-off-by naming their author, and none claims a bot identity that had to be verified` (exit 0).
-- **Review-draft pair before publish.** `node .agents/skills/dsh-spec-skill-forge/scripts/forge.mjs pair dsh-spec-error-handling --companion .zh.md --companion .i18n.yaml` → `2 action(s), 0 failed`; `publish` removed the two declared drafts after deleting the work-draft source's review-only switcher.
-- **Landed and installed copies.** `sha256sum skills/dsh-spec-error-handling/SKILL.md .agents/skills/dsh-spec-error-handling/SKILL.md` → `b5d1ab8acfa5b925339105f6d7810db1a888d6b52173941d2ab9fd26e117ed1e` for both.
-- **Upstream diff.** `diff -u` the upstream file against the landed `SKILL.md` → exactly the name, description, H1, the N6/N10 re-binds and the six adapted units differ; the other 20 body lines are byte-identical.
-- **Scope.** the landing and its provenance fix added `skills/dsh-spec-error-handling/SKILL.md`, its skill-root `THIRD_PARTY_NOTICES`, the mirrored `.agents/skills/dsh-spec-error-handling/` copies, and the root `THIRD_PARTY_NOTICES.md` registration; `AGENTS.md` already lists the skill, this record is in `implemented/process/`, and the forge work directory is gone; `submodules/dsh/` is untouched.
-- **Formatting.** no TypeScript source changed, so `pnpm run format:check` has no new input; the skill gate covers the Markdown conformance the change introduces.
-
-### Check log
-
-The round history below is the forging evidence; its commit hashes name the forge branch before the landing rebase. The landed checks also appear in § Verification.
-
-| Check | Command or source | Result |
-|---|---|---|
-| Landing: skill gate | `node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs skills/dsh-spec-error-handling` | `13 check(s), 0 failed` — 31 lines, ~753 tokens, description 299 characters, license 59 characters (exit 0) |
-| Landing: installed copy | `sha256sum` on both copies | identical, SHA-256 `b5d1ab8a…` |
-| Landing: record gate | the notes gate above | `ok   check — 38 note(s) and 76 companion(s) checked` (exit 0) |
-| Landing: repository suite | `pnpm test` | 262 tests, 262 pass, 0 fail (exit 0) |
-| Landing: DCO | `node scripts/verify-dco.ts --base=f1a68d0 --head=HEAD` | `verify-dco: 1 commit(s) in f1a68d0..HEAD carry a Signed-off-by naming their author, and none claims a bot identity that had to be verified` (exit 0) |
-| Landing: scope | `git diff --name-status f1a68d0..HEAD` | `AGENTS.md`, the record move, `skills/dsh-spec-error-handling/SKILL.md`, its `THIRD_PARTY_NOTICES`, the mirrored `.agents/skills/dsh-spec-error-handling/` copies and `THIRD_PARTY_NOTICES.md` |
-| Design record gate | `node .agents/skills/dsh-spec-agent-notes/scripts/notes.mjs check --root .agents/dsh-spec-agent-notes --companion .zh.md --companion .i18n.yaml` | `ok   check — 32 note(s) and 62 companion(s) checked` (exit 0) |
-| Design audit round 1 (historical) | independent auditor; report at `/tmp/dsh-forge/review/dsh-spec-error-handling-design-audit-round1.md` | `accept` — no blocker, no major; 19 minor findings (A1–A4, B1, B2, D1, E1–E9, G1, G2, V1) applied; the audit report's prose says "twenty" while its finding table lists these 19, and this record follows the table |
-| Design audit round 2 (presupposition revision) | independent auditor; report at `/tmp/dsh-forge/review/dsh-spec-error-handling-design-audit-round2.md` | `needs revision` — no blocker; 3 majors (M1 the six planned sentences were not recorded; M2 the audit covered 13 of 34 units; M3 the literature conclusion) and 18 minors; all applied in this revision |
-| Design audit round 2 follow-up | independent auditor; report at `/tmp/dsh-forge/review/dsh-spec-error-handling-design-audit-round2-followup.md` | `accept` — no blocker, no major; 8 minor residuals (R1–R8, record-only) applied in this revision |
-| Skill gate round 1 (historical) | `node .agents/skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs .agents/dsh-spec-skill-forge/dsh-spec-error-handling`; `sha256sum` | `12 check(s), 0 failed`; the round-1 stop candidate was 32 lines with the review-draft switcher (30-line delivery body, SHA-256 `032894e9…`) |
-| Skill gate round 2 | `node .agents/skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs .agents/dsh-spec-skill-forge/dsh-spec-error-handling`; `sha256sum` | `12 check(s), 0 failed` — 32 lines, ~764 tokens at the stop because the work-draft source carries the review-draft-only switcher; description 299 characters (exit 0). Work-draft `SKILL.md` SHA-256 `ffefc696964e96a0cdfee96ff4628fe1ee379e0b0ffb5132ffbd6318b0bdd6fc`; delivery body without the switcher is the 30-line content with SHA-256 `be26c7c60239286eac554a4a340481cfbc85e2463e241b81ed5b59bc4edcb55c` |
-| Adapted target text vs landed skill | `diff -u` the upstream file against `skills/dsh-spec-error-handling/SKILL.md` | 10 of 30 body lines differ — the name, description, H1, the N6/N10 re-binds and the six adapted units; the other 20 lines are byte-identical to upstream |
-| Independent review round 1 (historical) | two independent reviewers; reports at `/tmp/dsh-forge/review/dsh-spec-error-handling-review-fidelity-round1.md` and `/tmp/dsh-forge/review/dsh-spec-error-handling-review-fit-round1.md` | both `accept` — no blocker, no major; fixes applied and confirmed on `2f677d6` |
-| Independent review round 2 | two independent reviewers; reports at `/tmp/dsh-forge/review/dsh-spec-error-handling-review-fidelity-round2.md` and `/tmp/dsh-forge/review/dsh-spec-error-handling-review-fit-round2.md` | final confirmation on `8a7aa56`: both `accept`, no blocker, no major, no new findings. History: fidelity accepted with 2 record-only minors; fit accepted the candidate with the record needing revision (1 major, 3 minors); the fix confirmation then caught a truncated `## Risks` section in the fixing commit, restored verbatim from `8779b85`, with the residual minors applied |
-| Repository suite (historical) | `node --test 'tests/**/*.test.ts'` | 206 tests, 206 pass, 0 fail at the round-2 stop, on the pre-rebase baseline (exit 0) |
-| DCO range (historical) | `node scripts/verify-dco.ts --base=609514c --head=HEAD` at the pre-rebase second stop | `verify-dco: 10 commit(s) in 609514c..HEAD carry a Signed-off-by naming their author, and none claims a bot identity that had to be verified` (exit 0) |
-| Review-draft pair round 1 (historical) | `forge.mjs pair`; `translation-pair check` | `2 action(s), 0 failed`; `check translation-pair: ok`; the drafts were withdrawn for the revision |
-| Review-draft pair round 2 | `node .agents/skills/dsh-spec-skill-forge/scripts/forge.mjs pair dsh-spec-error-handling --companion .zh.md --companion .i18n.yaml`; the project pairing gate then in force | forge `pair`: `2 action(s), 0 failed`; the stop's project gate reported `1 named pair(s) consistent` and `check translation-pair: ok` (exit 0); `publish` removed both drafts |
-
-## Review
-
-The commit hashes in this section name the forge branch before the landing rebase; the rebase rewrote them, and the landed state is the squash commit on `refactor/dsh-skills`.
-
-Design audit round 1 (2026-10-28): **accept** — no blocker and no major; 19 minor findings, all applied. Report: `/tmp/dsh-forge/review/dsh-spec-error-handling-design-audit-round1.md`. The skill was written from the revised design and passed the skill gate.
-
-Independent review round 1 (2026-10-28): **both reviewers accept**, no blocker and no major; 1 fidelity minor and 6 fit minors, all applied, and both reviewers confirmed the fixes on `2f677d6`. Reports: the two round-1 review paths above.
-
-Maintainer review (2026-10-28): **needs revision on generality.** N23 was recorded as Keep although the sentence assumes a product with a UI and default-enabled logs, and the same class of assumption sits in N12, N21, the section heading, N15 and N27. The maintainer directed the targeted revision recorded under § Revision after the first stop; the round-1 review drafts were withdrawn and the revised design is audited again before implementation.
-
-Design audit round 2 (2026-10-28): **needs revision** — no blocker; 3 majors and 18 minors. The majors: the six planned target sentences were not recorded verbatim; the presupposition audit covered 13 of 34 units; the literature conclusion asserted that the cited works assume no project runtime, which is false for Sutter's C++ and Armstrong's Erlang sources. Every finding is applied in this revision, and a follow-up audit checks the applied revision before implementation. Report: `/tmp/dsh-forge/review/dsh-spec-error-handling-design-audit-round2.md`.
-
-Implementation (2026-10-28): the skill carries the six planned sentences. The skill gate reports `12 check(s), 0 failed` (30 lines, ~753 tokens), and the landed diff against upstream contains exactly the six adapted units, the name, the description, the H1 and the N6/N10 re-binds; every other line is byte-identical.
-
-Design audit round 2 follow-up (2026-10-28): **accept** — no blocker and no major; 8 minor residuals (R1–R8), all record-only and applied. The follow-up verified the six planned target sentences, the 34/34 unit coverage and the per-work literature conclusions, and its own record-gate run reports `ok   check — 32 note(s) and 62 companion(s) checked`. Report: `/tmp/dsh-forge/review/dsh-spec-error-handling-design-audit-round2-followup.md`.
-
-Independent review round 2 (2026-10-28): the fidelity reviewer **accepts** with no blocker and no major (2 record-only minors: the stale work-draft hash and the audit's conclusion labels); the fit reviewer accepts the skill but finds the record **needs revision** on one major — the same stale work-draft statement and its future tense — plus the audit vocabulary and three residual target-side premises. Every finding is applied in the record; confirmation is requested on the fixing commit. Reports: the two round-2 review paths above.
-
-Independent review round 2 confirmation (2026-10-28): the fidelity reviewer confirmed its two minors on `2fa7b01`; both reviewers then caught that the fixing commit had truncated the record's `## Risks` section, the section was restored verbatim from `8779b85`, and the residual minors were applied. On `8a7aa56` both reviewers confirm **accept** with no blocker, no major and no new findings.
-
-Stop state (2026-10-28, second stop): both independent reviews accept; the skill gate passes with the paired review drafts (`12 check(s), 0 failed`; 32 lines with the switcher, ~764 tokens; the delivery body is 30 lines with SHA-256 `be26c7c6…`); the record gate, the repository suite and the project pairing gate pass; the review-draft pair is current; nothing is published, installed, merged or pushed. The work then waited for the maintainer's review.
-
-Landing review (2026-10-28): the maintainer reviewed the skill, this record and the Chinese review draft, accepted them, and directed the landing — check the baseline, rebase, and squash-merge. The landing acts and checks are recorded in § Handover and § Verification.
-
-## Unverified items
-
-- **Trigger evaluation.** The Agent Skills guide's trigger test — about 20 labelled queries, three runs each — is not run: the client exposes no trigger harness here. The exact description's discoverability is therefore judged by the review, not measured, and the negative boundary is a stated design choice rather than a measured trigger rate.
-- **Executor adherence.** Whether an agent applies the rules is judgment; no command decides it, so the skill's effect is judged by the review and the maintainer's review.
-- **Source read path.** The forge worktree has no submodule checkout; the source was read through the main checkout at the pinned revision and the file hash is recorded. A later re-read proves the file's identity, not that the worktree itself held it.
-- **Presupposition classification.** Whether a sentence's runtime assumption is shared, vacuous or unshared is a judgment; § Presupposition audit records one conclusion per sentence and the review checks the classification against the target scope.
-- **No other-session content.** The record states the reading scope; an external checker cannot verify a negative reading claim.
-- **Mechanism parity.** Fidelity to the upstream mechanism is judged against the source text by the review; it is not mechanically provable.
-
-## Handover
-
-The maintainer reviewed the work and authorized the landing on 2026-10-28. The landing performed these acts:
-
-- Published the work directory into `skills/dsh-spec-error-handling/` and removed the work directory, after deleting the review-draft-only switcher from the work-draft source; `publish` removed the declared drafts.
-- The provenance fix added the skill-root `THIRD_PARTY_NOTICES` and the frontmatter `license` field, and registered the skill in the root `THIRD_PARTY_NOTICES.md`.
-- Refreshed the installed copies, so `.agents/skills/dsh-spec-error-handling/` mirrors the landed skill, including its notice.
-- Moved this record to `implemented/process/` with its Chinese companion and consistency record (R8).
-- Updated the skill list in `AGENTS.md`.
-- Rebased the forge branch onto `refactor/dsh-skills` at `f1a68d0` and squash-merged it as one commit; nothing is pushed.
-
-The acts and decisions below remain with the maintainer:
-
-- Push `refactor/dsh-skills` when the landing should be published; the remote tracking branch still points at the pre-landing head.
-- Decide whether the README skill table or another shared document gains a row; `AGENTS.md` already lists the skill.
-- Decide whether the presupposition audit becomes a standing question in the forge skill; that is a shared-file change outside this forging's scope.
-- Keep or delete the forge branch and worktree; the squash commit is the landed state.
+Every disposition row is the anchor for the requirement it carries; § Presupposition audit covers every carried unit — the 31 disposition rows plus the three section headings that have no disposition row — and each row is the anchor for the assumption it records. N1 is mechanical: the skill gate checks the name and the directory match. N2-N30 and N11a are judged: the review records one conclusion per row against the upstream sentence, and a row whose carried sense differs from the source is a finding. The skill gate is the mechanical anchor for the skill's format, size and link integrity. The trigger behaviour has no precise anchor, so it is recorded as unverified.
 
 ## Alternatives considered
 
@@ -316,10 +175,13 @@ The acts and decisions below remain with the maintainer:
 
 ## Consequences
 
-- The set ships `dsh-spec-error-handling` from `skills/dsh-spec-error-handling/` with an identical installed copy, and `AGENTS.md` lists it among the current skills.
+- The set ships `dsh-spec-error-handling` from `skills/dsh-spec-error-handling/` with an identical installed copy; the skill directory is the deliverable inventory, and the installed copies mirror it.
 - The landed body differs from upstream on 10 of its 30 lines — the name, the description, the H1, the two re-binds (N6 and N10) and the six adapted units (the heading, N12, N15, N21, N23 and N27); the other 20 lines are byte-identical, and the four sections and their order are carried.
 - The skill assumes no UI, default-enabled logs, API-documentation practice, application runtime or single failure model; a project maps the rules onto the surface it actually uses, and § Presupposition audit records the classification for every carried unit.
 - Costs: six units depart from the source's wording, and the generalized reporting and documentation wording (N12, N23) is necessarily less concrete than the source's product examples; the trigger evaluation remains unmeasured; the record is paired with its Chinese companion.
 - Risks: over-generalization can lose the source's force; a sentence outside the audit can still carry an unrecorded assumption; an adaptation can drift; the description can compete with a code-review skill; and the landing is a local commit that is not pushed.
+- **Executor adherence is judged, not measured.** Whether an agent applies the rules is judgment; no command decides it, so the skill's effect rests on the review.
+- **Presupposition classification is a judgment.** Whether a sentence's runtime assumption is shared, vacuous or unshared is decided per sentence in § Presupposition audit, and review checks the classification against the target scope.
+- **Mechanism parity is judged, not mechanically provable.** Fidelity to the upstream mechanism is checked against the source text by review.
 - What was given up: verbatim fidelity on the six adapted units, a per-file provenance header, and the record's Chinese pair.
 - Rollback: revert the squash commit on `refactor/dsh-skills` and refresh the installed copies again; `submodules/dsh` is untouched, so no upstream pin needs repair.

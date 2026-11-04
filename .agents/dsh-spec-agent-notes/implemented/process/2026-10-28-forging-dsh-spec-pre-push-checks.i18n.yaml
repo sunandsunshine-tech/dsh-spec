@@ -9,50 +9,29 @@
   en: cb27c8fe0897070f
   zh: 218123c695e2ff4b
 /agent-note-forging-dsh-spec-pre-push-checks-from-the-upstream-dsh-pre-push-checks-skill/decision:
-  en: a6cdc0d13c0b0e73
-  zh: 606107276d13dc2d
+  en: 61809cbc3c6db3a8
+  zh: 933bdcf6c6acd271
 /agent-note-forging-dsh-spec-pre-push-checks-from-the-upstream-dsh-pre-push-checks-skill/decision/intent-and-boundaries:
-  en: d6c502af6c76841e
-  zh: 87646c396c6c7794
-/agent-note-forging-dsh-spec-pre-push-checks-from-the-upstream-dsh-pre-push-checks-skill/decision/landing-settings:
-  en: 92919a5abe8e6244
-  zh: 81a333415f1e2962
+  en: c92d788562f94527
+  zh: a17812dfc15e2d98
 /agent-note-forging-dsh-spec-pre-push-checks-from-the-upstream-dsh-pre-push-checks-skill/decision/source-constraints:
-  en: 8a7985bad4fe8e34
-  zh: 5e0676460f3e2fce
+  en: bd6d49769780363f
+  zh: bdbaf68caec60d3c
 /agent-note-forging-dsh-spec-pre-push-checks-from-the-upstream-dsh-pre-push-checks-skill/decision/dispositions:
   en: 26ae64082d73bc58
   zh: 642e54cfe8bc7b61
 /agent-note-forging-dsh-spec-pre-push-checks-from-the-upstream-dsh-pre-push-checks-skill/decision/the-bundled-change-scope-report:
-  en: e3839f8498b08180
-  zh: 6356ef9935084999
-/agent-note-forging-dsh-spec-pre-push-checks-from-the-upstream-dsh-pre-push-checks-skill/decision/pages-read:
-  en: 1440d3b07832ccad
-  zh: 90b8f5371d907f64
+  en: 031ef511927a215e
+  zh: cc084849232e5968
 /agent-note-forging-dsh-spec-pre-push-checks-from-the-upstream-dsh-pre-push-checks-skill/decision/rulings:
-  en: 779ecc04da032af8
-  zh: 2b3149902f85b23a
-/agent-note-forging-dsh-spec-pre-push-checks-from-the-upstream-dsh-pre-push-checks-skill/decision/landing-record:
-  en: 60e638ec359f19d1
-  zh: ca0ed6b3e42b3f03
-/agent-note-forging-dsh-spec-pre-push-checks-from-the-upstream-dsh-pre-push-checks-skill/verification:
-  en: 0a1b49f4f3d8d674
-  zh: a0e7cf83d93b6313
-/agent-note-forging-dsh-spec-pre-push-checks-from-the-upstream-dsh-pre-push-checks-skill/verification/check-results:
-  en: 48ea6e03bb6cb18b
-  zh: ecd3d1ed68af5e53
-/agent-note-forging-dsh-spec-pre-push-checks-from-the-upstream-dsh-pre-push-checks-skill/verification/design-audit-review-and-prose-audit:
-  en: 938d61839904a007
-  zh: 7539c7754c7787b3
-/agent-note-forging-dsh-spec-pre-push-checks-from-the-upstream-dsh-pre-push-checks-skill/verification/anchors-per-requirement:
-  en: e3d74b44dd99f9fd
-  zh: 8eae912a81129b42
-/agent-note-forging-dsh-spec-pre-push-checks-from-the-upstream-dsh-pre-push-checks-skill/unverified-items:
-  en: b2512f97231dd715
-  zh: 4af178757eab63a9
+  en: 519ac91973dfcfc6
+  zh: 69907f9a41cb0f53
+/agent-note-forging-dsh-spec-pre-push-checks-from-the-upstream-dsh-pre-push-checks-skill/decision/anchors-per-requirement:
+  en: 9d3ed212be1760c1
+  zh: 04ebe143d9baedb0
 /agent-note-forging-dsh-spec-pre-push-checks-from-the-upstream-dsh-pre-push-checks-skill/alternatives-considered:
   en: 81636d608addc6f8
   zh: d4abb241db7cce20
 /agent-note-forging-dsh-spec-pre-push-checks-from-the-upstream-dsh-pre-push-checks-skill/consequences:
-  en: d626a0696b06ddfc
-  zh: 101cd7b5fe7fc12e
+  en: 5b162525f8684fe3
+  zh: bd42a8da87978845

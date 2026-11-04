@@ -23,7 +23,7 @@ Status: implemented
 
 **一份文本用哪门语言,不是这条规则的问题。** 成对文档的两侧由契约定;本仓库与技能集合自己的文本是英文,因为读它的是 agent;回话用提问时那门语言。语言定了,这条规则才开始。
 
-这条规则随技能集合发布:在规范目录里是 `prose.idiom`,项目不必读到这篇记录就能用它。
+这条规则陈述在这里；目录里没有对应条目，也没有门禁执行它。
 
 ## Alternatives considered
 
@@ -44,4 +44,4 @@ Status: implemented
 
 ## Related
 
-- [A text names its reader](2026-09-23-a-text-names-its-reader.zh.md) —— 这条规则的读者那一半,也是 `prose.voice` 中「偏爱一条真命令或真输出,而不是一段形容词」的来源。
+- [文本先定读者](2026-09-23-a-text-names-its-reader.zh.md) —— 这条规则的读者那一半。

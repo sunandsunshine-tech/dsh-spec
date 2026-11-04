@@ -6,6 +6,10 @@ license: "MIT; upstream and repository notices in THIRD_PARTY_NOTICES"
 
 # Writing prompts
 
+**Shape context, not control.** A prompt supplies the purpose, facts, constraints, examples and evidence that make a good decision likely, and leaves the route to the model; control is reserved for authorization, irreversible actions, safety and required validation.
+
+**Make context judgeable.** State the facts, constraints, examples and completion evidence the model needs; say what must remain true, what must not happen and how a result is judged. Prefer specifics over adjectives that two readers would decide differently.
+
 - **Start with minimal context:** a prompt states its purpose, the available actions and the constraints first, and defers detailed instructions until the task needs them.
 - **Make discovery explicit:** every resource the prompt defers needs a clear description and a reliable way to retrieve it.
 - **Keep critical constraints visible:** a prompt puts permissions, destructive effects and required validation before the action they govern.

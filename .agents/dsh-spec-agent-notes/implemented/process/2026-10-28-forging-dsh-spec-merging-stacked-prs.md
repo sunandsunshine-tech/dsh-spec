@@ -8,13 +8,13 @@ English | [中文](2026-10-28-forging-dsh-spec-merging-stacked-prs.zh.md)
 
 The skill set has no skill that owns landing a stack of dependent GitHub pull requests. An agent asked to land A ← B ← C, where each pull request bases on the one below, must choose between reproducing stack semantics by merging and retargeting layers by hand and using GitHub's native stacked-PR feature, which owns stack-wide rules, CI, ordering, retargeting and merge state. Upstream `dsh` carries a skill for that choice, `dsh-merging-stacked-prs`, but it is written for that repository's conventions: it points at the upstream root `AGENTS.md` for allowed histories and at an upstream cookbook page for review-fix propagation, and it fixes the merge method as a flag.
 
-The source boundary is explicit: the upstream skill is the only content source, together with the request and facts of the target domain (GitHub pull-request operations and the installed `gh stack` extension). This repository's existing documents — its `AGENTS.md`, its norms catalogue, its decision records and their conventions — are not a design source, because they are repository content that is being removed or rewritten, not the behaviour the shipped skill must carry. The target audience is an agent operating GitHub pull requests, and the deliverable is a general GitHub PR-operation skill, not a copy of one repository's landing policy.
+The source boundary is explicit: the upstream skill is the only content source, together with the request and facts of the target domain (GitHub pull-request operations and the installed `gh stack` extension). This repository's existing documents — its `AGENTS.md`, its decision records and their conventions — are not a design source, because they are repository content that is being removed or rewritten, not the behaviour the shipped skill must carry. The target audience is an agent operating GitHub pull requests, and the deliverable is a general GitHub PR-operation skill, not a copy of one repository's landing policy.
 
 ## Decision
 
 `dsh-spec-merging-stacked-prs` ships from `skills/dsh-spec-merging-stacked-prs/` in the upstream single-file shape. It was forged from `.agents/skills/dsh-merging-stacked-prs` of the pinned `submodules/dsh` baseline.
 
-The landed skill is `skills/dsh-spec-merging-stacked-prs/`: `SKILL.md` plus its skill-root `THIRD_PARTY_NOTICES`, which the frontmatter `license` field names because the text is adapted from the upstream skill. Its installed copy at `.agents/skills/dsh-spec-merging-stacked-prs/` mirrors it byte for byte. The forge work directory was published and removed; the stop review drafts were removed by `publish`. No bundled script, package source or repository test file ships with this skill: the source's own read-only `gh` and GraphQL commands are carried inline (R11).
+The landed skill is `skills/dsh-spec-merging-stacked-prs/`: `SKILL.md` plus its skill-root `THIRD_PARTY_NOTICES`, which the frontmatter `license` field names because the text is adapted from the upstream skill. Its installed copy at `.agents/skills/dsh-spec-merging-stacked-prs/` mirrors it byte for byte. No bundled script, package source or repository test file ships with this skill: the source's own read-only `gh` and GraphQL commands are carried inline (R11).
 
 The mechanism is the upstream mechanism unchanged: the official GitHub stack object is the membership authority; an eligible same-author chain — unstacked, or an order-preserving subset of one existing stack — is linked additively; the native cascading rebase and the incremental merge-forward are the two refresh histories; the merge runs through `gh stack merge` and never through per-pull-request `gh pr merge` plus retargeting; the whole stack or an explicitly bounded prefix is selected; every selected pull request must report `MERGED` before branch deletion, which is a separate final pass. The adaptations are:
 
@@ -25,54 +25,13 @@ The mechanism is the upstream mechanism unchanged: the official GitHub stack obj
 5. **Verified CLI surface.** The installed `gh stack` 0.1.1 provides the commands and flags the source assumes — `link --base`, `checkout`, `sync`, `rebase`, `push`, `merge --yes --merge/--squash/--rebase` — and no `--delete-branch`. Two verified behaviours shape the text: branch arguments to `gh stack link` are pushed and can create pull requests, while a numeric argument that matches no pull request is treated as a branch name, so the link command uses pull-request URLs (R1); and the shipped skill links only open pull requests and stops on a closed or merged entry (R9).
 6. **Compliance evidence.** The source requires each selected pull request to be compliant with the repository's review and check requirements. That evidence is read from the same metadata: a `mergeStateStatus` other than `CLEAN` (a still-computing `UNKNOWN` included) or a `reviewDecision` of `CHANGES_REQUESTED` is a blocker (R2).
 7. **Partial landing.** After a partial landing the skill re-queries the official stack, treats layers that already report `MERGED` as already landed, and verifies the remaining PRs are still linked in the expected order and target the trunk or the layer below it (R3).
-8. **Delivery.** The frontmatter adds the optional `compatibility` field for the runtime the skill needs. The Chinese review draft is created and paired only at the stop; this record is paired with its Chinese companion and consistency record.
+8. **Delivery.** The frontmatter adds the optional `compatibility` field for the runtime the skill needs; delivery is English with the Chinese trigger language appended, and the Chinese review draft is created and paired only at the stop, Chinese first (R6). The record carries its Chinese companion and consistency record.
 
-The maintainer reviewed the work and authorized the landing on 2026-10-28. The landing published the work directory into `skills/`, refreshed the installed copies, added the skill-root `THIRD_PARTY_NOTICES` and `license` field, updated `AGENTS.md` and the root `THIRD_PARTY_NOTICES.md`, moved this record to `implemented/`, and squash-merged the forge branch onto local `refactor/dsh-skills`; nothing is pushed.
-
-### Scope corrections after the first stop
-
-Two corrections followed the first stop, and this record is the resolution of both:
-
-1. **Source boundary.** The first design had taken a per-pull-request merge authorization and a merge-method/history policy from this repository's documents. The request then fixed the source boundary to the upstream skill only and excluded the repository's content, so the authorization is Dissolved (R8), the merge method is Re-bound to the landing repository's policy (R5), and the history rule is Re-bound with the source's "allowed after review" clause restored (R10). The handoff no longer updates repository docs, and the record cites no repository norm or decision record as a design source.
-2. **Delivery shape.** The corrected design still shipped a read-only audit script with its package source and offline tests. On review the driver judged that shape too rigid for a procedure whose failures need agent judgement, and chose the upstream single-file shape instead. The script, `package/dsh-spec-merging-stacked-prs/` and `tests/merging-stacked-prs.test.ts` are removed; the source's GraphQL query, metadata command and `gh` procedures are carried inline as the source writes them. This is a deliberate delivery ruling (R11), not a dropped requirement: the exact decisions are still made by the commands the agent runs.
-
-The earlier audit and review acceptances covered the earlier shapes; this single-file version is re-audited and re-reviewed before the stop.
-
-### Settings
-
-| Setting | Value | Basis |
-|---|---|---|
-| Skill name | `dsh-spec-merging-stacked-prs` | the request |
-| Delivery language | English | the forge default; the request's review language is Chinese |
-| Review language | Chinese; the review draft is created and paired only at the stop, with Chinese first and the delivery language as its additional trigger language | the request; R6 |
-| Additional trigger language | Chinese, appended to the delivery description | the review language differs from the delivery language |
-| Target audience and domain | an agent operating GitHub pull requests: landing a dependent stack, or merging a pull request whose base is another open pull request's branch | the request |
-| Description triggers | the source's: landing a stack of dependent GitHub pull requests, a pull request whose base is another open pull request's branch, "stacked PRs", "PR stack", "dependent PRs", merging several related pull requests in sequence; plus the Chinese trigger language | the source description |
-| Merge method | the method the landing repository's instructions or GitHub merge settings prescribe; `merge` when neither does | the source's fixed value re-bound to repository policy; R5 |
-| Runtime | the GitHub CLI with the official `gh stack` extension and access to GitHub; every head branch in the same repository | the source and the target domain |
-| Bundled script | none; the source's `gh` and GraphQL commands are carried inline | R11 |
-| Candidate | `.agents/dsh-spec-skill-forge/dsh-spec-merging-stacked-prs/` | the forging process |
-| Branch and base | `forge/dsh-spec-merging-stacked-prs`, rebased onto `refactor/dsh-skills` at `f1a68d0` | the request and the worktree |
-| Review needed | yes, at the stop | the request |
-| Landing | performed on 2026-10-28: published to `skills/`, installed copy refreshed, record moved to `implemented/`, branch squash-merged locally | the request and the maintainer's authorization |
-| Record | this file at `.agents/dsh-spec-agent-notes/proposed/process/2026-10-28-forging-dsh-spec-merging-stacked-prs.md`; it moves to `implemented/` with the implemented skeleton when the skill ships | the request; R7 |
+- **Runtime.** The skill assumes the GitHub CLI with the official `gh stack` extension, GitHub access and every head branch in the same repository (R1, R9).
 
 ### Source and revision
 
-Upstream source: this repository's pinned `submodules/dsh`, commit `1f81c047fc48fa190a683e469daa699857e9afe8` (`dsh-v0.2.1-rc.3`), file `.agents/skills/dsh-merging-stacked-prs/SKILL.md`, 127 lines, read on 2026-10-28. That file is the only content source for the skill. The submodule was not fetched, edited or checked out.
-
-Read as the target's delivery mechanism rather than as content sources: the current `skills/dsh-spec-skill-forge/` and `skills/dsh-spec-agent-notes/` (structure and gate), the forge and notes scripts, the installed `dsh-translate-docs` skill (whose whole-document path produces the stop review draft), and the project pairing gate under `scripts/dsh-spec-manager/`. No document of this repository supplies a skill rule.
-
-Read-only verification of the target environment, 2026-10-28: `gh --version` reports 2.103.2; `gh stack --version` reports 0.1.1; `gh auth status` reports a logged-in account; `gh stack <command> --help` confirmed the commands and flags in § Proposal; `gh pr view 73 --json` returned the source's field list including `statusCheckRollup`; the GraphQL query against the same pull request returned the `stackEntry`/`stack` shape (null for the unstacked probe); `gh pr list --state open --base <branch> --json number` returns a list; `gh repo view --json nameWithOwner,defaultBranchRef` resolves. No remote GitHub state was changed.
-
-Agent Skills pages read online on 2026-10-28, before writing the skill:
-
-- `https://agentskills.io/llms.txt`
-- `https://agentskills.io/specification.md`
-- `https://agentskills.io/skill-creation/best-practices.md`
-- `https://agentskills.io/skill-creation/using-scripts.md`
-
-Every page was readable; the forge skill's offline fallback was not used.
+Upstream source: the pinned `submodules/dsh` baseline at `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`), file `.agents/skills/dsh-merging-stacked-prs/SKILL.md`. That file is the only content source for the skill.
 
 ### Constraint dispositions
 
@@ -119,7 +78,7 @@ Dispositions use the forge skill's values: **Keep** carries the original wording
 | S38 | § Preflight, § Verify | Membership, completeness, order, same-repository, open, non-draft, merged state and branch-base safety are exactly decidable by the commands the source names. | Keep | SK | the agent runs the same commands; the decisions stay with the agent, with the source's stop rules |
 | S39 | § Preflight, § Merge, § Refresh | Review and check compliance response, history choice, link decision when authors differ, conflict resolution. | Keep | SK with one named authority each | the metadata supplies the compliance evidence (R2); the response and the remaining judgements stay prose |
 
-The first design's row S32 (the adopter authorization addition) was removed with the source-boundary correction; the numbering gap between S31 and S33 is deliberate (R8, § Scope corrections), not a dropped source constraint.
+The first design's row S32 (the adopter authorization addition) was removed with the source-boundary correction; the numbering gap between S31 and S33 is deliberate (R8), not a dropped source constraint.
 
 ### Rulings
 
@@ -139,101 +98,11 @@ The first design's row S32 (the adopter authorization addition) was removed with
 
 ### No bundled script
 
-The forge's Intent section asks whether the forged skill needs a script. This forging answers no (R11): the source is a single prose file whose requirements are executed by the agent through `gh` and GraphQL, and the user chose to keep that shape. The exactly-decidable conditions the source names — stack membership, order, base chain, open/non-draft/compliance, `MERGED`, branch-base safety — are carried as the same inline commands, with their expected outcomes and stop rules stated beside them. This trades away the script's stable JSON/exit contract and its offline tests; it keeps the agent free to re-derive, inspect raw output, and handle states a script does not model. The consequence is recorded in § Risks.
-
-#
-
-## Verification
-
-The landing checks ran before and after the squash commit; the check log records the commands and outputs. The design audit and the two independent implementation reviews accepted the single-file version before the landing.
-
-| Requirement | Anchor | Evidence |
-|---|---|---|
-| `SKILL.md` meets the Agent Skills specification and the repository's gate | Mechanical | `node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs skills/dsh-spec-merging-stacked-prs` — 14 checks, 0 failed; 132 lines, ~2,804 tokens; description 675, compatibility 137, license 59 |
-| The procedure is confined to the source mechanism | Judged | a source-fidelity review walks the 127 source lines against the disposition table and finds only attributable differences |
-| The skill is usable by an agent | Judged | an independent reviewer follows the procedure against the metadata/GraphQL shape and finds no dead end or missing command |
-| The description triggers on the right requests | Unverified | no installed-skill trigger harness in this session; the description reuses the source vocabulary and appends the Chinese language |
-| The record follows the notes contract | Mechanical | `node skills/dsh-spec-agent-notes/scripts/notes.mjs check --root .agents/dsh-spec-agent-notes --companion .zh.md --companion .i18n.yaml` — 38 notes, 76 companions |
-| The skill's installed copy mirrors the landed skill | Mechanical | `pnpm run skill:refresh` — `9 skill(s), 0 failed`, with `dsh-spec-merging-stacked-prs — mirrored 2 file(s)`; `tests/repository-shape.test.ts` in `pnpm test` |
-| Formatting and the repository suite | Mechanical | `pnpm run format:check` — 26 files; `pnpm test` — 216 tests, 216 pass |
-| Commit range carries DCO sign-off | Mechanical | `node scripts/verify-dco.ts --base=c61d49c --head=HEAD` — one signed commit (the landing commit) |
-| The landing is local, not pushed | Mechanical | `git ls-remote --heads origin refactor/dsh-skills` still reports `609514c`; no push performed |
-| Shared trees and the submodule are untouched | Mechanical | `git diff --stat c61d49c..HEAD` names only the landing's files; `git submodule status` reports `1f81c047` |
-| A real official stack is audited end to end | Unverified | creating or mutating a remote stack is outside this change; the first real landing verifies read-only |
-| Design audit and independent reviews accept | Judged | the verdicts recorded in § Design audit and § Implementation reviews |
-
-### Check log
-
-| Check | Command | Result |
-|---|---|---|
-| Publish | `node skills/dsh-spec-skill-forge/scripts/forge.mjs publish dsh-spec-merging-stacked-prs --into skills/dsh-spec-merging-stacked-prs --companion .zh.md --companion .i18n.yaml` | 4 actions, 0 failed; the work directory and the declared review drafts were removed |
-| Installed copy refresh | `pnpm run skill:refresh` | 9 skills mirrored, 0 failed; `dsh-spec-merging-stacked-prs — mirrored 2 file(s)` |
-| Landed skill gate | `node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs skills/dsh-spec-merging-stacked-prs` | 14 checks, 0 failed; 132 lines, ~2,804 tokens; description 675, compatibility 137, license 59 |
-| Notes gate | `node skills/dsh-spec-agent-notes/scripts/notes.mjs check --root .agents/dsh-spec-agent-notes --companion .zh.md --companion .i18n.yaml` | 38 notes and 76 companions checked |
-| Format | `pnpm run format:check` | all matched files use the correct format (26 files) |
-| Repository suite | `pnpm test` | 216 tests, 216 pass, 0 fail |
-| Removed deliverables | `git ls-files -- package/dsh-spec-merging-stacked-prs tests/merging-stacked-prs.test.ts .agents/dsh-spec-skill-forge/dsh-spec-merging-stacked-prs/scripts` | no output; no skill script or test file remains |
-| Landed files | `find skills/dsh-spec-merging-stacked-prs .agents/skills/dsh-spec-merging-stacked-prs -type f` | `SKILL.md` and `THIRD_PARTY_NOTICES` in both trees, the installed copy byte-identical |
-| Stop review-draft pair | `translation-pair write`/`check` and forge `pair` at the stop commit | `1 record(s) written`; `1 named pair(s) consistent`; 2 declared pairs; `publish` removed the drafts |
-| Branch state | `git status --porcelain` | clean; the landing is a local squash commit, not pushed |
-| Commit sign-off | `node scripts/verify-dco.ts --base=c61d49c --head=HEAD` | one signed commit (the landing commit); the earlier stop commits were signed too |
-
-Read-only probes with the commands the skill carries, no state changed:
-
-| Command | Observed |
-|---|---|
-| `gh stack --version` | `gh stack version 0.1.1` |
-| `gh pr view 73 --json number,author,baseRefName,baseRefOid,headRefName,headRefOid,isCrossRepository,state,isDraft,reviewDecision,mergeStateStatus,statusCheckRollup` | the source's field list returned; the probe pull request is `CLOSED`, draft, `mergeStateStatus: BLOCKED` |
-| the inline GraphQL query on pull request 73 | `stackEntry: null`, `stack: null` — the unstacked shape the procedure expects |
-| `gh pr list --state open --base main --json number --jq length` | `0`; nothing blocks that branch's deletion |
-
-### Design audit
-
-The design was audited in three stages. The first design was accepted after five revisions; the scope-corrected revision returned **accept** at `15aa6bb` (source boundary and dispositions). The single-file delivery shape was then audited as a design-and-artifact pair at `1ff68e5`: the auditor returned **needs-revision** for two missing record risks — the documented numbering rule the procedure relies on, and the case where the landing repository's instructions name no allowed history — and both were fixed at `7f4bb91` (risks entries, the SKILL ask-or-stop rule, the S37 wording, the two merge command forms and the S32 gap note). The fix-verification round returned **accept** at `2b3b6a8`. The audit read the pinned upstream skill read-only and confirmed the single-file `SKILL.md` is faithful to it.
-
-### Implementation reviews
-
-Two independent reviewers reviewed the single-file version. Review B accepted at `2b3b6a8` with no findings. Review A returned needs-revision for one major — the branch-deletion command dropped the source's `--jq length`, so the shipped form printed `[]` against an "anything other than 0" rule — and five record/evidence minors; all were fixed at `9cd40af` (the `--jq length` restored, the URL lookup clause added, R9's basis corrected, the merged-unstackable claim restored as unverified, the removal evidence made reproducible, and the wording and audit history updated), and review A accepted that fix round. Review B confirmed its accept stands after the fixes. The earlier script-shape implementation had been accepted by both reviewers across their rounds; that shape and its acceptances are superseded by this review of the single-file version. Both acceptances cover the landed single-file version.
-
-### Landing
-
-The landing was performed on 2026-10-28 after the maintainer's review and authorization: the work-draft source lost its review-only switcher, `publish` copied the skill into `skills/dsh-spec-merging-stacked-prs/` and removed the work directory and the declared drafts, `pnpm run skill:refresh` mirrored it into `.agents/skills/`, the skill-root `THIRD_PARTY_NOTICES` and the `license` field were added, `AGENTS.md` gained the skill in its current-skills list, the root `THIRD_PARTY_NOTICES.md` gained the adapted-skill entry, and this record moved to `implemented/process/`. The forge branch was rebased onto local `refactor/dsh-skills` at `c61d49c` and squash-merged as one commit; nothing is pushed. The record carries its Chinese companion and consistency record, completed at the final review.
-
-## Unverified items
-
-- **No bundled script means no offline contract test for the procedure.** The checks are prose the agent executes; two agents can read a state differently, and nothing pins the exit semantics. This is the accepted cost of the single-file shape (R11); the source itself has the same property.
-- **A reported merge state can over-block.** A `mergeStateStatus` other than `CLEAN` blocks even where the maintainer could resolve the blocker differently, and the meaning of a status may drift. The skill names the claim and the stop; the agent must not read a status as ready by hand-waving.
-- **The numbering rule is documented, not exercised.** `gh stack merge` resolves a bare number stack-first, and the extension documents that stack and pull-request numbers never overlap, so a boundary PR's number is unambiguous; the single-file procedure relies on that documented rule, and the first real landing exercises it read-only before any merge.
-- **The landing repository's instructions may name no allowed history.** The source's two histories are then only candidates; the skill cannot choose one on the repository's behalf, so the agent reads the instructions first and asks or stops when they are silent rather than rewriting a branch on its own reading.
-- **The merged-entry unstack behaviour is unverified.** `gh stack unstack --help` confirms queued and auto-merge entries remain stacked; the source's statement that merged entries cannot be unstacked is not verified, so the shipped skill instructs a stop rather than asserting the claim (S18, R9).
-- **The merge method can be ambiguous.** When a repository prescribes no method, the source's `merge` is used; if that method is not allowed, GitHub rejects the merge and the agent resolves it through the repository's rules.
-- **A partial landing in a merge-queue repository is only partly modeled.** The re-query and remaining-layer check follow the source, but a range split into queue groups can expose intermediate states the prose does not enumerate; the first real partial landing is a handover item.
-- **GitHub's treatment of a stack that still lists merged members is unverified.** Both merge forms include the already-merged members below the boundary; the unverified behaviour is recorded rather than assumed.
-- **No live stack was audited.** The GraphQL shape is confirmed by a read-only probe and introspection, but a real official stack may expose states the procedure does not enumerate. The first real landing confirms it read-only.
-- **No merge-authorization gate is carried.** The skill merges after a passing preflight, as the source does; the re-query and no-bypass rules are the guards, and an adopting project that wants a human answer adds it in its own layer (R8).
-- **Review-draft and pairing steps.** The skill review draft is created at the stop after the last English edit; a later edit re-opens it. This record is paired with its Chinese companion and consistency record.
-- **The landing is a local commit, not a pushed one.** The remote tracking branch still points at the pre-landing head, and the maintainer decides when to push.
-
-## Handover
-
-The maintainer reviewed the work and authorized the landing on 2026-10-28. The landing performed these acts:
-
-- Removed the review-draft-only English switcher from the work-draft source, then published the work directory into `skills/dsh-spec-merging-stacked-prs/` and removed the work directory; `publish` removed the declared review drafts.
-- Added the skill-root `THIRD_PARTY_NOTICES` and the `license` frontmatter field, and added the skill to the root `THIRD_PARTY_NOTICES.md` list of adapted skills.
-- Refreshed the installed copies, so `.agents/skills/dsh-spec-merging-stacked-prs/SKILL.md` mirrors the landed skill.
-- Updated the skill list in `AGENTS.md`.
-- Moved this record to `implemented/process/` with its Chinese companion and consistency record.
-- Rebased the forge branch onto `refactor/dsh-skills` at `c61d49c` and squash-merged it as one commit; nothing is pushed.
-
-The acts and decisions below remain with the maintainer:
-
-- Push `refactor/dsh-skills` when the landing should be published; the remote tracking branch still points at the pre-landing head.
-- Audit a real stack read-only before the first real landing; the unverified states are listed above.
-- Keep or delete the forge branch and worktree; the squash commit is the landed state.
+The skill ships no bundled script (R11): the source is a single prose file whose requirements are executed by the agent through `gh` and GraphQL, and the single-file shape was chosen over a read-only audit script. The exactly-decidable conditions the source names — stack membership, order, base chain, open/non-draft/compliance, `MERGED`, branch-base safety — are carried as the same inline commands, with their expected outcomes and stop rules stated beside them. This trades away the script's stable JSON/exit contract and its offline tests; it keeps the agent free to re-derive, inspect raw output, and handle states a script does not model. The consequence is recorded in § Consequences.
 
 ## Alternatives considered
 
-**Keep the read-only audit script.** It gave a stable JSON/exit contract and 46 offline tests, and it was accepted twice. It lost because the driver reviewed its rigidity and coverage risk — an unmodeled state or a false blocker can stop the agent, and the script was starting to act as the skill's gate rather than an aid — and chose the upstream single-file shape, where the agent runs the source's own commands and can re-derive, inspect raw output and adapt. The trade is recorded in R11 and § Risks.
+**Keep the read-only audit script.** It gave a stable JSON/exit contract and 46 offline tests, and it was accepted twice. It lost because the driver reviewed its rigidity and coverage risk — an unmodeled state or a false blocker can stop the agent, and the script was starting to act as the skill's gate rather than an aid — and chose the upstream single-file shape, where the agent runs the source's own commands and can re-derive, inspect raw output and adapt. The trade is recorded in R11 and § Consequences.
 
 **Copy the upstream skill unchanged.** It is the shortest route to a faithful mechanism. It lost because the upstream text points at documents the target does not ship (the root `AGENTS.md` and the cookbook page) and fixes one repository's merge method and history policy; the target needs those points stated or disposed.
 
@@ -249,5 +118,5 @@ The acts and decisions below remain with the maintainer:
 - The skill is the upstream mechanism in one file: the official stack object as membership authority, additive same-author linking, the two refresh histories, `gh stack merge` only, whole-stack or bounded-prefix landing, and `MERGED` before deletion, with the source's commands carried inline.
 - Costs: no bundled script means no stable JSON/exit contract and no offline contract test for the procedure; the checks rest on the agent's reading of GitHub's state. The single-file shape also gives up the script-shape's deterministic preflight and 46 offline cases.
 - What it bought: a skill that stays close to the upstream single file, with no package or test surface for adopters to maintain, and an agent free to re-derive, inspect raw output and handle states a script does not model.
-- Risks carried forward: the documented numbering rule, a landing repository that names no allowed history, merge-method ambiguity, merge-queue intermediate states, GitHub's handling of stacks that still list merged members, and the absence of a live stack audit (all listed in § Unverified items).
+- Risks carried forward: the documented numbering rule, a landing repository that names no allowed history, merge-method ambiguity, merge-queue intermediate states, GitHub's handling of stacks that still list merged members, and the absence of a live stack audit.
 - Rollback: revert the squash commit on `refactor/dsh-skills` and refresh the installed copies again; `submodules/dsh` is untouched, so no upstream pin needs repair.
