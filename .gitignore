@@ -33,3 +33,6 @@ build/
 
 ### Installed skills are tracked: every collaborator runs the same revision. ###
 ### Update them with `gh skill install --force`, never by editing in place. ###
+
+### Vite+ build cache (never committed) ###
+node_modules/

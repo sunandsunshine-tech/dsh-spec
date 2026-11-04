@@ -19,12 +19,16 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+        with:
+          version: 12.14.0
+
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24'
 
       - name: the functional suite
-        run: node --test 'tests/**/*.test.ts'
+        run: pnpm test
 
       # `github.sha` on a pull_request is the merge commit GitHub creates, whose author is whoever
       # pushed and which carries no sign-off, so the range would name a commit the change never

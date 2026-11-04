@@ -50,7 +50,7 @@ function git(...a: string[]): string {
  * time: being a GitHub App is not by itself a reason to skip the DCO, and every entry is an
  * identity a contributor may wear.
  */
-const BOT_AUTHORS: { pattern: RegExp, login: string, trailer: string, why: string }[] = [
+const BOT_AUTHORS: { pattern: RegExp; login: string; trailer: string; why: string }[] = [
   {
     pattern: /^\d+\+dependabot\[bot\]@users\.noreply\.github\.com$/,
     login: 'dependabot[bot]',
@@ -83,7 +83,10 @@ try {
   process.exit(1)
 }
 
-const commits = log.split(RS).map((chunk) => chunk.trim()).filter((chunk) => chunk.length > 0)
+const commits = log
+  .split(RS)
+  .map((chunk) => chunk.trim())
+  .filter((chunk) => chunk.length > 0)
 if (commits.length === 0) {
   console.error(`verify-dco: the range ${range} holds no commit; nothing was checked`)
   process.exit(1)
@@ -111,7 +114,9 @@ for (const chunk of commits) {
   const bot = BOT_AUTHORS.find((candidate) => candidate.pattern.test(authorEmail))
   const exempt = bot !== undefined && named === bot.trailer
   if (!exempt && named !== author && named !== committer) {
-    failures.push(`${sha.slice(0, 12)}  signs ${named}, but the commit's author is ${author} and its committer is ${committer}`)
+    failures.push(
+      `${sha.slice(0, 12)}  signs ${named}, but the commit's author is ${author} and its committer is ${committer}`,
+    )
     continue
   }
   if (!exempt) continue
@@ -126,7 +131,9 @@ for (const chunk of commits) {
   const login = api(sha, '.author.login')
   const verified = api(sha, '.commit.verification.verified')
   if (type === undefined || login === undefined || verified === undefined) {
-    failures.push(`${label}\n      GitHub could not be asked about it, and a claim this gate cannot check is not a claim it accepts`)
+    failures.push(
+      `${label}\n      GitHub could not be asked about it, and a claim this gate cannot check is not a claim it accepts`,
+    )
     continue
   }
   if (type !== 'Bot') {
@@ -134,11 +141,15 @@ for (const chunk of commits) {
     continue
   }
   if (login !== bot.login) {
-    failures.push(`${label}\n      the address resolves to ${login}, which is not the bot this address is claimed for (${bot.login}, ${bot.why})`)
+    failures.push(
+      `${label}\n      the address resolves to ${login}, which is not the bot this address is claimed for (${bot.login}, ${bot.why})`,
+    )
     continue
   }
   if (verified !== 'true') {
-    failures.push(`${label}\n      ${login}'s commit is not signed by GitHub (verification.verified is ${verified}); a locally written commit cannot be`)
+    failures.push(
+      `${label}\n      ${login}'s commit is not signed by GitHub (verification.verified is ${verified}); a locally written commit cannot be`,
+    )
     continue
   }
   console.log(`  verified  ${label}  ${login}, GitHub-signed`)
@@ -152,6 +163,6 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `verify-dco: ${commits.length} commit(s) in ${range} carry a Signed-off-by naming their author`
-  + `, and ${claims === 0 ? 'none claims a bot identity that had to be verified' : `each of the ${claims} claiming a bot identity is that bot, signed by GitHub`}.`,
+  `verify-dco: ${commits.length} commit(s) in ${range} carry a Signed-off-by naming their author` +
+    `, and ${claims === 0 ? 'none claims a bot identity that had to be verified' : `each of the ${claims} claiming a bot identity is that bot, signed by GitHub`}.`,
 )

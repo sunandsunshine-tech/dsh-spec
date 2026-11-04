@@ -62,7 +62,11 @@ const payload = {
   // The snapshot API rejects a payload without it — `422 scanned is required` — and it is what dates
   // the snapshot on the graph.
   scanned: new Date().toISOString(),
-  job: { id: `vendored-${SHA || 'local'}`, correlator: 'vendored-notices', html_url: `https://github.com/${OWNER}/actions` },
+  job: {
+    id: `vendored-${SHA || 'local'}`,
+    correlator: 'vendored-notices',
+    html_url: `https://github.com/${OWNER}/actions`,
+  },
   detector: { name: 'dsh-spec vendored notices', version: '1', url: `https://github.com/${OWNER}` },
   manifests: {
     'THIRD_PARTY_NOTICES.md': { name: 'THIRD_PARTY_NOTICES.md', resolved },
