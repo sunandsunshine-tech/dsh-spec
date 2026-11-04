@@ -1,0 +1,19 @@
+# Bilingual-pair consistency record for 2026-09-22-the-roles-an-agent-acts-by.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec-agent-notes/archived/process/2026-09-22-the-roles-an-agent-acts-by.md
+/agent-note-the-roles-an-agent-acts-by:
+  en: 52712c124e10f181
+  zh: 962ef4dc79d0b7e6
+/agent-note-the-roles-an-agent-acts-by/problem:
+  en: a67f4d586b725827
+  zh: dd8eeb44ed0a5aa9
+/agent-note-the-roles-an-agent-acts-by/decision:
+  en: 5de12817e4d91ff2
+  zh: 3c1c5fa6aca035c7
+/agent-note-the-roles-an-agent-acts-by/alternatives-considered:
+  en: 18ac73ece6ea5a3c
+  zh: fbadac454b36fc98
+/agent-note-the-roles-an-agent-acts-by/consequences:
+  en: c27e2c6817f647f6
+  zh: 5a669ea89a8ac8c2

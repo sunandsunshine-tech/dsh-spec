@@ -35,7 +35,7 @@ function withWorkspace(check: (ws: Workspace) => void): void {
 test('refresh mirrors every skill and leaves other installed skills alone', () => {
   withWorkspace((ws) => {
     ws.write('skills/alpha/SKILL.md', '# Alpha\n')
-    ws.write('skills/alpha/script/run.mjs', 'console.log("alpha")\n')
+    ws.write('skills/alpha/scripts/run.mjs', 'console.log("alpha")\n')
     ws.write('skills/beta/SKILL.md', '# Beta\n')
     ws.write('.agents/skills/alpha/SKILL.md', '# Old alpha\n')
     ws.write('.agents/skills/alpha/stale.md', 'stale\n')
@@ -44,7 +44,7 @@ test('refresh mirrors every skill and leaves other installed skills alone', () =
     const result = run(ws)
     assert.equal(result.status, 0, result.output)
     assert.equal(ws.read('.agents/skills/alpha/SKILL.md'), '# Alpha\n')
-    assert.equal(ws.read('.agents/skills/alpha/script/run.mjs'), 'console.log("alpha")\n')
+    assert.equal(ws.read('.agents/skills/alpha/scripts/run.mjs'), 'console.log("alpha")\n')
     assert.equal(ws.exists('.agents/skills/alpha/stale.md'), false)
     assert.equal(ws.read('.agents/skills/beta/SKILL.md'), '# Beta\n')
     assert.equal(ws.read('.agents/skills/other/SKILL.md'), '# Other\n')

@@ -1,0 +1,19 @@
+# Bilingual-pair consistency record for 2026-09-23-delegation-follows-the-harness-and-the-prompt.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec-agent-notes/implemented/process/2026-09-23-delegation-follows-the-harness-and-the-prompt.md
+/agent-note-delegation-follows-the-harness-and-the-prompt:
+  en: 42563dabe6e2fbec
+  zh: 915ec09023434a0f
+/agent-note-delegation-follows-the-harness-and-the-prompt/problem:
+  en: bbdd13561c62ae0a
+  zh: f6406e41df513e69
+/agent-note-delegation-follows-the-harness-and-the-prompt/decision:
+  en: 23c514c96072ce5f
+  zh: e3a70e89ff875059
+/agent-note-delegation-follows-the-harness-and-the-prompt/alternatives-considered:
+  en: 35a689671275c1dc
+  zh: 02def4dbedd1b820
+/agent-note-delegation-follows-the-harness-and-the-prompt/consequences:
+  en: d7fb0eb79c0c2e87
+  zh: 481488a8f2cbd540

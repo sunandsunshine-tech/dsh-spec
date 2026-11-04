@@ -1,0 +1,31 @@
+# Bilingual-pair consistency record for 2026-10-19-forging-dsh-spec-skill-forge.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec-agent-notes/archived/process/2026-10-19-forging-dsh-spec-skill-forge.md
+/agent-note-forging-dsh-spec-skill-forge:
+  en: 858adb8dde2d7b6e
+  zh: 1d8375bd311e90f2
+/agent-note-forging-dsh-spec-skill-forge/problem:
+  en: c8146c75e3b82681
+  zh: c230a7ae5ebeadd0
+/agent-note-forging-dsh-spec-skill-forge/decision:
+  en: ba616397a1b36df9
+  zh: b77238a286e926d1
+/agent-note-forging-dsh-spec-skill-forge/decision/forging-settings:
+  en: b54b62a77a613d79
+  zh: cbe6c3240e703857
+/agent-note-forging-dsh-spec-skill-forge/decision/anchor-list:
+  en: c7cf6c91ab27fbac
+  zh: 5f42b9ca45c2ae78
+/agent-note-forging-dsh-spec-skill-forge/alternatives-considered:
+  en: d8c2edc156425dfc
+  zh: 03cddc7731383a9a
+/agent-note-forging-dsh-spec-skill-forge/consequences:
+  en: a2812bf19b6e8bb9
+  zh: 47ba93d547b2d34c
+/agent-note-forging-dsh-spec-skill-forge/verification:
+  en: df20c268f0adb47b
+  zh: 370983d96ad6bf29
+/agent-note-forging-dsh-spec-skill-forge/related:
+  en: 73a44518caddfbaa
+  zh: eec5ae4945ba7208

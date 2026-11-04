@@ -1,0 +1,67 @@
+# Bilingual-pair consistency record for 2026-10-27-forging-dsh-spec-agent-notes.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec-agent-notes/implemented/process/2026-10-27-forging-dsh-spec-agent-notes.md
+/agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism:
+  en: 0ba8f8eb3a1945e9
+  zh: a78dac1ea81e734f
+/agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/problem:
+  en: 6de8c811c1fee937
+  zh: 200f82995ee1535d
+/agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/decision:
+  en: 105188415b2bdd00
+  zh: c9e75993702e884e
+/agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/source-and-revision:
+  en: bc000742d8348021
+  zh: 78bcbbf30a3ddbaf
+/agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/settings:
+  en: ad3aa69335393f4e
+  zh: 747a35a8bcf3e845
+/agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/redesign-after-the-first-stop:
+  en: 6d2385d4d86e83cd
+  zh: 01699cd37fab1a36
+/agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/constraint-dispositions:
+  en: 8430250aaa710099
+  zh: 36982287744a5116
+/agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/constraint-dispositions/notes-contract-and-lifecycle-instructions:
+  en: eeb2516df0108f31
+  zh: 856b4622de208f2c
+/agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/constraint-dispositions/archive-workflow:
+  en: c5b99fa60a3fe39a
+  zh: 72f105cf65e6920f
+/agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/constraint-dispositions/gates-and-manifest:
+  en: 9424223c6b34f75e
+  zh: 544b5c464e201b68
+/agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/constraint-dispositions/manifest:
+  en: df99917e1f2fd0ff
+  zh: 705594bb6146b395
+/agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/constraint-dispositions/target-rulings:
+  en: 2925043b2350ceb7
+  zh: ab65f9e7f4baa95f
+/agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/requirement-anchors:
+  en: f6e8dd3bb952081b
+  zh: 7986926e14e0ed22
+/agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/verification:
+  en: a4de9bf8d07a8dc9
+  zh: 918161fbf0b17743
+/agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/review:
+  en: 824991db62dc4212
+  zh: 6ff31c40bdbd4b7b
+/agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/unverified-items:
+  en: c9e5c37c882ea85a
+  zh: 63c30841e178a5b1
+/agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/handover:
+  en: 82983569f86c3aa3
+  zh: 43bf3333cccd2359
+/agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/consequences:
+  en: a78b10c527b33168
+  zh: 70a87f8eb1ce7b03
+/agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/alternatives-considered:
+  en: 5c7ea62d768e28cc
+  zh: 81f3bba274cc2a0a
+/agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/completion:
+  en: cd151053e60a2dcd
+  zh: f0a20d443226fa15
+/agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/risks:
+  en: 0a21633f9d70c538
+  zh: ecfabc48462d988d
