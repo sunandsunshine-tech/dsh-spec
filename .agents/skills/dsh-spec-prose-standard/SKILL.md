@@ -1,12 +1,12 @@
 ---
 name: dsh-spec-prose-standard
-description: "Use when writing, reviewing, restoring, trimming, or auditing durable text — prose a project commits and later readers depend on, wherever the project keeps it: Markdown and other documentation, comments, records, instructions, prompts, diagnostics, and committed strings, among other surfaces. Covers deciding where text is required, preserving complete propositions while removing reasoning transcripts, repetition, and decoration, and auditing or fixing chain-of-thought leakage from the authoring session. Not for transient chat text or code correctness. 用于编写、评审、恢复、修剪或审计持久性文本——项目提交、后续读者依赖的文字，不论项目把它放在哪里：Markdown 与其他文档、注释、记录、指令、提示词、诊断信息与提交的文案，以及其他文本面。包括判断何处需要文字；删除推理过程、重复与装饰而保全完整命题；并审计或修复来自编写会话的思维链泄漏。不用于即时对话文字或代码正确性。"
+description: "Use when writing, reviewing, restoring, trimming, or auditing durable text — prose that outlives the session that wrote it and that later readers depend on, wherever the project keeps it: Markdown and other documentation, comments, records, instructions, prompts, diagnostics, and visible strings, among other surfaces. Covers deciding where text is required, preserving complete propositions while removing reasoning transcripts, repetition, and decoration, and auditing or fixing chain-of-thought leakage from the authoring session. Not for transient chat text or code correctness. 用于编写、评审、恢复、修剪或审计持久性文本——在写作会话结束后仍会被阅读、后续读者依赖的文字，不论项目把它放在哪里：Markdown 与其他文档、注释、记录、指令、提示词、诊断信息与可见文案，以及其他文本面。包括判断何处需要文字；删除推理过程、重复与装饰而保全完整命题；并审计或修复来自编写会话的思维链泄漏。不用于即时对话文字或代码正确性。"
 license: "MIT; upstream and repository notices in THIRD_PARTY_NOTICES"
 ---
 
 # Durable prose standard
 
-Durable text is prose a project commits and later readers depend on, not text read once in a conversation: documentation, comments, decision records, instructions, and committed prompts and visible strings. It outlives the session that wrote it; every rule assumes a reader who has the project, not the conversation. Transient conversation text, scratch notes, and code correctness are outside this skill; commit messages and change descriptions follow the project's change conventions.
+Durable text is prose that outlives the session that wrote it and that later readers depend on, not text read once in a conversation: documentation, comments, decision records, instructions, prompts and visible strings. Every rule assumes a reader who has the project, not the conversation. Transient conversation text, scratch notes, and code correctness are outside this skill.
 
 Write enough to preserve the contract, then remove reasoning transcripts, repetition, and decoration. A contract is an obligation, invariant, precondition, postcondition, or compatibility promise that a caller, callee, implementer, producer, or consumer relies on.
 
@@ -42,7 +42,7 @@ This is not a one-way shortening pass. Add or restore text when code, types and 
 
 ## Leakage audit
 
-Durable text must stand at the project's current state. Chain-of-thought leakage is prose whose vantage is the authoring session rather than the project: it cites artifacts only that session could see, narrates the change instead of the state, or argues with a reviewer who has left.
+This audit applies only to durable text that a later reader reads at the project's current state. A change description or a commit message is read as a change; its change/session vantage is not leakage under this audit. Chain-of-thought leakage is prose whose vantage is the authoring session rather than the project: it cites artifacts only that session could see, narrates the change instead of the state, or argues with a reviewer who has left.
 
 The fix is never deletion alone when a passage carries factual clauses: restate each so it stands at the current state, then delete the transcript around it. A passage that carries none — an audit code, a control-flow narration — is deleted outright.
 
