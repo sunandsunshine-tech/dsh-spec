@@ -1,0 +1,5 @@
+{
+  "name": "@dsh-spec/pre-push-checks-script",
+  "private": true,
+  "type": "module"
+}

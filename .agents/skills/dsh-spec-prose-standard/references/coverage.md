@@ -1,0 +1,16 @@
+# Required coverage by surface
+
+This is not a one-way shortening pass. Add or restore text when code, types, and structure do not communicate a required fact below; do not add text when the fact is obvious locally.
+
+- **Documentation pages, cookbooks, and guides** (the project's equivalent names): the content the page's purpose requires; for a procedural page, prerequisites, required actions, the real entry path, observable verification, and concise warnings. An unnamed shape follows the closest genre or the project's standing instructions.
+- **Public API documentation** (JSDoc, Javadoc, docstrings, doc comments — the project's form): caller-visible return distinctions, throws or rejections, side effects, ownership, timing, cancellation, and durability.
+- **Internal comments**: non-obvious contracts or rationale code cannot express, plus orientation for non-local or obviously complicated structure — invariants, race ordering, ownership, security boundaries, surprising failure behavior. Delete control-flow narration and code restatement.
+- **Module comments**: role, dependencies, responsibilities, and non-obvious architecture choices; link the architecture explanation.
+- **Tests**: explain only non-obvious test design — why a fixture, assertion, platform accommodation, real entry path, or indirect observation is necessary. Delete walkthroughs and inventories.
+- **READMEs and package documentation**: the consumer contract — configuration, semantics, failures, limitations, extension points, and model-visible effects. Quote stable visible text owned by the package; link generated catalogs and cross-package owners; keep durable gaps and maintainer traps, not cleanup inventories.
+- **Decision records** (the project's name for them, for example ADRs): unique rationale, mechanisms, alternatives, consequences, shipped verification evidence, and named coverage gaps. Implemented records state shipped reality in the present tense; remove planning checklists, not the evidence that pins the decision.
+- **Postmortems and incident reports** (the project's equivalent names): the incident sequence, evidence, causal chain, impact, and prevention. Remove repeated persuasion and implementation detail that does not establish causality.
+- **Skills and agent instructions**: behavioral guardrails and explicit scope limitations such as "guidance, not a script or a checklist"; keep the workflow concise and link its source of truth.
+- **Examples and configuration comments**: access limits, non-obvious wiring or load order, security stance, replay behavior, exceptions, and likely misuse; do not narrate entries the configuration already shows.
+- **Prompts and committed visible strings**: wording is behavior. Inspect text, accessibility names, tooltips, placeholders, and format templates together; route user-facing copy through the project's owned localizable strings. Change it only with its owning behavior evidence — the scenario or snapshot that pins the wording — otherwise leave it unchanged and report the deferral.
+- **Diagnostics**: name the failing subject or path, the violated rule, and the correction when it is non-obvious; remove internal execution narration.

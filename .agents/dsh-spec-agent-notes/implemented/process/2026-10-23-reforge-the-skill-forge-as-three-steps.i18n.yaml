@@ -1,28 +1,28 @@
-# Bilingual-pair consistency record for 2026-10-23-reforge-the-skill-forge-as-three-steps.md (references/i18n-contract.md): per heading
-# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# Pairing consistency record for 2026-10-23-reforge-the-skill-forge-as-three-steps.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
 # After editing either side, bring the other along and re-record with:
-#   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec-agent-notes/implemented/process/2026-10-23-reforge-the-skill-forge-as-three-steps.md
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-10-23-reforge-the-skill-forge-as-three-steps.md --target <lang>
 /agent-note-reforge-the-skill-forge-as-three-steps-over-the-agent-skills-guides:
-  en: 9ab04e7ad2374504
-  zh: aa8df7a54eff2af7
+  en: 1ea169bd595c1f7e
+  zh: 34d5b4152d63fadd
 /agent-note-reforge-the-skill-forge-as-three-steps-over-the-agent-skills-guides/problem:
   en: a306ea8301d56b99
-  zh: f354067801032cce
+  zh: c6d40289f9166ee5
 /agent-note-reforge-the-skill-forge-as-three-steps-over-the-agent-skills-guides/decision:
   en: 1443f25a2502551c
-  zh: a435297be062b4bb
+  zh: 2bb51f467009f80f
 /agent-note-reforge-the-skill-forge-as-three-steps-over-the-agent-skills-guides/decision/settings:
   en: 0eed92cd9d4748ca
-  zh: 10070a0fe805aac1
+  zh: 6707426490f9bfb6
 /agent-note-reforge-the-skill-forge-as-three-steps-over-the-agent-skills-guides/decision/dispositions:
   en: ea3d0ccf382cc75b
-  zh: b724943c82c51083
+  zh: 4bf68f486cdc860b
 /agent-note-reforge-the-skill-forge-as-three-steps-over-the-agent-skills-guides/decision/verification:
   en: 1b7327a663467097
-  zh: 6a3a47c1b64eb9cd
+  zh: 23edb8511a3db047
 /agent-note-reforge-the-skill-forge-as-three-steps-over-the-agent-skills-guides/alternatives-considered:
   en: 4119932e086f0ff4
-  zh: d91e1b2e8e1263c4
+  zh: d3a4c80c3d35ef7a
 /agent-note-reforge-the-skill-forge-as-three-steps-over-the-agent-skills-guides/consequences:
   en: 83b4dbc35e30438a
-  zh: 617d6993e06064fc
+  zh: 716f8a1215d843b1

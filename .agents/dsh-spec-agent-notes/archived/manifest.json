@@ -12,6 +12,9 @@
     "process/2026-10-03-teammate-reuse-and-task-affinity.zh.md": "sha256:536a5f8ad612b06758dd8797ddf13ffb11ecc10fc074ad2085ea28e14bcb8a19",
     "process/2026-10-19-forging-dsh-spec-skill-forge.i18n.yaml": "sha256:352d57363f9da123733dada2ce4b04439768ac4ec41407a1a7a2b2dc0aa7b1b7",
     "process/2026-10-19-forging-dsh-spec-skill-forge.md": "sha256:2edd1c521841c16d1fb297ce7df22b4a76f4dbd6e097a2db90627377c2975ae3",
-    "process/2026-10-19-forging-dsh-spec-skill-forge.zh.md": "sha256:2734f3c1fcbb7505e08b0b7b9035710368390a886db93a18272a7135f504ba3b"
+    "process/2026-10-19-forging-dsh-spec-skill-forge.zh.md": "sha256:2734f3c1fcbb7505e08b0b7b9035710368390a886db93a18272a7135f504ba3b",
+    "process/2026-10-23-forging-dsh-spec-agent-experience.i18n.yaml": "sha256:abff4b6c62e5a89d2291753852c22d01bdce79ba09ac3caa5f9b22325d03f169",
+    "process/2026-10-23-forging-dsh-spec-agent-experience.md": "sha256:f647c7de0f92a31aedc7edd78d35e00443b3d1b82dd067e6483a2c3bd019ad49",
+    "process/2026-10-23-forging-dsh-spec-agent-experience.zh.md": "sha256:3f8bdcd3a06c3391ee643360f3b314c5fceb3b50eadbed60745a78c18f776183"
   }
 }

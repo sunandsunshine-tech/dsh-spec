@@ -1,0 +1,76 @@
+# Pairing consistency record for 2026-10-28-forging-dsh-spec-translate-docs.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-10-28-forging-dsh-spec-translate-docs.md --target <lang>
+/agent-note-forging-dsh-spec-translate-docs-as-a-self-contained-translation-mechanism:
+  en: b579da78f20fbf15
+  zh: 08eae90cd72937e2
+/agent-note-forging-dsh-spec-translate-docs-as-a-self-contained-translation-mechanism/problem:
+  en: f5442c441edb0269
+  zh: f91c3257e664f887
+/agent-note-forging-dsh-spec-translate-docs-as-a-self-contained-translation-mechanism/decision:
+  en: e31d8b3ac07d7dd8
+  zh: 9d3bff38ed9f6aac
+/agent-note-forging-dsh-spec-translate-docs-as-a-self-contained-translation-mechanism/decision/v1-amendment:
+  en: 00fdc0597cfa7026
+  zh: 6a5038962b6b46fb
+/agent-note-forging-dsh-spec-translate-docs-as-a-self-contained-translation-mechanism/decision/v2-redesign:
+  en: ffc39b4444c39152
+  zh: 0c2e7768fb313f9e
+/agent-note-forging-dsh-spec-translate-docs-as-a-self-contained-translation-mechanism/decision/deliverable-shape:
+  en: 07332bd1b1898a25
+  zh: 8e2bc6c84c4bd53a
+/agent-note-forging-dsh-spec-translate-docs-as-a-self-contained-translation-mechanism/decision/mechanism-source-and-provenance:
+  en: da21742275d45066
+  zh: 8a2e4540e3f3004c
+/agent-note-forging-dsh-spec-translate-docs-as-a-self-contained-translation-mechanism/decision/the-pairing-model:
+  en: 2a9f68742677e9c0
+  zh: a4884eefb65c8768
+/agent-note-forging-dsh-spec-translate-docs-as-a-self-contained-translation-mechanism/decision/pair-selection-and-the-multi-target-workflow:
+  en: 1104ce64ea2719f3
+  zh: 86d097f5a038b47f
+/agent-note-forging-dsh-spec-translate-docs-as-a-self-contained-translation-mechanism/decision/script-interface:
+  en: 6422ef1e64c61da7
+  zh: b1d1ba9a345414be
+/agent-note-forging-dsh-spec-translate-docs-as-a-self-contained-translation-mechanism/decision/generalisation-and-simplification-decisions:
+  en: 3ae46ad2d8027cd3
+  zh: b9bf41b12c12fbdc
+/agent-note-forging-dsh-spec-translate-docs-as-a-self-contained-translation-mechanism/decision/auto-maintenance-and-invocation-rule:
+  en: 36892120200633ed
+  zh: 5b8f76c81272d16e
+/agent-note-forging-dsh-spec-translate-docs-as-a-self-contained-translation-mechanism/decision/settings:
+  en: 306f470c6490f1b3
+  zh: cc4c5a7881eb2021
+/agent-note-forging-dsh-spec-translate-docs-as-a-self-contained-translation-mechanism/decision/source-constraints-and-dispositions-upstream-skill-md-74-lines:
+  en: 3f5ecf5608157c1a
+  zh: 88e4d02aaf0a5131
+/agent-note-forging-dsh-spec-translate-docs-as-a-self-contained-translation-mechanism/decision/rulings:
+  en: 15cda2e86e1906fd
+  zh: 0d7723f276a4ef46
+/agent-note-forging-dsh-spec-translate-docs-as-a-self-contained-translation-mechanism/decision/verification-anchors:
+  en: 8e1bd4e15387f230
+  zh: 89ef47ee9d4f2e3d
+/agent-note-forging-dsh-spec-translate-docs-as-a-self-contained-translation-mechanism/decision/feasibility-evidence:
+  en: 026e4d3cfd632e0e
+  zh: 2f0f652923fe6c3c
+/agent-note-forging-dsh-spec-translate-docs-as-a-self-contained-translation-mechanism/decision/pages-read:
+  en: b2b03c78dee16f3d
+  zh: 912f74fdfbfdeb6e
+/agent-note-forging-dsh-spec-translate-docs-as-a-self-contained-translation-mechanism/decision/sources-read:
+  en: b81c8d520535c56e
+  zh: 36c1249fbd32a783
+/agent-note-forging-dsh-spec-translate-docs-as-a-self-contained-translation-mechanism/decision/review-sequence:
+  en: 37cef63774ef8922
+  zh: ac42c38836e952d1
+/agent-note-forging-dsh-spec-translate-docs-as-a-self-contained-translation-mechanism/landing:
+  en: b90335ad2ee1edaf
+  zh: 652a44384399d136
+/agent-note-forging-dsh-spec-translate-docs-as-a-self-contained-translation-mechanism/alternatives-considered:
+  en: 8192d00e8da8372a
+  zh: f413a597f797c37b
+/agent-note-forging-dsh-spec-translate-docs-as-a-self-contained-translation-mechanism/verification:
+  en: a71fb0289c198850
+  zh: d177919c8348df75
+/agent-note-forging-dsh-spec-translate-docs-as-a-self-contained-translation-mechanism/consequences:
+  en: e84e06b162a2d829
+  zh: b532ace63073bdfe

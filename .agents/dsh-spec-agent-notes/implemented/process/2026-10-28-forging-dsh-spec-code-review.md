@@ -1,0 +1,268 @@
+# Agent Note: Forging dsh-spec-code-review from the upstream code-review skill
+
+Status: implemented
+
+English | [中文](2026-10-28-forging-dsh-spec-code-review.zh.md)
+
+## Problem
+
+When this forging starts, the rebuilt package ships the forge, the agent-experience skill and the agent-notes skill; the prose-standard, find-simplifications, pre-push-checks and error-handling skills land on the same branch in parallel while the candidate is forged. It has no code-review skill, so an adopting project gets no agent-facing procedure for reviewing a pull request against that project's own declared standards. Upstream `dsh-code-review` is that procedure for one repository: a reviewer-oriented skill that makes the reviewer establish the review's base and scope, read the owning requirements before judging a diff, check a set of blocking requirements, walk the review-specific checks that code alone cannot show, and report findings in a fixed shape. Its sections name one repository's paths and mechanisms — `pnpm change-scope`, `packages/AGENTS.md`, the defensive-patterns pages, Cordis, the client-UI localization gate, the Agent Notes tree, the bilingual rules. Carrying the text verbatim would import another project's policy and make the skill useless outside that project; leaving it out would drop a review mechanism the package exists to extract. The forging must keep the mechanism and re-bind every repository-specific referent to the adopting project's own declaration. The target audience and domain are software engineering.
+
+## Decision
+
+The package ships `dsh-spec-code-review` as an adaptation of the upstream `dsh-code-review` skill for software engineering. The landed directory holds `SKILL.md` and a skill-root `THIRD_PARTY_NOTICES`; the skill is mirrored into `.agents/skills/`, and the superseded upstream-named installed copy and its legacy-manager manifest entry are removed. `AGENTS.md` and the root `THIRD_PARTY_NOTICES.md` name the skill.
+
+`SKILL.md` keeps the upstream section names and order — Sources of truth, Blocking requirements, Manual checks, Reporting findings — and the mechanism each section carries: establish the review basis and the changed scope; read the owning requirements before judging the diff; apply the blocking requirements; walk the review-specific checks; report findings in the fixed shape. The adaptations are the disposition table's: the adopting project's declaration replaces one repository's document list; the scope requirement is stated in natural language, names the `dsh-spec-pre-push-checks` example and falls back to version control; the title names the proposed change; M9 states one authority-and-derivation test; the core review duties stay unconditional while mechanism-specific requirements carry their own condition; the siblings the package ships, or is forging, appear as parenthetical examples; the section headings stay upstream. The description is generalized with the Chinese trigger language appended, and the frontmatter `license` field names the skill-root notices. The skill ships no script, no reference and no test.
+
+### Landing settings
+
+| Setting | Value | Basis |
+|---|---|---|
+| Skill name | `dsh-spec-code-review` | the request |
+| Target domain | software engineering in a general project | the request |
+| Languages | English delivery; Chinese review draft paired at the stop; Chinese trigger keywords | the package's bilingual practice (R9) |
+| Upstream source | `submodules/dsh/.agents/skills/dsh-code-review/SKILL.md` at `dsh-v0.2.1-rc.3` (`1f81c047fc48fa190a683e469daa699857e9afe8`) | the request; the pinned baseline |
+| Landing directory | `skills/dsh-spec-code-review/` — `SKILL.md` and `THIRD_PARTY_NOTICES` | the landing convention |
+| Installed copy | `.agents/skills/dsh-spec-code-review/`, refreshed with `pnpm run skill:refresh` | repository practice |
+| Record | this note in `implemented/process/`, with its Chinese pair | the notes contract |
+| Review drafts | `SKILL.zh.md` and `SKILL.i18n.yaml`, removed by `publish` with the language switcher | R5 |
+| Superseded content | `.agents/skills/dsh-code-review/` and its manifest entry removed | the maintainer's landing order |
+| Script and tests | none | R4 |
+| Branch | started on `refactor/dsh-skills` at `609514c`, rebased onto its tip for landing and squashed into one landing commit | the request |
+| Runtime and tools | none for the skill; the reviewed project's scope tooling, or version control, supplies the changed scope | R2 |
+
+## Source and revision
+
+Upstream source: `deepseek-ai/deepseek-harness`, pinned in `submodules/dsh` at `1f81c047fc48fa190a683e469daa699857e9afe8` (`dsh-v0.2.1-rc.3`). The one source file is the upstream checkout's `.agents/skills/dsh-code-review/SKILL.md` (61 lines); the line citations in the disposition table are upstream lines. The forging worktree's submodule is not initialized, so the file is read from the main checkout's `submodules/dsh/` in this session's checkout, whose gitlink is the same `1f81c04`; the citations stay reproducible from the branch's gitlink.
+
+Not read as source:
+
+- The documents the upstream skill links to (`AGENTS.md`, the defensive-patterns pages, the prose, test-reliability, client-UI and error-handling skills, the testing policy, the notes tree, the translation rules). They are the referents whose generic equivalents the disposition table names; their text is that repository's policy and is not carried. The upstream skill's own text states the requirements this forging adapts.
+- The rest of `submodules/dsh`. The submodule is the pinned baseline; it is neither fetched nor edited.
+- This repository's installed copies under `.agents/skills/`. They are deployed state from an earlier skill set; the installed code-review copy was confirmed to be that deployed state and is not a design source.
+- Earlier forging records and decision records, except as this repository's record format and process guidance require a record to follow. `AGENTS.md` is the adopter's declaration; the notes contract supplies the record skeleton.
+- The repository's applied norms (`.agents/dsh-spec/norms/`). The norms govern this repository's own work; they are not part of the upstream skill, and no design decision in this record rests on them. The upstream skill is the only content source for the forged skill.
+
+Read as the adopter's declaration and mechanism:
+
+- `AGENTS.md` — the repository layout, the commands, the boundaries and the conventions, read only for the delivery facts the record needs: where the skill lands, which review-draft suffixes are declared, and where the forging record lives.
+- `skills/dsh-spec-skill-forge/SKILL.md` and its scripts' `--help` (the forging procedure, the disposition vocabulary, the gate, the draft/pair/publish lifecycle).
+- `skills/dsh-spec-agent-notes/SKILL.md` and `references/notes-contract.md` (the record lifecycle, the proposed skeleton, the companion rules).
+- `package.json` and `package/README.md` (the declared review-draft suffixes, the work-directory lifecycle, the script packaging convention).
+- `README.md` and `tests/README.md` (what the package ships, and the scope of the repository's suite).
+
+Agent Skills pages read online on 2026-10-28, before writing the skill:
+
+- `https://agentskills.io/llms.txt`
+- `https://agentskills.io/specification.md`
+- `https://agentskills.io/skill-creation/best-practices.md`
+- `https://agentskills.io/skill-creation/optimizing-descriptions.md`
+
+Every page was readable; the forge skill's offline fallback was not used.
+
+## Target shape
+
+The landed skill is one file with the upstream section skeleton:
+
+- Frontmatter: `name: dsh-spec-code-review`; the description triggers on reviewing a proposed change against the project's declared standards and names the review-specific checks code alone cannot show; Chinese trigger language appended; the `license` field names the skill-root notices.
+- `# Reviewing a proposed change`: the guidance framing, the verified base/head, the changed scope, the priority order, and the "read the requirements before judging the diff" paragraph.
+- `## Sources of truth`: the declaration and the categories it fills — standing instructions at the root and in each changed subtree; the design or architecture rules it cites, one owning page per artifact; the documentation and prose standard; the standards it names for the changed area, for example prose, test reliability, error handling or UI/UX; the testing policy and quality gates; the decision records; the language and terminology policy for paired changes. The core review duties are unconditional; the mechanism-specific requirements carry their own condition.
+- `## Blocking requirements`: six numbered requirements, each keeping its upstream property; the mechanism-specific ones carry their own condition while the core duties stand unconditionally.
+- `## Manual checks`: the review-specific checks, each keeping its concrete content.
+- `## Reporting findings`: defect, location, impact and evidence; inline versus change-level; blockers versus suggestions; green-gate exclusions; reply and receiving-review conduct.
+
+## Constraint dispositions
+
+Dispositions use the forge skill's values: **Keep** carries the original wording and sense with language and layout adjustments; **Adapt** instantiates a target value; **Re-bind** abstracts a vanished referent to its purpose and finds the target's equivalent; **Dissolve** records that the referent is gone and what check takes over. The constraint column states the source requirement, including the source's own names; the basis states the target fact. Target homes: `SK` = the skill's single `SKILL.md`; section names follow the target shape above.
+
+### Frontmatter, title and description
+
+| # | Source | Constraint | Disposition | Home | Basis |
+|---|---|---|---|---|---|
+| D1 | `SKILL.md:2` | The skill is named `dsh-code-review`. | Adapt | `SK` frontmatter `name` | the request names `dsh-spec-code-review`; the package's skills carry the `dsh-spec-` prefix |
+| D2 | `SKILL.md:3` | The description triggers on reviewing a pull request in the deepseek-harness repository and names what it orients the reviewer to: that codebase's standards (AGENTS.md conventions, defensive patterns, ADRs, quality gates) and the review-specific checks code alone cannot show. | Adapt | `SK` frontmatter `description` | the trigger becomes reviewing a proposed change in a software project — a pull request, merge request, patch set, diff or working-tree change — against the project's declared standards; the standards list becomes the categories of `SK § Sources of truth`; the "checks code alone cannot show" clause is kept; Chinese trigger language is appended per the setting |
+| D3 | `SKILL.md:6` | The title names the source repository's pull request. | Adapt | `SK` `# Reviewing a proposed change` | the target is repository-neutral and its title names the proposed change its description and body already cover |
+
+### Review framing and sequence
+
+| # | Source | Constraint | Disposition | Home | Basis |
+|---|---|---|---|---|---|
+| I1 | `SKILL.md:8` | The skill is guidance, not a complete checklist. | Keep | `SK` intro | upstream text |
+| I2 | `SKILL.md:8` | Verify and fetch the pull request's live base and exact head before reviewing. | Keep | `SK` intro | upstream text; the mechanism is VCS-neutral |
+| I3 | `SKILL.md:8` | Run `pnpm --silent run change-scope --base <verified-base-ref> --head <verified-head-ref>` before reading the diff and enough surrounding code to understand the design. | Re-bind | `SK` intro | the command is the source repository's; the target states the requirement in natural language — establish the changed paths and any uncommitted, staged, or untracked work, from the project's declared scope tooling (when available, use the `dsh-spec-pre-push-checks` skill) or from version control — and prescribes no command |
+| I4 | `SKILL.md:8` | The scope report identifies paths and dirty layers but does not replace semantic review. | Adapt | `SK` intro | the scope output is the changed paths and any uncommitted, staged, or untracked work; the limit — scope output does not replace semantic review — is kept |
+| I5 | `SKILL.md:8` | Re-establish the base and rerun the scope step after a retarget or merge. | Keep | `SK` intro | upstream text |
+| I6 | `SKILL.md:8` | Prioritize correctness, lifecycle, security and broken required behavior over style; a short review with one substantiated blocker is better than a list of nits. | Keep | `SK` intro | upstream text |
+| I7 | `SKILL.md:10` | Read the requirements before judging the diff: map the changed paths to the artifacts below, open each owning page from Sources of truth, then read the diff against those requirements. | Adapt | `SK` intro; `SK § Sources of truth` | the owning artifacts are the declaration-derived ones of `SK § Sources of truth`; the mapping and ordering are kept |
+| I8 | `SKILL.md:10` | Judging a diff against memory of the rules is how a violation passes review. | Keep | `SK` intro | upstream text |
+
+### Sources of truth
+
+| # | Source | Constraint | Disposition | Home | Basis |
+|---|---|---|---|---|---|
+| S1 | `SKILL.md:14` | `AGENTS.md` and `packages/AGENTS.md` are the standing repository and package authoring rules. | Adapt | `SK § Sources of truth` | the adopting project's declaration: `AGENTS.md` (or the file it cites) at the root and in each changed subtree |
+| S2 | `SKILL.md:15-20` | `docs/defensive-patterns/` states the architecture requirements a change must satisfy and the habits behind them; each page owns one artifact, with page topics general.md (timing, async state, value representation, shared ownership, decentralization, refactors, migrations, performance evidence, disposal, callbacks, subprocesses), package-surface.md, remote-and-api.md, client-components.md and conversation-and-session.md; read every page the diff touches. | Re-bind | `SK § Sources of truth` | where the project declares design or architecture rules, each changed artifact's owning page is read; the source's page identities and topic lists are that repository's instances and are not carried, while the mapping rule — map each changed artifact to the page that owns it, read every page the diff touches — is kept |
+| S3 | `SKILL.md:21` | `docs/AGENTS.md` owns documentation placement and prose discipline. | Adapt | `SK § Sources of truth` | the adopting project's documentation rules |
+| S4 | `SKILL.md:22` | `dsh-prose-standard` owns required coverage and editorial judgment for comments, docs, prompts and visible strings. | Re-bind | `SK § Sources of truth`; `SK § Blocking requirements` | the equivalent is the prose standard the declaration names (a skill or a page); where the project declares none, the review uses the documentation rules it does declare and says so |
+| S5 | `SKILL.md:23` | `dsh-ci-test-reliability` owns isolation and regression-proof rules for resource-owning, asynchronous or flaky tests and fixtures. | Re-bind | `SK § Sources of truth`; `SK § Manual checks` | where the project declares test-reliability rules, they are read; where it declares none, the check names the gap and reviews the test's isolation on its merits |
+| S6 | `SKILL.md:24` | `dsh-client-ui-ux` owns feedback-surface choice, overlay safety, platform window adaptation and visual token discipline for product-user-visible GUI changes. | Re-bind | `SK § Sources of truth` | where the project declares UI/UX rules and the change touches product-user-visible GUI, they are read and applied; where it declares none or the change touches no GUI, the category does not apply |
+| S7 | `SKILL.md:25` | `dsh-error-handling` owns failure classification, handling ownership, containment, state guarantees and actionable reports. | Re-bind | `SK § Sources of truth`; `SK § Manual checks` | where the project declares an error-handling standard, it is read and applied; where it declares none, the check reviews the failure paths on their merits and says so |
+| S8 | `SKILL.md:26` | `docs/testing.md` and the quality-gates reference own the required test tiers and gates. | Adapt | `SK § Sources of truth` | the adopting project's testing policy and quality gates, when declared |
+| S9 | `SKILL.md:27` | The Agent Notes carry design rationale; disagreement with one is a design discussion, not an automatic veto. | Adapt | `SK § Sources of truth` | the adopting project's decision records and the contract beside them, when declared |
+| S10 | `SKILL.md:28` | For bilingual changes read the translation rules and terminology table; the extended translation skill is outside automatic review and runs only on explicit user invocation. | Adapt | `SK § Sources of truth` | where the project declares paired-language or terminology rules, they are read; the extended translation workflow and its explicit-invocation rule apply only where the project declares such a workflow; otherwise content is reviewed on its merits |
+| S11 | `SKILL.md:12-28` | The section's list is one repository's fixed paths and roles. | Re-bind | `SK § Sources of truth` | the target states the categories and the mapping procedure, and the declaration supplies the concrete paths; the source's fixed list is not carried |
+
+### Blocking requirements
+
+| # | Source | Constraint | Disposition | Home | Basis |
+|---|---|---|---|---|---|
+| B1 | `SKILL.md:32` | New prose receives semantic review: use `dsh-prose-standard` to critically review every added or changed Markdown passage, JSDoc, comment, prompt, description, diagnostic and visible string; verify required coverage, accuracy, placement and editorial quality against the owning code or behavior; automated checks do not establish those properties. | Adapt | `SK § Blocking requirements` | the prose standard is the one the declaration names (S4); "JSDoc" becomes API documentation in whatever form the project uses; the rule's properties are kept |
+| B2 | `SKILL.md:33` | Docs match the code: config, defaults, errors, wire fields, events and public behavior update the package README and JSDoc in the same diff; comments state non-obvious contracts; implementation narration, test walkthroughs, review history and duplicated rationale are flagged for deletion or a link to their one home. | Adapt | `SK § Blocking requirements` | where the project documents behavior, the documentation that owns it replaces the package README and JSDoc; where it documents none, the review records the absence; the comments, narration, walkthrough, review-history and duplication rules are kept |
+| B3 | `SKILL.md:34` | Core type docs match: changes to spine or seam vocabulary update the appropriate subsystems page and any `type-equiv` entry; internal types need no catalog entry. | Adapt | `SK § Blocking requirements` | where the project documents types, interfaces or core terms, the change updates the page that owns them; where it verifies a documented type block mechanically (the source's `type-equiv` instance), the block is updated in the same change; internal types need no entry; where the project documents no such vocabulary, the requirement records the absence |
+| B4 | `SKILL.md:35` | Cordis ownership and cleanup: when reviewing Cordis plugin code or helpers reachable from its entrypoints, load and apply `cordis-styling-nitpicking` to the changed behavior and affected consumers; check its three P0 rules — singleton state, unreversed effects, cleanup dependencies released before consumers finish; verify each new registry contribution passes the disposal tests `packages/AGENTS.md` requires. | Re-bind | `SK § Blocking requirements` | where the project has a registration, subscription or effect mechanism, the requirement applies; the three defect checks become: no process-wide or module-level singleton state whose identity or lifetime comes from module loading; every registered effect or subscription has a matching teardown that runs on disposal; a dependency needed to release other resources stays usable until the consumer has settled, rather than being released first. Each new contribution passes the disposal expectations the project's owning rules state. The framework name, its skill, its three rule names and its entrypoint scope are not carried (R8) |
+| B5 | `SKILL.md:36` | Required evidence exists: verify the author ran the relevant local checks for the diff and that CI covers the exhaustive matrix; review the semantic gaps neither can detect. | Adapt | `SK § Blocking requirements` | the checks the declaration requires for the diff; where the project declares CI, CI covers the exhaustive matrix; the semantic gaps neither can detect are reviewed. Where no checks are declared, the review asks what evidence the change owes and records the absence instead of inventing a gate |
+| B6 | `SKILL.md:37` | Client UI copy is locale-owned: reject product text embedded in JSX, templates, helper returns, accessibility attributes or primitive defaults; require typed dictionary keys, the standard `t` seat or explicit localized props, `verify-client-ui-i18n`, and behavior evidence in each affected locale; preserve user, model and wire data and code tokens verbatim. | Re-bind | `SK § Blocking requirements` | where the project declares user-visible copy and a localization mechanism, the requirement applies. Re-bound: product text must not be embedded in code, templates, helper returns, attribute strings or primitive defaults; the declared typed localization mechanism is required; behavior evidence in each affected locale is required; user, model and wire data and code tokens stay verbatim. Dissolved: JSX, the `t` seat, the source's verification command and the source's component model — the declared mechanism and command replace them. Where the project declares no such mechanism, the category does not apply and says so |
+
+### Manual checks
+
+| # | Source | Constraint | Disposition | Home | Basis |
+|---|---|---|---|---|---|
+| M1 | `SKILL.md:41` | Intent and interface contracts: trace both sides of every changed interface; confirm the implementation matches the PR and any Agent Note, including errors, cancellation, ownership and disposal. | Adapt | `SK § Manual checks` | "any Agent Note" becomes any decision record the project keeps; the rest is kept |
+| M2 | `SKILL.md:42` | Error handling: apply `dsh-error-handling` to changed failure paths, their state guarantees and final user-visible reports; reject catch-and-continue unless the state owner establishes that subsequent work's preconditions hold, including after recovery. | Re-bind | `SK § Manual checks` | the declared error-handling standard replaces the named skill (S7); the rule is kept where the project declares one, and reviewed on its merits where it does not |
+| M3 | `SKILL.md:43` | Lifecycle and concurrency: for async setup, callbacks, processes or teardown, apply `defensive-patterns/general.md`; check races before publication, cancellation during awaits, independent error reporting, callback containment, ownership before reentry, complete detach cleanup and quiescent disposal. | Re-bind | `SK § Manual checks` | the declared design rules for lifecycle and concurrency replace the named page (S2); the seven concrete checks are kept and are also listed in the manual-check text |
+| M4 | `SKILL.md:44` | Capability and consumer fit: trace every current consumer, then flag consumer-specific behavior leaking into the interface under the package rules; flag the inverse — a new public method on a generic service (registry, session, agent) whose only caller is one internal consumer is an unnecessary API expansion, so require a private capability closure handed to that consumer at construction. | Adapt | `SK § Manual checks` | "the package rules" become the adopting project's rules for its public surface; the registry, session and agent examples become generic service examples; the check is kept |
+| M5 | `SKILL.md:45` | Scope, ownership and necessity: map each abstraction, state machine, option, defensive copy and compatibility path to its current contract, production consumer and owning plugin or service; challenge unrelated features and speculative generality against the root rules. | Adapt | `SK § Manual checks` | "plugin or service" becomes "module or service"; "the root rules" become the project's standing rules; the rest is kept |
+| M6 | `SKILL.md:46` | Configuration and public choices: ask what current-consumer evidence or prior art supports each default, public operation set, format or imported external concept; require an explicit choice or deferral when that evidence is absent. | Keep | `SK § Manual checks` | upstream text |
+| M7 | `SKILL.md:47` | Model perspective: inspect the exact prompts, tool schemas, results and diagnostics the model receives across affected modes; flag concepts outside the model's task; verify stable text verbatim and dynamic behavior through snapshots or end-to-end coverage. | Re-bind | `SK § Manual checks` | where the change touches a machine-facing surface, inspect the exact inputs, outputs and diagnostics its consumer receives across affected modes — prompts and tool results for an agent, request and response fields for a service, output and diagnostics for a CLI; flag concepts outside that consumer's task; verify stable text verbatim and dynamic behavior through snapshots or end-to-end coverage. Where the change touches no such surface, the check does not apply |
+| M8 | `SKILL.md:48` | Enforcement: follow every denial path to the operation that executes it; exercise direct and alternate callers that can bypass schemas, prompts, facades, wrappers or listener ordering. | Keep | `SK § Manual checks` | upstream text |
+| M9 | `SKILL.md:49` | Borrowed and derived state: determine whether each retained value is borrowed or owned under the package contract; trace notifications and every cache, prompt, UI echo, replay and query view to the documented success point and the authoritative source. | Adapt | `SK § Manual checks` | the essence is stated directly: every retained value has one authoritative owner, and every derived copy traces to that source and to the point where it is refreshed or invalidated. "The package contract" is not carried, and the source's prompt, UI-echo and query-view instances are replaced by cache, projection, notification, echo, replay and view |
+| M10 | `SKILL.md:50` | Bounds cover the final operation: locate the owner of the complete emitted or retained result including wrappers and metadata; probe tiny and exact limits, oversized single chunks and multibyte text for byte limits. | Keep | `SK § Manual checks` | upstream text |
+| M11a | `SKILL.md:51` | Real entry path: tests exercise the shipped Loader, bin, worker, ACP bridge or subprocess where relevant; a hand-mounted plugin does not catch invalid Loader exports. | Adapt | `SK § Manual checks` | where the project ships a launcher, binary, worker or subprocess, tests exercise it; a fixture that mounts the module by hand does not catch an invalid entry contract; where the project ships no such entry, the check does not apply |
+| M11b | `SKILL.md:51` | A function plugin must named-export its namespace and have no default export. | Dissolve | `SK § Manual checks` | the loader contract is one framework's; M11a's real-entry-path check takes over, and the adopting project's own entry rules define what a valid entry is (R8) |
+| M12 | `SKILL.md:52` | Test strength: assertions fail on the intended regression and verify external state, logs, events or disposal rather than restating the implementation or trusting an agent's report; coverage is necessary but not evidence that the scenario is correct. | Keep | `SK § Manual checks` | upstream text |
+| M13 | `SKILL.md:53` | Test reliability: for a resource-owning, asynchronous, platform-sensitive or flaky test, apply `dsh-ci-test-reliability` to the real worker or job topology, resource allocation, global-state restoration, synchronization, timeout budget and quiescent teardown. | Re-bind | `SK § Manual checks` | the declared test-reliability rules replace the named skill (S5); the concrete checks are kept and apply to tests of that kind |
+| M14 | `SKILL.md:54` | Negative controls: verify a deliberately invalid case fails through the real runner for each changed acceptance rule. | Keep | `SK § Manual checks` | upstream text |
+| M15 | `SKILL.md:55` | Implemented Agent Notes match shipped reality: when a change implements a proposed Agent Note, move and rewrite it as present-tense shipped state in the same diff, then verify paths, names and mechanisms against the implementation. | Adapt | `SK § Manual checks` | "Agent Note" becomes the adopting project's decision record; the rest is kept |
+| M16 | `SKILL.md:56` | Transcript changes: editor-visible or model-visible changes update snapshots or explain why no snapshot applies; review expected-output diffs as behavior changes, not formatting noise. | Adapt | `SK § Manual checks` | "editor-visible or model-visible" becomes user-visible or machine-visible, the surfaces a general project snapshots; the rule is kept where the project keeps snapshots, and the absence of a snapshot is explained where it does not |
+| M17 | `SKILL.md:57` | Bilingual changes: compare meaning and terminology on both sides; a green pairing hash does not prove translation quality. | Adapt | `SK § Manual checks` | "bilingual" becomes the paired or translated content the project declares; where it declares none, the check does not apply; the source's pairing-hash instance becomes the project's pairing check, and the rule is kept |
+
+### Reporting findings
+
+| # | Source | Constraint | Disposition | Home | Basis |
+|---|---|---|---|---|---|
+| R1 | `SKILL.md:61` | State the defect, location, impact and evidence. | Keep | `SK § Reporting findings` | upstream text |
+| R2 | `SKILL.md:61` | Place a localized defect inline on the tightest relevant diff range; use a PR-level comment for cross-cutting architecture, scope or review-wide synthesis. | Adapt | `SK § Reporting findings` | "PR-level" becomes the change-level comment on the review surface the project uses |
+| R3 | `SKILL.md:61` | Separate blockers from suggestions and omit issues already enforced by a green gate. | Keep | `SK § Reporting findings` | upstream text |
+| R4 | `SKILL.md:61` | Use the existing GitHub review thread for replies. | Adapt | `SK § Reporting findings` | "GitHub" is one review surface; the existing thread on whatever surface the project uses is the equivalent |
+| R5 | `SKILL.md:61` | When receiving review, verify each claim and fix or rebut it on technical grounds without performative agreement. | Keep | `SK § Reporting findings` | upstream text |
+
+## Target rulings
+
+| # | Ruling | Why | Reversible by |
+|---|---|---|---|
+| R1 | The review's requirements come from the adopting project's declaration — `AGENTS.md` or the file it cites — and from the artifacts that declaration names. The target states the categories to find and the mapping procedure, not fixed paths. The core review duties hold for any software project and are stated unconditionally; only requirements that govern an external mechanism the project may not have are conditioned on it, and a requirement that carries a fallback records an undeclared standard as a gap rather than replacing it from the source repository. | A general project's standards are its own; a fixed list would be one repository's policy under another name, while unconditional core duties keep a thin declaration from weakening the review itself. | Change the sources section and the per-requirement conditions. |
+| R2 | The changed scope is established in natural language: the changed paths and any uncommitted, staged, or untracked work, from the project's declared scope tooling (when available, use the `dsh-spec-pre-push-checks` skill) or from version control. No command is prescribed and no script is bundled. | The upstream command belongs to the source repository; the requirement is domain-neutral once its result is stated instead of its tool, and bundling a scope tool would invent a mechanism the target does not own. | Prescribe a default command or add a bundled scope script. |
+| R3 | The skill is one `SKILL.md` with no `references/` directory. | The adapted text is expected to fit the gate's line and token budget, and every review needs the whole checklist, so a progressive-disclosure split would add retrieval cost without reducing the loaded context. The stop records the measured size. | Split the manual checks into a reference when the file approaches the gate limit. |
+| R4 | No script ships and no package source or test is added. | Upstream names two repository-specific commands (change-scope and client-UI locale verification); neither ships, and the target has no requirement a command decides exactly. The repository's existing gate, pairing checks and reviewers are the evidence a prose skill can carry. | Add a script when a target requirement becomes mechanically decidable. |
+| R5 | The Chinese review draft is produced only at the stop, as `SKILL.zh.md` plus the `SKILL.i18n.yaml` pairing record written by the project's pairing gate; no intermediate translation is produced or paired. The record's own Chinese companion is written at landing, at the maintainer's reviewed decision. | The request defers translation work to the stop; the forge's declarative pairing lets the drafts be produced once against the final text, and the landing is where the record's pair is owed. | Produce the record pair later or land the record unpaired. |
+| R6 | The Chinese review draft's description reverses the language order: its own language first, the delivery language as the additional trigger language. | The forge's review rule: a review draft is read by its own language's reader. | Change the ordering rule in the work directory. |
+| R7 | The work directory is the only authority; landing is the maintainer's decision after review. Publish, the installed-copy refresh and the squash merge happen only on that authorization; pushing stays outside the landing. | Landing was a decision the maintainer had to make; the work directory and branch stayed reversible until it. | Revert the landing commit; the pre-squash branch holds the candidate. |
+| R8 | The dsh-specific framework and loader rules are dissolved, not carried; the general ownership, cleanup, entry-path and machine-facing-surface checks take their place. | A general project does not run those frameworks; the properties are the transferable part, and keeping the names would make the skill one project's again. | Restore a framework section when an adopter needs one. |
+| R9 | The description carries the Chinese trigger language because delivery is English and the review language is Chinese. | The forge's language rule; the package's other skills follow it. | Change the review language setting. |
+| R10 | No source-repository path, command, framework name or repository name remains in the shipped `SKILL.md`; a grep over the candidate is the check. | A leaked referent recreates the defect the adaptation removes, and the grep decides it exactly. | Add a referent with a recorded reason. |
+| R11 | The core review duties — reading the requirements before the diff, keeping documentation and documented vocabulary true, requiring evidence, reporting findings — are unconditional. A requirement that governs an external mechanism the project may not have is conditional on that mechanism: localized user-facing copy, a registration or effect framework, snapshots, paired content, test-reliability rules for asynchronous or flaky tests, and a project-declared prose, error-handling or testing standard. A requirement that carries a fallback records the missing standard as a gap. | A general project may lack those mechanisms, so conditioning the mechanism-specific requirements avoids inventing them; conditioning a core duty would let a thin declaration skip the review itself. | Make a mechanism requirement unconditional when every project is assumed to have it, or condition a core duty. |
+| R12 | The package's own skills are named as optional examples, not dependencies: where a skill applies to a standard the review uses (prose, error handling, decision records, translation briefs, pre-push check selection), the shipped text names it in one parenthetical form, "(when available, use the `dsh-spec-…` skill)", optionally with a short purpose inside the parentheses; `dsh-spec-translate-docs` ships as a sibling example. A project without the skill still reviews against the declared standard. | The package installs each skill independently, so a named skill may be absent; the example form keeps the guidance without creating a dependency. | Remove the parentheticals or make a named skill a hard requirement. |
+
+## Requirement anchors
+
+| # | Requirement | Anchor | Evidence |
+|---|---|---|---|
+| 1 | `SKILL.md` passes the Agent Skills gate at the defaults or the values named. | Mechanical | the gate's output, quoted in § Verification |
+| 2 | Name, directory name and description length match the specification; the description is non-empty and within 1024 characters. | Mechanical | the gate's `name`, `description` and `frontmatter fields` lines |
+| 3 | Every source constraint has one disposition row with a home in the shipped text. | Judged | reviewer A enumerates the source and the table; one conclusion per row |
+| 4 | No source-repository path, command, framework name or repository name remains. | Mechanical | the source-leak grep in § Verification |
+| 5 | The upstream review mechanism's parts are present in order: guidance framing; verified base/head and changed scope before the diff; requirements mapped to owning pages before judging; blocking requirements; manual checks; reporting. | Judged | reviewers A and B against the source; one conclusion per part |
+| 6 | The sources of truth are the adopting project's declaration and the categories it fills, not a fixed list; the core review duties are unconditional and the mechanism-specific requirements are conditioned on the mechanism. | Judged | reviewer B against R1 and R11 |
+| 7 | The skill degrades honestly when the declaration names fewer categories: it records the gap instead of inventing a standard or mechanism. | Judged | reviewer B against the conditional wording |
+| 8 | The description triggers on reviewing a proposed change in a software project against the project's standards, carries the synonyms, and carries the Chinese trigger language. | Judged | reviewer B; the description text |
+| 9 | The declared review drafts pair, no orphan draft remains, and the project pairing gate passes. | Mechanical | the forge `pair` report and `translation-pair check` output |
+| 10 | The record is in `implemented/process/` and passes the notes format check. | Mechanical | the notes check output |
+| 11 | The repository suite, the format check and the DCO range pass; the landing's shared-file changes are the declared ones in `AGENTS.md`, the root `THIRD_PARTY_NOTICES.md`, the superseded copy and the manifest entry. | Mechanical | the commands in § Verification and `git diff --name-only` |
+| 12 | Two independent reviews return accept at the final snapshot. | Judged | the round entries in § Review |
+| 13a | The design commits precede the first work-directory commit. | Mechanical | `git log --oneline` order in § Verification |
+| 13b | Both design audits accepted the design before forging started, and the revised design was re-audited until both accepted. | Judged | the design-audit entries in § Review, recorded from the auditors' verdicts |
+| 14 | The landing is performed on the maintainer's authorization and nothing is pushed: the skill is published and mirrored, the forge branch has no remote tracking ref, and the pre-squash branch remains local. | Mechanical | the directory listing, `git branch -r` and the merge result in § Landing |
+
+## Verification
+
+Run from the worktree root unless a command names another directory; the results below were executed on the landed snapshot before the squash merge.
+
+| Check | Command | Result |
+|---|---|---|
+| Landed skill gate | `node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs skills/dsh-spec-code-review --max-lines 500 --max-tokens 5000` | 13 checks, 0 failed; 59 lines, ~3,490 tokens, description 505 characters, license 59 characters; 0 relative links |
+| Installed copy identity | `node scripts/refresh-skills.ts`; `diff -r skills/dsh-spec-code-review .agents/skills/dsh-spec-code-review` | 8 skills mirrored, 0 failed; the two trees are identical |
+| Superseded skill removed | `ls .agents/skills/`; `grep -n 'dsh-code-review' scripts/dsh-spec-manager/references/manifest.json` | no `dsh-code-review` installed directory and no manifest entry |
+| Old-name references | `grep -rn 'dsh-code-review' --include='*.md' --include='*.json' . --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=submodules` | the remaining matches are the historical release notes, this record's upstream provenance lines and a link inside the superseded `.agents/skills/dsh-translate-docs` copy; no live skill, declaration, installed copy or manifest names it as the installed skill |
+| Pairing gate | `node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair check .agents/dsh-spec-agent-notes/implemented/process/2026-10-28-forging-dsh-spec-code-review.md --root .` | `check translation-pair: ok`; the corpus-wide list is green |
+| Notes gate | `node skills/dsh-spec-agent-notes/scripts/notes.mjs check --companion .zh.md --companion .i18n.yaml` | `ok   check — 36 note(s) and 70 companion(s) checked` |
+| Repository suite | `pnpm test` | 216 tests, 216 pass, 0 fail (includes the installed-copy identity case) |
+| Formatting | `pnpm run format:check` | all matched sources formatted, exit 0 |
+| Whitespace and range | `git diff --check`; `git diff --stat refactor/dsh-skills...HEAD` | clean; the range is the landed skill, its installed copy, the removed old skill, the declarations and the record pair |
+| Commit trailers | `node scripts/verify-dco.ts --base=refactor/dsh-skills --head=HEAD` | the twelve forge commits carry a `Signed-off-by` naming their author; the landing commit is made with `--signoff` |
+
+## Review
+
+The design was audited before forging by two independent reviewers. The first design returned *needs revision* from both audiences: one major in the ownership-and-cleanup re-bind, and two majors in the missing existence conditions and in a pairing-record step the verification plan lacked. The reworked design stated each source requirement in the constraint column and the target fact in the basis, conditioned only the mechanism-specific requirements, added the pairing step and corrected the handover; the re-audit accepted it from both reviewers with record-precision minors, applied before any skill file was written.
+
+The forged candidate was reviewed independently in two rounds. The first returned *accept* from both audiences with no blocker and no major; its eight minors were word and record precision — declaration-silent fallbacks, the M9 mapping, scope wording, related-skill form and residual source vocabulary. A further four revisions then applied the maintainer's review: the title naming the proposed change, the natural-language scope requirement, the unified related-skill examples, the M9 shortening, the conditional asymmetry, the exclusion of the repository's norms from the record's sources and the scope example. A final confirmation round accepted the resulting snapshot from both reviewers with no blocker and no major; its record-precision findings were applied before landing. The maintainer then reviewed the result and authorized landing and the removal of the superseded skill.
+
+The pre-squash forge branch remains as the local backup; the landing commit is the single commit on `refactor/dsh-skills`.
+
+## Unverified items
+
+- Whether the mechanism improves a review in a general software project is not mechanically testable here: the reviewers and the maintainer judge the text, and an adopter's review practice is the evidence.
+- Trigger quality is judged, not measured: the trigger-rate evaluation the Agent Skills pages describe needs a harness that invokes the skill repeatedly, which this repository does not set up.
+- Translation fidelity: the Chinese pair is current at landing, and the pair record proves currency, not quality; the maintainer's review owns whether the two sides say the same thing.
+- The projection from one repository's standards to a general declaration is a judgment: a project that declares fewer standards gets the core duties and a recorded gap rather than the source repository's policy, and the record accepts that weaker result.
+- A source leak that a keyword grep cannot see — a paragraph that paraphrases one repository's policy without naming it — is judged by the reviewers against the source text.
+- The forging worktree's submodule is uninitialized; the upstream file was read from the main checkout at the same gitlink, so the line citations are reproducible from the gitlink rather than from the worktree tree.
+- `dsh-spec-translate-docs` is named as a parenthetical example while it is still being ported; the example creates no dependency.
+- The superseded `.agents/skills/dsh-translate-docs` copy still links to the removed old-name directory; that copy is deployed state awaiting its own replacement, and the link is not repaired here.
+
+## Landing
+
+The work directory was published into `skills/dsh-spec-code-review/`; `publish` removed the declared review drafts and the work directory. The landing adds the `license` field and the skill-root `THIRD_PARTY_NOTICES`, mirrors the skill into `.agents/skills/`, deletes the superseded `.agents/skills/dsh-code-review/` and its `scripts/dsh-spec-manager/references/manifest.json` entry, lists the skill in `AGENTS.md` and the root `THIRD_PARTY_NOTICES.md`, updates the error-handling note's reference to the installed sibling, and moves this note to `implemented/process/` with its Chinese pair. The forge branch is rebased onto the current `refactor/dsh-skills` tip and squashed into one landing commit; nothing is pushed, and the pre-squash forge branch remains as the local backup.
+
+## Alternatives considered
+
+**Carry the upstream text verbatim.** It lost because the request's audience and domain are software engineering, not the source repository: the verbatim text imports another project's commands, paths, framework rules and policy, and every one of them is false for an adopter.
+
+**Reuse the deployed `.agents/skills/dsh-code-review` adaptation.** It lost because the deployed copies are not a design source for this forging; the request names the upstream skill, and every carried constraint must trace to that source. Reusing an earlier adaptation would leave the record unable to show the disposition of each source unit.
+
+**Ship a change-scope script.** It lost because the upstream command is the source repository's tooling; the requirement is domain-neutral once its result is stated instead of its tool, and a bundled scope script would invent a mechanism the target does not own.
+
+**Split the manual checks into a reference file.** It lost because the adapted text is expected to fit the gate's budget and every review needs the whole checklist; progressive disclosure would add a retrieval step without reducing the context a review uses.
+
+**Replace the sources of truth with a generic best-practices checklist.** It lost because the mechanism is review against the project's own declared standards — generic advice cannot tell a reviewer what this project decided — and the reviews would no longer be able to cite an owning page.
+
+**Keep the dsh-specific checks as conditional sections.** It lost because a condition written in one project's vocabulary still carries that vocabulary into a general skill; their general properties are re-bound instead, and the framework names are dissolved (R8). The reverse error — conditioning the core duties as if every project's declaration were thin — is what R11 rules out.
+
+**Keep the upstream bilingual rules as mandatory.** It lost because whether a project pairs languages is its own declaration; the target keeps the paired-content check conditional on the project's policy.
+
+**Leave the candidate unpublished at the stop.** It lost because the maintainer reviewed and authorized landing: until that authorization the work directory and branch were the reversible state, and the authorization is what turned the candidate into the landed skill.
+
+**Keep the blanket category conditionality.** It lost because the maintainer ruled the core review duties unconditional and only mechanism-specific requirements conditional: conditioning every category let a thin declaration read as permission to skip the review itself.
+
+**Rename the section headings for clarity.** It lost because the maintainer ruled the section headings follow upstream, so `## Sources of truth`, `## Blocking requirements`, `## Manual checks` and `## Reporting findings` keep their names.
+
+**Publish without removing the superseded installed copy.** It lost because the new skill replaces `.agents/skills/dsh-code-review/`; the maintainer asked for the old skill and its associated entry to be removed, so the landing deletes the installed copy and the manifest entry and keeps the pinned upstream baseline untouched.
+
+**Land the record without its Chinese pair.** It lost because the notes tree's implemented records carry their pairs, and the maintainer's review is the point at which the pair is written (R5); the pair record proves currency, not quality.
+
+## Consequences
+
+- The set ships `dsh-spec-code-review` at `skills/dsh-spec-code-review/` and its installed copy at `.agents/skills/dsh-spec-code-review/`; the superseded upstream-named installed copy and its manifest entry are gone, and `AGENTS.md` and the root `THIRD_PARTY_NOTICES.md` name the skill.
+- The skill is prose-only: the upstream mechanism and its concrete checks are carried as the disposition table records, with the declaration-based re-binding, the natural-language scope requirement, the M9 essence and the conditional asymmetry as the deliberate deviations.
+- The forge branch is squashed into one landing commit on `refactor/dsh-skills`; the pre-squash branch remains local as the backup.
+- **Costs and limits.** A project that declares fewer standards gets the core duties and a recorded gap rather than a source-repository policy; the related-skill examples are guidance rather than dependencies; the adapted text is close to the source by design, so provenance rests on the reviewers' comparison; the Chinese pair's fidelity is the human review item.
+- **Rollback.** Revert the landing commit; the pre-squash forge branch and the repository history keep the removed installed copy and the earlier candidate.

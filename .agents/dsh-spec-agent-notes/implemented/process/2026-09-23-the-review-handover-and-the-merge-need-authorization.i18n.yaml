@@ -1,19 +1,19 @@
-# Bilingual-pair consistency record for 2026-09-23-the-review-handover-and-the-merge-need-authorization.md (references/i18n-contract.md): per heading
-# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# Pairing consistency record for 2026-09-23-the-review-handover-and-the-merge-need-authorization.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
 # After editing either side, bring the other along and re-record with:
-#   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec-agent-notes/implemented/process/2026-09-23-the-review-handover-and-the-merge-need-authorization.md
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-09-23-the-review-handover-and-the-merge-need-authorization.md --target <lang>
 /agent-note-the-review-handover-and-the-merge-need-authorization:
-  en: cfd4050a6e130725
-  zh: 0328dd1f9bb1939c
+  en: c4d6291f46336fe1
+  zh: 6d979e523306131e
 /agent-note-the-review-handover-and-the-merge-need-authorization/problem:
-  en: 5fe2fa638354f3a0
-  zh: 5095c9a77b6b8b55
+  en: 9b4dbd25106404a5
+  zh: 0dd418000fc17b8c
 /agent-note-the-review-handover-and-the-merge-need-authorization/decision:
-  en: 3753d51bf3ad29ef
-  zh: c269f935e8ed48cf
+  en: 8474f1531bc2d964
+  zh: c01d8ab7ee79adb4
 /agent-note-the-review-handover-and-the-merge-need-authorization/alternatives-considered:
   en: e4966ac9f866369f
-  zh: d6bea605d7e1bd42
+  zh: 8263fa5f519f6c42
 /agent-note-the-review-handover-and-the-merge-need-authorization/consequences:
   en: 9511f4f942e651e2
-  zh: 0e19ed461f8a3645
+  zh: 1c9cfd9eab87090e

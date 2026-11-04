@@ -1,19 +1,19 @@
-# Bilingual-pair consistency record for 2026-09-23-delegation-follows-the-harness-and-the-prompt.md (references/i18n-contract.md): per heading
-# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# Pairing consistency record for 2026-09-23-delegation-follows-the-harness-and-the-prompt.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
 # After editing either side, bring the other along and re-record with:
-#   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec-agent-notes/implemented/process/2026-09-23-delegation-follows-the-harness-and-the-prompt.md
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-09-23-delegation-follows-the-harness-and-the-prompt.md --target <lang>
 /agent-note-delegation-follows-the-harness-and-the-prompt:
-  en: 42563dabe6e2fbec
-  zh: 915ec09023434a0f
+  en: e8e17ec6a30983dd
+  zh: dec360ee7fd1151a
 /agent-note-delegation-follows-the-harness-and-the-prompt/problem:
   en: bbdd13561c62ae0a
-  zh: f6406e41df513e69
+  zh: 76a9ec8353f9186c
 /agent-note-delegation-follows-the-harness-and-the-prompt/decision:
-  en: 23c514c96072ce5f
-  zh: e3a70e89ff875059
+  en: 1da3d5ea5ea9be42
+  zh: 0da2f6bd219add42
 /agent-note-delegation-follows-the-harness-and-the-prompt/alternatives-considered:
   en: 35a689671275c1dc
-  zh: 02def4dbedd1b820
+  zh: de5094ff9fa71abc
 /agent-note-delegation-follows-the-harness-and-the-prompt/consequences:
   en: d7fb0eb79c0c2e87
-  zh: 481488a8f2cbd540
+  zh: b042b5dedec53473

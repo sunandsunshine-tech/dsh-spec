@@ -1,19 +1,19 @@
-# Bilingual-pair consistency record for 2026-09-23-a-text-names-its-reader.md (references/i18n-contract.md): per heading
-# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# Pairing consistency record for 2026-09-23-a-text-names-its-reader.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
 # After editing either side, bring the other along and re-record with:
-#   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec-agent-notes/implemented/process/2026-09-23-a-text-names-its-reader.md
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-09-23-a-text-names-its-reader.md --target <lang>
 /agent-note-a-text-names-its-reader:
-  en: de8f14872f53ad7a
-  zh: c8b598b181bcb6a9
+  en: 909facd809a558de
+  zh: 2aea09ea29f25e53
 /agent-note-a-text-names-its-reader/problem:
   en: e0e1cb241c69ddf1
-  zh: 4cbdbbbab4e35a48
+  zh: a133c4665658ceb5
 /agent-note-a-text-names-its-reader/decision:
   en: 41f84ecd4997e712
-  zh: 28dc25bd4f4bb4f7
+  zh: e9fb55e0120781d4
 /agent-note-a-text-names-its-reader/alternatives-considered:
   en: 0f41bd90789a04ab
-  zh: 97aa330316621de9
+  zh: 6a57adfee955eb16
 /agent-note-a-text-names-its-reader/consequences:
   en: 626bf749f869d3c2
-  zh: c58d76b3d6c11d34
+  zh: b3384499abe8e1d4

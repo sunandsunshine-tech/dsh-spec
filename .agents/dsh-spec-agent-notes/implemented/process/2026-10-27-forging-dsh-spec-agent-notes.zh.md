@@ -16,10 +16,13 @@ Status: implemented
 - `references/notes-contract.md` —— 活跃树约定：布局、分类、何时写、文件格式、生命周期移动、伴随文件、修剪。
 - `references/archive-contract.md` —— 冻结归档：什么可以进入、单元、归档变更、manifest、冻结保证、封印与验证、交接。
 - `scripts/notes.mjs` —— 适配后的机械门禁：`init` 用于一次性生成树骨架，`check` 用于活跃树，`archive`/`archive --write` 用于冻结归档。
+- `THIRD_PARTY_NOTICES` —— 技能文本与打包门禁从上游改编后的来源声明；frontmatter 的 `license` 字段点名它。
 - `package/dsh-spec-agent-notes/` —— 门禁的 TypeScript 源码，带 `vite.config.ts` 与 `build.ts`；打包产物是 `scripts/notes.mjs`。
 - `tests/agent-notes.test.ts` —— 门禁的测试，维护在本仓库中，不随技能发布。
 
-默认记录根目录：项目根下直接放置 `.agents/dsh-spec-agent-notes/`，可用 `--root` 覆盖，并由采用方的声明指定；归档根目录始终是 `<notes root>/archived`。首次停下之后，人工简化了设计——Git 作为前提、以技能命名的根目录、封印时的伴随文件完整性与只比对 manifest 的验证、一个 `init` 命令、一个精简的、锚定 checkout 的身份检查、上游类别保持不变，以及一个带仓库测试的 TypeScript 打包脚本。这次重设计记录在 § 首次停下之后的重设计 中；落地时工作目录已发布到 `skills/`，安装副本已刷新，本仓库的笔记已迁移到新的默认根目录。
+默认记录根目录：项目根下直接放置 `.agents/dsh-spec-agent-notes/`，可用 `--root` 覆盖，并由采用方的声明指定；归档根目录始终是 `<notes root>/archived`。首次停下之后，人工简化了设计——Git 作为前提、以技能命名的根目录、封印时的伴随文件完整性与只比对 manifest 的验证、一个 `init` 命令、一个精简的、锚定 checkout 的身份检查、上游类别保持不变，以及一个带仓库测试的 TypeScript 打包脚本。这次重设计记录在 § 首次停下之后的重设计 中；落地时工作目录已发布到 `skills/`，安装副本已刷新，本仓库的笔记已迁移到新的默认根目录。来源声明在落地之后补充，遵循 [2026-10-28 锻造记录](2026-10-28-forging-dsh-spec-agent-experience.zh.md) 记录的规则：技能根通知与 frontmatter 的 `license` 字段，门禁现在随该字段报告 15 项检查。
+
+- 跨技能指引：`## Companions` 只把 `dsh-spec-translate-docs` 作为可用性限定的示例点名；项目的配对门禁仍是约束机制。
 
 ## 来源与修订
 
@@ -316,7 +319,7 @@ Status: implemented
 
 | 检查 | 命令 | 结果 |
 |---|---|---|
-| 技能规范门禁 | `node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs .agents/dsh-spec-skill-forge/dsh-spec-agent-notes` | 14 项检查，0 项失败；123 行，约 4,973 tokens；description 837 个字符；compatibility 117 个字符 |
+| 技能规范门禁 | `node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs .agents/dsh-spec-skill-forge/dsh-spec-agent-notes` | 14 项检查，0 项失败；124 行，约 4,971 tokens；description 837 个字符；compatibility 117 个字符 |
 | 随附门禁构建 | `pnpm run skill:build -- dsh-spec-agent-notes` | 从 `package/dsh-spec-agent-notes/notes.ts` 构建一个包；38,121 字节，gzip 后 9,634 字节；单个自包含 ES module，无运行时依赖 |
 | 门禁语法 | `node --check .agents/dsh-spec-skill-forge/dsh-spec-agent-notes/scripts/notes.mjs` | 退出码 0 |
 | 门禁测试套件 | `node --test tests/agent-notes.test.ts` | 82 个测试，82 个通过，0 个失败 |
@@ -447,7 +450,7 @@ Status: implemented
 - 落地：发布、刷新、笔记迁移、dsh 基线更新与 fast-forward 合并都已执行；旧笔记机制与归档技能安装已移除。
 - 配对格式状态：最新。工作目录配对已被 `publish` 移除；本记录的配对与迁移后笔记的配对带管理器的章节哈希，且都是最新的，管理器检查通过（R14）。
 - 重设计之前的检查：技能门禁 14/14（119 行，约 4310 tokens，description 674）；随附测试 72/72；上游语料 346 份记录、692 个伴随文件与 2,772 件产物；两个来源范围干净；记录及其伴随文件通过随附门禁；`forge.mjs review --check` 为绿；`pnpm test` 112/112；`pnpm run format:check` 为绿；DCO 尾注已验证。这些是历史；重设计后的候选在其停下时重新记录它们（P5）。
-- 重设计之后的检查：§ 验证——技能门禁 14/14，123 行、约 4,973 tokens（description 837 个字符，compatibility 117）；82 个门禁测试与 194 个仓库测试通过；上游语料报告 346 份记录、692 个伴随文件与 2,772 件产物，在没有伴随文件声明的情况下通过验证；来源扫描报告 0 个仅采用方的 5/6-gram，上游根指令文件在范围内；模拟发布通过门禁，没有配对残留；记录格式门禁报告 30 份记录与 60 个伴随文件；`pnpm run format:check` 与 DCO 范围都为绿。按 R14，中文配对在此停下时是最新的并已检查。
+- 重设计之后的检查：§ 验证——技能门禁 14/14，123 行、约 4,973 tokens（description 837 个字符，compatibility 117）；82 个门禁测试与 262 个仓库测试通过；上游语料报告 346 份记录、692 个伴随文件与 2,772 件产物，在没有伴随文件声明的情况下通过验证；来源扫描报告 0 个仅采用方的 5/6-gram，上游根指令文件在范围内；模拟发布通过门禁，没有配对残留；记录格式门禁报告 38 份记录与 76 个伴随文件；`pnpm run format:check` 与 DCO 范围都为绿。按 R14，中文配对在此停下时是最新的并已检查。
 - 中文评审配对：落地技能不携带配对；本记录的配对与迁移后笔记的中文伴随文件都是最新的并已检查。其保真度是人工评审事项；配对记录证明的是时效性，不是质量。
 
 ## 后果

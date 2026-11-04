@@ -1,22 +1,22 @@
-# Bilingual-pair consistency record for 2026-10-13-dependabot-signs-with-a-fixed-address.md (references/i18n-contract.md): per heading
-# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# Pairing consistency record for 2026-10-13-dependabot-signs-with-a-fixed-address.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
 # After editing either side, bring the other along and re-record with:
-#   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec-agent-notes/implemented/process/2026-10-13-dependabot-signs-with-a-fixed-address.md
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-10-13-dependabot-signs-with-a-fixed-address.md --target <lang>
 /agent-note-dependabot-signs-with-a-fixed-address-so-the-dco-gate-accepts-that-one:
-  en: 78554d03dbbd5752
-  zh: 280efcd2c3953b80
+  en: b10407d9168b21b6
+  zh: 87cc38f1347c2c25
 /agent-note-dependabot-signs-with-a-fixed-address-so-the-dco-gate-accepts-that-one/problem:
   en: 5932fd947a562a16
-  zh: 5c0d3be572b2e6f6
+  zh: 835d0dcef196ba27
 /agent-note-dependabot-signs-with-a-fixed-address-so-the-dco-gate-accepts-that-one/decision:
   en: fb924eacba50472a
-  zh: f14cf74f0eaefafa
+  zh: 8fdc98af9dafbb60
 /agent-note-dependabot-signs-with-a-fixed-address-so-the-dco-gate-accepts-that-one/alternatives-considered:
   en: 5b5848c04348ce75
-  zh: 712f0eb3703ce8d8
+  zh: a181be590d4d8cae
 /agent-note-dependabot-signs-with-a-fixed-address-so-the-dco-gate-accepts-that-one/consequences:
   en: 07f9543bc471bac4
-  zh: 115d457ab23126d6
+  zh: 9cd3838e1bf3d8eb
 /agent-note-dependabot-signs-with-a-fixed-address-so-the-dco-gate-accepts-that-one/testing:
   en: a7468455076fc6fb
-  zh: 42dd604517d00a00
+  zh: cb7296a21ee26800

@@ -1,22 +1,22 @@
-# Bilingual-pair consistency record for 2026-09-21-the-note-trigger-follows-dsh.md (references/i18n-contract.md): per heading
-# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# Pairing consistency record for 2026-09-21-the-note-trigger-follows-dsh.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
 # After editing either side, bring the other along and re-record with:
-#   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec-agent-notes/implemented/process/2026-09-21-the-note-trigger-follows-dsh.md
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-09-21-the-note-trigger-follows-dsh.md --target <lang>
 /agent-note-the-note-trigger-follows-dsh-s-narrowing:
-  en: 3484ffd1e58dc78d
-  zh: 6215627f1335ebb3
+  en: 4abf42cb4835ba36
+  zh: f006bc15ac3f8c1f
 /agent-note-the-note-trigger-follows-dsh-s-narrowing/problem:
   en: 87b3bfcbc5ad16f6
-  zh: 9302b2e975d53c06
+  zh: 9ee72cf3e4ade751
 /agent-note-the-note-trigger-follows-dsh-s-narrowing/decision:
   en: 54218eaf91411ce1
-  zh: 9edc336dd92dad44
+  zh: fe2d4860bf8404cd
 /agent-note-the-note-trigger-follows-dsh-s-narrowing/alternatives-considered:
   en: 6441a8d8a40bc854
-  zh: 7e3be203e0aa0227
+  zh: d7ef657cb9eec39b
 /agent-note-the-note-trigger-follows-dsh-s-narrowing/consequences:
   en: d15552a87460219c
-  zh: 84718c3867b0751c
+  zh: 007bf824699a036f
 /agent-note-the-note-trigger-follows-dsh-s-narrowing/related:
   en: b2560a2d6c466e28
-  zh: d95918bd1833caec
+  zh: 9b4a11e3691b6407

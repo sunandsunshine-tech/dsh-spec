@@ -1,0 +1,67 @@
+# Pairing consistency record for 2026-10-28-forging-dsh-spec-error-handling.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-10-28-forging-dsh-spec-error-handling.md --target <lang>
+/agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill:
+  en: a0d1683edc68e6bc
+  zh: 42a84bcab2862a44
+/agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/problem:
+  en: e24c6eef1eb7ee6e
+  zh: 6154ecb98bb65793
+/agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/decision:
+  en: 4201a4bda50720a5
+  zh: eb6b37f9399e1fa2
+/agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/decision/source-and-revision:
+  en: 9b0466458d55a007
+  zh: dc88f05e0f74bfbc
+/agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/decision/supersession-check:
+  en: 1e817d3c29864007
+  zh: 38e9e6a99b67db7c
+/agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/decision/revision-after-the-first-stop:
+  en: 1b503bc4039e3bc2
+  zh: b7c3a9dbf6bb88fd
+/agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/decision/adapted-target-text:
+  en: 3f00695e4b566b8a
+  zh: 6be83c123bd837b0
+/agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/decision/presupposition-audit:
+  en: 25c3c8e82be614c3
+  zh: 11aa55cf1141fa81
+/agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/decision/description:
+  en: 9c50fa4d743f894c
+  zh: 81742e19e824a118
+/agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/decision/settings:
+  en: 3c3ab61ef8f06e32
+  zh: def04d0f7e6946aa
+/agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/decision/constraint-dispositions:
+  en: 74cb1056a24f5e45
+  zh: 06d141780e25d2de
+/agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/decision/target-rulings:
+  en: 1a0823df66561cf1
+  zh: 407a2aaddd13c320
+/agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/decision/requirement-anchors:
+  en: de46e5c3ea69b238
+  zh: 0115f44fd0043fb4
+/agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/decision/completion:
+  en: 01f9567c1e2a5934
+  zh: 976d26267d62086f
+/agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/verification:
+  en: 2b6d0ff4468b734f
+  zh: 7da04a555815073d
+/agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/verification/check-log:
+  en: 17e572f601c6770f
+  zh: dd9894e7a40e5958
+/agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/review:
+  en: 2d5818be952c5721
+  zh: e906b177dc31ad4b
+/agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/unverified-items:
+  en: 12bbed150d9dfb39
+  zh: 7bac27ac117f1930
+/agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/handover:
+  en: fef1ec2eec03e422
+  zh: d5f9d54da4f85e12
+/agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/alternatives-considered:
+  en: 135d47f8ddbf6ecb
+  zh: ff6726ba5e687141
+/agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/consequences:
+  en: 9c998fec31a3c48d
+  zh: 75f8b24f98da7ebc

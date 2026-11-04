@@ -1,40 +1,40 @@
-# Bilingual-pair consistency record for README.md (references/i18n-contract.md): per heading
-# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# Pairing consistency record for README.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
 # After editing either side, bring the other along and re-record with:
-#   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write README.md
+#   node <skill-dir>/scripts/translate-pair.mjs write README.md --target <lang>
 /dsh-spec:
-  en: 9a8a7e2b4b6e1046
-  zh: 9ccf5dd6104d030a
+  en: f665efe3686ac44d
+  zh: d5f7442a306c3bd2
 /dsh-spec/prerequisites:
   en: 925a568a5a1f494a
-  zh: e96bcd0fd8c7ba70
+  zh: f804b7c992ed382b
 /dsh-spec/install:
   en: ccddd7e3b7b68417
-  zh: 2f1e0a5d5fa5bb4b
+  zh: 812a2d9676523259
 /dsh-spec/install/install-by-hand:
   en: 54e285f6820d1aac
-  zh: 8e3727b243c49ad3
+  zh: 9bac13c3ac22990a
 /dsh-spec/install/install-with-an-agent:
   en: 70fb30e180f5b7ec
-  zh: bcb44b45d7b15533
+  zh: 74a3daaabeff3152
 /dsh-spec/what-you-get:
   en: 24d1100a4bc12efc
-  zh: a18c3a1d972cde62
+  zh: da6b7270ed374b81
 /dsh-spec/the-skill:
   en: 9813b4530e6d247d
-  zh: 23464a5a27d54592
+  zh: c20f4b1bbee6132e
 /dsh-spec/updating-the-skill-set:
   en: 23bc9bd9b23c1dcb
-  zh: f325e7d040bffb84
+  zh: db0f948d0fe8739b
 /dsh-spec/working-in-a-project-that-has-it:
   en: ec73ac5211a4b872
-  zh: 6dac3d326f26d9da
+  zh: 4ad5ca5e3be6c66d
 /dsh-spec/working-on-this-repository:
   en: aba4c07ff643c918
-  zh: d90b3f5e14edf287
+  zh: 94c0dc001a6bb757
 /dsh-spec/read-next:
   en: 1a35585bb48921e2
-  zh: 75aeb45d7c13440c
+  zh: cf73eeca953b880a
 /dsh-spec/license:
   en: 483760b9bb8b7642
-  zh: 3fa142d511f54b7f
+  zh: d6637e7e451ae556

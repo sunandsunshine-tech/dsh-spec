@@ -1,0 +1,144 @@
+# Third-party notices
+
+The text and bundled mechanism of this skill are adapted from the DeepSeek Harness
+bilingual-document workflow.
+
+- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.1-rc.3`
+  (`1f81c047fc48fa190a683e469daa699857e9afe8`).
+- Upstream paths:
+  - `.agents/skills/dsh-translate-docs/SKILL.md` — the workflow.
+  - `docs/i18n/README.md` — the pairing contract.
+  - `docs/i18n/translation-rules.md` — the translation rules.
+  - `docs/i18n/terminology.md` — the terminology-table shape.
+  - `docs/i18n/style-samples.md` — selected reviewed English-to-Chinese sample passages copied into `references/style-examples.md`, and the voice-calibration guidance adapted into the same `references/style-examples.md` file.
+  - `scripts/markdown.ts`, `scripts/translation-pairing.ts`,
+    `scripts/translation-pairing-record.ts`, `scripts/translation-links.ts`,
+    `scripts/translation-brief.ts`, `scripts/gen-translation-brief.ts`,
+    `scripts/verify-translation-pairing.ts` — the mechanism.
+  - `scripts/translation-pairing.spec.ts`, `scripts/translation-links.spec.ts`,
+    `scripts/translation-brief.spec.ts`, `scripts/markdown.spec.ts` — the regression cases.
+- Relation: adapted. The skill's procedure and its three reference contracts are forged from the
+  upstream workflow, contract, rules and style samples; the bundled `scripts/translate-pair.mjs`
+  (source in `package/dsh-spec-translate-docs/`) consolidates the upstream gate and briefing CLIs
+  into one command and generalises them: an existing-pair consistency gate instead of corpus
+  completeness, one aggregate multi-language record per source, per-file source and target
+  languages, selection filters instead of the repository manifest, an existence-aware link
+  predicate, the skill's own generated-region format with a section anchor and render/splice CLI,
+  a public-URL switcher allowance,
+  generated-source globs, and one command surface instead of two `pnpm run` scripts.
+
+- Provenance blobs, read from the pinned submodule; the adaptation base for each file:
+  - `.agents/skills/dsh-translate-docs/SKILL.md` — `6ff2650c74c7f581e6ff7f095b36eb82584c785c` (74 lines)
+  - `scripts/translation-pairing.ts` — `04ea0e72a6bd1a21c17e42da9aa2a6f14c6116a8` (419)
+  - `scripts/translation-pairing-record.ts` — `89b2bd5a46e762384f3c06359b86c6cada11ec96` (299)
+  - `scripts/translation-pairing-git.ts` — `c1cf06871e6995fa6bc923cf3298dd0b64809ec9` (60, dissolved)
+  - `scripts/translation-links.ts` — `b882803c2afd940dbbc08dc67333f4a8f33d7271` (384)
+  - `scripts/markdown.ts` — `d16d88cc9b0eb1624e6a837eb83df87d2d654a07` (277)
+  - `scripts/translation-brief.ts` — `1c76bccc317f6369c6201118de2ce183527e7ac8` (512)
+  - `scripts/gen-translation-brief.ts` — `e8dfbfe48406b1edb0d36c527a4060a74e2005f3` (331)
+  - `scripts/verify-translation-pairing.ts` — `2d950ab8ecfbea62073fb280eaa2a45c7fd3949b` (368)
+  - `scripts/translation-pairing.spec.ts` — `4db59110b2279d9cf83450b570e6f2a077dc3779` (621)
+  - `scripts/translation-links.spec.ts` — `bad098e23e449a17f8c1de271a547e0dd753483f` (281)
+  - `scripts/translation-brief.spec.ts` — `85a49a0179425732c825065e3d96614222f2d006` (287)
+  - `scripts/markdown.spec.ts` — `e0056db639fbc8daf4b382c7f9658c2dd59f9e24` (38)
+  - `docs/i18n/README.md` — `7ed0a4bf7c36c6a2e927caf40f880b969ae95c04` (69)
+  - `docs/i18n/translation-rules.md` — `f268a09cf02e1a079065441271ffb304eb81d3ee` (69)
+  - `docs/i18n/terminology.md` — `5971f886009f9b3c3da21b4b5237ecf8d6e4d744` (215)
+  - `docs/i18n/style-samples.md` — `b177b105233f9844abed5ce00a69f7fecdfe6210` (87; selected sample text copied, principles adapted)
+
+This skill is distributed under the MIT licence. The upstream and repository notices follow so
+that an installed copy carries them. This file is not part of the skill's instructions.
+
+## Bundled npm packages
+
+The bundled Markdown parser is built from these MIT-licensed packages:
+
+- ccount 2.0.1
+- character-entities 2.0.2
+- decode-named-character-reference 1.3.0
+- devlop 1.1.0
+- escape-string-regexp 5.0.0
+- mdast-util-find-and-replace 3.0.4
+- mdast-util-from-markdown 2.0.3
+- mdast-util-gfm 3.1.0
+- mdast-util-gfm-autolink-literal 2.0.1
+- mdast-util-gfm-footnote 2.1.0
+- mdast-util-gfm-strikethrough 2.0.1
+- mdast-util-gfm-table 2.0.0
+- mdast-util-gfm-task-list-item 2.0.0
+- mdast-util-to-string 4.0.0
+- micromark 4.0.3
+- micromark-core-commonmark 2.0.4
+- micromark-extension-gfm 3.0.0
+- micromark-extension-gfm-autolink-literal 2.1.0
+- micromark-extension-gfm-footnote 2.1.0
+- micromark-extension-gfm-strikethrough 2.1.0
+- micromark-extension-gfm-table 2.1.2
+- micromark-extension-gfm-task-list-item 2.1.0
+- micromark-factory-destination 2.0.1
+- micromark-factory-label 2.0.1
+- micromark-factory-space 2.1.0
+- micromark-factory-title 2.0.1
+- micromark-factory-whitespace 2.0.1
+- micromark-util-character 2.1.1
+- micromark-util-chunked 2.0.1
+- micromark-util-classify-character 2.0.1
+- micromark-util-combine-extensions 2.0.1
+- micromark-util-decode-numeric-character-reference 2.0.2
+- micromark-util-decode-string 2.0.1
+- micromark-util-edit-map 1.0.0
+- micromark-util-html-tag-name 2.0.1
+- micromark-util-normalize-identifier 2.0.1
+- micromark-util-resolve-all 2.0.1
+- micromark-util-subtokenize 2.1.0
+- unist-util-is 6.0.1
+- unist-util-stringify-position 4.0.0
+- unist-util-visit-parents 6.1.0
+
+## Upstream notice
+
+MIT License
+
+Copyright (c) 2026 DeepSeek
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+## Repository notice
+
+MIT License
+
+Copyright (c) 2026 北京三与叁山餐饮服务有限公司 (SunAndSunshine)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

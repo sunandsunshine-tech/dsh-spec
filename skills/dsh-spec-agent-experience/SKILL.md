@@ -1,13 +1,16 @@
 ---
 name: dsh-spec-agent-experience
-description: Use when writing or changing a model-facing tool definition (name, description, parameter schema, or its system-prompt section), and when designing skills, context loading, or multi-step workflows, to make information discoverable and use context efficiently. 用于编写或修改模型可见的工具定义（名称、描述、参数 schema、system-prompt 段落），以及设计技能、上下文加载或多步工作流，使信息可发现并高效使用上下文。
+description: "Use when writing or changing a prompt — a system prompt, a tool definition (name, description, parameter schema, or its system-prompt section), a skill's instructions, context-loading instructions, or the steps of a multi-step workflow — to make the prompt's information discoverable and use context efficiently. 用于编写或修改提示词——system prompt、工具定义（名称、描述、参数 schema 或 system-prompt 段落）、技能指令、上下文加载指令或多步工作流的步骤——使提示词的信息可发现并高效使用上下文。"
+license: "MIT; upstream and repository notices in THIRD_PARTY_NOTICES"
 ---
 
-- **Start with minimal context:** expose purpose, available actions, and constraints first; load detailed instructions when needed.
-- **Make discovery explicit:** every deferred resource needs a clear description and a reliable way to retrieve it.
-- **Keep critical constraints visible:** permissions, destructive effects, and required validation should appear before the relevant action.
-- **Prefer bounded outputs:** return concise results with identifiers or paths for retrieving details; avoid dumping entire logs or documents.
-- **Use locality:** include a bounded amount of likely needed adjacent context with an operation’s result. For example, deliver a thread reply with a few preceding messages. Mark omissions and truncation explicitly, and provide a way to retrieve more.
+# Writing prompts
+
+- **Start with minimal context:** a prompt states its purpose, the available actions and the constraints first, and defers detailed instructions until the task needs them.
+- **Make discovery explicit:** every resource the prompt defers needs a clear description and a reliable way to retrieve it.
+- **Keep critical constraints visible:** a prompt puts permissions, destructive effects and required validation before the action they govern.
+- **Prefer bounded outputs:** a prompt asks for concise results with identifiers or paths for retrieving details, and does not request entire logs or documents.
+- **Use locality:** include a bounded amount of likely needed adjacent context with an operation's result. For example, deliver a thread reply with a few preceding messages. Mark omissions and truncation explicitly, and provide a way to retrieve more.
 - **Evaluate total work:** saving context is useful only if it does not cause more searches, repeated reads, or mistakes.
 
 ## Tool definitions

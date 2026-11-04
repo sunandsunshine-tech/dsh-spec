@@ -1,0 +1,52 @@
+# Pairing consistency record for 2026-10-28-forging-dsh-spec-find-simplifications.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-10-28-forging-dsh-spec-find-simplifications.md --target <lang>
+/agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill:
+  en: b087a0423a9ee1ce
+  zh: 8e59eb31394b46e2
+/agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill/problem:
+  en: 928776b58948044b
+  zh: a8a52aae06ecdda7
+/agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill/decision:
+  en: 9692392375176cb3
+  zh: 528d647e6808efc5
+/agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill/decision/landing-settings:
+  en: 51fa842aa296b9f6
+  zh: c1b47f65b5601419
+/agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill/source-and-revision:
+  en: de3bd4b16e96297a
+  zh: f1be8ea98ee8a6f8
+/agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill/target-rulings:
+  en: 1ba70352c9adb261
+  zh: 4d82a2b3ba4dd7c4
+/agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill/constraint-dispositions:
+  en: 91c32ea222d2ff60
+  zh: 8397f9bdd99e6ea7
+/agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill/constraint-dispositions/the-skill-entry:
+  en: 1296538886992843
+  zh: 424a6acbfdf555ee
+/agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill/constraint-dispositions/the-calibration-reference:
+  en: 19fd9f76c6bb26b2
+  zh: b57959b00288101c
+/agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill/verification-anchors:
+  en: c24d63183f46f2a2
+  zh: f4165b628c19df0a
+/agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill/review:
+  en: 5602b268887d6319
+  zh: 4ddb7b11961f0913
+/agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill/verification:
+  en: e77b7ea36920d825
+  zh: ef5902f6b014ccf0
+/agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill/landing:
+  en: 068b0aac179f30a7
+  zh: e1ffa5144ed43ade
+/agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill/unverified-items:
+  en: 35c68e5ce235295b
+  zh: e809b69100ce924d
+/agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill/alternatives-considered:
+  en: cdfe14b39651bd84
+  zh: 3965d2566621936e
+/agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill/consequences:
+  en: d612f3417a0dd0d3
+  zh: b843cade5164c0ae

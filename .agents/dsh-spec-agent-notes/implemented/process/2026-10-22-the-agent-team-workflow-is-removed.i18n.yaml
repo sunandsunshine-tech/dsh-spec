@@ -1,31 +1,31 @@
-# Bilingual-pair consistency record for 2026-10-22-the-agent-team-workflow-is-removed.md (references/i18n-contract.md): per heading
-# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# Pairing consistency record for 2026-10-22-the-agent-team-workflow-is-removed.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
 # After editing either side, bring the other along and re-record with:
-#   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec-agent-notes/implemented/process/2026-10-22-the-agent-team-workflow-is-removed.md
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-10-22-the-agent-team-workflow-is-removed.md --target <lang>
 /agent-note-the-agent-team-workflow-is-removed:
-  en: 8653153ca3fac60b
-  zh: 6ab71d3ecbbbde65
+  en: c0a9d00d78940354
+  zh: e40ea7901cba9bb8
 /agent-note-the-agent-team-workflow-is-removed/problem:
   en: a8c094ee818d9a11
-  zh: 2f799a27aef2144d
+  zh: 68e71f4d75e81478
 /agent-note-the-agent-team-workflow-is-removed/decision:
-  en: 7551dcd4c1291fef
-  zh: c38f87fa40209e94
+  en: bc4fbe385d299e57
+  zh: 8e3fe6808f563785
 /agent-note-the-agent-team-workflow-is-removed/decision/what-was-given-up:
   en: 2801c33b0adec655
-  zh: c29ecaef3899ea38
+  zh: 618848a103377df4
 /agent-note-the-agent-team-workflow-is-removed/decision/reintroduction-condition:
   en: dd63c519fdf524e4
-  zh: 3ffdb1377cc6ce4d
+  zh: 4a1d0293f3ea972e
 /agent-note-the-agent-team-workflow-is-removed/alternatives-considered:
   en: 030d0dc712325eed
-  zh: e83487a5d17e309d
+  zh: 68fbe914068a609e
 /agent-note-the-agent-team-workflow-is-removed/consequences:
   en: efad53b2af15c0ca
-  zh: 08e01db8ee599a46
+  zh: a7ab0b154fafdada
 /agent-note-the-agent-team-workflow-is-removed/testing:
   en: 9418e11c686ea2dd
-  zh: c21914abc0a68059
+  zh: 1501b020a4d14ae9
 /agent-note-the-agent-team-workflow-is-removed/related:
-  en: 9f5eca0322b066bd
-  zh: 1e1a3ec01037a6fd
+  en: f0418376be258628
+  zh: 69b6459af1eeff60

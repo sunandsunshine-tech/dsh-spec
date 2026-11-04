@@ -1,37 +1,37 @@
-# Bilingual-pair consistency record for 2026-10-22-the-forge-marks-the-abstraction-ceiling.md (references/i18n-contract.md): per heading
-# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# Pairing consistency record for 2026-10-22-the-forge-marks-the-abstraction-ceiling.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
 # After editing either side, bring the other along and re-record with:
-#   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec-agent-notes/implemented/process/2026-10-22-the-forge-marks-the-abstraction-ceiling.md
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-10-22-the-forge-marks-the-abstraction-ceiling.md --target <lang>
 /agent-note-the-forge-marks-the-abstraction-ceiling:
-  en: 6747d72fa26de491
-  zh: e0471b4761023fbc
+  en: 33e01673717ed629
+  zh: b12993d5a97c7d37
 /agent-note-the-forge-marks-the-abstraction-ceiling/problem:
   en: 3d9642883438412c
-  zh: dcd8812ede1767b8
+  zh: 02d6d7fbfaee67f9
 /agent-note-the-forge-marks-the-abstraction-ceiling/decision:
   en: 118edc3555b25557
-  zh: ea6d8f890f8cc45d
+  zh: 5d33dbe68a453945
 /agent-note-the-forge-marks-the-abstraction-ceiling/decision/the-ceiling-test:
   en: 24d38cb6cae0eec1
-  zh: a5615b9bd2e941bb
+  zh: 1e2b30c3bfcd1854
 /agent-note-the-forge-marks-the-abstraction-ceiling/decision/the-general-model:
   en: ac91aec70971a562
-  zh: e2918acb6d4b00f8
+  zh: 44c5120e530679bf
 /agent-note-the-forge-marks-the-abstraction-ceiling/decision/two-ways-the-ceiling-can-rise:
   en: 48384bb506be0055
-  zh: d16ef64c614eaabf
+  zh: 49eddc07b59668e6
 /agent-note-the-forge-marks-the-abstraction-ceiling/decision/reintroduction-condition:
   en: 53d39ebffe833b6a
-  zh: 6c58fd4bfee86f8a
+  zh: c8781d74d9dc8ca9
 /agent-note-the-forge-marks-the-abstraction-ceiling/alternatives-considered:
   en: b48646a600d8f3ee
-  zh: be2a8afac0b5b55c
+  zh: b32f0fce3087f701
 /agent-note-the-forge-marks-the-abstraction-ceiling/consequences:
   en: 5a30f9d0801a702f
-  zh: f6007d89dcf0d3f8
+  zh: a1392b66e880497b
 /agent-note-the-forge-marks-the-abstraction-ceiling/testing:
   en: c07b85395b46304f
-  zh: 41b11f9c72a725b5
+  zh: dda4739e964145b3
 /agent-note-the-forge-marks-the-abstraction-ceiling/related:
-  en: 1d2b860d940d93e7
-  zh: 9eba11d45c7a52af
+  en: ce304fd50bb0754f
+  zh: 2c00de4e9f98cf68

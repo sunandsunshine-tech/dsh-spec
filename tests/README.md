@@ -1,8 +1,8 @@
 # Functional suite
 
 The suite covers the checks and tooling this repository owns rather than the skills it ships: the DCO
-check, the vendored-notices submission, the skill gate, the draft lifecycle and the installed-copy
-refresh.
+check, the vendored-notices submission, the skill gate, the change-scope report, the draft lifecycle,
+the installed-copy refresh and the shipped pairing mechanism.
 
 ```sh
 pnpm test
@@ -24,7 +24,9 @@ on the same property.
 | `skill-spec.test.ts` | `skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs`: the mechanical half of Agent Skills conformance. |
 | `forge-lifecycle.test.ts` | `skills/dsh-spec-skill-forge/scripts/forge.mjs`: the work directory, translation-pair and publish lifecycle, including the pair exclusion and cleanup scope. |
 | `refresh-skills.test.ts` | `scripts/refresh-skills.ts`: each skill under `skills/` replaces its installed copy, and other installed skills stay alone. |
+| `translation-docs.test.ts` | The v2 pairing mechanism (source in `package/dsh-spec-translate-docs/`, bundle at the work-draft path while forging and under `skills/` after landing): the existing-pair gate, one aggregate multi-language record per source, per-file source and target languages, `--select`/`--skip` and discovery prunes, structural switchers and link locale, generated regions with section anchors and the region helper CLI, the briefing and mechanical splice, the terminology template and the CLI's failure modes. |
 | `repository-shape.test.ts` | The tree invariants the tooling relies on: every package script is one command, and every landed skill has an identical installed copy. |
+| `change-scope.test.ts` | The bundled change-scope report: built from `package/dsh-spec-pre-push-checks/change-scope.ts`, run from the work draft or the landed `skills/dsh-spec-pre-push-checks/scripts/change-scope.mjs`; covers the committed, staged, unstaged and untracked path sets, base/head/merge-base resolution, the `--help` and usage-error contract, and the failure exits. |
 
 ## Rules this suite keeps
 
