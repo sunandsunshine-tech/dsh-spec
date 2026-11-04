@@ -30,7 +30,7 @@ The form kit that ships with the repository has the same shape from the other si
 
 **The baseline pin follows every dsh release.** One routine does it: clone the new tag shallow, compare the ported files against `submodules/dsh`, re-port what changed and update `ports.json`, update the four pin sites, then run provenance and the full gate set.
 
-Three notes own adjacent ground and are linked rather than restated: [the pin is the published tag](2026-09-22-the-pin-is-the-published-tag.md) owns what installs follow — the installed skill set's revision, not the extraction baseline; [the review handover and the merge need authorization](2026-09-23-the-review-handover-and-the-merge-need-authorization.md) owns what an authorization has to be, and why each of those two acts needs one; and [the pull-request lifecycle](2026-09-21-the-pull-request-lifecycle.md) owns the states, the tidy before acceptance, before review and before the merge, the merge kinds, and where the `Assisted-by:` trailer sits in a commit message.
+Two notes own adjacent ground and are linked rather than restated: [the review handover and the merge need authorization](2026-09-23-the-review-handover-and-the-merge-need-authorization.md) owns what an authorization has to be, and why each of those two acts needs one; and [the pull-request lifecycle](2026-09-21-the-pull-request-lifecycle.md) owns the states, the tidy before acceptance, before review and before the merge, the merge kinds, and where the `Assisted-by:` trailer sits in a commit message.
 
 ## Alternatives considered
 

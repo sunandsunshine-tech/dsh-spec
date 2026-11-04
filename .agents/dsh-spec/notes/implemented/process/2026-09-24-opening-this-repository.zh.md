@@ -30,7 +30,7 @@ Status: implemented
 
 **基线 pin 每次 dsh 发布都跟一次。** 固定一套动作:按 tag 浅克隆、逐个比对移植文件与 `submodules/dsh`、有变化就重搬并更新 `ports.json`、改四处 pin,最后跑 provenance 与全量门禁。
 
-三篇笔记各自拥有相邻的地盘，这里只链接、不复述：[the pin is the published tag](2026-09-22-the-pin-is-the-published-tag.zh.md) 拥有「安装跟随什么」——那是已装技能集的修订，不是抽取基线；[the review handover and the merge need authorization](2026-09-23-the-review-handover-and-the-merge-need-authorization.zh.md) 拥有「一次授权该是什么」，以及为什么那两个行为各自需要一次；[the pull-request lifecycle](2026-09-21-the-pull-request-lifecycle.zh.md) 拥有那四个状态、验收前、评审前与合并前的整理、合并方式，以及 `Assisted-by:` trailer 在提交信息里的位置。
+两篇笔记各自拥有相邻的地盘，这里只链接、不复述：[the review handover and the merge need authorization](2026-09-23-the-review-handover-and-the-merge-need-authorization.zh.md) 拥有「一次授权该是什么」，以及为什么那两个行为各自需要一次；[the pull-request lifecycle](2026-09-21-the-pull-request-lifecycle.zh.md) 拥有那四个状态、验收前、评审前与合并前的整理、合并方式，以及 `Assisted-by:` trailer 在提交信息里的位置。
 
 ## Alternatives considered
 

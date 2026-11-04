@@ -1,19 +1,15 @@
 /**
- * Invoke the engine the way a project does, and parse the report a dispatch prints.
+ * Run one repository-side script for the functional suite.
  *
- * The suite targets the **source** engine under `skills/`, not the installed copy under
- * `.agents/skills/`: the installed copy is a deployment that changes only through `gh`, and a test
- * that read it would test yesterday's revision. When the entry point does not exist yet, the runner
- * says so in the failure message rather than reporting a spawn accident.
+ * The suite exercises this repository's own gates — the DCO check and the vendored-notices
+ * submission — so a case invokes a `scripts/*.ts` entry through Node directly. A missing entry
+ * point is reported as such rather than as a spawn accident.
  */
 
 import { spawnSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { REPO_ROOT } from './fixtures.ts'
-
-/** The one entry point the design defines. */
-export const CLI = join(REPO_ROOT, 'skills', 'dsh-spec-manager', 'scripts', 'dsh-spec.ts')
 
 /** One invocation's outcome. */
 export interface CliResult {
@@ -25,21 +21,8 @@ export interface CliResult {
 }
 
 /**
- * Run the CLI against a fixture.
- * @param root - the project root the command audits.
- * @param args - arguments before the `--root` the runner appends.
- * @param options - `stdin` for the path list `--files-from -` reads, and `env` for the variables a
- * case needs to control; a variable set to `undefined` is removed rather than inherited, which is
- * what makes a locale case independent of the machine the suite runs on.
- * @returns the exit status and both streams.
- */
-export function runCli(root: string, args: string[], options: { stdin?: string, env?: Record<string, string | undefined> } = {}): CliResult {
-  return run(CLI, root, args, options)
-}
-
-/**
- * Run one repository-side script, such as the provenance gate.
- * @param script - path relative to this repository, for example `scripts/verify-port-provenance.ts`.
+ * Run one repository-side script, such as the DCO gate.
+ * @param script - path relative to this repository, for example `scripts/verify-dco.ts`.
  * @param args - arguments passed through.
  * @param cwd - directory to run in; this repository by default.
  * @param options - `env` for the variables a case needs to control, such as a `PATH` holding a
@@ -73,31 +56,4 @@ function run(entry: string, cwd: string, args: string[], options: { stdin?: stri
   const stdout = result.stdout ?? ''
   const stderr = result.stderr ?? ''
   return { status: result.status ?? -1, stdout, stderr, output: `${stdout}${stderr}` }
-}
-
-/** One line of a dispatch report: which check, and what became of it. */
-export interface DispatchLine {
-  subject: string
-  verdict: 'ok' | 'FAIL' | 'skipped'
-  reason: string
-}
-
-/**
- * Parse the dispatch report, whose shape the design fixes: one line per check, in record order.
- * @param output - the command's combined output.
- * @returns one entry per reported check, or an empty list when the report does not match.
- */
-export function dispatchLines(output: string): DispatchLine[] {
-  const lines: DispatchLine[] = []
-  for (const raw of output.split('\n')) {
-    const match = /^check ([a-z-]+): (ok|FAIL|skipped)(?: — (.*))?$/.exec(raw.trim())
-    if (match === null) continue
-    lines.push({ subject: match[1] ?? '', verdict: match[2] as DispatchLine['verdict'], reason: match[3] ?? '' })
-  }
-  return lines
-}
-
-/** The subjects a dispatch actually ran, in report order. */
-export function selected(output: string): string[] {
-  return dispatchLines(output).filter(line => line.verdict !== 'skipped').map(line => line.subject)
 }

@@ -20,7 +20,7 @@ Two conditions keep it from becoming a licence for speculation. The change has t
 
 **Choose the simplest design now, migrate later.** Rejected: migration is the expensive direction. The simplicity is paid once, by us; the migration is paid by every project that has accumulated content, and this repository is in no position to price that.
 
-**Pay for optionality everywhere.** Rejected: it is the same coin from the other face. Building the general design before the need exists is what [four mechanisms instead of twelve](2026-09-18-four-mechanisms-instead-of-twelve.md) deleted, and an abstraction nobody needed is harder to remove than a directory is to add.
+**Pay for optionality everywhere.** Rejected: it is the same coin from the other face. Building the general design before the need exists is the over-build that gets deleted later, and an abstraction nobody needed is harder to remove than a directory is to add.
 
 **Let every change decide for itself.** Rejected: that is how the first design was chosen — locally sound, blind to the adopter — and the answer should be reachable in a session without re-deriving it.
 

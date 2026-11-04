@@ -23,72 +23,8 @@ jobs:
         with:
           node-version: '24'
 
-      # The baseline is the revisions the registry records and nothing more: the pin, plus the
-      # older revision nine ports were taken from. `submodules: recursive` clones dsh's entire
-      # history instead — 288 MiB and 28s, against ~60 MiB and ~20s for these commits.
-      # `ports.json` owns the revisions; `.gitmodules` owns the URL. Revisions the clone lacks go
-      # out in one fetch: one fetch per revision reads and rewrites `.git/shallow` each time, and
-      # the runner's git aborts a later one with "shallow file has changed since we read it".
-      # Every recorded revision is asserted afterwards, so a fetch that quietly fetches nothing
-      # fails the job instead of leaving the gate to read a tree the registry does not name.
-      - name: the baseline, at the revisions the registry records
-        run: |
-          git clone --quiet --depth 1 \
-            --branch "$(node -p 'require("./scripts/ports.json").baseline.ref')" \
-            "$(git config -f .gitmodules --get 'submodule.submodules/dsh.url')" \
-            submodules/dsh
-          mapfile -t revisions < <(node -e 'const p = require("./scripts/ports.json"); for (const sha of new Set([p.baseline.sha, ...p.ports.map(port => port.sha)])) console.log(sha)')
-          missing=()
-          for revision in "${revisions[@]}"; do
-            git -C submodules/dsh cat-file -e "${revision}^{commit}" 2>/dev/null || missing+=("$revision")
-          done
-          if [ "${#missing[@]}" -gt 0 ]; then
-            git -C submodules/dsh fetch --quiet --depth 1 origin "${missing[@]}"
-          fi
-          for revision in "${revisions[@]}"; do
-            git -C submodules/dsh cat-file -e "${revision}^{commit}"
-          done
-
       - name: the functional suite
         run: node --test 'tests/**/*.test.ts'
-
-      - name: the note tree and the frozen archive
-        run: node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts check --all --root .
-
-      - name: port provenance
-        run: node scripts/verify-port-provenance.ts
-
-      # The installed copy is the same text as skills/, so a reloaded rule cannot differ from the
-      # one that was reviewed. It is also the net under a rebase that resolved the injected
-      # metadata conflict to the wrong side: the copy is compared against the source tree, not
-      # against the branch it was installed from.
-      - name: the installed copy equals the authored skills
-        run: node scripts/verify-installed-copy.ts
-
-      # A relative link is resolved against the file it sits in, so the whole
-      # corpus is read: a target deleted under an untouched referrer is caught
-      # here, not by the change-scoped dispatch. The installed copy is a
-      # deployment of the same text, and the frozen archive is skipped by the
-      # documentation gates by contract, so neither is a second corpus.
-      - name: the links in every Markdown file
-        run: |
-          git ls-files '*.md' ':(exclude).agents/skills/**' ':(exclude).agents/dsh-spec/notes/archived/**' \
-            | node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts md-links check --files-from - --root .
-
-      - name: skill structure, once per skill directory
-        run: |
-          for dir in skills/*/; do
-            node scripts/verify-skill-structure.ts --root "$dir"
-          done
-
-      # The checks this change owes, scoped to the files the pull request touches: the note format on
-      # the notes it edits, the pairing on the pairs it edits, the links it points at. The corpus scans
-      # above still run in full; this is the subset only the diff can decide, and it is where a pair
-      # left unrecorded is caught. `github.base_ref` is the branch the pull request targets — in a
-      # stack, the layer below.
-      - name: the checks this change owes
-        if: github.event_name == 'pull_request'
-        run: node .agents/skills/dsh-spec-manager/scripts/dsh-spec.ts check --base "origin/${{ github.base_ref }}" --root .
 
       # `github.sha` on a pull_request is the merge commit GitHub creates, whose author is whoever
       # pushed and which carries no sign-off, so the range would name a commit the change never

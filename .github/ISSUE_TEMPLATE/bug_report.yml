@@ -27,7 +27,7 @@ body:
       label: How to reproduce
       description: The smallest sequence that shows it, with the output it printed.
       placeholder: |
-        $ node scripts/verify-port-provenance.ts
+        $ node --test 'tests/**/*.test.ts'
         <output>
     validations:
       required: true
