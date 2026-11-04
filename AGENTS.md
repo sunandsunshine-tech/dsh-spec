@@ -65,6 +65,7 @@ Node ≥ 22.19 or ≥ 24, and the pnpm and Vite+ versions the root `package.json
 
 ## Boundaries
 
+- 发布、创建或合并 PR 需要维护者授权。
 - **Ask before changing what the package claims to be generic.** A part that assumes one ecosystem is the defect this package exists to avoid.
 - **A check that passes on an empty corpus is worse than no check.** A gate exits non-zero when it finds nothing to check; keep it that way.
 - **Prefer the design an adopter can migrate more cheaply.** When two designs are equal, choose the one an adopter's accumulated content would survive; ask when the odds are a guess. [Migration cost is a design constraint](.agents/dsh-spec-agent-notes/implemented/process/2026-09-22-migration-cost-is-a-design-constraint.md).
