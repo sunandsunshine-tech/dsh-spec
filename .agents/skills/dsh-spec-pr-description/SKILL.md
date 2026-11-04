@@ -12,14 +12,14 @@ A change request's description states why the change exists, what it changes, wh
 
 The description states four content blocks: why the change exists, what it changes, what proves it, and how much the AI took part. The default structure uses four second-level headings in this order — `## Motivation`, `## Changes`, `## Testing`, `## AI Usage` — with the default labels `Interface changes`, `Behavior changes`, `Test design`, `Test entries`, the disclosure labels and `Proof`, written in English. A project's template or conventions may replace, rename or regroup the headings and labels; the description still states the four content blocks and one AI Usage block under the project's structure. With no declared structure, the default applies. The AI Usage block keeps its `ai-declaration` markers and its table under any structure.
 
-The prose and table headers are written in the description's language: the language the project's existing change descriptions use; when none exist, the project's documentation language; otherwise the language of the request that asked for the description.
+The prose and table headers are written in the description's language: the language the project's existing change descriptions use; when none exist, the project's documentation language; otherwise the language of the request that asked for the description. The prose follows the project's declared prose standard (when available, consider using the `dsh-spec-prose-standard` skill).
 
 Each change request in a stack has its own description, covering only its layer against its base.
 
 ### Motivation
 
 - State the problem in one sentence.
-- Reference at least one same-project tracked issue in this section. When no issue tracks the change — the project uses no issue tracker, or none was opened for it — say so in one sentence instead, and never invent a reference. Otherwise, use the project's declared reference syntax; when the project declares no reference syntax, use the tracker's conventional form — for a GitHub tracker, `Fixes #N`, `Closes #N` or `Resolves #N` when the change resolves the issue and `Refs #N` when it gives context — or link the issue and name the tracker.
+- Reference the same-project tracked issue when one tracks the change; never invent a reference. Use the project's declared reference syntax; when the project declares no reference syntax, use the tracker's conventional form — for a GitHub tracker, `Fixes #N`, `Closes #N` or `Resolves #N` when the change resolves the issue and `Refs #N` when it gives context — or link the issue and name the tracker.
 - A change-request number is not an issue reference, and a reference hidden in an HTML comment, a code fence or inline code does not count.
 
 ### Changes
@@ -80,7 +80,7 @@ Write the complete description when the change request is created, even when it 
 
 Before the description is considered written, read it back — the required validation for the structural items this skill fixes:
 
-- the description states the four content blocks — why (with its issue reference or no-issue sentence), what, the test design and entries, and the AI Usage block — under the default headings in order or under the project's structure;
+- the description states the four content blocks — why (with its issue reference when one exists), what, the test design and entries, and the AI Usage block — under the default headings in order or under the project's structure;
 - exactly one AI Usage block exists — one section carrying the AI-DECLARATION block, under the default or a project heading;
 - the `ai-declaration:start` and `ai-declaration:end` marker pair is present;
 - the AI Usage table has one row per stage in the fixed order, keyed by the English stage identifiers;
