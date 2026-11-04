@@ -1,0 +1,67 @@
+# Pairing consistency record for 2026-10-28-forging-dsh-spec-code-review.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-10-28-forging-dsh-spec-code-review.md --target <lang>
+/agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill:
+  en: a680a6b1d2fe5068
+  zh: 5ec2ee96869afe64
+/agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/problem:
+  en: e4212ed2b4f99cce
+  zh: 03007c4b4e05840f
+/agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/decision:
+  en: 26c2998c74e6b985
+  zh: f98a17d98871c865
+/agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/decision/landing-settings:
+  en: 72da956fedf397c3
+  zh: 568aac64ed3b7d7d
+/agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/source-and-revision:
+  en: e96019e42464b654
+  zh: 080fb83be39b3f17
+/agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/target-shape:
+  en: 0d0ee4f3dcf434f9
+  zh: 94e23f4ca43318d8
+/agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/constraint-dispositions:
+  en: 6f5759253ac6a9b1
+  zh: 5f6d323a61f6fb64
+/agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/constraint-dispositions/frontmatter-title-and-description:
+  en: 0b6bf77b3ceeca8d
+  zh: ca9f175ea4fe0a90
+/agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/constraint-dispositions/review-framing-and-sequence:
+  en: 7134ed9145fadddd
+  zh: eaefcfc552875f19
+/agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/constraint-dispositions/sources-of-truth:
+  en: 8bc69aeed19dda67
+  zh: 858d0d87756cd8cc
+/agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/constraint-dispositions/blocking-requirements:
+  en: f438443dde2a0ebb
+  zh: b9b2e508ba5efe61
+/agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/constraint-dispositions/manual-checks:
+  en: dad3af71718b6326
+  zh: 55cbb75c58505140
+/agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/constraint-dispositions/reporting-findings:
+  en: 3e30cebb0e3363b3
+  zh: f5675f1f5eec7567
+/agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/target-rulings:
+  en: 1ff8c54d7e31e9e6
+  zh: 84b104295425c8ab
+/agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/requirement-anchors:
+  en: 33a0fec605669645
+  zh: b3dd247a590b7700
+/agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/verification:
+  en: c5386bb962fb0ee2
+  zh: 8cf2e152fe06fe9e
+/agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/review:
+  en: 110558cf514cfca4
+  zh: 9d2da73149927af0
+/agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/unverified-items:
+  en: 1d0c315fbc164196
+  zh: 81dae23c3d308e42
+/agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/landing:
+  en: 4830e86faf175fd8
+  zh: 020393339e25883e
+/agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/alternatives-considered:
+  en: b8bc36720bf9324a
+  zh: b76b4b26cf72fecd
+/agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/consequences:
+  en: 392dc4147b279ca2
+  zh: 72929b6bfc13caca

@@ -1,19 +1,19 @@
-# Bilingual-pair consistency record for 2026-10-02-the-repository-applies-the-catalog.md (references/i18n-contract.md): per heading
-# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# Pairing consistency record for 2026-10-02-the-repository-applies-the-catalog.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
 # After editing either side, bring the other along and re-record with:
-#   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec-agent-notes/implemented/process/2026-10-02-the-repository-applies-the-catalog.md
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-10-02-the-repository-applies-the-catalog.md --target <lang>
 /agent-note-the-repository-applies-the-catalog:
-  en: b06f6af5f04f19d8
-  zh: ad186b43b7f54038
+  en: f131ddfba4f6dca8
+  zh: dfe4dcea86ea6016
 /agent-note-the-repository-applies-the-catalog/problem:
-  en: 0137b50f81eddb75
-  zh: e5eee62c35dd8f37
+  en: 106b553a8be3c05c
+  zh: 9eaa1f7492140b0b
 /agent-note-the-repository-applies-the-catalog/decision:
   en: 2704461fdbee88e0
-  zh: 6320e54a82d74c7b
+  zh: 0e3ed4a3484209cd
 /agent-note-the-repository-applies-the-catalog/alternatives-considered:
   en: db3f5ba0a2372efe
-  zh: e91c99f734838392
+  zh: bee20dd54d33433b
 /agent-note-the-repository-applies-the-catalog/consequences:
   en: 28f463c094045f44
-  zh: 32e320f645c9f90a
+  zh: 0ce540872d3383f1

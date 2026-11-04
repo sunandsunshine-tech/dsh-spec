@@ -1,22 +1,22 @@
-# Bilingual-pair consistency record for 2026-09-21-the-skill-set-is-introduced-once.md (references/i18n-contract.md): per heading
-# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# Pairing consistency record for 2026-09-21-the-skill-set-is-introduced-once.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
 # After editing either side, bring the other along and re-record with:
-#   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec-agent-notes/implemented/process/2026-09-21-the-skill-set-is-introduced-once.md
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-09-21-the-skill-set-is-introduced-once.md --target <lang>
 /agent-note-the-skill-set-is-introduced-once-in-the-project-readme:
-  en: adb77841b6d69584
-  zh: 34dea7b706ac34c6
+  en: 50baa06c0ad6d860
+  zh: 9b5719f7b1fb11ff
 /agent-note-the-skill-set-is-introduced-once-in-the-project-readme/problem:
   en: e310308961d70ab9
-  zh: 31f39b36814eeec1
+  zh: 30b8dc1c7885f310
 /agent-note-the-skill-set-is-introduced-once-in-the-project-readme/decision:
   en: 81754e97c0971544
-  zh: 780d77551437326c
+  zh: cf38be8ad23f3d85
 /agent-note-the-skill-set-is-introduced-once-in-the-project-readme/alternatives-considered:
   en: a8265e96dd5d5c77
-  zh: c39573325ad64620
+  zh: d39dea87fbd89972
 /agent-note-the-skill-set-is-introduced-once-in-the-project-readme/consequences:
   en: 9e75f45b6ee316bf
-  zh: d1e5ce85f741b811
+  zh: 2e30b635aca7742c
 /agent-note-the-skill-set-is-introduced-once-in-the-project-readme/related:
-  en: 3639fb98cc9e752d
-  zh: 2ea915ea2629ba2e
+  en: fa6343dcd939186f
+  zh: d65bda71eace0d94

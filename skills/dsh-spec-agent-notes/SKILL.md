@@ -1,6 +1,7 @@
 ---
 name: dsh-spec-agent-notes
 description: "Use before a non-trivial change to decide whether it needs a durable decision record, and when creating, updating, moving, reviewing, pruning, archiving, restoring, or auditing Agent Notes — durable decision records that preserve why a decision was made, what it beat, what it gave up, and how it is verified — in projects where agents and people must find a decision again after the session that made it. Covers the proposed/implemented/rejected lifecycle, the closed class set, the uniform note format, supersession checks, consolidation and deletion, the one-time tree initialization, the frozen archived tree with its append-only manifest, and the bundled mechanical checks. 在非平凡变更前先使用本技能，判断该变更是否需要持久决策记录；并在创建、更新、移动、评审、修剪、归档、恢复或审计 Agent Notes（跨会话保存决策理由、备选方案、代价与验证的持久记录）时使用。包括生命周期、分类、统一格式、取代检查、合并与删除、一次性初始化笔记树、冻结归档树与只增清单，以及随技能附带的机械检查。"
+license: "MIT; upstream and repository notices in THIRD_PARTY_NOTICES"
 compatibility: "Requires Node.js 22.19+ or 24+ and Git; every command runs inside the project's Git checkout. No install, no network."
 ---
 
@@ -60,7 +61,7 @@ Write a note only for lasting decision rationale that code, tests and existing d
 
 ## Companions
 
-A project may keep companion files beside a note — translations in any language, consistency records, diagrams — declared by suffix, for example `.zh.md` or `.i18n.yaml`. Declare them with repeated `--companion <suffix>`; the count and the languages are the project's choice. The active check skips them and pairs each with its source note; the active tree may translate selectively. The archive treats them as part of the same unit and requires every declared suffix only when it seals a new unit: verification compares the manifest, so a suffix added later is not replayed over already sealed units. A project without companions passes no suffix and works with the Markdown note alone. Notes are written for the agent in English; a translation is an optional companion for readers of that language. The project's own pairing gate owns companion consistency; this skill owns pairing, seal-time unit completeness and frozenness.
+A project may keep companions beside a note — translations, consistency records, diagrams — declared by suffix, such as `.zh.md` or `.i18n.yaml`. Declare them with repeated `--companion <suffix>`; the count and languages are the project's choice. The active check skips them and pairs each with its source note; the active tree may translate selectively. The archive treats them as one unit and requires every declared suffix only when it seals a new unit: verification compares the manifest, so a later suffix is not replayed over sealed units. A project without companions passes no suffix and works with the Markdown note alone. Notes are written in English for the agent; a translation is an optional companion for readers. The project's own pairing gate owns companion consistency (when available, consider using the dsh-spec-translate-docs skill); this skill owns pairing, seal-time unit completeness and frozenness.
 
 ## Pruning and consolidation
 

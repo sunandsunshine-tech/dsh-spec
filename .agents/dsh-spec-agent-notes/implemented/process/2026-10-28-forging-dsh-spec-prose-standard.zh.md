@@ -1,0 +1,458 @@
+# Agent Note: 从上游 prose standard 锻造 dsh-spec-prose-standard
+
+Status: implemented
+
+[English](2026-10-28-forging-dsh-spec-prose-standard.md) | 中文
+
+## 问题
+
+技能集合里没有技能拥有持久性文本。采用项目可以为代码、测试与门禁持有标准，但它提交的文字——文档、注释、决策记录、指令、可见文案——没有一份面向 agent 的标准，用来决定哪里需要文字、在编辑中保全约定，以及删除泄漏进文件的推理记录。上游 `dsh` 恰好有两个技能承担这套判断：`dsh-prose-standard` 拥有编辑裁量与必需的文字覆盖；`dsh-trim-cot-leakage` 拥有发现“以编写会话视角写出的文字”的审计。两者都写进了那个仓库自己的约定——它的文档树、UI-i18n 与快照门禁、笔记归档路径、门禁与 lint 名称。原样复制会带来另一个项目的布局与策略；把它们落下会丢掉模式点名的机制，而把泄漏审计作为必需的独立技能发布，会让任何一次安装都不完整。
+
+本包是一次抽取，已发布技能的文字偏离来源只允许两种原因：发布布局要求的引用替换，或去掉某一个项目具体细节的泛化。所以这次锻造回答的是比“应该出现什么新方法”更窄的问题：每个来源指称由哪个目标值替换，以及合并后的技能拥有什么领域与结构。
+
+## 决策
+
+技能 `dsh-spec-prose-standard` 已落地在 `skills/dsh-spec-prose-standard/`，从两个上游技能锻造，并适配为任何采用本包的项目里的持久性文本。它把泄漏审计并入编辑标准，因为审计应用的是该标准的完整命题规则，也因为技能是单独安装的：指向第二个未发布技能的“必需背景”指针会悬空。
+
+落地形态（见 R9）：
+
+- `SKILL.md`——领域、必需输入与排除项、完整命题规则、按文本面的覆盖指针、泄漏审计（一条测试、八个类别、保留规则、过度纠正陷阱）、工作流、边界情形与报告。
+- `references/coverage.md`——按文本面的必需覆盖，移出入口以恢复门禁余量；入口指向它。
+- `references/examples.md`——编辑裁量的校准案例、泄漏的保留案例，以及四个过度纠正陷阱。
+- `references/recall-batteries.md`——泄漏的搜索探针：让探针保持诚实的调用规则（隐藏目录、排除顺序与自排除、大小写敏感、短语边界、校准）、英文探针组、一个双语示例，以及已知误报族。
+- 没有脚本，也没有 package 源码：两个来源的要求都不能由采用项目尚未拥有的命令判定；捆绑探针脚本会发明来源明确避开的机制（R3）。
+- `THIRD_PARTY_NOTICES`——基线约定要求的被改编技能来源声明（R16）。
+
+技能于 2026-10-28 在人工评审接受后，以单个压缩提交落地到 `refactor/dsh-skills`。落地用 `forge publish` 发布了工作目录（并移除中文审查草稿），刷新了安装副本，移除了两个被取代的安装技能 `dsh-prose-standard` 与 `dsh-trim-cot-leakage` 及其 manifest 条目，更新了根 `THIRD_PARTY_NOTICES.md` 与 `AGENTS.md` 的技能句，并把本记录连同中文对侧与一致性记录移入 `implemented/`。
+
+**领域。** 持久性文本是项目提交、后续读者依赖的文字，而不是在对话里读一次就算的文字。技能覆盖在 Markdown 文档、公共 API 文档（JSDoc、Javadoc、docstring、文档注释，项目使用哪种形式就用哪种）、代码与测试注释、模块注释、README 与包文档、cookbook 与指南、决策记录、事故复盘与事件报告、技能与 agent 指令、示例与配置注释、提示词与提交进项目的用户可见文案，以及诊断信息上的编写、评审、恢复、修剪与审计。它不覆盖即时聊天回复、草稿笔记，或注释所描述代码的正确性；commit 信息与变更描述等过程文字遵循项目自己的变更约定。它不拥有文档位置、字数预算、翻译权责或采用项目的门禁：项目的常设指令（例如根 `AGENTS.md` 或其引用的文件）拥有这些，技能只做泛化指称。
+
+**合并后的职责。** 一个技能拥有判断的两半：
+
+- 完整命题规则仍是编辑标准自己的属性；泄漏审计在同一文件里引用它，而不是点名一个背景技能；
+- 泄漏工作流的范围与排除规则只陈述一次，放在合并后的输入小节，而不是引用 prose standard；
+- 来源里关于归档引用理由的笔记不携带：那是来源仓库的历史，引用规则本身独立成立（R1）；
+- 指向 `dsh-doc` 的跨技能指针溶解为通用规则：采用项目的常设指令拥有位置、预算与配对（R4）。
+
+**渐进披露。** `SKILL.md` 携带 agent 一次编辑中应用的规则，所以泄漏审计不必加载第二个参考文件才能学到类别。三个参考文件携带按需阅读的材料：按文本面的覆盖、校准案例，以及命中仍需语义判断的搜索探针。三个参考都在入口被点名，以便机械门禁检查提及与链接解析。
+
+## 来源与修订
+
+上游来源：`deepseek-ai/deepseek-harness`，从固定子模块 `submodules/dsh` 的 `1f81c047fc48fa190a683e469daa699857e9afe8`（`dsh-v0.2.1-rc.3`，即 `git submodule status` 记录的修订）读取。作为来源读取的文件：
+
+- `submodules/dsh/.agents/skills/dsh-prose-standard/SKILL.md`
+- `submodules/dsh/.agents/skills/dsh-prose-standard/references/examples.md`
+- `submodules/dsh/.agents/skills/dsh-trim-cot-leakage/SKILL.md`
+- `submodules/dsh/.agents/skills/dsh-trim-cot-leakage/references/examples.md`
+- `submodules/dsh/.agents/skills/dsh-trim-cot-leakage/references/recall-batteries.md`
+
+不作为来源读取的：`.agents/skills/` 下的安装副本（部署状态，不是抽取基线，且其文字是本仓库较早的适配）、任何其他技能、任何其他会话的工作或锻造记录，以及任何并行锻造结果。请求与仓库的声明是另一来源：根 `AGENTS.md`、`docs/AGENTS.md` 与 `docs/terminology.md`。`skills/dsh-spec-agent-notes/SKILL.md` 及其约定只为记录的格式与笔记根默认值而读；笔记树里的决策记录只在声明指向它们的地方作为本仓库的常设规则阅读，不作为本技能的设计来源。
+
+2026-10-28 在线读取的 Agent Skills 页面，在写技能之前：
+
+- `https://agentskills.io/llms.txt`
+- `https://agentskills.io/specification.md`
+- `https://agentskills.io/skill-creation/best-practices.md`
+- `https://agentskills.io/skill-creation/using-scripts.md`
+- `https://agentskills.io/skill-creation/optimizing-descriptions.md`
+
+每个页面都可读；未使用 forge 技能的离线兜底文件。
+
+## 设置
+
+| 设置 | 值 | 依据 |
+|---|---|---|
+| 技能名 | `dsh-spec-prose-standard` | 请求 |
+| 交付语言 | 英文 | 本包的技能是英文 |
+| 评审语言 | 中文 | 请求的语言与本包的配对实践 |
+| 附加触发语言 | 中文，追加在 description 之后 | 评审语言不同于交付语言 |
+| 领域 | 持久性文本，在入口中定义 | 请求的目标受众与领域 |
+| 来源 | 上面两个上游技能 | 请求 |
+| 合并 | 泄漏审计由锻造出的技能拥有；不再发布第二个技能 | 请求；且单独安装无法满足“必需背景”指针 |
+| 脚本 | 无 | R3 |
+| 参考 | `references/coverage.md`、`references/examples.md`、`references/recall-batteries.md` | 渐进披露；操作规则留在入口，按文本面的覆盖细节按需加载 |
+| 落地目录 | `skills/dsh-spec-prose-standard/` | forge 的落地路径；工作目录 `.agents/dsh-spec-skill-forge/dsh-spec-prose-standard/` 已发布并移除 |
+| 被取代的技能 | 安装副本 `.agents/skills/dsh-prose-standard/` 与 `.agents/skills/dsh-trim-cot-leakage/` 及其 manifest 条目已在落地时移除 | 落地技能取代了单独的 prose standard 并吸收了泄漏审计（R1） |
+| 分支与 worktree | `forge/dsh-spec-prose-standard`，独立 worktree 位于 `../dsh-spec-prose-standard`；基于 `609514c` 的 `refactor/dsh-skills`，变基到 `9301061` 并于 2026-10-28 以单个压缩提交落地在那里；落地后移除 worktree，forge 分支保留评审提交 | 请求；主工作树留在自己的分支 |
+| 候选门禁 | `node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs skills/dsh-spec-prose-standard` | forge 的机械门禁，在落地目录上运行 |
+| 审查草稿 | 中文 `.zh.md` 放在 `SKILL.md` 与每个参考文件旁，各自带 `.i18n.yaml` 一致性记录；在停止前编写并配对，落地时由 `forge publish` 移除 | 请求；项目配对门禁把两个伴随文件视为一对；不随技能发布任何翻译（R10） |
+| 仅审查草稿内容 | 三份英文来源在草稿存在期间带一行语言切换；发布前移除，落地来源不携带它 | 项目配对门禁要求两侧都有切换行；forge 在发布前移除仅审查草稿内容 |
+| description 触发词 | 领域先行：持久性文本及其职责先出现，文本面是“among other surfaces”式的示例而非封闭清单，泄漏只提其名而不枚举类别，并给出近邻排除 | 维护者 2026-10-28 的评审决定（M1） |
+| 来源声明 | frontmatter 的 `license` 字段点名技能根的 `THIRD_PARTY_NOTICES`；该文件列出两个上游技能的五个源文件、固定修订、改编关系与两份 MIT 通知；共享根 `THIRD_PARTY_NOTICES.md` 登记第三个被改编技能 | 基线的被改编技能策略，按维护者 2026-10-28 的决定应用（M2、M3） |
+| 记录配对 | 笔记的中文对侧与一致性记录已编写并配对；随笔记移入 `implemented/` | 维护者 2026-10-28 的决定（M5）；R15 已修订 |
+| 隔离 | 发布技能按完全隔离阅读：不点名其他技能、其他技能的路径或默认值，也不点名包内机制；从其他工具、技能或本包借来的形式只作为示例出现 | 维护者 2026-10-28 的指示（M8）；R18 |
+| 落地 | 人工评审接受后，于 2026-10-28 在 `refactor/dsh-skills` 上以单个压缩提交落地；未 push | 请求与人工评审 |
+
+## 约束处置
+
+处置使用 forge 技能的取值：**Keep** 保留原措辞与含义，仅调整语言与版式；**Adapt** 实例化目标值；**Re-bind** 把消失的指称抽象到目的，找到目标的等价手段；**Dissolve** 记录指称已消失以及由什么检查接手。目标归属：`SK` = `SKILL.md`，`COV` = `references/coverage.md`，`EX` = `references/examples.md`，`RB` = `references/recall-batteries.md`，`—` = 不携带。来源位置是行内点名文件的行号。
+
+### prose standard
+
+| # | 来源 | 约束 | 处置 | 归属 | 依据 |
+|---|---|---|---|---|---|
+| PS1 | prose `SKILL.md` 8 | 写到足以保全约定，然后删除推理记录、重复与装饰。 | Keep | SK intro | 上游文字 |
+| PS2 | prose `SKILL.md` 8 | 约定是调用方、被调用方、实现方、生产方或消费方所依赖的义务、不变量、前置条件、后置条件或兼容性承诺。 | Keep | SK intro | 上游文字 |
+| PS3 | prose `SKILL.md` 8 | 技能拥有编辑裁量与必需的文字覆盖。 | Adapt | SK intro | 合并后的技能还拥有泄漏审计（R1） |
+| PS4 | prose `SKILL.md` 8 | 位置、预算、双语配对与文档门禁属于另一个技能（`dsh-doc`）。 | Re-bind | SK intro | 该指称未随包发布；等价物是采用项目的常设指令（例如根 `AGENTS.md` 或其引用的文件），且不点名该未发布技能 |
+| PS5 | prose `SKILL.md` 8 | 泄漏的搜寻与修复属于 `dsh-trim-cot-leakage`。 | Re-bind | SK § Leakage audit | 审计已并入本技能（R1） |
+| PS6 | prose `SKILL.md` 8; leakage `SKILL.md` 8 | 技能是指导，不是脚本。 | Keep | SK intro | 上游文字；两个来源陈述同一句 |
+| PS7 | prose `SKILL.md` 10 | contract、boundary、shape、surface、seam、gate 与 vocabulary 是使用前需要核对的词，不是禁用词；先问更精确的规则、API、字段集、类型、校验、时间点、组件拆分或失败状态是否把事实说得更好；当一个词命名了确切的技术主题，包括调用方与被调用方约定、安全或流程边界时，保留它。 | Keep | SK intro | 上游文字 |
+| PS8 | prose `SKILL.md` 12 | 注释描述代码无法表达的不显而易见约定或理由；它们不复述代码已经暗示的东西。 | Keep | COV § Required coverage by surface | 上游文字 |
+| PS9 | prose `SKILL.md` 16 | 要求显式的 `scope`；缺失时报告所需输入并停下；绝不推断仓库级范围或开始访谈。 | Keep | SK § Inputs and exclusions | 上游文字 |
+| PS10 | prose `SKILL.md` 18 | 接受 `mode: automatic` 或 `interactive`；默认 automatic；只有明确要求才进入交互。 | Keep | SK § Inputs and exclusions | 上游文字 |
+| PS11 | prose `SKILL.md` 20 | 模式决定问不问问题，不决定写入权限：评审与审计只报告不编辑；明确要求写入、修复或修剪时应用明确修改。 | Keep | SK § Inputs and exclusions | 上游文字 |
+| PS12 | prose `SKILL.md` 22; leakage `SKILL.md` 41（排除的一半） | 排除项目不编写的第三方目录树，例如 `vendor/`、依赖缓存或第三方依赖检出；绝不跟随符号链接进入其中一个；把排除放在包含之后（用项目自己的搜索与 VCS 语法）使后来的包含无法重新纳入；范围内只剩被排除文件时，报告没有可检查的文件。 | Adapt | SK § Inputs and exclusions | 规则保留其效力；`vendor/` 是第三方目录树中的一个示例，来源的 ripgrep 与 Git 语法属于项目自己的工具，因此不作为条件携带（M8、R18）；生成文件仍归派生规则而不归排除示例；顺序、符号链接与报告规则保留 |
+| PS13 | prose `SKILL.md` 24; leakage `SKILL.md` 41（冻结归档的一半） | 从发现、评审与编辑中排除项目的冻结文字——归档的决策记录树、冻结的历史区，或项目声明为冻结的任何内容；只有需要理解一条历史入站引用时才查看精确目标；绝不现代化其文字或链接。 | Adapt | SK § Inputs and exclusions | 来源路径变成项目自己的冻结区；notes 技能、其根与默认路径不在发布技能中点名（R5、R18） |
+| PS14 | prose `SKILL.md` 26; prose `SKILL.md` 69（所有者优先的一半）; leakage `SKILL.md` 41; leakage `SKILL.md` 43（所有者优先的一半） | 生成的目录、快照、fixture 与其他生成产物是派生品，不是文字目标：追踪每个使用方，先编辑拥有它的源或场景，再重新生成每个派生品；只有授权行为变更需要新证据时才重新生成记录的 fixture 与快照；被抽取的摘要句子必须对其送到的文本面完整。 | Adapt | SK § Inputs and exclusions（规则）；SK workflow 6 引用它 | 规则对合并后的技能只陈述一次；工作流步骤应用它而不复述 |
+| PS15 | prose `SKILL.md` 26; leakage `SKILL.md` 43（双语文字的一半） | 翻译配对没有永久的主侧：任一方言都可以是编写侧；最小地更新对侧文件并重新记录配对。 | Re-bind | SK § Inputs and exclusions（规则）；SK workflow 6 引用它 | 来源的 lightweight-routine 链接被溶解；等价物是项目自己的配对检查 |
+| PS16 | prose `SKILL.md` 30 | 编辑前，找出段落里的每一个命题。 | Keep | SK § Preserve the complete proposition | 上游文字 |
+| PS17 | prose `SKILL.md` 32-36 | 保全行为者与动作；条件、时序与顺序；情态；否定性保证与例外；归属、副作用、失败模式与后果。 | Keep | SK § Preserve the complete proposition | 上游文字 |
+| PS18 | prose `SKILL.md` 38 | 只有在每个事实性小句都存活且结果更清楚时，才删除形容词、重复与叙述；仅字数更少不算改进。 | Keep | SK § Preserve the complete proposition | 上游文字 |
+| PS19 | prose `SKILL.md` 40 | 在使用点保留完整的本地约定：调用方或维护者需要的行为、失败、归属与后果；对架构、理由、算法、历史或扩展示例积极链接到拥有它的文档；一个解释只有一个归属地；关键约定事实可在本地重复。 | Keep | SK § Preserve the complete proposition | 上游文字 |
+| PS20 | prose `SKILL.md` 42 | 当省略可能合理地导致误用或错误简化时，保留不显而易见的理由；否则陈述后果并链接理由的归属地。 | Keep | SK § Preserve the complete proposition | 上游文字 |
+| PS21 | prose `SKILL.md` 46 | 这不是单向的删减流程：当代码、类型与结构不能传达必要约定时，添加或恢复文字；当事实在本地已经显然时，不添加注释。 | Keep | COV § Required coverage by surface（开头） | 上游文字 |
+| PS22 | prose `SKILL.md` 48 | 公共 JSDoc 记录调用方可见的返回值区分、抛出或拒绝、副作用、归属、时序、取消与持久性。 | Adapt | COV § Required coverage by surface | 生态特定的 JSDoc 变成项目所使用的任一形式的公共 API 文档；所列出的每个约定事实保留 |
+| PS23 | prose `SKILL.md` 49 | 内部注释为非局部结构与显然复杂的局部结构定位，包括不变量、竞态顺序、归属、安全边界与意外失败行为；删除控制流叙述与代码复述。 | Keep | COV § Required coverage by surface | 上游文字 |
+| PS24 | prose `SKILL.md` 50 | 模块注释陈述模块的角色、依赖、职责与不显而易见的架构选择，并链接架构解释。 | Keep | COV § Required coverage by surface | 上游文字 |
+| PS25 | prose `SKILL.md` 51 | 测试只解释不显而易见的测试设计：为什么某个 fixture、断言、平台适配、真实入口或间接观察是必要的；删除走查与清单。 | Keep | COV § Required coverage by surface | 上游文字 |
+| PS26 | prose `SKILL.md` 52 | cookbook 与指南（项目对这类文档使用的对等名称）包含前置条件、必需动作、真实入口、可观察的验证与简短的警告。 | Adapt | COV § Required coverage by surface | 来源体裁保留；新增名称是目标领域对同一文档的叫法（R2），不是新要求 |
+| PS27 | prose `SKILL.md` 53 | README 携带消费方约定：配置、语义、失败、限制、扩展点与模型可见效果；引用包拥有的稳定可见文字；链接生成的目录与跨包所有者；保留持久的缺口与维护者陷阱，而不是清理清单；遵循包 README 要求。 | Re-bind | COV § Required coverage by surface | “包 README 要求”是来源仓库的文档；等价物是项目的常设指令，约定内容保留 |
+| PS28 | prose `SKILL.md` 54 | 决策记录（项目自己的叫法，例如 ADR）保留独特的理由、机制、备选方案、后果、已落地的验证证据与明确的覆盖缺口；已实现的记录以现在时陈述已落地的现实；删除计划清单，但不删除证据。 | Adapt | COV § Required coverage by surface | “Agent Notes”变成目标对决策记录自己的叫法；发布技能不点名 notes 机制或其他技能（R8、R18） |
+| PS29 | prose `SKILL.md` 55 | 事故复盘与事件报告（项目对这类文档使用的对等名称）保留事件经过、证据、因果链、影响与预防；删除未确立因果关系的重复劝说或实现细节。 | Adapt | COV § Required coverage by surface | 来源体裁保留；新增名称是目标领域对同一文档的叫法（R2），不是新要求 |
+| PS30 | prose `SKILL.md` 56 | 技能与 agent 指令陈述行为护栏与显式范围限制，例如“指导，不是脚本或清单”；保持工作流简短并链接其事实来源。 | Keep | COV § Required coverage by surface | 上游文字 |
+| PS31 | prose `SKILL.md` 57 | 示例与配置注释解释访问限制、不显而易见的接线或加载顺序、安全立场、重放行为、例外与可能的误用；不要叙述配置本身已经展示的条目。 | Keep | COV § Required coverage by surface | 上游文字 |
+| PS32 | prose `SKILL.md` 58 | 提示词与可见文案：措辞即行为；客户端 UI 文案属于有类型的 locale 字典，并以显式本地化 props 到达不依赖 Cordis 的原语；把文字、无障碍名称、工具提示、占位符与格式模板放在一起检查；运行 UI-i18n 检查；更新拥有它的可运行快照与 GUI 证据；没有拥有场景时保持措辞不变并报告延后。 | Re-bind | COV § Required coverage by surface | 来源的 locale 字典、原语 prop、UI-i18n 检查与 GUI 证据是一个仓库的机制；等价物是项目拥有的可本地化字符串加上拥有它的行为证据（场景或快照），延后规则保留 |
+| PS33 | prose `SKILL.md` 59 | 诊断信息命名失败的主语或路径、被违反的规则，以及不显而易见时的纠正方式；删除内部执行叙述。 | Keep | COV § Required coverage by surface | 上游文字 |
+| PS34 | prose `SKILL.md` 61 | 保留可搜索的机制名与有意义的情态、时间或否定强调；只规范化装饰性强调。 | Keep | SK § Preserve the complete proposition | 上游文字 |
+| PS35 | prose `SKILL.md` 65 | 确认范围、模式、当前分支或变更基线，以及适用的项目指令；不要检查无关分支。 | Adapt | SK workflow 1 | “branch or PR base”变成变更的当前状态；“AGENTS.md”变成项目的常设指令 |
+| PS36 | prose `SKILL.md` 66 | 在判断段落前阅读文档标准与拥有它的代码或文档；阅读提炼后的示例做校准。 | Re-bind | SK workflow 2 | 来源的文档标准被溶解；等价物是项目有常设指令时的该指令，加上拥有它的源；示例参考保留 |
+| PS37 | prose `SKILL.md` 67 | 检查请求的范围，而不只是最大的文件：用搜索与字数找出候选，然后按语义判断段落。 | Keep | SK workflow 3 | 上游文字 |
+| PS38 | prose `SKILL.md` 68 | 把每个候选归类为保留、添加、修剪、恢复、重构或延后；只有任务授权编辑时才应用明确修改；不要为满足删除目标而制造编辑。 | Keep | SK workflow 4 | 上游文字 |
+| PS39 | prose `SKILL.md` 69（复查的一半） | 学到一条新规则后，复查同类段落。 | Keep | SK workflow 7 | 上游文字；所有者优先的一半由 PS14 携带 |
+| PS40 | prose `SKILL.md` 70 | 运行窄的相关检查、文档门禁、项目的 diff 检查（例如 `git diff --check`）与可见文字的测试；用项目的 diff 清单（例如 `git diff --name-only`）确认最终 diff 不含第三方路径，出现意外匹配就报告，而不是声称排除历史是干净的。 | Re-bind | SK workflow 8 | 来源点名的文档门禁溶解为项目对触及文本面的检查；可精确判定的无第三方路径规则把具体命令作为示例保留，因此规则适用于任何 VCS（R18） |
+| PS41 | prose `SKILL.md` 71 | 报告检查过的范围、明确的修改、刻意保留、延后的情形与实际运行的检查。 | Keep | SK workflow 9（报告内容） | 上游文字 |
+| PS42 | prose `SKILL.md` 75 | 只有当至少两个版本都满足完整命题规则、却在公认原则之间取舍、且技能尚未解决该取舍时，它才是边界情形；有一个保命题答案的重写不是边界情形。 | Keep | SK § Borderline decisions | 上游文字 |
+| PS43 | prose `SKILL.md` 77 | 自动模式在授权时应用明确修改，不提问地报告真正的边界情形；绝不为了进度而削弱命题。 | Keep | SK § Borderline decisions | 上游文字 |
+| PS44 | prose `SKILL.md` 79 | 交互模式把同类段落归到统管原则下，给出两三个可行版本并推荐一个，说明事实或结构差异，不提供更差的干扰项，并使用请求的渠道；对通过行内评论校准的变更，推荐版本放在 diff 里，备选方案挂在该行。 | Adapt | SK § Borderline decisions | “PR”变成“变更”；交互规则保留 |
+| PS45 | prose `SKILL.md` 81 | 决策之后，把提炼出的原则与版本写进示例，不带评审历史或评审者叙述，并把学到的规则应用到范围内每个同类段落。 | Re-bind | SK § Borderline decisions；SK workflow 7（同类段落的一半） | 已发布的示例可能是不得编辑的安装副本，普通采用项目也可能不持有本技能的源码树；等价物是项目的文字指导归属地或报告，只有本技能自己的源码树是工作树时才向示例添加案例 |
+| PS46 | prose `SKILL.md` 3 | description 在编写、评审、恢复、修剪或审计文字时触发；它以持久性文本领域开头，陈述三项职责，把文本面列为“among other surfaces”式的示例，并提到泄漏而不枚举其类别。 | Adapt | SK description | 来源的触发词在命名职责时保留（编写、评审、恢复、修剪、审计、泄漏）；文本面枚举在目标领域上被重构为示例，依据维护者 2026-10-28 的评审决定（M1） |
+
+### 泄漏审计
+
+| # | 来源 | 约束 | 处置 | 归属 | 依据 |
+|---|---|---|---|---|---|
+| LC1 | leakage `SKILL.md` 8 | 思维链泄漏是从编写会话而非仓库视角写出的文字：它引用只有那次会话才能看到的产物，叙述变更而不是状态，或者与已经离开的评审者争辩。 | Adapt | SK § Leakage audit | “repository”变成项目；评审者仍是文字所面对的普通评审者，因此保留来源用词；定义不变 |
+| LC2 | leakage `SKILL.md` 8 | 当段落携带事实性小句时，修复绝不是只做删除：把每个小句重述到站在当前状态，然后删除周围的记录；不携带任何事实的段落直接删除。 | Keep | SK § Leakage audit | 上游文字 |
+| LC3 | leakage `SKILL.md` 8 | 完整命题规则由 prose standard 拥有。 | Re-bind | SK § Preserve the complete proposition | 合并在同一技能后规则由同一技能拥有（R1），因此指针变成同一文件内的小节引用 |
+| LC4 | leakage `SKILL.md` 8 | 一份归档笔记记录了设计会话引用规则的理由。 | Dissolve | — | 该笔记是来源仓库历史；引用规则本身独立成立，其校准案例接手 |
+| LC5 | leakage `SKILL.md` 12 | 那条测试：当前状态的读者，拿不到任何会话记录、变更讨论或未提交草稿，能不能解析每个引用并验证每个断言？不能，就重述存活的事实并删除其余部分。 | Adapt | SK § The one test | “HEAD”变成项目的当前状态；测试保留 |
+| LC6 | leakage `SKILL.md` 12 | 可解析性只通过这条测试：在当前状态的文本面上，可解析的变更故事仍然是变更叙述，变更叙述类把它送到被认可的归属地。 | Keep | SK § The one test；SK § The classes | 上游文字 |
+| LC7 | leakage `SKILL.md` 16 | 失效的设计会话引用：`(decision 7)`、`(audit C2)`、`design §4.7`、`plan §1.4`、阶段标签、“设计台账”、“(B ruling)”。有已提交所有者的按名称与路径引用；否则删除引用并重述其事实性小句。 | Keep | SK § The classes 1 | 上游文字；“committed owner”是项目通用的 |
+| LC8 | leakage `SKILL.md` 17 | 栈与 PR 视角：“本栈中稍后的 PR”、“本 PR 加入”、“上一次提交”。陈述已落地的机制或扩展点；延后的工作移到 `TODO` 标记或 issue 引用。 | Adapt | SK § The classes 2 | PR 与栈措辞变成变更与序列，即本包使用的 VCS 无关形式 |
+| LC9 | leakage `SKILL.md` 18 | 变更叙述与版本标记：“以前是”、“不再”、“旧的 X”，以及“v1”、“这次改动”、“今天”等指示性标记。陈述当前行为；已修复的回归变成现在时反事实（“没有 X 时，会发生 Y”），绝不是项目历史（“以前会 Y”）。 | Keep | SK § The classes 3 | 上游文字 |
+| LC10 | leakage `SKILL.md` 19 | 评审编排：“评审中被否决：”、“评审者确认了”、草稿序号、轮次归属。把存活的决策与理由保留为平实事实；删除谁在何时说的。 | Keep | SK § The classes 4 | 上游文字 |
+| LC11 | leakage `SKILL.md` 20 | 面向评审者的辩解：“这个转型是安全的——它只是……”、“这是正确的，因为……”。陈述让代码安全的不变量；如果代码已经展示它，就删除注释。 | Keep | SK § The classes 5 | 上游文字 |
+| LC12 | leakage `SKILL.md` 21 | 复述与推演记录：控制流叙述、测试走查、对显然分支的证明。删除；只保留不显而易见的约定或不变量。 | Keep | SK § The classes 6 | 上游文字 |
+| LC13 | leakage `SKILL.md` 22 | 犹豫与计划残留：“暂时这样大概可以”、“应该够了”、没有标记的延后。提升为 `TODO`/`FIXME` 或陈述实际边界；删除犹豫。 | Keep | SK § The classes 7 | 上游文字 |
+| LC14 | leakage `SKILL.md` 23 | 工作语言残留：在语言本已确定的文字里留下未翻译的工作语言片段，或项目会话分隔符。翻译或删除。 | Adapt | SK § The classes 8 | 示例片段留在示例参考中；类别按项目通用方式陈述 |
+| LC15 | leakage `SKILL.md` 27 | 未经辅助的删减会在两个方向出错：删掉持久的引用，留下失效的引用；按原文应用保留规则，并用示例为每条校准。 | Keep | SK § What is not leakage；EX | 上游文字 |
+| LC16 | leakage `SKILL.md` 29 | issue 与工单引用在当前状态可解析；在任何文本面上都保留，包括 README；不要把它们搬进决策记录。 | Adapt | SK § What is not leakage | “Agent Notes”变成决策记录 |
+| LC17 | leakage `SKILL.md` 30 | 决策记录与事故复盘里对已合并 PR 和 issue 的引用是变更故事中被认可的证词。 | Adapt | SK § What is not leakage | “merged PR”变成 merged change；“Agent Notes”变成决策记录 |
+| LC18 | leakage `SKILL.md` 31 | 抑制说明——lint 禁用理由、覆盖率忽略理由、空 catch 解释——是必需文字；修正错误的理由，绝不删除它。 | Adapt | SK § What is not leakage | lint 特定示例变成带有具名成员的通用抑制族 |
+| LC19 | leakage `SKILL.md` 32 | 现在时反事实的回归钉子不是泄漏：“没有 X 时，会发生 Y”、“天真的 X 会……”。 | Keep | SK § What is not leakage | 上游文字 |
+| LC20 | leakage `SKILL.md` 33 | 实测边界为常量校准；证据词“measured”承载含义。 | Keep | SK § What is not leakage | 上游文字 |
+| LC21 | leakage `SKILL.md` 34 | 运行时的新旧状态命名交接期间活着的对象，不是仓库状态。 | Keep | SK § What is not leakage | 上游文字 |
+| LC22 | leakage `SKILL.md` 35 | 决策记录变更故事小节里的历史阶段名在那里对当前状态安全；指示性标记在任何地方都被禁止。 | Adapt | SK § What is not leakage | “Agent Note”变成决策记录 |
+| LC23 | leakage `SKILL.md` 36 | 按设计解析到项目之外的外部引用保持可引用，包括外部标准小节；小节号禁令覆盖未提交的内部草稿，不覆盖外部标准或拥有自己编号的已提交文档。 | Keep | SK § What is not leakage | 上游文字 |
+| LC24 | leakage `SKILL.md` 37 | 项目口吻与体裁形式不是泄漏：作为项目口吻的“我们”，以及决策记录的备选方案小节。 | Adapt | SK § What is not leakage | “Agent Note”变成决策记录 |
+| LC25 | leakage `SKILL.md` 41（只有跨技能指针） | 泄漏工作流从 prose standard 取得范围与排除。 | Re-bind | SK § Inputs and exclusions | 两个技能已是一个，因此指针解析到同一小节；范围、排除与派生义务由 PS12-PS14 携带，不再复述 |
+| LC26 | leakage `SKILL.md` 42 | 先以只读方式审计：运行召回探针，在信任输出前把每个探针校准到已知正例与近似负例，然后按语义判断每个命中；探针是发现辅助而非定义，并且不带模式地阅读最密的文字。 | Adapt | SK workflow 3 与 5；RB | 探针作为参考保留，带通用占位符；校准与无模式阅读规则保留 |
+| LC27 | leakage `SKILL.md` 43（围栏与可见文案两半） | 按文本面先修所有者：被翻译配对共享或被检查钉住的逐字片段在源头修正，逐字节复制到每一侧，并重新记录配对；模型或用户可见文案只有在拥有它的行为证据下才改，否则报告延后。 | Re-bind | SK workflow 6 | 来源的类型等价围栏、翻译门禁与 GUI 证据是一个仓库的机制；等价物是项目的共享片段、配对检查与拥有行为证据；生成产物的一半是 PS14，翻译文字的一半是 PS15 |
+| LC28 | leakage `SKILL.md` 44 | 删除任何东西之前，列出段落的命题并检查过度纠正陷阱：把义务翻转成背书、把假设提升成已交付特性、把真实事实连同周围记录一起删掉、把证据来源连同数字一起丢弃的修剪。 | Keep | SK § What is not leakage；EX | 上游文字 |
+| LC29 | leakage `SKILL.md` 45 | 验证：重新运行探针，预期只剩被认可的保留项、技能自己引用的校准案例，以及拥有该决策的记录所引用的证据；确认每个剩余引用在当前状态可解析；运行触及文本面的门禁。 | Re-bind | SK workflow 8 | 来源点名的门禁变成项目对触及文本面的检查；自引用例外是必需的，因为示例参考引用了泄漏措辞 |
+| LC30 | leakage `SKILL.md` 3 | description 在审计或修复“读起来像泄漏的推理记录”的文字时触发。 | Adapt | SK description | 合并后的 description 把泄漏词汇作为触发词保留 |
+
+### 示例与探针
+
+| # | 来源 | 约束 | 处置 | 归属 | 依据 |
+|---|---|---|---|---|---|
+| EX1 | prose `references/examples.md` 3-169 | 文字校准案例：保全每个事实性小句、显式技能范围是功能性的、cookbook 保留动作与验证、归属与时序、事件文档、为复杂代码定位、公共文档包含失败、实现映射、链接理由同时保留本地约定、已实现记录保留验证约定、安全边界的一个例子、删除推理记录、配置注释解释配置树无法表达的东西、不为字数而修剪、模型可见文字跟随归属、生成摘要必须独立成立、限制是约定。 | Adapt | EX | 每个案例都作为校准案例保留；一个仓库的主题（worker realm、事件 JSDoc、包目录、Agent Notes）变成具有同一原则的通用持久性文本案例 |
+| EX2 | leakage `references/examples.md` 3-45 | 失效引用案例：有已提交所有者的决策序号、没有所有者的序号、审计编号、未提交草稿的小节号、计划阶段标签。 | Adapt | EX | 作为校准保留；已提交所有者与重述规则同 LC7 |
+| EX3 | leakage `references/examples.md` 47-97 | 变更视角案例：持久性文字里的栈位置、README 里的“this PR”、带 PR 编号的战记、移除叙述、以反事实重述的已修复回归、指示性版本标记。 | Adapt | EX | PR 与栈措辞变成变更与序列；原则保留 |
+| EX4 | leakage `references/examples.md` 99-169 | 评审与推演案例：作为文字写出的评审结论（在备选方案小节中被认可）、草稿序号、为转型辩护、诉诸评审权威、控制流叙述、测试走查、未标记的延后、模糊的规模。 | Adapt | EX | 作为校准保留；备选方案体裁变成决策记录体裁 |
+| EX5 | leakage `references/examples.md` 171-193 | 工作语言案例与行为可见候选：工作语言片段、共享围栏里的残留、需要其所有者与证据的模型可见句子。 | Adapt | EX | 保留；来源的 GUI 与快照机制变成项目拥有的行为证据 |
+| EX6 | leakage `references/examples.md` 197-231 | 保留案例：issue 引用是持久的、失效的名字提及不是“点名所有者”、抑制说明、实测边界、运行时新旧、运行时自然时间。 | Adapt | EX | 保留；“Agent Notes”变成决策记录 |
+| EX7 | leakage `references/examples.md` 233-275 | 四个过度纠正陷阱：把义务翻转成背书、把假设提升成已交付特性、把真实事实连同周围记录一起删掉、保留数字却丢掉测量来源。 | Adapt | EX；SK § What is not leakage | 每个陷阱保留其“原文/过度纠正/正确”的对照与名称；来源主题（扩展槽、IPC shell、仓库的 doc-typecheck 门禁、生成的类型模块）变成通用的持久性文本主题 |
+| EX8 | leakage `references/recall-batteries.md` 5-12 | 调用规则：搜索隐藏目录；把排除放在最后；只在自然语言行使用大小写不敏感匹配，匹配代码模式的行保持大小写敏感；约束完整短语；信任之前把每个探针校准到已知正例与近似负例；把工作语言探针指向对立语言的文本面，残留是翻译配对的增补时用对侧文件比较而不是搜索噪声。 | Adapt | RB § Invocation rules | 来源仓库路径、glob 与语言对变成占位符与示例；每条调用规则保留 |
+| EX9 | leakage `references/recall-batteries.md` 14-24 | 英文探针组：失效引用、变更视角、变更叙述、版本标记、评审编排、犹豫与小节号七类探针族。 | Adapt | RB § English battery | 模式以通用形式保留并对范围使用占位符；失效引用与阶段标签模式保持原样 |
+| EX10 | leakage `references/recall-batteries.md` 26-38 | 中文探针组：中文对侧里的变更或评审叙述、英文 Markdown 里的工作语言残留，以及英文代码注释里的残留（包括 Python 注释形式）。 | Adapt | RB § One worked example: a bilingual project | 一个语言对是来源的；目标给出一个示例并说明项目的语言对替换它 |
+| EX11 | leakage `references/recall-batteries.md` 40-52 | 已知误报族：工具性的“used to”、运行时新旧、过程文档里的“this PR”、v1 标识符、有已提交所有者的小节、对照性的“actually”与名词“wait”、运行时的“today”与记录的时间戳、本版本、备选方案小节。 | Adapt | RB § Known false-positive families | 每个族都保留，包括来源在探针旁列出的两半（`actually`/`wait`、运行时 `today`/记录时间戳）；PR 与 Agent Note 名称取目标的变更与决策记录措辞 |
+| EX12 | leakage `references/recall-batteries.md` 3, 8 | 探针组按设计会多报、天然会漏报，而本技能自己的文件引用泄漏措辞，因此扫描排除技能自己的目录，并把自命中按证据而不是用法判断。 | Adapt | RB intro；SK workflow 8 | 来源的自排除路径变成已发布技能自己的目录，作为占位符点名；修复后的探针复跑预期把引用的校准案例当作保留项 |
+
+### 目标裁定
+
+| # | 裁定 | 理由 | 可逆方式 |
+|---|---|---|---|
+| R1 | 泄漏审计并入 prose standard。锻造出的技能拥有两半；不再发布第二个技能；“必需背景”指针与来源归档笔记溶解。 | 请求把它们合并；审计应用标准的完整命题规则；单独安装无法满足指向未发布技能的指针。 | 把泄漏材料拆成第二个技能并恢复跨技能指针。 |
+| R2 | 目标领域是入口中定义的持久性文本，包含提交的注释、记录、指令、提示词与可见文案；聊天回复、草稿笔记与代码正确性在它之外，commit 信息与变更描述等过程文字遵循项目自己的变更约定而不是本技能。 | 请求把持久性文本编写命名为受众与领域；来源范围是同一批材料，只是写进了一个仓库的布局。 | 一并收窄或放宽领域定义与覆盖清单。 |
+| R3 | 技能不附脚本，也不附 package 源码。要求保持带具名权威的判断；机械子集是采用项目已经拥有的命令（其 diff、文档、配对与行为检查）。 | 两个来源都自述为指导而非脚本。有一条目标规则可精确判定——最终 diff 不含第三方路径——工作流为它点名既有的 `git diff --name-only` 命令；捆绑脚本会复述采用方工具链已拥有的命令，并把技能绑定到运行时，这是来源所避免的。召回探针按设计会多报，每个命中都需要判断。 | 为没有既有项目命令可判定的要求添加脚本与测试。 |
+| R4 | 项目特定的文档引用溶解为一条规则：项目的常设指令拥有位置、预算、配对与门禁；技能只做泛化指称。 | 来源的文档树在通用采用方不存在；本包的抽取规则允许泛化，不允许另一个项目的策略。 | 重新引入项目拥有的文档标准引用。 |
+| R5 | 第三方目录树与冻结文字保留具名示例（各至少一个）且不绑定包内机制：`vendor/` 与同类路径是第三方目录树的示例，归档的决策记录树与冻结历史区是冻结文字的示例，冻结区是项目声明为冻结的任何内容；发布技能不点名其他技能、路径或默认值。 | 两条规则在效力上是通用的；点名本包的 notes 归档或其他技能的默认值，会把自足的技能绑定到另一个技能（M8、R18）。 | 再次点名其他技能的默认值或 notes 归档。 |
+| R6 | 生态特定的文本面被泛化：JSDoc 变成任一形式的公共 API 文档；有类型的 locale 字典与 UI-i18n 检查变成项目拥有的可本地化字符串；lint 禁用理由变成抑制说明；运行时快照与 GUI 证据变成拥有行为证据。 | 本包不能声称属于某一个生态；底层规则在去掉机制名后仍然成立。 | 只把生态特定的文本面作为示例重新引入。 |
+| R7 | 在规则关于持久性文本时，PR、栈与 commit 视角措辞变成变更与序列；示例在通用措辞下保留可识别的形式。 | 目标 VCS 是项目自己的，本包自己的技能用 change 指 pull request。 | 显式点名 Git/GitHub。 |
+| R8 | 决策记录按项目自己的叫法独立成立；发布技能不点名 notes 机制、不点名其他技能，也不点名包内机制，跨技能映射只留在本记录。 | 自足的技能必须服务不安装其他东西的项目；点名另一个技能会引入本包并不交付的依赖（M8、R18）。 | 再次点名 notes 机制或其他技能。 |
+| R9 | 交付物曾是 forge 工作目录；落地路径是 `skills/dsh-spec-prose-standard/`，技能在人工评审后以单个压缩提交落地在 `refactor/dsh-skills`。落地变更运行了 `forge publish` 与 `skill:refresh`，未 push。 | 请求禁止审查前落地；没有安装副本刷新就落地也会让仓库的安装副本不变式失败。 | 回退该落地提交。 |
+| R10 | 审查草稿是放在 `SKILL.md` 与每个参考文件旁的中文 `.zh.md`，各自带 `.i18n.yaml` 一致性记录，只在停止前编写并配对，落地时由 `forge publish` 移除；不发布任何翻译。记录自己的配对是 R15。 | 请求把翻译配对推迟到停止；项目配对门禁把两个伴随文件视为一对，forge 在发布前移除审查草稿。 | 更早配对、发布翻译，或只声明 `.zh.md` 并去掉项目配对门禁步骤。 |
+| R11 | 技能发布三个参考：按文本面的覆盖、校准示例与召回探针。入口保留操作规则并指向覆盖细节；探针参考携带调用规则、英文探针组、一个双语示例与误报族。 | 渐进披露：操作规则随技能加载，按文本面的覆盖与校准细节按需加载；三个具名参考让机械链接检查有意义，并让入口远离 5,000-token 上限。 | 把覆盖折回入口，或再拆一组规则。 |
+| R12 | description 以英文开头并追加中文触发语；名称恰为 `dsh-spec-prose-standard`。 | 本包的交付语言与请求的评审语言。 | 更改触发语言或名称。 |
+| R13 | 技能运行时不依赖其他技能；决策记录与 notes 默认值只是提示性示例。 | 每个技能单独安装；依赖会破坏单技能安装。 | 把 notes 技能变成必需伴随物。 |
+| R14 | 项目的常设指令两者都未声明时，报告陈述实际使用的排除项。 | 通用项目可能什么也不声明；报告让审计诚实而不发明策略。 | 要求常设指令在任何审计前先声明。 |
+| R15 | 锻造记录的中文对侧与一致性记录在评审内容稳定后、交接前编写并配对，因为记录本身现在是评审产物；配对随笔记移入 `implemented/`。 | 先前的推迟避免评审轮次中的反复；维护者的评审让内容稳定，所以配对是交接的一部分（M5）。 | 若记录再反复，把配对重新推迟。 |
+| R16 | 来源声明遵循仓库的被改编技能约定：frontmatter 的 `license` 字段点名技能根 `THIRD_PARTY_NOTICES`，该文件列出两个上游技能的五个源文件、固定修订、改编并合并的关系与两份 MIT 通知；共享根 `THIRD_PARTY_NOTICES.md` 登记这第三个被改编技能。 | 基线为被改编技能文字陈述了该约定，维护者指示在这次锻造中应用（M2、M3）；文字是改编，不是重写。 | 删除通知与 license；回退根登记。 |
+| R17 | description 按决定采用领域先行与开放范围：文本面清单是说明性的（“among other surfaces”），泄漏类别留在入口，早先评审要求的固定枚举被撤回。 | 维护者判断枚举示例暗示固定范围，要求领域先行的触发；职责与近邻排除让触发保持精确（M1）。 | 恢复枚举式 description；门禁上限与 U1 保持原状。 |
+| R18 | 发布技能按完全隔离阅读：不点名本包任何其他技能、其他技能的路径或默认值，也不点名包内机制。从其他工具、技能或本包借来的形式（vendor 路径、Git 命令、其他技能的默认值、从别处借来的术语）只作为示例出现，绝不是规则的条件；技能自己的接口占位符（`scope`、`mode`）、通用标记（`TODO`、`FIXME`）与来源声明属于它的约定，具体工具形式在有帮助处仍是示例（工作流 8 保留 Git diff 示例）。其他技能的默认值与跨技能映射留在本记录与交接中，不在发布文字里。 | 维护者指示把每个技能按隔离对待（M8）；通用采用方一次只安装一个技能，点名其他技能或默认值会被读成采用方可能无法满足的要求。占位符与标记是技能自己的接口，不是借来的形式。 | 在发布文字里重新引入其他技能、默认路径或包内机制；或把借来的具体形式变成条件。 |
+
+## 要求锚点
+
+锻造出的技能的每项要求都在可用的最精确层级上携带一个锚点。判定的项目给出一个结论；未验证的项目给出理由。
+
+| 要求组 | 锚点 | 证据或结论 |
+|---|---|---|
+| frontmatter、名称、description 上限、license、`SKILL.md` 预算、参考与链接一致性、脚本覆盖 | 机械 | 在落地目录上运行 `verify-skill-spec.mjs`；输出记录在 § 验证 |
+| 来源声明 | 判定 | R16：门禁报告 `license` 字段；技能根 `THIRD_PARTY_NOTICES` 点名两个上游技能、五个路径、固定修订、关系与两份 MIT 通知；根通知登记本技能；评审 A 对照固定子模块检查路径，并对照 notes 先例检查通知 |
+| 触发适用性与近邻排除 | 判定，带未验证余项 | description 以持久性文本及其三项职责开头，把文本面陈述为“among other surfaces”式的示例，提到泄漏而不枚举类别，并排除即时对话与代码正确性；激活率未测量（U1） |
+| description 语言顺序 | 判定 | 英文开头并追加中文触发语（R12）；中文审查草稿反转顺序；评审 B 对照请求的评审语言检查两侧 |
+| 领域定义（持久性文本） | 判定 | 入口陈述领域内与领域外——即时对话、草稿笔记、代码正确性，以及遵循变更约定的过程文字；设计审计对照请求检查它（Review） |
+| 必需输入：范围、模式、写入权限 | 判定 | PS9、PS10 与 PS11 各保留一条来源规则；目标文字每条规则陈述一个决定 |
+| 排除：第三方目录树、冻结归档、生成产物、翻译配对 | 判定 | PS12、PS13、PS14、PS15、LC25；通用默认值是 R5，报告规则是 R14 |
+| 完整命题规则 | 判定 | PS16-PS20 陈述命题清单、删除条件、本地约定规则、理由规则与强调规则 |
+| 按文本面的必需覆盖 | 判定 | 每个来源文本面一行：PS22-PS33；每个文本面命名其必需内容与删除规则；覆盖不是缩短目标（PS21） |
+| 泄漏的一条测试与其当前状态限定 | 判定 | LC5 与 LC6 在同一小节陈述测试与限定 |
+| 泄漏类别 | 判定 | LC7-LC14，每行一个类别；类别连同修复规则一起陈述 |
+| 保留规则 | 判定 | LC15-LC24，每行一个保留项；每项命名为什么未经辅助的删减会删掉它 |
+| 过度纠正陷阱 | 判定 | LC28 陈述列举义务与四个陷阱；EX7 校准它们 |
+| 工作流 | 判定 | PS35-PS41 与 LC25-LC29 合并为九步，不重复规则 |
+| 边界情形处理 | 判定 | PS42-PS45 保留定义、自动与交互模式，以及提炼步骤 |
+| 报告 | 判定 | PS41；报告命名范围、修改、保留、延后与实际运行的检查 |
+| 校准示例 | 判定 | EX1-EX12；评审 A 对照规则检查每个原则一个案例，以及每个过度纠正对照 |
+| 召回探针 | 判定 | RB；每个探针是发现辅助，校准规则陈述在模式之前 |
+| 无脚本 | 判定，带机械后果 | R3；门禁报告未发布脚本、未提及脚本 |
+| 无发明机制 | 判定 | 独立设计审计对照 R1-R18 检查每个目标指称；发现在 § Review |
+| 隔离 | 判定，带机械后果 | R18：三份发布 Markdown 不点名其他技能、其他技能路径或包内机制——§ 验证结果中的隔离 grep 没有命中——从其他工具、技能或本包借来的形式标为示例，而技能自己的占位符、标记与来源声明仍属其约定；评审 B 检查承载示例的句子 |
+| 审查草稿配对 | 机械 | `translation-pair write` 创建了 `.i18n.yaml` 记录；`forge.mjs pair` 报告声明的 `.zh.md` 与 `.i18n.yaml` 草稿且无孤儿；`translation-pair check` 在同一锚点上通过；落地时 `forge publish` 移除了草稿 |
+| 记录格式 | 机械 | 在 implemented 树上运行 notes 检查；输出在 § 验证结果 |
+| 记录覆盖：每条来源约束一行处置 | 判定 | 来源一致评审把五个来源文件的每条约束逐条对照处置表，而不是抽样；发现在 § Review |
+| 锻造技能自己的文字遵循其规则 | 判定 | 独立实现评审把技能应用到它自己的文字；发现在 § Review |
+| 中文审查草稿 | 判定，带未验证余项 | 技能草稿已结构配对并在发布时移除；记录自己的配对已配对并随记录发布；翻译是否地道留给人工评审，人工评审接受了落地（U4） |
+| 记录配对 | 判定 | R15 在评审内容稳定后、交接前配对记录的中文对侧与一致性记录；U4 记录剩余的人工检查 |
+| 交接完整性 | 判定 | § 交接记录落地与仍待维护者决定的事项 |
+
+## 验证
+
+落地的技能与迁移后的记录于 2026-10-28 在产生落地的工作树上验证如下：
+
+1. 设计审计在实现前接受设计，两名独立评审经过四轮增量接受实现（§ 评审）。
+2. 落地技能在 `skills/dsh-spec-prose-standard/` 通过机械门禁：不附脚本，每个链接都可解析。
+3. `.agents/skills/dsh-spec-prose-standard/` 下的安装副本与落地目录逐字节一致，仓库的安装副本不变式成立。
+4. 记录检查在 implemented 树上通过，记录的中文对侧与一致性记录已配对。
+5. 对落地 Markdown 的隔离 grep 没有发现其他技能、其他技能路径或包内机制。
+6. 功能套件与格式检查通过，`git diff --check` 没有空白错误。
+7. 落地是 `refactor/dsh-skills` 上的一个压缩提交；工作树干净，未 push。
+
+### 验证结果
+
+2026-10-29 在当前树上运行，覆盖拆分之后：
+
+```text
+$ node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs skills/dsh-spec-prose-standard
+ok   SKILL.md — 105 lines
+ok   frontmatter fields — name, description, license
+ok   name — dsh-spec-prose-standard (dir: dsh-spec-prose-standard)
+ok   description — 721 characters
+ok   license — 59 characters
+ok   script mentions — none mentioned
+ok   script coverage — none shipped
+ok   references directory — references
+ok   links stay inside — 11 relative link(s)
+ok   links resolve — all resolve
+ok   link depth — nothing deeper than one level
+ok   reference mentions — 3 reference(s) named
+ok   reference targets — 3 path(s) named
+ok   budget — 105 lines, ~4160 tokens at 1.1 CJK / 0.303 other tokens/char (limit: under 500 lines and 5000 tokens)
+14 check(s), 0 failed
+
+$ diff -r skills/dsh-spec-prose-standard .agents/skills/dsh-spec-prose-standard && echo identical
+identical
+
+$ node skills/dsh-spec-agent-notes/scripts/notes.mjs check --root .agents/dsh-spec-agent-notes --companion .zh.md --companion .i18n.yaml
+ok   check — 38 note(s) and 76 companion(s) checked
+
+$ node skills/dsh-spec-translate-docs/scripts/translate-pair.mjs check .agents/dsh-spec-agent-notes/implemented/process/2026-10-28-forging-dsh-spec-prose-standard.md --target zh=中文 --root .
+1 pair(s) consistent
+
+$ rg -n 'Agent Notes|dsh-spec-agent-|dsh-spec-skill-forge|notes root' skills/dsh-spec-prose-standard/SKILL.md skills/dsh-spec-prose-standard/references/examples.md skills/dsh-spec-prose-standard/references/recall-batteries.md
+(no output; exit 1 — no sibling skill, sibling path or package mechanism is named)
+
+$ pnpm test
+tests 262 · pass 262 · fail 0
+
+$ pnpm run format:check
+All matched files use the correct format.
+
+$ git diff --check
+(no output; exit 0)
+```
+
+设计审计运行了两次（§ 评审）：第一轮以 D1-D11 返回需要修订，解决后第二轮接受。实现评审在第一轮（A1-A13、B1-B10）、第二轮（N1-N4、R1-R6）、第 5 轮（A1-A4、B5-1..B5-3）与第 7 轮（A7-1..A7-3、B7-1..B7-3）返回需要修订；两名评审在第 8 轮接受状态。人工评审于 2026-10-28 接受技能，上方的落地检查是发布证据。评审提交留在本地 forge 分支；基线只携带一个压缩提交。
+
+## 评审
+
+### 设计审计（实现之前）
+
+第 1 轮——独立设计审计，2026-10-28。结论：需要修订；无阻断项，四项 major 与七项 minor 发现。审计阅读了固定修订下的五个来源文件、整份记录、采用方声明与点名的工具。
+
+| 发现 | 严重度 | 本记录中的解决 |
+|---|---|---|
+| D1——项目配对门禁需要 `.i18n.yaml` 记录，而计划只声明了 `.zh.md` | major | Settings、R10、§ 验证步骤 3-4 与 § Handover 现在声明两个伴随文件，在停止时写出三份记录，并在发布时一并移除 |
+| D2——关于派生、排除与指导规则的处置行重复且处置冲突 | major | PS6 合并两条指导陈述；PS12、PS13 与 PS14 吸收泄漏位置；PS15 吸收翻译文字的一半；PS39 只保留复查的一半；LC25 变成已溶解的跨技能指针；LC27 保留围栏与可见文案两半 |
+| D3——EX7 使用 Keep 却携带来源仓库机制 | major | EX7 是 Adapt，并点名四个待泛化的主题 |
+| D4——召回探针被一行粗粒度处置覆盖不足 | major | EX8 拆成 EX8-EX12（调用规则、英文探针组、双语示例、误报族、自引用规则）；提案与 R11 点名调用规则 |
+| D5——prose description 没有处置行 | minor | 加入 PS46 |
+| D6——来源行号错误 | minor | PS17、PS21、LC5、LC30 与 EX1-EX4 对照固定修订修正 |
+| D7——处置标签与遗漏的双语围栏规则 | minor | PS27、PS40 与 LC29 改为 Re-bind；LC3 拆分，归档笔记为带接手的 Dissolve；LC27 携带逐字片段规则；PS12 保留可执行的排除形式 |
+| D8——R3“没有命令可判定”的前提为假 | minor | R3 点名既有项目命令作为机械子集与唯一可精确判定的规则 |
+| D9——锚点与计划精度：抽样、缺失的语言顺序锚点、没有计划示例评审、空洞的链接检查 | minor | 覆盖锚点改为逐条枚举而非抽样；加入 description 语言行与记录配对行；点名评审 A 的校准检查；移除链接检查 |
+| D10——“guides”与“incident reports”被过度包含 | minor | PS26 与 PS29 命名目标领域的对等体裁，依据用 R2 而非循环的通用形态 |
+| D11——笔记配对推迟被归因于请求 | minor | 该推迟成为 R15，由 Settings、U4 与锚点引用；R15 后来改为在交接前配对记录 |
+
+第 2 轮——修订后设计的复审，2026-10-28。结论：接受；无阻断项。第一轮每项发现都在修订文字中验证解决，来源范围与配对计划对照固定文件与 CLI 重新检查。仍有三项 minor 发现，都是在实现前已应用的记录文字修正：
+
+- N1——PS15 与 LC27 都携带翻译配对的最小更新规则。PS15 现在拥有该规则及其来源位置；LC27 只保留逐字片段与可见文案两半。
+- N2——配对步骤编号在实现评审之前，可能记录过期文字。计划现在在实现期间运行步骤 1-5，最后运行步骤 6-8，并在之后任何编辑后重新运行。
+- N3——PS14 丢了记录 fixture 的条件，EX11 的依据过度声称误报族。PS14 现在携带授权行为变更条件，EX11 点名 `actually`/`wait` 与运行时 `today`/记录时间戳两半。
+
+### 实现评审，第 1 轮
+
+两名独立评审阅读了三份已发布文件、记录、五个固定来源文件与采用方声明，并重新运行门禁。两者都返回需要修订；没有发现质疑设计。
+
+| 发现 | 评审；严重度 | 解决 |
+|---|---|---|
+| A1/B6——召回探针的代码围栏格式错误，不是三重反引号 | A、B；blocker | 四个围栏恢复，参考把两个探针组渲染为代码 |
+| A2——工作流 8 只携带 LC29 的门禁一半 | A；major | 工作流 8 现在在修复后重跑探针，预期只剩被认可的保留项，并确认每个剩余引用可解析 |
+| B1——description 漏掉一个泄漏类别与若干触发词 | B；major | description 在 1024 字符限制内点名工作语言残留、审计编号、草稿小节号、变更与版本叙述、Markdown，以及工具与参数描述 |
+| B2——边界规则让执行者去编辑本技能已发布的示例 | B；major | PS45 改绑：原则写到项目的文字指导归属地或报告；只有本技能自己的源码树是工作树时才向示例添加案例，绝不编辑安装副本 |
+| B3——A2 的重复 | B；major | 随 A2 解决 |
+| A3/B5——探针组声称每个误报族都是入口里的保留规则 | A、B；minor | 句子现在说其中几个重述保留规则，其余是探针层校准 |
+| A4——四个过度纠正陷阱缺少名称 | A；minor | 示例参考携带四个具名子节 |
+| A5——description 丢掉 Markdown 与 descriptions | A；minor | 随 B1 解决 |
+| A6——声明子句说 translation authority，而 PS4 说 bilingual pairs | A；minor | 入口陈述“bilingual pairs and their translation authority”；PS4 不变 |
+| A7——三个记录归属点名不存在的小节 | A；minor | PS8 与 PS41 归属修正；EX12 移到工作流 8 的修复后探针复跑 |
+| A8——短语边界示例技术上错误 | A；minor | 示例现在使用来源有效的 `this PR`/`this project` 对 |
+| A9/B4——探针组点名不可达的“来源探针组” | A、B；minor | 句子陈述该示例没有固定语言对，并点名项目自己的语言 |
+| A10/B10——示例保留 `doc-typecheck` 与其他来源项目名词 | A、B；minor | 门禁现在叫“the documentation type-check gate”；pre-step、pressure accounting、worker realm、built-entry smoke 与 IPC shell 被中性化 |
+| A11——三个记录覆盖缺口：示例文件头、Python 注释探针、对侧比较子句 | A；minor | EX1 与 EX2 的范围从第 3 行起；EX10 点名 Python 注释探针；对侧比较规则属于 EX8 的调用规则，并在第 2 轮携带 |
+| A12——可见文案规则与自扫描规则被陈述两次 | A；minor | 工作流 6 是指向覆盖规则的指针；示例开头只保留校准陈述，探针组携带自扫描规则 |
+| A13——LC1 的依据与“the class below”指称 | A；minor | LC1 依据修正；入口点名“the change-narration class (class 3)” |
+| B7——三个被过度修剪的指称 | B；minor | 当前状态文本面被点名，工作流 1 说“current change or branch state”，探针组说明在哪个文本面搜索哪种语言 |
+| B8——领域边界只有正面 | B；minor | 入口陈述领域外，description 排除对话与代码评审 |
+| B9——通用文档页没有必需覆盖行 | B；minor | 第一行覆盖是“Documentation pages, cookbooks, and guides”，并回退到最接近的体裁或项目的常设指令 |
+| 记录注记——验证小节没有携带门禁输出 | B；注记 | 门禁输出记录在 § 验证结果 |
+
+第 2 轮——这些修复后的实现复审，2026-10-28。两名评审都只以 minor 发现返回需要修订；没有 blocker 或 major 残留。它们的解决：
+
+- N1/R1——来源的对侧比较规则从探针组里缺失，而记录把它归给 EX10。规则现在由调用规则（EX8 的范围）携带，EX10 只保留自己的范围。
+- N2——PS45 改绑后的目标丢了“versions”与禁止评审历史。边界规则现在保留两者，记录的 PS45 归属为同类段落的一半点名工作流 7。
+- N3/R4——覆盖行丢了 PS22 的“return distinctions”与 PS23 的“surprising failure behavior”。两者恢复，并连同 PS27 的“model-visible”、“stable visible text owned by the package”与“cross-package owners”限定。
+- N4——description 与触发锚点说“code review”，而领域说 code correctness。description、锚点、Domain 段落与 R2 现在说 code correctness，过程文字在领域与 R2 中被放到项目的变更约定下。description 的两半在第 3 轮对齐（N5）。
+- R2——工作流 8 把 LC29 的三类预期命中压缩成两类。句子现在列出被认可的保留项、本技能引用的校准案例，以及拥有该决策的记录所引用的证据。
+- R3——工作流 9 恢复“found”与“actually”，因此只读审计有“发现的类别”这一报告字段，检查也被命名为实际运行。
+- R5——文档行把流程要求套到每个文档页。它现在要求“the content the page's purpose requires”并陈述流程子集，所以参考页不会被过度覆盖。
+- R6——四个过度纠正陷阱与其父标题同级。它们现在是其下的子节（####）。
+
+判定而非修复的观察：“realm global”留在一个公共文档案例里；它是通用的 API 主题，不是来源仓库的机制，因此不是来源特定主题。
+
+第 3 轮——第 2 轮修复的确认，2026-10-28。评审 B 接受该状态：R1-R6 与 N1-N4 解决，无新缺陷，剩余限制与观察被判为可接受或仅记录。评审 A 确认 N1-N4 与第 2 轮项目解决，并提出最后一项 minor 发现：
+
+- N5——第 2 轮的 description 编辑翻转了双语两半而不是对齐它们：英文丢了“dead”并说“code correctness”，而中文仍带失效的会话引用与代码评审。英文恢复“dead”，中文说代码正确性，并由“public API documentation”支付字符；description 是 1022 字符，门禁通过。中文审查草稿的 description 镜像对齐后的配对。
+
+第 4 轮——N5 的最终确认，2026-10-28。评审 A 接受：N5 以等长方式修复，门禁与记录一致，无来源一致或覆盖项残留。评审 B 接受 description 对齐不改变其结论。第 2 轮实现发现的标签 N1-N4 与 R1-R6 为可追溯性保留；R 前缀标签不是目标裁定 R1-R18，维护者决策使用 M1-M8，因此不与设计审计发现 D1-D11 冲突。两名独立实现评审接受技能；设计审计在 § Review 第 2 轮接受。停止时的增量（三份中文审查草稿及其 `.i18n.yaml` 记录、英文来源里的语言切换行、三处等长修剪与两处去片段链接）后来被两名评审确认：没有来源一致、覆盖、文字或质量项残留。
+
+变基，2026-10-28：评审之后基线移动了两次——先到 `bbc824d`（落地提示词编写的 `dsh-spec-agent-experience` 技能与被改编技能文字的技能根来源声明），再到 `9301061`（移除被取代的 `dsh-agent-experience` 安装副本）。分支变基到当前基线；两次变基都没有改动交付文件，§ 验证结果中的每项检查都在变基后的状态上重新运行。
+
+### 维护者评审，2026-10-28
+
+维护者评审了锻造出的技能并给出四条意见；这里应用的裁定记录为 Settings 行、PS46、R15-R17 与交接。
+
+1. 需要来源声明。技能获得基线的被改编技能声明：frontmatter 的 `license` 字段、列出两个上游技能五个源文件的技能根 `THIRD_PARTY_NOTICES`，以及登记这第三个被改编技能的共享根 `THIRD_PARTY_NOTICES.md`（M2、M3；R16）。
+2. 与提示词编写技能的重叠是正常的：同一份文字可以承载两个领域。本技能拥有编辑裁量与覆盖；`dsh-spec-agent-experience` 拥有提示词结构与上下文效率。不引入交叉引用或运行时依赖。
+3. description 的枚举示例暗示固定范围。它被改写为领域先行：持久性文本及其职责先出现，文本面是“among other surfaces”式的示例，泄漏被提到但不枚举类别，近邻排除保留（M1；PS46；R17）。
+4. 裁定与重大方向决定先呈现给维护者，而不是默默定下。七个问题 M1-M7 已被回答，未提及的按推荐执行：M1 description 重写，M2 来源声明的五个上游路径，M3 本分支中的根登记，M4 变更后的增量复审，M5 记录自己的配对，M6 落地推迟、工作停在人工审查，M7 保留“chain-of-thought leakage”作为泄漏触发短语。维护者另加两条指示：再变基一次；在有益处使用本技能与 `dsh-spec-agent-experience` 作为文字指导，在上游文字读起来更好时保留上游文字。
+5. 各技能相互独立，按完全隔离阅读。因此发布文字不点名其他技能、其他技能的路径或默认值，也不点名包内机制：notes 归档示例与 Agent Notes 命名被删除，`vendor/` 与两条 diff 命令标为示例，声明被描述为项目自己的常设指令（M8；R5、R8、R18）。
+
+由此产生的增量（description、license、来源声明、根登记、记录更新）被送交两名独立评审做简短的第 5 轮检查；结论见下一节。记录自己的中文对侧与一致性记录随后按 R15 添加，因此不属于那次评审增量。
+
+### 增量评审，第 5 轮，2026-10-28
+
+两名独立评审阅读了维护者指导的增量（提交 `78049da`），只以记录文字发现返回需要修订；增量文件本身被接受。
+
+- 评审 A 接受 description（领域先行、文本面是 among other surfaces 式的示例、721 字符、近邻保留）、来源声明（五个上游路径在固定修订下存在、两份 MIT 通知与上游和仓库许可证文件逐字节一致、结构与 notes 先例一致）、根登记的前瞻性措辞、变基与验证证据。四项记录准确性发现：验收标准 7 仍把记录配对描述为延后（A1）；两个要求锚点仍带延后措辞（A2）；第 5 轮增量清单点名尚未写出的记录对侧（A3）；PS46 与 Settings 的 description 行声称 description 枚举泄漏类别（A4）。四项都已在此修复。
+- 评审 B 接受 description 作为提示词、来源声明打包、根措辞与未改动的技能正文。三项仅记录发现：过期的 R1-R15 引用与 D11 行（B5-1）；维护者决策标签 D1-D7 与设计审计发现 D1-D11 冲突，且 M4/M6/M7 未命名（B5-2）；待处理的记录编辑未提交（B5-3）。标签现在是 M1-M7 且问题已命名，ruling 引用说 R1-R17，本表已提交；记录自己的中文对侧与 `.i18n.yaml` 记录按 R15 在交接时添加。
+
+第 6 轮——记录文字修复的确认，2026-10-28。评审 B 接受：B5-1 与 B5-2 已修复，第 5 轮修复在场，未发现新的不一致；其唯一注记是第 5 轮小节说本表与记录自己的配对一起提交，而该配对当时仍在编写。评审 A 确认 A1-A4 与 B5-1/B5-2 已解决，并提出最后一项记录文字发现（A5）：同一句子在记录配对提交之前就预先声称了它。句子现在说本表已提交、记录自己的配对按 R15 在交接时添加；该配对在同一变更中提交，两名评审的第 5、第 6 轮发现均已关闭。
+
+### 隔离评审，第 7 轮，2026-10-28
+
+维护者指示把每个技能按完全隔离对待，因此发布入口删除了 notes 技能的归档默认值与 Agent Notes 命名，把 `vendor/` 与两条 diff 命令改写为示例，并把项目声明描述为项目自己的常设指令。PS4、PS12、PS13、PS28、PS40、R5、R8、R18 与锚点已更新；入口、其中文审查草稿与本记录的配对已重新记录。
+
+第 7 轮——隔离变更的增量评审，2026-10-28。两名评审都接受发布的隔离；发现包括记录准确性（A7-1..A7-3、B7-3）与两处入口/文字修正（B7-1、B7-2）：
+
+- 评审 A（A7-1..A7-3）：R5 说“各保留一个具名示例”，而发布规则各命名了多个示例；记录在发布文字已改说“常设指令”的地方仍说“声明”（PS27 与 PS36 的依据、B9、Domain、R4 以及相关的 R14 措辞）；验证块在 ~4998 token 的门禁结果旁仍写着 ~4992。三项都已在此修复，记录配对重新记录。
+- 评审 B（B7-1..B7-3）：入口在开头用“常设指令”，但覆盖行与工作流 1-2 仍用“声明”（现已一致）；“生成产物”曾作为第三方示例出现，而生成文件是派生品（现改为“vendored 检出”，并同步 PS12）；R18、隔离设置行、锚点与 AC9 曾过度声称每个具体形式都是示例（现已收窄：从其他工具、技能或本包借来的形式只作为示例，而技能自己的占位符、标记与来源声明仍属其约定，工作流 8 的 Git 形式仍是示例）。三项都已修复。
+
+第 8 轮——第 7 轮修复的最终确认，2026-10-28。两名评审都接受：A7-1..A7-3 与 B7-1..B7-3 在提交 `b48df9f` 上验证通过，没有新的来源一致、覆盖、隔离或文字问题。评审 B 的唯一注记——第 7 轮小结把每个发现都说成仅记录，而 B7-1 与 B7-2 改动了发布入口及其配对——已在此修正。入口、其中文审查草稿与本记录配对重新记录，随后进入人工评审。
+
+落地，2026-10-28：人工评审接受了锻造出的技能。工作目录发布到 `skills/dsh-spec-prose-standard/`（移除中文审查草稿），安装副本已刷新，两个被取代的安装技能 `dsh-prose-standard` 与 `dsh-trim-cot-leakage` 及其 manifest 条目已移除，根 `THIRD_PARTY_NOTICES.md` 与 `AGENTS.md` 的技能句已更新，本记录连同中文对侧与一致性记录从 `proposed/` 移入 `implemented/`。forge 分支保留评审提交；基线携带一个压缩提交。
+
+## 未验证项
+
+- **U1——触发激活率。** 没有运行触发评估：仓库没有触发评估装置，也没有安装后的触发评估步骤。description 遵循 Agent Skills 的 description 指导，独立评审检查了其词汇，但激活率未测量。
+- **U2——采用项目的检查。** 技能点名项目自己的文档、链接、配对与行为检查，而不是固定命令。本工作中没有采用方，因此那些命令没有执行；该规则是判定的，不是机械的。
+- **U3——目标语料上的有效性。** 来源提炼自一个仓库的全语料审计；这里没有审计采用方语料，所以合并技能在新语料上的召回率与精确率未测量。
+- **U4——中文审查草稿与记录的配对。** 技能审查草稿已编写、配对并在发布时移除，所以不发布任何技能翻译；记录自己的配对随它移入 `implemented/`。翻译是否地道留给人工评审，人工评审接受了落地（R10、R15）。
+- **U5——每仓库的排除项。** 项目可能不声明排除项，也不声明文档标准；技能回退到陈述式报告（R14）而不是推断策略，该回退没有对真实项目演练过。
+
+## 交接
+
+已于 2026-10-28 在 `refactor/dsh-skills` 上以单个压缩提交落地。安装副本已刷新，被取代的安装技能及其 manifest 条目已移除，根 `THIRD_PARTY_NOTICES.md` 与 `AGENTS.md` 的技能句已更新，本记录连同中文对侧与一致性记录移入 `implemented/`。
+
+仍待维护者决定：`README.md` 与 `README.zh.md` 是否为本技能增加一行“技能”行（其他已落地技能也未列出）；是否删除保留评审提交的本地 forge 分支。
+
+回滚：回退该压缩落地提交；没有触及远端状态。
+
+## 备选方案
+
+**把泄漏审计作为独立技能发布。** 它落选是因为请求把它合并，审计应用编辑标准自己的完整命题规则，而单技能安装会携带悬空的“必需背景”指针。
+
+**原样保留上游文字，只换路径。** 它落选是因为来源写进了一个仓库的文档树、生成的目录、locale 字典、笔记归档与具名门禁；抽取规则要求把每个指称改绑到采用方的常设指令或溶解它，原样复制会发布另一个项目的策略。
+
+**把泄漏规则放进第三个参考文件。** 它落选是因为泄漏类别在每次审计中都应用，也是最容易被跳过的部分；加载第二个参考才能学到类别，会让审计漏掉它们，而合并后的入口在五千 token 预算内展示每类一条规则。
+
+**捆绑召回探针脚本。** 它落选是因为探针组按设计会多报，且每个命中都需要语义判断；两个来源都陈述技能是指导而非脚本，脚本会发明来源所避开的机制。
+
+**保留上游排除路径作为固定路径。** 它落选是因为通用采用方不必在来源路径拥有 `vendor/` 或笔记归档；规则被改绑到第三方与冻结目录树，并带具名默认值。
+
+**把领域收窄为只有文档。** 它落选是因为持久性文本包含提交的注释、指令与可见文案；收窄会丢掉来源的覆盖与大部分泄漏类别，而它们正是关于注释与记录的。
+
+**现在就落地到 `skills/` 以便看到产物。** 它落选是因为请求禁止审查前发布，且没有刷新安装副本的已落地技能会让仓库自己的不变式失败。
+
+## 后果
+
+- 本包发布一个持久性文本技能，而不是两个分别安装的上游技能：项目安装一个技能就同时得到编辑标准与泄漏审计（R1）。
+- 落地技能不点名任何其他技能、其他技能默认路径或仓库特定门禁；采用方的常设指令与自己的命令决定这些机制（R5、R8、R18）。
+- 两个被取代的安装副本及其 manifest 条目已删除。其他安装了的上游技能若曾链接它们，部署状态会保留这些链接直到从上游刷新；它们都不是交付物。
+- description 领域先行且开放范围：比它取代的枚举更短，触发词汇更宽但更不具体，激活率仍未测量（U1）。
+- 入口使用 105 行、约 4160/5000 token 预算；继续增长仍有空间，按文本面的覆盖细节在第三个参考里（R11）。
+- 不发布任何技能翻译；记录的中文对侧与一致性记录随笔记发布，笔记是这次锻造的持久记录（R10、R15）。
+- 放弃的东西：可单独安装的泄漏审计技能、让上游文字具体化的仓库特定示例，以及早先 description 携带的类别级触发词汇。
+- 评审提交只留在本地 forge 分支；基线历史是一个压缩提交，因此逐轮证据通过本记录与该分支可达，而不是通过基线历史。

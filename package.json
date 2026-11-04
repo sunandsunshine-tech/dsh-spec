@@ -15,8 +15,8 @@
     "test:watch": "node --test --watch 'tests/**/*.test.ts'",
     "skill:draft": "node skills/dsh-spec-skill-forge/scripts/forge.mjs draft dsh-spec-skill-forge --from skills/dsh-spec-skill-forge",
     "skill:build": "node scripts/build-skills.ts",
-    "skill:review": "node skills/dsh-spec-skill-forge/scripts/forge.mjs review dsh-spec-skill-forge",
-    "skill:publish": "node skills/dsh-spec-skill-forge/scripts/forge.mjs publish dsh-spec-skill-forge --into skills/dsh-spec-skill-forge",
+    "skill:pair": "node skills/dsh-spec-skill-forge/scripts/forge.mjs pair dsh-spec-skill-forge --companion .zh.md --companion .i18n.yaml",
+    "skill:publish": "node skills/dsh-spec-skill-forge/scripts/forge.mjs publish dsh-spec-skill-forge --into skills/dsh-spec-skill-forge --companion .zh.md --companion .i18n.yaml",
     "skill:refresh": "node scripts/refresh-skills.ts"
   }
 }

@@ -1,19 +1,19 @@
-# Bilingual-pair consistency record for 2026-09-24-opening-this-repository.md (references/i18n-contract.md): per heading
-# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# Pairing consistency record for 2026-09-24-opening-this-repository.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
 # After editing either side, bring the other along and re-record with:
-#   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec-agent-notes/implemented/process/2026-09-24-opening-this-repository.md
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-09-24-opening-this-repository.md --target <lang>
 /agent-note-opening-this-repository:
-  en: 0dcc070733474106
-  zh: 3035ca132b763086
+  en: b063e66563edeb7d
+  zh: cf1c72fc5c10d3c1
 /agent-note-opening-this-repository/problem:
   en: 3b65bf9762be83f0
-  zh: 258d3aa8c631dfb7
+  zh: 5b1595fbb7c91c1b
 /agent-note-opening-this-repository/decision:
-  en: 81769eac353af1e9
-  zh: dae1207a609f2478
+  en: fe3cf1f7a81b7b3c
+  zh: 9f1ba8251a6aea1e
 /agent-note-opening-this-repository/alternatives-considered:
   en: a3c5ee9a06e79e2f
-  zh: fad289062240aafe
+  zh: c27ee1e81374b2f9
 /agent-note-opening-this-repository/consequences:
-  en: 382ae42a044fdf08
-  zh: 0e7f63cff4da3049
+  en: a63a9b06388d581d
+  zh: 5b6187465bdd658a

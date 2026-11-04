@@ -6,7 +6,9 @@ This repository is an extraction of [DeepSeek Harness](https://github.com/deepse
 
 Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.1-rc.3` (`1f81c047fc48fa190a683e469daa699857e9afe8`).
 
-This repository is an extraction of that project: it rewrites the harness's development pattern into a skill set. Where a file is carried over from upstream, it states its origin, its upstream path and its provenance in its own header, next to its `SPDX-License-Identifier: MIT` line.
+This repository is an extraction of that project: it rewrites the harness's development pattern into a skill set. Where a source file is carried over from upstream, it states its origin, its upstream path and its provenance in its own header, next to its `SPDX-License-Identifier: MIT` line.
+
+A skill is text that an agent loads as instructions, so a header would become part of the skill. A skill whose text is carried over or adapted states the same facts from outside the loaded text: the `license` field in its frontmatter names a `THIRD_PARTY_NOTICES` file at the skill root, and that file carries the origin, the upstream path and revision, the relation, and the notices an installed copy needs. The adapted `agent-experience` skill text declares it this way at `skills/dsh-spec-agent-experience/`, the adapted notes text declares it the same way at `skills/dsh-spec-agent-notes/`, the adapted prose standard declares it at `skills/dsh-spec-prose-standard/`, the adapted find-simplifications skill declares it at `skills/dsh-spec-find-simplifications/`, the adapted pre-push-checks skill declares it at `skills/dsh-spec-pre-push-checks/`, the adapted code-review skill declares it at `skills/dsh-spec-code-review/`, the adapted error-handling skill declares it at `skills/dsh-spec-error-handling/`, the adapted merging-stacked-prs skill declares it at `skills/dsh-spec-merging-stacked-prs/`, and the extracted translation skill declares it at `skills/dsh-spec-translate-docs/`. `skills/dsh-spec-skill-forge/` carries a skill-root `THIRD_PARTY_NOTICES` for the npm packages its bundled scripts include.
 
 The upstream licence, reproduced in full:
 
@@ -47,19 +49,19 @@ The dependency submission reads this table. It lists the npm packages the set's 
 | `escape-string-regexp` | 5.0.0 |
 | `longest-streak` | 3.1.0 |
 | `markdown-table` | 3.0.4 |
-| `mdast-util-find-and-replace` | 3.0.2 |
+| `mdast-util-find-and-replace` | 3.0.4 |
 | `mdast-util-from-markdown` | 2.0.3 |
 | `mdast-util-gfm` | 3.1.0 |
 | `mdast-util-gfm-autolink-literal` | 2.0.1 |
 | `mdast-util-gfm-footnote` | 2.1.0 |
-| `mdast-util-gfm-strikethrough` | 2.0.0 |
+| `mdast-util-gfm-strikethrough` | 2.0.1 |
 | `mdast-util-gfm-table` | 2.0.0 |
 | `mdast-util-gfm-task-list-item` | 2.0.0 |
 | `mdast-util-phrasing` | 4.1.0 |
 | `mdast-util-to-markdown` | 2.1.2 |
 | `mdast-util-to-string` | 4.0.0 |
-| `micromark` | 4.0.2 |
-| `micromark-core-commonmark` | 2.0.3 |
+| `micromark` | 4.0.3 |
+| `micromark-core-commonmark` | 2.0.4 |
 | `micromark-extension-gfm` | 3.0.0 |
 | `micromark-extension-gfm-autolink-literal` | 2.1.0 |
 | `micromark-extension-gfm-footnote` | 2.1.0 |
@@ -69,7 +71,7 @@ The dependency submission reads this table. It lists the npm packages the set's 
 | `micromark-extension-gfm-task-list-item` | 2.1.0 |
 | `micromark-factory-destination` | 2.0.1 |
 | `micromark-factory-label` | 2.0.1 |
-| `micromark-factory-space` | 2.0.1 |
+| `micromark-factory-space` | 2.1.0 |
 | `micromark-factory-title` | 2.0.1 |
 | `micromark-factory-whitespace` | 2.0.1 |
 | `micromark-util-character` | 2.1.1 |
@@ -78,6 +80,7 @@ The dependency submission reads this table. It lists the npm packages the set's 
 | `micromark-util-combine-extensions` | 2.0.1 |
 | `micromark-util-decode-numeric-character-reference` | 2.0.2 |
 | `micromark-util-decode-string` | 2.0.1 |
+| `micromark-util-edit-map` | 1.0.0 |
 | `micromark-util-encode` | 2.0.1 |
 | `micromark-util-html-tag-name` | 2.0.1 |
 | `micromark-util-normalize-identifier` | 2.0.1 |
@@ -87,7 +90,7 @@ The dependency submission reads this table. It lists the npm packages the set's 
 | `unist-util-is` | 6.0.1 |
 | `unist-util-stringify-position` | 4.0.0 |
 | `unist-util-visit` | 5.1.0 |
-| `unist-util-visit-parents` | 6.0.2 |
+| `unist-util-visit-parents` | 6.1.0 |
 
 ## Scope
 

@@ -1,19 +1,19 @@
-# Bilingual-pair consistency record for 2026-09-22-migration-cost-is-a-design-constraint.md (references/i18n-contract.md): per heading
-# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# Pairing consistency record for 2026-09-22-migration-cost-is-a-design-constraint.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
 # After editing either side, bring the other along and re-record with:
-#   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec-agent-notes/implemented/process/2026-09-22-migration-cost-is-a-design-constraint.md
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-09-22-migration-cost-is-a-design-constraint.md --target <lang>
 /agent-note-migration-cost-is-a-design-constraint:
-  en: 3ff50341c9e56897
-  zh: 77396e3276d260c0
+  en: e3d3aac9395dd30b
+  zh: 64ec50a600e24df2
 /agent-note-migration-cost-is-a-design-constraint/problem:
   en: 6aca1e66ee24a1c6
-  zh: 6b0385492f8f8ea1
+  zh: 94ae7233455bb149
 /agent-note-migration-cost-is-a-design-constraint/decision:
   en: 4828376619575e67
-  zh: 75f0a1ea962da448
+  zh: 22e1d023ad3ebc8b
 /agent-note-migration-cost-is-a-design-constraint/alternatives-considered:
   en: 725e8918e410266e
-  zh: bce71853aac2ff7e
+  zh: cf9c489d40db40a8
 /agent-note-migration-cost-is-a-design-constraint/consequences:
   en: 1444f1ef377cb8eb
-  zh: ca257c487d56f767
+  zh: d34fa1da4ae78363

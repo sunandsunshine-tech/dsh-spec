@@ -1,0 +1,61 @@
+# Pairing consistency record for 2026-10-28-forging-dsh-spec-merging-stacked-prs.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-10-28-forging-dsh-spec-merging-stacked-prs.md --target <lang>
+/agent-note-forging-dsh-spec-merging-stacked-prs-from-the-upstream-stacked-pr-landing-skill:
+  en: 4a3431d2a37fa626
+  zh: 45e911a13edaf18a
+/agent-note-forging-dsh-spec-merging-stacked-prs-from-the-upstream-stacked-pr-landing-skill/problem:
+  en: 89682827a78339fc
+  zh: d0231dc46be088bf
+/agent-note-forging-dsh-spec-merging-stacked-prs-from-the-upstream-stacked-pr-landing-skill/decision:
+  en: cb9e76265578619b
+  zh: 6d1d29fc9f29d24a
+/agent-note-forging-dsh-spec-merging-stacked-prs-from-the-upstream-stacked-pr-landing-skill/decision/scope-corrections-after-the-first-stop:
+  en: b68b81cd6c674079
+  zh: 0489383649894e48
+/agent-note-forging-dsh-spec-merging-stacked-prs-from-the-upstream-stacked-pr-landing-skill/decision/settings:
+  en: 1217433f5745cf04
+  zh: 4949b5843e741c78
+/agent-note-forging-dsh-spec-merging-stacked-prs-from-the-upstream-stacked-pr-landing-skill/decision/source-and-revision:
+  en: 4496909343de2ff4
+  zh: a2a60bff9f65432b
+/agent-note-forging-dsh-spec-merging-stacked-prs-from-the-upstream-stacked-pr-landing-skill/decision/constraint-dispositions:
+  en: 663acb196ddcd686
+  zh: 3a48aebbfc5cc7ca
+/agent-note-forging-dsh-spec-merging-stacked-prs-from-the-upstream-stacked-pr-landing-skill/decision/rulings:
+  en: b916ace2b59fd05c
+  zh: ae4c4df377880b79
+/agent-note-forging-dsh-spec-merging-stacked-prs-from-the-upstream-stacked-pr-landing-skill/decision/no-bundled-script:
+  en: c4848c16da3b3ea3
+  zh: 7faf9f249bbedd22
+/section:
+  en: 334359b90efed75d
+  zh: 270a8cf15a3ea37a
+/section/verification:
+  en: a9dbcf3375363986
+  zh: 1cb362f7925731ba
+/section/verification/check-log:
+  en: 2b73e15e4e8d1575
+  zh: f32f6d4ebb1ceb15
+/section/verification/design-audit:
+  en: 66ed0edc324bceb3
+  zh: 6fc8e6b7f0f90f9c
+/section/verification/implementation-reviews:
+  en: 0d8b3a605f2ad0c6
+  zh: d20135e5cae6eff0
+/section/verification/landing:
+  en: 4b83ecce5ab93d2e
+  zh: 4093e1054f5ce186
+/section/unverified-items:
+  en: 01a2079cfe041d8a
+  zh: 9da376d3f1c87f43
+/section/handover:
+  en: e50ef73cbe8cd02b
+  zh: de87e7ae357b7537
+/section/alternatives-considered:
+  en: a65f66058b1dc4e5
+  zh: 27e0b70a4d24d3b4
+/section/consequences:
+  en: 276a46be32301fec
+  zh: e2a40028aaafc0fc

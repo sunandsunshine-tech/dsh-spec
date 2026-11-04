@@ -1,0 +1,268 @@
+# Agent Note: 从上游 code-review 技能锻造 dsh-spec-code-review
+
+Status: implemented
+
+[English](2026-10-28-forging-dsh-spec-code-review.md) | 中文
+
+## 问题
+
+本次锻造开始时，重建中的包只有锻造技能、agent-experience 技能与 agent-notes 技能；prose-standard、find-simplifications、pre-push-checks 与 error-handling 技能在同一分支上并行落地，候选技能则同时锻造。包里没有 code-review 技能，所以采用项目得不到一套 agent 可执行的流程，来对照项目自己声明的标准审查一个 pull request。上游 `dsh-code-review` 正是某个仓库的这套流程：一份面向审查者的技能，让审查者先确定审查基线与范围，在判断 diff 之前读拥有该变更的要求，检查一组阻断性要求，逐项走过只看代码无法覆盖的审查检查，并以固定形状报告发现。它的小节点名了那个仓库的路径与机制——`pnpm change-scope`、`packages/AGENTS.md`、defensive-patterns 页面、Cordis、客户端 UI 本地化门禁、Agent Notes 树、双语规则。原样搬运会引入另一个项目的策略，使技能在项目之外不可用；略去则丢掉这套包要抽取的一项审查机制。锻造必须保留机制，并把每个仓库专用指涉重绑定到采用项目自己的声明。目标受众与领域是软件工程。
+
+## 决策
+
+包交付 `dsh-spec-code-review`，它面向软件工程改编自上游 `dsh-code-review` 技能。落地目录包含 `SKILL.md` 与技能根的 `THIRD_PARTY_NOTICES`；技能镜像到 `.agents/skills/`，被取代的上游同名安装副本及其旧 manager 清单条目被移除。`AGENTS.md` 与根 `THIRD_PARTY_NOTICES.md` 点名该技能。
+
+`SKILL.md` 保留上游的小节名称与顺序——Sources of truth、Blocking requirements、Manual checks、Reporting findings——以及每一节承载的机制：确定审查基线与变更范围；在判断 diff 之前读拥有它的要求；执行阻断性要求；逐项走过审查专用检查；以固定形状报告发现。改编内容即处置表所记：采用项目的声明取代某个仓库的文档列表；范围要求以自然语言陈述，点名 `dsh-spec-pre-push-checks` 示例并以版本控制兜底；标题命名拟议变更；M9 陈述一条权威归属与派生测试；核心审查职责保持无条件，机制型要求各自携带条件；包已交付或正在锻造的兄弟技能以括号示例出现；小节标题保持上游原词。description 已泛化并追加中文触发语言，frontmatter 的 `license` 字段指向技能根通知。技能不附带脚本、reference 或测试。
+
+### 落地设置
+
+| 设置 | 值 | 依据 |
+|---|---|---|
+| 技能名 | `dsh-spec-code-review` | 请求 |
+| 目标领域 | 通用项目中的软件工程 | 请求 |
+| 语言 | 英文交付；停止时配对的中文审查草稿；中文触发词 | 包的双语实践（R9） |
+| 上游来源 | `submodules/dsh/.agents/skills/dsh-code-review/SKILL.md` at `dsh-v0.2.1-rc.3` (`1f81c047fc48fa190a683e469daa699857e9afe8`) | 请求；固定基线 |
+| 落地目录 | `skills/dsh-spec-code-review/` —— `SKILL.md` 与 `THIRD_PARTY_NOTICES` | 落地约定 |
+| 安装副本 | `.agents/skills/dsh-spec-code-review/`，经 `pnpm run skill:refresh` 刷新 | 仓库实践 |
+| 记录 | 本笔记，位于 `implemented/process/`，带中文对侧 | 笔记契约 |
+| 审查草稿 | `SKILL.zh.md` 与 `SKILL.i18n.yaml`，随语言切换行由 `publish` 移除 | R5 |
+| 被取代内容 | `.agents/skills/dsh-code-review/` 与其清单条目被移除 | 维护者的落地决定 |
+| 脚本与测试 | 无 | R4 |
+| 分支 | 起点为 `refactor/dsh-skills` 的 `609514c`，落地前 rebase 到其 tip 并压成一个落地提交 | 请求 |
+| 运行时与工具 | 技能自身无；被审查项目的范围工具或版本控制提供变更范围 | R2 |
+
+## 来源与修订
+
+上游来源：`deepseek-ai/deepseek-harness`，在 `submodules/dsh` 固定在 `1f81c047fc48fa190a683e469daa699857e9afe8`（`dsh-v0.2.1-rc.3`）。唯一来源文件是上游检出中的 `.agents/skills/dsh-code-review/SKILL.md`（61 行）；处置表中的行号引用是上游行号。锻造 worktree 的子模块未初始化，因此文件读自本会话检出的主工作树 `submodules/dsh/`，其 gitlink 同为 `1f81c04`；引用可从分支的 gitlink 复现。
+
+未作为来源读取：
+
+- 上游技能链接到的文档（`AGENTS.md`、defensive-patterns 页面、prose、test-reliability、client-UI、error-handling 技能、测试策略、notes 树、翻译规则）。它们是处置表所命名通用对应物的指涉对象；其文本是那个仓库的策略，未被搬用。本锻造改编的要求由上游技能自身的文本陈述。
+- `submodules/dsh` 的其余部分。子模块是固定基线；未被 fetch 或编辑。
+- 本仓库 `.agents/skills/` 下的安装副本。它们是较早技能集的部署状态；code-review 的安装副本经确认属于该部署状态，不是设计来源。
+- 更早的锻造记录与决策记录，除非本仓库的记录格式与流程要求一条记录遵循它们。`AGENTS.md` 是采用者的声明；notes 契约提供记录骨架。
+- 仓库应用的 norms（`.agents/dsh-spec/norms/`）。norms 管理本仓库自身的工作，不是上游技能的一部分，本记录的设计决定不依赖它们。上游技能是锻造技能的唯一内容来源。
+
+作为采用者声明与机制读取：
+
+- `AGENTS.md`——仓库布局、命令、边界与约定，只读交付所需事实：技能落在哪、声明了哪些审查草稿后缀、锻造记录写在哪。
+- `skills/dsh-spec-skill-forge/SKILL.md` 及其脚本的 `--help`（锻造流程、处置词汇、门禁、draft/pair/publish 生命周期）。
+- `skills/dsh-spec-agent-notes/SKILL.md` 与 `references/notes-contract.md`（记录生命周期、proposed 骨架、伴随规则）。
+- `package.json` 与 `package/README.md`（声明的审查草稿后缀、工作目录生命周期、脚本打包约定）。
+- `README.md` 与 `tests/README.md`（包交付什么，以及仓库套件的范围）。
+
+2026-10-28 在线阅读的 Agent Skills 页面，写作技能之前：
+
+- `https://agentskills.io/llms.txt`
+- `https://agentskills.io/specification.md`
+- `https://agentskills.io/skill-creation/best-practices.md`
+- `https://agentskills.io/skill-creation/optimizing-descriptions.md`
+
+每页都可读；未使用锻造技能的离线回退。
+
+## 目标形态
+
+落地技能是一个文件，沿用上游小节骨架：
+
+- Frontmatter：`name: dsh-spec-code-review`；description 在审查对照项目声明标准的拟议变更时触发，并点名仅看代码无法覆盖的审查检查；追加中文触发语言；`license` 字段指向技能根通知。
+- `# Reviewing a proposed change`：指导式框架、已核实的 base/head、变更范围、优先级顺序，以及“先读要求再判 diff”那一段。
+- `## Sources of truth`：声明及其填充的类目——根与每个改动子树的常驻指令；它引用的设计或架构规则，每个产物一个拥有页面；文档与行文标准；它为改动领域点名的标准，例如行文、测试可靠性、错误处理或 UI/UX；测试策略与质量门禁；决策记录；成对变更的语言与术语政策。核心审查职责无条件；机制型要求各自携带条件。
+- `## Blocking requirements`：六条编号要求，各自保留上游属性；机制型要求携带自己的条件，核心职责保持无条件。
+- `## Manual checks`：审查专用检查，各自保留具体内容。
+- `## Reporting findings`：缺陷、位置、影响与证据；内联与变更级；阻断与建议；已由绿色门禁强制的问题排除；回复与接收评审的规则。
+
+## 约束处置
+
+处置使用锻造技能的取值：**保留**（Keep）承载原始措辞与语义，仅调整语言与布局；**适配**（Adapt）实例化目标值；**重绑定**（Re-bind）把消失的指涉抽象到目的，再找到目标等价物；**消解**（Dissolve）记录指涉已消失，以及接管它的检查。约束列陈述来源要求，包含来源自身的名称；依据列陈述目标事实。目标落点：`SK` = 技能唯一的 `SKILL.md`；小节名沿用上面的目标形态。
+
+### 前置元数据、标题与描述
+
+| # | 来源 | 约束 | 处置 | 落点 | 依据 |
+|---|---|---|---|---|---|
+| D1 | `SKILL.md:2` | 技能名为 `dsh-code-review`。 | 适配 | `SK` frontmatter `name` | 请求命名 `dsh-spec-code-review`；包的技能带 `dsh-spec-` 前缀 |
+| D2 | `SKILL.md:3` | description 在审查 deepseek-harness 仓库的 pull request 时触发，并点名它让审查者对照什么：该代码库的标准（AGENTS.md 约定、防御模式、ADR、质量门禁）以及仅看代码无法覆盖的审查检查。 | 适配 | `SK` frontmatter `description` | 触发面变为审查软件项目中的拟议变更——pull request、merge request、patch set、diff 或工作树变更——对照项目声明的标准；标准列表成为 `SK § Sources of truth` 的类目；“仅看代码无法覆盖的检查”从句保留；按设置追加中文触发语言 |
+| D3 | `SKILL.md:6` | 标题点名来源仓库的 pull request。 | 适配 | `SK` `# Reviewing a proposed change` | 目标与仓库无关，其标题命名 description 与正文已覆盖的拟议变更 |
+
+### 审查框架与顺序
+
+| # | 来源 | 约束 | 处置 | 落点 | 依据 |
+|---|---|---|---|---|---|
+| I1 | `SKILL.md:8` | 技能是指导，不是完整清单。 | 保留 | `SK` 引言 | 上游文本 |
+| I2 | `SKILL.md:8` | 审查前验证并获取 pull request 的实时 base 与准确 head。 | 保留 | `SK` 引言 | 上游文本；机制与 VCS 无关 |
+| I3 | `SKILL.md:8` | 在阅读 diff 与足以理解设计的周边代码之前，运行 `pnpm --silent run change-scope --base <verified-base-ref> --head <verified-head-ref>`。 | 重绑定 | `SK` 引言 | 该命令是来源仓库的；目标以自然语言陈述要求——确定改动路径，以及任何未提交、已暂存或未跟踪的工作，来源为项目声明的范围工具（可用时使用 `dsh-spec-pre-push-checks` 技能）或版本控制——且不规定命令 |
+| I4 | `SKILL.md:8` | 范围报告给出路径与 dirty layers，但不取代语义审查。 | 适配 | `SK` 引言 | 范围输出是改动路径以及任何未提交、已暂存或未跟踪的工作；限制——范围输出不取代语义审查——保留 |
+| I5 | `SKILL.md:8` | retarget 或 merge 后重新确定 base 并重跑范围步骤。 | 保留 | `SK` 引言 | 上游文本 |
+| I6 | `SKILL.md:8` | 优先正确性、生命周期、安全性与被破坏的必需行为，而不是风格；一条有根据的阻断意见胜过一列 nit。 | 保留 | `SK` 引言 | 上游文本 |
+| I7 | `SKILL.md:10` | 在判断 diff 之前读要求：把改动路径映射到下述产物，从 Sources of truth 打开每个拥有页面，然后才拿 diff 对照这些要求。 | 适配 | `SK` 引言；`SK § Sources of truth` | 拥有的产物是 `SK § Sources of truth` 中由声明导出的那些；映射与顺序保留 |
+| I8 | `SKILL.md:10` | 凭记忆判断 diff，违规就是这样通过审查的。 | 保留 | `SK` 引言 | 上游文本 |
+
+### 事实来源
+
+| # | 来源 | 约束 | 处置 | 落点 | 依据 |
+|---|---|---|---|---|---|
+| S1 | `SKILL.md:14` | `AGENTS.md` 与 `packages/AGENTS.md` 是常驻的仓库与包编写规则。 | 适配 | `SK § Sources of truth` | 采用项目的声明：根与每个改动子树的 `AGENTS.md`（或它指向的文件） |
+| S2 | `SKILL.md:15-20` | `docs/defensive-patterns/` 陈述变更必须满足的架构要求及其背后的习惯；每页拥有一个产物，页面主题为 general.md（时序、异步状态、值表示、共享归属、去中心化、重构、迁移、性能证据、释放、回调、子进程）、package-surface.md、remote-and-api.md、client-components.md 与 conversation-and-session.md；diff 触及的每一页都读。 | 重绑定 | `SK § Sources of truth` | 项目声明设计或架构规则时，读每个改动产物的拥有页面；来源的页面身份与主题列表是那个仓库的实例，不搬用，而映射规则——把每个改动产物映射到拥有它的页面，读 diff 触及的每一页——保留 |
+| S3 | `SKILL.md:21` | `docs/AGENTS.md` 拥有文档放置与行文纪律。 | 适配 | `SK § Sources of truth` | 采用项目的文档规则 |
+| S4 | `SKILL.md:22` | `dsh-prose-standard` 拥有注释、文档、prompt 与可见字符串的必需覆盖与编辑判断。 | 重绑定 | `SK § Sources of truth`；`SK § Blocking requirements` | 等价物是声明点名的行文标准（技能或页面）；项目没有声明时，审查用它确实声明的文档规则并说明 |
+| S5 | `SKILL.md:23` | `dsh-ci-test-reliability` 拥有持有资源、异步或偶发失败的测试与 fixture 的隔离与防回归规则。 | 重绑定 | `SK § Sources of truth`；`SK § Manual checks` | 项目声明测试可靠性规则时读取；未声明时，检查记下缺口并按测试自身隔离审查 |
+| S6 | `SKILL.md:24` | `dsh-client-ui-ux` 拥有产品用户可见 GUI 变更的反馈面选择、覆盖层安全、平台窗口适配与视觉 token 纪律。 | 重绑定 | `SK § Sources of truth` | 项目声明 UI/UX 规则且变更触及产品用户可见 GUI 时读取并应用；未声明或变更不触及 GUI 时，该类目不适用 |
+| S7 | `SKILL.md:25` | `dsh-error-handling` 拥有失败分类、处理归属、隔离、状态保证与可行动报告。 | 重绑定 | `SK § Sources of truth`；`SK § Manual checks` | 项目声明错误处理标准时读取并应用；未声明时，按失败路径本身审查并说明 |
+| S8 | `SKILL.md:26` | `docs/testing.md` 与质量门禁参考拥有必需测试层级与门禁。 | 适配 | `SK § Sources of truth` | 采用项目的测试策略与质量门禁，声明时 |
+| S9 | `SKILL.md:27` | Agent Notes 承载设计理由；与一条记录分歧是设计讨论，不是自动否决。 | 适配 | `SK § Sources of truth` | 采用项目的决策记录及旁边的契约，声明时 |
+| S10 | `SKILL.md:28` | 双语变更读翻译规则与术语表；扩展翻译技能在自动审查之外，仅在用户明确要求时运行。 | 适配 | `SK § Sources of truth` | 项目声明成对语言或术语规则时读取；扩展翻译工作流及其显式调用规则只在项目声明该工作流时适用；否则按内容本身审查 |
+| S11 | `SKILL.md:12-28` | 该节的列表是某个仓库的固定路径与角色。 | 重绑定 | `SK § Sources of truth` | 目标陈述类目与映射流程，声明提供具体路径；来源的固定列表不搬用 |
+
+### 阻断性要求
+
+| # | 来源 | 约束 | 处置 | 落点 | 依据 |
+|---|---|---|---|---|---|
+| B1 | `SKILL.md:32` | 新行文接受语义审查：用 `dsh-prose-standard` 批判性审查每一段新增或改动的 Markdown 文字、JSDoc、注释、prompt、描述、诊断与可见字符串；对照拥有它的代码或行为验证必需覆盖、准确、放置位置与编辑质量；自动检查不建立这些属性。 | 适配 | `SK § Blocking requirements` | 行文标准是声明点名的那个（S4）；JSDoc 变为项目所用形式的 API 文档；规则属性保留 |
+| B2 | `SKILL.md:33` | 文档与代码一致：配置、默认值、错误、wire 字段、事件与公开行为在同一次 diff 中更新包 README 与 JSDoc；注释陈述非显然契约；实现叙述、测试走查、审查历史与重复理由被标记删除或链接到唯一家。 | 适配 | `SK § Blocking requirements` | 拥有该行为的文档取代包 README 与 JSDoc；项目不为这些行为写文档时记下缺失；注释、叙述、走查、审查历史与去重规则保留 |
+| B3 | `SKILL.md:34` | 核心类型文档一致：spine 或 seam 词汇变化更新相应 subsystems 页面与任何 `type-equiv` 条目；内部类型无需目录条目。 | 适配 | `SK § Blocking requirements` | 项目文档化类型、接口或核心术语时，变更更新拥有它们的页面；项目机械校验文档化类型块时（来源的 `type-equiv` 实例），同一次变更更新该块；内部类型无需条目；项目没有这类文档时，要求记下缺失 |
+| B4 | `SKILL.md:35` | Cordis 归属与清理：审查 Cordis 插件代码或从其入口点可达的 helper 时，加载并应用 `cordis-styling-nitpicking` 于改动行为与受影响的消费者；检查三条 P0 规则——单例状态、未反转的 effect、清理依赖在消费者结束前释放；验证每个新注册贡献通过 `packages/AGENTS.md` 要求的释放测试。 | 重绑定 | `SK § Blocking requirements` | 项目有注册、订阅或 effect 机制时该要求适用；三条缺陷检查变为：没有身份或生命周期来自模块加载的进程级或模块级单例状态；每个注册的 effect 或订阅都有在释放时运行的对应 teardown；释放其他资源所需的依赖保持可用，直到消费者安定，而不是先被释放。每个新贡献通过项目拥有规则要求的释放预期。框架名、其技能、三条规则名与入口范围不搬用（R8） |
+| B5 | `SKILL.md:36` | 必需证据存在：验证作者为该 diff 跑过相关本地检查，且 CI 覆盖穷举矩阵；审查两者都发现不了的语义缺口。 | 适配 | `SK § Blocking requirements` | 声明为该 diff 要求的检查；项目声明 CI 时 CI 覆盖穷举矩阵；审查两者都发现不了的语义缺口。未声明检查时，问变更欠什么证据并记下缺失，而不是发明门禁 |
+| B6 | `SKILL.md:37` | 客户端 UI 文案归本地化所有：拒绝嵌在 JSX、模板、helper 返回值、无障碍属性或原始默认值里的产品文案；要求强类型字典键、标准 `t` 座位或显式本地化 prop、`verify-client-ui-i18n`，以及每个受影响 locale 的行为证据；逐字保留用户、模型与 wire 数据及代码 token。 | 重绑定 | `SK § Blocking requirements` | 项目声明用户可见文案与本地化机制时该要求适用。重绑定：产品文案不得嵌在代码、模板、helper 返回值、属性字符串或原始默认值里；要求声明的强类型本地化机制；要求每个受影响 locale 的行为证据；用户、模型与 wire 数据及代码 token 保持逐字。消解：JSX、`t` 座位、来源校验命令与来源组件模型——由声明的机制与命令取代。项目未声明该机制时，类目不适用并说明 |
+
+### 人工检查
+
+| # | 来源 | 约束 | 处置 | 落点 | 依据 |
+|---|---|---|---|---|---|
+| M1 | `SKILL.md:41` | 意图与接口契约：追踪每个改动接口的两侧；确认实现与 PR 及任何 Agent Note 一致，包括错误、取消、归属与释放。 | 适配 | `SK § Manual checks` | “任何 Agent Note”变为项目保存的任何决策记录；其余保留 |
+| M2 | `SKILL.md:42` | 错误处理：对改动失败路径应用 `dsh-error-handling`，包括其状态保证与最终用户可见报告；拒绝 catch-and-continue，除非状态所有者确认后续工作的前置条件成立，恢复之后也算。 | 重绑定 | `SK § Manual checks` | 声明的错误处理标准取代命名技能（S7）；项目声明标准时保留规则，未声明时按失败路径本身审查 |
+| M3 | `SKILL.md:43` | 生命周期与并发：对异步设置、回调、进程或 teardown，应用 `defensive-patterns/general.md`；检查发布之前的竞争、await 期间的取消、独立错误报告、回调隔离、重入之前的归属、完整 detach 清理与静止释放。 | 重绑定 | `SK § Manual checks` | 声明的生命周期与并发设计规则取代命名页面（S2）；七条具体检查保留，也列在人工检查文本中 |
+| M4 | `SKILL.md:44` | 能力与消费者契合：追踪每个当前消费者，然后按包规则标记泄漏进接口的消费者特定行为；反向也标记——通用服务（registry、session、agent）上只有单个内部消费者调用的公开方法是不必要的 API 扩张，要求把私有能力闭包在构造时交给该消费者。 | 适配 | `SK § Manual checks` | “包规则”变为采用项目对其公开面的规则；registry、session、agent 示例变为通用服务示例；检查保留 |
+| M5 | `SKILL.md:45` | 范围、归属与必要性：把每个抽象、状态机、选项、防御性复制与兼容路径映射到其当前契约、生产消费者与拥有插件或服务；对照根规则挑战不相关功能与投机性泛化。 | 适配 | `SK § Manual checks` | “插件或服务”变为“模块或服务”；“根规则”变为项目常驻规则；其余保留 |
+| M6 | `SKILL.md:46` | 配置与公开选择：对每个默认值、公开操作集、格式或引入的外部概念，问当前消费者证据或先例支持它什么；证据缺失时要求明确选择或延期。 | 保留 | `SK § Manual checks` | 上游文本 |
+| M7 | `SKILL.md:47` | 模型视角：检查模型在受影响模式下收到的准确 prompt、工具 schema、结果与诊断；标记模型任务之外的概念；逐字校验稳定文本，并通过快照或端到端覆盖验证动态行为。 | 重绑定 | `SK § Manual checks` | 变更触及机器可见面时，检查其消费者在受影响模式下收到的准确输入、输出与诊断——agent 的 prompt 与工具结果、服务的请求与响应字段、CLI 的输出与诊断；标记该消费者任务之外的概念；逐字校验稳定文本，并通过快照或端到端覆盖验证动态行为。变更不触及此类面时检查不适用 |
+| M8 | `SKILL.md:48` | 执行点：沿每条拒绝路径追到真正执行它的操作；试遍可能绕过 schema、prompt、facade、包装层或 listener 顺序的直接与替代调用者。 | 保留 | `SK § Manual checks` | 上游文本 |
+| M9 | `SKILL.md:49` | 借用与派生状态：判断每个保留值在包契约下是借用还是拥有；把通知、每个缓存、prompt、UI 回显、重放与查询视图追到已记录的成功点与权威来源。 | 适配 | `SK § Manual checks` | 本质直接陈述：每个保留值只有一个权威所有者，每个派生副本都追到该来源以及它被刷新或作废的时点。“包契约”不搬用，来源的 prompt、UI 回显与查询视图实例由缓存、投影、通知、回显、重放与视图取代 |
+| M10 | `SKILL.md:50` | 边界覆盖最终操作：找到完整产出或保留结果的拥有者，包括包装层与元数据；探测极小与精确上限、超大单块与多字节文本的字节限制。 | 保留 | `SK § Manual checks` | 上游文本 |
+| M11a | `SKILL.md:51` | 真实入口路径：测试在相关时走交付的 Loader、bin、worker、ACP bridge 或子进程；手工挂载的插件抓不住无效的 Loader 导出。 | 适配 | `SK § Manual checks` | 项目交付 launcher、二进制、worker 或子进程时，测试走它；手工挂载模块的 fixture 抓不住无效的入口契约；项目没有这类入口时检查不适用 |
+| M11b | `SKILL.md:51` | function plugin 必须命名导出其 namespace，且没有默认导出。 | 消解 | `SK § Manual checks` | loader 契约是一个框架的；由 M11a 的真实入口检查接管，有效入口由采用项目自己的入口规则定义（R8） |
+| M12 | `SKILL.md:52` | 测试强度：断言在目标回归上失败，并验证外部状态、日志、事件或释放，而不是复述实现或相信 agent 报告；覆盖率必要但不是场景正确的证据。 | 保留 | `SK § Manual checks` | 上游文本 |
+| M13 | `SKILL.md:53` | 测试可靠性：对持有资源、异步、平台敏感或偶发失败的测试，应用 `dsh-ci-test-reliability` 于真实 worker/job 拓扑、资源分配、全局状态恢复、同步、超时预算与静止 teardown。 | 重绑定 | `SK § Manual checks` | 声明的测试可靠性规则取代命名技能（S5）；具体检查保留，并适用于该种测试 |
+| M14 | `SKILL.md:54` | 负向对照：对每条改动的验收规则，验证一个故意无效的案例经真实 runner 失败。 | 保留 | `SK § Manual checks` | 上游文本 |
+| M15 | `SKILL.md:55` | 已实现的 Agent Notes 与已交付现实一致：变更实现某条 proposed Agent Note 时，同一次 diff 中把它移动到 implemented 并改写成现在时的已交付状态，再对照实现校验路径、名称与机制。 | 适配 | `SK § Manual checks` | “Agent Note”变为采用项目的决策记录；其余保留 |
+| M16 | `SKILL.md:56` | 记录面变更：编辑器可见或模型可见的变化更新快照，或解释为什么没有适用快照；把预期输出的 diff 当行为变化读，不是格式噪音。 | 适配 | `SK § Manual checks` | “编辑器可见或模型可见”变为用户可见或机器可见，即通用项目做快照的那些面；项目保留快照时规则保留，没有快照时解释缺失 |
+| M17 | `SKILL.md:57` | 双语变更：两侧比较含义与术语；绿色配对哈希不证明翻译质量。 | 适配 | `SK § Manual checks` | “双语”变为项目声明的成对或翻译内容；未声明时检查不适用；来源的配对哈希实例变为项目的配对检查，规则保留 |
+
+### 报告发现
+
+| # | 来源 | 约束 | 处置 | 落点 | 依据 |
+|---|---|---|---|---|---|
+| R1 | `SKILL.md:61` | 陈述缺陷、位置、影响与证据。 | 保留 | `SK § Reporting findings` | 上游文本 |
+| R2 | `SKILL.md:61` | 把局部缺陷内联到最紧的相关 diff 范围；跨切面的架构、范围或全审查综合用 PR 级评论。 | 适配 | `SK § Reporting findings` | “PR 级”变为项目评审面上的变更级评论 |
+| R3 | `SKILL.md:61` | 把阻断与建议分开，省略已由绿色门禁强制的问题。 | 保留 | `SK § Reporting findings` | 上游文本 |
+| R4 | `SKILL.md:61` | 回复用已有 GitHub 审查线程。 | 适配 | `SK § Reporting findings` | “GitHub”是一种评审面；等价物是项目所用评审面上的已有线程 |
+| R5 | `SKILL.md:61` | 收到评审时，逐条验证说法，并基于技术理由修复或反驳，不要表演式同意。 | 保留 | `SK § Reporting findings` | 上游文本 |
+
+## 目标裁定
+
+| # | 裁定 | 理由 | 可逆方式 |
+|---|---|---|---|
+| R1 | 审查的要求来自采用项目的声明——`AGENTS.md` 或它指向的文件——以及该声明点名的产物。目标陈述要寻找的类目与映射流程，不是固定路径。核心审查职责适用于任何软件项目并无条件陈述；只有管理项目可能没有的外部机制的要求才以该机制为条件；自带回退的要求把未声明的标准记为缺口，而不是用来源仓库替换。 | 通用项目的标准是它自己的；固定列表只是换名的某个仓库策略，而无条件核心职责让薄声明不至于削弱审查本身。 | 改 sources 小节与各要求的条件。 |
+| R2 | 变更范围以自然语言确定：改动路径，以及任何未提交、已暂存或未跟踪的工作，来源为项目声明的范围工具（可用时使用 `dsh-spec-pre-push-checks` 技能）或版本控制。不规定命令，也不打包脚本。 | 上游命令属于来源仓库；把结果而非工具陈述出来，要求即与领域无关；打包范围工具会发明目标不拥有的机制。 | 规定默认命令或加入打包的范围脚本。 |
+| R3 | 技能是一个 `SKILL.md`，没有 `references/` 目录。 | 改编文本预期落在门禁的行数与 token 预算内，且每次审查都需要整份检查项；渐进式拆分只会增加检索成本而不减少加载的上下文。停止时记录实测大小。 | 当文件接近门禁上限时把人工检查拆到 reference。 |
+| R4 | 不交付脚本，也不新增包源码或测试。 | 上游点名两个仓库专用命令（change-scope 与客户端 UI 本地化校验）；两者都不交付，目标也没有任何需要命令精确判定的要求。仓库现有门禁、配对检查与评审是散文技能可携带的证据。 | 当某项要求变为可机械判定时加入脚本。 |
+| R5 | 中文审查草稿只在停止时产生，即 `SKILL.zh.md` 加由项目配对门禁写出的 `SKILL.i18n.yaml` 配对记录；中间不产生也不配对翻译。记录自身的中文对侧在落地时、按维护者审查过的决定写出。 | 请求把翻译工作推到停止时；锻造技能的声明式配对让草稿能对着最终文本一次写出，而落地正是记录配对应出现的地方。 | 稍后写记录配对，或不配对地落地记录。 |
+| R6 | 中文审查草稿的 description 反转语言顺序：自己的语言在前，交付语言作为附加触发语言。 | 锻造技能的审查规则：审查草稿由它的语言的读者阅读。 | 在工作目录改变顺序规则。 |
+| R7 | 工作目录是唯一权威；落地是维护者在评审后的决定。publish、安装副本刷新与压缩合并只在获得该授权后发生；push 不属于落地。 | 落地是维护者必须做的决定；工作目录与分支在决定前保持可逆。 | 回退落地提交；pre-squash 分支保留候选。 |
+| R8 | dsh 专用的框架与 loader 规则被消解，不搬用；通用归属、清理、入口路径与机器可见面检查取而代之。 | 通用项目不运行那些框架；可迁移的是属性，保留名称会让技能重新变成某个项目的。 | 当采用者需要时恢复框架小节。 |
+| R9 | description 携带中文触发语言，因为交付是英文、审查语言是中文。 | 锻造技能的语言规则；包中其他技能遵循它。 | 改变审查语言设置。 |
+| R10 | 交付的 `SKILL.md` 中不残留来源仓库的路径、命令、框架名或仓库名；对候选的 grep 是检查。 | 泄漏的指涉会重建改编所消除的缺陷，而 grep 能精确判定。 | 带着记录的理由加入指涉。 |
+| R11 | 核心审查职责——先读要求再判 diff、保持文档与文档化词汇真实、要求证据、报告发现——无条件。管理项目可能没有的外部机制的要求以该机制为条件：用户可见文案的本地化、注册或 effect 框架、快照、成对内容、异步或偶发失败测试的可靠性规则，以及项目声明的行文、错误处理或测试标准。自带回退的要求把缺失标准记为缺口。 | 通用项目可能缺少这些机制，因此条件化机制型要求避免发明它们；条件化核心职责会让薄声明跳过审查本身。 | 当假定每个项目都有某机制时让该机制要求无条件，或条件化核心职责。 |
+| R12 | 包自己的技能以可选示例点名，不是依赖：某项技能适用于审查使用的标准时（行文、错误处理、决策记录、翻译简报、pre-push 检查选择），交付文本以一种括号形式点名它——“（可用时使用 `dsh-spec-…` 技能）”，括号内可带简短目的；`dsh-spec-translate-docs` 作为兄弟示例交付。没有该技能的项目仍按声明的标准审查。 | 包独立安装每个技能，被点名的技能可能缺席；示例形式保留指引而不制造依赖。 | 删除括号，或把被点名技能变为硬要求。 |
+
+## 要求锚点
+
+| # | 要求 | 锚点 | 证据 |
+|---|---|---|---|
+| 1 | `SKILL.md` 通过默认值或给定值的 Agent Skills 门禁。 | 机械 | 门禁输出，引于 § 验证 |
+| 2 | 名称、目录名与 description 长度符合规范；description 非空且在 1024 字符内。 | 机械 | 门禁的 `name`、`description` 与 `frontmatter fields` 行 |
+| 3 | 每条来源约束在交付文本中有一行处置与一个落点。 | 判断 | 评审 A 枚举来源与表；逐行一个结论 |
+| 4 | 不残留来源仓库的路径、命令、框架名或仓库名。 | 机械 | § 验证中的来源泄漏 grep |
+| 5 | 上游审查机制的各个部分按顺序存在：指导框架；diff 之前验证 base/head 与变更范围；判断之前把要求映射到拥有页面；阻断性要求；人工检查；报告发现。 | 判断 | 评审 A 与 B 对照来源；逐部分一个结论 |
+| 6 | 事实来源是采用项目的声明及其填充的类目，不是固定列表；核心职责无条件，机制型要求以机制为条件。 | 判断 | 评审 B 对照 R1 与 R11 |
+| 7 | 声明点名的类目更少时技能诚实地降级：记下缺口，而不是发明标准或机制。 | 判断 | 评审 B 对照条件措辞 |
+| 8 | description 在审查软件项目中的拟议变更、对照项目标准时触发，携带同义词与中文触发语言。 | 判断 | 评审 B；description 文本 |
+| 9 | 声明的审查草稿配对、无孤儿草稿，且项目配对门禁通过。 | 机械 | 锻造 `pair` 报告与 `translation-pair check` 输出 |
+| 10 | 记录位于 `implemented/process/` 并通过笔记格式检查。 | 机械 | notes 检查输出 |
+| 11 | 仓库套件、格式检查与 DCO 范围通过；落地的共享文件变更即声明的那几处：`AGENTS.md`、根 `THIRD_PARTY_NOTICES.md`、被取代副本与清单条目。 | 机械 | § 验证中的命令与 `git diff --name-only` |
+| 12 | 最终快照上两位独立评审返回 accept。 | 判断 | § 评审中的轮次条目 |
+| 13a | 设计提交先于第一个工作目录提交。 | 机械 | § 验证中的 `git log --oneline` 顺序 |
+| 13b | 两位设计审计在锻造开始前接受设计，并在修订后复核直到双方接受。 | 判断 | § 评审中的设计审计条目，录自审计结论 |
+| 14 | 落地在维护者授权下执行且不 push：技能已发布并镜像，锻造分支无远端跟踪引用，pre-squash 分支保留在本地。 | 机械 | § 落地中的目录列表、`git branch -r` 与合并结果 |
+
+## 验证
+
+除非命令另指目录，均在工作树根运行；结果于压缩合并前在落地快照上执行。
+
+| 检查 | 命令 | 结果 |
+|---|---|---|
+| 落地技能门禁 | `node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs skills/dsh-spec-code-review --max-lines 500 --max-tokens 5000` | 13 项检查，0 失败；59 行，~3,490 tokens，description 505 字符，license 59 字符；0 个相对链接 |
+| 安装副本一致 | `node scripts/refresh-skills.ts`；`diff -r skills/dsh-spec-code-review .agents/skills/dsh-spec-code-review` | 8 个技能镜像，0 失败；两棵树一致 |
+| 被取代技能移除 | `ls .agents/skills/`；`grep -n 'dsh-code-review' scripts/dsh-spec-manager/references/manifest.json` | 无 `dsh-code-review` 安装目录，也无清单条目 |
+| 旧名引用 | `grep -rn 'dsh-code-review' --include='*.md' --include='*.json' . --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=submodules` | 余下命中为历史发布说明、本记录的上游来源行，以及被取代的 `.agents/skills/dsh-translate-docs` 副本中的链接；没有现存技能、声明、安装副本或清单把它当作已安装技能点名 |
+| 配对门禁 | `node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair check .agents/dsh-spec-agent-notes/implemented/process/2026-10-28-forging-dsh-spec-code-review.md --root .` | `check translation-pair: ok`；语料范围列表为绿 |
+| 笔记门禁 | `node skills/dsh-spec-agent-notes/scripts/notes.mjs check --companion .zh.md --companion .i18n.yaml` | `ok   check — 36 note(s) and 70 companion(s) checked` |
+| 仓库套件 | `pnpm test` | 216 tests，216 pass，0 fail（含安装副本一致性用例） |
+| 格式 | `pnpm run format:check` | 所有匹配源格式正确，exit 0 |
+| 空白与范围 | `git diff --check`；`git diff --stat refactor/dsh-skills...HEAD` | 干净；范围为落地技能、其安装副本、被移除的旧技能、声明与记录对侧 |
+| 提交尾注 | `node scripts/verify-dco.ts --base=refactor/dsh-skills --head=HEAD` | 十二个锻造提交带命名作者的 `Signed-off-by`；落地提交以 `--signoff` 创建 |
+
+## 评审
+
+设计在锻造前由两位独立评审审计。首版设计双方都返回 *needs revision*：一项 MAJOR 在归属与清理的重绑定，另两项 MAJOR 在缺失存在条件与验证计划缺少配对记录步骤。重写后的设计在约束列陈述每条来源要求、在依据列陈述目标事实，只条件化机制型要求，补上配对步骤并修正交接；复核时两位评审接受，余下记录精度项在写任何技能文件之前处理。
+
+锻造候选经过两轮独立评审。首轮双方返回 *accept*，无 blocker 与 major；八条 MINOR 属措辞与记录精度——声明缺失时的回退、M9 映射、范围措辞、关联技能形式与残留来源词汇。随后四次修订落实维护者的审查意见：标题命名拟议变更、自然语言的范围要求、统一的关联技能示例、M9 精简、条件非对称、把仓库 norms 排除出记录来源，以及范围示例。最终确认轮双方接受该快照，无 blocker 与 major；其记录精度发现项在落地前处理。维护者随后审查结果，授权落地并移除被取代技能。
+
+pre-squash 锻造分支保留为本地备份；落地提交是 `refactor/dsh-skills` 上的单个提交。
+
+## 未验证项
+
+- 该机制是否改进通用软件项目中的审查，无法在此机械验证：评审者与维护者判断文本，采用者的审查实践才是证据。
+- 触发质量是判断而非测量：Agent Skills 页面描述的触发率评估需要一个反复调用该技能的 harness，本仓库不搭建。
+- 翻译保真：中文对侧在落地时是当前的，配对记录证明的是当前性而非质量；两侧是否说了同一件事由维护者审查负责。
+- 从一个仓库的标准到通用声明的投影是判断：声明标准更少的项目得到核心职责与记下的缺口，而不是来源仓库的策略，记录接受这个更弱的结果。
+- 关键词 grep 看不见的来源泄漏——一段没有点名却转述某个仓库策略的文字——由评审者对照来源文本判断。
+- 锻造 worktree 的子模块未初始化；上游文件读自主检出中同一 gitlink，因此行号引用可从 gitlink 复现，而不是从 worktree 树。
+- `dsh-spec-translate-docs` 在仍被移植时以括号示例点名；该示例不制造依赖。
+- 被取代的 `.agents/skills/dsh-translate-docs` 副本仍链接到已移除的旧名目录；该副本是等待自身替换的部署状态，此处不修复该链接。
+
+## 落地
+
+工作目录已发布到 `skills/dsh-spec-code-review/`；`publish` 移除了声明的审查草稿与工作目录。落地加入 `license` 字段与技能根 `THIRD_PARTY_NOTICES`，把技能镜像到 `.agents/skills/`，删除被取代的 `.agents/skills/dsh-code-review/` 与其 `scripts/dsh-spec-manager/references/manifest.json` 条目，把技能列入 `AGENTS.md` 与根 `THIRD_PARTY_NOTICES.md`，更新 error-handling 笔记对已安装兄弟技能的引用，并把本笔记移动到 `implemented/process/` 连同中文对侧。锻造分支 rebase 到当前 `refactor/dsh-skills` tip 并压成一个落地提交；不 push，pre-squash 锻造分支保留为本地备份。
+
+## 备选方案
+
+**原样搬运上游文本。** 它失败是因为请求的受众与领域是软件工程，不是来源仓库：原样文本引入另一个项目的命令、路径、框架规则与策略，每一条对采用者都不成立。
+
+**复用已部署的 `.agents/skills/dsh-code-review` 改编。** 它失败是因为部署副本不是本次锻造的设计来源；请求点名上游技能，每条搬用的约束都必须追溯到那个来源。复用更早的改编会让记录无法展示每个来源单元的处置。
+
+**交付 change-scope 脚本。** 它失败是因为上游命令是来源仓库的工具；一旦陈述结果而不是工具，要求就与领域无关，打包范围脚本会发明目标不拥有的机制。
+
+**把 manual checks 拆到 reference 文件。** 它失败是因为改编文本预期落在门禁预算内，且每次审查都需要整份检查项；渐进式披露只会增加检索步骤而不减少审查使用的上下文。
+
+**用通用最佳实践清单替换事实来源。** 它失败是因为该机制是拿项目自己声明的标准来审查——通用建议无法告诉审查者这个项目决定了什么——而且评审将不再能引用拥有页面。
+
+**把 dsh 专用检查保留为条件小节。** 它失败是因为用一个项目词汇写成的条件仍会把那套词汇带进通用技能；它们的通用属性被重绑定，框架名被消解（R8）。反向错误——条件化核心职责，仿佛每个项目的声明都很薄——由 R11 排除。
+
+**把上游双语规则保持为强制。** 它失败是因为项目是否成对语言由它自己声明；目标让成对内容检查以项目政策为条件。
+
+**在停止时保持候选不发布。** 它失败是因为维护者审查后授权落地：在授权之前，工作目录与分支是可逆状态，授权才把候选变成已落地技能。
+
+**保留全类目条件化。** 它失败是因为维护者裁定核心审查职责无条件、只有机制型要求条件化：条件化每个类目会让薄声明被读成可以跳过审查本身的许可。
+
+**为清晰重命名小节标题。** 它失败是因为维护者裁定小节标题遵循上游，因此 `## Sources of truth`、`## Blocking requirements`、`## Manual checks` 与 `## Reporting findings` 保留原名。
+
+**发布但不移除被取代的安装副本。** 它失败是因为新技能取代 `.agents/skills/dsh-code-review/`；维护者要求移除旧技能及其关联条目，因此落地删除安装副本与清单条目，并保持固定上游基线不变。
+
+**不带中文对侧地落地记录。** 它失败是因为 notes 树中 implemented 记录携带对侧，而维护者的审查正是写出对侧的时点（R5）；配对记录证明当前性，不是质量。
+
+## 后果
+
+- 包在 `skills/dsh-spec-code-review/` 交付 `dsh-spec-code-review`，安装副本在 `.agents/skills/dsh-spec-code-review/`；被取代的上游同名安装副本与清单条目已消失，`AGENTS.md` 与根 `THIRD_PARTY_NOTICES.md` 点名该技能。
+- 技能是纯散文：上游机制与其具体检查按处置表所记保留，其中基于声明的重绑定、自然语言范围要求、M9 本质与条件非对称是刻意的偏离。
+- 锻造分支压成 `refactor/dsh-skills` 上的一个落地提交；pre-squash 分支在本地保留为备份。
+- **代价与限制。** 声明标准更少的项目得到核心职责与记下的缺口，而不是来源仓库策略；关联技能示例是指导而非依赖；改编文本按设计贴近来源，因此来源性依赖评审者的对照；中文对侧的保真由人工审查负责。
+- **回退。** 回退落地提交；pre-squash 锻造分支与仓库历史保留被移除的安装副本与更早的候选。

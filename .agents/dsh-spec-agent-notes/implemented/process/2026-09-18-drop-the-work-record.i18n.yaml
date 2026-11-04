@@ -1,25 +1,25 @@
-# Bilingual-pair consistency record for 2026-09-18-drop-the-work-record.md (references/i18n-contract.md): per heading
-# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# Pairing consistency record for 2026-09-18-drop-the-work-record.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
 # After editing either side, bring the other along and re-record with:
-#   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec-agent-notes/implemented/process/2026-09-18-drop-the-work-record.md
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-09-18-drop-the-work-record.md --target <lang>
 /agent-note-drop-the-work-record:
-  en: a03e3fae56b7bee7
-  zh: 5c3c84667e55403e
+  en: 7a33800700cfc6a5
+  zh: 44e0663647c08095
 /agent-note-drop-the-work-record/problem:
   en: 5d3e9b83298509ec
-  zh: 975aae397c8dfbc9
+  zh: f02b3715f76bfa10
 /agent-note-drop-the-work-record/decision:
   en: 3bc09485019d5992
-  zh: 3d4c7305b01bf855
+  zh: 65e3843f0c2cb582
 /agent-note-drop-the-work-record/alternatives-considered:
   en: 64de5693707c9959
-  zh: 25e30d0f85bbb90a
+  zh: f42cd094a4b6e67c
 /agent-note-drop-the-work-record/consequences:
   en: b1e9b0444cbc146f
-  zh: 80f64959c4bce066
+  zh: bf3748b895ba1a38
 /agent-note-drop-the-work-record/reintroduction:
   en: 5f95dabd332a5cb2
-  zh: 93f5075d7bee3c16
+  zh: 820be6173d4ea8f8
 /agent-note-drop-the-work-record/verification-of-absence:
   en: e486e653d9860c5e
-  zh: b56421dc97b6f470
+  zh: 298cad5387fb31b9

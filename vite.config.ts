@@ -12,7 +12,6 @@ export default {
       '.agents/**',
       'skills/**',
       'submodules/**',
-      'scripts/dsh-spec-manager/**',
     ],
   },
 }
