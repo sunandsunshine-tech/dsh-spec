@@ -71,6 +71,7 @@
 | Agent Note | Agent Note | | 决策记录、代理笔记 | 路径编码的决策记录；中文正文保留英文 |
 | gate | 门禁 | | 关卡、检查器 | 退出码非零的机械检查 |
 | standing orders | 常驻指令 | 常驻指令（standing orders） | 常设命令 | `AGENTS.md` 承担的每次会话指令 |
+| standing instructions | 常驻指令 | 常驻指令（standing instructions） | 常设指令、长期指令 | 与 standing orders 同指；技能正文现统一用该词 |
 | decision record | 决策记录 | | 决议记录 | 见 Agent Note |
 | proposal | 提案 | | 建议书 | 尚未实现的决策记录 |
 | lifecycle | 生命周期 | | 生命期 | `proposed`/`implemented`/`rejected`/`archived` |

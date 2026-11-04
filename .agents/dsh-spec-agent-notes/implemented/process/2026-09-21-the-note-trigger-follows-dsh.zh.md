@@ -27,7 +27,7 @@ dsh 在 `dsh-v0.1.6-alpha.2`(移植这份文本时所依据的发布)里把它�
 - 每个项目的笔记约定都等于我们所钉修订上 dsh 的约定；约定随笔记技能交付，因此只需让一份副本保持同步。
 - 收窄后的约定管的是「这份笔记该为什么而写」；笔记技能的描述要求 agent 在非平凡变更之前，先判断这次变更是否需要一份持久记录，而机械性或局部编辑豁免。
 - 约定是陈述触发条件的唯一表面；没有任何常设指令重述它，因此读者遇到的是收窄后的规则，而不是第二句更宽的话。
-- 验证:`dsh-spec.ts check --all --root .` 以 `check notes: ok` 与 `check notes-archived: ok` 结束;约定的"何时需要写一份"一节与 `submodules/dsh/.agents/notes/README.md` 携带同一条规则,只是把它的 `same PR` 换成了我们的 `same change`;向空项目 `install` 注入的常设指令与本次改动之前完全相同。
+- 验证:`pnpm test` 与 `node scripts/verify-corpus.ts --base-ref=HEAD` 通过;约定的"何时需要写一份"一节与 `submodules/dsh/.agents/notes/README.md` 携带同一条规则,只是把它的 `same PR` 换成了我们的 `same change`;向空项目 `install` 注入的常设指令与本次改动之前完全相同。
 
 ## 相关
 

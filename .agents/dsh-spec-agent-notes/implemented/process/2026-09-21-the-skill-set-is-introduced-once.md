@@ -26,7 +26,7 @@ The per-skill READMEs are removed, and the root README carries one table naming 
 - Eight pairs fewer to record, and a skill directory that contains only what its deliverable needs: the entry, its references, and any scripts or notices.
 - The installed copy loses the READMEs: it mirrors the landed skill, so a file the revision no longer ships does not survive a refresh.
 - What this costs is depth: a reader who wants to know what `dsh-pre-push-checks` does gets one line in a table rather than a page. The entry and its references remain the place to go deeper, and the line is what the table is for.
-- Verification: `dsh-spec.ts check --all --root .` ends `check notes: ok` and `check notes-archived: ok`; `verify-skill-structure.ts` conforms for all eight skill directories with no README present; `dsh-spec.ts upgrade` removes the twenty-four files from `.agents/skills/`.
+- Verification: `pnpm test` and `node scripts/verify-corpus.ts --base-ref=HEAD` pass; the spec gate conforms for every skill directory with no README present; no skill README remains beside an entry.
 
 ## Related
 

@@ -1,6 +1,6 @@
 # Forging requirements
 
-This file is this repository's adopter declaration for [the skill forge](../../skills/dsh-spec-skill-forge/SKILL.md). Read the forge skill first; it owns the general forging procedure.
+This file is this repository's standing instructions for [the skill forge](../../skills/dsh-spec-skill-forge/SKILL.md). Read the forge skill first; it owns the general forging procedure.
 
 ## Same-repository skill references
 

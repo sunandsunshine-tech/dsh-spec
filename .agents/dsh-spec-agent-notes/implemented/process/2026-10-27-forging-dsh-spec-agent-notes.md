@@ -10,7 +10,7 @@ The skill set has no skill that owns the Agent Notes lifecycle. An adopting proj
 
 ## Decision
 
-The skill `dsh-spec-agent-notes` was forged from the upstream notes contract and archive workflow, adapted to the general agent-usage domain and to readers who expect decisions to persist across sessions, and landed. The landed skill is a directory with:
+The skill `dsh-spec-agent-notes` is forged from the upstream notes contract and archive workflow, adapted to the general agent-usage domain and to readers who expect decisions to persist across sessions. The skill is a directory with:
 
 - `SKILL.md` — the procedure an agent loads: supersession check, lifecycle and class placement, the uniform format, pruning and consolidation, the archive procedure, the checks, and the stop-and-hand over rules.
 - `references/notes-contract.md` — the active-tree contract: layout, classification, when to write, file format, lifecycle moves, companions, pruning.
@@ -29,9 +29,9 @@ Default notes root: `.agents/dsh-spec-agent-notes/` directly under the project r
 
 ## Source and revision
 
-Upstream source: `deepseek-ai/deepseek-harness`, tag `dsh-v0.2.1-rc.3`, commit `1f81c047fc48fa190a683e469daa699857e9afe8` — the latest release tag when read (2026-10-27). It was read from a read-only sparse clone in `/tmp/dsh-latest`; `submodules/dsh` stayed at its pinned `687f282e8625c6b8d11ff58211a90524be2e4317` (`dsh-v0.2.1-rc.2`), was neither fetched nor edited. The named recipe files — the notes contract, archive instructions, archive skill and the note gate scripts — are byte-identical between the pin and the latest tag, so the recipe did not move between the two revisions; the tag also carries unrelated non-notes script changes, which are not source for this skill. The latest tag was used because the request names the newest upstream version.
+Upstream source: `deepseek-ai/deepseek-harness`, tag `dsh-v0.2.1-rc.3`, commit `1f81c047fc48fa190a683e469daa699857e9afe8` — the latest release tag at the read date (2026-10-27). The `submodules/dsh` pin at that date was `687f282e8625c6b8d11ff58211a90524be2e4317` (`dsh-v0.2.1-rc.2`); it was neither fetched nor edited. The named recipe files — the notes contract, archive instructions, archive skill and the note gate scripts — are byte-identical between the pin and the latest tag, so the recipe did not move between the two revisions; the tag also carries unrelated non-notes script changes, which are not source for this skill. The latest tag is the source because the request names the newest upstream version.
 
-Read as source from the upstream checkout (the pinned `submodules/dsh` and the latest-tag clone; the paths below are upstream paths, not this repository's installed copies):
+Read as source from the upstream tree (the pinned `submodules/dsh` and tag `dsh-v0.2.1-rc.3`; the paths below are upstream paths, not this repository's installed copies):
 
 - `.agents/notes/README.md` — the notes contract.
 - `.agents/notes/AGENTS.md`, `.agents/notes/implemented/AGENTS.md`, `.agents/notes/archived/AGENTS.md` — the lifecycle, supersession and archive instructions.
@@ -39,7 +39,7 @@ Read as source from the upstream checkout (the pinned `submodules/dsh` and the l
 - `.agents/notes/archived/manifest.json` — the manifest shape.
 - `scripts/agent-note-tree.ts`, `scripts/verify-agent-note-format.ts`, `scripts/verify-agent-note-classification.ts`, `scripts/archived-agent-notes.ts`, `scripts/verify-archived-agent-notes.ts` — the structural, format and archive gates.
 
-Not read as source: the repository's own notes-related skills and its old port (this repository's installed `.agents/skills/dsh-archive-agent-notes` and `scripts/dsh-spec-manager/`), and any earlier forging or decision record from a previous session. `.agents/dsh-spec/notes/README.md` and `AGENTS.md` were read only as the adopter's decision-record format for this note — a workspace instruction for where the record lives, not a design source.
+Not read as source: the repository's own notes-related skills and its earlier archive port (the `dsh-archive-agent-notes` skill and the `dsh-spec-manager` scripts, both removed), and any earlier forging or decision record. The adopter's notes mechanism supplies only the decision-record format for this note — a workspace instruction for where the record lives, not a design source.
 
 ## Constraint dispositions
 
@@ -208,8 +208,8 @@ Dispositions use the forge skill's values: **Keep** carries the original wording
 | R11 | Git is a prerequisite, not an optional archive mode: every command works inside a Git checkout, and a project without Git is told to install Git and initialize/commit the repository. The freeze guarantee keeps the upstream trust model: manifest append-only against a trusted baseline, no adversarial Git-history forensics; local fabrication of `.git` layouts and history rewrites are outside the trust model and belong to the project's CI and protected history. | Persistent decision records need Git's change control; making it a prerequisite removes a silent weaker mode, and the freeze trust still rests on the project's protected history rather than a forensics engine. | Restore a non-Git mode or extend the gate with history verification. |
 | R12 | The gate's tests live in this repository under `tests/agent-notes.test.ts`, not in the shipped skill; `scripts/` contains only `notes.mjs`. | Repository tests are maintainer evidence; a skill ships its gate, not its test harness, and the repository's test runner owns the suite. | Ship the tests with the skill again. |
 | R13 | The script is authored in TypeScript under `package/dsh-spec-agent-notes/` with its own `vite.config.ts` and `build.ts`, bundled into the work directory's `scripts/notes.mjs` as a single self-contained ES module with no runtime dependencies; the root `skill:build` is parameterised to build one skill or all. | Matches the repository's packaging convention, keeps skills isolated (no cross-skill dependencies), tree-shakes the bundle, and lets a forging rebuild only the touched skill while CI builds all. | Ship a plain JavaScript script without a package source. |
-| R14 | Chinese review pairs are produced only at a stop; during the redesign they may be stale, and they are regenerated together with the record pair before the final handover. | The request defers translation pairing until the loop stops; keeping pairs current while the design is still moving adds churn without review value. | Translate continuously and run the pairing gate during the loop. |
-| R15 | The candidate is committed per round on the forge branch and never published or refreshed while forging. | The request requires commits without landing and a stop at human review. | Publish and refresh after acceptance. |
+| R14 | Chinese review pairs are produced only at a stop; they may be stale until then, and are regenerated together with the record pair before the final handover. | The request defers translation pairing to the stop; keeping pairs current while the design is still moving adds churn without review value. | Translate continuously and run the pairing gate during the loop. |
+| R15 | The candidate is committed on the forge branch and is not published or refreshed before the final review. | The request requires commits without landing and a stop at the final review. | Publish and refresh after acceptance. |
 | R16 | Manifest paths sort by code point. | Locale-dependent ordering would make the rendered manifest environment-dependent. | Restore `localeCompare`. |
 | R17 | The gate reports violations on stdout and exits 0/1/2. | Agent consumption reads stdout; the forge gate uses the same convention. | Print violations on stderr instead. |
 | R18 | The closed lifecycle and class sets appear in both the contract text and the gate constants, and they stay the upstream six classes with the upstream names and definitions. Classification is semantic: a general-domain agent maps its own domain's decisions onto those intents, and this reliance on model semantics is recorded as an assumption rather than mechanised. | The source keeps one canonical set and the gate must decide it without parsing prose; keeping the upstream names preserves migration fidelity, and no local taxonomy extension is added for the general domain. | Add a class or a configurable taxonomy. |
@@ -282,7 +282,7 @@ Each forged requirement has one anchor at the most precise level available. Mech
 
 **Keep the repository's installed notes skill as the design source.** It lost because the request excludes the repository's notes-related skills and their design, and the upstream revision is the named source.
 
-**Use the pinned `dsh-v0.2.1-rc.2` submodule instead of fetching the latest tag.** It lost because the request names the newest upstream version; the read-only clone proves the contract is identical, so no recipe difference was introduced.
+**Use the pinned `dsh-v0.2.1-rc.2` submodule instead of the latest tag.** It lost because the request names the newest upstream version; the contract is byte-identical between the pin and the tag, so no recipe difference is introduced.
 
 **Drop the semantic workflow and keep only the gate.** It lost because the mechanism's value is the decision practice — when a note is warranted, what beats another, when to prune or archive — and the gate exists to keep that practice honest, not to replace it.
 
@@ -308,21 +308,21 @@ Each forged requirement has one anchor at the most precise level available. Mech
 
 **Keep the gate's tests inside the shipped skill.** It lost because the repository owns its test suite and a skill should ship its gate, not its harness (R12); the tests stay under `tests/` and exercise the work-directory or landed script.
 
-**Keep the first-stop candidate unchanged.** It lost because the maintainer asked for a simpler mechanism: a Git prerequisite, a skill-named root, declarative companions with manifest-only verification, an initialized skeleton, unchanged classes and repository-native packaging.
+**Keep the candidate as first designed.** It lost because a simpler mechanism fits the target: a Git prerequisite, a skill-named root, declarative companions with manifest-only verification, an initialized skeleton, unchanged classes and repository-native packaging.
 
 ## Consequences
 
-- The skill ships from `skills/dsh-spec-agent-notes/` and the installed copy under `.agents/skills/`; the landed copy carries the skill, the two reference contracts and the bundled gate, not the work directory and not the Chinese review pairs.
-- The repository's decision records moved from `.agents/dsh-spec/notes/` to `.agents/dsh-spec-agent-notes/` together with their Chinese companions, and the old notes mechanism and the `dsh-archive-agent-notes` installation were removed.
-- The migration preserved the existing note bodies and companions; this forging record is the only note whose lifecycle moved, from `proposed/process` to `implemented/process`.
+- The skill ships from `skills/dsh-spec-agent-notes/` with an installed copy under `.agents/skills/`; the directory carries the skill, the two reference contracts and the bundled gate, not a work directory and not Chinese review pairs.
+- The repository's decision records and their Chinese companions live in `.agents/dsh-spec-agent-notes/`; the earlier notes mechanism and the `dsh-archive-agent-notes` installation are gone.
+- The notes corpus keeps its existing bodies and companions; this record lives in `implemented/process`.
 - The submodule baseline is pinned at `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`).
-- Cleanup: the notes-specific `scripts/dsh-spec-manager` modules were removed with the legacy manager; they had no consumer after the old archive skill was uninstalled.
-- The description now asks an agent to use the skill before a non-trivial change; the body carries the write scope and the mechanical/local exemptions, so loading the skill is part of deciding whether a record is needed.
+- The notes-specific `dsh-spec-manager` modules are gone; no current code consumes them.
+- The description asks an agent to use the skill before a non-trivial change; the body carries the write scope and the mechanical/local exemptions, so loading the skill is part of deciding whether a record is needed.
 - **The gate's scope stays deliberately thin.** The gate does not enumerate Git layouts: it keeps canonical containment, the same-Git-directory anchoring and the tracked-manifest check (R22, R27), and the contracts state the residual local-layout trust boundary (R28); a request for a new layout check is answered from this record, not by growing the gate.
 - **Archive semantics deviate from the upstream verifier.** Companion completeness and archive metadata are enforced only when sealing a new unit (R2, R23), `archived/AGENTS.md` is optional and ignored (R6), and a non-empty manifest must be tracked by Git (R27). A hand-added manifest entry that gives a sealed unit a new artifact passes manifest-only verification; the seal command and the project's review and CI are the enforcement point (R28).
 - **The tracked-manifest check does not prove the working tree is the committed tree.** It proves the manifest is in the project's Git index; a local actor who can stage a manifest at the correct path is inside the trust model, which delegates history to CI and protected branches (R28). A force-pushed rewrite that also rewrites the manifest is undetectable without an external trusted `--base-ref` (R11, R28).
 - **Classification relies on model semantics.** The upstream six classes are software-flavoured, so a general-domain agent must map its own decisions onto them; the mapping is an assumption (R18), and the adopter's own corpus is the evidence.
 - **Git is a hard prerequisite.** A project without Git cannot use any command; the compatibility line states the install/init requirement, and the narrowed adopter set is intended (R11).
 - **The archive half is a partial mechanism for some adopters.** The active lifecycle works in any decision domain; sealing a unit additionally requires Git and the unit's complete declared companion set (R2).
-- **The corpus acceptance is a recorded run, not an automated test.** A later source revision could invalidate a format assumption, so the corpus checks are re-run against the pinned submodule before a future gate change.
+- **The corpus compatibility result is a recorded run, not an automated test.** A later source revision could invalidate a format assumption, so the corpus checks are re-run against the pinned submodule before a gate change.
 - **A bundled script and its test suite are maintenance cost.** The script mirrors a small, named gate surface, the identity invariants are few, and the tests live in the repository's suite rather than in the shipped skill.

@@ -1,4 +1,11 @@
 /**
+ * SPDX-License-Identifier: MIT
+ *
+ * Extracted from the DeepSeek Harness bilingual-document mechanism at the pinned
+ * `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`); the skill-root
+ * THIRD_PARTY_NOTICES names the upstream paths and the relation.
+ */
+/**
  * Minimal-update briefing, mechanical fence splice and first-occurrence guidance. Adapted from
  * the upstream briefing planner: the direction names, target language and rules digest are the
  * shipped contract's, the Markdown unit and section mapping keeps the upstream mechanics, and
@@ -222,7 +229,7 @@ function plainTerm(cell: string): string {
  * @param sourceLanguage - the source language, whose name marks the header row.
  * @returns rows in table order.
  */
-export function parseTerminologyRows(
+function parseTerminologyRows(
   terminology: string,
   sourceLanguage: Language = DEFAULT_SOURCE_LANGUAGE,
 ): TerminologyRow[] {

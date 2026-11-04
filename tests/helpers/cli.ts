@@ -1,9 +1,9 @@
 /**
  * Run one repository-side script for the functional suite.
  *
- * The suite exercises this repository's own gates — the DCO check and the vendored-notices
- * submission — so a case invokes a `scripts/*.ts` entry through Node directly. A missing entry
- * point is reported as such rather than as a spawn accident.
+ * The suite invokes the repository-side scripts through Node directly: the gates under `scripts/`
+ * and the bundled skill scripts it resolves with `helpers/bundles.ts`. A missing entry point is
+ * reported as such rather than as a spawn accident.
  */
 
 import { spawnSync } from 'node:child_process'
@@ -42,7 +42,7 @@ function run(
   entry: string,
   cwd: string,
   args: string[],
-  options: { stdin?: string; env?: Record<string, string | undefined> } = {},
+  options: { env?: Record<string, string | undefined> } = {},
 ): CliResult {
   if (!existsSync(entry)) {
     return { status: -1, stdout: '', stderr: `missing entry point ${entry}`, output: `MISSING ENTRY POINT: ${entry}` }
@@ -55,7 +55,6 @@ function run(
   const result = spawnSync(process.execPath, [entry, ...args], {
     cwd,
     encoding: 'utf8',
-    input: options.stdin,
     env,
   })
   const stdout = result.stdout ?? ''

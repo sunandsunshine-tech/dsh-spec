@@ -1,15 +1,16 @@
 # Functional suite
 
 The suite covers the checks and tooling this repository owns rather than the skills it ships: the DCO
-check, the vendored-notices submission, the skill gate, the Agent Note gate, the change-scope report,
-the draft lifecycle, the installed-copy refresh and the shipped pairing mechanism. Run the commands below
+check, the vendored-notices submission, the CLI contract, the corpus and bundle gates, the pinned
+toolchain, the skill gate, the Agent Note gate, the change-scope report, the draft lifecycle, the
+installed-copy refresh and the shipped pairing mechanism. Run the commands below
 from the repository root.
 
 ```sh
 pnpm test
 ```
 
-Node 22.19 or newer is the only requirement: the runner executes TypeScript directly, so the suite
+Node 22.19 or a Node 24+ release is the only requirement: the runner executes TypeScript directly, so the suite
 needs no dependency and no transform; `pnpm test` is the documented entry point, and the scripts rely
 on the same property.
 
@@ -20,14 +21,20 @@ on the same property.
 | `helpers/fixtures.ts` | Scratch repositories: a temporary directory with its own `git init`, files, and a commit. A gate reads its scope through `--root`, so a case needs a real repository rather than a mock. |
 | `helpers/workspace.ts` | Scratch directory trees for the workspace tooling: a temporary root, files written into it, and a disposal, without Git. |
 | `helpers/cli.ts` | Invoking a repository-side script, and reading its exit status and both streams. |
+| `helpers/bundles.ts` | The work-draft/landed bundle resolution shared by the cases that run a bundled skill script. |
+| `cli-contract.test.ts` | The shared command-line contract: `--help`/`-h`, unknown-option diagnostics, exit codes and indented JSON, checked across the repository and bundled scripts. |
 | `dco.test.ts` | `scripts/verify-dco.ts`: the trailer half, decided from `git log` alone, and the bot-identity half, decided against a `gh` stand-in. |
-| `vendored-submission.test.ts` | `scripts/submit-vendored.ts`: the payload the dependency-submission endpoint requires, printed by a dry run. |
+| `toolchain.test.ts` | The pinned pnpm version agreeing across `package.json`, the checks workflow and the lockfile's self-management document. |
+| `check-bundles.test.ts` | `scripts/check-bundles.ts`: changed, missing and extra committed-bundle states through the comparison function. |
+| `build-skills.test.ts` | `scripts/build-skills.ts`: a successful build that writes nothing gets a clean diagnostic instead of an ENOENT crash. |
+| `verify-corpus.test.ts` | `scripts/verify-corpus.ts`: the archive baseline flag forwarded to the notes archive, and its empty-value usage error. |
+| `vendored-submission.test.ts` | `scripts/submit-vendored.ts`: the payload the dependency-submission endpoint requires, printed by a dry run; and the generated notice table plus each skill-root bundled-package list. |
 | `skill-spec.test.ts` | `skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs`: the mechanical half of Agent Skills conformance. |
 | `agent-notes.test.ts` | `skills/dsh-spec-agent-notes/scripts/notes.mjs`: `init`, the active Agent Note tree (folders, filenames, header, required sections, declared companions, non-default roots and symlinked paths) and the frozen archive (manifest, seal, append-only baseline and sealed companions). |
 | `forge-lifecycle.test.ts` | `skills/dsh-spec-skill-forge/scripts/forge.mjs`: the work directory, translation-pair and publish lifecycle, including the pair exclusion and cleanup scope. |
 | `refresh-skills.test.ts` | `scripts/refresh-skills.ts`: each skill under `skills/` replaces its installed copy, and other installed skills stay alone. |
-| `translation-docs.test.ts` | The v2 pairing mechanism (source in `package/dsh-spec-translate-docs/`, bundle at the work-draft path while forging and under `skills/` after landing): the existing-pair gate, one aggregate multi-language record per source, per-file source and target languages, `--select`/`--skip` and discovery prunes, structural switchers and link locale, generated regions with section anchors and the region helper CLI, the briefing and mechanical splice, the terminology template and the CLI's failure modes. |
-| `repository-shape.test.ts` | The tree invariants the tooling relies on: every package script is one command, and every landed skill has an identical installed copy. |
+| `translation-docs.test.ts` | The pairing mechanism (source in `package/dsh-spec-translate-docs/`, bundle at the work-draft path while forging and under `skills/` after landing): the existing-pair gate, one aggregate multi-language record per source, per-file source and target languages, `--select`/`--skip` and discovery prunes, structural switchers and link locale, generated regions with section anchors and the region helper CLI, the briefing and mechanical splice, the terminology template and the CLI's failure modes. |
+| `repository-shape.test.ts` | The tree invariants the tooling relies on: every package script is one command, every landed skill has an identical installed copy, the split note modules carry SPDX/provenance headers, and active record test sections do not name removed commands. |
 | `change-scope.test.ts` | The bundled change-scope report: built from `package/dsh-spec-pre-push-checks/change-scope.ts`, run from the work draft or the landed `skills/dsh-spec-pre-push-checks/scripts/change-scope.mjs`; covers the committed, staged, unstaged and untracked path sets, base/head/merge-base resolution, the `--help` and usage-error contract, and the failure exits. |
 
 ## Rules this suite keeps

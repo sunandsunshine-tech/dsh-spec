@@ -20,7 +20,7 @@ Status: implemented
 
 **公开的提交身份是 GitHub noreply 地址。** 仓库转公开之前改写每个提交的作者与 committer 邮箱,此时还没有 fork、没有外部 clone、也没有不可变 release;先在账号侧打开邮箱隐私设置,让改写后的身份在下次推送时不被拦回。
 
-**CI 是一份权限最小的 workflow。** `.github/workflows/checks.yml` 在 `pull_request` 与 `push: [main]` 上触发,声明 `permissions: {contents: read}`,检出时开 `submodules: recursive`,用 Node 24,并把每个第三方 action 钉到全长 commit SHA。vendored 依赖快照只在 `push: [main]` 时提交,不加定时器。
+**PR 检查 CI 是一份权限最小的 workflow。** `.github/workflows/checks.yml` 在 `pull_request` 与 `push: [main]` 上触发,声明 `permissions: {contents: read}`,检出时开 `fetch-depth: 0`,用 Node 24,并把每个第三方 action 钉到全长 commit SHA。vendored 依赖快照由第二份 workflow `.github/workflows/vendored.yml` 只在 `push: [main]` 时提交,权限 `contents: write`,不加定时器。
 
 **仓库页面保持最小。** 不加 homepage;Issues 开;Wiki、Discussions 与 Projects 关。
 

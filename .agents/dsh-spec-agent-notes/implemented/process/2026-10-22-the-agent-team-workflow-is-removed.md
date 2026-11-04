@@ -48,11 +48,8 @@ A future team skill needs a closed artifact this repository can check, and a sho
 ## Testing
 
 - `git ls-files skills/dsh-spec-agent-team .agents/skills/dsh-spec-agent-team` → no output.
-- `pnpm test` → 82 tests, 82 pass, 0 fail.
-- `node scripts/dsh-spec-manager/scripts/dsh-spec.ts notes check --all --root .` → 26 Agent Notes checked, structure consistent; format consistent.
-- `node scripts/dsh-spec-manager/scripts/dsh-spec.ts notes-archived check --all --root .` → 12 frozen artifacts checked across 6 kinds.
-- `node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair check` on the changed pairs → consistent.
-- `node scripts/dsh-spec-manager/scripts/dsh-spec.ts md-links check` on the changed files → ok.
+- `pnpm test` → the functional suite passes.
+- `node scripts/verify-corpus.ts --base-ref=HEAD` → every skill entry, the notes tree and archive, the maintained translation pairs and the vendored notices pass.
 
 ## Related
 

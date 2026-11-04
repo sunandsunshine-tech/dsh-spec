@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// Generated from package/dsh-spec-skill-forge/forge.ts by `pnpm run skill:build`; edit the source and rebuild. Bundled third-party code is covered by the skill-root THIRD_PARTY_NOTICES.
 import { createRequire } from "node:module";
 import { cpSync, lstatSync, mkdirSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import { basename, dirname, join, relative, resolve, sep } from "node:path";
@@ -6623,6 +6624,7 @@ With --json, the summary is printed after the run; usage and precondition failur
 const NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const COMPANION = /^\.[A-Za-z0-9._-]*[A-Za-z0-9]$/;
 var ForgeError = class extends Error {};
+var UsageError = class extends Error {};
 /** Longest suffix first, so overlapping declarations never depend on argument order. */
 function orderedCompanions(companions) {
 	return [...companions].sort((left, right) => right.length - left.length || left.localeCompare(right));
@@ -6689,9 +6691,7 @@ function candidateCompanions(root) {
 	return candidates.sort((left, right) => left.draft.localeCompare(right.draft));
 }
 const usageError = (message) => {
-	console.error(`Error: ${message}`);
-	console.error(USAGE);
-	process.exit(2);
+	throw new UsageError(message);
 };
 const relativeToCwd = (path) => relative(process.cwd(), path) || ".";
 /** The kind of the path itself: a symlink is a symlink, not its target. */
@@ -6749,7 +6749,7 @@ function parse(argv) {
 	if (argv.length === 0) usageError("missing command");
 	if (argv.includes("--help") || argv.includes("-h")) {
 		console.log(USAGE);
-		process.exit(0);
+		return;
 	}
 	const command = argv[0];
 	if (command !== "draft" && command !== "pair" && command !== "publish") usageError(`unknown command: ${command}`);
@@ -6972,16 +6972,29 @@ function report(results, options) {
 		const failed = results.filter((result) => !result.ok).length;
 		console.log(`${results.length} action(s), ${failed} failed${options.dryRun ? " (dry run)" : ""}`);
 	}
-	process.exit(results.every((result) => result.ok) ? 0 : 1);
+	process.exitCode = results.every((result) => result.ok) ? 0 : 1;
 }
 function main() {
-	const options = parse(process.argv.slice(2));
+	let options;
 	try {
-		return report(execute(options.command === "draft" ? planDraft(options) : options.command === "pair" ? planPair(options) : planPublish(options), options.dryRun), options);
+		options = parse(process.argv.slice(2));
+	} catch (error) {
+		if (error instanceof UsageError) {
+			console.error(`forge.mjs: ${error.message}`);
+			console.error("run \"forge.mjs --help\" for usage");
+			process.exitCode = 2;
+			return;
+		}
+		throw error;
+	}
+	if (options === void 0) return;
+	try {
+		report(execute(options.command === "draft" ? planDraft(options) : options.command === "pair" ? planPair(options) : planPublish(options), options.dryRun), options);
 	} catch (error) {
 		if (error instanceof ForgeError) {
-			console.error(`Error: ${error.message}`);
-			process.exit(1);
+			console.error(`forge.mjs: ${error.message}`);
+			process.exitCode = 1;
+			return;
 		}
 		throw error;
 	}

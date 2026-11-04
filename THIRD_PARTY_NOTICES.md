@@ -1,6 +1,6 @@
 # Third-party notices
 
-This repository is an extraction of [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness), and one skill adapts the [AGENTS.md](https://agents.md) format description. It ships code and text carried over from the harness project, adapts the AGENTS.md text, and embeds a bundled Markdown parser built from npm packages. All are third-party material, all are MIT-licensed, and this file carries the notices they require.
+This repository is an extraction of [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness), and one skill adapts the [AGENTS.md](https://agents.md) format description. It ships code and text carried over from the harness project, adapts the AGENTS.md text, and embeds a bundled Markdown parser built from npm packages. All are third-party material; each item keeps its own license, recorded below and in the skill-root notices, and this file carries the notices they require.
 
 ## DeepSeek Harness
 
@@ -70,17 +70,18 @@ SOFTWARE.
 
 ## Vendored npm packages
 
-The dependency submission reads this table. It lists the npm packages the set's Markdown parser was built from, each of them MIT-licensed:
+The dependency submission reads this table. It lists every npm package the shipped script bundles inline, with the version the bundle contains; each package's licence is recorded in the skill-root `THIRD_PARTY_NOTICES` files: the skill-forge notice carries the full texts for its bundled packages, and the translate-docs notice carries the MIT text and copyright lines for its bundled packages. The table is generated from the shipped bundles by `pnpm run notices:sync`; do not edit its rows by hand.
 
+<!-- vendored-packages:start -->
 | Package | Version |
 |---|---|
 | `ccount` | 2.0.1 |
 | `character-entities` | 2.0.2 |
 | `decode-named-character-reference` | 1.3.0 |
-| `devlop` | 1.1.0 |
+| `entities` | 8.1.0 |
 | `escape-string-regexp` | 5.0.0 |
-| `longest-streak` | 3.1.0 |
-| `markdown-table` | 3.0.4 |
+| `linkify-it` | 6.1.0 |
+| `markdown-it` | 15.0.3 |
 | `mdast-util-find-and-replace` | 3.0.4 |
 | `mdast-util-from-markdown` | 2.0.3 |
 | `mdast-util-gfm` | 3.1.0 |
@@ -89,9 +90,8 @@ The dependency submission reads this table. It lists the npm packages the set's 
 | `mdast-util-gfm-strikethrough` | 2.0.1 |
 | `mdast-util-gfm-table` | 2.0.0 |
 | `mdast-util-gfm-task-list-item` | 2.0.0 |
-| `mdast-util-phrasing` | 4.1.0 |
-| `mdast-util-to-markdown` | 2.1.2 |
 | `mdast-util-to-string` | 4.0.0 |
+| `mdurl` | 2.1.0 |
 | `micromark` | 4.0.3 |
 | `micromark-core-commonmark` | 2.0.4 |
 | `micromark-extension-gfm` | 3.0.0 |
@@ -99,7 +99,6 @@ The dependency submission reads this table. It lists the npm packages the set's 
 | `micromark-extension-gfm-footnote` | 2.1.0 |
 | `micromark-extension-gfm-strikethrough` | 2.1.0 |
 | `micromark-extension-gfm-table` | 2.1.2 |
-| `micromark-extension-gfm-tagfilter` | 2.0.0 |
 | `micromark-extension-gfm-task-list-item` | 2.1.0 |
 | `micromark-factory-destination` | 2.0.1 |
 | `micromark-factory-label` | 2.0.1 |
@@ -113,16 +112,18 @@ The dependency submission reads this table. It lists the npm packages the set's 
 | `micromark-util-decode-numeric-character-reference` | 2.0.2 |
 | `micromark-util-decode-string` | 2.0.1 |
 | `micromark-util-edit-map` | 1.0.0 |
-| `micromark-util-encode` | 2.0.1 |
 | `micromark-util-html-tag-name` | 2.0.1 |
 | `micromark-util-normalize-identifier` | 2.0.1 |
 | `micromark-util-resolve-all` | 2.0.1 |
-| `micromark-util-sanitize-uri` | 2.0.1 |
 | `micromark-util-subtokenize` | 2.1.0 |
+| `parse5` | 8.0.1 |
+| `punycode.js` | 2.3.1 |
+| `uc.micro` | 3.0.0 |
 | `unist-util-is` | 6.0.1 |
 | `unist-util-stringify-position` | 4.0.0 |
-| `unist-util-visit` | 5.1.0 |
 | `unist-util-visit-parents` | 6.1.0 |
+| `yaml` | 2.9.1 |
+<!-- vendored-packages:end -->
 
 ## Scope
 

@@ -9,7 +9,7 @@ The text of this skill is adapted and merged from two DeepSeek Harness skills, `
   - `.agents/skills/dsh-trim-cot-leakage/SKILL.md` — the leakage test, taxonomy, keep rules and verification workflow.
   - `.agents/skills/dsh-trim-cot-leakage/references/examples.md` — the leakage keeps and overcorrection traps.
   - `.agents/skills/dsh-trim-cot-leakage/references/recall-batteries.md` — the recall probes and false-positive families.
-- Relation: adapted and merged. The prose standard's editorial judgement, complete-proposition rule and required coverage lead; the leakage audit is absorbed into the same skill; the source repository's documentation tree, UI-i18n and snapshot gates, notes-archive path and named checks are replaced by the adopting project's declaration and its own checks. The merged skill adds no script and depends on no other skill.
+- Relation: adapted and merged. The prose standard's editorial judgement, complete-proposition rule and required coverage lead; the leakage audit is absorbed into the same skill; the source repository's documentation tree, UI-i18n and snapshot gates, notes-archive path and named checks are replaced by the adopting project's standing instructions and its own checks. The merged skill adds no script and depends on no other skill.
 
 This skill is distributed under the MIT licence. The upstream and repository notices follow so that an installed copy carries them. This file is not part of the skill's instructions.
 

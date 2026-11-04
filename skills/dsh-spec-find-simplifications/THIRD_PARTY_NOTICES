@@ -6,7 +6,7 @@ The text of this skill is adapted from the DeepSeek Harness skill `dsh-find-simp
 - Upstream paths:
   - `.agents/skills/dsh-find-simplifications/SKILL.md` — the procedure: scope and constraints, the discovery questions, reachability and trade-off proof, ownership and failure semantics, infrastructure replacement, and the record workflow.
   - `.agents/skills/dsh-find-simplifications/references/historical-patterns.md` — the seven calibration patterns.
-- Relation: adapted. The six stages, the six discovery questions, the ownership and failure rules and the record workflow are carried; the DeepSeek Harness documents, repository paths, protected designs, product vocabulary and recorded-note links are replaced by the adopting project's declaration, its own conventions and product-neutral archetypes; the description is generalized and the Chinese trigger keywords are added. The skill ships no script and depends on no other skill.
+- Relation: adapted. The six stages, the six discovery questions, the ownership and failure rules and the record workflow are carried; the DeepSeek Harness documents, repository paths, protected designs, product vocabulary and recorded-note links are replaced by the adopting project's standing instructions, its own conventions and product-neutral archetypes; the description is generalized and the Chinese trigger keywords are added. The skill ships no script and depends on no other skill.
 
 This skill is distributed under the MIT licence. The upstream and repository notices follow so that an installed copy carries them. This file is not part of the skill's instructions.
 

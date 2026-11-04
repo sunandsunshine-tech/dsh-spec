@@ -8,18 +8,18 @@
  */
 
 import assert from 'node:assert/strict'
-import { existsSync, mkdtempSync, rmSync } from 'node:fs'
+import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { REPO_ROOT, makeFixture } from './helpers/fixtures.ts'
+import { makeFixture } from './helpers/fixtures.ts'
+import { skillBundle } from './helpers/bundles.ts'
 import type { Fixture } from './helpers/fixtures.ts'
 import { runScript } from './helpers/cli.ts'
 import type { CliResult } from './helpers/cli.ts'
+import { renderChangeScope } from '../package/dsh-spec-pre-push-checks/change-scope.ts'
 
-const workDraftBundle = '.agents/dsh-spec-skill-forge/dsh-spec-pre-push-checks/scripts/change-scope.mjs'
-const landedBundle = 'skills/dsh-spec-pre-push-checks/scripts/change-scope.mjs'
-const bundle = existsSync(join(REPO_ROOT, workDraftBundle)) ? workDraftBundle : landedBundle
+const bundle = skillBundle('dsh-spec-pre-push-checks', 'change-scope.mjs')
 
 /** The report's public shape, format version 1. */
 interface ChangeScopeReport {
@@ -166,7 +166,10 @@ test('a missing --base is a usage error', () => {
 
     assert.equal(result.status, 2, result.output)
     assert.equal(result.stdout, '')
-    assert.match(result.stderr, /change-scope: missing required --base <ref>/)
+    assert.match(
+      result.stderr,
+      /^change-scope\.mjs: missing required --base <ref>\nrun "change-scope\.mjs --help" for usage\n$/,
+    )
   })
 })
 
@@ -176,7 +179,10 @@ test('an unknown option is a usage error', () => {
 
     assert.equal(result.status, 2, result.output)
     assert.equal(result.stdout, '')
-    assert.match(result.stderr, /change-scope: unknown option: --bogus/)
+    assert.match(
+      result.stderr,
+      /^change-scope\.mjs: unknown option: --bogus\nrun "change-scope\.mjs --help" for usage\n$/,
+    )
   })
 })
 
@@ -186,7 +192,10 @@ test('an unexpected positional is a usage error', () => {
 
     assert.equal(result.status, 2, result.output)
     assert.equal(result.stdout, '')
-    assert.match(result.stderr, /change-scope: unexpected positional argument: stray/)
+    assert.match(
+      result.stderr,
+      /^change-scope\.mjs: unexpected positional argument: stray\nrun "change-scope\.mjs --help" for usage\n$/,
+    )
   })
 })
 
@@ -198,7 +207,7 @@ test('an unresolvable base fails instead of fetching or guessing one', () => {
 
     assert.equal(result.status, 1, result.output)
     assert.equal(result.stdout, '')
-    assert.match(result.stderr, /^change-scope: base ref "does-not-exist" does not resolve to a commit:/m)
+    assert.match(result.stderr, /^change-scope\.mjs: base ref "does-not-exist" does not resolve to a commit:/m)
   })
 })
 
@@ -220,7 +229,7 @@ test('an ambiguous ref fails rather than picking one', () => {
     assert.equal(result.stdout, '')
     assert.match(
       result.stderr,
-      /change-scope: base ref "duplicate" is ambiguous; use a fully qualified ref or commit ID/,
+      /change-scope\.mjs: base ref "duplicate" is ambiguous; use a fully qualified ref or commit ID/,
     )
   })
 })
@@ -240,7 +249,7 @@ test('a base and head with no merge base fail', () => {
 
     assert.equal(result.status, 1, result.output)
     assert.equal(result.stdout, '')
-    assert.match(result.stderr, /change-scope: base and head do not have a merge base:/)
+    assert.match(result.stderr, /change-scope\.mjs: base and head do not have a merge base:/)
   })
 })
 
@@ -250,6 +259,23 @@ test('a directory outside a Git worktree fails', () => {
 
     assert.equal(result.status, 1, result.output)
     assert.equal(result.stdout, '')
-    assert.match(result.stderr, /^change-scope: cannot locate a Git worktree:/m)
+    assert.match(result.stderr, /^change-scope\.mjs: cannot locate a Git worktree:/m)
   })
+})
+
+test('the exported renderer returns one versioned report and throws on an unresolved ref', () => {
+  const fixture = makeFixture()
+  try {
+    fixture.write('tracked.txt', 'tracked\n')
+    fixture.commit('base')
+    const report = JSON.parse(renderChangeScope(['--base', 'HEAD'], fixture.root)) as ChangeScopeReport
+    assert.equal(report.formatVersion, 1)
+    assert.deepEqual(report.paths.committed, [])
+    assert.throws(
+      () => renderChangeScope(['--base', 'missing-ref'], fixture.root),
+      /base ref "missing-ref" does not resolve to a commit/,
+    )
+  } finally {
+    fixture.dispose()
+  }
 })

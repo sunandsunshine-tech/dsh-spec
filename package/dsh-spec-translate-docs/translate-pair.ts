@@ -1,15 +1,23 @@
 #!/usr/bin/env node
 /**
- * The v2 pairing CLI: list/check/write existing pairs, brief minimal updates, initialise
- * terminology, and render or splice a generated region. Creation and update are declaration- or
- * instruction-driven; the gate never requires a source to be paired.
+ * SPDX-License-Identifier: MIT
+ *
+ * Extracted from the DeepSeek Harness bilingual-document mechanism at the pinned
+ * `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`); the skill-root
+ * THIRD_PARTY_NOTICES names the upstream paths and the relation.
+ */
+/**
+ * The pairing CLI: list/check/write existing pairs, brief minimal updates, initialise
+ * terminology, and render or splice a generated region. Creation and update follow the project's
+ * standing instructions or the user's instruction; the gate never requires a source to be paired.
  *
  * Exit codes: 0 clean or written, 1 violations or nothing to record, 2 usage or a precondition.
  */
 
-import { mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
-import { dirname, isAbsolute, join, matchesGlob } from 'node:path'
-import { buildCorpus, checkPair, discoverPairs, pairLanguages, regionDrift, type PairCorpus } from './pairing.ts'
+import { mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
+import { dirname, isAbsolute, join, matchesGlob, resolve } from 'node:path'
+import { buildCorpus, discoverPairs, pairLanguages, type PairCorpus } from './corpus.ts'
+import { checkPair, regionDrift } from './pairing.ts'
 import {
   computeTranslationPairingRecord,
   dropTranslationTarget,
@@ -18,20 +26,11 @@ import {
   updateTranslationPairingRecord,
 } from './pairing-record.ts'
 import { maskGeneratedRegions, renderGeneratedRegion, spliceGeneratedRegion } from './regions.ts'
-import {
-  loadPairState,
-  mechanicalUpdateErrors,
-  planBriefing,
-  recordContext,
-  renderBrief,
-  writeBrief,
-} from './update.ts'
+import { loadPairState, mechanicalUpdateErrors, planBriefing, renderBrief, writeBrief } from './update.ts'
 import {
   DEFAULT_SOURCE_LANGUAGE,
   DEFAULT_TARGET,
-  counterpartSuffix,
-  languageFromCounterpartFilename,
-  normalizePairArgument,
+  pairKey,
   pairPaths,
   parseSourceLanguage,
   parseTarget,
@@ -62,6 +61,7 @@ const USAGE = [
   '  --root <dir>                  project root (default: working directory)',
   '  --apply                       brief only: apply a code-fence-only update',
   '  --all                         write only: record every existing pair',
+  '  --help, -h                    print this and exit 0',
   '',
   'Region options:',
   '  region render --slug <slug> --body <file|->',
@@ -69,6 +69,8 @@ const USAGE = [
 ].join('\n')
 
 class UsageError extends Error {}
+
+const TARGET_SELECTION_HINT = 'a non-default target needs --target <lang>'
 
 interface TerminologyOverride {
   code: string
@@ -135,7 +137,7 @@ function parseOptions(argv: string[]): { verb: string; options: Options } {
     regionBody: undefined,
   }
   const verb = argv[0]
-  if (verb === undefined || verb.startsWith('-')) throw new UsageError(USAGE)
+  if (verb === undefined || verb.startsWith('-')) throw new UsageError('a verb is required')
   let index = 1
   if (verb === 'region') {
     options.regionAction = argv[index]
@@ -243,6 +245,7 @@ function parseOptions(argv: string[]): { verb: string; options: Options } {
       throw new UsageError('init accepts only --target, --root and --terminology')
   }
   if (options.sourceLanguage !== undefined && verb !== 'write') throw new UsageError('--source-lang belongs to write')
+  options.root = resolve(options.root)
   return { verb, options }
 }
 
@@ -270,7 +273,7 @@ function corpusOf(options: Options): PairCorpus {
 
 function terminologyPath(options: Options, target: Language): string {
   const override = options.terminology.find((entry) => entry.code === target.code)
-  if (override !== undefined) return override.path
+  if (override !== undefined) return isAbsolute(override.path) ? override.path : join(options.root, override.path)
   const name = target.code === DEFAULT_TARGET.code ? 'terminology.md' : 'terminology.' + target.code + '.md'
   return join(options.root, '.agents', 'dsh-spec-translate-docs', name)
 }
@@ -294,48 +297,15 @@ function readTerminology(options: Options, target: Language): string {
   return content
 }
 
-function existingTargets(options: Options, source: string): Language[] {
-  const found = new Map<string, Language>()
-  const recordText = readRepositoryFile(options.root, recordPath(source))
-  if (recordText !== undefined) {
-    const parsed = parseTranslationPairingRecord(recordText)
-    if (parsed !== undefined) {
-      for (const values of parsed.entries.values()) {
-        for (const code of values.keys()) {
-          if (code === parsed.sourceCode) continue
-          const declared = options.targets.find((target) => target.code === code)
-          found.set(code, declared ?? { code, name: code })
-        }
-      }
-    }
-  }
-  for (const name of walkCounterparts(options.root, source)) {
-    const language = languageFromCounterpartFilename(name)
-    if (language === undefined) continue
-    const declared = options.targets.find((target) => target.code === language.code)
-    found.set(language.code, declared ?? language)
-  }
-  return [...found.values()].sort((left, right) => left.code.localeCompare(right.code))
-}
-
-function walkCounterparts(root: string, source: string): string[] {
-  const dir = join(root, source.replace(/[^/]*$/, ''))
-  try {
-    return readdirSync(dir)
-  } catch {
-    return []
-  }
-}
-
 function selected(options: Options, corpus: PairCorpus): PairPaths[] {
   const seen = new Set<string>()
   const pairs: PairPaths[] = []
   for (const argument of options.pairs) {
     for (const pair of selectPairs(argument, corpus.declared, options.restrict, (source) =>
-      existingTargets(options, source),
+      corpus.existingTargets(source),
     )) {
       const paths = pairPaths(pair.source, pair.target)
-      const key = paths.source + ' zero ' + pair.target.code
+      const key = pairKey(paths)
       if (seen.has(key)) continue
       seen.add(key)
       pairs.push(paths)
@@ -346,18 +316,28 @@ function selected(options: Options, corpus: PairCorpus): PairPaths[] {
   )
 }
 
+function assertNamedSelections(options: Options, corpus: PairCorpus, verb: 'check' | 'write' | 'brief'): void {
+  for (const argument of options.pairs) {
+    const found = selectPairs(argument, corpus.declared, options.restrict, (source) => corpus.existingTargets(source))
+    if (found.length > 0) continue
+    const message =
+      verb === 'check'
+        ? 'check selected no existing pair; nothing to check is not a green check; ' + TARGET_SELECTION_HINT
+        : verb === 'write'
+          ? 'write named no existing pair; nothing to record'
+          : 'brief selected no existing pair; nothing to brief is not a green brief'
+    throw new UsageError(message)
+  }
+}
+
 function passesFilters(options: Options, source: string): boolean {
-  if (options.select.length > 0 && !options.select.some((pattern) => match(pattern, source))) return false
-  if (options.skip.some((pattern) => match(pattern, source))) return false
+  if (options.select.length > 0 && !options.select.some((pattern) => matchesGlob(source, pattern))) return false
+  if (options.skip.some((pattern) => matchesGlob(source, pattern))) return false
   return true
 }
 
-function match(pattern: string, value: string): boolean {
-  return matchesGlob(value, pattern)
-}
-
 function discoveredPairs(options: Options, corpus: PairCorpus): PairPaths[] {
-  return discoverPairs({ root: options.root, corpus })
+  return discoverPairs(corpus)
     .map((pair) => pair.paths)
     .filter((paths) => passesFilters(options, paths.source))
 }
@@ -373,14 +353,12 @@ function namedPairAbsent(options: Options, paths: PairPaths): boolean {
 function verbList(options: Options): number {
   const corpus = corpusOf(options)
   const pairs = options.pairs.length > 0 ? selected(options, corpus) : discoveredPairs(options, corpus)
+  if (options.pairs.length > 0 && pairs.length === 0) {
+    console.error('translate-pair: no pair was selected for ' + options.pairs.join(', ') + '; ' + TARGET_SELECTION_HINT)
+  }
   const counts = { ok: 0, 'out-of-sync': 0, missing: 0 } as Record<string, number>
   for (const paths of pairs) {
-    const check = checkPair({
-      root: options.root,
-      corpus,
-      paths,
-      readFile: (path) => readRepositoryFile(options.root, path),
-    })
+    const check = checkPair(corpus, paths)
     counts[check.state] = (counts[check.state] ?? 0) + 1
     console.log(check.state.padEnd(12) + ' ' + paths.source + ' [' + paths.target.code + ']')
   }
@@ -398,6 +376,7 @@ function verbList(options: Options): number {
 
 function verbCheck(options: Options): number {
   const corpus = corpusOf(options)
+  if (options.pairs.length > 0) assertNamedSelections(options, corpus, 'check')
   const pairs = options.pairs.length > 0 ? selected(options, corpus) : discoveredPairs(options, corpus)
   if (options.pairs.length > 0) {
     for (const paths of pairs) {
@@ -406,14 +385,12 @@ function verbCheck(options: Options): number {
     }
   }
   if (pairs.length === 0) {
-    throw new UsageError('check selected no existing pair; nothing to check is not a green check')
+    const hint = options.pairs.length > 0 ? '; ' + TARGET_SELECTION_HINT : ''
+    throw new UsageError('check selected no existing pair; nothing to check is not a green check' + hint)
   }
   const problems: string[] = []
   for (const paths of pairs) {
-    problems.push(
-      ...checkPair({ root: options.root, corpus, paths, readFile: (path) => readRepositoryFile(options.root, path) })
-        .errors,
-    )
+    problems.push(...checkPair(corpus, paths).errors)
   }
   if (problems.length > 0) {
     console.error('translate-pair: pairing rules violated:')
@@ -430,6 +407,7 @@ function verbWrite(options: Options): number {
   }
   if (options.pairs.length > 0 && options.all) throw new UsageError('write takes either named pairs or --all, not both')
   const corpus = corpusOf(options)
+  if (options.pairs.length > 0) assertNamedSelections(options, corpus, 'write')
   const candidates = options.pairs.length > 0 ? selected(options, corpus) : discoveredPairs(options, corpus)
   const groups = new Map<string, PairPaths[]>()
   for (const paths of candidates) {
@@ -488,7 +466,7 @@ function verbWrite(options: Options): number {
         paths,
         maskGeneratedRegions(sourceText),
         maskGeneratedRegions(counterpartText),
-        recordContext(corpus, paths.target),
+        corpus.recordContext(paths.target),
       )
       record = updateTranslationPairingRecord(record, sourceCode, paths.target.code, computed)
       updated = true
@@ -538,48 +516,50 @@ interface LoadedPair {
   counterpartText: string
 }
 
-function loadPair(options: Options, corpus: PairCorpus, paths: PairPaths): LoadedPair | string {
-  const recordText = readRepositoryFile(options.root, paths.record)
-  const sourceText = readRepositoryFile(options.root, paths.source)
-  const counterpartText = readRepositoryFile(options.root, paths.counterpart)
+function loadPair(corpus: PairCorpus, paths: PairPaths): LoadedPair | string {
+  const recordText = corpus.readFile(paths.record)
+  const sourceText = corpus.readFile(paths.source)
+  const counterpartText = corpus.readFile(paths.counterpart)
   if (recordText === undefined || sourceText === undefined || counterpartText === undefined) {
     return (
       paths.source +
       ' [' +
       paths.target.code +
       ']: incomplete pair (missing ' +
-      [paths.source, paths.counterpart, paths.record]
-        .filter((path) => readRepositoryFile(options.root, path) === undefined)
-        .join(', ') +
+      [paths.source, paths.counterpart, paths.record].filter((path) => corpus.readFile(path) === undefined).join(', ') +
       '); a new counterpart is whole-document translation work, not a minimal update'
     )
   }
   const parsed = parseTranslationPairingRecord(recordText)
   if (parsed === undefined) return paths.record + ': malformed consistency record'
-  const languages = pairLanguages(paths, corpus, (path) => readRepositoryFile(options.root, path), parsed.sourceCode)
+  const languages = pairLanguages(paths, corpus, parsed.sourceCode)
   return { source: languages.source, target: languages.target, sourceText, counterpartText }
 }
 
 function verbBrief(options: Options): number {
   const corpus = corpusOf(options)
+  if (options.pairs.length > 0) assertNamedSelections(options, corpus, 'brief')
   const pairs = options.pairs.length > 0 ? selected(options, corpus) : discoveredPairs(options, corpus)
   if (pairs.length === 0) {
     throw new UsageError('brief selected no existing pair; nothing to brief is not a green brief')
   }
   const plans: { plan: ReturnType<typeof planBriefing>[number]; terminology: string }[] = []
   const drifts: string[] = []
+  const skipped: string[] = []
   for (const paths of pairs) {
-    const drift = regionDrift(corpus, options.root, paths, (path) => readRepositoryFile(options.root, path))
+    const drift = regionDrift(corpus, paths)
     if (drift !== undefined) drifts.push(drift)
-    const loaded = loadPair(options, corpus, paths)
+    const loaded = loadPair(corpus, paths)
     if (typeof loaded === 'string') {
       if (options.pairs.length > 0) throw new UsageError(loaded)
+      skipped.push(loaded)
       continue
     }
-    const recordText = readRepositoryFile(options.root, paths.record) as string
-    const state = loadPairState(options.root, corpus, paths, recordText, loaded.sourceText, loaded.counterpartText)
+    const recordText = corpus.readFile(paths.record) as string
+    const state = loadPairState(corpus, paths, recordText, loaded.sourceText, loaded.counterpartText)
     if (typeof state === 'string') {
       if (options.pairs.length > 0) throw new UsageError(state)
+      skipped.push(state)
       continue
     }
     if (!state.sourceDrifted && !state.counterpartDrifted) {
@@ -602,6 +582,17 @@ function verbBrief(options: Options): number {
       plans.push({ plan, terminology })
   }
   if (drifts.length > 0) throw new UsageError(drifts.join('; ') + '; a brief cannot reconcile a generated region')
+  const reportSkipped = (): void => {
+    for (const reason of skipped) console.error('translate-pair: ' + reason)
+    console.error(
+      'translate-pair: ' + String(skipped.length) + ' pair(s) could not be briefed; nothing was assumed consistent.',
+    )
+  }
+  if (skipped.length > 0 && options.apply) {
+    reportSkipped()
+    console.error('translate-pair: --apply wrote nothing because a pair could not be briefed.')
+    return 2
+  }
   if (options.apply) {
     const prose = plans.filter(
       (entry) => entry.plan.scope.kind !== 'mechanical' || entry.plan.mechanicalResult === undefined,
@@ -616,6 +607,10 @@ function verbBrief(options: Options): number {
     }
   }
   if (plans.length === 0) {
+    if (skipped.length > 0) {
+      reportSkipped()
+      return 2
+    }
     console.log('translate-pair: every recorded pair matches its consistency record; nothing to brief.')
     return 0
   }
@@ -639,6 +634,10 @@ function verbBrief(options: Options): number {
         String(plans.length) +
         ' mechanical update(s) applied and structure-validated; record the pairs after review.',
     )
+  if (skipped.length > 0) {
+    reportSkipped()
+    return 2
+  }
   return 0
 }
 
@@ -694,30 +693,54 @@ function verbRegion(options: Options): number {
   }
 }
 
+/** Print one usage diagnostic and the help hint, then exit 2. */
+function usageError(message: string): void {
+  console.error('translate-pair: ' + message)
+  console.error('run "translate-pair --help" for usage')
+  process.exitCode = 2
+}
+
 function main(): void {
-  const { verb, options } = parseOptions(process.argv.slice(2))
-  switch (verb) {
+  const argv = process.argv.slice(2)
+  if (argv.includes('--help') || argv.includes('-h')) {
+    console.log(USAGE)
+    return
+  }
+  let parsed: { verb: string; options: Options }
+  try {
+    parsed = parseOptions(argv)
+  } catch (error) {
+    if (error instanceof UsageError) {
+      usageError(error.message)
+      return
+    }
+    throw error
+  }
+  let code: number
+  switch (parsed.verb) {
     case 'list':
-      process.exit(verbList(options))
+      code = verbList(parsed.options)
       break
     case 'check':
-      process.exit(verbCheck(options))
+      code = verbCheck(parsed.options)
       break
     case 'write':
-      process.exit(verbWrite(options))
+      code = verbWrite(parsed.options)
       break
     case 'brief':
-      process.exit(verbBrief(options))
+      code = verbBrief(parsed.options)
       break
     case 'init':
-      process.exit(verbInit(options))
+      code = verbInit(parsed.options)
       break
     case 'region':
-      process.exit(verbRegion(options))
+      code = verbRegion(parsed.options)
       break
     default:
-      throw new UsageError('unknown verb: ' + verb)
+      usageError('unknown verb: ' + parsed.verb)
+      return
   }
+  process.exitCode = code
 }
 
 try {
@@ -725,8 +748,9 @@ try {
 } catch (error) {
   if (error instanceof UsageError) {
     console.error('translate-pair: ' + error.message)
-    process.exit(2)
+    process.exitCode = 2
+  } else {
+    console.error('translate-pair: ' + (error instanceof Error ? error.message : String(error)))
+    process.exitCode = 1
   }
-  console.error('translate-pair: ' + (error instanceof Error ? error.message : String(error)))
-  process.exit(1)
 }

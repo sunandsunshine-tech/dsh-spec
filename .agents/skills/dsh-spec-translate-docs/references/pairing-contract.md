@@ -1,7 +1,7 @@
 # Pairing contract
 
 The rules the skill's script enforces and the workflow follows. The check verifies **existing
-pairs**; creation and update are driven by the project's declaration or the user's instruction.
+pairs**; creation and update are driven by the project's standing instructions or the user's instruction.
 Nothing here requires a source to be paired.
 
 ## The pair
@@ -77,6 +77,10 @@ Named arguments:
 | `foo.zh.md` | that target's pair |
 | `foo.i18n.yaml` | every target of that source that has a record entry; `--target` narrows |
 
+A named source selects only its own counterpart files and record entries, or the target named with
+`--target`, never a target inferred from a sibling counterpart file; a non-default target with no
+artifact of its own needs `--target <lang>`.
+
 `--select <glob>` and `--skip <glob>` narrow a corpus-wide run to existing pairs by source path;
 they are selection only. They never demand or forbid pairing, never create an "excluded artifact"
 violation, and never change link normalization.
@@ -94,8 +98,7 @@ Empty results by verb:
 | `brief <pair>` consistent | a named pair is consistent | 2 |
 
 A named pair with some artifacts present but a missing counterpart is incomplete: `check` exits 1,
-`write` exits 2, `brief` exits 2. The script never reads a project config file; the declaration's
-facts arrive as flags.
+`write` exits 2, `brief` exits 2. A corpus-wide `brief` emits the briefs it can compute, reports each pair it cannot brief on stderr, and exits 2; a named pair that cannot be briefed is a usage error, and a generated-region drift is fatal for the whole run. With `--apply`, a skipped pair means no briefing is printed and nothing is written; skipped pairs are still reported on stderr, and the command exits 2. The script never reads a project config file; the standing instructions' facts arrive as flags.
 
 ## Language switchers
 
@@ -181,7 +184,7 @@ symlinks, and matching `.md` and `.i18n.yaml` files. The default prune trees are
 `.venv`, `.cache`, `.pnpm-store`, `.agents/skills`, `.agents/dsh-spec-translate-docs`.
 
 A bare prune name matches a directory at any depth. A frozen or vendored tree is kept out of the
-work by the declaration and `--skip`; it is not a corpus exclusion state.
+work by the standing instructions and `--skip`; it is not a corpus exclusion state.
 
 ## Project data
 
@@ -191,7 +194,7 @@ work by the declaration and `--skip`; it is not a corpus exclusion state.
   format is fixed: source term, target rendering, first-occurrence form, forbidden renderings, note.
   `init` writes the template for one target and never overwrites an existing file. `brief` requires
   the target's table and exits 2 with the init hint when it is missing.
-- **Style.** [style-examples.md](style-examples.md) is the skill's default style file: guidance plus reviewed English-to-Chinese samples, read before every translation including a lightweight update. The project's declaration may name its own style file in any location or format; that file replaces the default whole file. The binding priority lives in [translation rules](translation-rules.md); the style file points to it. No project path is required and the script never reads style files.
+- **Style.** [style-examples.md](style-examples.md) is the skill's default style file: guidance plus reviewed English-to-Chinese samples, read before every translation including a lightweight update. The project's standing instructions may name its own style file in any location or format; that file replaces the default whole file. The binding priority lives in [translation rules](translation-rules.md); the style file points to it. No project path is required and the script never reads style files.
 
 ## The script
 

@@ -12,7 +12,7 @@ Status: implemented
 
 本包发布 `dsh-spec-pre-push-checks`，作为位于 `submodules/dsh/.agents/skills/dsh-pre-push-checks/SKILL.md` 的上游技能的 create-mode 适配版本（`submodules/dsh` 固定在 `dsh-v0.2.2-alpha.2`，`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`）。它保留上游机制：确认 checkout 与分支；在检查范围之前验证 base；产出一份完整的出站范围报告；选择其回归会使本次改动失败的最窄证据；不重复 hook 或 CI 已经裁决的内容；仅在点名的情形下完整排练；保护改写历史的 push；在自动改写并发布之后立即验证；对特定环境的失败做证明，而不是重新解释它们。措辞是仓库中立的：采用者自己的命令、hook、工作流与布局约定从其声明中发现；上游点名 deepseek-harness 的文件、profile、snapshot 树或兄弟技能之处，本技能泛化该规则，或把它留给那些约定。
 
-落地目录包含 `SKILL.md`、`scripts/change-scope.mjs` 与 `THIRD_PARTY_NOTICES`，并镜像到 `.agents/skills/dsh-spec-pre-push-checks/`；脚本的源码与构建接线留在 `package/dsh-spec-pre-push-checks/`，其测试在 `tests/change-scope.test.ts`，套件的清单行在 `tests/AGENTS.md`。被取代的上游同名安装副本 `.agents/skills/dsh-pre-push-checks/` 被移除；根 `AGENTS.md` 的技能列表与根 `THIRD_PARTY_NOTICES.md` 中的适配技能枚举点名该技能。历史发布说明保留其文字。
+落地目录包含 `SKILL.md`、`scripts/change-scope.mjs` 与 `THIRD_PARTY_NOTICES`，并镜像到 `.agents/skills/dsh-spec-pre-push-checks/`；脚本的源码与构建接线留在 `package/dsh-spec-pre-push-checks/`，其测试在 `tests/change-scope.test.ts`，套件的清单行在 `tests/AGENTS.md`。被取代的上游同名安装副本 `.agents/skills/dsh-pre-push-checks/` 被移除；根 `README.md` 的技能表与根 `THIRD_PARTY_NOTICES.md` 中的适配技能枚举点名该技能。
 
 - 交付与语言：英文交付，描述追加中文触发词汇；本记录为英文并带其中文 `.zh.md` 对侧与 `.i18n.yaml` 一致性记录。
 
@@ -83,8 +83,8 @@ Status: implemented
 | U16 | 适配 | "Select relevant evidence" 的收尾段：不要因为随后 commit 或 push 就重复已通过的检查；尤其不要仅仅为了重复 hook 而重跑 typecheck | 规则是通用的；点名的 hook 与 typecheck 是上游仓库的实例 |
 | U17 | 适配 | 收尾段：按 launcher 转发过滤器的方式传过滤器，保留 pnpm 形式作为示例；在把过滤运行当作证据之前检查选中的测试数 | 转发规则是通用的；pnpm/Vitest 是常见实现，仅作示例 |
 | U18 | 适配 | "### Focus unit coverage on the affected source"：选择与覆盖分开；通过 runner 的 coverage-include 机制点名所属测试与源范围；阈值仍在范围内适用；所属不明确时使用依赖/关联发现；显式选择无法被发现的行为；绝不抑制无测试、降低阈值或收窄 include 以隐藏未覆盖的受影响文件；仅当被排除的模块不可能受影响时才添加所属测试或收窄 | 机制保留；具体 flag 是 runner 的 |
-| U19 | 适配 | "Full local rehearsal"：三个点名情形存活；清单是当前工作流与包脚本；不要重建被移除的聚合命令 | `check:pre-push` 是 deepseek-harness 的聚合命令；其缺失以泛化方式陈述 |
-| U20 | 适配 | "Protect history-rewriting pushes"：允许 rebase；fetch 并记录 OID；`--force-with-lease=<branch>:<observed-oid>`；stack 或自动化工具必须提供等价 lease 保护；原始 `--force` 绝不允许；任何改写后，重新 fetch 并重新审计 thread、approval、mergeability 与检查；改写前的 hash 与锚点不是证据 | lease 机制是通用的；工具名变为示例 |
+| U19 | 适配 | "Full local rehearsal"：三个点名情形存活；清单是当前工作流与包脚本；不要发明仓库并未提供的聚合检查 | `check:pre-push` 是 deepseek-harness 的聚合命令；其缺失以泛化方式陈述 |
+| U20 | 适配 | "Protect history-rewriting pushes"：在仓库指令允许时 rebase；fetch 并记录 OID；`--force-with-lease=<branch>:<observed-oid>`；stack 或自动化工具必须提供等价 lease 保护；原始 `--force` 绝不允许；任何改写后，重新 fetch 并重新审计 thread、approval、mergeability 与检查；改写前的 hash 与锚点不是证据 | lease 机制是通用的；工具名变为示例 |
 | U21 | 重绑 | "### Validate after an automated rewrite and publish"：工具可能把 fetch、rebase 与发布作为一个操作执行，`gh stack sync` 作为示例被点名；前后序列与修复路径被承载 | 机制（验证无法位于改写与发布之间）对任何工具代为发布的采用者都真实；deepseek-harness 工具是实例而非机制 |
 | U22 | 适配 | "Handle failures"：停下并修复或解释；不要 push 然后指望；自动发布失败后阻止合并并修复；用精确命令、失败测试与平台不匹配证明特定环境的失败，确认非平台证据，优先跨平台修复，仅在用户要求或同意时绕过 hook，并报告什么失败了 | 领域中立；只有 hook 与 CI 名词被泛化 |
 | U23 | 适配 | "Push procedure"：检查运行一次；commit，检查 fixer 改动，带 lease push，验证远程 ref；检查远程 CI 并把 pending 报告为 pending；没有报告检查时，先读 mergeability 再怀疑 push，解决冲突而不是添加空历史，并用 `git merge-tree` 确认路径；自动发布例外使用自己的序列；GitHub 命令留在显式的 "when the review platform is GitHub" 示例中，而 provider 中立的规则独立存在 | GitHub 实现是示例；约束是 provider 中立的 |
@@ -93,7 +93,7 @@ Status: implemented
 
 ### 随附的 change-scope 报告
 
-报告是技能的机械一半。其源码是 `package/dsh-spec-pre-push-checks/change-scope.ts`，像其他技能包那样接线（`build.ts` 运行 `vp pack`，`vite.config.ts` 点名入口与落地目录的 `scripts/` 输出，`package.json` 是私有包标记）；`node scripts/build-skills.ts dsh-spec-pre-push-checks` 把它打包到 `skills/dsh-spec-pre-push-checks/scripts/change-scope.mjs`，即技能运行的已提交产物。
+报告是技能的机械一半。其源码是 `package/dsh-spec-pre-push-checks/change-scope.ts`，像其他技能包那样接线（`build.ts` 运行 `vp pack`，`vite.config.ts` 点名入口与工作目录的 `scripts/` 输出，`package.json` 是私有包标记）；`node scripts/build-skills.ts dsh-spec-pre-push-checks --publish` 把产物复制到 `skills/dsh-spec-pre-push-checks/scripts/change-scope.mjs`，即技能运行的已提交产物；默认构建写工作目录，`--publish` 才把产物复制进 `skills/`。
 
 - 用法：`node <skill-dir>/scripts/change-scope.mjs --base <ref> [--head <ref>]`；它在项目的 Git checkout 内运行，并向 stdout 打印一份 JSON 报告。
 - 输出：`formatVersion`（1）、`repositoryRoot`、`input`（`base`、`head`）、`resolved`（`baseSha`、`headSha`、`mergeBaseSha`）与 `paths`（`committed`、`staged`、`unstaged`、`untracked`），每个路径列表都排序并去重；已提交路径相对于已解析的 merge base。
@@ -107,48 +107,46 @@ Status: implemented
 - **U11 与 U12 是消解，不是重绑。** 固定的预期输出或 profile 位置在未指定的软件工程仓库中没有等价手段：发明一棵树会是一个新机制。采用者的约定与所属测试 lane 的命令接管。
 - **U6 重绑到证据种类，而不是兄弟技能。** 本包不发布可靠性技能，点名一个会把采用者指向它没有的技能；证据种类才是可移植的内容。
 - **U21 是重绑而非消解。** 自动改写并发布工具对软件工程采用者是真实机制，顺序例外是锻造必须保留的上游执行机制的一部分；工具名变为示例。
-- **报告随技能打包，而不是从采用者那里调用。** 本包的架构打包技能所需的脚本；遗留引擎的副本不是交付物，仅为已安装技能保留。
-- **报告的渲染从遗留引擎逐字上游移植承载；其 CLI 表面被适配。** 该移植就是仓库已携带的同一 MIT 许可上游文件，所以已证明的报告契约与其来源被保留；`--help` 与退出码适配遵循脚本接口指导，并被陈述与测试。
+- **报告随技能打包，而不是从采用者那里调用。** 本包的架构打包技能所需的脚本；遗留引擎的副本不是交付物，已随引擎移除。
+- **报告的渲染从上游脚本的逐字移植承载；其 CLI 表面被适配。** 该移植就是同一 MIT 许可上游文件，所以已证明的报告契约与其来源被保留；`--help` 与退出码适配遵循脚本接口指导，并被陈述与测试。
 - **归属在加载文字之外传递。** 基线的约定让技能根的 `THIRD_PARTY_NOTICES` 成为载体、frontmatter 的 `license` 字段成为其指针，因为文字内的文件头或注释会被当作指令加载；本技能对适配技能文字与移植报告都遵循该约定，且不依赖任何 bundler 注释行为。
 - **`<skill-dir>` 是包含 `SKILL.md` 的目录，不是本包的安装路径。** 命令需要一种方式点名随附报告，但硬编码 `.agents/skills/dsh-spec-pre-push-checks` 会让一个通用技能假设某个客户端的安装布局；占位符定义时不带路径，好让每个采用者在自己的树中解析它。
 - **记录使用仓库自己的遗留实现作为实现基础，而非设计来源。** 上游技能陈述要求，该移植携带其字段契约，没有其他来源为记录提供信息。
-- **审查草稿是声明的，不是可选的。** 仓库的双语约定声明两个后缀；中文技能草稿及其配对记录在停止时是最新的，本记录的中文对侧在落地时写入。
-- **落地遵循维护者授权。** 发布到 `skills/`，镜像到 `.agents/skills/`，移除被取代的安装副本，更新根文档，移动并配对本记录，并压合合并分支；不 push。
-- **被取代内容在落地时移除。** 上游同名的安装副本移除；历史发布说明与遗留安装副本的文字保持原样。
-- **记录的中文对侧在落地时写入。** 落地遵循本包的双语实践。
+- **审查草稿是声明的，不是可选的。** 仓库的双语约定声明两个后缀；中文技能草稿及其配对记录在交接前接受检查，本记录携带其中文对侧。
+- **发布状态已 push。** 技能发布到 `skills/`，镜像到 `.agents/skills/`，被取代的安装副本已移除，根文档点名新技能；落地提交已 push，且未创建 PR。
 
 ### 每项要求的锚点
 
 | 要求 | 锚点 | 证据 |
 |---|---|---|
-| U1 描述触发 | 判定 | 独立评审接受描述措辞；触发率未验证 |
-| U2 引言：证据一次、一个顺序例外、hook/CI 归属 | 判定 | 独立评审，机制走查 U1-U23 |
-| U3 检查第 1 步 | 判定 | 独立评审 |
-| U4 已验证 base 与报告契约 | 机械 | `node --test tests/change-scope.test.ts`（10 pass）；`--help`/0、报告/0、失败/1、用法/2 的探针 |
-| U5 最窄证据 | 判定 | 独立评审 |
-| U6 异步/拥有资源的证据条目 | 判定 | 独立评审 |
-| U7 tested behavior 条目 | 判定 | 独立评审 |
-| U8 typecheck 与生成类型 | 判定 | 独立评审 |
-| U9 文档条目 | 判定 | 独立评审 |
-| U10 可观察输出条目 | 判定 | 独立评审 |
-| U11 与 U12 消解的放置规则 | 判定 | 独立评审确认没有承载固定输出树或 profile 路径 |
-| U13 构建与打包条目 | 判定 | 独立评审 |
-| U14 声称完成之前的当前构建输出 | 判定 | 独立评审 |
-| U15 外部行为条目 | 判定 | 独立评审 |
-| U16 不重复检查、不重复 hook | 判定 | 独立评审 |
-| U17 过滤器转发与选中数量 | 判定 | 独立评审 |
-| U18 覆盖聚焦 | 判定 | 独立评审 |
-| U19 完整本地排练 | 判定 | 独立评审 |
-| U20 改写历史的保护 | 判定 | 独立评审 |
-| U21 自动改写与发布验证 | 判定 | 独立评审 |
-| U22 失败处理 | 判定 | 独立评审 |
-| U23 push 流程 | 判定 | 独立评审 |
-| Agent Skills 规范与预算 | 机械 | `14 check(s), 0 failed`；108 行，约 2983 tokens |
+| U1 描述触发 | 判定 | 对描述与 U1 给出一个结论；触发率未验证 |
+| U2 引言：证据一次、一个顺序例外、hook/CI 归属 | 判定 | 对引言与 U1–U23 给出一个结论 |
+| U3 检查第 1 步 | 判定 | 对步骤与 U3 给出一个结论 |
+| U4 已验证 base 与报告契约 | 机械 | `node --test tests/change-scope.test.ts`（11 pass）；`--help`/0、报告/0、失败/1、用法/2 的探针 |
+| U5 最窄证据 | 判定 | 对选择规则与 U5 给出一个结论 |
+| U6 异步/拥有资源的证据条目 | 判定 | 对该条目与 U6 给出一个结论 |
+| U7 tested behavior 条目 | 判定 | 对该条目与 U7 给出一个结论 |
+| U8 typecheck 与生成类型 | 判定 | 对该条目与 U8 给出一个结论 |
+| U9 文档条目 | 判定 | 对该条目与 U9 给出一个结论 |
+| U10 可观察输出条目 | 判定 | 对该条目与 U10 给出一个结论 |
+| U11 与 U12 消解的放置规则 | 判定 | 给出一个结论：没有承载固定输出树或 profile 路径（U11–U12） |
+| U13 构建与打包条目 | 判定 | 对该条目与 U13 给出一个结论 |
+| U14 声称完成之前的当前构建输出 | 判定 | 对该条目与 U14 给出一个结论 |
+| U15 外部行为条目 | 判定 | 对该条目与 U15 给出一个结论 |
+| U16 不重复检查、不重复 hook | 判定 | 对该规则与 U16 给出一个结论 |
+| U17 过滤器转发与选中数量 | 判定 | 对该规则与 U17 给出一个结论 |
+| U18 覆盖聚焦 | 判定 | 对该覆盖规则与 U18 给出一个结论 |
+| U19 完整本地排练 | 判定 | 对该排练情形与 U19 给出一个结论 |
+| U20 改写历史的保护 | 判定 | 对该保护规则与 U20 给出一个结论 |
+| U21 自动改写与发布验证 | 判定 | 对该验证序列与 U21 给出一个结论 |
+| U22 失败处理 | 判定 | 对该失败规则与 U22 给出一个结论 |
+| U23 push 流程 | 判定 | 对该 push 流程与 U23 给出一个结论 |
+| Agent Skills 规范与预算 | 机械 | `14 check(s), 0 failed`；108 行，约 3035 tokens |
 | 归属随技能传递 | 机械 | 落地的 `license` 字段点名 `THIRD_PARTY_NOTICES`；该文件携带上游与本仓库的 notices，以及适配文字与移植的起源 |
-| 仓库套件与格式 | 机械 | `pnpm test` 216/216；`pnpm run format:check` 干净 |
-| 审查草稿在落地时移除 | 机械 | `publish` 报告声明的草稿被移除；仅属草稿的切换行在落地 `SKILL.md` 中不存在 |
-| 记录已配对 | 机械 | `translation-pair check` 报告 1 named pair consistent |
-| 触发质量 | 未验证 | 本仓库没有触发评估 harness；人工评审判断描述 |
+| 仓库套件与格式 | 机械 | `pnpm test` 通过；`pnpm run format:check` 干净 |
+| 落地技能不含审查草稿 | 机械 | 落地 `SKILL.md` 旁没有声明的草稿文件，仅属草稿的切换行不存在 |
+| 记录已配对 | 机械 | `translate-pair check` 报告 1 named pair consistent |
+| 触发质量 | 未验证 | 本仓库没有触发评估 harness；激活率未测量 |
 
 ## 备选方案
 
@@ -156,23 +154,23 @@ Status: implemented
 
 **消解每个在本仓库中不存在的机制。** 它落败因为检查选择机制正是技能的目的：丢掉 change-scope 报告、受 lease 保护的改写或自动发布验证，会在上游技能有可执行流程处留下泛泛的建议。处置表保留机制，只适配其值或名称。
 
-**依赖采用者自己的 change-scope 命令，不写脚本。** 它落败因为新技能集按技能自包含，而当前承载该报告的遗留引擎只在旧安装技能调用它期间保留；只安装本技能的采用者否则没有报告命令。等价手段随技能打包，所以仅凭 Git 与 Node 该流程即可执行。
+**依赖采用者自己的 change-scope 命令，不写脚本。** 它落败因为新技能集按技能自包含，而承载该报告的遗留引擎已移除；只安装本技能的采用者否则没有报告命令。等价手段随技能打包，所以仅凭 Git 与 Node 该流程即可执行。
 
 **范围检查保留纯文字的 Git 命令，不打包报告。** 它落败因为 U4 的报告是选择其余部分读取的固定、带版本结构，两个执行者各写自己的 `git diff` 管道不会到达同一组路径（merge-base 解析、暂存/未暂存/未跟踪分离、路径编码）。技能随附的命令是机械锚点；判断留在文字里。
 
 **原样发布移植报告，不带 `--help` 且只有单一失败退出。** 它落败因为 `using-scripts` 页面把有文档的 `--help` 与有文档、彼此不同的退出码当作 agent 可用脚本的一部分；逐字副本还会让技能声明的接口成为假的。适配限于 CLI 包装层，记录在源码文件头与 notices 中，并有测试；报告渲染保持不动。
 
-**落地时不移除被取代的安装副本。** 它落败因为上游同名的副本会留在其替代者旁边继续安装，manifest 仍会宣传它，两个描述会竞争；维护者的落地顺序移除它及其 manifest 条目。
+**发布时不移除被取代的安装副本。** 它落败因为上游同名的副本会留在其替代者旁边继续安装，manifest 仍会宣传它，两个描述会竞争；该安装副本及其 manifest 条目被移除。
 
-**让记录只有英文。** 它落败因为本仓库每个已落地的锻造记录都带中文对侧，笔记约定允许伴随文件；落地遵循该实践。
+**让记录只有英文。** 它落败因为本仓库每个已落地的锻造记录都带中文对侧，笔记约定允许伴随文件；本记录遵循该实践。
 
 ## 后果
 
-- **过渡性重复。** 报告只存在于落地技能中，由本仓库拥有并携带 notices；遗留引擎及其副本已随管理器一并移除。
-- **报告与上游移植在命令行接口上不同。** CLI 适配（`--help`、退出码）与遗留副本分叉，而报告渲染不分叉。分叉很小，记录在源码文件头与 notices 中，并有测试覆盖；未来的读者不应假设两份副本可以互换。
+- **一份报告。** 报告只存在于落地技能中，由本仓库拥有并携带 notices；遗留引擎及其副本已移除。
+- **报告与上游移植在命令行接口上不同。** CLI 适配（`--help`、退出码）与上游移植分叉，而报告渲染不分叉。分叉很小，记录在源码文件头与 notices 中，并有测试覆盖；未来的读者不应假设两份副本可以互换。
 - **通用的选择条目可能读起来像清单。** 上游的具体表面让技能有用；泛化它们可能产生 agent 已经知道的建议。消解行把采用者约定留给采用者，而不是发明路径；评审只在 agent 没有技能就可能弄错时保留一条。
 - **报告没有在 Windows 上得到证明。** 实现处理 CRLF 与 NUL 分隔的路径字节，并拒绝非 UTF-8 的 Git 输出，但测试只在 Linux 上运行；Windows 路径或编码缺陷会首先在采用者处暴露。
 - **同时安装上游 `dsh-pre-push-checks` 的采用者会看到两个相似的描述。** 通用描述以相同的时机与自动发布触发开头；哪个技能被激活是 harness 的选择。本仓库移除了上游同名的安装副本，所以它自己的成本已经消失。
 - **技能的放弃之处。** 它不陈述像上游那样详细的 stack 验证序列，没有仓库专属的路径规则，也对平台 CI 行为不给出超出其点名的 GitHub 示例的保证。那些就是刻意的消解与适配；需要它们的采用者保留自己的文档。
-- **落地移除内容。** 上游同名的安装副本消失；依赖它们的项目改有新技能随附的报告。历史发布说明是仅剩的、把旧技能当作已发布来呈现的文字。
+- **旧副本已移除。** 上游同名的安装副本消失；依赖它的项目改有新技能随附的报告。
 - **记录的对侧增加维护。** 笔记门禁结构性地检查对侧，配对门禁检查其 hash，所以任一侧的编辑都必须在同一改动中镜像并重新记录。

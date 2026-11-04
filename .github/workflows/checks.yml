@@ -11,6 +11,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   checks:
     runs-on: ubuntu-latest
@@ -21,11 +25,28 @@ jobs:
 
       - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
         with:
-          version: 12.14.0
+          version: 12.16.1
 
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '24'
+          cache: pnpm
+
+      - name: the pinned workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: the shipped corpus
+        env:
+          # The notes archive baseline is the commit the change is offered against, not the change's
+          # own tip: reading HEAD would trust a manifest the change itself rewrote.
+          NOTES_BASE_REF: ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || github.event.before }}
+        run: pnpm run check:corpus
+
+      - name: the source formatting
+        run: pnpm run format:check
+
+      - name: the shipped script bundles
+        run: pnpm run skill:verify-bundles
 
       - name: the functional suite
         run: pnpm test

@@ -1,10 +1,13 @@
 ---
 name: dsh-spec-skill-forge
 description: "Use when creating, writing, rewriting, forging, improving, adapting, or migrating an Agent Skill (SKILL.md) — its description, structure, triggers, or specification conformance need work — from an idea, reference material, or one or more existing skills. Produces the skill directory and a record of the decisions behind it. Not for merely installing, loading, or using an installed skill. 用于创建、编写、改写、锻造、优化、适配或迁移技能（Agent Skill / SKILL.md）。确定技能描述、触发时机、结构与规范符合性，产出技能目录与锻造记录。不用于安装、加载或使用已安装的技能。"
+license: "MIT; bundled dependency notices in THIRD_PARTY_NOTICES"
 compatibility: "Requires Node.js 22.19+ or 24+ for the bundled scripts. No build step or install."
 ---
 
 # Skill forging
+
+Forge one Agent Skill from the request, a source, or an existing skill, and keep the decisions behind it as current facts.
 
 ## Guiding principles
 
@@ -14,24 +17,30 @@ compatibility: "Requires Node.js 22.19+ or 24+ for the bundled scripts. No build
 
 ## Tools
 
-- `scripts/forge.mjs` — creates the work directory, reports declared review drafts and publishes the work directory. Its `--help` lists the commands and options.
-- `scripts/verify-skill-spec.mjs` — the mechanical gate. Its `--help` lists the limits and options; it reports one line per check.
+Run these from the project root; `<skill-dir>` is the directory containing this `SKILL.md`.
 
-Run `forge.mjs` from the project root; the gate takes the skill directory as its argument.
+- `node <skill-dir>/scripts/forge.mjs draft <name> [--from <existing-skill-dir>]` — creates the work directory for `<name>`, optionally seeded from an existing skill directory.
+- `node <skill-dir>/scripts/forge.mjs pair <name> [--companion <suffix>]...` — reports the declared review drafts; it writes nothing.
+- `node <skill-dir>/scripts/forge.mjs publish <name> --into <landing-dir> [--companion <suffix>]...` — copies the accepted work directory to `<landing-dir>` and removes the work directory.
+- `node <skill-dir>/scripts/verify-skill-spec.mjs [<target-skill-dir>]` — the mechanical gate on a skill directory.
+
+Each command's `--help` lists its options; the gate reports one line per check.
 
 ## Limits
 
 Read [the Agent Skills index](https://agentskills.io/llms.txt) and the best-practices page it links before writing the forged skill; read the other pages it links on demand; write the forged skill to their requirements. The linked set is whatever the index links when it is read; do not keep a fixed list. Record each page read and the date it was read; when a page cannot be read, read [the offline fallback](references/offline-skill-authoring.md) in its place and record which page was unreadable. The fallback is a distilled snapshot, not a second authority; the online originals win whenever they can be read.
 
-The Agent Skills best practices outrank this skill's guiding principles and the package's prose and prompt guidance. For the forged skill's prose, apply the project's prose requirements (when available, consider using the `dsh-spec-prose-standard` skill); for its instruction and context structure, apply the project's prompt requirements (when available, consider using the `dsh-spec-agent-experience` skill). When they conflict, the Agent Skills best practices decide; otherwise the more specific owner decides: `dsh-spec-agent-experience` owns prompt and context structure, and this skill owns the forging process and artifact decisions.
+The Agent Skills best practices outrank this skill's guiding principles and the package's prose and prompt guidance. For the forged skill's prose, apply the project's prose requirements (when available, consider using the `dsh-spec-prose-standard` skill); for its instruction and context structure, apply the project's prompt requirements (when available, consider using the `dsh-spec-agent-experience` skill). When they conflict, the Agent Skills best practices decide; otherwise the more specific owner decides: the project prompt requirements own prompt and context structure, and this skill owns the forging process and artifact decisions.
 
 ### Stop
 
 Stop and wait on an unauthorized overwrite or deletion of an existing skill, on an operation the environment forbids or that cannot be reversed, and on the final review's acceptance. Publishing over a same-name skill requires that acceptance. Everything else is a ruling in the record: do not ask, confirm, show drafts or wait outside these. On a stop, report the blocker, the rulings tried and the reversible options.
 
+## Process
+
 ### Intent
 
-Settle from the request and the adopter's declaration (`AGENTS.md` or the file it cites): name, goal, boundary, deliverable, locations and languages; the target audience and its domain; and the runtime, tools and constraints of its environment. Write the forged skill in English unless the adopter declares another delivery language.
+Settle from the request and the adopter's standing instructions (`AGENTS.md` or the file it cites): name, goal, boundary, deliverable, locations and languages; the target audience and its domain; and the runtime, tools and constraints of its environment. Write the forged skill in English unless the adopter declares another delivery language.
 
 Derive the trigger vocabulary and the excluded adjacent tasks from the source. Within the Stop boundaries the design is open: choose the structure, wording and scripts that fit the source.
 
@@ -41,9 +50,9 @@ Decide whether the forged skill needs a script. A missing runtime or tool is an 
 
 Every requirement, prohibition, condition or fixed choice in the source is a source constraint. List each with its location. Deconstruct a paragraph that states a way of working and is followed by concrete instructions as one unit, extracting its steps, decision rules, roles and structure; concrete rules alone are not a paragraph. Merge duplicates by purpose while keeping every location.
 
-Collect only design-changing material; stop when new material changes nothing. Without an upstream, the request's requirements are the source. A fact the request and the declaration cannot confirm becomes a ruling — the decision that best fits the purpose, changes least and is reversible, recorded — not an invention.
+Collect only design-changing material; stop when new material changes nothing. Without an upstream, the request's requirements are the source. A fact the request and the standing instructions cannot confirm becomes a ruling — the decision that best fits the purpose, changes least and is reversible, recorded — not an invention.
 
-Only the request, the current contract and the adopter's declaration decide what the new design must satisfy. An existing decision record explains an earlier choice; it supplies a requirement only where one of them keeps that requirement in force.
+Only the request, the current contract and the adopter's standing instructions decide what the new design must satisfy. An existing decision record explains an earlier choice; it supplies a requirement only where one of them keeps that requirement in force.
 
 ### Disposition
 
@@ -82,14 +91,16 @@ Every requirement carries a verification anchor at the most precise level availa
 | Judged | A named guide or reference decides it; state one conclusion per item. | One conclusion per item |
 | Unverified | No precise check exists for the item. | The item and the reason |
 
-Run the gate as a separate read-only check; it reports one line per check and its `--help` lists the options. `publish` does not run the gate. When review is needed, run `pair` so that an orphan draft fails and the project's translation consistency gate can check the translation.
+Run the gate as a separate read-only check; `publish` does not run it. When review is needed, run `pair` so that an orphan draft fails and the project's translation consistency gate can check the translation.
 
-**Complete**: every source constraint has one disposition row with its home; every requirement of the forged skill carries one anchor; the gate passed with the parameters used; every judged item has a conclusion; every unverified item carries its reason; the declared review drafts are translated and the project's translation consistency gate has been run when review was needed; the record carries the evidence, the pages read and the rulings.
+**Complete**: every source constraint has one disposition row with its home; every requirement of the forged skill carries one anchor; the gate passed with the parameters used; every judged item has a conclusion; every unverified item carries its reason; the declared review drafts are translated and the project's translation consistency gate has been run when review was needed; the record states the evidence, the pages read and their dates, and the rulings as current facts; no round or review narrative remains.
 
 **Failure**: fix and rerun; never claim a failed or unrun check as passed. An unresolved gap: record a ruling.
 
 ## Record
 
-Write at the location the adopter's declaration or existing decision-record mechanism names (when available, use the `dsh-spec-agent-notes` skill); otherwise `record/<name>.md` under the forge directory the script uses. Write the record in English. Its translation follows the adopter's declaration; without one, translate it into the adopter's language. When the adopter's language is English, no separate translation is produced. The adopter owns the translation mechanism and its consistency record.
+Write at the location named by the adopter's standing instructions or its existing decision-record mechanism (when available, use the `dsh-spec-agent-notes` skill); otherwise `record/<name>.md` under the forge directory the script uses. Write the record in English. Its translation follows the adopter's standing instructions; without them, translate it into the adopter's language. When the adopter's language is English, no separate translation is produced. The adopter owns the translation mechanism and its consistency record.
 
-Without an existing mechanism, record the goal, settings, disposition table, pages read, check results, review conclusion, unverified items, rulings, risks and rollback point. Write each decision when settled; on conflict record it and the resolution. Keep the record outside the forged skill directory: one record, no second state store or process log.
+The record states the current design, not the forging's history. Without an existing mechanism, it states the goal; the source revision read (repository, revision and read date, without working-copy paths); the settings in effect; the disposition table; each ruling; the current requirement anchors and verification evidence; the pages read and their dates; the unverified items with their reasons; the risks and the rollback point; and the publish authorization state.
+
+Update the record in the same change that alters a fact it states. On every round, rewrite the affected facts in place and delete the facts that no longer hold; never append a round, a review exchange, a draft ordinal, a dated revision narrative, or a before-and-after comparison. A decision that replaces an earlier one is written as the current decision; the superseded fact is removed, not kept as history. Version control and the conversation own the process; the record owns what is true now. Keep the record outside the forged skill directory: one record, no second state store.

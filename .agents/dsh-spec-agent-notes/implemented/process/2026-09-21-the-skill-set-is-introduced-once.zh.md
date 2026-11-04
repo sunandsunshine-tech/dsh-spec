@@ -26,7 +26,7 @@ Status: implemented
 - 少了八对需要记录的配对，技能目录里只剩下交付物需要的东西：入口、参考材料，以及所需的脚本或声明。
 - 安装副本会失去这些 README：它镜像的是已落地的技能，因此修订不再交付的文件不会在一次刷新后存活。
 - 代价是深度:想弄清 `dsh-pre-push-checks` 到底做什么的读者,拿到的是表里的一行,而不是一整页。要深入仍然去入口和它的参考材料,而那一行本来就是这张表的用途。
-- 验证:`dsh-spec.ts check --all --root .` 以 `check notes: ok` 与 `check notes-archived: ok` 结束;在没有 README 的情况下,`verify-skill-structure.ts` 对八个技能目录全部通过;`dsh-spec.ts upgrade` 会把这二十四个文件从 `.agents/skills/` 中移除。
+- 验证:`pnpm test` 与 `node scripts/verify-corpus.ts --base-ref=HEAD` 通过;spec 门禁对每个技能目录通过且入口旁没有 README;入口旁不再留有技能 README。
 
 ## 相关
 

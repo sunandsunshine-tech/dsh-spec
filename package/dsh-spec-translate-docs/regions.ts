@@ -1,4 +1,11 @@
 /**
+ * SPDX-License-Identifier: MIT
+ *
+ * Extracted from the DeepSeek Harness bilingual-document mechanism at the pinned
+ * `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`); the skill-root
+ * THIRD_PARTY_NOTICES names the upstream paths and the relation.
+ */
+/**
  * Generated (frozen) regions: a line-delimited marker format whose shell follows the upstream
  * shape while this skill keeps the stricter fence-aware, own-block and duplicate-slug rules.
  * A region is generator-owned; the record and structure signature treat it as opaque.

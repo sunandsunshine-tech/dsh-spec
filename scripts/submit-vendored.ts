@@ -16,11 +16,32 @@
 
 import { readFileSync } from 'node:fs'
 
+const USAGE = `usage: submit-vendored.ts [--dry-run] [--help]
+
+Submit the packages in the vendored-packages table as a dependency snapshot.
+Environment: GITHUB_REPOSITORY, GITHUB_SHA, GITHUB_REF and GITHUB_TOKEN.
+
+options:
+  --dry-run     print the payload and submit nothing
+  --help, -h    print this and exit 0`
+
+const args = process.argv.slice(2)
+if (args.includes('--help') || args.includes('-h')) {
+  console.log(USAGE)
+  process.exit(0)
+}
+const unknown = args.filter((arg) => arg !== '--dry-run')
+if (unknown.length > 0) {
+  console.error('submit-vendored.ts: unknown option: ' + unknown.join(' '))
+  console.error('run "submit-vendored.ts --help" for usage')
+  process.exit(2)
+}
+
 const OWNER = process.env.GITHUB_REPOSITORY ?? 'sunandsunshine-tech/dsh-spec'
 const SHA = process.env.GITHUB_SHA ?? ''
 const REF = process.env.GITHUB_REF ?? 'refs/heads/main'
 const TOKEN = process.env.GITHUB_TOKEN ?? ''
-const dryRun = process.argv.includes('--dry-run')
+const dryRun = args.includes('--dry-run')
 
 function packages(): Array<{ name: string; version: string }> {
   const text = readFileSync('THIRD_PARTY_NOTICES.md', 'utf8')

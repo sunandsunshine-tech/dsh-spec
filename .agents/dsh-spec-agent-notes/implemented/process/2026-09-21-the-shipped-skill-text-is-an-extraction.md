@@ -51,7 +51,7 @@ Provenance and licence surfaces are not abstracted at all. Where a file came fro
 
 ## Verification
 
-`dsh-spec.ts check --all --root .` ends `check notes: ok` and `check notes-archived: ok`, `scripts/verify-skill-structure.ts` passes for every skill directory this change touches, and the per-file diff against `submodules/dsh/` is the change's own evidence: each remaining difference is a reference change or a generalization.
+`pnpm test` and `node scripts/verify-corpus.ts --base-ref=HEAD` pass for every skill this change touches, the twelve skill entries pass the spec gate, and the per-file diff against `submodules/dsh/` is the change's own evidence: each remaining difference is a reference change or a generalization.
 
 ## Related
 

@@ -7,17 +7,13 @@
  */
 
 import assert from 'node:assert/strict'
-import { existsSync } from 'node:fs'
-import { join } from 'node:path'
 import { test } from 'node:test'
 import { runScript } from './helpers/cli.ts'
-import { REPO_ROOT } from './helpers/fixtures.ts'
+import { skillBundle } from './helpers/bundles.ts'
 import { makeWorkspace } from './helpers/workspace.ts'
 import type { Workspace } from './helpers/workspace.ts'
 
-const workCli = '.agents/dsh-spec-skill-forge/dsh-spec-skill-forge/scripts/forge.mjs'
-const landedCli = 'skills/dsh-spec-skill-forge/scripts/forge.mjs'
-const cli = existsSync(join(REPO_ROOT, workCli)) ? workCli : landedCli
+const cli = skillBundle('dsh-spec-skill-forge', 'forge.mjs')
 
 const FORGE = '.agents/dsh-spec-skill-forge'
 
@@ -460,7 +456,7 @@ test('publish refuses --force', () => {
     seedWork(ws)
     const result = forge(ws, 'publish', 'alpha', '--into', 'skills/alpha', '--force')
     assert.equal(result.status, 2, result.output)
-    assert.match(result.output, /unknown option/)
+    assert.match(result.stderr, /^forge\.mjs: unknown option: --force\nrun "forge\.mjs --help" for usage\n$/)
   })
 })
 

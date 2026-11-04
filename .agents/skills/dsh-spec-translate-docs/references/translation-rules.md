@@ -21,8 +21,8 @@ and **MUST NOT** are check- or review-blocking, **SHOULD** needs a stated reason
 
 ## Voice and style calibration
 
-- A project's declaration may name a style file in any location or format; that file replaces the
-  skill's default [style-examples.md](style-examples.md) wholesale. When the declaration names
+- A project's standing instructions may name a style file in any location or format; that file replaces the
+  skill's default [style-examples.md](style-examples.md) wholesale. When they name
   none, the default is used. The script never reads style files; only the agent does.
 - Source meaning, required structure, the terminology table and these rules always outrank the
   style file. Apply the project's own prose standard or writing guide to both sides; it may not add
@@ -67,9 +67,9 @@ emphasis, meaning, terminology and tone.
 
 - Follow the project's Markdown formatting conventions; when it declares none, the default style file uses one physical line per paragraph. Code blocks, tables and list structure keep their formatting.
 - Write only the final text: no drafts, notes or review markers in the document.
-- Preserve the document's frontmatter contract exactly. A span the project's declaration marks as
-  owned by a generator is the generator's to maintain; a generated source may pair when the
-  declaration says so (`--generated` waives only its source-side switcher), but no region is ever
+- Preserve the document's frontmatter contract exactly. A span the project's standing instructions mark as
+  owned by a generator is the generator's to maintain; a generated source may pair when they
+  say so (`--generated` waives only its source-side switcher), but no region is ever
   translated by hand.
 
 ## Quality bar

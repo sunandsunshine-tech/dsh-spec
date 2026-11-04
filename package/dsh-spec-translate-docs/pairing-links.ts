@@ -1,4 +1,11 @@
 /**
+ * SPDX-License-Identifier: MIT
+ *
+ * Extracted from the DeepSeek Harness bilingual-document mechanism at the pinned
+ * `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`); the skill-root
+ * THIRD_PARTY_NOTICES names the upstream paths and the relation.
+ */
+/**
  * Locale-aware resolution, validation and normalization of the relative document links a pair
  * carries. Adapted from the upstream bilingual-document link rules: the pair corpus predicate and
  * the target languages are the shipped contract's, and the semantic target sentinel is this
@@ -195,12 +202,10 @@ function visitDocumentLinkNodes(
   visitMarkdown(tree, (node) => {
     if (node.type === 'linkReference') referencedIdentifiers.add(node.identifier)
   })
-  const seenOffsets = new Set<number>()
   visitMarkdown(tree, (node) => {
     const offset = node.position?.start.offset
     if (node.type === 'link' && offset !== undefined && skippedOffsets.has(offset)) return
     if (node.type === 'link') {
-      if (offset !== undefined) seenOffsets.add(offset)
       let destination: MarkdownDestination
       try {
         destination = markdownDestination(markdown, node)

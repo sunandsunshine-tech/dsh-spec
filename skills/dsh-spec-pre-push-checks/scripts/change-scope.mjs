@@ -1,6 +1,7 @@
+// Generated from package/dsh-spec-pre-push-checks/change-scope.ts by `pnpm run skill:build`; edit the source and rebuild. Bundled third-party code is covered by the skill-root THIRD_PARTY_NOTICES.
 import { spawnSync } from "node:child_process";
+import { realpathSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { resolve } from "node:path";
 import { TextDecoder, parseArgs } from "node:util";
 // change-scope.ts
 /**
@@ -236,10 +237,15 @@ function main(argv, cwd) {
 		process.stdout.write(renderChangeScope(argv, cwd));
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error);
-		process.stderr.write(`change-scope: ${message}\n`);
-		process.exitCode = error instanceof UsageError ? 2 : 1;
+		process.stderr.write(`change-scope.mjs: ${message}\n`);
+		if (error instanceof UsageError) {
+			process.stderr.write("run \"change-scope.mjs --help\" for usage\n");
+			process.exitCode = 2;
+		} else process.exitCode = 1;
 	}
 }
 const entryPath = process.argv[1];
-if (entryPath !== void 0 && resolve(entryPath) === fileURLToPath(import.meta.url)) main(process.argv.slice(2), process.cwd());
+try {
+	if (entryPath !== void 0 && realpathSync(entryPath) === realpathSync(fileURLToPath(import.meta.url))) main(process.argv.slice(2), process.cwd());
+} catch {}
 export { renderChangeScope };

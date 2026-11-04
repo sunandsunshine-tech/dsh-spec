@@ -27,7 +27,7 @@ One sentence in the injected section is this skill set's own: **a decision agree
 - Every project's notes contract says what dsh's says at the revision we pin; the contract ships in the notes skill, so one copy keeps it in step.
 - The narrowed contract governs what a note is *for* when one is written; the notes skill's description asks an agent, before a non-trivial change, to decide whether that change needs a durable record, and mechanical or local edits are exempt.
 - The contract is the one surface that states the trigger; no standing order restates it, so a reader meets the narrowed rule rather than a second, broader sentence.
-- Verification: `dsh-spec.ts check --all --root .` ends `check notes: ok` and `check notes-archived: ok`; the contract's "When to write one" section carries the same rule as `submodules/dsh/.agents/notes/README.md`, with our `same change` wording in place of its `same PR`; `install` into an empty project injects the standing orders unchanged from before this change.
+- Verification: `pnpm test` and `node scripts/verify-corpus.ts --base-ref=HEAD` pass; the contract's "When to write one" section carries the same rule as `submodules/dsh/.agents/notes/README.md`, with our `same change` wording in place of its `same PR`; `install` into an empty project injects the standing orders unchanged from before this change.
 
 ## Related
 

@@ -20,7 +20,7 @@ Publishing this repository settles a set of decisions a maintainer reverses only
 
 **The public commit identity is a GitHub noreply address.** Every commit's author and committer email is rewritten before the repository becomes public, at the point where no fork, no external clone and no immutable release exists, and the account-side email privacy settings are turned on first so the rewritten identity survives the next push.
 
-**The CI is one workflow with the smallest permissions that run it.** `.github/workflows/checks.yml` triggers on `pull_request` and on `push: [main]`, declares `permissions: {contents: read}`, checks out with `submodules: recursive`, runs Node 24, and pins every third-party action to a full commit SHA. The vendored dependency snapshot is submitted on `push: [main]` alone, with no schedule.
+**The pull-request check CI is one workflow with the smallest permissions that run it.** `.github/workflows/checks.yml` triggers on `pull_request` and on `push: [main]`, declares `permissions: {contents: read}`, checks out with `fetch-depth: 0`, runs Node 24, and pins every third-party action to a full commit SHA. The vendored dependency snapshot is submitted by a second workflow, `.github/workflows/vendored.yml`, on `push: [main]` alone, with `contents: write` and no schedule.
 
 **The repository page stays minimal.** There is no homepage; Issues is open; Wiki, Discussions and Projects are closed.
 
