@@ -39,7 +39,7 @@ A future team skill needs a closed artifact this repository can check, and a sho
 
 ## Consequences
 
-- The repository ships one skill, the skill forge; `README.md`, `AGENTS.md` and the installed copies say so.
+- The set ships no agent-team skill; the root README lists the skills the repository ships, and the installed copies mirror them.
 - The harness and the prompt are the whole team mechanism, and no repository file duplicates it.
 - The archived triplets stay frozen history; this note owns the current state.
 - The delegation note keeps its decision and loses the claim that a skill carries the workflow.

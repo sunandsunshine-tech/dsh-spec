@@ -2,9 +2,9 @@
 
 ## Supported versions
 
-Security fixes land on the latest release of the current line, **v0.2.x and later**. The supported set is the newest release and the line it belongs to rather than a fixed calendar window, so the [releases page](https://github.com/sunandsunshine-tech/dsh-spec/releases) answers which version that is. An older release receives a fix when the same defect is still present on the latest one, and that fix ships in a new release rather than as a backport to the old tag.
+Security fixes land on the latest release of the current line, **v0.4.x and later**. The supported set is the newest release and the line it belongs to rather than a fixed calendar window, so the [releases page](https://github.com/sunandsunshine-tech/dsh-spec/releases) answers which version that is. An older release receives a fix when the same defect is still present on the latest one, and that fix ships in a new release rather than as a backport to the old tag.
 
-This repository is a skill package extracted from [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness). The engine and the skill set live here; the harness they were extracted from is developed in the upstream repository, and nothing in this repository patches it.
+This repository is a skill package extracted from [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness). The skill set lives here; the harness it was extracted from is developed in the upstream repository, and nothing in this repository patches it.
 
 ## What is a security issue here
 

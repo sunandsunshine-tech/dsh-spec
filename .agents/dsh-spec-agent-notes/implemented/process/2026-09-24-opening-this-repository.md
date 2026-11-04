@@ -8,8 +8,6 @@ English | [中文](2026-09-24-opening-this-repository.zh.md)
 
 Publishing this repository settles a set of decisions a maintainer reverses only at a price: which license governs it, what right an inbound contribution carries, which code of conduct speaks for it, what an AI-assisted contribution discloses, which identity the public history carries, what runs on a pull request, and what the repository page offers. Each had a defensible answer, and those answers lived in the publication work's own planning material rather than in a record that outlives the session that made them.
 
-The form kit that ships with the repository has the same shape from the other side. `form.md`, `questions.md`, `checklist.md` and `sources.md` are reusable by any repository, while the two working files written against them — the filled answers and the plan derived from it — carry this organization's account state. A public kit shows a filled form without carrying the account it was filled against.
-
 ## Decision
 
 **The license stays MIT.** Upstream and every vendored package are MIT, and the extraction with `THIRD_PARTY_NOTICES.md` is already consistent with it.
@@ -26,11 +24,7 @@ The form kit that ships with the repository has the same shape from the other si
 
 **The repository page stays minimal.** There is no homepage; Issues is open; Wiki, Discussions and Projects are closed.
 
-**The form kit ships as a worked example.** `example-answers.md` and `example-plan.md` carry the method — the answer table, the decisions a maintainer has to make, the skipped questions, the landing list, the orchestration with its dependencies and acceptance gates — with the organization's account state removed, and `making-this-repository-public.md` is archived beside them as the audit that preceded publication. The two working files the examples were derived from are not kept.
-
-**The baseline pin follows every dsh release.** One routine does it: clone the new tag shallow, compare the ported files against `submodules/dsh`, re-port what changed and update `ports.json`, update the four pin sites, then run provenance and the full gate set.
-
-Two notes own adjacent ground and are linked rather than restated: [the review handover and the merge need authorization](2026-09-23-the-review-handover-and-the-merge-need-authorization.md) owns what an authorization has to be, and why each of those two acts needs one; and [the pull-request lifecycle](2026-09-21-the-pull-request-lifecycle.md) owns the states, the tidy before acceptance, before review and before the merge, the merge kinds, and where the `Assisted-by:` trailer sits in a commit message.
+**The baseline pin follows every dsh release.** One routine does it: clone the new tag shallow, compare the ported files against `submodules/dsh`, re-port what changed, update the recorded pin, then run provenance and the gate set.
 
 ## Alternatives considered
 
@@ -41,13 +35,12 @@ Two notes own adjacent ground and are linked rather than restated: [the review h
 - **Accepting the commit email, or rebuilding history from a tree snapshot.** Both avoid the rewrite. Accepting it lost because the rewrite is cheapest before any fork, clone or immutable release exists; a clean snapshot lost because it discards the reviewable history the extraction relies on.
 - **No CI, or a scheduled vendored refresh.** The gates run locally either way. No CI lost because a check that never runs on a pull request cannot be required; a schedule lost because the dependency graph recomputes on new advisories, and a scheduled public workflow is disabled after sixty idle days.
 - **Enabling Wiki, Discussions, Projects and a homepage.** Each is one switch. They lost because they would open rooms that duplicate the gated documents already in the repository.
-- **Keeping the two working files beside the examples.** A reader could compare them. They lost because they carry organization-private account state, and the examples are the part a reader needs.
 - **Automatic submodule upgrades.** The pin would track dsh. It lost because the design is a pin plus a manual re-extraction, and the release-following routine is what keeps the provenance gate meaningful.
 
 ## Consequences
 
-**What it bought.** Each publication decision has one home, so a later maintainer meets the license, the disclosure rule, the identity rewrite and the CI shape as stated facts rather than as a transcript to reconstruct, and the form kit becomes reusable by another repository because its example carries the method and not this account.
+**What it bought.** Each publication decision has one home, so a later maintainer meets the license, the disclosure rule, the identity rewrite and the CI shape as stated facts rather than as a transcript to reconstruct.
 
-**What it costs.** The rewrite replaces every commit SHA, so closed pull requests that reference old commits keep pointing at objects the public repository does not name; the examples lose the concrete account evidence that made the original answers persuasive, and a reader has to take the method on its own terms.
+**What it costs.** The rewrite replaces every commit SHA, so closed pull requests that reference old commits keep pointing at objects the public repository does not name.
 
-**What it leaves to a reader.** The plan sequences the work: the baseline bump, the policy documents, the workflow and the scripts these decisions name land in the states that own them, and no platform act happens before the state that authorizes it — the visibility switch, the rulesets and the release happen only in their own states and only on the maintainer's authorization; [the review handover and the merge need authorization](2026-09-23-the-review-handover-and-the-merge-need-authorization.md) owns what such an authorization has to be.
+**What it leaves to a reader.** The work sequences itself: the baseline bump, the policy documents, the workflow and the scripts these decisions name land in the states that own them, and no platform act happens before the state that authorizes it — the visibility switch, the rulesets and the release happen only in their own states and only on the maintainer's authorization.

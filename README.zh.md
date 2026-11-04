@@ -4,82 +4,115 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) ![Node](https://img.shields.io/badge/node-%E2%89%A5%2022.19-339933) [![Release](https://img.shields.io/github/v/release/sunandsunshine-tech/dsh-spec)](https://github.com/sunandsunshine-tech/dsh-spec/releases/latest)
 
-给项目一个固定的地方,存放每次改动都得交代的东西:当初为什么这么定、放弃了什么、拿什么来证明。本仓库把 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 团队日常遵循的这套做法抽取出来,做成一个技能,由项目装进自己的树里。
+`dsh-spec` 是一套 Agent 技能，承载 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 团队日常遵循的开发做法：把决定写下来，让文字经得起推敲，技能则由它们自己记载的同一套流程锻造而成。项目把用得到的技能装进自己的树里。
 
-一个技能把构想、资料或已有技能锻造成新技能;另一个把宽跨度的交付交给一支 agent 团队来完成。
+技能要么移植自 DeepSeek Harness 项目，要么是为本包锻造的。[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) 记录了来源、改编文件以及随包携带的 npm 包。
 
 ## 先决条件
 
 | 需要 | 用来做什么 |
 |---|---|
-| [Node.js](https://nodejs.org/) 22.19 或更新 | 运行测试套件和各项检查 |
-| [Git](https://git-scm.com/) | 克隆仓库;需要读提交的那道检查 |
-| [GitHub CLI](https://github.com/cli/cli)(`gh`,含 `skill` 命令) | 安装和更新技能 |
+| [Node.js](https://nodejs.org/) 22.19+（22 系列），或 24+ | 运行测试套件与各项检查 |
+| [Git](https://git-scm.com/) | 克隆仓库，以及读取提交的那道检查 |
+| [GitHub CLI](https://github.com/cli/cli)（命令行界面，`gh`），自带 `skill` 命令 | 安装与更新技能 |
 
-GitHub CLI 也自带 agent 技能,去[它的仓库](https://github.com/cli/cli)装一个即可。
+GitHub CLI 自己也带一个 agent 技能，去[它的仓库](https://github.com/cli/cli)装一个即可。
 
 ## 安装
 
-装到项目里,不要装到家目录,并把结果提交进 git。装在项目里,于是每个协作者、每个 agent、CI 都停在你所安装的那个修订上;装到用户级则只存在于各自机器上,下一次 `gh skill update` 就各走各的。首次安装后请提交 `.agents/skills/`。
+把技能装进项目里，不要装到家目录，然后提交结果。装在项目级的那份副本，让每个协作者、每个 agent 和每次 CI 运行都落在你安装时选定的修订上；装在用户级的那份每台机器各一份，只在运行 `gh skill update` 时变化。首次安装后请提交 `.agents/skills/`。
 
-每个技能各自安装,修订由你指定。
-
-### 手动安装
+每个技能各自安装。在 `@` 后面写出 tag 或 commit SHA 来指定版本，就能把它 pin 住；不指定版本时，CLI 取最新的带 tag 的 release，仓库没有带 tag 的 release 时则取默认分支。
 
 ```sh
-gh skill install sunandsunshine-tech/dsh-spec dsh-spec-skill-forge@latest --dir .agents/skills
+gh skill install sunandsunshine-tech/dsh-spec dsh-spec-agent-notes --dir .agents/skills
 ```
 
-每条命令按你给的修订 —— `latest`、某条分支或某个 tag —— 取回一个技能,写进 `.agents/skills/`。
+用 `--all` 安装仓库里的全部技能：
+
+```sh
+gh skill install sunandsunshine-tech/dsh-spec --all --dir .agents/skills
+```
+
+`gh skill update` 刷新未 pin 的安装；已 pin 的技能会被跳过，直到解除 pin。
 
 ### 让 agent 安装
 
-把下面这段交给你的 agent:
+把下面这段交给你的 agent：
 
-> 用 GitHub CLI 从 `sunandsunshine-tech/dsh-spec` 装上 `dsh-spec-skill-forge` 技能,然后照本 README 的「手动安装」一节操作。动手前先确认上面列的依赖都已就绪,缺哪一样就问我。
-
-## 装上以后有什么用
-
-- **决定留得下来。** 每个不平凡的改动都写清做了什么、放弃了什么、将来靠什么验证,下一个人不必把同一件事再争一遍。
-- **技能是锻造出来的,不是随手写的。** `dsh-spec-skill-forge` 把一个构想、一份资料或一个已有技能,经过领域锚定、单文件雏形和一路维护的决策记录,锻造成新技能。
-- **两种语言不会走散。** 每一对文档都带英文侧、中文侧和一份「上次确认一致」的记录;让两侧保持一致是写作者的责任。
+> 用 GitHub CLI 把 `sunandsunshine-tech/dsh-spec` 里的 `dsh-spec` 技能装进 `.agents/skills/`。动手前先核对上面的先决条件，缺了哪一样就来问我。
 
 ## 技能
 
-| 技能 | 它管什么 |
-|---|---|
-| `dsh-spec-skill-forge` | 从构想、资料或已有技能锻造技能:锁定问题与形态、锚定领域、做出雏形,并维护决策记录 |
+每个技能都自成一体、单独安装；一个技能提到另一个技能时，只把它当作一个以对方可用为前提的示例。
 
-## 更新技能集合
+### 记录决策
 
-每个技能都按你指定的修订安装,`gh skill update` 把安装副本刷新到该修订。
+| 技能 | 它管什么 | 来源 |
+|---|---|---|
+| `dsh-spec-agent-notes` | 决策记录：一次改动何时需要一条、它记录什么，以及 Agent Note 如何在 `proposed/`、`implemented/` 与 `rejected/` 之间流转 | dsh |
 
-## 在一个已经装好的项目里工作
+### 打磨指令与文字
 
-1. **先在笔记里定下来。** 够分量的改动从 `proposed/` 下的一条记录开始,写清问题、落选的方案、打算怎么验证;对话里谈成的结论也照此记录,否则它只活在那次对话里。
-2. **用改动该跑的检查收口。** 本仓库真正跑的命令见 [`AGENTS.md`](AGENTS.md#commands)。
+| 技能 | 它管什么 | 来源 |
+|---|---|---|
+| `dsh-spec-agent-experience` | 编写提示词——system prompt、工具定义、技能指令与多步工作流——让其中的信息可被发现、上下文用得高效 | dsh |
+| `dsh-spec-agents-md` | 编写 `AGENTS.md`：哪些内容该写进去、哪些应成为指向其归属文档的指针，以及范围与更新如何裁定 | 本包自创 |
+| `dsh-spec-prose-standard` | 持久性文本：哪里需要文字、如何在删去推理过程的同时保全完整命题，以及审计泄漏 | dsh |
+| `dsh-spec-translate-docs` | 让配对文档的两侧保持一致：最小更新、整篇翻译，以及配对记录与检查 | dsh |
+
+### 评审与交付改动
+
+| 技能 | 它管什么 | 来源 |
+|---|---|---|
+| `dsh-spec-code-review` | 按项目自己声明的标准评审一个改动，外加仅看代码看不出的检查 | dsh |
+| `dsh-spec-error-handling` | 错误处理：失败、恢复、重试、后台任务与用户可见的错误报告 | dsh |
+| `dsh-spec-find-simplifications` | 找出有证据支撑的简化，并撰写或合并相应的提案 | dsh |
+| `dsh-spec-merging-stacked-prs` | 把相互依赖的 GitHub PR（Pull Request）作为一条堆叠 PR 链落地 | dsh |
+| `dsh-spec-pr-description` | 撰写变更请求描述：改动为何存在、改了什么、由什么证明，以及 AI Usage 声明 | dsh |
+| `dsh-spec-pre-push-checks` | 推送或声称检查通过之前，选出覆盖待推送 diff 的最小测试与检查 | dsh |
+
+### 构建技能集合
+
+| 技能 | 它管什么 | 来源 |
+|---|---|---|
+| `dsh-spec-skill-forge` | 从构想、资料或已有技能锻造技能：锁定问题与形态、锚定领域、做出雏形，并维护决策记录 | 本包自创 |
+
+## 技能之间如何衔接
+
+改动从一条决策记录开始：这条 Agent Note 写明决定了什么、什么落选、由什么证明。行文技能与翻译技能让承载这些决定的文字保持可读，让各语言配对保持同步。锻造（forge）是本包自带的编写机制：它把构想、资料或已有技能变成新技能，并记录背后的决定。评审与交付类技能覆盖改动从 worktree 到落地分支所走的全程。每个技能都单独安装；一个技能提到另一个技能时，那个名字只是可选示例。
+
+## 在装有这些技能的项目里工作
+
+1. **先在 Agent Note 里作出决定。** 值得记录的改动，从 `proposed/` 下的一条记录开始，写清问题、落选的方案以及打算怎么验证；对话里谈成的结论也照此记录。
+2. **用这次改动该跑的检查收口。** 命令是各项目自己的；本仓库的命令列在 [AGENTS.md](AGENTS.md#commands)。
 
 ## 在本仓库上工作
 
-- **改技能,别改安装副本。** 工作都落在 `skills/`。`.agents/skills/` 下次安装就会被覆盖,在那里改等于白改。
-- **笔记跟着交付走。** 决定交付之后,笔记移进 `implemented/` 并改成现在时,和工作落在同一次变更里。
+- **改技能，别改安装副本。** 工作都落在 `skills/`；`.agents/skills/` 由 `pnpm run skill:refresh` 刷新，所以在那里改会丢。
+- **决定交付时，同步移动那条 Agent Note。** 决定一旦落地，它的 Agent Note 就在同一次改动里移进 `implemented/`，并改用现在时叙述。
 
-| 谁 | 职责 |
+| 路径 | 职责 |
 |---|---|
-| `skills/` | 交付物:各个技能,各有自己的入口 |
-| `.agents/skills/` | agent 加载的安装副本,随 git 一起走;只有安装命令会写这里,在那里的手改会丢 |
-| `.agents/dsh-spec-agent-notes/` | 决策记录:决定了什么、什么落选、放弃了什么。格式与流程见 [`dsh-spec-agent-notes` 技能](skills/dsh-spec-agent-notes/SKILL.md) |
-| `docs/` | 写给人看的页面,包括两种语言共用的术语表;这个目录不受任何机制管辖 |
-| `scripts/` | 只属于本仓库、不随包发布的东西:[`verify-dco.ts`](scripts/verify-dco.ts) 和 [`submit-vendored.ts`](scripts/submit-vendored.ts) |
-| `tests/` | 检验这些检查的功能套件 —— `node --test 'tests/**/*.test.ts'` |
-| `submodules/dsh/` | 这套做法的来源,pin 作为对照基线:可以读,不要改 |
+| `skills/` | 交付物：各个技能，各有自己的入口 |
+| `package/` | 技能脚本源码，落地前打包进工作目录 |
+| `scripts/` | 不对外发布的仓库工具：DCO、随包依赖通知、技能的构建与刷新 |
+| `tests/` | 检验这些工具的功能套件 |
+| `.agents/skills/` | agent 加载的安装副本：由 `gh skill install` 或 `pnpm run skill:refresh` 写入，在那里的手改会丢 |
+| `.agents/dsh-spec-agent-notes/` | 决策记录 |
+| `.agents/dsh-spec-agents-md/` | 根 `AGENTS.md` 链接的、面向 agent 的细节 |
+| `.agents/dsh-spec-translate-docs/` | 成对文档共享的术语表 |
+| `.github/` | issue 模板、CI 工作流与 Dependabot 配置 |
+| `submodules/dsh/` | pin 住的抽取基线：可以读，不要改 |
+
+本仓库用来格式化、测试和检查一次改动的命令，见 [AGENTS.md](AGENTS.md#commands)。
 
 ## 接下来读
 
-- [`AGENTS.md`](AGENTS.md) —— 每次会话都要遵守的规则,以及本仓库真正跑的命令。
-- [`skills/dsh-spec-skill-forge/SKILL.md`](skills/dsh-spec-skill-forge/SKILL.md) —— 锻造技能的入口。
+- [AGENTS.md](AGENTS.md) —— 每次会话都要遵守的规则，以及本仓库运行的那些命令。
+- [`skills/dsh-spec-skill-forge/SKILL.md`](skills/dsh-spec-skill-forge/SKILL.md) —— 编写技能的入口。
 - [`dsh-spec-agent-notes` 技能](skills/dsh-spec-agent-notes/SKILL.md) —— 决策记录的约定与生命周期。
 
 ## 许可证
 
-本项目以 MIT 发布。全文与版权行见 [`LICENSE`](LICENSE);上游 DeepSeek Harness 的通知、移植文件清单与随技能集合内联的 npm 包清单见 [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md)。
+本项目以 MIT License 发布。全文与版权行见 [LICENSE](LICENSE)；上游通知、改编文件以及随包携带的 npm 包见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。

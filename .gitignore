@@ -28,11 +28,9 @@ build/
 
 ### pnpm scratch (never committed) ###
 .pnpm-store/
-.probe-store/
-.probe-cache/
 
 ### Installed skills are tracked: every collaborator runs the same revision. ###
-### Update them with `gh skill install --force`, never by editing in place. ###
+### Update them with `pnpm run skill:refresh`, never by editing in place. ###
 
 ### Vite+ build cache (never committed) ###
 node_modules/

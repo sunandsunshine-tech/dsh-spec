@@ -1,5 +1,5 @@
 /**
- * The DCO gate, and the two halves it now decides.
+ * The DCO gate, and the two halves it decides.
  *
  * The trailer half is read from `git log` alone, so it runs anywhere and the suite pins it without
  * reaching the network. The identity half covers a commit that claims a bot's address: because both

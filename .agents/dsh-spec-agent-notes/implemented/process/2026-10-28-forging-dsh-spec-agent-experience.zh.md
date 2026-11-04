@@ -18,7 +18,12 @@ Status: implemented
 - `THIRD_PARTY_NOTICES`：技能文本的来源声明——上游仓库、固定修订、上游路径、关系，以及上游与仓库的两份 MIT 通知——由 frontmatter 的 `license` 字段点名。
 - 没有脚本、没有参考文件，模型可见正文里没有来源行。
 
-旧 create 模式移植的内容被替换，`pnpm run skill:refresh` 把技能镜像到安装副本；上游命名的旧安装副本 `dsh-agent-experience` 连同其在旧 manager manifest 中的条目一并移除；第一份记录移入冻结归档。中文审查草稿与其配对记录在停下时配对，随后由 `publish` 删除；交付侧的语言切换行在发布前删除。
+正文在六条规则之前放入两个 stance：shape context, not control；make context judgeable。六条规则是这两个 stance 的应用；上游约束及其处置不变。
+
+`.agents/skills/dsh-spec-agent-experience/` 的安装副本镜像落地技能；上游命名的旧安装副本 `dsh-agent-experience` 已移除；第一份记录冻结在归档中。落地来源只有英文，本记录带其中文对侧。
+
+- 交付：英文，评审语言与附加触发语为中文；声明后缀 `.zh.md` 与 `.i18n.yaml` 只在停下时写入并配对（R6、R7）。
+- 被改编文本的来源是固定 `submodules/dsh`（`dsh-v0.2.2-alpha.2`，`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`）中 `packages/preset/agent-preset/skills/agent-experience/SKILL.md` 的上游 `agent-experience` `SKILL.md`；技能根 `THIRD_PARTY_NOTICES` 为安装副本记录该来源（R8）。
 
 ### 意图
 
@@ -29,18 +34,6 @@ Status: implemented
 | 边界 | 编写或修改提示词：system prompt、工具定义、技能指令、上下文加载指令，或多步工作流的步骤。范围之外：锻造技能（归锻造技能）、写决策记录（归笔记技能）、安装、加载或使用技能 |
 | 受众与领域 | 提示词编写者；任何主要提供给 agent 阅读的文本——提示词与上下文工程 |
 | 语言 | 交付英文。评审语言与附加触发语中文 |
-| 基线 | 分支 `forge/dsh-spec-agent-experience`，来自 `refactor/dsh-skills` 的 `609514c`，位于独立 worktree；主工作树保持在 `refactor/dsh-skills` |
-
-### 锻造设置
-
-| 设置 | 值 |
-|---|---|
-| 模式 | 从来源锻造，替换已落地的同名技能；旧技能只是替换目标 |
-| 来源 | 下文点名的上游 `SKILL.md`；其约束是 S1–S14 |
-| 工作目录 / 落地 | `.agents/dsh-spec-skill-forge/dsh-spec-agent-experience/`（由 publish 删除）/ `skills/dsh-spec-agent-experience/` |
-| 审查草稿 | 声明后缀 `.zh.md` 与 `.i18n.yaml`；只在停下时写入并配对，随后由 `publish` 删除 |
-| 记录 | 本记录，随已落地内容保持最新 |
-| 回滚 | 回退 `refactor/dsh-skills` 上的 squash commit；旧移植、其安装副本与第一份记录随回退回到树中 |
 
 ### 来源约束
 
@@ -106,75 +99,6 @@ Status: implemented
 | R8 | 被携带文本的来源声明在技能边缘，而不在正文。frontmatter 的 `license` 字段点名技能根 `THIRD_PARTY_NOTICES`；该文件给出上游仓库、固定修订、上游路径与关系，并复现上游与仓库的两份 MIT 通知。模型可见正文里没有来源行 | 技能正文是 agent 加载的内容，正文里的行会改变技能。Agent Skills 规范的 `license` 可选字段是技能层面的位置，用于许可名或指向随附文件；而随附通知是唯一能随安装副本走的形态。仓库通知现在陈述这一位置，且仓库自己的锻造技能已为其打包代码携带技能根 `THIRD_PARTY_NOTICES` | 改变位置（例如仅许可字段，或正文行） |
 | R9 | 上游触发“designing skills”作为“a skill's instructions”携带 | 技能创建是锻造技能的边界；本技能约束的是这种设计留给 agent 的指令文本。上游触发面的其余部分（工具定义细节、上下文加载指令与多步工作流的步骤）保留 | 恢复“designing skills” |
 
-### 来源考据
-
-R8 的位置是在停下之后按请求方的指示确定的。证据于 2026-10-28 读取：
-
-- [Agent Skills 规范](https://agentskills.io/specification.md)把 `license` 设为可选 frontmatter 字段：许可名，或指向技能目录内随附许可文件的引用。
-- 仓库的 `THIRD_PARTY_NOTICES.md` 点名上游仓库与固定修订，其文件头句子描述的是从上游源码树搬运的文件；`scripts/dsh-spec-manager/scripts/` 下 17 个文件带 SPDX 行，其中 16 个还给出上游来源。`skills/` 与 `.agents/skills/` 下没有任何 Markdown 在本次改动前带这种头。
-- 锻造技能自己的 [THIRD_PARTY_NOTICES](../../../skills/dsh-spec-skill-forge/THIRD_PARTY_NOTICES) 是仓库对技能第三方材料的既有位置：文件放在技能旁边，而不是放进技能内容。
-- 上游 checkout 在仓库根只有一个 MIT `LICENSE` 与一个 `THIRD_PARTY_NOTICES.md`，没有按技能分放的许可或通知，因为其技能在那里是第一方。
-- 上游与仓库的 MIT 许可要求副本包含版权与许可声明；安装的技能副本是技能目录，所以仓库级通知到不了它。
-- 请求方授权完成仓库级 `THIRD_PARTY_NOTICES.md` 的处理。该通知现在区分被搬运的源文件（SPDX 行旁的 header）与被搬运或改编的技能文本（frontmatter `license` 点名技能根 `THIRD_PARTY_NOTICES`），点名两项被改编技能的声明，并说明锻造技能为其打包代码携带技能根通知。笔记技能的声明在此次落地之后以同样方式补充，记录在[其锻造记录](2026-10-27-forging-dsh-spec-agent-notes.zh.md)中。锻造技能的文本是本仓库自己的作品——其锻造记录点名 Agent Skills 规范与本仓库更早的技能，而不是上游文本——所以它不需要被携带文本声明。
-
-结论：这份被改编的文本需要声明，而非侵入、与规范一致的位置是 `license` 字段加技能根通知。frontmatter 字段不改变任何被加载的正文；通知文件从不作为指令被读取。仓库级通知陈述了规则与剩下的迁移。
-
-### 验证
-
-| # | 要求 | 锚点 | 证据 |
-|---|---|---|---|
-| 1 | 落地技能符合 Agent Skills 规范：frontmatter 字段封闭、名称与目录一致、描述在限制内、链接解析、预算 | 机械 | 对落地目录运行门禁 → `13 check(s), 0 failed`；22 行，约 569 tokens；描述 422 字符；license 59 字符 |
-| 2 | 每条来源约束 S1–S14 有一行处置与一个位置 | 判断；处置表是被点名的参照 | § 来源约束与处置 中每行一个结论 |
-| 3a | 落地正文携带全部十一条上游规则引导语 | 机械 | 引导语检查 → `11/11 rule lead-ins present` |
-| 3b | 七条逐字规则（S7、S8、S10–S14）就是上游规则文本，撇号规范化 | 机械 | 与上游逐字 diff → 无输出，退出 0 |
-| 3c | 四条适配规则（S3–S6）保留上游裁决 | 判断；上游文件是被点名的参照 | 每条规则一个结论：S3 保留目的、动作与约束在前；S4 为每一项被推迟的资源保留描述与取回路径；S5 保留约束先于动作；S6 保留标识符、路径与不倾倒规则，由提示词请求结果 |
-| 4 | 描述以交付语言开头、追加中文触发语、点名写作行为与产物，并在 R9 收窄下保留上游触发面 | 判断；规范 § description、锻造技能的评审语言规则、S2 | 一个结论：落地描述英文在前，追加中文从句，点名写作行为与提示词产物，并保留上游触发面 |
-| 5 | 技能适用于提示词编写：标题、描述与四条适配原则以提示词为对象；S7 与 S8 保持与领域无关；不声称边界之外的任务 | 判断；请求的受众与领域 | 每个元素一个结论：标题点名写作行为；描述点名提示词及其产物；S3–S6 各自陈述关于提示词的规则；S7 与 S8 携带与领域无关的规则且不点名提示词；边界排除技能锻造、决策记录与安装，技能也不声称它们 |
-| 6 | 技能不提供脚本或参考机制 | 机械 | 门禁的 `script coverage` 与 `reference mentions` 报告 none；落地目录只有 `SKILL.md` 与 `THIRD_PARTY_NOTICES` |
-| 7 | 审查草稿在停下时配对，项目配对门禁报告它是最新的 | 机械 | 停下时：锻造 `pair` 报告 `SKILL.zh.md` 与 `SKILL.i18n.yaml` → `SKILL.md`（2 actions, 0 failed）且 `check translation-pair: ok`；随后 `publish` 删除两者 |
-| 8 | 笔记树符合其约定，归档单元已封印 | 机械 | 活跃检查 → `31 note(s) and 62 companion(s) checked`；归档检查 → 15 个冻结产物通过检查，3 个新产物已封印 |
-| 9 | 仓库测试套件、格式与 DCO 通过 | 机械 | `pnpm test` → 206 tests, 206 pass, 0 fail；`pnpm run format:check` → all matched files use the correct format；每个分支 commit 都带匹配的 Signed-off-by，落地 commit 重复同一 trailer |
-| 10 | 落地替换了旧移植、镜像了安装副本、归档了第一份记录 | 机械 | `pnpm run skill:refresh` 镜像 2 个文件；`skills/` 与 `.agents/skills/` 之间的 `diff -r` 为空；第一份记录及其对侧文件位于 `archived/process/` 并已封印 |
-| 11 | 描述在真实提示词编写请求上触发，并在相邻任务上保持安静 | 未验证 | 没有运行 agent harness 或触发评估；请求方确认该检查在这里本质不是机械的，由人工评审决定。方法是 optimizing-descriptions 页面里的 eval 循环 |
-| 12 | 这些原则能改进编写者产出的提示词 | 未验证 | 没有运行干净上下文评估；请求方确认该效果在这里无法机械验证，而 best-practices 页面的 refine-with-real-execution 循环需要评估 harness 与模型 |
-| 13 | 被携带文本的来源声明不进入模型可见正文，且仓库通知陈述该声明的位置 | 判断；Agent Skills 规范的 `license` 字段、仓库的 `THIRD_PARTY_NOTICES.md` 与锻造技能的技能根通知是被点名的参照 | 一个结论：frontmatter 的 `license` 点名技能根 `THIRD_PARTY_NOTICES`，后者给出上游仓库、固定修订、上游路径与关系，并复现上游与仓库的两份 MIT 通知；`SKILL.md` 不带来源行；仓库通知的 DeepSeek Harness 一节陈述两项被改编技能共用的技能文本位置 |
-
-落地时使用的验证命令：
-
-```bash
-node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs skills/dsh-spec-agent-experience
-node -e 'const fs = require("node:fs"); const leads = ["Start with minimal context", "Make discovery explicit", "Keep critical constraints visible", "Prefer bounded outputs", "Use locality", "Evaluate total work", "Delete obvious constraints", "Describe behavior, not implementation", "Put parameter rules on the parameter", "Say each fact once", "Measure the change"]; const text = fs.readFileSync("skills/dsh-spec-agent-experience/SKILL.md", "utf8"); const missing = leads.filter((lead) => !text.includes("**" + lead)); console.log(missing.length === 0 ? leads.length + "/" + leads.length + " rule lead-ins present" : "missing: " + missing.join("; ")); process.exit(missing.length === 0 ? 0 : 1)'
-diff <(sed -n '10,11p;15,19p' submodules/dsh/packages/preset/agent-preset/skills/agent-experience/SKILL.md | sed "s/’/'/") <(grep -E '^- \*\*(Use locality|Evaluate total work|Delete obvious constraints|Describe behavior, not implementation|Put parameter rules on the parameter|Say each fact once|Measure the change)' skills/dsh-spec-agent-experience/SKILL.md)
-node skills/dsh-spec-agent-notes/scripts/notes.mjs check --companion .zh.md --companion .i18n.yaml
-node skills/dsh-spec-agent-notes/scripts/notes.mjs archive --companion .zh.md --companion .i18n.yaml
-pnpm test
-pnpm run format:check
-```
-
-#### 验证门禁参数
-
-门禁使用其默认值：当前规范限制（名称 64、描述 1024、兼容性 500、正文低于 500 行与 5,000 tokens）。没有覆盖任何选项。
-
-### 评审
-
-一名与工作无关的只读设计审计员在 commit `7c58fef` 审阅设计，返回 **needs revision**（两个 major、六个 minor）；`9dae252` 的修订返回 **accept with minors**，minor 在候选写入前于 `16b1e05` 应用。候选写于 `2656b7e`；随后两名独立只读评审**带着 minor 接受**，在 `bdc0d31` 应用，二人确认修复关闭。之后请求方在停下后指示两项跟进——被携带文本的来源声明与仓库级通知处理——后来又要求为笔记技能补同样的声明；这些都在上文记录，每次修订由一名只读评审检查。请求方的最终评审接受结果，并授权落地与向 `refactor/dsh-skills` 的 squash 合并。
-
-### 阅读页面
-
-| 页面 | 日期 | 提供的内容 |
-|---|---|---|
-| [Agent Skills index](https://agentskills.io/llms.txt) | 2026-10-28 | 链接页面集合；锻造技能要求的规范页与最佳实践页 |
-| [Specification](https://agentskills.io/specification.md) | 2026-10-28 | 必需 frontmatter 及其约束、正文自由度、渐进披露、文件引用、可选的 `license` 字段 |
-| [Best practices for skill creators](https://agentskills.io/skill-creation/best-practices.md) | 2026-10-28 | 明智花费上下文、连贯单元、适度细节、渐进披露、默认值、校准 |
-| [Optimizing skill descriptions](https://agentskills.io/skill-creation/optimizing-descriptions.md) | 2026-10-28 | 描述承担全部触发负担；祈使式措辞；触发评估方法 |
-
-index 还链接快速开始、客户端实现、脚本与评估输出等页面。它们没有按需阅读：技能不带脚本、不实现客户端，也不运行本记录声称的评估。离线兜底未被使用，因为每个必需页面都可读。
-
-## 待办
-
-- 基线分支尚未 push。squash 合并是局部的；转评审与 push 是维护者的后续行为。
-- 锻造 worktree 及其分支在 squash 合并后仍在本地；删除它们是收尾工作。
-
 ## 曾考虑的替代方案
 
 **保留移植，只改描述。** 它失败，因为请求替换了旧技能并给出提示词编写作为领域；只改描述会让正文对提示词只字不提，也不构成一次锻造。
@@ -200,7 +124,7 @@ index 还链接快速开始、客户端实现、脚本与评估输出等页面�
 ## 后果
 
 - 包交付一个提示词编写技能，保留上游机制：六条上下文原则与五条工具定义规则，以提示词为对象，带提示词编写触发词与中文触发语。
-- 旧 create 模式移植的内容被替换，安装副本镜像落地技能，第一份锻造记录连同其对侧文件被归档并封印。仓库级 `THIRD_PARTY_NOTICES.md` 的改动（技能文本位置规则）随同一落地 commit 进入。
-- 技能让出的是可检查性：门禁建立规范符合性与机械保真检查，但触发准确性与提示词质量未验证（锚点 11 与 12）。技能按设计保持贴近上游；请求要求的是适配，不是重写。
+- 安装副本镜像落地技能，第一份锻造记录连同其对侧文件被归档并封印。仓库级 `THIRD_PARTY_NOTICES.md` 陈述技能文本的位置规则。
+- 技能让出的是可检查性：门禁建立规范符合性与机械保真检查，但触发准确性与提示词质量未验证。技能按设计保持贴近上游；请求要求的是适配，不是重写。
 - 来源声明现在覆盖两项从上游改编的技能——`dsh-spec-agent-experience` 与 `dsh-spec-agent-notes`；锻造技能的文本是本仓库自己的作品，其通知覆盖打包代码。
 - 回滚：落地是 `refactor/dsh-skills` 上的一个 squash commit；回退它恢复旧移植、其安装副本、未归档的第一份记录与先前的仓库通知措辞，并让本记录回到落地前的树中。

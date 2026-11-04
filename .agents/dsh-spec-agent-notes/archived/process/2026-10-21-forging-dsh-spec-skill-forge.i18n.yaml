@@ -1,0 +1,34 @@
+# Pairing consistency record for 2026-10-21-forging-dsh-spec-skill-forge.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/archived/process/2026-10-21-forging-dsh-spec-skill-forge.md --target <lang>
+/agent-note-forging-dsh-spec-skill-forge-as-a-composition-first-skill:
+  en: 62a888727d4a1e15
+  zh: bb95c103a26dcdda
+/agent-note-forging-dsh-spec-skill-forge-as-a-composition-first-skill/problem:
+  en: d3f3c7e61e8a5694
+  zh: 7433d75af05091b6
+/agent-note-forging-dsh-spec-skill-forge-as-a-composition-first-skill/decision:
+  en: 7b5a72d0c0e308f8
+  zh: 7deb1fd9af9df743
+/agent-note-forging-dsh-spec-skill-forge-as-a-composition-first-skill/decision/forging-settings:
+  en: 92b6ec889b7199b9
+  zh: 152ea79755340d78
+/agent-note-forging-dsh-spec-skill-forge-as-a-composition-first-skill/decision/dispositions:
+  en: 0fd37ce25948294f
+  zh: e1f43bf7275e7533
+/agent-note-forging-dsh-spec-skill-forge-as-a-composition-first-skill/decision/verification:
+  en: 584bb906915ee74d
+  zh: 9014948ce82e973b
+/agent-note-forging-dsh-spec-skill-forge-as-a-composition-first-skill/decision/review-and-landing:
+  en: 6306760f186146d1
+  zh: 67bfdf03a015bd2f
+/agent-note-forging-dsh-spec-skill-forge-as-a-composition-first-skill/alternatives-considered:
+  en: 942517557bc60ee0
+  zh: 51821c08b131fc63
+/agent-note-forging-dsh-spec-skill-forge-as-a-composition-first-skill/consequences:
+  en: a3f2f596ca5c8112
+  zh: b124fdff74283488
+/agent-note-forging-dsh-spec-skill-forge-as-a-composition-first-skill/related:
+  en: 40843cedabebb3ef
+  zh: af5ab32762c2125c

@@ -6,13 +6,13 @@ English | [中文](2026-09-20-terminology-rows-are-the-maintainers-decision.zh.m
 
 ## Problem
 
-`docs/terminology.md` is the vocabulary every bilingual pair obeys and the table the translation briefing matches changed spans against, so each of its rows is a decision: it fixes a word both sides of a pair write. Neither the table nor the pairing contract that ships beside it stated who makes those decisions. A table of decisions with no stated owner grows rows nobody decided — an edit that looked helpful to whoever was editing at the time — and every later translation then follows a vocabulary choice no maintainer asked for. The table carried one such row: `architecture map`, defined for the root `README.md`. No such artifact exists. The root `README.md` is a README, and a table that gives an artifact a name its owner never uses teaches the reader to write about something that is not there; a term for a deleted thing is how a glossary rots.
+`.agents/dsh-spec-translate-docs/terminology.md` is the vocabulary every bilingual pair obeys and the table the translation briefing matches changed spans against, so each of its rows is a decision: it fixes a word both sides of a pair write. Neither the table nor the pairing contract that ships beside it stated who makes those decisions. A table of decisions with no stated owner grows rows nobody decided — an edit that looked helpful to whoever was editing at the time — and every later translation then follows a vocabulary choice no maintainer asked for. The table carried one such row: `architecture map`, defined for the root `README.md`. No such artifact exists. The root `README.md` is a README, and a table that gives an artifact a name its owner never uses teaches the reader to write about something that is not there; a term for a deleted thing is how a glossary rots.
 
 ## Decision
 
-Adding, changing or removing a row of `docs/terminology.md` is the maintainer's decision, asked for in the conversation and never inferred by whoever is editing. The working agent proposes a row and does not add one.
+Adding, changing or removing a row of `.agents/dsh-spec-translate-docs/terminology.md` is the maintainer's decision, asked for in the conversation and never inferred by whoever is editing. The working agent proposes a row and does not add one.
 
-The rule is stated in `docs/AGENTS.md`, the standing orders for the folder that owns the table, so it sits in front of whoever edits the table without being repeated in the table itself or in the pairing contract, which describes a mechanism rather than one project's process.
+The rule is stated in the terminology table's own preamble, which links this note for its rationale, so it sits in front of whoever edits the table without being repeated in the pairing contract, which describes a mechanism rather than one project's process.
 
 The `architecture map` row is deleted: no document links to it, and nothing else in the tree depends on the name, so the deletion breaks no reference. The `corpus` and `aggregate` rows stay: both name things the gates and this repository actually have.
 
@@ -30,8 +30,8 @@ A gate cannot tell an asked-for row from an inferred one. It reads the table and
 
 ## Consequences
 
-- `docs/terminology.md` is one row shorter, and `docs/AGENTS.md` states who decides the rows that remain.
-- The rule's home is project-owned: it lives beside the table instead of inside the shipped pairing contract, which no longer states it.
+- `.agents/dsh-spec-translate-docs/terminology.md` is one row shorter, and its own preamble states who decides the rows that remain.
+- The rule's home is project-owned: it lives in the table's own preamble instead of inside the shipped pairing contract, which does not state it.
 - Verification: `dsh-spec.ts check --all --root .` ends `check notes: ok` and `check notes-archived: ok`, and `md-links check` and `translation-pair check` exit zero over the files this change leaves.
 
 What the decision cost is a rule that no gate enforces: a row added without the maintainer's word passes every check, because the check is the conversation itself. What it bought is a table whose rows are decisions a maintainer made, with its next editor told so before adding one.

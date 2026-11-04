@@ -23,7 +23,7 @@ A second failure borrows no sentence at all. A report can be made of sentences t
 
 **Which language a text is in is not this rule's question.** A pair has its two sides by contract, this repository's and the skill set's own text is English because an agent reads it, and a reply uses the language of the ask. The rule begins once that is settled.
 
-The rule ships to adopters as `prose.idiom` in the norm catalogue, so a project can apply it without reading this record.
+The rule is stated here; no catalogue entry carries it and no gate enforces it.
 
 ## Alternatives considered
 
@@ -44,4 +44,4 @@ The rule ships to adopters as `prose.idiom` in the norm catalogue, so a project 
 
 ## Related
 
-- [A text names its reader](2026-09-23-a-text-names-its-reader.md) — the reader half of this rule, and the source of the `prose.voice` clause that prefers one real command or output to a paragraph of adjectives.
+- [A text names its reader](2026-09-23-a-text-names-its-reader.md) — the reader half of this rule.

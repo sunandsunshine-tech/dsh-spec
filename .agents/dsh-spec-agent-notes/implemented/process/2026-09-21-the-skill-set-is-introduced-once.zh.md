@@ -10,7 +10,7 @@ Status: implemented
 
 ## 决策
 
-把各技能的 README 移除,由根 README 用一张表列出八个技能以及各自管什么。入口(`SKILL.md`)仍然是 agent 加载的东西,它旁边的 `references/` 仍然是该工作流自己的材料;一个技能目录现在只装这两样。引擎自己的 `scripts/README.md` 保留,因为它记录了门禁解析 Markdown 所用的那个 vendored bundle,`manager-lifecycle.md` 负责把人引到那里。
+把各技能的 README 移除，由根 README 用一张表列出每个随包技能以及各自管什么。入口（`SKILL.md`）仍然是 agent 加载的东西，它旁边的 `references/` 仍然是该工作流自己的材料；一个技能目录装入口、参考材料，以及它的交付物所需的脚本或声明，不装 README。package 的 README 记录各技能的脚本包以及它们的打包方式。
 
 ## 曾考虑的替代方案
 
@@ -23,8 +23,8 @@ Status: implemented
 ## 后果
 
 - 一份总览、一个归属地:根 README 的那张表,中英各一份。
-- 少了八对需要记录的配对,技能目录里只剩下 agent 加载的东西和它的参考材料。
-- 安装副本会在下次安装时失去这些 README:清理步骤会删掉修订不再交付的文件,这正是它被造出来要做的事。
+- 少了八对需要记录的配对，技能目录里只剩下交付物需要的东西：入口、参考材料，以及所需的脚本或声明。
+- 安装副本会失去这些 README：它镜像的是已落地的技能，因此修订不再交付的文件不会在一次刷新后存活。
 - 代价是深度:想弄清 `dsh-pre-push-checks` 到底做什么的读者,拿到的是表里的一行,而不是一整页。要深入仍然去入口和它的参考材料,而那一行本来就是这张表的用途。
 - 验证:`dsh-spec.ts check --all --root .` 以 `check notes: ok` 与 `check notes-archived: ok` 结束;在没有 README 的情况下,`verify-skill-structure.ts` 对八个技能目录全部通过;`dsh-spec.ts upgrade` 会把这二十四个文件从 `.agents/skills/` 中移除。
 

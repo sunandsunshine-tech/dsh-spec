@@ -9,20 +9,17 @@
   en: 0ab53c388a459cd2
   zh: bf6bd4f8694a2b2e
 /agent-note-forging-dsh-spec-prose-standard-from-the-upstream-prose-standard/decision:
-  en: a9bf6f8b839db683
-  zh: bf9ef1cdb9dfa224
+  en: 8ddda8e6acc084db
+  zh: 6e37461760a9efdd
 /agent-note-forging-dsh-spec-prose-standard-from-the-upstream-prose-standard/source-and-revision:
-  en: cf1e9d4234e06d9c
-  zh: c4b6666c0c45cba2
-/agent-note-forging-dsh-spec-prose-standard-from-the-upstream-prose-standard/settings:
-  en: 3bd87eb836045b58
-  zh: 5daac5125b144f88
+  en: 08ec6f0bba20e1b1
+  zh: 4bd574d8d94accdd
 /agent-note-forging-dsh-spec-prose-standard-from-the-upstream-prose-standard/constraint-dispositions:
   en: e28063166acb340c
   zh: cc6c5b97cfdd9ed1
 /agent-note-forging-dsh-spec-prose-standard-from-the-upstream-prose-standard/constraint-dispositions/prose-standard:
-  en: f1134e160e81cd65
-  zh: a46eb9660aebb33a
+  en: 62288f18f65147f1
+  zh: d2f5b8e82ec8643e
 /agent-note-forging-dsh-spec-prose-standard-from-the-upstream-prose-standard/constraint-dispositions/leakage-audit:
   en: c2e450413d92b73f
   zh: 7bebc1560b5533f7
@@ -30,44 +27,14 @@
   en: 09dc0ca128b3d2e1
   zh: 0efe003c8228a6fe
 /agent-note-forging-dsh-spec-prose-standard-from-the-upstream-prose-standard/constraint-dispositions/target-rulings:
-  en: 011e25ea51ddbe35
-  zh: f91450733fe81119
+  en: 5d8784d8d7de5372
+  zh: 496bd4dfaaaa55e5
 /agent-note-forging-dsh-spec-prose-standard-from-the-upstream-prose-standard/requirement-anchors:
-  en: 514816fb548b4a72
-  zh: c3026480bdecf5a6
-/agent-note-forging-dsh-spec-prose-standard-from-the-upstream-prose-standard/verification:
-  en: c45c36cfd97a9fd1
-  zh: 505f518b66083093
-/agent-note-forging-dsh-spec-prose-standard-from-the-upstream-prose-standard/verification/verification-results:
-  en: 7f6c3f8247f72c36
-  zh: c3b74c9a00b7fe72
-/agent-note-forging-dsh-spec-prose-standard-from-the-upstream-prose-standard/review:
-  en: fb10aa9db2db8777
-  zh: c62f58bbf0c9b13b
-/agent-note-forging-dsh-spec-prose-standard-from-the-upstream-prose-standard/review/design-audit-before-implementation:
-  en: f7ff70cd65b327cf
-  zh: ee7f989ba923268f
-/agent-note-forging-dsh-spec-prose-standard-from-the-upstream-prose-standard/review/implementation-review-round-1:
-  en: 6edbaba6ab1e8f56
-  zh: 55b74c0f3109cbf6
-/agent-note-forging-dsh-spec-prose-standard-from-the-upstream-prose-standard/review/maintainer-review-2026-10-28:
-  en: e5399674f257b0cf
-  zh: 58555d15ed691e86
-/agent-note-forging-dsh-spec-prose-standard-from-the-upstream-prose-standard/review/delta-review-round-5-2026-10-28:
-  en: 2cf0a12d2bac1532
-  zh: 0c71ca58cb937806
-/agent-note-forging-dsh-spec-prose-standard-from-the-upstream-prose-standard/review/isolation-review-round-7-2026-10-28:
-  en: 9d27c6b29bca40fd
-  zh: b41396e3f881fc86
-/agent-note-forging-dsh-spec-prose-standard-from-the-upstream-prose-standard/unverified-items:
-  en: 8929109421202286
-  zh: a2884f14c2817a65
-/agent-note-forging-dsh-spec-prose-standard-from-the-upstream-prose-standard/handover:
-  en: 8203ad67b68e179f
-  zh: 8230a4db0167ca5d
+  en: 3d33872a5e182a97
+  zh: befaf8eb79f983ae
 /agent-note-forging-dsh-spec-prose-standard-from-the-upstream-prose-standard/alternatives-considered:
-  en: 58a031df55e06dad
-  zh: 6f75d4c8a11684f1
+  en: e31383123e9f315c
+  zh: 318dc369cbbf7b4a
 /agent-note-forging-dsh-spec-prose-standard-from-the-upstream-prose-standard/consequences:
-  en: 67352e98c5796ea8
-  zh: 0ce5040be7e2e815
+  en: 63867367c08e8caa
+  zh: a315a6e63656e117

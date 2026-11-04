@@ -18,7 +18,12 @@ The package ships `dsh-spec-agent-experience` as a forge from the upstream `agen
 - `THIRD_PARTY_NOTICES`: the skill text's provenance declaration — upstream repository, pinned revision, upstream path, relation, and the upstream and repository MIT notices — named by the frontmatter `license` field.
 - No script, no reference file, and no provenance line in the model-facing body.
 
-The old create-mode port's content was replaced, `pnpm run skill:refresh` mirrored the skill into the installed copy, the upstream-named installed copy `dsh-agent-experience` was removed with its legacy manager-manifest entry, and the first record moved to the frozen archive. The Chinese review draft and its pairing record were paired at the stop and removed by `publish`; the delivery-side language switcher was removed before publishing.
+The body puts two stances before the six rules: shape context, not control; make context judgeable. The six rules are applications of those stances; the upstream constraints and their dispositions are unchanged.
+
+The installed copy at `.agents/skills/dsh-spec-agent-experience/` mirrors the landed skill, the upstream-named installed copy `dsh-agent-experience` is removed, and the first record is frozen in the archive. The landed sources are English-only, and this record carries its Chinese pair.
+
+- Delivery: English, with the review and additional trigger language Chinese; the declared review-draft suffixes `.zh.md` and `.i18n.yaml` are written and paired only at the stop (R6, R7).
+- The adapted text's source is the upstream `agent-experience` `SKILL.md` at `packages/preset/agent-preset/skills/agent-experience/SKILL.md` in the pinned `submodules/dsh` (`dsh-v0.2.2-alpha.2`, `f3803c96974ad4a94195fb97e5c637e9c2a3afe3`); the skill-root `THIRD_PARTY_NOTICES` records the provenance for installed copies (R8).
 
 ### Intent
 
@@ -29,18 +34,6 @@ The old create-mode port's content was replaced, `pnpm run skill:refresh` mirror
 | Boundary | Writing or revising a prompt: a system prompt, a tool definition, a skill's instructions, context-loading instructions, or the steps of a multi-step workflow. Out of scope: forging a skill (the forge owns it), writing a decision record (the notes skill owns it), installing, loading or using a skill |
 | Audience and domain | Prompt writers; any text primarily provided for an agent to read — prompt and context engineering |
 | Languages | Delivery English. Review language and additional trigger language Chinese |
-| Baseline | Branch `forge/dsh-spec-agent-experience` from `refactor/dsh-skills` at `609514c`, in a linked worktree; the main worktree stayed on `refactor/dsh-skills` |
-
-### Forging settings
-
-| Setting | Value |
-|---|---|
-| Mode | From a source, replacing the landed same-name skill; the old skill was the replacement target only |
-| Source | The upstream `SKILL.md` named below; its constraints are S1–S14 |
-| Work directory / landing | `.agents/dsh-spec-skill-forge/dsh-spec-agent-experience/` (removed by publish) / `skills/dsh-spec-agent-experience/` |
-| Review drafts | Declared suffixes `.zh.md` and `.i18n.yaml`; written and paired only at the stop, then removed by `publish` |
-| Record | This note, kept current with what shipped |
-| Rollback | Revert the squash commit on `refactor/dsh-skills`; the old port, its installed copy and the first note return to the tree with the revert |
 
 ### Source constraints
 
@@ -106,75 +99,6 @@ Coverage: S1–S14 each have one disposition row and one home; no constraint is 
 | R8 | The carried text's provenance is declared at the skill's edge, not in its body. The frontmatter `license` field names the skill-root `THIRD_PARTY_NOTICES`; that file states the upstream repository, pinned revision, upstream path and relation, and reproduces the upstream and repository MIT notices. No provenance line enters the model-facing body | A skill body is what the agent loads, so an in-body line would change the skill. The Agent Skills specification's optional `license` field is the skill-level place for a licence name or a reference to a bundled file, and a bundled notice is the only form that travels with an installed skill copy. The repository notice now states this placement, and the repository's own forge skill already carries a skill-root `THIRD_PARTY_NOTICES` for its bundled packages | Changing the placement (for example the licence field only, or an in-body line) |
 | R9 | The upstream trigger "designing skills" is carried as "a skill's instructions" | Skill creation is the forge's boundary; what this skill governs is the instruction text such a design leaves the agent. The rest of the upstream trigger surface (the tool-definition detail, context-loading instructions and the steps of a multi-step workflow) is kept | Restoring "designing skills" |
 
-### Provenance research
-
-R8's placement was settled after the stop at the request owner's direction. The evidence, read on 2026-10-28:
-
-- The [Agent Skills specification](https://agentskills.io/specification.md) makes `license` an optional frontmatter field: a licence name or a reference to a bundled licence file.
-- The repository's `THIRD_PARTY_NOTICES.md` names the upstream repository and pinned revision, and its in-file header sentence describes the files carried over from the upstream source tree; 17 files under `scripts/dsh-spec-manager/scripts/` carry an SPDX line and 16 also state their upstream origin. No Markdown under `skills/` or `.agents/skills/` carried such a header before this change.
-- The forge skill's own [THIRD_PARTY_NOTICES](../../../skills/dsh-spec-skill-forge/THIRD_PARTY_NOTICES) is the repository's existing placement for a skill's third-party material: a file beside the skill, not content in it.
-- The upstream checkout carries one MIT `LICENSE` and one `THIRD_PARTY_NOTICES.md` at its repository root and no per-skill licence or notice, because its skills are first-party there.
-- The upstream and repository MIT licences require the copyright and permission notice to be included in copies; an installed skill copy is the skill directory, so a repository-level notice does not reach it.
-- The request owner authorized completing the repository-level `THIRD_PARTY_NOTICES.md` handling. That notice now distinguishes a carried source file (header next to its SPDX line) from a carried or adapted skill text (frontmatter `license` naming a skill-root `THIRD_PARTY_NOTICES`), names both adapted skills' declarations, and states that the forge skill carries a skill-root notice for its bundled packages. The notes skill's declaration followed the same way after this landing, recorded in [its forging record](2026-10-27-forging-dsh-spec-agent-notes.md). The forge skill's text is this repository's own work — its forging records name the Agent Skills specification and this repository's earlier skill, not upstream text — so it needs no carried-text declaration.
-
-Conclusion: a declaration is required for this adapted text, and the non-invasive, spec-aligned placement is the `license` field plus a skill-root notice. The frontmatter field changes no loaded body; the notice file is never read as instructions. The repository-level notice states the rule and the remaining migration.
-
-### Verification
-
-| # | Requirement | Anchor | Evidence |
-|---|---|---|---|
-| 1 | The landed skill conforms to the Agent Skills specification: closed frontmatter set, name matches the directory, description within its limit, links resolve, budget | Mechanical | Gate on the landed directory → `13 check(s), 0 failed`; 22 lines, ~569 tokens; description 422 characters; license 59 characters |
-| 2 | Every source constraint S1–S14 has one disposition and one home | Judged; the disposition table is the named reference | One conclusion per row in § Source constraints and dispositions |
-| 3a | The landed body carries each of the eleven upstream rule lead-ins | Mechanical | Lead-in check → `11/11 rule lead-ins present` |
-| 3b | The seven verbatim rules (S7, S8, S10–S14) are the upstream rule text, with the typographic apostrophe normalized | Mechanical | Verbatim diff against upstream → no output, exit 0 |
-| 3c | The four adapted rules (S3–S6) keep the upstream decision | Judged; the upstream file is the named reference | One conclusion per rule: S3 keeps purpose, actions and constraints first; S4 keeps a description and retrieval path for every deferred resource; S5 keeps the constraint ahead of the action; S6 keeps identifiers and paths while the prompt asks for the result |
-| 4 | The description leads with the delivery language, appends the Chinese trigger language, names the writing act and the artifact, and keeps the upstream trigger surface with the R9 narrowing | Judged; specification § description, the forge skill's review language rule, S2 | One conclusion: the landed description leads in English, appends the Chinese clause, names the writing act and the prompt artifact and keeps the upstream trigger surface |
-| 5 | The skill is applicable to prompt writing: the title, the description and the four adapted principles name the prompt as the object; S7 and S8 stay domain-neutral; no task outside the boundary is claimed | Judged; the request's audience and domain | One conclusion per element: the title names the writing act; the description names the prompt and its artifacts; S3–S6 each state its rule of the prompt; S7 and S8 carry domain-neutral rules and name no prompt referent; the boundary excludes skill forging, decision records and installation, and the skill claims none of them |
-| 6 | The skill ships no script and no reference mechanism | Mechanical | Gate lines `script coverage` and `reference mentions` report none; the landed directory lists `SKILL.md` and `THIRD_PARTY_NOTICES` |
-| 7 | The review draft was paired at the stop and the project pairing gate reported it current | Mechanical | At the stop: forge `pair` reported `SKILL.zh.md` and `SKILL.i18n.yaml` → `SKILL.md` (2 actions, 0 failed) and `check translation-pair: ok`; `publish` then removed both |
-| 8 | The notes tree conforms to its contract, with the archived unit sealed | Mechanical | Active check → `31 note(s) and 62 companion(s) checked`; archive check → 15 frozen artifacts checked, 3 new artifacts sealed |
-| 9 | The repository suite, formatting and DCO pass | Mechanical | `pnpm test` → 206 tests, 206 pass, 0 fail; `pnpm run format:check` → all matched files use the correct format; every branch commit carries a matching Signed-off-by, and the landing commit repeats the same trailer |
-| 10 | The landing replaced the old port, mirrored the installed copy, and archived the first record | Mechanical | `pnpm run skill:refresh` mirrored 2 files; `diff -r` between `skills/` and `.agents/skills/` is empty; the first record and its companions are in `archived/process/` and sealed |
-| 11 | The description triggers on real prompt-writing requests and stays quiet on adjacent tasks | Unverified | No agent harness or trigger eval was run; the request owner confirmed the check is inherently non-mechanical here, and the human review decides. The method is the eval loop in the optimizing-descriptions page |
-| 12 | The principles improve the prompt a writer produces | Unverified | No clean-context evaluation ran; the request owner confirmed the effect cannot be mechanically verified here, and the refine-with-real-execution loop on the best-practices page needs an eval harness and a model |
-| 13 | The carried text's provenance is declared without entering the model-facing body, and the repository notice states where that declaration lives | Judged; the Agent Skills specification's `license` field, the repository's `THIRD_PARTY_NOTICES.md` and the forge skill's skill-root notice are the named references | One conclusion: the frontmatter `license` names the skill-root `THIRD_PARTY_NOTICES`, which states upstream repository, pinned revision, upstream path and relation and reproduces the upstream and repository MIT notices; `SKILL.md` carries no provenance line; the repository notice's DeepSeek Harness section states the skill-text placement for both adapted skills |
-
-Verification commands used at landing:
-
-```bash
-node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs skills/dsh-spec-agent-experience
-node -e 'const fs = require("node:fs"); const leads = ["Start with minimal context", "Make discovery explicit", "Keep critical constraints visible", "Prefer bounded outputs", "Use locality", "Evaluate total work", "Delete obvious constraints", "Describe behavior, not implementation", "Put parameter rules on the parameter", "Say each fact once", "Measure the change"]; const text = fs.readFileSync("skills/dsh-spec-agent-experience/SKILL.md", "utf8"); const missing = leads.filter((lead) => !text.includes("**" + lead)); console.log(missing.length === 0 ? leads.length + "/" + leads.length + " rule lead-ins present" : "missing: " + missing.join("; ")); process.exit(missing.length === 0 ? 0 : 1)'
-diff <(sed -n '10,11p;15,19p' submodules/dsh/packages/preset/agent-preset/skills/agent-experience/SKILL.md | sed "s/’/'/") <(grep -E '^- \*\*(Use locality|Evaluate total work|Delete obvious constraints|Describe behavior, not implementation|Put parameter rules on the parameter|Say each fact once|Measure the change)' skills/dsh-spec-agent-experience/SKILL.md)
-node skills/dsh-spec-agent-notes/scripts/notes.mjs check --companion .zh.md --companion .i18n.yaml
-node skills/dsh-spec-agent-notes/scripts/notes.mjs archive --companion .zh.md --companion .i18n.yaml
-pnpm test
-pnpm run format:check
-```
-
-#### Verifying the gate parameter
-
-The gate runs with its defaults: current specification limits (name 64, description 1024, compatibility 500, body under 500 lines and 5,000 tokens). No option was overridden.
-
-### Reviews
-
-A read-only design auditor with no part in the work reviewed the design at commit `7c58fef` and returned **needs revision** (two majors, six minors); the revision at `9dae252` returned **accept with minors**, and the minors were applied at `16b1e05` before the candidate was written. The candidate was written at `2656b7e`; two independent read-only reviewers then accepted it **with minors**, applied at `bdc0d31`, and both confirmed the fixes closed. The request owner then directed two follow-ups after the stop — the carried text's provenance declaration and the repository-level notice handling — and later the same declaration for the notes skill; all are recorded above, and a read-only reviewer checked each amendment. The request owner's final review accepted the result and authorized landing and a squash merge into `refactor/dsh-skills`.
-
-### Pages read
-
-| Page | Date | What it supplied |
-|---|---|---|
-| [Agent Skills index](https://agentskills.io/llms.txt) | 2026-10-28 | The linked page set; the specification and best-practices pages the forge skill requires |
-| [Specification](https://agentskills.io/specification.md) | 2026-10-28 | Required frontmatter and its constraints, body freedom, progressive disclosure, file references, the optional `license` field |
-| [Best practices for skill creators](https://agentskills.io/skill-creation/best-practices.md) | 2026-10-28 | Spend context wisely, coherent unit, moderate detail, progressive disclosure, defaults, calibration |
-| [Optimizing skill descriptions](https://agentskills.io/skill-creation/optimizing-descriptions.md) | 2026-10-28 | The description carries the whole trigger burden; imperative phrasing; trigger eval method |
-
-The index links further pages for the quickstart, client implementation, scripts and evaluating output. They were not read on demand: the skill ships no script, implements no client and runs no eval this note claims. The offline fallback was not used because every required page was readable.
-
-## Deferred
-
-- The baseline branch has not been pushed. The squash merge is local; the review handover and the push are the maintainer's next acts.
-- The forging worktree and its branch remain local after the squash merge; removing them is housekeeping.
-
 ## Alternatives considered
 
 **Keep the port and change only the description.** It loses because the request replaced the old skill and supplied prompt writing as the domain; a description-only change leaves the body saying nothing about prompts and would not be a forging.
@@ -200,7 +124,7 @@ The index links further pages for the quickstart, client implementation, scripts
 ## Consequences
 
 - The package ships a prompt-writing skill that keeps the upstream mechanism: the six context principles and the five tool-definition rules, with the prompt named as the object, prompt-writing triggers and Chinese trigger language.
-- The old create-mode port's content is replaced, the installed copy mirrors the landed skill, and the first forging record is archived and sealed with its companions. The repository-level `THIRD_PARTY_NOTICES.md` change (the skill-text placement rule) rides in the same landing commit.
-- What the skill gives up is checkability: the gate establishes specification conformance and the mechanical fidelity checks, but trigger accuracy and prompt quality are unverified (anchors 11 and 12). The skill stays close to upstream by design; the request asked for adaptation, not a rewrite.
+- The installed copy mirrors the landed skill, and the first forging record is archived and sealed with its companions. The repository-level `THIRD_PARTY_NOTICES.md` states the skill-text placement rule.
+- What the skill gives up is checkability: the gate establishes specification conformance and the mechanical fidelity checks, but trigger accuracy and prompt quality are unverified. The skill stays close to upstream by design; the request asked for adaptation, not a rewrite.
 - The provenance declaration now covers both skills whose text is adapted from upstream — `dsh-spec-agent-experience` and `dsh-spec-agent-notes`; the forge skill's text is this repository's own work, and its notice covers its bundled packages.
 - Rollback: the landing is one squash commit on `refactor/dsh-skills`; reverting it restores the old port, its installed copy, the unarchived first record and the previous repository notice wording, and returns this note to the tree as it was before landing.

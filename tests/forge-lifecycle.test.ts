@@ -289,7 +289,7 @@ test('pair refuses invalid companion suffixes', () => {
   })
 })
 
-test('review is no longer a command', () => {
+test('review is not a command', () => {
   withWorkspace((ws) => {
     seedWork(ws)
     const result = forge(ws, 'review', 'alpha')
@@ -455,7 +455,7 @@ test('publish --json summarizes the actions', () => {
   })
 })
 
-test('publish no longer takes --force', () => {
+test('publish refuses --force', () => {
   withWorkspace((ws) => {
     seedWork(ws)
     const result = forge(ws, 'publish', 'alpha', '--into', 'skills/alpha', '--force')

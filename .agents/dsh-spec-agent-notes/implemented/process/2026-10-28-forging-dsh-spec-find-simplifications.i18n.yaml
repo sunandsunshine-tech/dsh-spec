@@ -9,44 +9,29 @@
   en: 928776b58948044b
   zh: a8a52aae06ecdda7
 /agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill/decision:
-  en: 9692392375176cb3
-  zh: 528d647e6808efc5
-/agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill/decision/landing-settings:
-  en: 51fa842aa296b9f6
-  zh: c1b47f65b5601419
+  en: 08a5ea0e596755bd
+  zh: 959fe13247350e08
 /agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill/source-and-revision:
-  en: de3bd4b16e96297a
-  zh: f1be8ea98ee8a6f8
+  en: a523718bb024c1a8
+  zh: 28aa870a0ba9ead7
 /agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill/target-rulings:
-  en: 1ba70352c9adb261
-  zh: 4d82a2b3ba4dd7c4
+  en: fd614abe1c6bc470
+  zh: 51bb17660dec51cd
 /agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill/constraint-dispositions:
-  en: 91c32ea222d2ff60
-  zh: 8397f9bdd99e6ea7
+  en: b7174fb9e1a4fa9a
+  zh: ff7a9dbd6f0f9a9e
 /agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill/constraint-dispositions/the-skill-entry:
-  en: 1296538886992843
-  zh: 424a6acbfdf555ee
+  en: e1e39be281c96db2
+  zh: 5336e17dc3c20322
 /agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill/constraint-dispositions/the-calibration-reference:
   en: 19fd9f76c6bb26b2
   zh: b57959b00288101c
 /agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill/verification-anchors:
-  en: c24d63183f46f2a2
-  zh: f4165b628c19df0a
-/agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill/review:
-  en: 5602b268887d6319
-  zh: 4ddb7b11961f0913
-/agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill/verification:
-  en: e77b7ea36920d825
-  zh: ef5902f6b014ccf0
-/agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill/landing:
-  en: 068b0aac179f30a7
-  zh: e1ffa5144ed43ade
-/agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill/unverified-items:
-  en: 35c68e5ce235295b
-  zh: e809b69100ce924d
+  en: e803206c7b55b742
+  zh: cb2e60a8f791b124
 /agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill/alternatives-considered:
-  en: cdfe14b39651bd84
-  zh: 3965d2566621936e
+  en: eea10c83dfee38f3
+  zh: f4b4480a20fd5db4
 /agent-note-forging-dsh-spec-find-simplifications-from-the-upstream-find-simplifications-skill/consequences:
-  en: d612f3417a0dd0d3
-  zh: b843cade5164c0ae
+  en: bfb9754677c8632a
+  zh: f45d60dd96ca2e31

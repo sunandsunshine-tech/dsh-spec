@@ -2,7 +2,7 @@
 
 The text and bundled checks of this skill are adapted from the DeepSeek Harness notes mechanism.
 
-- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.1-rc.3` (`1f81c047fc48fa190a683e469daa699857e9afe8`).
+- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`).
 - Upstream paths:
   - `.agents/notes/README.md` — the notes contract.
   - `.agents/notes/AGENTS.md`, `.agents/notes/implemented/AGENTS.md`, `.agents/notes/archived/AGENTS.md` — lifecycle, supersession and archive instructions.

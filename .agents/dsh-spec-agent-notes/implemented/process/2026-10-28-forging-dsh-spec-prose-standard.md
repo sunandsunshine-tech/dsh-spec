@@ -17,13 +17,16 @@ The skill `dsh-spec-prose-standard` is landed at `skills/dsh-spec-prose-standard
 Landed shape (see R9):
 
 - `SKILL.md` — the domain, required inputs and exclusions, the complete-proposition rules, the coverage-by-surface pointer, the leakage audit (one test, eight classes, keep rules, overcorrection traps), the workflow, borderline handling and the report.
-- `references/coverage.md` — the required coverage for each prose surface, moved out of the entry to restore gate headroom; the entry points to it.
+- `references/coverage.md` — the required coverage for each prose surface, moved out of the entry to restore gate headroom; the entry points to it, and it carries the visible-string case rule adopted at alpha.2 (PS47).
 - `references/examples.md` — calibration cases for editorial judgement, the leakage keep cases, and the four overcorrection traps.
 - `references/recall-batteries.md` — search probes for leakage: the invocation rules that keep a probe honest (hidden directories, exclusion order and self-exclusion, case sensitivity, bounded phrases, calibration), an English battery, a bilingual worked example, and the known false-positive families.
 - No script and no package source: neither source requirement is decidable by a command the adopting project does not already own; bundling a probe script would invent a mechanism the sources explicitly avoid (R3).
 - `THIRD_PARTY_NOTICES` — the adapted-skill provenance declaration required by the baseline convention (R16).
+- Delivery language is English; the review language is Chinese, and additional Chinese trigger language is appended to the description because the review language differs from delivery.
+- The description is domain-first: durable text and its duties lead, surfaces are examples among other surfaces rather than a closed list, leakage is mentioned without enumerating its classes, and the near-miss exclusion is stated (R17).
+- The shipped skill reads in complete isolation: it names no sibling skill, path or default and no package-internal mechanism (R18).
 
-The skill landed on `refactor/dsh-skills` as one squashed commit on 2026-10-28, after the human review accepted it. Landing published the work directory with `forge publish` (which removed the Chinese review drafts), refreshed the installed copies, removed the two superseded installed skills `dsh-prose-standard` and `dsh-trim-cot-leakage` with their manifest entries, updated the root `THIRD_PARTY_NOTICES.md` and the `AGENTS.md` skill sentence, and moved this record to `implemented/` with its Chinese counterpart and consistency record.
+The alpha.2 revision adopts the upstream English UI sentence-case rule into the coverage reference as a default under the project's declared style (PS47, R19).
 
 **Domain.** Durable text is prose that a project commits and later readers depend on, as opposed to text read once in a conversation. The skill covers writing, reviewing, restoring, trimming and auditing it across Markdown documentation, public API documentation (JSDoc, Javadoc, docstrings, doc comments, whichever form the project uses), code and test comments, module comments, READMEs and package documentation, cookbooks and guides, decision records, postmortems and incident reports, skills and agent instructions, example and configuration comments, prompts and committed user-visible strings, and diagnostics. It does not cover transient chat replies, scratch notes, or the correctness of the code a comment describes; process text such as commit messages and change descriptions follows the project's change conventions. It does not own documentation placement, word budgets, translation authority or the adopting project's gates: the project's standing instructions (for example a root `AGENTS.md` or the file it cites) own those, and the skill refers to them generically.
 
@@ -38,7 +41,7 @@ The skill landed on `refactor/dsh-skills` as one squashed commit on 2026-10-28, 
 
 ## Source and revision
 
-Upstream source: `deepseek-ai/deepseek-harness`, read from the pinned submodule `submodules/dsh` at `1f81c047fc48fa190a683e469daa699857e9afe8` (`dsh-v0.2.1-rc.3`, the revision `git submodule status` records). Files read as source:
+Upstream source: `deepseek-ai/deepseek-harness`, read from the pinned submodule `submodules/dsh` at `f3803c96974ad4a94195fb97e5c637e9c2a3afe3` (`dsh-v0.2.2-alpha.2`, the revision `git submodule status` records); a linked worktree does not initialize the submodule, so the checkout was read in the main worktree. The first forging read `dsh-v0.2.1-rc.3`; the alpha.2 revision was read as the diff `git -C submodules/dsh diff dsh-v0.2.1-rc.4..dsh-v0.2.2-alpha.2 -- .agents/skills/dsh-prose-standard/SKILL.md`, and the same range from `dsh-v0.2.1-rc.3` to `dsh-v0.2.2-alpha.2` touches only one line across all five source files: prose `SKILL.md` 58 gains the English UI sentence-case rule (PS47). Files read as source:
 
 - `submodules/dsh/.agents/skills/dsh-prose-standard/SKILL.md`
 - `submodules/dsh/.agents/skills/dsh-prose-standard/references/examples.md`
@@ -47,41 +50,6 @@ Upstream source: `deepseek-ai/deepseek-harness`, read from the pinned submodule 
 - `submodules/dsh/.agents/skills/dsh-trim-cot-leakage/references/recall-batteries.md`
 
 Not read as source: the installed copies under `.agents/skills/` (deployed state, not the extraction baseline, and their text is this repository's older adaptation), any other skill, any other session's work or forging record, and any parallel forging result. The request and the repository's declaration are the other source: the root `AGENTS.md`, `docs/AGENTS.md` and `docs/terminology.md`. `skills/dsh-spec-agent-notes/SKILL.md` and its contracts were read for the record's format and for the notes-root default only; the notes-tree decision records were read as the repository's standing rules where the declaration points at them, not as a design source for this skill.
-
-Agent Skills pages read online on 2026-10-28, before writing the skill:
-
-- `https://agentskills.io/llms.txt`
-- `https://agentskills.io/specification.md`
-- `https://agentskills.io/skill-creation/best-practices.md`
-- `https://agentskills.io/skill-creation/using-scripts.md`
-- `https://agentskills.io/skill-creation/optimizing-descriptions.md`
-
-Every page was readable; the forge skill's offline fallback was not used.
-
-## Settings
-
-| Setting | Value | Basis |
-|---|---|---|
-| Skill name | `dsh-spec-prose-standard` | the request |
-| Delivery language | English | the package's skills are English |
-| Review language | Chinese | the request's language and the package's pairing practice |
-| Additional trigger language | Chinese, appended to the description | the review language differs from the delivery language |
-| Domain | durable text, defined in the entry | the request's target audience and domain |
-| Sources | the two upstream skills above | the request |
-| Merge | the leakage audit is owned by the forged skill; no second skill ships | the request, and a standalone install cannot satisfy a required-background pointer |
-| Script | none | R3 |
-| References | `references/coverage.md`, `references/examples.md`, `references/recall-batteries.md` | progressive disclosure; operating rules stay in the entry and per-surface coverage detail loads on demand |
-| Landed directory | `skills/dsh-spec-prose-standard/` | the forge landing path; the work directory `.agents/dsh-spec-skill-forge/dsh-spec-prose-standard/` was published and removed |
-| Superseded skills | The installed copies `.agents/skills/dsh-prose-standard/` and `.agents/skills/dsh-trim-cot-leakage/`, and their manifest entries, were removed at landing | the landed skill replaces the separate prose standard and absorbs the leakage audit (R1) |
-| Branch and worktree | `forge/dsh-spec-prose-standard` in an independent worktree at `../dsh-spec-prose-standard`; based on `refactor/dsh-skills` at `609514c`, rebased onto `9301061` and landed there as one squashed commit on 2026-10-28; the worktree was removed after landing and the forge branch keeps the review commits | the request; the main working tree stays on its branch |
-| Candidate gate | `node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs skills/dsh-spec-prose-standard` | the forge's mechanical gate, run on the landed directory |
-| Review drafts | Chinese `.zh.md` beside `SKILL.md` and each reference, each with its `.i18n.yaml` consistency record; written and paired before the stop, then removed by `forge publish` at landing | the request; the project's pairing gate treats the two companions as one pair; no translation ships with the skill (R10) |
-| Review-draft-only content | The three English sources carried a language-switcher paragraph while the drafts existed; it was removed before publish, and the landed sources carry none | the project's pairing gate requires a switcher on both sides; the forge removes review-draft-only content before publish |
-| Description trigger vocabulary | Domain-first: durable text and its duties lead, the surfaces are examples among other surfaces rather than a closed list, leakage is mentioned without enumerating its classes, and a near-miss exclusion is stated | the maintainer review decision of 2026-10-28 (M1) |
-| Provenance declaration | The frontmatter `license` field names a skill-root `THIRD_PARTY_NOTICES`; that file lists the two upstream skills' five source files, the pinned revision, the adaptation relation and both MIT notices; the shared root `THIRD_PARTY_NOTICES.md` registers the third adapted skill | the baseline's adapted-skill policy, applied by the maintainer decision of 2026-10-28 (M2, M3) |
-| Record pairing | The note's Chinese counterpart and consistency record are written and paired; they moved with the note to `implemented/` | the maintainer decision of 2026-10-28 (M5); R15 is revised |
-| Isolation | The shipped skill reads in complete isolation: it names no other skill, no sibling skill's path or default, and no package-internal mechanism; forms borrowed from another tool, skill or the package appear only as examples | the maintainer directive of 2026-10-28 (M8); R18 |
-| Landing | landed on `refactor/dsh-skills` as one squashed commit on 2026-10-28 after the human review accepted the skill; nothing is pushed | the request and the human review |
 
 ## Constraint dispositions
 
@@ -137,7 +105,7 @@ Dispositions use the forge skill's values: **Keep** carries the original wording
 | PS44 | prose `SKILL.md` 79 | Interactive mode groups analogous passages under the governing principle, presents two or three viable versions with one recommendation and the factual or structural difference, offers no inferior distractors, and uses the requested channel; for a change calibrated through inline comments, the recommended version sits in the diff with the alternatives attached to that line. | Adapt | SK § Borderline decisions | "PR" becomes "change"; the interaction rules are kept |
 | PS45 | prose `SKILL.md` 81 | After a decision, distill the principle and versions into the examples without review history or reviewer narration, and apply the learned rule to every analogous passage in scope. | Re-bind | SK § Borderline decisions; SK workflow 7 (the analogous-passage half) | the shipped examples may be an installed copy that must not be edited, and a general adopter may not hold this skill's source tree; the equivalent is the project's prose-guidance owner or the report, with a case added to this skill's examples only when its own source tree is the working tree |
 | PS46 | prose `SKILL.md` 3 | The description triggers on writing, reviewing, restoring, trimming or auditing prose; it leads with the durable-text domain, states the three duties, lists surfaces as examples among other surfaces, and mentions leakage without enumerating its classes. | Adapt | SK description | the source's trigger vocabulary is kept where it names a duty (write, review, restore, trim, audit, leakage); the surface enumeration is reframed as examples over the target domain, by the maintainer review decision of 2026-10-28 (M1) |
-
+| PS47 | prose `SKILL.md` 58 (alpha.2) | English UI copy uses sentence case: capitalize the first word and proper nouns, preserve each product name's own capitalization, and lowercase the other words except established acronyms and initialisms; Chinese copy keeps its own conventions. | Adapt | COV § Required coverage by surface (Prompts and committed visible strings) | the styling is a default for English UI copy with no declared style, other languages keep their own conventions, and the project's declared style overrides it (R19); the source's plugin `meta.title`/`meta.description` specifics and product-name examples are not carried, while the product-casing and acronym exceptions make the rule executable |
 
 ### Leakage audit
 
@@ -213,7 +181,7 @@ Dispositions use the forge skill's values: **Keep** carries the original wording
 | R16 | Provenance follows the repository's adapted-skill convention: the frontmatter `license` field names a skill-root `THIRD_PARTY_NOTICES`, which lists the two upstream skills' five source files, the pinned revision, the adaptation-and-merge relation and both MIT notices; the shared root `THIRD_PARTY_NOTICES.md` registers this third adapted skill. | The baseline states the convention for adapted skill text, and the maintainer directed it applied in this forging (M2, M3); the text is adapted, not rewritten. | Remove the notice and license; revert the root registration. |
 | R17 | The description is domain-first and open-scope by decision: the surface list is illustrative ("among other surfaces"), the leakage classes stay in the entry, and the fixed enumeration an earlier review required is withdrawn. | The maintainer judged the enumerated examples an implied fixed range and asked for a domain-first trigger; the duties and the near-miss exclusion keep the trigger precise (M1). | Restore an enumerated description; the gate limit and U1 remain as before. |
 | R18 | The shipped skill reads in complete isolation: it names no other skill of this package, no sibling skill's path or default, and no package-internal mechanism. Forms borrowed from another tool, skill or the package (a vendor path, a Git command, a sibling default, a term from elsewhere) appear only as examples and never as conditions of a rule; the skill's own interface placeholders (`scope`, `mode`), generic markers (`TODO`, `FIXME`) and provenance notice are part of its contract, and a concrete tool form stays an example where it helps (workflow 8 keeps the Git diff examples). Sibling defaults and cross-skill mappings live in this record and the handover, not in the shipped text. | The maintainer directed that each skill be treated in isolation (M8); a general adopter installs skills one at a time, and a named sibling or default would read as a requirement the adopter may not satisfy. The placeholders and markers are the skill's own interface, not borrowings. | Reintroduce a named sibling skill, default path or package mechanism in the shipped text; or make a borrowed concrete form a condition. |
-
+| R19 | The sentence-case rule is generic and subordinate to the project's declared style: where English UI copy has no declared style, sentence case is the default — the first word and proper nouns capitalized, each product name's own capitalization preserved, other words lowercased except established acronyms and initialisms — other languages follow their own conventions, and the project's declared style overrides the default. This rule names no plugin metadata field and gives no product-name example. | The rule's referent is a generic adopter's UI copy; the source's plugin fields and named products are one repository's specifics, and a project's declared style outranks a package default, as the skill's standing-instruction rule already holds (R4). | Ship the plugin and product specifics, or drop the project-style override. |
 
 ## Requirement anchors
 
@@ -221,15 +189,16 @@ Every requirement of the forged skill carries one anchor at the most precise lev
 
 | Requirement group | Anchor | Evidence or conclusion |
 |---|---|---|
-| Frontmatter, name, description limit, license, `SKILL.md` budget, reference and link conformance, script coverage | Mechanical | `verify-skill-spec.mjs` run on the landed directory; output recorded in § Verification |
-| Provenance declaration | Judged | R16: the gate reports the `license` field; the skill-root `THIRD_PARTY_NOTICES` names both upstream skills, the five paths, the pinned revision, the relation and both MIT notices; the root notice registers this skill; reviewer A checks the paths against the pinned submodule and the notices against the notes precedent |
-| Trigger applicability and near-miss exclusion | Judged, with an unverified remainder | The description leads with durable text and its three duties, states surfaces as examples among other surfaces, mentions leakage without enumerating the classes, and excludes transient chat and code correctness; the activation rate is not measured (U1) |
-| Description language order | Judged | English leads and the Chinese trigger language is appended (R12); the Chinese review draft reverses the order; reviewer B checks both against the request's review language |
-| Domain definition (durable text) | Judged | The entry states what is inside the domain and what is outside it — transient conversation, scratch notes, code correctness, and process text that follows the change conventions; the design audit checks it against the request (Review) |
+| Frontmatter, name, description limit, license, `SKILL.md` budget, reference and link conformance, script coverage | Mechanical | `verify-skill-spec.mjs` run on the landed directory reports 14 checks, 0 failed |
+| Provenance declaration | Judged | R16: the gate reports the `license` field; the skill-root `THIRD_PARTY_NOTICES` names both upstream skills, the five paths, the pinned revision, the relation and both MIT notices; the root notice registers this skill |
+| Trigger applicability and near-miss exclusion | Judged, with an unverified remainder | The description leads with durable text and its three duties, states surfaces as examples among other surfaces, mentions leakage without enumerating the classes, and excludes transient chat and code correctness; the activation rate is not measured |
+| Description language order | Judged | English leads and the Chinese trigger language is appended (R12); the Chinese review draft reverses the order |
+| Domain definition (durable text) | Judged | The entry states what is inside the domain and what is outside it — transient conversation, scratch notes, code correctness, and process text that follows the change conventions |
 | Required inputs: scope, mode, write authority | Judged | PS9, PS10 and PS11 each keep one source rule; the target text states one decision per rule |
 | Exclusions: third-party trees, frozen archive, generated artifacts, translated pairs | Judged | PS12, PS13, PS14, PS15, LC25; the generic defaults are R5 and the report rule is R14 |
 | Complete-proposition rules | Judged | PS16-PS20 state the proposition list, the removal condition, the local-contract rule, the rationale rule and the emphasis rule |
-| Required coverage by surface | Judged | One row per source surface: PS22-PS33; each surface names its required contents and its removal rule; the coverage is not a shortening target (PS21) |
+| Required coverage by surface | Judged | One row per source surface: PS22-PS33, plus PS47 for the visible-string case rule; each surface names its required contents and its removal rule; the coverage is not a shortening target (PS21) |
+| The forged skill's own prose follows its rules | Judged | The skill's body and references are written to the same standard they state; no mechanical check exists |
 | Leakage one test and its current-state qualifier | Judged | LC5 and LC6 state the test and the qualifier in the same section |
 | Leakage classes | Judged | LC7-LC14, one class per row; the classes are stated with their fix rules |
 | Keep rules | Judged | LC15-LC24, one keep per row; each names why an unaided pass would delete it |
@@ -237,200 +206,11 @@ Every requirement of the forged skill carries one anchor at the most precise lev
 | Workflow | Judged | PS35-PS41 and LC25-LC29 are merged into nine steps with no repeated rule |
 | Borderline handling | Judged | PS42-PS45 keep the definition, the automatic and interactive modes, and the distillation step |
 | Report | Judged | PS41; the report names scope, changes, keeps, deferrals and checks run |
-| Calibration examples | Judged | EX1-EX12; reviewer A checks one case per principle and each overcorrection contrast against its rule |
+| Calibration examples | Judged | EX1-EX12; each principle has one case and each overcorrection contrast is calibrated against its rule |
 | Recall batteries | Judged | RB; each probe is a discovery aid, and the calibration rule is stated before the patterns |
 | No script | Judged, with a mechanical consequence | R3; the gate reports no script shipped and none mentioned |
-| No invented mechanism | Judged | The independent design audit checks every target referent against R1-R18; findings are in § Review |
-| Isolation | Judged, with a mechanical consequence | R18: the three shipped Markdown files name no sibling skill, sibling path or package mechanism — the isolation grep in § Verification results returns no hit — and forms borrowed from another tool, skill or package are marked as examples, while the skill's own placeholders, markers and provenance notice remain part of its contract; reviewer B checks the sentences that carry examples |
-| Review-draft pairing | Mechanical | `translation-pair write` created the `.i18n.yaml` records; `forge.mjs pair` reported the declared `.zh.md` and `.i18n.yaml` drafts with no orphan; `translation-pair check` passed on the same anchors; `forge publish` removed the drafts at landing |
-| Record format | Mechanical | The notes check run on the implemented tree; output in § Verification results |
-| Record coverage: one disposition per source constraint | Judged | The source-parity review enumerates every constraint across all five source files against the disposition table, not a sample; findings are in § Review |
-| The forged skill's own prose follows its rules | Judged | The independent implementation review applies the skill to its own text; findings are in § Review |
-| Chinese review drafts | Judged, with an unverified remainder | The skill drafts were structurally paired and removed at publish; the record's own pair is paired and ships; translation idiom was left to the human review, which accepted the landing (U4) |
-| Record pairing | Judged | R15 pairs the record's Chinese counterpart and consistency record after the review content settles, before the handover; U4 records the remaining human check |
-| Handoff completeness | Judged | § Handover records the landing and the remaining maintainer decisions |
-
-## Verification
-
-The landed skill and the moved record were verified on 2026-10-28 from the worktree that produced the landing:
-
-1. The design audit accepted the design before implementation, and two independent reviewers accepted the implementation across four delta rounds (§ Review).
-2. The landed skill passes the mechanical gate at `skills/dsh-spec-prose-standard/`, with no script shipped and every link resolving.
-3. The installed copy under `.agents/skills/dsh-spec-prose-standard/` is byte-identical to the landed directory, so the repository's installed-copy invariant holds.
-4. The record check passes on the implemented tree, and the record's Chinese counterpart and consistency record are paired.
-5. The isolation grep over the landed Markdown finds no sibling skill, sibling path or package mechanism.
-6. The functional suite and the formatting check pass, and `git diff --check` reports no whitespace error.
-7. The landing is one squashed commit on `refactor/dsh-skills`; the tree is clean and nothing is pushed.
-
-### Verification results
-
-Run on the current tree on 2026-10-29, after the coverage split:
-
-```text
-$ node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs skills/dsh-spec-prose-standard
-ok   SKILL.md — 105 lines
-ok   frontmatter fields — name, description, license
-ok   name — dsh-spec-prose-standard (dir: dsh-spec-prose-standard)
-ok   description — 721 characters
-ok   license — 59 characters
-ok   script mentions — none mentioned
-ok   script coverage — none shipped
-ok   references directory — references
-ok   links stay inside — 11 relative link(s)
-ok   links resolve — all resolve
-ok   link depth — nothing deeper than one level
-ok   reference mentions — 3 reference(s) named
-ok   reference targets — 3 path(s) named
-ok   budget — 105 lines, ~4160 tokens at 1.1 CJK / 0.303 other tokens/char (limit: under 500 lines and 5000 tokens)
-14 check(s), 0 failed
-
-$ diff -r skills/dsh-spec-prose-standard .agents/skills/dsh-spec-prose-standard && echo identical
-identical
-
-$ node skills/dsh-spec-agent-notes/scripts/notes.mjs check --root .agents/dsh-spec-agent-notes --companion .zh.md --companion .i18n.yaml
-ok   check — 38 note(s) and 76 companion(s) checked
-
-$ node skills/dsh-spec-translate-docs/scripts/translate-pair.mjs check .agents/dsh-spec-agent-notes/implemented/process/2026-10-28-forging-dsh-spec-prose-standard.md --target zh=中文 --root .
-1 pair(s) consistent
-
-$ rg -n 'Agent Notes|dsh-spec-agent-|dsh-spec-skill-forge|notes root' skills/dsh-spec-prose-standard/SKILL.md skills/dsh-spec-prose-standard/references/examples.md skills/dsh-spec-prose-standard/references/recall-batteries.md
-(no output; exit 1 — no sibling skill, sibling path or package mechanism is named)
-
-$ pnpm test
-tests 262 · pass 262 · fail 0
-
-$ pnpm run format:check
-All matched files use the correct format.
-
-$ git diff --check
-(no output; exit 0)
-```
-
-The design audit ran twice (§ Review): round 1 returned needs revision with D1-D11, round 2 accepted after they were resolved. The implementation review returned needs revision in round 1 (A1-A13, B1-B10), round 2 (N1-N4, R1-R6), round 5 (A1-A4, B5-1..B5-3) and round 7 (A7-1..A7-3, B7-1..B7-3); both reviewers accepted the state in round 8. The human review accepted the skill on 2026-10-28, and the landing checks above are the shipped evidence. The review commits remain on the local forge branch; the baseline carries one squashed commit.
-
-## Review
-
-### Design audit, before implementation
-
-Round 1 — independent design audit, 2026-10-28. Verdict: needs revision; no blockers, four major and seven minor findings. The audit read all five source files at the pinned revision, the whole record, the adopter declaration and the named tooling.
-
-| Finding | Severity | Resolution in this record |
-|---|---|---|
-| D1 — the project pairing gate needs the `.i18n.yaml` record, but the plan declared only `.zh.md` | major | Settings, R10, § Verification steps 3-4 and § Handover now declare both companions, write the three records at the stop and remove both at publish |
-| D2 — duplicate disposition rows with conflicting dispositions for the derivative, exclusion and guidance rules | major | PS6 merges both guidance statements; PS12, PS13 and PS14 absorb the leakage locations; PS15 absorbs the translated-prose half; PS39 keeps only the re-check half; LC25 becomes the dissolved cross-skill pointer; LC27 keeps the fence and visible-string halves |
-| D3 — EX7 used Keep while carrying source-repository mechanisms | major | EX7 is Adapt and names the four subjects to generalise |
-| D4 — the recall batteries were under-covered by one coarse row | major | EX8 is split into EX8-EX12 (invocation rules, English battery, bilingual worked example, false-positive families, self-quote rule); the proposal and R11 name the invocation rules |
-| D5 — the prose description had no disposition row | minor | PS46 is added |
-| D6 — source-location errors | minor | PS17, PS21, LC5, LC30 and EX1-EX4 are corrected against the pinned revision |
-| D7 — disposition labels and the dropped bilingual-fence rule | minor | PS27, PS40 and LC29 are Re-bind; LC3 is split and the archived note is Dissolve with its takeover; LC27 carries the verbatim-excerpt rule; PS12 keeps the executable exclusion forms |
-| D8 — R3's "nothing is command-decidable" premise is false | minor | R3 names the existing project commands as the mechanical subset and the one exactly-decidable rule |
-| D9 — anchor and plan precision: sampling, a missing language-order anchor, a planless examples review, a vacuous link check | minor | the coverage anchor enumerates instead of sampling; a description-language row and a record-pairing row are added; reviewer A's calibration check is named; the link check is removed |
-| D10 — "guides" and "incident reports" were over-included | minor | PS26 and PS29 name the target domain's equivalent genre, with R2 as the basis rather than a circular general form |
-| D11 — the note-pairing deferral was attributed to the request | minor | the deferral became R15, cited by Settings, U4 and the anchors; R15 was later revised to pair the record before the handover |
-
-Round 2 — re-audit of the revised design, 2026-10-28. Verdict: accept; no blockers. Every round-1 finding was verified resolved in the revised text, with the source ranges and the pairing plan re-checked against the pinned files and the CLI. Three new minor findings remained, all record-text fixes applied before implementation:
-
-- N1 — PS15 and LC27 both carried the translated-pair minimal-update rule. PS15 now owns the rule and its source locations; LC27 keeps only the verbatim-excerpt and visible-string halves.
-- N2 — the pairing steps were numbered before the implementation review, so they could record stale text. The plan now runs steps 1-5 during implementation and steps 6-8 last, and re-runs them after any later edit.
-- N3 — PS14 had lost the recorded-fixture condition, and EX11's basis over-claimed the false-positive families. PS14 now carries the authorized-behavior-change condition, and EX11 names the `actually`/`wait` and runtime-`today`/recorded-timestamp halves.
-
-### Implementation review, round 1
-
-Two independent reviewers read the three shipped files, the record, the five pinned source files and the adopter declaration, and re-ran the gate. Both returned needs revision; no finding questioned the design.
-
-| Finding | Reviewer; severity | Resolution |
-|---|---|---|
-| A1/B6 — the recall-batteries code fences were malformed instead of triple backticks | A, B; blocker | the four fences are restored and the reference renders both batteries as code |
-| A2 — workflow 8 carried only the gates half of LC29 | A; major | workflow 8 now re-runs the probes after the fixes expecting only sanctioned keeps, and confirms every remaining citation resolves |
-| B1 — the description omitted a leakage class and several trigger terms | B; major | the description names authoring-language slips, audit codes, draft section numbers, change and version narration, Markdown, and tool and parameter descriptions within the 1024-character limit |
-| B2 — the borderline rule sent the executor to edit this skill's shipped examples | B; major | PS45 is re-bound: the principle goes to the project's prose-guidance owner or the report, and a case goes into this skill's examples only when its own source tree is the working tree, never an installed copy |
-| B3 — duplicate of A2 | B; major | resolved with A2 |
-| A3/B5 — the batteries claimed every false-positive family was a keep rule in the entry | A, B; minor | the sentence now says several restate keep rules and the rest are probe-level calibration |
-| A4 — the four overcorrection traps lacked their names | A; minor | the examples reference carries the four named subsections |
-| A5 — the description dropped Markdown and descriptions | A; minor | resolved with B1 |
-| A6 — the declaration clause said translation authority while PS4 said bilingual pairs | A; minor | the entry states "bilingual pairs and their translation authority"; PS4 is unchanged |
-| A7 — three record homes named sections that do not exist | A; minor | PS8 and PS41 homes are corrected; EX12 moves to the post-fix battery re-run in workflow 8 |
-| A8 — the phrase-bounding example was technically wrong | A; minor | the example now uses the source's valid `this PR`/`this project` pair |
-| A9/B4 — the batteries named an unreachable "source's battery" | A, B; minor | the sentence states the worked example has no fixed pair and names the project's own languages |
-| A10/B10 — the examples kept `doc-typecheck` and other source-project nouns | A, B; minor | the gate is now "the documentation type-check gate"; pre-step, pressure accounting, worker realm, built-entry smoke and the IPC shell are neutralised |
-| A11 — three record coverage gaps: the examples headers, the Python comment probe, the counterpart-comparison clause | A; minor | EX1 and EX2 ranges start at line 3; EX10 names the Python comment probe; the counterpart-comparison rule belongs to EX8's invocation rules and is carried there in round 2 |
-| A12 — the visible-string rule and the self-scan rule were stated twice | A; minor | workflow 6 is a pointer to the coverage rule; the examples intro keeps only the calibration statement and the batteries carry the self-scan rule |
-| A13 — LC1's basis and the "class below" referent | A; minor | LC1's basis is corrected; the entry names "the change-narration class (class 3)" |
-| B7 — three over-trimmed referents | B; minor | current-state surfaces are named, workflow 1 says "current change or branch state", and the batteries name which language is searched in which surface |
-| B8 — the domain boundary was positive-only | B; minor | the entry states the outside domain and the description excludes chat and code review |
-| B9 — no required-coverage row for a generic documentation page | B; minor | the first coverage row is "Documentation pages, cookbooks, and guides", with the fallback to the closest genre or the project's standing instructions |
-| Record note — the Verification section carried no gate output | B; note | the gate output is recorded in § Verification results |
-
-Round 2 — re-review of the implementation after these fixes, 2026-10-28. Both reviewers returned needs revision with minor findings only; no blocker or major remained. Their resolutions:
-
-- N1/R1 — the source's counterpart-comparison rule was missing from the batteries while the record attributed it to EX10. The rule is now carried in the invocation rules (EX8's range) and EX10 keeps only its own range.
-- N2 — PS45's re-bound target had dropped the "versions" and the review-history prohibition. The borderline rule now keeps both, and the record's PS45 home names workflow 7 for the analogous-passage half.
-- N3/R4 — the coverage row had lost PS22's "return distinctions" and PS23's "surprising failure behavior". Both are restored, together with PS27's "model-visible", "stable visible text owned by the package" and "cross-package owners" qualifiers.
-- N4 — the description and the trigger anchor said "code review" while the domain said code correctness. The description, anchor, Domain paragraph and R2 now say code correctness, and process text is placed under the project's change conventions in the domain and R2. The description's two halves were aligned in round 3 (N5).
-- R2 — workflow 8 collapsed LC29's three expected-hit categories into two. The sentence now lists sanctioned keeps, this skill's quoted calibration cases, and the owning decision record's quoted evidence.
-- R3 — workflow 9 regained "found" and "actually", so a read-only audit has a report field for the classes found and the checks are named as actually run.
-- R5 — the documentation row applied procedural requirements to every documentation page. It now requires "the content the page's purpose requires" and states the procedural subset, so a reference page is not over-covered.
-- R6 — the four overcorrection traps were siblings of their parent heading. They are now subsections (####) under it.
-
-Observation judged rather than fixed: "realm global" remains in one public-documentation case; it is a generic API subject, not the source repository's mechanism, so it is not a source-specific subject.
-
-Round 3 — confirmation of the round-2 fixes, 2026-10-28. Reviewer B accepted the state: R1-R6 and N1-N4 resolved, no new defect, the remaining limits and observations judged acceptable or record-only. Reviewer A confirmed N1-N4 and the round-2 items resolved and raised one last minor finding:
-
-- N5 — the round-2 description edit flipped the bilingual halves instead of aligning them: the English lost "dead" and said "code correctness" while the Chinese still carried 失效的会话引用 and 代码评审. The English restores "dead", the Chinese says 代码正确性, and "public API documentation" pays the characters; the description is 1022 characters and the gate passes. The Chinese review draft's description mirrors the aligned pair.
-
-Round 4 — final confirmation of N5, 2026-10-28. Reviewer A accepted: N5 is fixed length-neutrally, the gate matches the record, and no parity or coverage item remains. Reviewer B accepted the description alignment as not changing its verdict. The round-2 implementation findings keep their reviewer labels N1-N4 and R1-R6 for traceability; the R-prefixed labels are not the target rulings R1-R18, and the maintainer decisions use M1-M8 so they do not collide with the design-audit findings D1-D11. Both independent implementation reviews accept the skill; the design audit accepted it in round 2 of § Review. The stop-time delta (three Chinese review drafts with their `.i18n.yaml` records, the language switchers in the English sources, the three length-neutral trims and the two removed link fragments) was confirmed by both reviewers afterwards: no parity, coverage, prose or quality item remains.
-
-Rebase, 2026-10-28: after the reviews the baseline moved twice — to `bbc824d` (the landed prompt-writing `dsh-spec-agent-experience` skill and the skill-root provenance declarations for adapted skill text) and then to `9301061` (removing the superseded `dsh-agent-experience` installed copy). The branch was rebased onto the current baseline; no deliverable file changed in either rebase, and every check in § Verification results was re-run on the rebased state.
-
-### Maintainer review, 2026-10-28
-
-The maintainer reviewed the forged skill and gave four opinions; the rulings applied here are recorded as Settings rows, PS46, R15-R17 and the handover.
-
-1. Provenance is required. The skill receives the baseline's adapted-skill declaration: the frontmatter `license` field, a skill-root `THIRD_PARTY_NOTICES` listing the two upstream skills' five source files, and the shared root `THIRD_PARTY_NOTICES.md` registering this third adapted skill (M2, M3; R16).
-2. Overlap with the prompt-writing skill is normal: the same text can carry two domains. This skill owns editorial judgement and coverage; `dsh-spec-agent-experience` owns prompt structure and context economy. No cross-reference or runtime dependency is introduced.
-3. The description's enumerated examples implied a fixed scope. It is rewritten domain-first: durable text and its duties lead, surfaces are examples "among other surfaces", leakage is mentioned without enumerating its classes, and the near-miss exclusion stays (M1; PS46; R17).
-4. Rulings and major direction decisions are presented to the maintainer rather than settled silently. The seven questions M1-M7 were answered, with unmentioned ones following the recommendation: M1 the description rewrite, M2 the provenance file's five upstream paths, M3 the root registration in this branch, M4 a delta re-review after the changes, M5 the record's own pair, M6 landing deferred so the work stops at human review, and M7 keeping "chain-of-thought leakage" as the leakage trigger phrase. The maintainer added two instructions: rebase again, and use this skill and `dsh-spec-agent-experience` for prose guidance where they help, keeping the upstream text where it reads better.
-5. The skills are independent and are read in complete isolation. The shipped prose standard therefore names no other skill, no sibling skill's path or default and no package-internal mechanism: the notes-archive example and the Agent Notes naming are removed, `vendor/` and the two diff commands are marked as examples, and the declaration is described as the project's own standing instructions (M8; R5, R8, R18).
-
-The resulting delta (description, license, provenance notices, root registration, record updates) was sent to the two independent reviewers for a short round 5 check; the verdict is in the section below. The record's own Chinese counterpart and consistency record are added afterwards, under R15, so they are not part of that review delta.
-
-### Delta review, round 5, 2026-10-28
-
-Both independent reviewers read the maintainer-directed delta (commit `78049da`) and returned needs revision with record-text findings only; the delta's files themselves were accepted.
-
-- Reviewer A accepted the description (domain-first, surfaces as examples among other surfaces, 721 characters, near-miss kept), the provenance (five upstream paths present at the pinned revision, both MIT notices byte-matched to the upstream and repository licence files, structure matching the notes precedent), the root registration's forward-looking wording, the rebase and the verification evidence. Four record-accuracy findings: acceptance criterion 7 still described the record pairing as deferred (A1); two requirement anchors still carried the deferral wording (A2); the round-5 delta list named the not-yet-written record pair (A3); PS46 and the Settings description row claimed the description enumerates leakage classes (A4). All four are fixed here.
-- Reviewer B accepted the description as a prompt, the provenance packaging, the root wording and the unchanged skill body. Three record-only findings: stale R1-R15 references and the D11 row (B5-1); maintainer decision labels D1-D7 colliding with the design-audit findings D1-D11 and leaving M4/M6/M7 unnamed (B5-2); the pending record edits left uncommitted (B5-3). The labels are now M1-M7 with the questions named, the ruling references say R1-R17, and this table is committed; the record's own Chinese counterpart and `.i18n.yaml` record are added under R15 at handover.
-
-Round 6 — confirmation of the record-text fixes, 2026-10-28. Reviewer B accepted: B5-1 and B5-2 are fixed, the round-5 fixes are present, and no new inconsistency was found; its one note was that the round-5 section said the table was committed with the record's own pair while the pair was still being written. Reviewer A confirmed A1-A4 and B5-1/B5-2 resolved and raised one last record-text finding (A5): the same sentence anticipated the record's pair before it was committed. The sentence now says the table is committed and the record's own pair is added under R15 at handover; the pair is committed in the same change, and both reviewers' round-5 and round-6 findings are closed.
-
-### Isolation review, round 7, 2026-10-28
-
-The maintainer directed that each skill be treated in complete isolation, so the shipped entry drops the notes-skill archive default and the Agent Notes name, reframes `vendor/` and the two diff commands as examples, and describes the project declaration as the project's own standing instructions. PS4, PS12, PS13, PS28, PS40, R5, R8, R18 and the anchors are updated; the entry, its Chinese review draft and this record's pair are re-recorded.
-
-Round 7 — delta review of the isolation changes, 2026-10-28. Both reviewers accepted the shipped isolation; the findings were record accuracy (A7-1..A7-3, B7-3) and two entry/prose corrections (B7-1, B7-2):
-
-- Reviewer A (A7-1..A7-3): R5 said "one named example each" while the shipped rule names several examples; the record still said "declaration" where the shipped text now says "standing instructions" (PS27 and PS36 bases, B9, Domain, R4, and the related R14 wording); and the verification block was stale at ~4992 tokens against a ~4998-token gate. All three are fixed here and the record pair is re-recorded.
-- Reviewer B (B7-1..B7-3): the entry used "standing instructions" at the intro but "declaration" in the coverage row and workflows 1-2 (now consistent); "generated output" appeared as a third-party example while generated files are derivative (now "a vendored checkout", and PS12 is aligned); and R18, the Isolation Settings row, the anchor and AC9 over-claimed that every concrete form is an example (now scoped: forms borrowed from another tool, skill or the package appear only as examples, while the skill's own placeholders, markers and provenance notice stay part of its contract, and workflow 8's Git forms remain examples). All three are fixed.
-
-Round 8 — final confirmation of the round-7 fixes, 2026-10-28. Both reviewers accepted: A7-1..A7-3 and B7-1..B7-3 verify on commit `b48df9f`, with no new parity, coverage, isolation or prose inconsistency. Reviewer B's one note — that the round-7 summary called every finding record-only while B7-1 and B7-2 changed the shipped entry and its pair — is corrected here. The entry, its Chinese review draft and the record pair were re-recorded, and the human review followed.
-
-Landing, 2026-10-28: the human review accepted the forged skill. The work directory was published to `skills/dsh-spec-prose-standard/` (removing the Chinese review drafts), the installed copies were refreshed, the two superseded installed skills `dsh-prose-standard` and `dsh-trim-cot-leakage` and their manifest entries were removed, the root `THIRD_PARTY_NOTICES.md` and the `AGENTS.md` skill sentence were updated, and this record moved from `proposed/` to `implemented/` with its Chinese counterpart and consistency record. The forge branch keeps the review commits; the baseline carries one squashed commit.
-
-## Unverified items
-
-- **U1 — Trigger activation rate.** No trigger evaluation was run: the work directory is not an installed skill, and installing it would break the request's no-refresh rule; the repository has no trigger-evaluation harness. The description follows the Agent Skills description guidance and the independent review checks its vocabulary, but its activation rate is unmeasured.
-- **U2 — Adopting-project checks.** The skill names the project's own documentation, link, pairing and behavior checks instead of fixed commands. No adopter exists in this work, so those commands were not executed; the rule is judged, not mechanical.
-- **U3 — Effectiveness on a target corpus.** The sources were distilled from one repository's corpus-wide audit; no adopter corpus was audited here, so the merged skill's recall and precision on a new corpus are unmeasured.
-- **U4 — Chinese review drafts and the record's pairing.** The skill review drafts were written, paired and removed at publish, so no translation of the shipped skill ships; the record's own pair moved with it to `implemented/`. Translation idiom was left to the human review, which accepted the landing (R10, R15).
-- **U5 — Per-repository exclusions.** A project may declare no exclusions and no documentation standard; the skill falls back to a stated report (R14) rather than inferring a policy, and that fallback was not exercised against a real project.
-
-## Handover
-
-Landed on `refactor/dsh-skills` as one squashed commit on 2026-10-28. The installed copies were refreshed, the superseded installed skills and their manifest entries were removed, the root `THIRD_PARTY_NOTICES.md` and the `AGENTS.md` skill sentence were updated, and this record moved to `implemented/` with its Chinese counterpart and consistency record.
-
-Remaining maintainer decisions: whether `README.md` and `README.zh.md` gain a "The skill" row for this skill (the other landed skills are not listed there either), and whether to delete the local forge branch, which keeps the review commits.
-
-Rollback: revert the squashed landing commit; no remote state is touched.
+| No invented mechanism | Judged | Every target referent is bound to R1-R19; the alpha.2 delta adds R19 |
+| Isolation | Judged, with a mechanical consequence | R18: the three shipped Markdown files name no sibling skill, sibling path or package mechanism; forms borrowed from another tool, skill or package are marked as examples, while the skill's own placeholders, markers and provenance notice remain part of its contract |
 
 ## Alternatives considered
 
@@ -446,6 +226,8 @@ Rollback: revert the squashed landing commit; no remote state is touched.
 
 **Narrow the domain to documentation only.** It lost because durable text includes committed comments, instructions and visible strings; narrowing would drop the source's coverage and most leakage classes, which are about comments and records.
 
+**Ship the sentence-case rule with its plugin fields and product examples.** It lost because the package must not claim one ecosystem: the plugin metadata fields and the named products are one repository's UI, while the case rule and the project-style override stand without them (PS47, R19).
+
 **Land into `skills/` now so the artifact is visible.** It lost because the request forbids publishing before review, and because a landed skill without a refreshed installed copy fails the repository's own invariant.
 
 ## Consequences
@@ -453,8 +235,12 @@ Rollback: revert the squashed landing commit; no remote state is touched.
 - The package ships one durable-text skill instead of two separately installed upstream skills: a project installs one skill and gets the editorial standard and the leakage audit together (R1).
 - The landed skill names no other skill, no sibling default path and no repository-specific gate; an adopter's standing instructions and its own commands decide those mechanics (R5, R8, R18).
 - The two superseded installed copies and their manifest entries are gone. Other installed upstream skills that linked to them keep those links in deployed state until they are refreshed from upstream; none of them is a deliverable.
-- The description is domain-first and open-scope: it is shorter than the enumeration it replaced, so the trigger vocabulary is broader but less specific, and the activation rate remains unmeasured (U1).
+- The description is domain-first and open-scope: it is shorter than the enumeration it replaced, so the trigger vocabulary is broader but less specific, and the activation rate remains unmeasured.
 - The entry uses 105 lines and about 4160 of the 5000-token budget; further growth has headroom, with the per-surface coverage detail in the third reference (R11).
+- English UI copy without a declared style now defaults to sentence case under the project's declared style, so an adopter gets one case rule and a project with its own style keeps it (PS47, R19).
 - No translation of the shipped skill ships; the record's Chinese counterpart and consistency record travel with the note, and the note is the durable record of the forging (R10, R15).
 - What was given up: the separately installable leakage skill, the repository-specific examples that made the upstream text concrete, and the class-level trigger vocabulary the earlier description carried.
-- The review commits remain on the local forge branch only; the baseline history is one squashed commit, so the round-by-round evidence is reachable through this record and that branch rather than through the baseline history.
+- **The skill names the project's own checks, not fixed commands.** Its documentation, link, pairing and behavior checks are the adopting project's; no adopter exists in this work, so those commands are judged rather than executed mechanically.
+- **Effectiveness on an adopting corpus is unmeasured.** The sources were distilled from one repository's corpus-wide audit, so the merged skill's recall and precision on a new corpus are unknown until an adopter audits one.
+- **The exclusion fallback is unexercised.** A project may declare no exclusions and no documentation standard; the skill falls back to a stated report (R14) rather than inferring a policy, and that fallback has not run against a real project.
+- **The English UI case rule is unmeasured.** No adopting project's UI copy was audited and no project style declaration was consulted; the default and its override are judged against the alpha.2 sentence and the request's adaptation limits.

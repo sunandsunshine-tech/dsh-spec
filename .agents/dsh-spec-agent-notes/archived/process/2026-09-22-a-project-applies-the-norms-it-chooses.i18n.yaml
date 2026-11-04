@@ -1,0 +1,19 @@
+# Pairing consistency record for 2026-09-22-a-project-applies-the-norms-it-chooses.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/archived/process/2026-09-22-a-project-applies-the-norms-it-chooses.md --target <lang>
+/agent-note-a-project-applies-the-norms-it-chooses:
+  en: 38980d61a6ed73ab
+  zh: 925c6d19d10e6ca2
+/agent-note-a-project-applies-the-norms-it-chooses/problem:
+  en: e33d7b056d383752
+  zh: 9e6fb51234578aba
+/agent-note-a-project-applies-the-norms-it-chooses/decision:
+  en: 1a865e46e014e451
+  zh: 04ec7d969d16af61
+/agent-note-a-project-applies-the-norms-it-chooses/alternatives-considered:
+  en: 816103eb23f2690b
+  zh: 60f6788b02c39ae7
+/agent-note-a-project-applies-the-norms-it-chooses/consequences:
+  en: 26b7f25ef6a7cf53
+  zh: 618fc4d10948e2d4

@@ -6,50 +6,32 @@ Status: implemented
 
 ## 问题
 
-
 本包发布 forge、decision-record、agent-experience、prose-standard 与 find-simplifications 五个技能；它们都没有携带 DeepSeek Harness 团队所遵循的推送前检查选择纪律，于是即将 push 的 agent 要么什么都不运行，要么条件反射地运行整个仓库套件。上游技能 `dsh-pre-push-checks` 专门为 deepseek-harness 仓库陈述该纪律——它的 `pnpm run change-scope` 报告、它的 Git hook、它的 stacked-PR 工具与它的 profile/snapshot 布局——而本包的交付物是面向一般软件工程的一组技能。`dsh-spec-pre-push-checks` 为那个领域适配它：与上游技能相同的选择与执行机制，其中 deepseek-harness 专属的指涉或被适配、或被重绑到等价手段、或在不存在等价物处被消解。
 
 ## 决策
 
-本包发布 `dsh-spec-pre-push-checks`，作为位于 `submodules/dsh/.agents/skills/dsh-pre-push-checks/SKILL.md` 的上游技能的 create-mode 适配版本（`submodules/dsh` 固定在 `dsh-v0.2.1-rc.3`，`1f81c047fc48fa190a683e469daa699857e9afe8`）。它保留上游机制：确认 checkout 与分支；在检查范围之前验证 base；产出一份完整的出站范围报告；选择其回归会使本次改动失败的最窄证据；不重复 hook 或 CI 已经裁决的内容；仅在点名的情形下完整排练；保护改写历史的 push；在自动改写并发布之后立即验证；对特定环境的失败做证明，而不是重新解释它们。措辞是仓库中立的：采用者自己的命令、hook、工作流与布局约定从其声明中发现；上游点名 deepseek-harness 的文件、profile、snapshot 树或兄弟技能之处，本技能泛化该规则，或把它留给那些约定。
+本包发布 `dsh-spec-pre-push-checks`，作为位于 `submodules/dsh/.agents/skills/dsh-pre-push-checks/SKILL.md` 的上游技能的 create-mode 适配版本（`submodules/dsh` 固定在 `dsh-v0.2.2-alpha.2`，`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`）。它保留上游机制：确认 checkout 与分支；在检查范围之前验证 base；产出一份完整的出站范围报告；选择其回归会使本次改动失败的最窄证据；不重复 hook 或 CI 已经裁决的内容；仅在点名的情形下完整排练；保护改写历史的 push；在自动改写并发布之后立即验证；对特定环境的失败做证明，而不是重新解释它们。措辞是仓库中立的：采用者自己的命令、hook、工作流与布局约定从其声明中发现；上游点名 deepseek-harness 的文件、profile、snapshot 树或兄弟技能之处，本技能泛化该规则，或把它留给那些约定。
 
-落地目录包含 `SKILL.md`、`scripts/change-scope.mjs` 与 `THIRD_PARTY_NOTICES`，并镜像到 `.agents/skills/dsh-spec-pre-push-checks/`；脚本的源码与构建接线留在 `package/dsh-spec-pre-push-checks/`，其测试在 `tests/change-scope.test.ts`，套件的清单行在 `tests/README.md`。被取代的上游同名安装副本 `.agents/skills/dsh-pre-push-checks/` 及其 manager-manifest 条目被移除；根 `AGENTS.md` 的技能列表与根 `THIRD_PARTY_NOTICES.md` 中的适配技能枚举点名该技能。历史发布说明保留其文字。
+落地目录包含 `SKILL.md`、`scripts/change-scope.mjs` 与 `THIRD_PARTY_NOTICES`，并镜像到 `.agents/skills/dsh-spec-pre-push-checks/`；脚本的源码与构建接线留在 `package/dsh-spec-pre-push-checks/`，其测试在 `tests/change-scope.test.ts`，套件的清单行在 `tests/AGENTS.md`。被取代的上游同名安装副本 `.agents/skills/dsh-pre-push-checks/` 被移除；根 `AGENTS.md` 的技能列表与根 `THIRD_PARTY_NOTICES.md` 中的适配技能枚举点名该技能。历史发布说明保留其文字。
+
+- 交付与语言：英文交付，描述追加中文触发词汇；本记录为英文并带其中文 `.zh.md` 对侧与 `.i18n.yaml` 一致性记录。
 
 ### 意图与边界
-
 
 | 设置 | 值 |
 |---|---|
 | 名称 | `dsh-spec-pre-push-checks`；落地于 `skills/dsh-spec-pre-push-checks/` |
 | 目标 | 在 push、force-push、标记 ready-for-review 或声称检查通过之前——以及自动工具改写并发布分支之后立即——选择并运行覆盖出站或刚发布 diff 的最小测试与检查集合，而不是条件反射地运行整个仓库套件 |
 | 边界 | 不是 CI 的替代（CI 拥有穷尽覆盖与平台矩阵），不是 hook 的替代（仓库的 hook 运行自己的检查），不是默认运行完整本地排练的指令（那仍是点名的例外），也不是削弱失败选择的方式——降低阈值、排除受影响的文件或压制无测试运行都在本技能之外（上游 L74） |
-| 交付物 | 落地技能目录 `skills/dsh-spec-pre-push-checks/`（`SKILL.md`、`scripts/change-scope.mjs`、`THIRD_PARTY_NOTICES`）及其安装副本；脚本的源码与构建接线在 `package/dsh-spec-pre-push-checks/`（`change-scope.ts`、`build.ts`、`vite.config.ts`、`package.json`）；其测试在 `tests/change-scope.test.ts`，套件的清单行在 `tests/README.md`；本记录及其中文对侧 |
+| 交付物 | 落地技能目录 `skills/dsh-spec-pre-push-checks/`（`SKILL.md`、`scripts/change-scope.mjs`、`THIRD_PARTY_NOTICES`）及其安装副本；脚本的源码与构建接线在 `package/dsh-spec-pre-push-checks/`（`change-scope.ts`、`build.ts`、`vite.config.ts`、`package.json`）；其测试在 `tests/change-scope.test.ts`，套件的清单行在 `tests/AGENTS.md`；本记录及其中文对侧 |
 | 受众与领域 | 在保持 Git 历史、通过分支与评审平台交付改动的软件工程仓库中工作的 agent |
 | 额外的触发语言 | 中文：采用者的评审语言是中文，所以描述在英文交付文字之后追加中文触发词汇 |
 | 运行时与工具 | 每套流程都需要 Git；随附报告还需要 Node.js 22.19+ 或 24+，且不使用网络；采用者无需安装、无需构建步骤 |
-| 审查草稿 | 仓库把其双语伴随文件声明为 `.zh.md` 与 `.i18n.yaml`（`CONTRIBUTING.md` 的「Bilingual documents」）；publish 移除了中文技能草稿、其配对记录与仅属草稿的语言切换行；本记录自带其中文对侧 |
-
-### 落地设置
-
-| 设置 | 值 | 依据 |
-|---|---|---|
-| 技能名 | `dsh-spec-pre-push-checks` | 请求 |
-| 目标领域 | 一般项目中的软件工程，而非 DeepSeek Harness | 请求 |
-| 语言 | 英文交付；中文触发关键词；记录为英文并带中文对侧 | 本包的双语实践 |
-| 上游来源 | `submodules/dsh` 的 `dsh-v0.2.1-rc.3`（`1f81c047fc48fa190a683e469daa699857e9afe8`），`.agents/skills/dsh-pre-push-checks/SKILL.md` | 固定基线 |
-| 落地目录 | `skills/dsh-spec-pre-push-checks/` —— `SKILL.md`、`scripts/change-scope.mjs`、`THIRD_PARTY_NOTICES` | 落地惯例 |
-| 安装副本 | `.agents/skills/dsh-spec-pre-push-checks/`，由 `pnpm run skill:refresh` 刷新 | 仓库实践 |
-| 脚本源码与测试 | `package/dsh-spec-pre-push-checks/`；`tests/change-scope.test.ts`；套件的清单行在 `tests/README.md` | 本包的脚本布局 |
-| 被取代内容 | `.agents/skills/dsh-pre-push-checks/` 及其 `scripts/dsh-spec-manager/references/manifest.json` 条目被移除 | 维护者的落地顺序 |
-| 记录 | 本笔记位于 `implemented/process/`，带中文对侧 | 笔记约定 |
-| 审查草稿 | `SKILL.zh.md` 与 `SKILL.i18n.yaml` 在 publish 之前是最新的；publish 移除了它们与切换行 | 锻造评审实践 |
-| 分支 | 锻造分支被压合合并进 `refactor/dsh-skills` | 请求 |
-| 回滚 | 还原落地提交，并从 Git 历史恢复被移除的文件 | VCS |
+| 审查草稿 | 仓库把其双语伴随文件声明为 `.zh.md` 与 `.i18n.yaml`（`CONTRIBUTING.md` 的「Bilingual documents」）；本记录自带其中文对侧 |
 
 ### 来源约束
 
-
-上游文件是来源；下面每个单元都是一条要求、禁令、条件或固定选择，连同它的位置。单元 U17-U18 陈述一种工作方式，其后跟着具体指令，因此各自是一个单元，而不是一组彼此独立的具体规则。有一项实现事实来自本仓库而非上游文字：U4 要求的报告是仓库已有的上游 change-scope 脚本移植（`scripts/dsh-spec-manager/scripts/change-scope.ts`），其文件头点名上游路径与关系。
+上游文件是来源；下面每个单元都是一条要求、禁令、条件或固定选择，连同它的位置。单元 U17-U18 陈述一种工作方式，其后跟着具体指令，因此各自是一个单元，而不是一组彼此独立的具体规则。有一项实现事实来自本仓库而非上游文字：U4 要求的报告是仓库已有的上游 change-scope 脚本移植（`package/dsh-spec-pre-push-checks/change-scope.ts`），其文件头点名上游路径与关系。
 
 | 单元 | 位置 | 约束 |
 |---|---|---|
@@ -78,7 +60,6 @@ Status: implemented
 | U23 | L108-137 | push 流程：运行选中的检查一次；正常 commit 并检查 pre-commit fixer 改动的文件；正常 push 或带精确的 lease push；验证远程 ref 与本地 `HEAD` 匹配；push 后检查远程 CI，并把 pending 报告为 pending；当没有报告检查且该 head 没有运行记录时，先读 mergeability 再怀疑 push，因为冲突的 PR 不产生工作流运行——解决冲突，而不是添加空 commit、toggle 或 revert-and-restore 历史，并用 `git merge-tree --write-tree HEAD origin/<base>` 确认冲突路径；对 `gh stack sync` 使用 post-sync 验证序列，而非普通顺序 |
 
 ### 处置
-
 
 每个单元一行，一个处置标签。「依据」列陈述决定该行的目标领域事实、技能的目的、上游文字或裁定；消解则点名接管的检查。
 
@@ -112,26 +93,14 @@ Status: implemented
 
 ### 随附的 change-scope 报告
 
-
 报告是技能的机械一半。其源码是 `package/dsh-spec-pre-push-checks/change-scope.ts`，像其他技能包那样接线（`build.ts` 运行 `vp pack`，`vite.config.ts` 点名入口与落地目录的 `scripts/` 输出，`package.json` 是私有包标记）；`node scripts/build-skills.ts dsh-spec-pre-push-checks` 把它打包到 `skills/dsh-spec-pre-push-checks/scripts/change-scope.mjs`，即技能运行的已提交产物。
 
 - 用法：`node <skill-dir>/scripts/change-scope.mjs --base <ref> [--head <ref>]`；它在项目的 Git checkout 内运行，并向 stdout 打印一份 JSON 报告。
 - 输出：`formatVersion`（1）、`repositoryRoot`、`input`（`base`、`head`）、`resolved`（`baseSha`、`headSha`、`mergeBaseSha`）与 `paths`（`committed`、`staged`、`unstaged`、`untracked`），每个路径列表都排序并去重；已提交路径相对于已解析的 merge base。
 - 行为：它从不 fetch，从不猜测 base；无法解析的 ref、有歧义的 ref、没有 merge base 的 base 与 head、以及位于 Git worktree 之外的目录，各自在 stderr 上以一条消息失败；报告退出 0，失败退出 1，用法错误（缺少或未知选项）退出 2；`--help` 打印用法并退出 0。
-- 实现基础与适配：报告渲染从仓库已有的上游脚本逐字移植承载而来；CLI 表面被适配，因为 `using-scripts` 页面要求有文档的 `--help` 与有文档且彼此不同的退出码。该移植的文件头记录其取自的上游 commit（`ddefc45fbc7f8e46dd73185e68295696d1297887`）；固定基线 `dsh-v0.2.1-rc.3`（`1f81c047fc48fa190a683e469daa699857e9afe8`）携带相同的文件内容，所以来源文件头与 notices 同时点名这两个事实。报告字段未变；两份副本只在命令行接口上不同，且该适配有测试。
+- 实现基础与适配：报告渲染从仓库已有的上游脚本逐字移植承载而来；CLI 表面被适配，因为 `using-scripts` 页面要求有文档的 `--help` 与有文档且彼此不同的退出码。该移植的文件头记录其取自的上游 commit（`ddefc45fbc7f8e46dd73185e68295696d1297887`）；固定基线 `dsh-v0.2.2-alpha.2`（`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`）携带相同的文件内容，所以来源文件头与 notices 同时点名这两个事实。报告字段未变；两份副本只在命令行接口上不同，且该适配有测试。
 - 归属：归属在加载文字之外陈述。frontmatter 的 `license` 字段点名技能根的 `THIRD_PARTY_NOTICES`，其中携带上游与本仓库的 MIT notices、适配技能文字的上游路径与固定基线，以及 `change-scope` 的起源（移植的 taken-at commit，以及固定基线上相同的内容）。包源码文件头也陈述来源；bundle 的注释保留不参与。
 - 测试：`tests/change-scope.test.ts` 定位已落地的 bundle，存在工作草稿时优先使用它，正如套件定位 forge 的 bundle（`tests/skill-spec.test.ts` 以该方式解析门禁）。
-
-### 读过的页面
-
-
-Agent Skills 的限制于 2026-10-28 在线阅读，而非通过离线兜底：
-
-- <https://agentskills.io/llms.txt> —— 索引；它链接下面的页面。
-- <https://agentskills.io/specification.md> —— 目录布局、frontmatter 字段与限制、渐进披露、文件引用、验证。
-- <https://agentskills.io/skill-creation/best-practices.md> —— 以真实专长为基础、上下文经济、连贯范围、校准控制、默认值、模式。
-- <https://agentskills.io/skill-creation/using-scripts.md> —— 一次性命令与随附脚本、相对脚本路径、自包含脚本、非交互接口、`--help`、可操作的错误、结构化 stdout 与 stderr 上的诊断；适配后 CLI 表面的来源。
-- <https://agentskills.io/skill-creation/optimizing-descriptions.md> —— 祈使式、聚焦意图、略具推动性的描述、1024 字符的限制与触发评估；阅读以校准描述的触发措辞。
 
 ### 裁定
 
@@ -143,50 +112,16 @@ Agent Skills 的限制于 2026-10-28 在线阅读，而非通过离线兜底：
 - **归属在加载文字之外传递。** 基线的约定让技能根的 `THIRD_PARTY_NOTICES` 成为载体、frontmatter 的 `license` 字段成为其指针，因为文字内的文件头或注释会被当作指令加载；本技能对适配技能文字与移植报告都遵循该约定，且不依赖任何 bundler 注释行为。
 - **`<skill-dir>` 是包含 `SKILL.md` 的目录，不是本包的安装路径。** 命令需要一种方式点名随附报告，但硬编码 `.agents/skills/dsh-spec-pre-push-checks` 会让一个通用技能假设某个客户端的安装布局；占位符定义时不带路径，好让每个采用者在自己的树中解析它。
 - **记录使用仓库自己的遗留实现作为实现基础，而非设计来源。** 上游技能陈述要求，该移植携带其字段契约，没有其他来源为记录提供信息。
-- **审查草稿是声明的，不是可选的。** 仓库的双语约定声明两个后缀；中文技能草稿及其配对记录在停止时是最新的，publish 连同仅属草稿的切换行移除它们，本记录的中文对侧在落地时写入。
-- **落地遵循维护者授权。** 发布到 `skills/`，镜像到 `.agents/skills/`，移除被取代的安装副本与 manifest 条目，更新根文档，移动并配对本记录，并压合合并分支；不 push。
-- **被取代内容在落地时移除。** 上游同名的安装副本及其 manifest 条目移除；历史发布说明与遗留安装副本的文字保持原样。
-- **记录的中文对侧在落地时写入。** 锻造把笔记配对推迟到最终人工评审；评审已完成，落地遵循本包的双语实践。
-
-### 落地记录
-
-- 用 `forge.mjs publish` 把工作草稿发布到 `skills/dsh-spec-pre-push-checks/`；声明的审查草稿与仅属草稿的切换行没有落地。
-- 用 `pnpm run skill:refresh` 把落地树镜像到 `.agents/skills/dsh-spec-pre-push-checks/`。
-- 移除 `.agents/skills/dsh-pre-push-checks/` 及其在 `scripts/dsh-spec-manager/references/manifest.json` 中的 `dsh-pre-push-checks` 条目。
-- 把技能加入根 `AGENTS.md` 的技能列表与根 `THIRD_PARTY_NOTICES.md` 中的适配技能枚举；README 描述入口技能，未改动。
-- 把本笔记从 `proposed/process/` 移到 `implemented/process/`，并写入其中文对侧与配对记录。
-- 保持历史发布说明与遗留安装副本的文字原样；其中的 `dsh-pre-push-checks` 提及作为历史解析。
-- 把锻造分支压合合并进 `refactor/dsh-skills`；不 push。
-
-## 验证
-
-本节承载为落地状态实际运行的命令、它们的输出，以及每项锻造技能要求的锚点映射。所有命令于 2026-10-28 在锻造 worktree 中、压合合并之前运行。
-
-### 检查结果
-
-- **技能门禁。** `node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs skills/dsh-spec-pre-push-checks --name-max 64 --description-max 1024 --compatibility-max 500 --max-lines 500 --max-tokens 5000 --cjk-tokens-per-char 0.6 --other-tokens-per-char 0.3` → `14 check(s), 0 failed`；108 行，约 2983 tokens；description 387 字符，compatibility 146 字符，license 59 字符。
-- **报告用例。** `node --test tests/change-scope.test.ts` → `tests 10, pass 10, fail 0`。
-- **仓库套件。** `pnpm test` → `tests 216, pass 216, fail 0`；包含对六个已落地技能的安装副本形状检查。
-- **格式。** `pnpm run format:check` → `All matched files use the correct format.`，`Finished ... on 26 files`。
-- **笔记树。** `node skills/dsh-spec-agent-notes/scripts/notes.mjs check --companion .zh.md --companion .i18n.yaml` → `ok check — 34 note(s) and 68 companion(s) checked`。
-- **记录配对。** `node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair check .agents/dsh-spec-agent-notes/implemented/process/2026-10-28-forging-dsh-spec-pre-push-checks.md` → `1 named pair(s) consistent`；`check translation-pair: ok`。
-- **安装副本。** `pnpm run skill:refresh` → `6 skill(s), 0 failed`；每个已落地技能都有相同的安装副本。
-- **被取代内容。** `git status --porcelain -uall` 报告没有游离文件；`.agents/skills/dsh-pre-push-checks/` 与 manifest 条目已消失；不 push。
-
-### 设计审计、评审与文字审计
-
-- **设计审计。** 设计在实现之前被独立审计，并于 2026-10-28 接受；其阻塞性发现已在设计中解决。
-- **独立实现评审。** 实现——包括归属约定与文字审计修正——被独立评审，并于 2026-10-28 接受；其发现于落地前解决。评审覆盖技能门禁、报告用例、完整套件、格式与笔记检查、bundle 探针与约束检查。
-- **文字审计。** 耐久文字于 2026-10-28 对照 `dsh-spec-prose-standard` 审计；其发现于落地前应用。
-- **基线与归属约定。** 基线携带 `dsh-spec-prose-standard` 并在 `THIRD_PARTY_NOTICES.md` 中陈述归属约定：承载或适配了文字的技能声明一个 `license` 字段，点名技能根的 `THIRD_PARTY_NOTICES`。落地 frontmatter 声明该字段，技能携带覆盖适配文字与移植报告的 `THIRD_PARTY_NOTICES`，`<skill-dir>` 子句不点名任何包安装路径。
-- **评审范围。** 评审接受覆盖实现；落地树不添加仅属草稿的内容——publish 随审查草稿移除了切换行，本记录的中文对侧随落地提交。
+- **审查草稿是声明的，不是可选的。** 仓库的双语约定声明两个后缀；中文技能草稿及其配对记录在停止时是最新的，本记录的中文对侧在落地时写入。
+- **落地遵循维护者授权。** 发布到 `skills/`，镜像到 `.agents/skills/`，移除被取代的安装副本，更新根文档，移动并配对本记录，并压合合并分支；不 push。
+- **被取代内容在落地时移除。** 上游同名的安装副本移除；历史发布说明与遗留安装副本的文字保持原样。
+- **记录的中文对侧在落地时写入。** 落地遵循本包的双语实践。
 
 ### 每项要求的锚点
 
-
 | 要求 | 锚点 | 证据 |
 |---|---|---|
-| U1 描述触发 | 判定 | 独立评审接受描述措辞；触发率是下面的未验证项 |
+| U1 描述触发 | 判定 | 独立评审接受描述措辞；触发率未验证 |
 | U2 引言：证据一次、一个顺序例外、hook/CI 归属 | 判定 | 独立评审，机制走查 U1-U23 |
 | U3 检查第 1 步 | 判定 | 独立评审 |
 | U4 已验证 base 与报告契约 | 机械 | `node --test tests/change-scope.test.ts`（10 pass）；`--help`/0、报告/0、失败/1、用法/2 的探针 |
@@ -215,14 +150,7 @@ Agent Skills 的限制于 2026-10-28 在线阅读，而非通过离线兜底：
 | 记录已配对 | 机械 | `translation-pair check` 报告 1 named pair consistent |
 | 触发质量 | 未验证 | 本仓库没有触发评估 harness；人工评审判断描述 |
 
-## 未验证项
-
-- **触发质量。** 本仓库不存在触发评估 harness，所以描述没有在真实的应触发与不应触发查询集上测量；门禁只检查其长度与形状，人工评审判断措辞。理由：没有 harness，套件中没有模型访问。
-- **GitHub 之外的采用者表面覆盖。** push 流程保留 GitHub 命令作为示例；它们对另一个评审平台适用到何种程度靠判断，而非检查。理由：目标可以是任何软件工程仓库，本仓库中没有第二个平台可用。
-- **报告的 Windows 可移植性。** 套件只在 Linux 与 macOS 类平台上运行；报告的路径与行尾处理未在 Windows 上演练。理由：没有可用的 Windows runner。
-
 ## 备选方案
-
 
 **几乎原样承载上游技能，只改仓库名。** 它落败因为 deepseek-harness 的命令、hook 清单、profile/snapshot 位置、兄弟技能引用与 stacked-PR 工具都是软件工程采用者没有的指涉；把它们留着会让技能指示会失败的命令，这与本包的目的相反。
 
@@ -240,11 +168,11 @@ Agent Skills 的限制于 2026-10-28 在线阅读，而非通过离线兜底：
 
 ## 后果
 
-- **过渡性重复。** 遗留引擎存活期间报告存在两份：一份在 `scripts/dsh-spec-manager/` 下，一份在落地技能里。引擎副本在原始安装技能调用它期间保持不动，技能副本才是新架构拥有、携带 notices 的那一份；引擎退役时，技能副本是唯一的一份。
+- **过渡性重复。** 报告只存在于落地技能中，由本仓库拥有并携带 notices；遗留引擎及其副本已随管理器一并移除。
 - **报告与上游移植在命令行接口上不同。** CLI 适配（`--help`、退出码）与遗留副本分叉，而报告渲染不分叉。分叉很小，记录在源码文件头与 notices 中，并有测试覆盖；未来的读者不应假设两份副本可以互换。
 - **通用的选择条目可能读起来像清单。** 上游的具体表面让技能有用；泛化它们可能产生 agent 已经知道的建议。消解行把采用者约定留给采用者，而不是发明路径；评审只在 agent 没有技能就可能弄错时保留一条。
 - **报告没有在 Windows 上得到证明。** 实现处理 CRLF 与 NUL 分隔的路径字节，并拒绝非 UTF-8 的 Git 输出，但测试只在 Linux 上运行；Windows 路径或编码缺陷会首先在采用者处暴露。
 - **同时安装上游 `dsh-pre-push-checks` 的采用者会看到两个相似的描述。** 通用描述以相同的时机与自动发布触发开头；哪个技能被激活是 harness 的选择。本仓库移除了上游同名的安装副本，所以它自己的成本已经消失。
 - **技能的放弃之处。** 它不陈述像上游那样详细的 stack 验证序列，没有仓库专属的路径规则，也对平台 CI 行为不给出超出其点名的 GitHub 示例的保证。那些就是刻意的消解与适配；需要它们的采用者保留自己的文档。
-- **落地移除内容。** 上游同名的安装副本及其 manifest 条目消失；依赖它们的项目改有新技能随附的报告。历史发布说明是仅剩的、把旧技能当作已发布来呈现的文字。
+- **落地移除内容。** 上游同名的安装副本消失；依赖它们的项目改有新技能随附的报告。历史发布说明是仅剩的、把旧技能当作已发布来呈现的文字。
 - **记录的对侧增加维护。** 笔记门禁结构性地检查对侧，配对门禁检查其 hash，所以任一侧的编辑都必须在同一改动中镜像并重新记录。

@@ -21,6 +21,7 @@ The forge uses declared companions instead of its own pair record:
 - The forge writes no `.i18n.yaml`, stores no source hash, and has no `pair --check`. Whether a pair is current is decided by the project's own pairing gate; the forge does not import that gate, and the review draft names the translation skill only as an availability-qualified example.
 - Before `publish`, the adopter removes review-draft-only content from the work-draft sources; `publish` copies the sources unchanged.
 - Cross-skill guidance: the forge names the optional notes, translation, prose and prompt skills only as availability-qualified examples; the Agent Skills best practices outrank the prose and prompt requirements.
+- Delivery language is English; the review language is Chinese, paired only at the stop; the additional trigger language is Chinese, already present in the description.
 
 ## Design
 
@@ -28,40 +29,27 @@ The work directory remains the authority. A declared companion is a regular file
 
 The review drafts and their pairing records are ordinary work-directory content to the forge. The adopter's pairing gate writes the `.i18n.yaml` records; the forge declares and removes them, and never writes or checks them. `publish` removes the files covered by the declarations before copying; every other file is copied. This makes the declaration the boundary: a companion whose suffix is not passed is not a review draft and lands as content.
 
-The change is source-level: `package/dsh-spec-skill-forge/forge.ts`, the bundled work-directory script, the forge's SKILL.md review rules, the lifecycle tests, `package.json`, the AGENTS/package README wording, and this record. The work directory was published to `skills/dsh-spec-skill-forge/`, the installed copy was refreshed, and this record moved to `implemented/`.
-
 ## Forging record
 
-- Goal: use `dsh-spec-skill-forge` to forge `dsh-spec-skill-forge`, changing only the review-draft pairing to the notes mechanism's declarative shape; other adjustments are left for the final human review.
-- Baseline: branch `forge/dsh-spec-skill-forge-pairing`, started from `refactor/dsh-skills` at `c59ed1b`.
-- Delivery language: English. Review language: Chinese, paired only at the stop. Additional trigger language: Chinese, already present in the description.
-- Source constraints read: the current forge `SKILL.md`, `forge.ts` and lifecycle tests; the agent-notes `SKILL.md`, `references/notes-contract.md` and `scripts/notes.mjs` (suffix validation and companion pairing); and the adopter's `AGENTS.md` declaration.
-- Pages read: `https://agentskills.io/llms.txt` and `https://agentskills.io/skill-creation/best-practices.md` on 2026-10-27. The specification page was not re-read for this narrow change; the gate's existing checks and the current skill's structure were enough.
-- Disposition table:
+| Source location | Disposition | Target home | Basis / forcing fact |
+|---|---|---|---|
+| `SKILL.md § Review`: review needed when the review language differs or the adopter asks | Re-bind | `SKILL.md § Review`; a review starts on a suffix declaration | The notes mechanism has no inferred language |
+| `SKILL.md § Review`: fixed `<source>.<lang>.md` pair with a source-hash record | Re-bind | Declared suffix beside a `.md` source; no forge-owned record | Notes companions are declared; consistency belongs to the project's gate |
+| `SKILL.md § Review`: one translation per source, multiple rejected | Dissolve | Multiple declared companions allowed; `pair` reports orphan drafts | The check that takes over is the read-only pair report |
+| `SKILL.md § Review`: every source must have a translation when pairs exist | Dissolve | Selective drafts; a source without a draft is valid | Notes active trees translate selectively |
+| `SKILL.md § Review`: only `.md` files paired; scripts and assets untranslated | Adapt | Any declared suffix; the source is a `.md` file | Pairing is declarative; companion file types vary |
+| `SKILL.md § Review`: work directory is the only authority; draft fidelity | Keep | `SKILL.md § Review` unchanged | No source change |
+| `SKILL.md § Review`: the final review submits the drafts and waits | Keep | `SKILL.md § Review` unchanged | The handover remains the adopter's decision |
+| `SKILL.md § Verification`: Complete requires current translation pairs | Adapt | Complete requires paired declared drafts and the project gate run when review was needed | Consistency is the project gate's job |
+| `SKILL.md § Verification`: gate and review are separate read-only checks | Adapt | Gate and `pair` are separate; `pair` has no `--check` | Consistency is the project gate's job |
+| `SKILL.md § Defaults`: `Review language` default | Adapt | `Review drafts` default: none until declared; suffix names the language or record kind | The declaration replaces an inferred language default |
+| `forge.ts` pair/publish pair removal | Adapt | Read-only pair report and declaration-driven publish removal | The forge no longer writes or checks pair records |
+| `AGENTS.md`, `package/AGENTS.md`, `package.json` wording and commands | Adapt | Declarative companion wording and candidate CLI invocations | The repository's forge skill uses declared companions |
+| Historical forge skill § Languages: a review draft reverses the description's additional trigger language | Re-bind | `SKILL.md § Review` | The earlier skill stated the rule; the simplified skill lost it, and the missing trigger language exposed the loss |
+| An existing decision record | Re-bind | `SKILL.md § Source` | Only the request, the current contract and the declaration decide; the record supplies a requirement only where one of them keeps that requirement in force |
+| Adopter declaration: forging record location | Keep | `.agents/dsh-spec-agent-notes/implemented/process/2026-10-27-forging-dsh-spec-skill-forge.md` | The notes mechanism's default root and the repository's `forging-<skill-name>` record convention |
 
-  | Source location | Disposition | Target home | Basis / forcing fact |
-  |---|---|---|---|
-  | `SKILL.md § Review`: review needed when the review language differs or the adopter asks | Re-bind | `SKILL.md § Review`; a review starts on a suffix declaration | The notes mechanism has no inferred language |
-  | `SKILL.md § Review`: fixed `<source>.<lang>.md` pair with a source-hash record | Re-bind | Declared suffix beside a `.md` source; no forge-owned record | Notes companions are declared; consistency belongs to the project's gate |
-  | `SKILL.md § Review`: one translation per source, multiple rejected | Dissolve | Multiple declared companions allowed; `pair` reports orphan drafts | The check that takes over is the read-only pair report |
-  | `SKILL.md § Review`: every source must have a translation when pairs exist | Dissolve | Selective drafts; a source without a draft is valid | Notes active trees translate selectively |
-  | `SKILL.md § Review`: only `.md` files paired; scripts and assets untranslated | Adapt | Any declared suffix; the source is a `.md` file | Pairing is declarative; companion file types vary |
-  | `SKILL.md § Review`: work directory is the only authority; draft fidelity | Keep | `SKILL.md § Review` unchanged | No source change |
-  | `SKILL.md § Review`: the final review submits the drafts and waits | Keep | `SKILL.md § Review` unchanged | The handover remains the adopter's decision |
-  | `SKILL.md § Verification`: Complete requires current translation pairs | Adapt | Complete requires paired declared drafts and the project gate run when review was needed | Consistency is the project gate's job |
-  | `SKILL.md § Verification`: gate and review are separate read-only checks | Adapt | Gate and `pair` are separate; `pair` has no `--check` | Consistency is the project gate's job |
-  | `SKILL.md § Defaults`: `Review language` default | Adapt | `Review drafts` default: none until declared; suffix names the language or record kind | The declaration replaces an inferred language default |
-  | `forge.ts` pair/publish pair removal | Adapt | Read-only pair report and declaration-driven publish removal | The forge no longer writes or checks pair records |
-  | `AGENTS.md`, `package/README.md`, `package.json` wording and commands | Adapt | Declarative companion wording and candidate CLI invocations | The repository's forge skill uses declared companions |
-  | Historical forge skill § Languages: a review draft reverses the description's additional trigger language | Re-bind | `SKILL.md § Review` | The earlier skill stated the rule; the simplified skill lost it, and the missing trigger language exposed the loss |
-  | An existing decision record | Re-bind | `SKILL.md § Source` | Only the request, the current contract and the declaration decide; the record supplies a requirement only where one of them keeps that requirement in force |
-  | Adopter declaration: forging record location | Keep | `.agents/dsh-spec-agent-notes/implemented/process/2026-10-27-forging-dsh-spec-skill-forge.md` | `AGENTS.md` names the notes tree and the `forging-<skill-name>` filename |
-
-  Unchanged: the guiding principle, tool names, Stop/Intent/Source/Disposition/Script conversion/Verification/Defaults sections, the verification anchor table, the gate mechanics, and the description/trigger. The Record and Review sections now carry the optional sibling references.
-
-- Checks at landing: landed skill gate 14/14 (99 lines, ~3,174 tokens); `node --test tests/forge-lifecycle.test.ts` 39/39; `pnpm test` 262/262; notes gate 38 notes / 76 companions; the work-directory review pairs passed the project pairing gate before cleanup; `pnpm run format:check` green; DCO verified the landing commit. The lifecycle suite covers read-only pairing, selective and multiple companions, overlapping suffixes, invalid suffixes, orphan refusal, declaration-driven publish removal, candidate heuristics, and undeclared-candidate reporting.
-- Review: two independent reviewers accepted 729a892; the human accepted the landing.
-- Residual limits: review-draft-only content removal from work-draft sources is a judged instruction, not a mechanical check; `publish` is not transactional; candidate discovery is a heuristic.
+Unchanged: the guiding principle, tool names, Stop/Intent/Source/Disposition/Script conversion/Verification/Defaults sections, the verification anchor table, the gate mechanics, and the description/trigger. The Record and Review sections now carry the optional sibling references.
 
 ## Alternatives considered
 
@@ -80,5 +68,4 @@ The change is source-level: `package/dsh-spec-skill-forge/forge.ts`, the bundled
 - `publish` removes declared companions and copies the work-draft sources unchanged. Review-draft-only content in those sources must be removed by the operator before publishing; a forgotten switcher, backlink or removed-draft link lands.
 - The `pair` command is read-only. Its no-declaration report lists candidate companions by suffix relation; the shortest-suffix rule and proximity to a `.md` source make it a heuristic, and it never deletes.
 - The description-reversal rule and the current-source rule for earlier decision records are in the skill body; both are judged in review rather than mechanically checked.
-- The landed skill passes the gate at 99 lines and ~3,174 tokens; the lifecycle suite has 39 tests, the repository suite 262, and the notes tree 38 notes / 76 companions. The work-directory pairs passed the project pairing gate before cleanup.
 - Costs and open risks: the forge cannot detect stale translations; manual source cleanup is unverified; `publish` is not transactional and removes declared drafts before copying; the candidate heuristic can report false positives. The VCS is the rollback.

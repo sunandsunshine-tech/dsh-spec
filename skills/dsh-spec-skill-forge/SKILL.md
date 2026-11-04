@@ -6,9 +6,11 @@ compatibility: "Requires Node.js 22.19+ or 24+ for the bundled scripts. No build
 
 # Skill forging
 
-## Guiding principle
+## Guiding principles
 
-Choose the anchoring form that fits how determinate the goal and task are — a natural-language contract, a strong type, a mechanical check script, and so on — and turn the expectations of AI into precise grounds for convergence. Positive boundaries provide centripetal force, negative boundaries provide repulsive force, and verification conditions decide whether to continue, adjust or stop. The anchoring functions need not be mechanically complete. For an ambiguous area that cannot be reliably defined and could affect safety, correctness or produce substantial irreversible consequences, set a safety fallback, state its trigger conditions, and establish a blocking or handover mechanism. For an open area that needs no prior definition, state the range in which divergence is allowed and the boundaries it must not cross. A scheme's effectiveness depends on the anchors' actual constraining power over the goal and on how well the anchoring form matches the nature of the task.
+**Context, not control.** A forged skill shapes the agent's context, not its path. Apply the project's prompt requirements (when available, consider using the `dsh-spec-agent-experience` skill) when deciding what context it carries; reserve control for authorization, irreversible actions, safety and required validation.
+
+**Anchors make context judgeable.** Express that context in the form the task demands — a natural-language contract, a strong type, a checked script, a worked example. Positive and negative boundaries and verification conditions state what must stay true, what must not happen and how completion is decided; they are not a workflow. The anchoring need not be mechanically complete. For an ambiguous area that could affect safety, correctness or produce substantial irreversible consequences, state a safety fallback and its trigger. For an open area, state the allowed range and the boundaries it must not cross. The design is effective when its context and anchors constrain the goal while leaving the route open.
 
 ## Tools
 
@@ -21,7 +23,7 @@ Run `forge.mjs` from the project root; the gate takes the skill directory as its
 
 Read [the Agent Skills index](https://agentskills.io/llms.txt) and the best-practices page it links before writing the forged skill; read the other pages it links on demand; write the forged skill to their requirements. The linked set is whatever the index links when it is read; do not keep a fixed list. Record each page read and the date it was read; when a page cannot be read, read [the offline fallback](references/offline-skill-authoring.md) in its place and record which page was unreadable. The fallback is a distilled snapshot, not a second authority; the online originals win whenever they can be read.
 
-The Agent Skills best practices outrank the package's prose and prompt guidance. For the forged skill's prose, apply the project's prose requirements (when available, consider using the `dsh-spec-prose-standard` skill); for its instruction and context structure, apply the project's prompt requirements (when available, consider using the `dsh-spec-agent-experience` skill).
+The Agent Skills best practices outrank this skill's guiding principles and the package's prose and prompt guidance. For the forged skill's prose, apply the project's prose requirements (when available, consider using the `dsh-spec-prose-standard` skill); for its instruction and context structure, apply the project's prompt requirements (when available, consider using the `dsh-spec-agent-experience` skill). When they conflict, the Agent Skills best practices decide; otherwise the more specific owner decides: `dsh-spec-agent-experience` owns prompt and context structure, and this skill owns the forging process and artifact decisions.
 
 ### Stop
 
@@ -29,7 +31,7 @@ Stop and wait on an unauthorized overwrite or deletion of an existing skill, on 
 
 ### Intent
 
-Settle from the request and the adopter's declaration (`AGENTS.md` or the file it cites): name, goal, boundary, deliverable, locations and languages; the target audience and its domain; and the runtime, tools and constraints of its environment.
+Settle from the request and the adopter's declaration (`AGENTS.md` or the file it cites): name, goal, boundary, deliverable, locations and languages; the target audience and its domain; and the runtime, tools and constraints of its environment. Write the forged skill in English unless the adopter declares another delivery language.
 
 Derive the trigger vocabulary and the excluded adjacent tasks from the source. Within the Stop boundaries the design is open: choose the structure, wording and scripts that fit the source.
 
@@ -64,11 +66,11 @@ A requirement a command can decide exactly becomes a script. A requirement only 
 
 ### Review
 
-A review starts when the adopter declares review-draft suffixes with repeated `--companion <suffix>`; a review draft is a regular file beside its `.md` source whose name ends with a declared suffix. With no declaration there are no declared review drafts. Declaring a suffix does not require every source to carry a draft: a source may carry no draft, one draft or several, and overlapping suffixes resolve to the longest declaration. A declared suffix follows the notes companion shape and cannot be `.md`; it may name a translation or a project pairing record, for example `.zh.md` or `.i18n.yaml`. The project's pairing gate (when available, consider using the `dsh-spec-translate-docs` skill) may write its record beside a draft; declare it like any companion. With no declaration, `pair` lists possible review drafts: a regular file whose shortest dotted suffix resolves to an existing `.md` source. A file is a review draft only when its suffix is declared; undeclared candidates are reported and `publish` copies them as ordinary content.
+A review starts when the adopter declares review-draft suffixes with repeated `--companion <suffix>`; a review draft is a regular file beside its `.md` source whose name ends with a declared suffix. With no declaration there are no declared review drafts. Declaring a suffix does not require every source to carry a draft: a source may carry no draft, one draft or several, and overlapping suffixes resolve to the longest declaration. A declared suffix follows the notes companion shape and cannot be `.md`; it may name a translation or the project's consistency record. The project's translation consistency gate (when available, consider using the `dsh-spec-translate-docs` skill) may write its record beside a draft; declare it like any companion. With no declaration, `pair` lists possible review drafts: a regular file whose shortest dotted suffix resolves to an existing `.md` source. A file is a review draft only when its suffix is declared; undeclared candidates are reported and `publish` copies them as ordinary content.
 
-The delivery side's description leads with the delivery language and appends the additional trigger language. A review draft reverses that order: its own language first, the delivery language as the additional trigger language. When the languages match, the review draft uses one language.
+The delivery side's description leads with the delivery language and appends the additional trigger language. A review draft reverses that order: its own language first, the delivery language as the additional trigger language. When the languages match, the review draft uses one language. The additional trigger language defaults to the adopter's review language; when it equals the delivery language, omit it or name another.
 
-Write a draft, then run `pair` with the same declarations. It reports each draft/source pair and fails on a draft without a source; it writes nothing. The project's pairing gate owns whether the pair is current; the forge neither writes nor checks a consistency record. Pass the same `--companion` set to `publish`: it refuses an orphan draft, removes the declared drafts from the work directory, copies the work directory, and then removes the work directory. Before `publish`, remove any review-draft-only content from the work-draft sources. A file whose suffix is not declared is copied as ordinary content. The work directory is the only authority; a draft keeps concepts and names aligned and introduces no new concept. The final review submits the drafts and waits for the adopter to accept, change or reject the submission.
+Write a draft, then run `pair` with the same declarations. It reports each draft/source pair and fails on a draft without a source; it writes nothing. The project's translation consistency gate owns whether the translation is current; the forge neither writes nor checks a consistency record. Pass the same `--companion` set to `publish`: it refuses an orphan draft, removes the declared drafts from the work directory, copies the work directory, and then removes the work directory. Before `publish`, remove any review-draft-only content from the work-draft sources. A file whose suffix is not declared is copied as ordinary content. The work directory is the only authority; a draft keeps concepts and names aligned and introduces no new concept. The final review submits the drafts and waits for the adopter to accept, change or reject the submission.
 
 ## Verification
 
@@ -80,20 +82,14 @@ Every requirement carries a verification anchor at the most precise level availa
 | Judged | A named guide or reference decides it; state one conclusion per item. | One conclusion per item |
 | Unverified | No precise check exists for the item. | The item and the reason |
 
-Run the gate as a separate read-only check; it reports one line per check and its `--help` lists the options. `publish` does not run the gate. When review is needed, run `pair` so that an orphan draft fails and the project pairing gate can check the pair.
+Run the gate as a separate read-only check; it reports one line per check and its `--help` lists the options. `publish` does not run the gate. When review is needed, run `pair` so that an orphan draft fails and the project's translation consistency gate can check the translation.
 
-**Complete**: every source constraint has one disposition row with its home; every requirement of the forged skill carries one anchor; the gate passed with the parameters used; every judged item has a conclusion; every unverified item carries its reason; the declared review drafts are paired and the project pairing gate has been run when review was needed; the record carries the evidence, the pages read and the rulings.
+**Complete**: every source constraint has one disposition row with its home; every requirement of the forged skill carries one anchor; the gate passed with the parameters used; every judged item has a conclusion; every unverified item carries its reason; the declared review drafts are translated and the project's translation consistency gate has been run when review was needed; the record carries the evidence, the pages read and the rulings.
 
 **Failure**: fix and rerun; never claim a failed or unrun check as passed. An unresolved gap: record a ruling.
 
 ## Record
 
-Write at the location the adopter's declaration or existing decision-record mechanism names (when available, use the `dsh-spec-agent-notes` skill); otherwise `record/<name>.md` under the forge directory the script uses. Follow an existing mechanism; without one, record goal, settings, the disposition table, the pages read, check results, review conclusion, unverified items, rulings, risks and rollback point. Write each decision when settled; on conflict record it and the resolution. Keep the record outside the forged skill directory. One record, no second state store or process log.
+Write at the location the adopter's declaration or existing decision-record mechanism names (when available, use the `dsh-spec-agent-notes` skill); otherwise `record/<name>.md` under the forge directory the script uses. Write the record in English. Its translation follows the adopter's declaration; without one, translate it into the adopter's language. When the adopter's language is English, no separate translation is produced. The adopter owns the translation mechanism and its consistency record.
 
-## Defaults
-
-| Setting | Default |
-|---|---|
-| Delivery language | English |
-| Review drafts | None until the adopter declares suffixes with `--companion`; a suffix names a language, variant or pairing record. |
-| Additional trigger language | The adopter's review language, appended to the description's trigger keywords; when it equals the delivery language, name another or omit it |
+Without an existing mechanism, record the goal, settings, disposition table, pages read, check results, review conclusion, unverified items, rulings, risks and rollback point. Write each decision when settled; on conflict record it and the resolution. Keep the record outside the forged skill directory: one record, no second state store or process log.

@@ -14,20 +14,13 @@ The landed forge is three in-body steps, with the Agent Skills guides as the con
 
 1. **Intent recognition** — goal, boundary, deliverable, mode, languages, forge directory, landing and record location, forge settings; the target audience (with its domain); and the adoption environment's Script decision (runtime, tools, testing route, hard red line when the runtime is missing).
 2. **Collect, analyze and dispose** — collect Docs, SOP and Script; list every source constraint; deconstruct; apply keep/adapt/re-bind/dissolve; verify coverage and honesty.
-3. **Write the skill content** — before writing, read [Agent Skills Best Practices](https://agentskills.io/skill-creation/best-practices) and all content it links, and follow them as written. `references/offline-skill-authoring.md` is a distilled fallback read only when those sources cannot be read; it is not a second authority, and the online originals win.
+3. **Write the skill content** — before writing, read [Agent Skills Best Practices](https://agentskills.io/skill-creation/best-practices) and all content it links, and follow them as written. `references/offline-skill-authoring.md` is a distilled fallback read only when those sources cannot be read, distilled from the specification, best-practices, optimizing-descriptions, using-scripts and evaluating-skills pages; it is not a second authority, and the online originals win.
 
 The three steps and the global rules live in `SKILL.md`; the offline fallback is the only reference file the forge ships. The process rules are retained: interaction, languages, forge directory, record, drafts, a compact format rule, SSOT, unambiguity and hard red lines. The scripts are unchanged: `forge.mjs` keeps the draft/review/land lifecycle, and `verify-skill-spec.mjs` keeps the mechanically decidable checks and still reports body size; an over-size body is a recorded ruling, not a routing ladder.
 
-### Settings
+**Partly superseded by [Forge the skill forge around precise anchors](2026-10-26-forging-dsh-spec-skill-forge.md).** That re-forge replaces the body shape described here and the draft/review/land lifecycle with the precise-anchor body and the draft/pair/publish lifecycle; this record owns the decision to reforge around the Agent Skills guides, the three steps, and the guides as content authority.
 
-| Setting | Value |
-|---|---|
-| Mode | iterate; the landed forge skill was the source of the work draft |
-| Forge directory / landing | `.agents/dsh-spec-skill-forge/` / `skills/dsh-spec-skill-forge/` |
-| Drafts | work and review drafts removed on landing |
-| Languages | delivery English; review Chinese; trigger Chinese |
-| Record | this note |
-| Rollback | restore `skills/dsh-spec-skill-forge/` and this triplet from the previous commit |
+- Delivery language is English; the review language and the additional trigger language are Chinese.
 
 ### Dispositions
 
@@ -45,14 +38,6 @@ The three steps and the global rules live in `SKILL.md`; the offline fallback is
 | Offline fallback | keep | `references/offline-skill-authoring.md`, read only when the online sources are unreachable |
 | Folded `Docs / SOP / Script` definition | restore | three separate global definitions |
 | `SSOT` / `Unambiguity` rules | keep | unchanged global rules (ruling: forge-level quality, no conflict with the guides) |
-
-### Verification
-
-- `verify-skill-spec.mjs --strict-budget` on the landed skill → 11 checks, 0 failed; 174 lines, ~4,214 tokens at the script's default estimate; one reference named.
-- Landing: the work draft was copied to `skills/dsh-spec-skill-forge/`, the draft and review directories were removed, and `pnpm run skill:refresh` made the installed copy byte-identical.
-- `pnpm test` (82 tests) and `pnpm run format:check` pass after landing; DCO passes for the change's commits.
-- The online sources were reachable on 2026-10-23; the offline fallback was distilled from the specification, best-practices, optimizing-descriptions, using-scripts and evaluating-skills pages that day.
-- The porting appendix's `3-recomposition.md` and budget-route references were updated to the landed three-step structure.
 
 ## Alternatives considered
 

@@ -12,7 +12,7 @@ dsh narrowed that in `dsh-v0.1.6-alpha.2`, the release this text was ported from
 
 ## Decision
 
-The narrowed text is ported everywhere dsh changed it: the notes contract template and its Chinese counterpart, and the section adoption injects into a project's `AGENTS.md`. `sync` rewrites all of them into every project's copy, this repository's included, so the sentence an agent reads every session and the contract it writes a note against say the same thing.
+The narrowed text is carried by the notes skill: its contract is the copy every adopting project loads, so the trigger sentence an agent meets when it writes a decision record and the contract that governs it say the same thing.
 
 One sentence in the injected section is this skill set's own: **a decision agreed in conversation counts**, and the contract carries it too. Everything else mirrors the pin.
 
@@ -24,9 +24,9 @@ One sentence in the injected section is this skill set's own: **a decision agree
 
 ## Consequences
 
-- Every project's notes contract says what dsh's says at the revision we pin, and `sync` keeps it that way.
-- Our own rule, and every adopter's, stays as broad as dsh's standing orders: a non-trivial change is still expected to carry a note. The narrowed contract governs what a note is *for* when one is written.
-- The contract and the standing orders disagree here, exactly as they do in the source project. This note records the disagreement instead of smoothing it over, so the next reader knows it was seen.
+- Every project's notes contract says what dsh's says at the revision we pin; the contract ships in the notes skill, so one copy keeps it in step.
+- The narrowed contract governs what a note is *for* when one is written; the notes skill's description asks an agent, before a non-trivial change, to decide whether that change needs a durable record, and mechanical or local edits are exempt.
+- The contract is the one surface that states the trigger; no standing order restates it, so a reader meets the narrowed rule rather than a second, broader sentence.
 - Verification: `dsh-spec.ts check --all --root .` ends `check notes: ok` and `check notes-archived: ok`; the contract's "When to write one" section carries the same rule as `submodules/dsh/.agents/notes/README.md`, with our `same change` wording in place of its `same PR`; `install` into an empty project injects the standing orders unchanged from before this change.
 
 ## Related

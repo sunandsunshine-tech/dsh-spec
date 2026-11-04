@@ -2,8 +2,8 @@
  * SPDX-License-Identifier: MIT
  *
  * Ported from dsh `scripts/change-scope.ts` at commit `ddefc45fbc7f8e46dd73185e68295696d1297887`;
- * the pinned baseline `dsh-v0.2.1-rc.3` (`1f81c047fc48fa190a683e469daa699857e9afe8`) carries the
- * same content. This copy comes via the repository's former manager port. The report rendering is verbatim; the CLI
+ * the pinned baseline `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`) carries the
+ * same content. The report rendering is verbatim; the CLI
  * surface is adapted for this skill (a documented --help and a distinct usage-error exit 2).
  */
 /** Report the explicit committed and worktree scope of a repository change. */
