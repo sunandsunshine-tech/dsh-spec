@@ -1,0 +1,25 @@
+# Bilingual-pair consistency record for 2026-09-18-drop-the-work-record.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec-agent-notes/implemented/process/2026-09-18-drop-the-work-record.md
+/agent-note-drop-the-work-record:
+  en: a03e3fae56b7bee7
+  zh: 5c3c84667e55403e
+/agent-note-drop-the-work-record/problem:
+  en: 5d3e9b83298509ec
+  zh: 975aae397c8dfbc9
+/agent-note-drop-the-work-record/decision:
+  en: 3bc09485019d5992
+  zh: 3d4c7305b01bf855
+/agent-note-drop-the-work-record/alternatives-considered:
+  en: 64de5693707c9959
+  zh: 25e30d0f85bbb90a
+/agent-note-drop-the-work-record/consequences:
+  en: b1e9b0444cbc146f
+  zh: 80f64959c4bce066
+/agent-note-drop-the-work-record/reintroduction:
+  en: 5f95dabd332a5cb2
+  zh: 93f5075d7bee3c16
+/agent-note-drop-the-work-record/verification-of-absence:
+  en: e486e653d9860c5e
+  zh: b56421dc97b6f470

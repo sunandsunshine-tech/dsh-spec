@@ -41,22 +41,22 @@
 **随仓库开源(`docs/open-source/`)**:`form.md`、`questions.md`、`checklist.md`、`sources.md`、[`example-answers.md`](example-answers.md)(答题样例 + 交互问询样例)、[`example-plan.md`](example-plan.md)(本规划的公开版)、`making-this-repository-public.md`(公开前报告)。
 **不保留**:两份工作文件(内容分别转入两份示例后删除)。
 **新增**:`SECURITY.md`、`CONTRIBUTING.md`、`CODE_OF_CONDUCT.md`、`.github/ISSUE_TEMPLATE/`(表单 + `config.yml`)、`.github/workflows/checks.yml`、`.github/workflows/vendored.yml`、`.github/dependabot.yml`、`scripts/submit-vendored.ts`、`scripts/verify-dco.ts`、`docs/releases/v0.3.0.md`。
-**修改**:`THIRD_PARTY_NOTICES.md`、`scripts/ports.json`、`AGENTS.md`(pin 行,以及 Environment 一节的两条环境事实)、`.github/release_template.md`、`.github/pull_request_template.md`、`skills/dsh-spec-manager/references/norms.json`、`.agents/dsh-spec/notes/implemented/process/2026-09-21-the-pull-request-lifecycle.md` 与 `.zh.md`、`form.md`(文件构成)、`questions.md` 与 `checklist.md`(回填)。
-**新增 Agent Note**:`.agents/dsh-spec/notes/implemented/process/` 下一篇公开决策,配 `.zh.md` 与 `.i18n.yaml`,过笔记门禁。
+**修改**:`THIRD_PARTY_NOTICES.md`、`scripts/ports.json`、`AGENTS.md`(pin 行,以及 Environment 一节的两条环境事实)、`.github/release_template.md`、`.github/pull_request_template.md`、`skills/dsh-spec-manager/references/norms.json`、`.agents/dsh-spec-agent-notes/implemented/process/2026-09-21-the-pull-request-lifecycle.md` 与 `.zh.md`、`form.md`(文件构成)、`questions.md` 与 `checklist.md`(回填)。
+**新增 Agent Note**:`.agents/dsh-spec-agent-notes/implemented/process/` 下一篇公开决策,配 `.zh.md` 与 `.i18n.yaml`,过笔记门禁。
 
 ## 3. 拓扑与工作包
 
 | 工作包 | 内容 | 写作用域 | 依赖 | 可由谁做 |
 |---|---|---|---|---|
-| `WP-1` | 表单套装整理与示例化(对应 `PR-1`) | `docs/open-source/**`(含报告移入该目录)、`.agents/dsh-spec/notes/implemented/process/**` | 工作包定稿;`example-plan.md` 反映最终编排 | 独立执行者或维护者 |
+| `WP-1` | 表单套装整理与示例化(对应 `PR-1`) | `docs/open-source/**`(含报告移入该目录)、`.agents/dsh-spec-agent-notes/implemented/process/**` | 工作包定稿;`example-plan.md` 反映最终编排 | 独立执行者或维护者 |
 | `WP-2a` | 策略文档:`SECURITY.md`、`CONTRIBUTING.md`、`CODE_OF_CONDUCT.md` | 这三个文件 | 邮箱地址已定 | 独立执行者 |
 | `WP-2b` | 基线与通知:`ports.json` ref/sha、submodule 检出、`AGENTS.md` pin 行、`THIRD_PARTY_NOTICES.md`、`.github/release_template.md`、`.github/ISSUE_TEMPLATE/**` | 这些文件与 submodule | 无 | 独立执行者或维护者 |
-| `WP-2c` | 说明规则:五节结构保留、内容规定去掉;判据归生命周期笔记,规范条目自包含 | `.github/pull_request_template.md`、`skills/dsh-spec-manager/references/norms.json`、`.agents/skills/**`、`.agents/dsh-spec/notes/implemented/process/2026-09-21-the-pull-request-lifecycle.md` 与 `.zh.md`、`AGENTS.md`、`docs/open-source/example-plan.md` | 无;对应 `PR-1b` | 独立执行者或维护者 |
+| `WP-2c` | 说明规则:五节结构保留、内容规定去掉;判据归生命周期笔记,规范条目自包含 | `.github/pull_request_template.md`、`skills/dsh-spec-manager/references/norms.json`、`.agents/skills/**`、`.agents/dsh-spec-agent-notes/implemented/process/2026-09-21-the-pull-request-lifecycle.md` 与 `.zh.md`、`AGENTS.md`、`docs/open-source/example-plan.md` | 无;对应 `PR-1b` | 独立执行者或维护者 |
 | `WP-2d` | rc.2 的配对记录语义重搬:五个引擎文件、`ports.json` 逐条 sha/relation、全部 `.i18n.yaml` 重录、出货契约两侧 | `skills/dsh-spec-manager/**`、`scripts/ports.json`、`**/*.i18n.yaml` | **与 `WP-2b` 串行**(两者都写 `ports.json`);对应 `PR-2b` | 独立执行者或维护者 |
 | `WP-3a` | 自动化入口:`.github/workflows/checks.yml`、`.github/workflows/vendored.yml`、`.github/dependabot.yml` | 这三个文件 | 与 `WP-3b` 先约定脚本名与调用方式 | 独立执行者 |
 | `WP-3b` | 自动化脚本:`scripts/submit-vendored.ts`、`scripts/verify-dco.ts` | `scripts/**` | 无 | 独立执行者 |
 | `WP-3c` | 表单回填:`questions.md` 的 Q-A2–Q-A8 与 `checklist.md` 的三条新任务 | 这两个文件 | `WP-3a/3b` 落定后 | 维护者 |
-| `WP-3d` | 归档门禁与 dsh 对齐:六类 kind 目录的可携带化与门禁的占位文件豁免 | `skills/dsh-spec-manager/**`、`.agents/skills/**`、`tests/**`、`.agents/dsh-spec/notes/**` | 无;CI 的判据依赖它 | 独立执行者或维护者 |
+| `WP-3d` | 归档门禁与 dsh 对齐:六类 kind 目录的可携带化与门禁的占位文件豁免 | `skills/dsh-spec-manager/**`、`.agents/skills/**`、`tests/**`、`.agents/dsh-spec-agent-notes/**` | 无;CI 的判据依赖它 | 独立执行者或维护者 |
 | `WP-V` | **只读验收者**:跑门禁、验链接、核对脱敏与文件归属 | 不写 | 每个工作包完成后 | 独立执行者(只读) |
 | `WP-L` | 维护者保留:历史和平台操作、发布 | — | 见 §5 | 维护者 |
 

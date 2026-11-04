@@ -86,6 +86,6 @@ An edit to one side is followed by the matching edit to the other and a renewed 
 ## Where a change lands
 
 - The deliverable is `skills/`. `.agents/skills/` is the installed copy this project runs, tracked in git; it is written only by an install, and an edit there is lost at the next one.
-- A lasting decision's rationale goes in `.agents/dsh-spec/notes/` in the same change, in the format [the contract](.agents/dsh-spec/notes/README.md) states.
+- A lasting decision's rationale goes in `.agents/dsh-spec-agent-notes/` in the same change, in the format [the contract](skills/dsh-spec-agent-notes/references/notes-contract.md) states.
 - What belongs to this repository rather than to the package — `scripts/`, `tests/`, `docs/` — is described in [`README.md`](README.md#working-on-this-repository).
 - An outside text quoted in a change — a page, an issue, a transcript or a tool's output — enters as evidence with its source named.

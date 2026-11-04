@@ -1,0 +1,22 @@
+# Bilingual-pair consistency record for 2026-09-21-the-note-trigger-follows-dsh.md (references/i18n-contract.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   node scripts/dsh-spec-manager/scripts/dsh-spec.ts translation-pair write .agents/dsh-spec-agent-notes/implemented/process/2026-09-21-the-note-trigger-follows-dsh.md
+/agent-note-the-note-trigger-follows-dsh-s-narrowing:
+  en: 3484ffd1e58dc78d
+  zh: 6215627f1335ebb3
+/agent-note-the-note-trigger-follows-dsh-s-narrowing/problem:
+  en: 87b3bfcbc5ad16f6
+  zh: 9302b2e975d53c06
+/agent-note-the-note-trigger-follows-dsh-s-narrowing/decision:
+  en: 54218eaf91411ce1
+  zh: 9edc336dd92dad44
+/agent-note-the-note-trigger-follows-dsh-s-narrowing/alternatives-considered:
+  en: 6441a8d8a40bc854
+  zh: 7e3be203e0aa0227
+/agent-note-the-note-trigger-follows-dsh-s-narrowing/consequences:
+  en: d15552a87460219c
+  zh: 84718c3867b0751c
+/agent-note-the-note-trigger-follows-dsh-s-narrowing/related:
+  en: b2560a2d6c466e28
+  zh: d95918bd1833caec

@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "files": {
+    "process/2026-09-22-the-roles-an-agent-acts-by.i18n.yaml": "sha256:713e6e8e4bb797a4e5acd5987ff0ccf3696600bfb8fa15d682a1b2b1ac621df9",
+    "process/2026-09-22-the-roles-an-agent-acts-by.md": "sha256:0af7225b4b4ca9d07e26e3caef0146bfb3249bd048dcabb780f963650b703bf7",
+    "process/2026-09-22-the-roles-an-agent-acts-by.zh.md": "sha256:32be206f7fd91e36735e4d91e9b98f2b150b592c1ac5971effa539b115caec86",
+    "process/2026-10-02-the-agent-team-workflow-ships-as-a-skill.i18n.yaml": "sha256:3d4959e7e88632f80efdde2f56f298c072f16749fabb4934ec34e56a9283900c",
+    "process/2026-10-02-the-agent-team-workflow-ships-as-a-skill.md": "sha256:3c267c45f7c757bc56b96bb1a02a0fb7975ec68867079c121794382aca93420a",
+    "process/2026-10-02-the-agent-team-workflow-ships-as-a-skill.zh.md": "sha256:5d76c0121e01f383b08c35f4805ca2ba3daa98c518327352be9a5edf10f218bc",
+    "process/2026-10-03-teammate-reuse-and-task-affinity.i18n.yaml": "sha256:d75806ee4aa7117561ac278f6b70e6b09ee2bd31af9354d6fda5898cf6d08fac",
+    "process/2026-10-03-teammate-reuse-and-task-affinity.md": "sha256:26cb1a911b517e256adfebab5a2941ce805c7772b0a02d1ce9d8a830189342d2",
+    "process/2026-10-03-teammate-reuse-and-task-affinity.zh.md": "sha256:536a5f8ad612b06758dd8797ddf13ffb11ecc10fc074ad2085ea28e14bcb8a19",
+    "process/2026-10-19-forging-dsh-spec-skill-forge.i18n.yaml": "sha256:352d57363f9da123733dada2ce4b04439768ac4ec41407a1a7a2b2dc0aa7b1b7",
+    "process/2026-10-19-forging-dsh-spec-skill-forge.md": "sha256:2edd1c521841c16d1fb297ce7df22b4a76f4dbd6e097a2db90627377c2975ae3",
+    "process/2026-10-19-forging-dsh-spec-skill-forge.zh.md": "sha256:2734f3c1fcbb7505e08b0b7b9035710368390a886db93a18272a7135f504ba3b"
+  }
+}

@@ -4,7 +4,7 @@ This repository is an extraction of [DeepSeek Harness](https://github.com/deepse
 
 ## DeepSeek Harness
 
-Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.0-rc.2` (`639ed015397290b3745d163aafe02ffee4aa3f84`).
+Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.1-rc.3` (`1f81c047fc48fa190a683e469daa699857e9afe8`).
 
 This repository is an extraction of that project: it rewrites the harness's development pattern into a skill set. Where a file is carried over from upstream, it states its origin, its upstream path and its provenance in its own header, next to its `SPDX-License-Identifier: MIT` line.
 
