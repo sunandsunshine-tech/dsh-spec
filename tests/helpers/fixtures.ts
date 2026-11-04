@@ -1,38 +1,22 @@
 /**
  * Scratch repositories for the functional suite.
  *
- * Every check in this collection reads a project through `--root`, so a test needs a real
- * repository rather than a mocked filesystem: the archive seal compares against a committed
- * baseline, the pairing record hashes git blobs, and the change scope reads git's index. A fixture
- * is a temporary directory with its own `git init`, its files, and one commit — nothing outside it
- * is read, and `dispose()` removes it.
+ * Every case needs a real repository rather than a mocked filesystem: the DCO gate reads a range
+ * out of `git log` and resolves a commit's identity against GitHub. A fixture is a temporary
+ * directory with its own `git init`, its files, and one commit — nothing outside it is read, and
+ * `dispose()` removes it.
  *
  * Zero dependencies: `node:fs`, `node:os` and `git`.
  */
 
 import { spawnSync } from 'node:child_process'
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, relative, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-/** This repository's root: the suite tests the source engine, never the installed copy. */
+/** This repository's root. */
 export const REPO_ROOT = fileURLToPath(new URL('../..', import.meta.url))
-
-/** The Agent Note tree an initialized project carries. */
-export const NOTES = '.agents/dsh-spec/notes'
-
-/** The delivery-plan tree an initialized project carries. */
-export const PLANS = '.agents/dsh-spec/plans'
-
-/** The tree the installer deploys the skill set into. */
-export const INSTALLED_SKILLS = '.agents/skills'
-
-/** The six classes the archive tree requires once it holds an artifact. */
-export const CLASSES = ['feature', 'bug-fix', 'simplification', 'architecture', 'process', 'testing'] as const
-
-/** The three active lifecycles; `archived` is deliberately not one of them. */
-export const LIFECYCLES = ['proposed', 'implemented', 'rejected'] as const
 
 /** One scratch repository. */
 export interface Fixture {
@@ -41,13 +25,13 @@ export interface Fixture {
   write(rel: string, text: string): void
   /** Read a file that a check or a command was expected to write. */
   read(rel: string): string
-  /** Create a directory, which is how the archive's empty class folders exist at all. */
+  /** Create a directory. */
   mkdir(rel: string): void
   /** Remove a file, as a deletion looks to git. */
   remove(rel: string): void
   /** Run git in the fixture and return its result. */
   git(...args: string[]): { status: number, stdout: string, stderr: string }
-  /** Stage everything and commit it, which is what a sealed baseline needs. */
+  /** Stage everything and commit it. */
   commit(message: string): void
   /** Every repository-relative path, including untracked ones, sorted. */
   paths(): string[]
@@ -111,127 +95,4 @@ function walk(directory: string, base = directory): string[] {
     else if (statSync(absolute).isFile()) out.push(relative(base, absolute).split(sep).join('/'))
   }
   return out
-}
-
-/** A file's content plus its byte length, for proving that a dry run changed nothing. */
-export function snapshot(root: string): Map<string, number> {
-  const out = new Map<string, number>()
-  for (const rel of walk(root)) out.set(rel, statSync(join(root, rel)).size)
-  return out
-}
-
-/** Whether a fixture path exists. */
-export function exists(root: string, rel: string): boolean {
-  return existsSync(join(root, rel))
-}
-
-/** A note body the format gate accepts, for the lifecycle it sits in. */
-export function noteText(title: string, lifecycle: string): string {
-  // Each lifecycle has its own status grammar and its own required sections; a fixture that used
-  // the implemented skeleton for all three would fail the format gate for the wrong reason.
-  if (lifecycle === 'proposed') {
-    return `# Agent Note: ${title}\n\nStatus: proposed\n\n## Problem\n\nSomething needed deciding.\n\n## Proposal\n\nIt should be done this way.\n\n## Acceptance criteria\n\nThe behavior is observable.\n\n## Risks\n\nA risk is named.\n\n## Alternatives considered\n\nThe other option lost because it was worse.\n`
-  }
-  if (lifecycle === 'rejected') {
-    return `# Agent Note: ${title}\n\nStatus: rejected — it solved the wrong problem\n\n## Problem\n\nSomething needed deciding.\n\n## Proposal\n\nIt should be done this way.\n\n## Alternatives considered\n\nThe other option lost because it was worse.\n`
-  }
-  return `# Agent Note: ${title}\n\nStatus: implemented\n\n## Problem\n\nSomething needed deciding.\n\n## Decision\n\nIt was decided.\n\n## Alternatives considered\n\nThe other option lost because it was worse.\n\n## Consequences\n\nThe decision holds.\n`
-}
-
-/** Write one note at a path built from its lifecycle, class and name. */
-export function writeNote(fixture: Fixture, name: string, options: { lifecycle?: string, cls?: string, body?: string } = {}): string {
-  const lifecycle = options.lifecycle ?? 'implemented'
-  const cls = options.cls ?? 'process'
-  const rel = `${NOTES}/${lifecycle}/${cls}/${name}`
-  fixture.write(rel, options.body ?? noteText(name.replace(/\.md$/, ''), lifecycle))
-  return rel
-}
-
-/**
- * An archive that holds nothing: `AGENTS.md` and the six class directories are required, and no
- * triplet is sealed. A fixture that lets the archive check run needs this, because a notes tree
- * without `archived/` is not a shape the contract defines.
- */
-export function writeEmptyArchive(fixture: Fixture): void {
-  writeArchiveKindDirs(fixture)
-}
-
-/**
- * The six archive class directories, each carrying the marker that keeps it in a clone.
- *
- * The archive requires all six whether or not they hold a frozen artifact, and Git carries files
- * rather than directories, so each one holds `AGENT_NOTE_CLASS_PLACEHOLDER`. The initializer writes
- * it the same way, so a case built from this fixture exercises the marker the reader must skip as
- * well as the rule that demands the directories.
- */
-export function writeArchiveKindDirs(fixture: Fixture): void {
-  for (const cls of CLASSES) {
-    fixture.mkdir(`${NOTES}/archived/${cls}`)
-    fixture.write(`${NOTES}/archived/${cls}/.gitkeep`, '# Keeps this class directory in the revision.\n')
-  }
-  fixture.write(`${NOTES}/archived/AGENTS.md`, '# Archived Agent Notes\n')
-}
-
-/**
- * A complete archived triplet, unsealed.
- *
- * The archive's own format is stricter than the active one: line 4 carries the archival date, line
- * 6 the language switcher, and the sidecar must hold the current blob hashes of both sides — which
- * is what a note moved from `implemented/` carries with it. The hashes are computed the way the
- * gate computes them, so a sealing case exercises the real rule rather than a placeholder.
- */
-export function writeArchivedTriplet(fixture: Fixture, name: string, cls = 'process'): string {
-  const rel = `${NOTES}/archived/${cls}/${name}.md`
-  const zh = `${NOTES}/archived/${cls}/${name}.zh.md`
-  const record = `${NOTES}/archived/${cls}/${name}.i18n.yaml`
-  const body = (switcher: string): string =>
-    `# Agent Note: ${name}\n\nStatus: implemented\nArchived: 2026-09-21\n\n${switcher}\n\n## Problem\n\nSomething needed deciding.\n\n## Decision\n\nIt was decided.\n\n## Alternatives considered\n\nThe other option lost.\n\n## Consequences\n\nThe decision holds.\n`
-  fixture.write(rel, body(`English | [中文](${name}.zh.md)`))
-  fixture.write(zh, body(`[English](${name}.md) | 中文`))
-  const hashOf = (path: string): string => fixture.git('hash-object', path).stdout.trim()
-  fixture.write(record, `${name}.md: ${hashOf(rel)}\n${name}.zh.md: ${hashOf(zh)}\n`)
-  return rel
-}
-
-/** A bilingual pair, both sides carrying their half of the switcher. */
-export function writePair(fixture: Fixture, anchor: string, options: { switcher?: boolean } = {}): void {
-  const stem = anchor.slice(0, -'.md'.length)
-  const zh = `${stem}.zh.md`
-  const englishSwitch = options.switcher === false ? '' : `English | [中文](${zh.split('/').pop()})\n\n`
-  fixture.write(anchor, `# Guide\n\n${englishSwitch}Some text.\n`)
-  fixture.write(zh, `# 指南\n\n[English](${anchor.split('/').pop()}) | 中文\n\n一些文字。\n`)
-}
-
-/**
- * A catalog the norm-reference gate accepts: one group and one norm under it.
- *
- * A catalog is data with a shape the manager validates before rendering, so a gate fixture carries
- * the same fields a shipped one does — including the two lines every body ends with — rather than a
- * shape only this suite understands.
- */
-export function normCatalog(): string {
-  return `${JSON.stringify({
-    groups: [{ id: 'pr', title: 'Pull-request lifecycle', titleZh: 'PR 与提交规范' }],
-    norms: [{
-      id: 'pr.lifecycle',
-      group: 'pr',
-      title: 'Walk changes through phases',
-      titleZh: '按阶段推进改动',
-      invariant: 'Walk changes through visible phases.',
-      body: '- **Walk changes through visible phases.**\n  - Why: a review needs a phase to read.\n  - Self-check: does the branch say which phase it is in?',
-      source: 'notes/implemented/process/2026-09-21-the-pull-request-lifecycle.md',
-    }],
-  }, null, 2)}\n`
-}
-
-/**
- * Install a minimal, clean skill set: the catalog, and one shipped text citing a norm in it.
- *
- * `check --all` runs the citation gate beside the note checks, so a fixture that lets the aggregate
- * run needs an installed copy that is current — the same way the archive needs its six class
- * directories before its own check can pass.
- */
-export function writeInstalledSkillTexts(fixture: Fixture, text = '# Installed guide\n\nApply `pr.lifecycle` where a change needs a phase.\n'): void {
-  fixture.write(`${INSTALLED_SKILLS}/dsh-spec-manager/references/norms.json`, normCatalog())
-  fixture.write(`${INSTALLED_SKILLS}/dsh-spec-manager/references/guide.md`, text)
 }

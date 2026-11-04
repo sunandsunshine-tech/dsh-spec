@@ -40,7 +40,7 @@ A pull request moves through four states in order — development, acceptance, r
 
 **How a change lands follows the kind of change, and both kinds here squash.** An ordinary change and a release pull request are squash-merged on GitHub, by fast-forward, so the released line gains one clean commit per pull request.
 
-**A release pull request is no exception.** Its commits are the release notes and the installed copy refreshed from the release branch. What follows its merge — the tag, and who authorizes it — belongs to [the release folder's orders](../../../../../docs/releases/AGENTS.md). [The release commit carries its own copy](2026-09-23-the-release-commit-carries-its-own-copy.md) owns the reversal, the cost it accepts, and the alternatives it beat. The other two GitHub merges stay turned off for this repository: rebase-and-merge rewrites every commit SHA, and a merge commit is not what a line built from squashes wants.
+**A release pull request is no exception.** Its commits are the release notes and the installed copy refreshed from the release branch. What follows its merge — the tag, and who authorizes it — belongs to [the release folder's orders](../../../../../docs/releases/AGENTS.md). The other two GitHub merges stay turned off for this repository: rebase-and-merge rewrites every commit SHA, and a merge commit is not what a line built from squashes wants.
 
 **A rule lands before the changes it governs.** A change that a rule constrains opens its pull request after the rule is on `main`, so the change can point at a rule a reader can already open.
 
