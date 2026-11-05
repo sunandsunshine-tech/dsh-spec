@@ -3,8 +3,8 @@
 The text and bundled mechanism of this skill are adapted from the DeepSeek Harness
 bilingual-document workflow.
 
-- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.2-alpha.2`
-  (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`).
+- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.2-rc.1`
+  (`66491b05e3f05ad35bcdd4f6cd7ed26041d9e3db`).
 - Upstream paths:
   - `.agents/skills/dsh-translate-docs/SKILL.md` — the workflow.
   - `docs/i18n/README.md` — the pairing contract.
@@ -27,7 +27,7 @@ bilingual-document workflow.
   a public-URL switcher allowance,
   generated-source globs, and one command surface instead of two `pnpm run` scripts.
 
-- Provenance blobs, read from the pinned submodule; the adaptation base for each file:
+- Provenance blobs, read from source revision `1f81c047fc48fa190a683e469daa699857e9afe8` (`dsh-v0.2.1-rc.3`), not from the current pin; the adaptation base for each file:
   - `.agents/skills/dsh-translate-docs/SKILL.md` — `6ff2650c74c7f581e6ff7f095b36eb82584c785c` (74 lines)
   - `scripts/translation-pairing.ts` — `04ea0e72a6bd1a21c17e42da9aa2a6f14c6116a8` (419)
   - `scripts/translation-pairing-record.ts` — `89b2bd5a46e762384f3c06359b86c6cada11ec96` (299)

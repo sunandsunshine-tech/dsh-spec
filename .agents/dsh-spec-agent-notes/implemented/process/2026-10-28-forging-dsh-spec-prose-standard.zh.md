@@ -41,7 +41,7 @@ alpha.2 修订把上游的英文 UI 句式大小写（sentence case）规则采�
 
 ## 来源与修订
 
-上游来源：`deepseek-ai/deepseek-harness`，位于固定子模块 `submodules/dsh`，修订 `f3803c96974ad4a94195fb97e5c637e9c2a3afe3`（`dsh-v0.2.2-alpha.2`，即 `git submodule status` 记录的修订）。alpha.2 增量是 diff `git -C submodules/dsh diff dsh-v0.2.1-rc.4..dsh-v0.2.2-alpha.2 -- .agents/skills/dsh-prose-standard/SKILL.md`；同一范围从 `dsh-v0.2.1-rc.3` 到 `dsh-v0.2.2-alpha.2` 在全部五个来源文件中只涉及一行：prose `SKILL.md` 58 增加英文 UI 句式大小写规则（PS47）。作为来源读取的文件：
+上游来源：`deepseek-ai/deepseek-harness`，来源文件读取于修订 `f3803c96974ad4a94195fb97e5c637e9c2a3afe3`（`dsh-v0.2.2-alpha.2`）；仓库当前 pin 的基线是 `66491b05e3f05ad35bcdd4f6cd7ed26041d9e3db`（`dsh-v0.2.2-rc.1`）。alpha.2 增量是 diff `git -C submodules/dsh diff dsh-v0.2.1-rc.4..dsh-v0.2.2-alpha.2 -- .agents/skills/dsh-prose-standard/SKILL.md`；同一范围从 `dsh-v0.2.1-rc.3` 到 `dsh-v0.2.2-alpha.2` 在全部五个来源文件中只涉及一行：prose `SKILL.md` 58 增加英文 UI 句式大小写规则（PS47）。作为来源读取的文件：
 
 - `submodules/dsh/.agents/skills/dsh-prose-standard/SKILL.md`
 - `submodules/dsh/.agents/skills/dsh-prose-standard/references/examples.md`

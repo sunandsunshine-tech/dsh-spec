@@ -2,7 +2,7 @@
 
 The text of this skill is adapted from the DeepSeek Harness skill `dsh-pr-description`.
 
-- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`).
+- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.2-rc.1` (`66491b05e3f05ad35bcdd4f6cd7ed26041d9e3db`).
 - Upstream path: `.agents/skills/dsh-pr-description/SKILL.md`.
 - Relation: adapted for software projects of any kind. The title, description and language rule are rewritten; the repository-specific tracker, label, template, tooling, documentation-budget, interface-recording and terminology rules are re-bound to the adopting project's conventions or dissolved; the four section requirements, the tracked-issue association, the test-design forms, the disclosure duties and the AI Usage model are carried as obligations, with the AI Usage detail in `references/ai-usage.md` and an adoptable working-default reference in `references/default-conventions.md`.
 - Deviation: the upstream frontmatter field `user-invocable: false` is not carried. This package's Agent Skills gate closes the frontmatter set to `name`, `description`, `license`, `compatibility`, `metadata` and `allowed-tools`, so the field cannot be expressed; the host's invocation policy replaces it. The forging record records the deviation as ruling R17.

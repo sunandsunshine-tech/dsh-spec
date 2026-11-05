@@ -18,7 +18,7 @@ Status: implemented
 
 ### 来源与修订
 
-来源：`submodules/dsh/.agents/skills/dsh-error-handling/SKILL.md`——上游技能携带的唯一文件——位于读取的来源修订 `1f81c047fc48fa190a683e469daa699857e9afe8`（`dsh-v0.2.1-rc.3`）；仓库当前 pin 的基线是 `f3803c96974ad4a94195fb97e5c637e9c2a3afe3`（`dsh-v0.2.2-alpha.2`）。该文件为 30 行；其 SHA-256 是 `fcde7e278056263f7b93b6854fe05d0b492bdf09739f4f4f3537e8ffd30a1c2d`。
+来源：`submodules/dsh/.agents/skills/dsh-error-handling/SKILL.md`——上游技能携带的唯一文件——位于读取的来源修订 `1f81c047fc48fa190a683e469daa699857e9afe8`（`dsh-v0.2.1-rc.3`）；仓库当前 pin 的基线是 `66491b05e3f05ad35bcdd4f6cd7ed26041d9e3db`（`dsh-v0.2.2-rc.1`）。该文件为 30 行；其 SHA-256 是 `fcde7e278056263f7b93b6854fe05d0b492bdf09739f4f4f3537e8ffd30a1c2d`。
 
 该文件读自该修订下的 `submodules/dsh` 检出；子模块被读取，而非被 fetch 或编辑。
 
