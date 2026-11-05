@@ -2,17 +2,14 @@
 The shape a release notes document takes. Keep the structure; each comment says what its part owes a
 reader, and a comment is deleted once its part is written.
 
-Two sides in one document: the switcher first, then the Chinese side under its own anchor, then the
-English side under its own. Each side names its categories as level-3 headings and lists one bullet
-per user-visible change, attributed to the person who made it. Replace every `<tag>` and `<prev>`
-with the real values — the switcher and the anchors share the same placeholder, so they are replaced
-together — and delete a category heading that has no entries. Nothing loads this file
+Two sides in one document: the Chinese side first, then the English side. Each side names its
+categories as level-3 headings and lists one bullet per user-visible change, attributed to the person
+who made it. Replace every `<tag>` and `<prev>` with the real values, and delete a category heading
+that has no entries. Nothing loads this file
 automatically; whoever creates the release fills it in and passes it as the release body. Every
 bullet ends with the PR or issue link that implements or closes the change, when one exists;
 do not add a separate related-items section.
 -->
-
-[中文](#cn-<tag>) | [English](#en-<tag>)
 
 <h3 id="cn-<tag>">新增功能</h3>
 
