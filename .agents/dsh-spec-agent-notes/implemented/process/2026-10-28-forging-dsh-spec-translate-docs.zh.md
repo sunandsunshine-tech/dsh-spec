@@ -30,7 +30,7 @@ Status: implemented
 
 ### 机制来源与出处
 
-上游 `deepseek-ai/deepseek-harness`，读取的来源修订是 `1f81c047fc48fa190a683e469daa699857e9afe8`（`dsh-v0.2.1-rc.3`），来自 `submodules/dsh`；仓库当前 pin 的基线是 `f3803c96974ad4a94195fb97e5c637e9c2a3afe3`（`dsh-v0.2.2-alpha.2`）：
+上游 `deepseek-ai/deepseek-harness`，读取的来源修订是 `1f81c047fc48fa190a683e469daa699857e9afe8`（`dsh-v0.2.1-rc.3`），来自 `submodules/dsh`；仓库当前 pin 的基线是 `66491b05e3f05ad35bcdd4f6cd7ed26041d9e3db`（`dsh-v0.2.2-rc.1`）：
 
 | 上游路径 | Blob | 行数 | 关系 |
 |---|---|---|---|

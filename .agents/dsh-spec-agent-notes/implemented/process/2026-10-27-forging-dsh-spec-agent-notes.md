@@ -315,7 +315,7 @@ Each forged requirement has one anchor at the most precise level available. Mech
 - The skill ships from `skills/dsh-spec-agent-notes/` with an installed copy under `.agents/skills/`; the directory carries the skill, the two reference contracts and the bundled gate, not a work directory and not Chinese review pairs.
 - The repository's decision records and their Chinese companions live in `.agents/dsh-spec-agent-notes/`; the earlier notes mechanism and the `dsh-archive-agent-notes` installation are gone.
 - The notes corpus keeps its existing bodies and companions; this record lives in `implemented/process`.
-- The submodule baseline is pinned at `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`).
+- The submodule baseline is pinned at `dsh-v0.2.2-rc.1` (`66491b05e3f05ad35bcdd4f6cd7ed26041d9e3db`).
 - The notes-specific `dsh-spec-manager` modules are gone; no current code consumes them.
 - The description asks an agent to use the skill before a non-trivial change; the body carries the write scope and the mechanical/local exemptions, so loading the skill is part of deciding whether a record is needed.
 - **The gate's scope stays deliberately thin.** The gate does not enumerate Git layouts: it keeps canonical containment, the same-Git-directory anchoring and the tracked-manifest check (R22, R27), and the contracts state the residual local-layout trust boundary (R28); a request for a new layout check is answered from this record, not by growing the gate.

@@ -367,6 +367,19 @@ test('select and skip filter existing pairs; empty selection and malformed globs
   }
 })
 
+test('the corpus skip patterns exclude a populated submodule', () => {
+  const fixture = makeFixture()
+  try {
+    pair(fixture, 'submodules/dsh/.agents/skills/example/SKILL.md', 'English', 'Example', 'Body.', [zh()])
+    assert.equal(writeRecord(fixture, 'submodules/dsh/.agents/skills/example/SKILL.md').status, 0)
+    const list = run(fixture.root, 'list', '--skip', 'submodules/**', '--skip', 'submodules/**/.*/**')
+    assert.equal(list.status, 0, list.output)
+    assert.doesNotMatch(list.stdout, /submodules\/dsh/)
+  } finally {
+    fixture.dispose()
+  }
+})
+
 test('a pair naming no files is a usage error; an empty list is clean', () => {
   const fixture = makeFixture()
   try {

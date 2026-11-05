@@ -67,7 +67,16 @@ function main(): void {
 
   const repoRoot = process.cwd()
   const node = process.execPath
-  const skipped = ['--skip', '.agents/dsh-spec-agent-notes/archived/**', '--skip', 'submodules/**']
+  const skipped = [
+    '--skip',
+    '.agents/dsh-spec-agent-notes/archived/**',
+    '--skip',
+    'submodules/**',
+    // Node's glob does not descend into hidden segments for the broad submodule pattern;
+    // exclude the nested .agents tree explicitly so a populated submodule cannot reach the pair gate.
+    '--skip',
+    'submodules/**/.*/**',
+  ]
   let failed = false
 
   /** Run one gate and record its outcome; its output is printed only when it fails. */

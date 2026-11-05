@@ -2,7 +2,7 @@
 
 The text of this skill is adapted from the DeepSeek Harness skill `merging-stacked-prs`.
 
-- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`).
+- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.2-rc.1` (`66491b05e3f05ad35bcdd4f6cd7ed26041d9e3db`).
 - Upstream path: `.agents/skills/dsh-merging-stacked-prs/SKILL.md`.
 - Relation: adapted for general GitHub pull-request operation. The source's mechanism, commands, field lists and GraphQL query are carried; the repository-specific document pointers and policy values are disposed, the merge method and the allowed refresh histories are left to the landing repository's instructions, and the skill ships as one file without bundled scripts.
 

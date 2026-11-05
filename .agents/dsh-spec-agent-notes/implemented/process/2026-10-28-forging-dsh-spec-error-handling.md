@@ -18,7 +18,7 @@ The skill is prose-only. No rule in the source is decidable by a command: whethe
 
 ### Source and revision
 
-Source: `submodules/dsh/.agents/skills/dsh-error-handling/SKILL.md` — the only file the upstream skill carries — at the source revision read `1f81c047fc48fa190a683e469daa699857e9afe8` (`dsh-v0.2.1-rc.3`); the repository's current pinned baseline is `f3803c96974ad4a94195fb97e5c637e9c2a3afe3` (`dsh-v0.2.2-alpha.2`). The file is 30 lines; its SHA-256 is `fcde7e278056263f7b93b6854fe05d0b492bdf09739f4f4f3537e8ffd30a1c2d`.
+Source: `submodules/dsh/.agents/skills/dsh-error-handling/SKILL.md` — the only file the upstream skill carries — at the source revision read `1f81c047fc48fa190a683e469daa699857e9afe8` (`dsh-v0.2.1-rc.3`); the repository's current pinned baseline is `66491b05e3f05ad35bcdd4f6cd7ed26041d9e3db` (`dsh-v0.2.2-rc.1`). The file is 30 lines; its SHA-256 is `fcde7e278056263f7b93b6854fe05d0b492bdf09739f4f4f3537e8ffd30a1c2d`.
 
 The file is read from the `submodules/dsh` checkout at that revision; the submodule is read, not fetched or edited.
 

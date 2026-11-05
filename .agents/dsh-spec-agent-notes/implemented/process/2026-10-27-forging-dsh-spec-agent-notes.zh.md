@@ -315,7 +315,7 @@ Status: implemented
 - 技能从 `skills/dsh-spec-agent-notes/` 交付，并在 `.agents/skills/` 下有安装副本；该目录携带技能、两份参考约定与打包门禁，不携带工作目录，也不携带中文评审配对。
 - 本仓库的决策记录及其中文伴随文件位于 `.agents/dsh-spec-agent-notes/`；早先的笔记机制与 `dsh-archive-agent-notes` 安装已不存在。
 - 笔记语料保留既有正文与伴随文件；本记录位于 `implemented/process`。
-- 子模块基线 pin 在 `dsh-v0.2.2-alpha.2`（`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`）。
+- 子模块基线 pin 在 `dsh-v0.2.2-rc.1`（`66491b05e3f05ad35bcdd4f6cd7ed26041d9e3db`）。
 - notes 专属的 `dsh-spec-manager` 模块已不存在；当前没有代码消费它们。
 - description 要求 agent 在非平凡变更前使用本技能；正文承载写入范围与机械/局部豁免，因此加载技能是判断是否需要记录的一部分。
 - **门禁范围刻意保持精简。** 门禁不枚举 Git 布局：它保留规范化包含性、同一 Git 目录锚定与 manifest 受跟踪检查（R22、R27），约定陈述残留的本地布局信任边界（R28）；要求新增布局检查的请求从本记录得到回答，而不是靠扩大门禁。
