@@ -21,7 +21,7 @@ test('the pinned pnpm version agrees across package.json, the workflow and the l
   const pinned = pinnedMatch[1]
 
   const workflow = readFileSync(join(REPO_ROOT, '.github/workflows/checks.yml'), 'utf8')
-  const action = /pnpm\/action-setup[\s\S]*?version:\s*['"]?([0-9][^'"\s]*)['"]?/.exec(workflow)
+  const action = /pnpm\/setup[\s\S]*?version:\s*['"]?([0-9][^'"\s]*)['"]?/.exec(workflow)
   assert.ok(action, 'the checks workflow must pin the pnpm action version')
   assert.equal(action[1], pinned, 'the workflow pnpm action version must match packageManager')
 

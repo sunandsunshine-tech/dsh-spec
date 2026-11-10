@@ -24,7 +24,7 @@ node scripts/verify-dco.ts --base=origin/main
 
 Every change owes these checks. CI installs the pinned toolchain and runs the corpus gate, `format:check`, the bundle check and the suite on every pull request and on every push to `main`, and the DCO check on every pull request; the bundle and format checks need the Vite+ toolchain locally; the corpus gate needs Node and the Git checkout, with no install or build.
 
-Node 22.19 or a Node 24+ release is the requirement: the root `packageManager` pins pnpm and the root `vite-plus` devDependency pins the Vite+ toolchain, installed with `pnpm install`; the checks are TypeScript that Node strips by itself, the suite runs on `node --test`, and running them needs no build step. The pnpm version is recorded in three places — `packageManager`, the checks workflow's `pnpm/action-setup` version and the lockfile's self-management document — and `tests/toolchain.test.ts` fails when they disagree, so bump all three together.
+Node 22.19 or a Node 24+ release is the requirement: the root `packageManager` pins pnpm and the root `vite-plus` devDependency pins the Vite+ toolchain, installed with `pnpm install`; the checks are TypeScript that Node strips by itself, the suite runs on `node --test`, and running them needs no build step. The pnpm version is recorded in three places — `packageManager`, the checks workflow's `pnpm/setup` version and the lockfile's self-management document — and `tests/toolchain.test.ts` fails when they disagree, so bump all three together.
 
 ## AI involvement
 
