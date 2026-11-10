@@ -103,7 +103,12 @@ function main(): void {
     return
   }
   for (const skill of skills) {
-    gate('skill ' + skill, ['skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs', 'skills/' + skill])
+    gate('skill ' + skill, [
+      'skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs',
+      'skills/' + skill,
+      '--description-max',
+      '500',
+    ])
   }
 
   const notesCheck = spawnSync(

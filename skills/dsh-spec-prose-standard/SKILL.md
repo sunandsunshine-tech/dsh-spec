@@ -1,6 +1,6 @@
 ---
 name: dsh-spec-prose-standard
-description: "Use when writing, reviewing, restoring, trimming, or auditing durable text — prose that outlives the session that wrote it and that later readers depend on, wherever the project keeps it: Markdown and other documentation, comments, records, instructions, prompts, diagnostics, and visible strings, among other surfaces. Covers deciding where text is required, preserving complete propositions while removing reasoning transcripts, repetition, and decoration, and auditing or fixing chain-of-thought leakage from the authoring session. Not for transient chat text or code correctness. 用于编写、评审、恢复、修剪或审计持久性文本——在写作会话结束后仍会被阅读、后续读者依赖的文字，不论项目把它放在哪里：Markdown 与其他文档、注释、记录、指令、提示词、诊断信息与可见文案，以及其他文本面。包括判断何处需要文字；删除推理过程、重复与装饰而保全完整命题；并审计或修复来自编写会话的思维链泄漏。不用于即时对话文字或代码正确性。"
+description: "Use when writing, reviewing, restoring, trimming, or auditing durable text in documentation, comments, records, instructions, prompts, or visible strings. Covers where text is required, complete propositions, trimming transcripts and decoration, and chain-of-thought leakage. Not for transient chat text or code correctness. 用于编写、评审、恢复、修剪或审计持久性文本——在写作会话结束后仍会被阅读、后续读者依赖的文字——不论项目把它放在哪里：文档、注释、记录、指令、提示词、诊断信息或可见文案。涵盖判断何处需要文字、删除推理过程/重复/装饰而保全完整命题，以及审计或修复思维链泄漏。不用于即时对话文字或代码正确性。"
 license: "MIT; upstream and repository notices in THIRD_PARTY_NOTICES"
 ---
 

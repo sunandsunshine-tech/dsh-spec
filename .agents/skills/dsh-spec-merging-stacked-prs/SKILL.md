@@ -1,6 +1,6 @@
 ---
 name: dsh-spec-merging-stacked-prs
-description: "Use when landing dependent GitHub pull requests that form a stack (A ← B ← C, each based on the branch below), merging a pull request whose base is another open pull request's branch, or whenever a request mentions 'stacked PRs', 'PR stack', 'dependent PRs', or merging several related pull requests in sequence. Requires every same-repository dependency chain to use GitHub's official stacked-PR feature before landing so GitHub owns stack-wide rules, CI, ordering, retargeting and merge state; never reproduce stack semantics by merging and retargeting individual pull requests. 用于在 GitHub 上合并堆叠 PR、处理依赖 PR 链或按序合并相关 PR；需要 GitHub 原生堆叠 PR 能力与官方 `gh stack` 扩展，不得改用逐 PR 合并与重定基。"
+description: "Use when landing dependent GitHub PRs that form a stack (A ← B ← C), merging a PR whose base is another open PR's branch, or when a request mentions stacked PRs, PR stack, dependent PRs, or merging related PRs in sequence. Requires GitHub's official stacked-PR feature and gh stack; never merge and retarget individual PRs. 用于在 GitHub 上合并堆叠 PR、依赖 PR 链或按序合并相关 PR。需要 GitHub 原生堆叠 PR 能力与官方 gh stack 扩展，不得用逐 PR 合并与重定基模仿堆叠语义。"
 compatibility: "Requires the GitHub CLI (gh) with the official gh stack extension and access to GitHub; every head branch must be in the same repository."
 license: "MIT; upstream and repository notices in THIRD_PARTY_NOTICES"
 ---

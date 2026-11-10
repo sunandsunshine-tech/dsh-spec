@@ -1,7 +1,7 @@
 ---
 name: dsh-spec-code-review
 license: "MIT; upstream and repository notices in THIRD_PARTY_NOTICES"
-description: Use when reviewing a proposed change in a software project — a pull request, merge request, patch set, diff, or working-tree change — to orient the reviewer to that project's declared standards (standing instructions, design rules, documentation and prose standards, decision records, testing policy and quality gates) and to the review-specific checks that code alone cannot show. 用于审查软件项目中的 pull request、merge request、patch set、diff 或工作树变更：对照项目自己声明的标准（常驻指令、设计规则、文档与行文标准、决策记录、测试策略与质量门禁），并执行仅看代码无法覆盖的审查检查。
+description: "Use when reviewing a proposed software change — a pull request, merge request, patch set, diff, or working-tree change — to orient the reviewer to the project's declared standards (standing instructions, design rules, prose standards, decision records, quality gates) and to the review-specific checks that code alone cannot show. 用于审查软件项目中的 pull request、merge request、patch set、diff 或工作树变更：对照项目自己声明的标准（常驻指令、设计规则、文档与行文标准、决策记录、测试策略与质量门禁），并执行仅看代码无法覆盖的审查检查。"
 ---
 
 # Reviewing a proposed change
