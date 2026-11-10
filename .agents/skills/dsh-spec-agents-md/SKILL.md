@@ -1,6 +1,6 @@
 ---
 name: dsh-spec-agents-md
-description: "Use when writing, reviewing, or updating an AGENTS.md file — the standing instructions a repository gives coding agents — including when migrating an existing agent-instruction file to that name, to decide which content belongs in it, which content becomes a pointer or link to its owning document, how inline instructions are written, and how scope and updates are settled. Not for writing README or documentation prose, not for general prompt engineering, not for another agent-instruction format's own content, and not for applying an existing AGENTS.md during a code review. 用于编写、评审或更新 AGENTS.md——仓库给编码 agent 的常驻指令，包括把已有的 agent 指令文件迁移为该名称：决定哪些内容应写入、哪些应抽成指向拥有该内容的文档的指针或链接、内联指令怎么写，以及适用范围与更新边界如何裁决。不用于撰写 README 或其他文档行文，不用于通用提示词工程，不用于其他 agent 指令格式的内容，也不用于在代码评审中执行既有 AGENTS.md。"
+description: "Use when writing, reviewing, updating, or migrating AGENTS.md — a repository's standing instructions for coding agents. Covers content selection, pointers, inline instructions, and scope and update rules. Not for README or documentation prose, general prompt engineering, other instruction formats, or AGENTS.md in code review. 用于编写、评审、更新或迁移 AGENTS.md——仓库给编码 agent 的常驻指令。涵盖内容取舍、指针与内联指令，以及适用范围与更新边界。不用于 README 或文档行文、通用提示词工程、其他指令格式，或代码评审中的 AGENTS.md 执行。"
 license: "MIT; upstream and repository notices in THIRD_PARTY_NOTICES"
 ---
 

@@ -10,3 +10,7 @@ A forged skill names another skill from this repository only as an optional exam
 - `(when available, consider using the dsh-spec-… skill)` when it is optional guidance.
 
 The requirement must remain complete without the name; the name is not a link, path, or dependency.
+
+## Model-facing description budget
+
+Descriptions stay within 500 characters, enforced by the corpus gate (`--description-max 500`). DSH's model-facing catalog truncates beyond 500 UTF-16 code units; BMP-only text keeps the character count equal to that unit budget, so descriptions use BMP characters only.

@@ -1,6 +1,6 @@
 ---
 name: dsh-spec-agent-notes
-description: "Use before a non-trivial change to decide whether it needs a durable decision record, and when creating, updating, moving, reviewing, pruning, archiving, restoring, or auditing Agent Notes — durable decision records that preserve why a decision was made, what it beat, what it gave up, and how it is verified — in projects where agents and people must find a decision again after the session that made it. Covers the proposed/implemented/rejected lifecycle, the closed class set, the uniform note format, supersession checks, consolidation and deletion, the one-time tree initialization, the frozen archived tree with its append-only manifest, and the bundled mechanical checks. 在非平凡变更前先使用本技能，判断该变更是否需要持久决策记录；并在创建、更新、移动、评审、修剪、归档、恢复或审计 Agent Notes（跨会话保存决策理由、备选方案、代价与验证的持久记录）时使用。包括生命周期、分类、统一格式、取代检查、合并与删除、一次性初始化笔记树、冻结归档树与只增清单，以及随技能附带的机械检查。"
+description: "Use before a non-trivial change to decide whether it needs a durable decision record, and when creating, updating, moving, reviewing, pruning, archiving, restoring, or auditing Agent Notes. Covers the lifecycle, unified format, supersession, frozen archive and bundled checks. Not for ordinary documentation or transient notes. 用于在非平凡变更前判断是否需要持久决策记录，以及在创建、更新、移动、评审、修剪、归档、恢复或审计 Agent Notes 时使用。涵盖生命周期、分类、统一格式、取代、冻结归档与随附检查。不用于普通文档或临时笔记。"
 license: "MIT; upstream and repository notices in THIRD_PARTY_NOTICES"
 compatibility: "Requires Node.js 22.19+ or 24+ and Git; every command runs inside the project's Git checkout. No install, no network."
 ---
