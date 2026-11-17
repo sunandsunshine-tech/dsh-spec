@@ -3,7 +3,7 @@
 // committed copy under skills/<skill>/scripts/.
 //
 // dependencies   none; node: builtins only
-// runtime        Node.js 22.19+ or 24+, with the pinned Vite+ devDependency installed
+// runtime        Node.js ^22.19.0 || ^24.11.0 || >=26.0.0, with the pinned Vite+ devDependency installed
 // input          the working directory as the repository root
 // output         one line per mismatch, then a summary
 // exit           0 every bundle matches · 1 a bundle differs, is missing or is extra · 2 usage error

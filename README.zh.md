@@ -2,7 +2,7 @@
 
 [English](README.md) | 中文
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) ![Node](https://img.shields.io/badge/node-%E2%89%A5%2022.19-339933) [![Release](https://img.shields.io/github/v/release/sunandsunshine-tech/dsh-spec)](https://github.com/sunandsunshine-tech/dsh-spec/releases/latest)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) ![Node](https://img.shields.io/badge/node-22.19%20%7C%2024.11%20%7C%2026%2B-339933) [![Release](https://img.shields.io/github/v/release/sunandsunshine-tech/dsh-spec)](https://github.com/sunandsunshine-tech/dsh-spec/releases/latest)
 
 `dsh-spec` 是一套 Agent 技能，承载 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 团队日常遵循的开发做法：把决定写下来，让文字经得起推敲，技能则由它们自己记载的同一套流程锻造而成。项目把用得到的技能装进自己的树里。
 
@@ -12,7 +12,7 @@
 
 | 需要 | 用来做什么 |
 |---|---|
-| [Node.js](https://nodejs.org/) 22.19+（22 系列），或 24+ | 运行测试套件与各项检查 |
+| [Node.js](https://nodejs.org/) 22.19+（22 系列），24.11+（24 系列），或 26+ | 运行测试套件与各项检查 |
 | [Git](https://git-scm.com/) | 克隆仓库，以及读取提交的那道检查 |
 | [GitHub CLI](https://github.com/cli/cli)（命令行界面，`gh`），自带 `skill` 命令 | 安装与更新技能 |
 

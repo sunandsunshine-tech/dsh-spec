@@ -61,7 +61,7 @@ pnpm run skill:refresh
   # copies skills/ into the installed .agents/skills/ copies
 ```
 
-Node ≥ 22.19 or ≥ 24, and the pnpm and Vite+ versions the root `package.json` pins, are the toolchain. Source formatting is Oxfmt through `vp fmt`, configured in the root `vite.config.ts` and checked with `pnpm run format:check`.
+Node.js `^22.19.0 || ^24.11.0 || >=26.0.0`, and the pnpm and Vite+ versions the root `package.json` pins, are the toolchain. Source formatting is Oxfmt through `vp fmt`, configured in the root `vite.config.ts` and checked with `pnpm run format:check`.
 
 ## Boundaries
 

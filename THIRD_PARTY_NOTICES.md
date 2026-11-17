@@ -79,11 +79,12 @@ The dependency submission reads this table. It lists every npm package the shipp
 | `character-entities` | 2.0.2 |
 | `decode-named-character-reference` | 1.3.0 |
 | `entities` | 8.1.0 |
+| `entities` | 9.0.0 |
 | `escape-string-regexp` | 5.0.0 |
 | `linkify-it` | 6.1.0 |
 | `markdown-it` | 15.0.3 |
 | `mdast-util-find-and-replace` | 3.0.4 |
-| `mdast-util-from-markdown` | 2.0.3 |
+| `mdast-util-from-markdown` | 2.1.0 |
 | `mdast-util-gfm` | 3.1.0 |
 | `mdast-util-gfm-autolink-literal` | 2.0.1 |
 | `mdast-util-gfm-footnote` | 2.1.0 |
@@ -116,7 +117,7 @@ The dependency submission reads this table. It lists every npm package the shipp
 | `micromark-util-normalize-identifier` | 2.0.1 |
 | `micromark-util-resolve-all` | 2.0.1 |
 | `micromark-util-subtokenize` | 2.1.0 |
-| `parse5` | 8.0.1 |
+| `parse5` | 8.1.1 |
 | `punycode.js` | 2.3.1 |
 | `uc.micro` | 3.0.0 |
 | `unist-util-is` | 6.0.1 |

@@ -9756,7 +9756,7 @@ function position(pos) {
 function index(value) {
 	return value && typeof value === "number" ? value : 1;
 }
-// node_modules/.pnpm/mdast-util-from-markdown@2.0.3/node_modules/mdast-util-from-markdown/lib/index.js
+// node_modules/.pnpm/mdast-util-from-markdown@2.1.0/node_modules/mdast-util-from-markdown/lib/index.js
 /**
 * @import {
 *   Break,
@@ -9836,6 +9836,8 @@ function fromMarkdown(value, encoding, options) {
 function compiler(options) {
 	/** @type {Config} */
 	const config = {
+		afterExit: [],
+		beforeEnter: [],
 		transforms: [],
 		canContainEols: [
 			"emphasis",
@@ -9955,7 +9957,8 @@ function compiler(options) {
 		/** @type {Root} */
 		let tree = {
 			type: "root",
-			children: []
+			children: [],
+			position: void 0
 		};
 		/** @type {Omit<CompileContext, 'sliceSerialize'>} */
 		const context = {
@@ -9970,15 +9973,32 @@ function compiler(options) {
 		};
 		/** @type {Array<number>} */
 		const listStack = [];
+		/** @type {Array<Event>} */
+		const prepared = [];
 		let index = -1;
-		while (++index < events.length) if (events[index][1].type === "listOrdered" || events[index][1].type === "listUnordered") {
-			if (events[index][0] === "enter") listStack.push(index);
-			else index = prepareList(events, listStack.pop(), index);
+		while (++index < events.length) {
+			prepared.push(events[index]);
+			if (events[index][1].type === "listOrdered" || events[index][1].type === "listUnordered") {
+				if (events[index][0] === "enter") listStack.push(prepared.length - 1);
+				else prepareList(prepared, listStack.pop());
+			}
 		}
+		events = prepared;
 		index = -1;
 		while (++index < events.length) {
 			const handler = config[events[index][0]];
-			if (own.call(handler, events[index][1].type)) handler[events[index][1].type].call(Object.assign({ sliceSerialize: events[index][2].sliceSerialize }, context), events[index][1]);
+			if (events[index][0] === "enter" && config.beforeEnter.length > 0) callListeners(config.beforeEnter, {
+				...context,
+				sliceSerialize: events[index][2].sliceSerialize
+			}, events[index][1]);
+			if (own.call(handler, events[index][1].type)) handler[events[index][1].type].call({
+				...context,
+				sliceSerialize: events[index][2].sliceSerialize
+			}, events[index][1]);
+			if (events[index][0] === "exit" && config.afterExit.length > 0) callListeners(config.afterExit, {
+				...context,
+				sliceSerialize: events[index][2].sliceSerialize
+			}, events[index][1]);
 		}
 		if (context.tokenStack.length > 0) {
 			const tail = context.tokenStack[context.tokenStack.length - 1];
@@ -10001,12 +10021,28 @@ function compiler(options) {
 		return tree;
 	}
 	/**
-	* @param {Array<Event>} events
-	* @param {number} start
-	* @param {number} length
-	* @returns {number}
+	* @param {Array<Handle>} listeners
+	*   Listeners.
+	* @param {CompileContext} context
+	*   Context.
+	* @param {Token} token
+	*   Token.
+	* @returns {undefined}
+	*   Nothing.
 	*/
-	function prepareList(events, start, length) {
+	function callListeners(listeners, context, token) {
+		let index = -1;
+		while (++index < listeners.length) listeners[index].call(context, token);
+	}
+	/**
+	* @param {Array<Event>} events
+	*   Events, ending with the list to prepare.
+	* @param {number} start
+	*   Index of the list enter.
+	* @returns {undefined}
+	*/
+	function prepareList(events, start) {
+		const end = events.length - 1;
 		let index = start - 1;
 		let containerBalance = -1;
 		let listSpread = false;
@@ -10018,7 +10054,14 @@ function compiler(options) {
 		let firstBlankLineIndex;
 		/** @type {boolean | undefined} */
 		let atMarker;
-		while (++index <= length) {
+		/**
+		* `listItem` events to insert before the event at `at`, in walk order.
+		* Merged in after the walk, as inserting while walking would shift the
+		* rest of the list once per item.
+		* @type {Array<{at: number, event: Event}>}
+		*/
+		const insertions = [];
+		while (++index <= end) {
 			const event = events[index];
 			switch (event[1].type) {
 				case "listUnordered":
@@ -10059,13 +10102,14 @@ function compiler(options) {
 					}
 					if (firstBlankLineIndex && (!lineIndex || firstBlankLineIndex < lineIndex)) listItem._spread = true;
 					listItem.end = Object.assign({}, lineIndex ? events[lineIndex][1].start : event[1].end);
-					events.splice(lineIndex || index, 0, [
-						"exit",
-						listItem,
-						event[2]
-					]);
-					index++;
-					length++;
+					insertions.push({
+						at: lineIndex || index,
+						event: [
+							"exit",
+							listItem,
+							event[2]
+						]
+					});
 				}
 				if (event[1].type === "listItemPrefix") {
 					/** @type {Token} */
@@ -10076,20 +10120,27 @@ function compiler(options) {
 						end: void 0
 					};
 					listItem = item;
-					events.splice(index, 0, [
-						"enter",
-						item,
-						event[2]
-					]);
-					index++;
-					length++;
+					insertions.push({
+						at: index,
+						event: [
+							"enter",
+							item,
+							event[2]
+						]
+					});
 					firstBlankLineIndex = void 0;
 					atMarker = true;
 				}
 			}
 		}
+		const listEvents = events.splice(start);
+		let insertion = 0;
+		index = -1;
+		while (++index < listEvents.length) {
+			while (insertion < insertions.length && insertions[insertion].at === start + index) events.push(insertions[insertion++].event);
+			events.push(listEvents[index]);
+		}
 		events[start][1]._spread = listSpread;
-		return length;
 	}
 	/**
 	* Create an opener handle.
@@ -10164,7 +10215,7 @@ function compiler(options) {
 			start: token.start,
 			end: token.end
 		}) + "): it’s not open");
-		else if (open[0].type !== token.type) {
+		if (open[0].type !== token.type) {
 			if (onExitError) onExitError.call(this, token, open[0]);
 			else (open[1] || defaultOnError).call(this, token, open[0]);
 		}
@@ -10532,7 +10583,8 @@ function compiler(options) {
 	function blockQuote() {
 		return {
 			type: "blockquote",
-			children: []
+			children: [],
+			position: void 0
 		};
 	}
 	/** @returns {Code} */
@@ -10541,14 +10593,16 @@ function compiler(options) {
 			type: "code",
 			lang: null,
 			meta: null,
-			value: ""
+			value: "",
+			position: void 0
 		};
 	}
 	/** @returns {InlineCode} */
 	function codeText() {
 		return {
 			type: "inlineCode",
-			value: ""
+			value: "",
+			position: void 0
 		};
 	}
 	/** @returns {Definition} */
@@ -10558,14 +10612,16 @@ function compiler(options) {
 			identifier: "",
 			label: null,
 			title: null,
-			url: ""
+			url: "",
+			position: void 0
 		};
 	}
 	/** @returns {Emphasis} */
 	function emphasis() {
 		return {
 			type: "emphasis",
-			children: []
+			children: [],
+			position: void 0
 		};
 	}
 	/** @returns {Heading} */
@@ -10573,18 +10629,23 @@ function compiler(options) {
 		return {
 			type: "heading",
 			depth: 0,
-			children: []
+			children: [],
+			position: void 0
 		};
 	}
 	/** @returns {Break} */
 	function hardBreak() {
-		return { type: "break" };
+		return {
+			type: "break",
+			position: void 0
+		};
 	}
 	/** @returns {Html} */
 	function html() {
 		return {
 			type: "html",
-			value: ""
+			value: "",
+			position: void 0
 		};
 	}
 	/** @returns {Image} */
@@ -10593,7 +10654,8 @@ function compiler(options) {
 			type: "image",
 			title: null,
 			url: "",
-			alt: null
+			alt: null,
+			position: void 0
 		};
 	}
 	/** @returns {Link} */
@@ -10602,7 +10664,8 @@ function compiler(options) {
 			type: "link",
 			title: null,
 			url: "",
-			children: []
+			children: [],
+			position: void 0
 		};
 	}
 	/**
@@ -10615,7 +10678,8 @@ function compiler(options) {
 			ordered: token.type === "listOrdered",
 			start: null,
 			spread: token._spread,
-			children: []
+			children: [],
+			position: void 0
 		};
 	}
 	/**
@@ -10627,33 +10691,40 @@ function compiler(options) {
 			type: "listItem",
 			spread: token._spread,
 			checked: null,
-			children: []
+			children: [],
+			position: void 0
 		};
 	}
 	/** @returns {Paragraph} */
 	function paragraph() {
 		return {
 			type: "paragraph",
-			children: []
+			children: [],
+			position: void 0
 		};
 	}
 	/** @returns {Strong} */
 	function strong() {
 		return {
 			type: "strong",
-			children: []
+			children: [],
+			position: void 0
 		};
 	}
 	/** @returns {Text} */
 	function text() {
 		return {
 			type: "text",
-			value: ""
+			value: "",
+			position: void 0
 		};
 	}
 	/** @returns {ThematicBreak} */
 	function thematicBreak() {
-		return { type: "thematicBreak" };
+		return {
+			type: "thematicBreak",
+			position: void 0
+		};
 	}
 }
 /**
@@ -10703,6 +10774,12 @@ function extension(combined, extension) {
 			if (right) combined[key].push(...right);
 			break;
 		}
+		case "afterExit":
+		case "beforeEnter": {
+			const right = extension[key];
+			if (right) combined[key].push(right);
+			break;
+		}
 		case "enter":
 		case "exit": {
 			const right = extension[key];
@@ -10720,7 +10797,7 @@ function defaultOnError(left, right) {
 		start: right.start,
 		end: right.end
 	}) + ") is open");
-	else throw new Error("Cannot close document, a token (`" + right.type + "`, " + stringifyPosition({
+	throw new Error("Cannot close document, a token (`" + right.type + "`, " + stringifyPosition({
 		start: right.start,
 		end: right.end
 	}) + ") is still open");

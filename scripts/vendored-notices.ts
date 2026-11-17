@@ -9,7 +9,7 @@
 
 import { readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { readInlinePackages } from './vendor-packages.ts'
+import { readInlinePackages, type InlinePackage } from './vendor-packages.ts'
 
 /** The markers around the generated table. */
 export const START = '<!-- vendored-packages:start -->'
@@ -17,14 +17,14 @@ export const END = '<!-- vendored-packages:end -->'
 
 /**
  * Render the generated table.
- * @param packages - package name to version, sorted.
+ * @param packages - package name/version rows.
  * @returns the markdown table with a trailing newline.
  */
-export function renderVendoredTable(packages: Map<string, string>): string {
+export function renderVendoredTable(packages: InlinePackage[]): string {
   return [
     '| Package | Version |',
     '|---|---|',
-    ...[...packages.entries()].map(([name, version]) => '| `' + name + '` | ' + version + ' |'),
+    ...packages.map(({ name, version }) => '| `' + name + '` | ' + version + ' |'),
     '',
   ].join('\n')
 }
@@ -39,7 +39,7 @@ export function renderVendoredTable(packages: Map<string, string>): string {
 export function syncVendoredNotices(
   repoRoot: string,
   options: { write?: boolean } = {},
-): { changed: boolean; packages: Map<string, string> } {
+): { changed: boolean; packages: InlinePackage[] } {
   const path = join(repoRoot, 'THIRD_PARTY_NOTICES.md')
   const text = readFileSync(path, 'utf8')
   const start = text.indexOf(START)

@@ -2,7 +2,7 @@
 // Regenerate the vendored-packages table in THIRD_PARTY_NOTICES.md from the shipped bundles.
 //
 // dependencies   none; node: builtins only
-// runtime        Node.js 22.19+ or 24+
+// runtime        Node.js ^22.19.0 || ^24.11.0 || >=26.0.0
 // input          --check to compare only
 // output         one line: written, unchanged, or out of date
 // exit           0 the table is current or was written · 1 --check found it stale · 2 usage error
@@ -47,7 +47,7 @@ function main(): void {
       'sync-vendored-notices: ' +
         (result.changed ? 'wrote' : 'unchanged') +
         ' (' +
-        result.packages.size +
+        result.packages.length +
         ' package(s))',
     )
   } catch (error) {

@@ -31,3 +31,26 @@ test('the pinned pnpm version agrees across package.json, the workflow and the l
   assert.equal(managed[1], pinned, 'the lockfile specifier must match packageManager')
   assert.equal(managed[2], pinned, 'the lockfile version must match packageManager')
 })
+
+test('the root Node engine and direct toolchain pins agree with the installed Vite+ package', () => {
+  const root = JSON.parse(readFileSync(join(REPO_ROOT, 'package.json'), 'utf8')) as {
+    engines?: { node?: string }
+    devDependencies?: Record<string, string>
+  }
+  const installed = JSON.parse(readFileSync(join(REPO_ROOT, 'node_modules/vite-plus/package.json'), 'utf8')) as {
+    version?: string
+  }
+  assert.equal(root.engines?.node, '^22.19.0 || ^24.11.0 || >=26.0.0')
+  assert.equal(root.devDependencies?.['vite-plus'], installed.version)
+  assert.equal(root.devDependencies?.parse5, '8.1.1')
+
+  const forge = JSON.parse(readFileSync(join(REPO_ROOT, 'package/dsh-spec-skill-forge/package.json'), 'utf8')) as {
+    devDependencies?: Record<string, string>
+  }
+  assert.equal(forge.devDependencies?.parse5, '^8.1.1')
+
+  const translate = JSON.parse(
+    readFileSync(join(REPO_ROOT, 'package/dsh-spec-translate-docs/package.json'), 'utf8'),
+  ) as { devDependencies?: Record<string, string> }
+  assert.equal(translate.devDependencies?.['mdast-util-from-markdown'], '2.1.0')
+})
