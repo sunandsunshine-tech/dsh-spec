@@ -10,9 +10,10 @@ from the repository root.
 pnpm test
 ```
 
-Node 22.19 or a Node 24+ release is the only requirement: the runner executes TypeScript directly, so the suite
-needs no dependency and no transform; `pnpm test` is the documented entry point, and the scripts rely
-on the same property.
+Node 22.19 or a Node 24+ release and the root development dependencies installed by
+`pnpm install` are required. The runner executes TypeScript directly, so no transform is needed,
+but the sibling-reference gate imports the root `markdown-it`, `parse5` and `yaml` packages.
+`pnpm test` is the documented entry point.
 
 ## Layout
 
@@ -27,7 +28,8 @@ on the same property.
 | `toolchain.test.ts` | The pinned pnpm version agreeing across `package.json`, the checks workflow and the lockfile's self-management document. |
 | `check-bundles.test.ts` | `scripts/check-bundles.ts`: changed, missing and extra committed-bundle states through the comparison function. |
 | `build-skills.test.ts` | `scripts/build-skills.ts`: a successful build that writes nothing gets a clean diagnostic instead of an ENOENT crash. |
-| `verify-corpus.test.ts` | `scripts/verify-corpus.ts`: the archive baseline flag forwarded to the notes archive, and its empty-value usage error. |
+| `verify-corpus.test.ts` | `scripts/verify-corpus.ts`: the archive baseline flag forwarded to the notes archive, sibling-reference gate output and failure propagation, and empty-value usage errors. |
+| `sibling-skill-references.test.ts` | `scripts/verify-sibling-references.ts`: exact availability forms, metadata exclusions, Markdown visible text and source lines, link/code/HTML and symlink handling, empty corpora and single-skill corpora. |
 | `vendored-submission.test.ts` | `scripts/submit-vendored.ts`: the payload the dependency-submission endpoint requires, printed by a dry run; and the generated notice table plus each skill-root bundled-package list. |
 | `skill-spec.test.ts` | `skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs`: the mechanical half of Agent Skills conformance. |
 | `agent-notes.test.ts` | `skills/dsh-spec-agent-notes/scripts/notes.mjs`: `init`, the active Agent Note tree (folders, filenames, header, required sections, declared companions, non-default roots and symlinked paths) and the frozen archive (manifest, seal, append-only baseline and sealed companions). |
