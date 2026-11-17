@@ -2,7 +2,7 @@
 
 English | [中文](README.zh.md)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) ![Node](https://img.shields.io/badge/node-%E2%89%A5%2022.19-339933) [![Release](https://img.shields.io/github/v/release/sunandsunshine-tech/dsh-spec)](https://github.com/sunandsunshine-tech/dsh-spec/releases/latest)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) ![Node](https://img.shields.io/badge/node-22.19%20%7C%2024.11%20%7C%2026%2B-339933) [![Release](https://img.shields.io/github/v/release/sunandsunshine-tech/dsh-spec)](https://github.com/sunandsunshine-tech/dsh-spec/releases/latest)
 
 `dsh-spec` is a set of Agent Skills that carry the development pattern the [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) team works by: decisions written down, prose kept honest, and skills built by the same procedure they document. A project installs the skills it needs into its own tree.
 
@@ -12,7 +12,7 @@ Skills are either ported from the DeepSeek Harness project or forged for this pa
 
 | You need | Used for |
 |---|---|
-| [Node.js](https://nodejs.org/) 22.19+ on the 22 line, or 24+ | Running the test suite and the checks |
+| [Node.js](https://nodejs.org/) 22.19+ on the 22 line, 24.11+ on the 24 line, or 26+ | Running the test suite and the checks |
 | [Git](https://git-scm.com/) | Cloning the repository, and the check that reads commits |
 | [GitHub CLI](https://github.com/cli/cli) (`gh`), with its `skill` command | Installing and updating the skills |
 

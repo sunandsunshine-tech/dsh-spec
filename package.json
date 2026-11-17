@@ -1,10 +1,10 @@
 {
   "name": "dsh-spec",
   "private": true,
-  "packageManager": "pnpm@12.16.1",
+  "packageManager": "pnpm@12.21.0",
   "type": "module",
   "engines": {
-    "node": "^22.19.0 || >=24.0.0"
+    "node": "^22.19.0 || ^24.11.0 || >=26.0.0"
   },
   "workspaces": [
     "package/*"
@@ -12,9 +12,9 @@
   "devDependencies": {
     "@types/markdown-it": "14.2.0",
     "markdown-it": "15.0.3",
-    "parse5": "8.0.1",
+    "parse5": "8.1.1",
     "yaml": "2.9.1",
-    "vite-plus": "1.4.0"
+    "vite-plus": "1.6.0"
   },
   "scripts": {
     "format": "vp fmt",

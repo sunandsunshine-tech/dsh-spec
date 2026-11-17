@@ -3,7 +3,7 @@
 // bundles, and optionally publish them into skills/<name>/scripts/.
 //
 // dependencies   none; node: builtins only
-// runtime        Node.js 22.19+ or 24+, with the pinned Vite+ devDependency installed
+// runtime        Node.js ^22.19.0 || ^24.11.0 || >=26.0.0, with the pinned Vite+ devDependency installed
 // input          optional skill package names, --all, --publish
 // output         one line per package and per published file
 // exit           0 every step succeeded · 1 a build failed · 2 usage error
@@ -175,7 +175,7 @@ function main(): void {
         'build-skills: vendored notice table ' +
           (notices.changed ? 'updated' : 'unchanged') +
           ' (' +
-          notices.packages.size +
+          notices.packages.length +
           ' package(s))',
       )
     } catch (error) {

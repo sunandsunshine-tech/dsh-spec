@@ -47,7 +47,7 @@ test('scanned is the instant the endpoint dates the snapshot with', () => {
 
 test('the vendored table is generated from the packages the shipped bundles inline', () => {
   const packages = readInlinePackages(REPO_ROOT)
-  assert.ok(packages.size > 0, 'no inlined package was found')
+  assert.ok(packages.length > 0, 'no inlined package was found')
   const notices = readFileSync(join(REPO_ROOT, 'THIRD_PARTY_NOTICES.md'), 'utf8')
   const expected = START + '\n' + renderVendoredTable(packages) + END
   assert.ok(notices.includes(expected), 'THIRD_PARTY_NOTICES.md is stale; run pnpm run notices:sync')
@@ -73,8 +73,11 @@ test('the check mode reports a stale table without writing it, and scoped packag
     const compared = syncVendoredNotices(root, { write: false })
     assert.equal(compared.changed, true)
     assert.equal(readFileSync(join(root, 'THIRD_PARTY_NOTICES.md'), 'utf8'), stale, 'check mode wrote the file')
-    assert.deepEqual([...compared.packages.keys()], ['@scope/pkg', 'alpha'])
-    assert.equal(compared.packages.get('@scope/pkg'), '2.0.0')
+    assert.deepEqual(
+      compared.packages.map(({ name, version }) => name + '@' + version),
+      ['@scope/pkg@2.0.0', 'alpha@1.2.3'],
+    )
+    assert.equal(compared.packages.find((item) => item.name === '@scope/pkg')?.version, '2.0.0')
 
     const written = syncVendoredNotices(root)
     assert.equal(written.changed, true)
@@ -96,9 +99,15 @@ test('punycode is injected only when markdown-it is inlined', () => {
     }
     write('skills/alpha/scripts/a.mjs', '// node_modules/.pnpm/alpha@1.2.3/node_modules/alpha/index.js\n')
     write('pnpm-lock.yaml', '  punycode.js@2.3.1:\n')
-    assert.deepEqual([...readInlinePackages(root).keys()], ['alpha'])
+    assert.deepEqual(
+      readInlinePackages(root).map((item) => item.name),
+      ['alpha'],
+    )
     write('skills/alpha/scripts/a.mjs', '// node_modules/.pnpm/markdown-it@15.0.3/node_modules/markdown-it/index.js\n')
-    assert.deepEqual([...readInlinePackages(root).keys()], ['markdown-it', 'punycode.js'])
+    assert.deepEqual(
+      readInlinePackages(root).map((item) => item.name),
+      ['markdown-it', 'punycode.js'],
+    )
   } finally {
     rmSync(root, { recursive: true, force: true })
   }
@@ -122,6 +131,27 @@ test('bundle discovery follows the skills tree', () => {
   }
 })
 
+test('the inline package reader retains the same package name at different versions', () => {
+  const root = mkdtempSync(join(tmpdir(), 'vendored-notices-versions-'))
+  try {
+    const path = join(root, 'skills/alpha/scripts/a.mjs')
+    mkdirSync(dirname(path), { recursive: true })
+    writeFileSync(
+      path,
+      [
+        '// node_modules/.pnpm/entities@8.1.0/node_modules/entities/index.js',
+        '// node_modules/.pnpm/entities@9.0.0/node_modules/entities/index.js',
+      ].join('\n'),
+    )
+    assert.deepEqual(readInlinePackages(root), [
+      { name: 'entities', version: '8.1.0' },
+      { name: 'entities', version: '9.0.0' },
+    ])
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
 // punycode.js is inlined inside markdown-it's dist without a package-file boundary. A skill whose
 // bundles inline markdown-it must list it even though no marker names it; any skill that lists it
 // must record a 2.x version.
@@ -140,29 +170,29 @@ test('each skill-root bundled-package list matches the packages its bundles inli
   )
 
   for (const [skill, bundles] of skills) {
-    const expected = new Map<string, string>()
+    const expected = new Set<string>()
     for (const bundle of bundles) {
-      for (const [name, version] of readBundlePackages(REPO_ROOT, bundle)) expected.set(name, version)
+      for (const { name, version } of readBundlePackages(REPO_ROOT, bundle)) expected.add(name + '@' + version)
     }
     const notices = readFileSync(join(REPO_ROOT, 'skills', skill, 'THIRD_PARTY_NOTICES'), 'utf8')
-    const listed = new Map<string, string>()
+    const listed = new Set<string>()
     for (const line of notices.split('\n')) {
       const row = /^- ([A-Za-z0-9@._-]+) ([0-9][^\s(]*)/.exec(line)
-      if (row) listed.set(row[1], row[2])
+      if (row) listed.add(row[1] + '@' + row[2])
     }
-    for (const [name, version] of expected) {
-      assert.equal(listed.get(name), version, skill + ' notices must list ' + name + '@' + version)
+    for (const item of expected) {
+      assert.ok(listed.has(item), skill + ' notices must list ' + item)
     }
-    const punycode = listed.get('punycode.js')
-    if (expected.has('markdown-it')) {
+    const punycode = [...listed].find((item) => item.startsWith('punycode.js@'))
+    if ([...expected].some((item) => item.startsWith('markdown-it@'))) {
       assert.ok(punycode !== undefined, skill + ' notices must list punycode.js (inlined by markdown-it)')
     }
     if (punycode !== undefined) {
-      assert.match(punycode, /^2\./, skill + ' notices must record a 2.x punycode.js version')
+      assert.match(punycode, /^punycode\.js@2\./, skill + ' notices must record a 2.x punycode.js version')
     }
-    for (const [name, version] of listed) {
-      if (expected.has(name)) continue
-      assert.ok(name === 'punycode.js', skill + ' notices list ' + name + '@' + version + ' but no bundle inlines it')
+    for (const item of listed) {
+      if (expected.has(item)) continue
+      assert.ok(item.startsWith('punycode.js@'), skill + ' notices list ' + item + ' but no bundle inlines it')
     }
   }
 })
@@ -174,11 +204,14 @@ test('the root vendored table is covered by the skill-root notices', () => {
     const notices = readFileSync(join(REPO_ROOT, 'skills', skill, 'THIRD_PARTY_NOTICES'), 'utf8')
     for (const line of notices.split('\n')) {
       const row = /^- ([A-Za-z0-9@._-]+) ([0-9][^\s(]*)/.exec(line)
-      if (row) listed.add(row[1])
+      if (row) listed.add(row[1] + '@' + row[2])
     }
   }
-  for (const name of readInlinePackages(REPO_ROOT).keys()) {
-    assert.ok(listed.has(name), name + ' is in the root table but no skill-root notices list it')
+  for (const { name, version } of readInlinePackages(REPO_ROOT)) {
+    assert.ok(
+      listed.has(name + '@' + version),
+      name + '@' + version + ' is in the root table but no skill-root notices list it',
+    )
   }
 })
 
@@ -222,6 +255,8 @@ test('the notice file is the manifest, and each package resolves as a direct run
   assert.ok(entry, 'the payload does not name the file the packages were read from')
   const names = Object.keys(entry.resolved)
   assert.ok(names.length > 0, 'no vendored package was resolved')
+  assert.ok(names.includes('pkg:npm/entities@8.1.0'), 'the payload omits the markdown-it entities version')
+  assert.ok(names.includes('pkg:npm/entities@9.0.0'), 'the payload omits the parse5 entities version')
   for (const name of names) {
     assert.match(name, /^pkg:npm\//, `${name} is not a package URL`)
     // The endpoint decodes this field as a package URL too, and a registry page is not one.

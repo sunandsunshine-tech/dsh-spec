@@ -2,7 +2,7 @@
 // Check how the shipped skills name one another.
 //
 // dependencies   markdown-it, parse5 and yaml (root development dependencies)
-// runtime        Node.js 22.19+ or 24+
+// runtime        Node.js ^22.19.0 || ^24.11.0 || >=26.0.0
 // input          the working directory as the repository root
 // output         one FAIL line per offending mention, or the final passing summary
 // exit           0 every reference is optional and exact · 1 a finding or empty corpus · 2 usage error

@@ -10,7 +10,7 @@ from the repository root.
 pnpm test
 ```
 
-Node 22.19 or a Node 24+ release and the root development dependencies installed by
+Node 22.19 on the 22 line, 24.11 on the 24 line, or 26+, plus the root development dependencies installed by
 `pnpm install` are required. The runner executes TypeScript directly, so no transform is needed,
 but the sibling-reference gate imports the root `markdown-it`, `parse5` and `yaml` packages.
 `pnpm test` is the documented entry point.
@@ -25,7 +25,7 @@ but the sibling-reference gate imports the root `markdown-it`, `parse5` and `yam
 | `helpers/bundles.ts` | The work-draft/landed bundle resolution shared by the cases that run a bundled skill script. |
 | `cli-contract.test.ts` | The shared command-line contract: `--help`/`-h`, unknown-option diagnostics, exit codes and indented JSON, checked across the repository and bundled scripts. |
 | `dco.test.ts` | `scripts/verify-dco.ts`: the trailer half, decided from `git log` alone, and the bot-identity half, decided against a `gh` stand-in. |
-| `toolchain.test.ts` | The pinned pnpm version agreeing across `package.json`, the checks workflow and the lockfile's self-management document. |
+| `toolchain.test.ts` | The pinned pnpm version agreeing across `package.json`, the checks workflow and the lockfile's self-management document, plus the root Node engine and direct toolchain pins. |
 | `check-bundles.test.ts` | `scripts/check-bundles.ts`: changed, missing and extra committed-bundle states through the comparison function. |
 | `build-skills.test.ts` | `scripts/build-skills.ts`: a successful build that writes nothing gets a clean diagnostic instead of an ENOENT crash. |
 | `verify-corpus.test.ts` | `scripts/verify-corpus.ts`: the archive baseline flag forwarded to the notes archive, sibling-reference gate output and failure propagation, and empty-value usage errors. |

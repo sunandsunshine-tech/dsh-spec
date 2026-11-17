@@ -3,11 +3,11 @@
 # After editing either side, bring the other along and re-record with:
 #   node <skill-dir>/scripts/translate-pair.mjs write README.md --target <lang>
 /dsh-spec:
-  en: 3d31a002368121df
-  zh: de3ce155b19d4fae
+  en: f4eb222702268f10
+  zh: 3c8d0f7d95a378f5
 /dsh-spec/prerequisites:
-  en: 65f3b66381c83445
-  zh: 4b932377d1086978
+  en: 6ba32d8ba42ef81d
+  zh: d825edc3c9ee581a
 /dsh-spec/install:
   en: 1d46a91a57606400
   zh: 152b95374926cd16
