@@ -829,6 +829,35 @@ test('a named argument that selects no pair fails even beside a valid one', () =
   }
 })
 
+test('init uses the default target and terminology root without project instructions', () => {
+  const fixture = makeFixture()
+  try {
+    assert.equal(fixture.exists('AGENTS.md'), false)
+    const result = run(fixture.root, 'init')
+    assert.equal(result.status, 0, result.output)
+    const table = fixture.read('.agents/dsh-spec-translate-docs/terminology.md')
+    assert.match(table, /\| English \| 中文 \|/)
+    assert.equal(fixture.exists('AGENTS.md'), false)
+  } finally {
+    fixture.dispose()
+  }
+})
+
+test('a target override leaves project instructions unchanged and creates no default copy', () => {
+  const fixture = makeFixture()
+  try {
+    const instructions = '# Project instructions\n\nThe Japanese terminology table lives at `docs/terminology.ja.md`.\n'
+    fixture.write('AGENTS.md', instructions)
+    const result = run(fixture.root, 'init', '--target', 'ja=日本語', '--terminology', 'ja=docs/terminology.ja.md')
+    assert.equal(result.status, 0, result.output)
+    assert.match(fixture.read('docs/terminology.ja.md'), /\| English \| 日本語 \|/)
+    assert.equal(fixture.exists('.agents/dsh-spec-translate-docs/terminology.ja.md'), false)
+    assert.equal(fixture.read('AGENTS.md'), instructions)
+  } finally {
+    fixture.dispose()
+  }
+})
+
 test('hidden and vendored trees follow the default prune list', () => {
   const fixture = makeFixture()
   try {

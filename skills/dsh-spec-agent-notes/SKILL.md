@@ -11,6 +11,10 @@ An Agent Note is a durable decision record: the *why* and the *what was given up
 
 This skill owns the full lifecycle of those records — where they live, when to write one, the uniform format, how they move and are pruned, and how finished ones are frozen into an archive. The references hold the full rules; the bundled script decides the mechanical ones.
 
+## Defaults
+
+Defaults apply when the request and the project's existing instructions are silent; missing instructions are a valid project state. Do not ask the user to choose a default, or create or modify `AGENTS.md` or another instruction file merely to select one. A one-off override belongs in the request or an invocation parameter; a persistent override is read only from existing project instructions or another existing project source this skill names, and is never rewritten or copied.
+
 ## Procedure
 
 1. **Check supersession before writing.** Search the active tree for notes that own or constrain the same decision. Use the project's current code, configuration, package documentation, generated catalogs, newer notes and inbound links to establish whether an older rationale still owns or constrains anything. Plan one change for every match: update the owner, consolidate a full supersession, archive a qualifying implemented note, or reject or delete a stale proposal. A new note never competes with an existing owner.

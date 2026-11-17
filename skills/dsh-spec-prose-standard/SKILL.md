@@ -14,6 +14,10 @@ This skill owns editorial judgement, required prose coverage, and the leakage au
 
 `Contract`, `boundary`, `shape`, `surface`, `seam`, `gate`, and `vocabulary` are terms to check before use, not banned words. First ask whether the exact rule, API, field set, type, validation, timing point, component split, or failure states the fact better. Keep a term when it names the exact technical subject, including caller/callee contracts and security or process boundaries.
 
+## Defaults
+
+Defaults apply when the request and the project's existing instructions are silent; missing instructions are a valid project state. Do not ask the user to choose a default, or create or modify `AGENTS.md` or another instruction file merely to select one. A one-off override belongs in the request or an invocation parameter; a persistent override is read only from existing project instructions or another existing project source this skill names, and is never rewritten or copied.
+
 ## Inputs and exclusions
 
 - Require an explicit `scope` — paths, globs, or named surfaces. If missing, report the required input and stop; never infer a project-wide scope or begin an interview.

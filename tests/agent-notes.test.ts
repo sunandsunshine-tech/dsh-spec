@@ -470,6 +470,7 @@ test('usage errors exit 2 and --json reports the summary', (t) => {
 
 test('init creates the default notes skeleton idempotently', (t) => {
   const project = makeProject(t)
+  assert.equal(project.exists('AGENTS.md'), false)
   const first = run(project, ['init'])
   assert.equal(first.status, 0, first.stdout + first.stderr)
   for (const kind of ['feature', 'bug-fix', 'simplification', 'architecture', 'process', 'testing']) {
@@ -483,6 +484,18 @@ test('init creates the default notes skeleton idempotently', (t) => {
   assert.equal(second.status, 0, second.stdout)
   assert.match(second.stdout, /already initialized/)
   assert.equal(project.read(ROOT + '/proposed/process/AGENTS.md'), '# adopter additions\n')
+  assert.equal(project.exists('AGENTS.md'), false)
+})
+
+test('--root overrides one invocation without rewriting existing project instructions', (t) => {
+  const project = makeProject(t)
+  const instructions = '# Project instructions\n\nUse `.notes` for decision records.\n'
+  project.write('AGENTS.md', instructions)
+  const result = run(project, ['init', '--root', '.notes'])
+  assert.equal(result.status, 0, result.stdout + result.stderr)
+  assert.equal(project.read('AGENTS.md'), instructions)
+  assert.equal(project.exists(ROOT), false)
+  assert.equal(project.exists('.notes/implemented/process/.gitkeep'), true)
 })
 
 test('init rejects a notes root outside the project', (t) => {

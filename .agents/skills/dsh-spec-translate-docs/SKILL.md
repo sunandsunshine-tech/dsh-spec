@@ -11,6 +11,10 @@ compatibility: "Requires Node.js 22.19+ or 24+ and Git for the briefing. No inst
 
 This skill runs when the user asks for translation or pair maintenance, when the project's standing instructions say an existing pair is maintained, or when a documented change touches a side of an existing pair. The standing instructions and the user's explicit instruction authorise creating or updating a pair; the check never demands that a document be paired. A file outside both the standing instructions and the user's explicit instruction is left alone.
 
+## Defaults
+
+Defaults apply when the request and the project's existing instructions are silent; missing instructions are a valid project state. Do not ask the user to choose a default, or create or modify `AGENTS.md` or another instruction file merely to select one. A one-off override belongs in the request or an invocation parameter; a persistent override is read only from existing project instructions or another existing project source this skill names, and is never rewritten or copied.
+
 ## What this skill is
 
 A self-contained mechanism for a corpus of paired Markdown documents: the skill entry, three references, and one bundled script. `<skill-dir>` is the directory containing this `SKILL.md`; run the script from the project root. The script is parameter-driven; the pairing contract owns the options, their defaults and the override rules. The check verifies existing pairs only: file structure, Markdown structure, generated-region equality and the recorded hashes. It does not decide that a source should have a counterpart; that decision belongs to the standing instructions or the user.
