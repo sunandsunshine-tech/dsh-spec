@@ -9,6 +9,8 @@ A forged skill names another skill from this repository only as an optional exam
 - `(when available, use the dsh-spec-… skill)` when the sibling is the concrete mechanism.
 - `(when available, consider using the dsh-spec-… skill)` when it is optional guidance.
 
+Keep the parenthetical to the availability and name. Do not use the surrounding requirement to import the sibling's API: its sections, paths, commands, options, record format, output location, internal ordering and invocation policy stay with that sibling. The requirement must still hold when a project substitutes an equivalent mechanism.
+
 The requirement must remain complete without the name; the name is not a link, path, or dependency.
 
 ## Model-facing description budget

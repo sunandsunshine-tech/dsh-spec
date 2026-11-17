@@ -1,0 +1,19 @@
+# Pairing consistency record for 2026-11-17-sibling-references-name-a-mechanism-not-its-implementation.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-11-17-sibling-references-name-a-mechanism-not-its-implementation.md --target <lang>
+/agent-note-sibling-references-name-a-mechanism-not-its-implementation:
+  en: e4f1bd9cfda4db8a
+  zh: 186e029fa2ba8dd2
+/agent-note-sibling-references-name-a-mechanism-not-its-implementation/problem:
+  en: aa53233b234f9570
+  zh: c5a0d3cffe38d1be
+/agent-note-sibling-references-name-a-mechanism-not-its-implementation/decision:
+  en: edcde64fd8fd7e55
+  zh: 95098274d0478acd
+/agent-note-sibling-references-name-a-mechanism-not-its-implementation/alternatives-considered:
+  en: 6863b1c65a58c3c9
+  zh: f7beaad5bc1277e9
+/agent-note-sibling-references-name-a-mechanism-not-its-implementation/consequences:
+  en: 3f821724c72980dc
+  zh: aabe65596bb937d9

@@ -1,9 +1,11 @@
 #!/usr/bin/env node
-// Check the repository's own corpus: every skill entry, the notes tree and its archive, the
-// maintained translation pairs, and the vendored-notices submission.
+// Check the repository's own corpus: every skill entry, sibling-skill references, the notes tree
+// and its archive, the maintained translation pairs, and the vendored-notices submission.
 //
-// dependencies   none; node: builtins only
-// runtime        Node.js 22.19+ or 24+; Git for the notes archive baseline
+// dependencies   none directly; node: builtins only. The spawned sibling-reference gate imports
+//                the root markdown-it, parse5 and yaml packages installed by pnpm.
+// runtime        Node.js 22.19+ or 24+ with pnpm-installed development dependencies;
+//                Git for the notes archive baseline
 // input          the working directory as the repository root; NOTES_BASE_REF or --base-ref names
 //                the archive baseline (default: HEAD)
 // output         one line per gate on stdout; failures print the failing output
@@ -15,8 +17,9 @@ import { join } from 'node:path'
 
 const USAGE = `usage: verify-corpus.ts [--base-ref=<ref>] [--help]
 
-Check the repository's own corpus: every skill entry, the notes tree and its archive, the
-maintained translation pairs and the vendored-notices submission. Run from the repository root.
+Check the repository's own corpus: every skill entry, sibling-skill references, the notes tree and
+its archive, the maintained translation pairs and the vendored-notices submission. Run from the
+repository root.
 
   --base-ref=<ref>  trusted pre-change commit for the notes archive baseline
                     (default: HEAD; CI passes the base commit)
@@ -110,6 +113,7 @@ function main(): void {
       '500',
     ])
   }
+  gate('sibling skill references', ['scripts/verify-sibling-references.ts'])
 
   const notesCheck = spawnSync(
     node,

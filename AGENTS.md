@@ -7,7 +7,7 @@ This repository holds `skills/` — a set of Agent Skills carrying a development
 ```
 skills/   the deliverable: one directory per skill, with its entry, references and any bundled script/
 package/  skill script sources, one directory per skill, with its vite.config.ts; bundled into the work directory's scripts/
-scripts/  this repository's own checks and tooling, not shipped — verify-dco.ts, submit-vendored.ts, build-skills.ts, check-bundles.ts, vendor-packages.ts, vendored-notices.ts, sync-vendored-notices.ts, refresh-skills.ts, verify-corpus.ts
+scripts/  this repository's own checks and tooling, not shipped — verify-dco.ts, submit-vendored.ts, build-skills.ts, check-bundles.ts, vendor-packages.ts, vendored-notices.ts, sync-vendored-notices.ts, refresh-skills.ts, verify-corpus.ts, verify-sibling-references.ts
 tests/    the functional suite for those checks and the workspace tooling — pnpm test
 .agents/dsh-spec-agents-md/  agent-facing detail this file links: the forging requirements and the goal brief
 submodules/dsh/    the extraction baseline — .gitmodules
@@ -24,8 +24,8 @@ pnpm run format:check
   # checks the source formatting
 
 pnpm run check:corpus
-  # checks the shipped corpus: every skill entry, the notes tree and archive, the maintained
-  # translation pairs and the vendored-notices submission
+  # checks the shipped corpus: every skill entry, sibling-skill references, the notes tree and
+  # archive, the maintained translation pairs and the vendored-notices submission
 
 pnpm test
   # the functional suite: the DCO and Agent Note gates, the vendored-notices submission, the skill

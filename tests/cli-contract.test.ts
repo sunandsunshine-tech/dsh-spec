@@ -82,6 +82,12 @@ const COMMANDS: CommandContract[] = [
   { script: 'scripts/build-skills.ts', tool: 'build-skills.ts', unknownArgs: ['--no-such-option'], usageHint: true },
   { script: 'scripts/verify-corpus.ts', tool: 'verify-corpus.ts', unknownArgs: ['--no-such-option'], usageHint: true },
   {
+    script: 'scripts/verify-sibling-references.ts',
+    tool: 'verify-sibling-references.ts',
+    unknownArgs: ['--no-such-option'],
+    usageHint: true,
+  },
+  {
     script: 'scripts/sync-vendored-notices.ts',
     tool: 'sync-vendored-notices.ts',
     unknownArgs: ['--no-such-option'],

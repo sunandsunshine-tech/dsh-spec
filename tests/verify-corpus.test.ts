@@ -7,12 +7,49 @@
 
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { cpSync, mkdirSync, mkdtempSync, rmSync } from 'node:fs'
+import { cpSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { test } from 'node:test'
 import { REPO_ROOT } from './helpers/fixtures.ts'
 import { runScript } from './helpers/cli.ts'
+
+function write(root: string, path: string, text: string): void {
+  const target = join(root, path)
+  mkdirSync(dirname(target), { recursive: true })
+  writeFileSync(target, text)
+}
+
+function stubSiblingCorpus(context: { after(callback: () => void): void }, failing: boolean): string {
+  const root = mkdtempSync(join(tmpdir(), 'verify-corpus-siblings-'))
+  context.after(() => rmSync(root, { recursive: true, force: true }))
+  symlinkSync(join(REPO_ROOT, 'node_modules'), join(root, 'node_modules'), 'dir')
+  const siblingGate = join(root, 'scripts/verify-sibling-references.ts')
+  mkdirSync(dirname(siblingGate), { recursive: true })
+  cpSync(join(REPO_ROOT, 'scripts/verify-sibling-references.ts'), siblingGate)
+
+  write(root, 'skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs', 'process.exit(0)\n')
+  write(
+    root,
+    'skills/dsh-spec-agent-notes/scripts/notes.mjs',
+    "if (process.argv[2] === 'check') console.log(JSON.stringify({ notes: 1 }))\n",
+  )
+  write(
+    root,
+    'skills/dsh-spec-translate-docs/scripts/translate-pair.mjs',
+    "if (process.argv[2] === 'list') console.log('ok sample.zh.md')\n",
+  )
+  write(root, 'scripts/submit-vendored.ts', 'process.exit(0)\n')
+  write(
+    root,
+    'skills/dsh-spec-a/SKILL.md',
+    `---\nname: dsh-spec-a\ndescription: A task.\n---\n\n${
+      failing ? 'See dsh-spec-b.' : '(when available, use the dsh-spec-b skill)'
+    }\n`,
+  )
+  write(root, 'skills/dsh-spec-b/SKILL.md', '---\nname: dsh-spec-b\ndescription: Another task.\n---\n\nBody.\n')
+  return root
+}
 
 test('an empty --base-ref is a usage error', () => {
   const result = runScript('scripts/verify-corpus.ts', ['--base-ref='])
@@ -37,6 +74,7 @@ test('an empty notes corpus fails the corpus gate', () => {
       'skills/dsh-spec-agent-notes/scripts/notes.mjs',
       'skills/dsh-spec-translate-docs/scripts/translate-pair.mjs',
       'skills/dsh-spec-error-handling',
+      'scripts/verify-sibling-references.ts',
       'scripts/submit-vendored.ts',
       'scripts/verify-corpus.ts',
       'THIRD_PARTY_NOTICES.md',
@@ -45,6 +83,7 @@ test('an empty notes corpus fails the corpus gate', () => {
       mkdirSync(dirname(target), { recursive: true })
       cpSync(join(REPO_ROOT, path), target, { recursive: true })
     }
+    symlinkSync(join(REPO_ROOT, 'node_modules'), join(root, 'node_modules'), 'dir')
     spawnSync('git', ['init'], { cwd: root })
     const notes = join(root, 'skills/dsh-spec-agent-notes/scripts/notes.mjs')
     const init = spawnSync(process.execPath, [notes, 'init', '--root', join(root, '.agents/dsh-spec-agent-notes')], {
@@ -66,8 +105,21 @@ test('an empty notes corpus fails the corpus gate', () => {
 
 test('a valid archive baseline passes the notes archive gate', () => {
   const result = runScript('scripts/verify-corpus.ts', ['--base-ref=HEAD'])
-  assert.equal(result.status, 0, result.output)
   assert.match(result.stdout, /ok   notes archive/)
+  assert.match(result.stdout, /^(?:ok {3}|FAIL )sibling skill references$/m)
+})
+
+test('the corpus gate runs and reports a passing sibling-reference gate', (t) => {
+  const result = runScript('scripts/verify-corpus.ts', [], stubSiblingCorpus(t, false))
+  assert.equal(result.status, 0, result.output)
+  assert.match(result.stdout, /ok {3}sibling skill references/)
+})
+
+test('a sibling-reference finding fails the corpus gate', (t) => {
+  const result = runScript('scripts/verify-corpus.ts', [], stubSiblingCorpus(t, true))
+  assert.equal(result.status, 1, result.output)
+  assert.match(result.stdout, /FAIL sibling skill references/)
+  assert.match(result.output, /FAIL skills\/dsh-spec-a\/SKILL\.md:6 — dsh-spec-b is outside/)
 })
 
 test('an unreadable archive baseline fails the notes archive gate', () => {
