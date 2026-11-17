@@ -26,6 +26,8 @@ bilingual-document workflow.
   predicate, the skill's own generated-region format with a section anchor and render/splice CLI,
   a public-URL switcher allowance,
   generated-source globs, and one command surface instead of two `pnpm run` scripts.
+  The upstream subagent-only execution split is re-bound to a capability-neutral
+  preferred-isolation route with a verifiable or explicit-handoff fallback.
 
 - Provenance blobs, read from source revision `1f81c047fc48fa190a683e469daa699857e9afe8` (`dsh-v0.2.1-rc.3`), not from the current pin; the adaptation base for each file:
   - `.agents/skills/dsh-translate-docs/SKILL.md` — `6ff2650c74c7f581e6ff7f095b36eb82584c785c` (74 lines)

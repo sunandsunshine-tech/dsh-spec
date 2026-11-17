@@ -72,7 +72,7 @@ Status: implemented
 | S11 | `SKILL.md:14` | 两个 LLM adapter 是有意的；JSONL 是唯一第一方 Session 持久化 provider；后端中立的 Service Definition 支持库外 provider。 | 消解 | `SK` § Establish scope 受保护设计段 | 点名的设计在一般项目中不存在；S11b 重绑例外条款，S11c 重绑覆盖禁令（R3） | A2 |
 | S11b | `SKILL.md:14` | 受保护设计内的未使用成员在移除能保留其目的时仍是候选。 | 重绑 | `SK` § Establish scope 受保护设计段 | 受保护设计变为项目声明、记录或用户保护的设计（R3） | A2 |
 | S11c | `SKILL.md:14` | 一项禁令：除非用户明确覆盖该约束，不要提议删除受保护设计。 | 重绑 | `SK` § Establish scope 受保护设计段 | 明确覆盖规则保留；受保护设计由项目或用户声明（R3） | A2 |
-| S12 | `SKILL.md:16` | 对宽泛请求，在 subagent 间划分独立领域；给每个有界领域；要求每个给出消费方证据与被否决的替代方案；除明显未使用符号外也检查大量生产机制；不要在第一项有希望的删除后停下。 | 保留 | `SK` § Establish scope 第 3 段 | 上游文本；领域中立 | A3 |
+| S12 | `SKILL.md:16` | 对宽泛请求保留独立的领域证据；子代理可用时优先使用隔离的 subagent，否则使用干净上下文交接、分阶段独立审查或其他可验证机制；给每个领域有界范围，要求消费方证据与被否决的替代方案，检查大量生产机制，在无法保留边界时停止而不是宣称完成。 | 重绑 | `SK` § Establish scope 第 3 段 | 保留有用的隔离偏好，但上游的 subagent-only 路径成为带明确回退的能力选择（见下方能力笔记） | A3 |
 | S12b | `SKILL.md:16` | 来源固定五个领域——loop 与持久化；model/tool 组装；Host/Client/SDK；subprocess 与执行 provider；组合/脚本/测试/文档——作为宽泛请求的划分。 | 适配 | `SK` § Establish scope 第 3 段 | 该划分映照来源产品的架构；目标改为通用领域示例（R7） | A3 |
 | S13 | `SKILL.md:20` | 用列举的问题引导发现；候选需要校准时阅读 historical-patterns 的相关小节；示例说明决策，不是当前删除清单。 | 适配 | `SK` § Search 引言 | 指导与参考角色保留；参考以 `references/historical-patterns.md` 承载（R6） | A4, A11 |
 | S13b | `SKILL.md:20` | 被审查代码引入的要求、检查与决策记录是待评估的设计选择，不是其区分必要性的独立证据。 | 适配 | `SK` § Search 引言 | 来源的 Agent Notes 变为项目的决策记录（R15）；证据地位规则保留 | A4 |
@@ -138,7 +138,7 @@ Status: implemented
 | A0 | 入口与引言：名称、标题、描述与引言规则（S1–S6）。 | 判断 | `SK` frontmatter、H1 与引言；每项对 `SKILL.md:2–8` 给出一个结论；触发关键词见 A12 行 |
 | A1 | 正文保持来源六个阶段的来源顺序。 | 判断 | `SK` 标题；S0；对标题序列与 `SKILL.md:10,18,29,43,49,55` 给出一个结论 |
 | A2 | 范围与受保护设计：项目声明及指定文档、活跃决策记录与记录流程、归档记录作为历史且出站链接不动、项目或用户声明的受保护设计及明确覆盖禁令与未使用成员例外（S7–S11c）。 | 判断 | `SK` § Establish scope 第 1–2 段；每条对照其行与 R2–R4 给出一个结论 |
-| A3 | 宽泛请求分派为有界 subagent 领域——通用，而非来源固定划分——要求消费方证据与被否决替代方案、检查大量机制、不在第一项删除后停下（S12、S12b）。 | 判断 | `SK` § Establish scope 第 3 段；R7；对分派规则与 `SKILL.md:16` 给出一个结论 |
+| A3 | 宽泛请求保留有界领域证据，能力可用时优先隔离执行，否则采用可验证的顺序或交接路径；必须有消费方证据与被否决替代方案，检查大量机制，不因第一项删除而停止（S12、S12b）。 | 判断 | `SK` § Establish scope 第 3 段；R7；[委派是能力选择，不是技能依赖](2026-11-17-delegation-is-a-capability-choice-not-a-skill-dependency.zh.md)；对能力可用与能力缺失路径给出结论 |
 | A4 | 六个发现问题在场，且各自带有使其可执行的示例；被审查代码引入的要求、检查与决策记录是设计选择而非必要性的证据；CLI 与配置透传沿权威读取与优先级追踪；先问区分、字段或 adapter 是否真的需要，在新增传输或协议专属标记之前追踪既有来源字段与判别式，把删除区分与迁移其声明分开评估并说明各自接纳的输入或能力，保留必需的授权、驻留、持久性与归属行为；校准参考在候选需要处被点名（S13–S19，含 S13b、S14b、S15b–S15d、S19b、S19c）。 | 判断 | `SK` § Search；A11 的参考；每个问题对照 R7 词汇给出一个结论，每条 alpha.2 条款对照 R15–R18 给出一个结论 |
 | A5 | 候选需要跨越搜索面的可达性证据，按入口分类；生成目录、扩展路径与检查器覆盖被处理；候选记录保存归属、有效生产者/消费方路径、移除、保留、能力与兼容性影响、最强保留理由（S20–S27）。 | 判断 | `SK` § Prove 第 1–3 段；每条对照其行与 R19 给出一个结论 |
 | A6 | 三类裁决与否决规则在场，小型本地改进进入内联标记而非记录（S28–S31）。 | 判断 | `SK` § Prove 最后两段；对类别与标记规则各给出一个结论 |
@@ -148,12 +148,14 @@ Status: implemented
 | A10 | 合并另一分支、关闭另一 PR、带无检查回退的检查选择、报告与可见未完成调查状态被陈述（S40–S43）。 | 判断 | `SK` § Record 第 4–5 段；R13；每条给出一个结论 |
 | A11 | 校准参考按顺序保留七个模式及其规则，且没有链接越出技能（H0–H8）。 | 判断 + 机械 | `HP` 标题与文本；`SK` § Search 引言点名文件；门禁的参考与链接检查覆盖 A11 的机械半 |
 | A12 | 描述陈述移除意图与其表面，保留来源动作清单，追加评审语言触发关键词（S2、R8）。 | 判断 | `SK` frontmatter；对描述与 `SKILL.md:3` 给出一个结论，并对追加的中文关键词给出一个结论 |
-| A13 | 技能符合 Agent Skills 规范：frontmatter 封闭集、名称匹配目录、描述不超过 1024 字符、参考被点名且只深一层、链接留在内部并可解析、正文少于 500 行与 5,000 tokens。 | 机械 | `node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs skills/dsh-spec-find-simplifications` 裁决该项；实测：SKILL.md 66 行，约 3,482 tokens，description 414 字符，license 59 字符 |
+| A13 | 技能符合 Agent Skills 规范：frontmatter 封闭集、名称匹配目录、描述不超过 500 字符、参考被点名且只深一层、链接留在内部并可解析、正文少于 500 行与 5,000 tokens。 | 机械 | `node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs skills/dsh-spec-find-simplifications --description-max 500` 裁决该项；实测：SKILL.md 66 行，约 3,583 tokens，description 414 字符，license 59 字符 |
 | A14 | 落地技能不带未解决的 DeepSeek Harness 产品指涉；兄弟技能只作括号示例出现，且没有规则依赖兄弟技能被安装。 | 判断 | § 来源；R1–R7；扫描落地文件未发现来源产品名，且每个兄弟技能名位于泛化规则之后的括号中 |
 | A15 | 审查草稿是带最新 `.i18n.yaml` 记录的中文配对，落地来源只有英文。 | 判断 + 机械 | `translate-pair check` 裁决每份草稿配对；落地来源不携带切换行，也不携带草稿记录（R12）。 |
 | A16 | 记录是合法的 `implemented/process` 笔记，且 notes 检查在项目声明的伴随文件下通过。 | 机械 | `node skills/dsh-spec-agent-notes/scripts/notes.mjs check --root .agents/dsh-spec-agent-notes --companion .zh.md --companion .i18n.yaml` 裁决该项。 |
 | A17 | 发布状态已 push，且未触碰的共享文件有记录。 | 机械 | 落地提交已 push 且未创建 PR，`submodules/dsh` 留在其固定提交，`skills/` 与 `.agents/skills/` 只承载已发布技能与其镜像。 |
 | A18 | 该适配能改善一般软件项目中的 agent 简化查找。 | 未验证 | 没有现场试验、没有安装技能评估、没有联网 harness 运行；来源流程与记录下来的适配是证据，效果未测量。 |
+| A19 | 依赖能力的宽泛工作场景具备两类能力 profile 的表示，并携带声明的输入夹具。 | 机械 | `skills/dsh-spec-find-simplifications/evals/evals.json` 携带可运行的无隔离完成、无隔离交接与隔离上下文场景，输入文件位于 `evals/files/vendor/project/`；`tests/skill-scenarios.test.ts` 验证语料与输入包含关系。 |
+| A20 | 能力缺失路径的真实模型行为 | 未验证 | 仓库没有 agent eval runner；官方 eval 场景已准备可执行，但本次变更没有运行或评分能力可用/能力缺失的模型轨迹。 |
 
 ## 备选方案
 
@@ -162,6 +164,8 @@ Status: implemented
 **消解校准参考，只留 SKILL.md。** 它落败因为参考是来源机制的一部分：未使用符号搜索无法定论其价值的候选，正是记录模式校准决策处，删除该文件会丢掉流程的这一部分。
 
 **把锻造技能绑定到本仓库自己的路径**（`AGENTS.md`、`.agents/dsh-spec-agent-notes`、`.agents/dsh-spec-translate-docs/terminology.md`）。它落败因为技能交付给采用项目而非本仓库：项目自己的声明是指涉，固定仓库路径只是换件外衣的另一个项目指涉。
+
+**把能力缺失视为必然失败。** 它落败，因为局部工作可以用可验证的顺序路径完成；只有需要独立生产或审查边界的工作才应明确交接。
 
 **把兄弟技能点名为硬引用。** 它落败因为硬引用让技能依赖采用者未必安装的机制；括号示例保持对齐而不构成依赖（R4）。
 
@@ -194,4 +198,5 @@ Status: implemented
 - 流程文件原位承载五项附加约束（R15–R19），其安装副本与之一致（R20）。
 - **成本与限制。** 无声明的项目得到更少保护（R2）；声明无检查的项目得到缺口报告而非证明（R13）；技能输出质量只有文字、无机械检查（A18 未验证）；归属比较绑定到项目实际声明的归属约定（R18）；产品中立原型以来源产品具体性换取领域适配；示例形式兄弟技能名可能被跳过括号的执行者读成要求；触发描述与其他可能安装的分析技能重叠。
 - **与来源的偏离。** 来源点名它自己的文档、包、受保护设计、检查命令与兄弟技能，alpha.2 增量还点名其 Agent Notes 并链接其防御模式归属规则；落地技能以采用项目的声明与约定、产品中立原型与可用性限定的示例名替代它们（R15、R18）。
+- **能力回退取代来源的 subagent-only fan-out。** [委派是能力选择，不是技能依赖](2026-11-17-delegation-is-a-capability-choice-not-a-skill-dependency.zh.md)拥有当前边界；本记录保留领域证据与不因第一项删除而停止的规则。
 - **回滚。** 还原落地提交；压合前的锻造分支保留为本地备份分支，被移除的安装副本留在仓库历史中。`submodules/dsh` 未被触碰。

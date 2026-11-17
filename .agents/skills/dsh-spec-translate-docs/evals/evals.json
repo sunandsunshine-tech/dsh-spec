@@ -1,0 +1,52 @@
+{
+  "skill_name": "dsh-spec-translate-docs",
+  "evals": [
+    {
+      "id": "no-isolation-local-update-completes",
+      "prompt": "The host provides no subagents, isolated contexts, or parallel execution. In the existing English-to-Chinese pair evals/files/vendor/docs/guide.md, change the final sentence to \"The gate checks both paired documents and their consistency record.\" Bring the Chinese counterpart and pairing record into sync, keep the terminology and structure intact, and leave the pair consistent.",
+      "expected_output": "The counterpart is updated directly and the pair's consistency record and check are current; the run reports the exact validation it ran.",
+      "files": [
+        "evals/files/vendor/docs/guide.md",
+        "evals/files/vendor/docs/guide.zh.md",
+        "evals/files/vendor/docs/guide.i18n.yaml",
+        "evals/files/vendor/.agents/dsh-spec-translate-docs/terminology.md"
+      ],
+      "assertions": [
+        "The run does not require a subagent or another execution mechanism that the host lacks.",
+        "The only changed content is the requested local update and its required pairing record.",
+        "The pairing check completes successfully after the update.",
+        "The run reports the validation command and result without claiming an unavailable isolation mechanism."
+      ]
+    },
+    {
+      "id": "no-isolation-whole-document-handoff",
+      "prompt": "The host provides no subagents, isolated contexts, or parallel execution. Translate the new multi-section document evals/files/vendor/docs/new-guide.md into Chinese, but you cannot create a fresh context for this task.",
+      "expected_output": "The run either completes through a staged independent review that preserves source-to-counterpart verification, or stops before claiming completion and hands off the source, target language, pending translation, and the next verification command.",
+      "files": [
+        "evals/files/vendor/docs/new-guide.md",
+        "evals/files/vendor/.agents/dsh-spec-translate-docs/terminology.md"
+      ],
+      "assertions": [
+        "The run does not silently substitute the working context for the required independent production or review boundary.",
+        "If the run completes, the whole-document translation and a source-to-counterpart verification are both evidenced.",
+        "If the run cannot preserve the boundary, it hands off with the source path, target language, pending work, and next step.",
+        "The run does not report either completion or handoff without evidence."
+      ]
+    },
+    {
+      "id": "isolated-context-whole-document",
+      "prompt": "The host provides an isolated subagent. Translate the new document evals/files/vendor/docs/architecture.md into Chinese and verify the resulting pair.",
+      "expected_output": "The whole-document translation is produced in the isolated context and the final pair passes the project's terminology, structure, and consistency checks.",
+      "files": [
+        "evals/files/vendor/docs/architecture.md",
+        "evals/files/vendor/.agents/dsh-spec-translate-docs/terminology.md"
+      ],
+      "assertions": [
+        "The non-local prose work is performed in an isolated context when one is available.",
+        "The translation follows the declared terminology and style sources.",
+        "The final counterpart and pairing record pass the project's check.",
+        "The run does not require a particular subagent count, depth, or tool name."
+      ]
+    }
+  ]
+}

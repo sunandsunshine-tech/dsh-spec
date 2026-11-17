@@ -18,6 +18,8 @@ They do not hold. What a delegation actually does is a property of the deploymen
 
 **Nothing else is put in its place.** No softened ladder, no narrower workspace rule, no "use a subagent when" list. The repository keeps the rules that were never about delegation: an acceptance claim belongs to whoever runs it, and work whose isolation matters gets an isolated checkout.
 
+This record owns the repository-level refusal to prescribe a carrier. It does not forbid a skill from naming an optional execution capability with a verifiable fallback; [Delegation is a capability choice, not a skill dependency](2026-11-17-delegation-is-a-capability-choice-not-a-skill-dependency.md) owns that separate portability rule.
+
 **No repository skill carries the workflow.** The harness's team tools and the prompt are the whole mechanism; [the agent team workflow is removed](2026-10-22-the-agent-team-workflow-is-removed.md), and that removal note supersedes this paragraph.
 
 ## Alternatives considered
