@@ -20,7 +20,7 @@ Status: implemented
 
 1. **名称与触发语言。** 目标名是请求的 `dsh-spec-merging-stacked-prs`；description 保留来源的触发词汇与要求含义，并追加中文触发语言。来源固定的 `master` 在正文中变成仓库的默认分支（R4）。
 2. **上游文档指针。** 根 `AGENTS.md` 指针与 cookbook 页面被处置而非承载：历史规则重绑到落地仓库自己的指令（R10），评审修复的传播被消解，因为它在技能范围之外，改写后重新审计的检查作为接管的规则保留。
-3. **合并方法。** 来源固定的 `--merge` 被重绑：合并方法是落地仓库的策略（R5）。技能采用其指令规定或 GitHub 合并设置点名的那个方法，两者都没有时回退到 `merge`。
+3. **合并方法。** 来源固定的 `--merge` 被重绑：合并方法是落地仓库的策略（R5）。技能采用其指令规定的方法，其次采用 GitHub 设置唯一允许的方法，否则使用 `squash`。[squash 默认值决策](2026-11-18-stack-merge-defaults-to-squash.zh.md)部分取代 R5 中的回退事实。
 4. **没有合并授权门。** 来源没有把合并挡在人类回答之后，来源边界中也没有任何东西增加这样一道门；不携带逐 pull request 授权（R8）。来源自己的询问保留：对冲突或意外栈条目的用户指示，作者不同或不可用时询问，以及在本地／远程分歧时取消。
 5. **已核验的 CLI（命令行界面）表面。** 已安装的 `gh stack` 0.1.1 提供来源所假定的命令与旗标——`link --base`、`checkout`、`sync`、`rebase`、`push`、`merge --yes --merge/--squash/--rebase`——并且没有 `--delete-branch`。两个已核验的行为塑造了文本：`gh stack link` 的分支参数会被推送且可以创建 pull request，而一个匹配不到任何 pull request 的数字参数会被当作分支名，因此链接命令使用 pull request URL（R1）；并且落地的技能只链接开放的 pull request，遇到已关闭或已合并的条目时停下并询问（R9）。
 6. **符合性证据。** 来源要求每个选中的 pull request 符合仓库的评审与检查要求。该证据从同一份元数据中读取：`mergeStateStatus` 不是 `CLEAN`（包括仍在计算的 `UNKNOWN`），或 `reviewDecision` 为 `CHANGES_REQUESTED`，都是阻塞项（R2）。
@@ -66,7 +66,7 @@ Status: implemented
 | S25 | § Preflight the merge range | 合并之前立即重新查询官方栈；要求每个选中的 PR 开放、非草稿、顺序正确，并符合仓库的评审与检查要求。 | 改编 | SK § Preflight the merge range | 符合性从同一份元数据中的 `mergeStateStatus` 与 `reviewDecision` 读取（R2） |
 | S26 | § Preflight the merge range | 独立对待每个 PR 的状态。 | 保留 | SK § Preflight the merge range | 未变 |
 | S27 | § Preflight the merge range | 「落地整个栈」选择整个栈；部分落地需要一个显式的边界 PR，并包含从底层到它的每一层。 | 保留 | SK § Preflight the merge range | 未变 |
-| S28 | § Merge through the stack API | 用 `--merge` 按官方栈编号合并整个栈。 | 重绑 | SK § Merge | 方法属于仓库策略（R5）；栈编号形式保留 |
+| S28 | § Merge through the stack API | 用 `--merge` 按官方栈编号合并整个栈。 | 重绑 | SK § Merge | 方法遵循仓库策略，并默认使用 `squash`（R5）；栈编号形式保留 |
 | S29 | § Merge through the stack API | 对显式的部分落地，通过边界 PR 用 `--merge` 合并。 | 重绑 | SK § Merge | 同 S28 |
 | S30 | § Merge through the stack API | 不要传 `--delete-branch`、不要手工重定向依赖项、不要发出逐 PR 合并命令；GitHub 自底向上合并该范围并重定向／rebase 剩余上层；直接栈合并是全有或全无；合并队列可能把该范围分成若干组落地。 | 保留 | SK § Merge | `gh stack merge --help` 确认全有或全无的范围、队列行为与没有 `--delete-branch` |
 | S31 | § Merge through the stack API | 不要绕过合并要求；阻塞项通过拥有它的 PR 解决或被报告；绝不回退到 `gh pr merge`。 | 保留 | SK § Merge | 未变 |
@@ -88,7 +88,7 @@ S31 与 S33 之间的编号空缺是刻意的（R8）：缺失的那一行本会
 | R2 | 符合性证据是同一份元数据中的 `mergeStateStatus` 与 `reviewDecision`：不等于 `CLEAN`（包括 `UNKNOWN`）的值，或 `CHANGES_REQUESTED`，都是阻塞项。 | 来源要求符合仓库的评审与检查要求；GitHub 报告的状态就是该判定 | 改变证据字段或阻塞集合 |
 | R3 | 部分落地之后，已经报告 `MERGED` 的层就是已落地；重新查询并按预期顺序校验剩余范围。 | GitHub 在部分落地之后重定向并 rebase 剩余层；来源要求重新查询并校验剩余层 | 调整规则 |
 | R4 | 来源的 `master` 变成仓库的默认分支。 | 一个交付技能不能点名另一个仓库的默认分支 | 无需 |
-| R5 | 合并方法是仓库策略；技能使用落地仓库的指令或 GitHub 合并设置所规定的方法，回退到 `merge`。 | 来源的固定值是某个仓库的策略；目标领域有规定 squash 或 rebase 的仓库，而 GitHub 会拒绝仓库不允许的方法 | 回到来源的固定值，或增加一个显式配置输入 |
+| R5 | 合并方法是仓库策略。技能采用落地仓库指令规定的方法，其次采用 GitHub 设置唯一允许的方法，否则默认使用 `squash`。 | 来源的固定值是某个仓库的策略；目标领域有规定 squash 或 rebase 的仓库，GitHub 会拒绝仓库不允许的方法，而请求指定的回退方案是 squash | 在 [squash 默认值决策](2026-11-18-stack-merge-defaults-to-squash.zh.md)中保留该回退方案，或把它替换成一个显式配置输入 |
 | R6 | 评审草稿以中文在前，英文作为它的附加触发语言。 | 请求的评审语言与评审草稿规则 | 无需 |
 | R7 | 记录以已实现的骨架位于 `implemented/`。 | 请求的记录位置与记录生命周期 | 无需 |
 | R8 | 不携带任何合并授权门：技能在一次通过的预检之后运行合并，与来源相同。 | 来源没有这样的约束，而仓库内容被排除在来源边界之外；预检与禁止绕过的规则就是守卫 | 增加一个确认步骤作为安全兜底 |
@@ -108,14 +108,14 @@ S31 与 S33 之间的编号空缺是刻意的（R8）：缺失的那一行本会
 
 **保留源自仓库的规则。** 它落败，因为来源边界排除了本仓库的内容：逐 pull request 授权与声明拥有的方法／历史策略既不是上游要求，也不是目标领域的事实。
 
-**无条件把合并方法定为来源的 `--merge`。** 它少一个决定。它落败，因为目标是通用的 GitHub pull request 操作，规定 squash 或 rebase 的仓库要么会让合并失败，要么会被要求绕过自己的规则；仓库规定的方法加来源的兜底，把来源值保留为默认而不强制执行它。GitHub 仍会拒绝仓库不允许的方法，因此兜底是安全失败。
+**无条件把合并方法定为来源的 `--merge`。** 它少一个决定。它落败，因为目标是通用的 GitHub pull request 操作，规定 squash 或 rebase 的仓库要么会让合并失败，要么会被要求绕过自己的规则。仓库策略加上 `squash` 默认值，既能保留显式选择，又不会在所有采用者中强制同一种方法。GitHub 仍会拒绝仓库不允许的方法，因此兜底是安全失败。
 
 **在 verify 步骤保留 `mergedAt` 要求。** 它是额外的一次确认。它落败，因为来源只要求 `MERGED`；该字段作为证据被报告，而不是被设门。
 
 ## 后果
 
 - 该技能集合交付 `dsh-spec-merging-stacked-prs`，位于 `skills/dsh-spec-merging-stacked-prs/`，为一份 `SKILL.md` 加其 `THIRD_PARTY_NOTICES`，带一份一致的安装副本，且根 `README.md` 的技能表列出它。
-- 技能就是一个文件里的上游机制：官方 stack 对象作为成员资格权威、增量的同作者链接、两种刷新历史、只用 `gh stack merge`、整栈或受限前缀落地、删除之前 `MERGED`，以及来源命令的内联承载。
+- 技能就是一个文件里的上游机制：官方 stack 对象作为成员资格权威、增量的同作者链接、两种刷新历史、只用 `gh stack merge`、由仓库选择的合并方法及 `squash` 回退方案、整栈或受限前缀落地、删除之前 `MERGED`，以及来源命令的内联承载。
 - 代价：不随附脚本意味着流程没有稳定的 JSON／退出契约，也没有离线契约测试；检查依赖 agent 对 GitHub 状态的解读。单文件形态也放弃了脚本形态的确定性预检与 46 个离线用例。
 - 换来的：一个贴近上游单文件的技能，采用者没有包或测试表面需要维护，agent 可以自由地重新推导、检查原始输出并处理脚本没有建模的状态。
 - 继续携带的风险：记录在案的编号规则、落地仓库没有点名任何允许历史、合并方法模糊、合并队列中间状态、GitHub 对仍列出已合并成员的栈的处理，以及缺少真实栈审计。

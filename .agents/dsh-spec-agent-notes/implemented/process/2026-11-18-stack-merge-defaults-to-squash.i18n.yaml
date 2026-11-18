@@ -1,0 +1,22 @@
+# Pairing consistency record for 2026-11-18-stack-merge-defaults-to-squash.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-11-18-stack-merge-defaults-to-squash.md --target <lang>
+/agent-note-stack-merge-defaults-to-squash:
+  en: 0215964fffc18bf1
+  zh: ac2c3095f109641a
+/agent-note-stack-merge-defaults-to-squash/problem:
+  en: 3616c688f9ea1c12
+  zh: 5f59557ead3e7fac
+/agent-note-stack-merge-defaults-to-squash/decision:
+  en: e357fbf636637508
+  zh: 6722ada4ef27381f
+/agent-note-stack-merge-defaults-to-squash/verification:
+  en: 4be6a398f4bca30f
+  zh: e3faecdd4a5d7576
+/agent-note-stack-merge-defaults-to-squash/alternatives-considered:
+  en: 6376e2b397d6bdbc
+  zh: b9bc8d7ad42ae4b6
+/agent-note-stack-merge-defaults-to-squash/consequences:
+  en: dedb1755217656d5
+  zh: ec6cd9a6c62e8061
