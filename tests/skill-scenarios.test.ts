@@ -172,7 +172,8 @@ function assertNonEmptyString(value: unknown, label: string): asserts value is s
 }
 
 function assertNonEmptyStrings(values: readonly unknown[] | undefined, label: string): asserts values is string[] {
-  assert.ok(values !== undefined && values.length > 0, label + ' must not be empty')
+  assert.ok(Array.isArray(values), label + ' must be an array')
+  assert.ok(values.length > 0, label + ' must not be empty')
   for (const value of values) assertNonEmptyString(value, label)
 }
 
@@ -249,6 +250,10 @@ test('an empty or evidence-free capability corpus fails closed', () => {
   const blankEvidence = readCorpus(required.skill)
   blankEvidence.evals[0].assertions = ['   ']
   assert.throws(() => validateCorpus(blankEvidence, required), /assertions must not be blank/)
+  const nonArrayEvidence = readCorpus(required.skill)
+  const malformedScenario = nonArrayEvidence.evals[0] as { assertions: unknown }
+  malformedScenario.assertions = 'not an array'
+  assert.throws(() => validateCorpus(nonArrayEvidence, required), /assertions must be an array/)
 })
 
 test('the forge requires selective evaluation coverage', () => {
