@@ -28,7 +28,7 @@ but the sibling-reference gate imports the root `markdown-it`, `parse5` and `yam
 | `toolchain.test.ts` | The pinned pnpm version agreeing across `package.json`, the checks workflow and the lockfile's self-management document, plus the root Node engine and direct toolchain pins. |
 | `check-bundles.test.ts` | `scripts/check-bundles.ts`: changed, missing and extra committed-bundle states through the comparison function. |
 | `build-skills.test.ts` | `scripts/build-skills.ts`: a successful build that writes nothing gets a clean diagnostic instead of an ENOENT crash. |
-| `verify-corpus.test.ts` | `scripts/verify-corpus.ts`: the archive baseline flag forwarded to the notes archive, sibling-reference gate output and failure propagation, and empty-value usage errors. |
+| `verify-corpus.test.ts` | `scripts/verify-corpus.ts`: the archive baseline flag forwarded to the notes archive, development eval inputs excluded from translation discovery, sibling-reference gate output and failure propagation, and empty-value usage errors. |
 | `sibling-skill-references.test.ts` | `scripts/verify-sibling-references.ts`: exact availability forms, metadata exclusions, Markdown visible text and source lines, link/code/HTML and symlink handling, empty corpora and single-skill corpora. |
 | `vendored-submission.test.ts` | `scripts/submit-vendored.ts`: the payload the dependency-submission endpoint requires, printed by a dry run; and the generated notice table plus each skill-root bundled-package list. |
 | `skill-spec.test.ts` | `skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs`: the mechanical half of Agent Skills conformance. |
@@ -37,6 +37,8 @@ but the sibling-reference gate imports the root `markdown-it`, `parse5` and `yam
 | `skill-defaults.test.ts` | The default-bearing skill inventory, the single shared default contract in each skill, its use-site values, and the forge's acceptance requirement. |
 | `refresh-skills.test.ts` | `scripts/refresh-skills.ts`: each skill under `skills/` replaces its installed copy, and other installed skills stay alone. |
 | `translation-docs.test.ts` | The pairing mechanism (source in `package/dsh-spec-translate-docs/`, bundle at the work-draft path while forging and under `skills/` after landing): the existing-pair gate, one aggregate multi-language record per source, per-file source and target languages, `--select`/`--skip` and discovery prunes, structural switchers and link locale, generated regions with section anchors and the region helper CLI, the briefing and mechanical splice, the terminology template and the CLI's failure modes. |
+| `skill-scenarios.test.ts` | The capability scenario contract for translation, simplification and forge work: validates no-isolation completion, explicit handoff when a required separation is unavailable, isolated-context preference when available, capability-dependent forge design, declared inputs, containment, and fail-closed validation of empty or blank corpora. It stages each development corpus into a temporary skill at the official `evals/` path and runs the skill-spec gate there. Actual model runs remain external evidence. |
+| `skill-evals/<skill>/evals/` | Development-only Agent Skills eval manifests and inputs. Their canonical source stays outside `skills/`, then a runner or test copies them into a temporary skill for evaluation. They are never installed or shipped. |
 | `repository-shape.test.ts` | The tree invariants the tooling relies on: every package script is one command, every landed skill has an identical installed copy, the split note modules carry SPDX/provenance headers, and active record test sections do not name removed commands. |
 | `change-scope.test.ts` | The bundled change-scope report: built from `package/dsh-spec-pre-push-checks/change-scope.ts`, run from the work draft or the landed `skills/dsh-spec-pre-push-checks/scripts/change-scope.mjs`; covers the committed, staged, unstaged and untracked path sets, base/head/merge-base resolution, the `--help` and usage-error contract, and the failure exits. |
 
@@ -48,5 +50,6 @@ but the sibling-reference gate imports the root `markdown-it`, `parse5` and `yam
   failure reads as a statement about the design rather than about a line of code, and a refactor that
   preserves the contract leaves it passing.
 - **Every acceptance criterion has a case**, and a defect gets a case that reproduces it before the fix.
-- **Fixtures are built, not committed.** A scratch repository or workspace is created per case and
-  disposed after it, so a case cannot depend on another's leftovers.
+- **Runtime fixtures are built, not committed.** A scratch repository or workspace is created per
+  case and disposed after it. The `tests/skill-evals/` corpus is the deliberate exception because
+  it is versioned evaluation input, and it is injected only into a disposable skill copy.

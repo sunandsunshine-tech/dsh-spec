@@ -1,6 +1,6 @@
 ---
 name: dsh-spec-translate-docs
-description: "Use when translating documentation, updating a counterpart, or checking a pair — maintain paired Markdown documents in declared target languages: keep pairs in step, update small changes directly, add in-scope counterparts, brief or delegate larger ones, and record and verify consistency. 用于翻译文档、更新对侧文件或检查配对：维护声明目标语言的配对 Markdown 文档——编辑后保持既有配对一致、直接更新小型局部改动、在常驻指令或用户指令范围内新增对侧、运行最小更新简报与委派整篇翻译，并记录与校验配对一致性。"
+description: "Use when translating documentation, updating a counterpart, or checking a pair — maintain paired Markdown documents in declared target languages: keep pairs in step, update small changes directly, add in-scope counterparts, brief or isolate larger ones, and record and verify consistency. 用于翻译文档、更新对侧文件或检查配对：维护声明目标语言的配对 Markdown 文档——编辑后保持既有配对一致、直接更新小型局部改动、在常驻指令或用户指令范围内新增对侧、运行最小更新简报或隔离整篇翻译，并记录与校验配对一致性。"
 license: "MIT; upstream and repository notices in THIRD_PARTY_NOTICES"
 compatibility: "Requires Node.js 22.19+ or 24+ and Git for the briefing. No install and no network access."
 ---
@@ -27,7 +27,7 @@ A pair is a source `foo.md`, one counterpart per target `foo.zh.md` or `foo.<lan
 
 - **Existing pair, small local change** (one or two Markdown units in one section; no new or moved terminology, no structural change, no generated region): update the counterpart directly on the spot. This is the lightweight path.
 - **Existing pair, any other change**: the briefing path.
-- **New pair** (standing instructions or explicit instruction): the whole-document path. The orchestrating agent does not translate whole documents itself.
+- **New pair** (standing instructions or explicit instruction): the whole-document path and its isolation rule.
 - **Deleted or renamed document**: remove the counterpart, remove its link from the source switcher, then run `write --all` for the source; a recorded target with no counterpart is dropped. A named `write --target` never drops a target, and an entry without a counterpart is an incomplete pair.
 - **Generated region**: the generator updates both sides; never edit a region by hand.
 - **Frozen or excluded document**: the standing instructions say it is not maintained; do not create, update or repair its pairs.
@@ -48,13 +48,13 @@ When more than one target exists and the wording of each is more than a local pa
 
 1. **Brief the change.** `node <skill-dir>/scripts/translate-pair.mjs brief <pair path> --target <lang>` prints the authored side's change since the last confirmed state at the narrowest aligned unit, with three-way text, matching terminology rows and first-occurrence notes. Generated regions never enter the briefing: aligned regeneration says nothing to brief; disagreeing current regions are a precondition failure. The pair must be committed.
 2. **Apply a mechanical-only change directly.** When the brief maps every change inside fenced code, add `--apply`; the script splices and structure-validates the counterpart. On prose changes `--apply` exits 2 and writes nothing.
-3. **Delegate a prose change.** Pass a subagent the briefing (or the command to print it). The brief is its whole working set; it escalates to the whole-document sources only when a decision is genuinely unanswerable. The briefing rules name the project's declared style file or the default references/style-examples.md; read it before editing.
+3. **Preserve independence for a prose change.** Pass the briefing (or the command to print it) to an isolated subagent when one is available; otherwise use a clean-context handoff, staged independent review, or another verifiable mechanism that preserves the separation. The brief is the translator's whole working set; it escalates to the whole-document sources only when a decision is genuinely unanswerable. The briefing rules name the project's declared style file or the default references/style-examples.md; read it before editing. If no available mechanism preserves that independence, follow § Stop and hand over rather than continuing in the working context.
 4. Make the smallest edit that covers the change, then verify the changed spans against the source.
 5. Record and check the pair; the briefing's Finish commands are pair-scoped. A source-side change may be confirmed one target at a time: edit a counterpart, `write --target <lang>`, then continue; untouched targets stay out of sync until written. Never write a target before editing it, and run writes for one source sequentially.
 
 ## The whole-document path
 
-The orchestrating agent does not translate: spawn a subagent. The translator reads the project's standing instructions, the [pairing contract](references/pairing-contract.md), the [translation rules](references/translation-rules.md), the project's declared style file or the default [style examples](references/style-examples.md) first; when the target's terminology table is missing, run `node <skill-dir>/scripts/translate-pair.mjs init --target <lang>=<name>` first. Translate the whole file section by section, keeping each section's structure locked to the source.
+Use an isolated subagent when available; otherwise use a clean-context handoff, staged independent review, or another verifiable mechanism that preserves the required separation. If no mechanism preserves it, follow § Stop and hand over rather than continuing in the working context. The translator reads the project's standing instructions, the [pairing contract](references/pairing-contract.md), the [translation rules](references/translation-rules.md), the project's declared style file or the default [style examples](references/style-examples.md) first; when the target's terminology table is missing, run `node <skill-dir>/scripts/translate-pair.mjs init --target <lang>=<name>` first. Translate the whole file section by section, keeping each section's structure locked to the source.
 
 ### Translate
 
@@ -95,5 +95,6 @@ Stop and report instead of guessing when:
 - the two sides' generated regions disagree, or a generated source is not declared;
 - the target's terminology table is missing and `init` cannot create it because the target language is undeclared or its display name is neither declared nor learnable from the counterpart or the standing instructions;
 - a structural change cannot be mapped safely;
+- the prose-briefing or whole-document path cannot preserve the required working separation through an isolated subagent, a clean-context handoff, a staged independent review, or another verifiable mechanism;
 
-and hand the change to review with the pairs, the records, and the unresolved decisions named.
+and hand the change to review with the missing mechanism, completed work, pending work, pairs, records, unresolved decisions, and the resumable next step named.

@@ -1,0 +1,22 @@
+# Pairing consistency record for 2026-11-17-delegation-is-a-capability-choice-not-a-skill-dependency.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-11-17-delegation-is-a-capability-choice-not-a-skill-dependency.md --target <lang>
+/agent-note-delegation-is-a-capability-choice-not-a-skill-dependency:
+  en: ea71cfd73cfa4720
+  zh: 0b3a696e64fe15c9
+/agent-note-delegation-is-a-capability-choice-not-a-skill-dependency/problem:
+  en: 1777a010d55e1813
+  zh: f102345f7ded539b
+/agent-note-delegation-is-a-capability-choice-not-a-skill-dependency/decision:
+  en: 48ba70adb3b2485a
+  zh: 1e7ae446b1b58d69
+/agent-note-delegation-is-a-capability-choice-not-a-skill-dependency/verification:
+  en: d6137545774016a0
+  zh: d047fe87bb0c75d8
+/agent-note-delegation-is-a-capability-choice-not-a-skill-dependency/alternatives-considered:
+  en: cb98d80901921f60
+  zh: 857aa51db3319962
+/agent-note-delegation-is-a-capability-choice-not-a-skill-dependency/consequences:
+  en: 3e2c9062c4d6924e
+  zh: 30d5cdd491ba1443

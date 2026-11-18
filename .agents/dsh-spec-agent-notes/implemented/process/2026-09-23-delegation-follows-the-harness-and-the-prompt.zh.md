@@ -18,6 +18,8 @@ Status: implemented
 
 **不再补别的东西。** 不写软化的成本阶梯,不写收窄的工作区规则,不写「什么时候该用 subagent」的清单。仓库保留那些从来与委派无关的规则:验收的主张归跑它的那个人,需要隔离的工作用独立的检出。
 
+本记录拥有仓库级的“不规定载体”决定。它不禁止技能在给出可验证回退时说明一个可选的执行能力偏好;[委派是能力选择，不是技能依赖](2026-11-17-delegation-is-a-capability-choice-not-a-skill-dependency.zh.md)拥有这条单独的可移植性规则。
+
 **没有仓库技能承载这套工作流。**harness 的团队工具与提示词就是机制的全部;[agent team 工作流已移除](2026-10-22-the-agent-team-workflow-is-removed.zh.md),那条移除笔记取代本段。
 
 ## Alternatives considered

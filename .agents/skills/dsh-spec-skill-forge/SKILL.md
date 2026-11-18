@@ -46,6 +46,8 @@ Stop and wait on an unauthorized overwrite or deletion of an existing skill, on 
 
 Settle from the request and the adopter's standing instructions (`AGENTS.md` or the file it cites): name, goal, boundary, deliverable, locations and languages; the target audience and its domain; and the runtime, tools and constraints of its environment. Write the forged skill in English unless the adopter declares another delivery language.
 
+Classify execution capabilities as required properties or optional mechanisms. A preferred optional capability — including a subagent, parallel execution, or an isolated context — must not be the only route to a required result. State a completion path that preserves the required quality when the capability is absent, or an explicit pre-action handoff naming the unfinished work and the missing capability.
+
 Derive the trigger vocabulary and the excluded adjacent tasks from the source. Within the Stop boundaries the design is open: choose the structure, wording and scripts that fit the source.
 
 Decide whether the forged skill needs a script. A missing runtime or tool is an error exit and a recorded ruling, not a stop.
@@ -97,7 +99,9 @@ Every requirement carries a verification anchor at the most precise level availa
 
 Run the gate as a separate read-only check; `publish` does not run it. When review is needed, run `pair` so that an orphan draft fails and the project's translation consistency gate can check the translation.
 
-**Complete**: every source constraint has one disposition row with its home; every requirement of the forged skill carries one anchor; the gate passed with the parameters used; every judged item has a conclusion; every unverified item carries its reason; the declared review drafts are translated and the project's translation consistency gate has been run when review was needed; a forged skill that declares a default applies it when the current request and existing project instructions leave that choice open, without asking for or creating or modifying project instructions merely to select it; the record states the evidence, the pages read and their dates, and the rulings as current facts; no round or review narrative remains.
+A natural-language requirement central to the forged skill carries a development eval scenario when realistic prompts can falsify it and no deterministic check decides it. Capability-dependent behavior covers both capability profiles. Model evals run when the owned behavior changes and remain outside the delivered skill.
+
+**Complete**: every source constraint has one disposition row with its home; every requirement of the forged skill carries one anchor; for every capability-dependent requirement, the record states a conclusion for the capability-present and capability-absent profiles; absent-capability evidence is either a completed observable result with its owning validation or an explicit handoff; the gate passed with the parameters used; every judged item has a conclusion; every unverified item carries its reason; the declared review drafts are translated and the project's translation consistency gate has been run when review was needed; a forged skill that declares a default applies it when the current request and existing project instructions leave that choice open, without asking for or creating or modifying project instructions merely to select it; the record states the evidence, the pages read and their dates, and the rulings as current facts; no round or review narrative remains.
 
 **Failure**: fix and rerun; never claim a failed or unrun check as passed. An unresolved gap: record a ruling.
 
