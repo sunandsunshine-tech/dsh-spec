@@ -1,0 +1,19 @@
+{
+  "skill_name": "dsh-spec-skill-forge",
+  "evals": [
+    {
+      "id": "capability-dependent-fallback-design",
+      "prompt": "Use the provided source skill as the requirement source. Forge the smallest revision that keeps isolated execution available when the host supports it while allowing the required audit result to complete or hand off explicitly when no independent mechanism exists.",
+      "expected_output": "The revision states the required result and quality boundary, classifies isolated execution as an optional mechanism, prefers it when available, defines a verifiable fallback or explicit handoff, and forbids a fixed subagent count or tool name.",
+      "files": [
+        "evals/files/vendor/source-skill/SKILL.md"
+      ],
+      "assertions": [
+        "The required audit result and its independence boundary are stated before any execution mechanism.",
+        "An isolated subagent is preferred when available but is not an installation or completion prerequisite.",
+        "A capability-absent path either completes through an equivalent verifiable mechanism or stops with completed work, pending work, the missing capability, and a resumable next step.",
+        "The revision does not prescribe a fixed subagent count, depth, or tool name."
+      ]
+    }
+  ]
+}

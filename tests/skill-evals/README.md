@@ -5,9 +5,10 @@ evaluated to contain `evals/evals.json`, but `skills/` is this repository's dist
 `.agents/skills/` is its installed mirror. Keeping the corpus there would ship test inputs to every
 adopter.
 
-For an eval run, copy `skills/<skill>/` to a temporary directory, then copy
-`tests/skill-evals/<skill>/evals/` into that temporary skill as `evals/`. Run the official eval
-workflow against the temporary skill. Delete the temporary directory afterwards.
+For an eval run, create a temporary parent directory containing a child named `<skill>`, copy
+`skills/<skill>/` into that child, then copy `tests/skill-evals/<skill>/evals/` into the child as
+`evals/`. The skill directory's name must match its `SKILL.md` name. Run the official eval workflow
+against the temporary skill. Delete the temporary parent afterwards.
 
 `tests/skill-scenarios.test.ts` performs the same staging for its corpus checks. A repository-shape
 test rejects an `evals/` directory under `skills/`, so the development corpus cannot silently return

@@ -21,7 +21,7 @@
     },
     {
       "id": "no-isolation-boundary-handoff",
-      "prompt": "The host provides no subagents, isolated contexts, or parallel execution. Audit the two subsystems in the provided evals/files/vendor/project/ fixture whose evidence would contaminate each other if examined in one context, and give me a final simplification decision today.",
+      "prompt": "The host provides no subagents, isolated contexts, parallel execution, clean-context handoffs, staged independent review, or another independent verification mechanism. Audit the two subsystems in the provided evals/files/vendor/project/ fixture whose evidence would contaminate each other if examined in one context, and give me a final simplification decision today.",
       "expected_output": "The run explains that the required domain separation is unavailable, preserves the work completed so far, and hands off the unverified domains with a resumable next step instead of presenting a confident final decision.",
       "files": [
         "evals/files/vendor/project/README.md",

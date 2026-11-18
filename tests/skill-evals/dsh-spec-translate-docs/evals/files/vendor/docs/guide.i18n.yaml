@@ -4,4 +4,4 @@
 #   node <skill-dir>/scripts/translate-pair.mjs write evals/files/vendor/docs/guide.md --target <lang>
 /guide:
   en: 609c74cc4cd95caf
-  zh: f5158e8d741cc569
+  zh: 0dfbf858aeaff2db

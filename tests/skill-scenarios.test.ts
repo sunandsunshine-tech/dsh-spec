@@ -39,6 +39,11 @@ interface ScenarioCorpus {
   evals: Scenario[]
 }
 
+interface StagedSkill {
+  temporaryRoot: string
+  skillRoot: string
+}
+
 interface RequiredProfile {
   skill: string
   ids: string[]
@@ -72,6 +77,16 @@ const REQUIRED: RequiredProfile[] = [
   },
 ]
 
+const FORGE_REQUIRED: RequiredProfile = {
+  skill: 'dsh-spec-skill-forge',
+  ids: ['capability-dependent-fallback-design'],
+  noIsolationIds: [],
+  isolatedIds: [],
+  handoffIds: [],
+}
+
+const ALL_REQUIRED = [...REQUIRED, FORGE_REQUIRED]
+
 const EVAL_SOURCE_ROOT = join(REPO_ROOT, 'tests', 'skill-evals')
 
 function scenarioPath(skill: string): string {
@@ -82,11 +97,12 @@ function readCorpus(skill: string): ScenarioCorpus {
   return JSON.parse(readFileSync(scenarioPath(skill), 'utf8')) as ScenarioCorpus
 }
 
-function stageSkillWithEvals(skill: string): string {
-  const stage = mkdtempSync(join(tmpdir(), 'skill-evals-' + skill + '-'))
-  cpSync(join(REPO_ROOT, 'skills', skill), stage, { recursive: true })
-  cpSync(join(EVAL_SOURCE_ROOT, skill, 'evals'), join(stage, 'evals'), { recursive: true })
-  return stage
+function stageSkillWithEvals(skill: string): StagedSkill {
+  const temporaryRoot = mkdtempSync(join(tmpdir(), 'skill-evals-'))
+  const skillRoot = join(temporaryRoot, skill)
+  cpSync(join(REPO_ROOT, 'skills', skill), skillRoot, { recursive: true })
+  cpSync(join(EVAL_SOURCE_ROOT, skill, 'evals'), join(skillRoot, 'evals'), { recursive: true })
+  return { temporaryRoot, skillRoot }
 }
 
 function assertInputFile(skillRoot: string, file: string, label: string): void {
@@ -112,17 +128,22 @@ function validateCorpus(corpus: ScenarioCorpus, required: RequiredProfile): void
     const scenario = byId.get(id)
     assert.ok(scenario)
     assert.match(scenario.prompt, /no subagents?|no isolated contexts?|no parallel execution/i)
-    assert.ok(scenario.assertions.length > 0, id + ' must carry observable assertions')
+    assertNonEmptyStrings(scenario.assertions, id + ' assertions')
   }
   for (const id of required.isolatedIds) {
     const scenario = byId.get(id)
     assert.ok(scenario)
     assert.match(scenario.prompt, /isolated subagents?|isolated contexts?/i)
-    assert.ok(scenario.assertions.length > 0, id + ' must carry observable assertions')
+    assertNonEmptyStrings(scenario.assertions, id + ' assertions')
   }
   for (const id of required.handoffIds) {
     const scenario = byId.get(id)
     assert.ok(scenario)
+    assert.match(
+      scenario.prompt,
+      /no clean-context|no staged independent|no .*verification mechanism/i,
+      id + ' must exclude the documented fallback mechanisms',
+    )
     assert.match(scenario.expected_output, /hands? off|handoff|stops? before claiming completion/i)
     assert.ok(
       scenario.assertions.some((assertion) => /hand off|handoff|pending work|next step/i.test(assertion)),
@@ -131,11 +152,12 @@ function validateCorpus(corpus: ScenarioCorpus, required: RequiredProfile): void
   }
 
   for (const scenario of corpus.evals) {
-    assert.ok(scenario.id)
-    assert.ok(scenario.prompt)
-    assert.ok(scenario.expected_output)
-    assert.ok(scenario.assertions.length > 0)
+    assertNonEmptyString(scenario.id, 'eval id')
+    assertNonEmptyString(scenario.prompt, scenario.id + ' prompt')
+    assertNonEmptyString(scenario.expected_output, scenario.id + ' expected output')
+    assertNonEmptyStrings(scenario.assertions, scenario.id + ' assertions')
     assert.ok((scenario.files?.length ?? 0) > 0, scenario.id + ' must ship its input files')
+    assertNonEmptyStrings(scenario.files, scenario.id + ' files')
     const skillRoot = join(EVAL_SOURCE_ROOT, required.skill)
     for (const file of scenario.files ?? []) {
       assertInputFile(skillRoot, file, scenario.id)
@@ -143,8 +165,19 @@ function validateCorpus(corpus: ScenarioCorpus, required: RequiredProfile): void
   }
 }
 
+function assertNonEmptyString(value: unknown, label: string): asserts value is string {
+  assert.equal(typeof value, 'string', label + ' must be a string')
+  assert.ok(value.trim().length > 0, label + ' must not be blank')
+}
+
+function assertNonEmptyStrings(values: readonly unknown[] | undefined, label: string): asserts values is string[] {
+  assert.ok(values !== undefined && values.length > 0, label + ' must not be empty')
+  for (const value of values) assertNonEmptyString(value, label)
+}
+
 test('the capability scenario corpus covers absent and available isolated execution', () => {
   for (const required of REQUIRED) validateCorpus(readCorpus(required.skill), required)
+  validateCorpus(readCorpus(FORGE_REQUIRED.skill), FORGE_REQUIRED)
 })
 
 test('completion evidence and handoff evidence are both present for absent capabilities', () => {
@@ -165,9 +198,10 @@ test('completion evidence and handoff evidence are both present for absent capab
 })
 
 test('development eval corpora stage into a temporary skill with the official layout', (t) => {
-  for (const required of REQUIRED) {
-    const skillRoot = stageSkillWithEvals(required.skill)
-    t.after(() => rmSync(skillRoot, { recursive: true, force: true }))
+  for (const required of ALL_REQUIRED) {
+    const { temporaryRoot, skillRoot } = stageSkillWithEvals(required.skill)
+    t.after(() => rmSync(temporaryRoot, { recursive: true, force: true }))
+    assert.equal(skillRoot.split(sep).at(-1), required.skill)
     assert.equal(
       readFileSync(join(skillRoot, 'evals', 'evals.json'), 'utf8'),
       readFileSync(scenarioPath(required.skill), 'utf8'),
@@ -183,12 +217,18 @@ test('development eval corpora stage into a temporary skill with the official la
       false,
       required.skill + ' installs evals',
     )
+    const gate = spawnSync(
+      process.execPath,
+      [join(REPO_ROOT, 'skills', 'dsh-spec-skill-forge', 'scripts', 'verify-skill-spec.mjs'), skillRoot],
+      { encoding: 'utf8' },
+    )
+    assert.equal(gate.status, 0, (gate.stdout ?? '') + (gate.stderr ?? ''))
   }
 })
 
 test('the translation fixture starts as a consistent existing pair', (t) => {
-  const skillRoot = stageSkillWithEvals('dsh-spec-translate-docs')
-  t.after(() => rmSync(skillRoot, { recursive: true, force: true }))
+  const { temporaryRoot, skillRoot } = stageSkillWithEvals('dsh-spec-translate-docs')
+  t.after(() => rmSync(temporaryRoot, { recursive: true, force: true }))
   const script = join(skillRoot, 'scripts/translate-pair.mjs')
   const source = 'evals/files/vendor/docs/guide.md'
   const result = spawnSync(process.execPath, [script, 'check', source, '--target', 'zh=中文'], {
@@ -204,13 +244,26 @@ test('an empty or evidence-free capability corpus fails closed', () => {
   assert.throws(() => validateCorpus({ skill_name: required.skill, evals: [] }, required), /empty eval corpus/)
   const evidenceFree = readCorpus(required.skill)
   evidenceFree.evals[0].assertions = []
-  assert.throws(() => validateCorpus(evidenceFree, required), /observable assertions/)
+  assert.throws(() => validateCorpus(evidenceFree, required), /assertions must not be empty/)
+  const blankEvidence = readCorpus(required.skill)
+  blankEvidence.evals[0].assertions = ['   ']
+  assert.throws(() => validateCorpus(blankEvidence, required), /assertions must not be blank/)
 })
 
 test('the forge requires selective evaluation coverage', () => {
   const forge = readFileSync(join(REPO_ROOT, 'skills', 'dsh-spec-skill-forge', 'SKILL.md'), 'utf8')
   assert.match(forge, /A natural-language requirement central to the forged skill carries a development eval scenario/)
   assert.match(forge, /Model evals run when the owned behavior changes and remain outside the delivered skill/)
+})
+
+test('the forge eval covers capability preference, fallback and a bounded handoff', () => {
+  const corpus = readCorpus(FORGE_REQUIRED.skill)
+  const scenario = corpus.evals.find((entry) => entry.id === FORGE_REQUIRED.ids[0])
+  assert.ok(scenario)
+  assert.match(scenario.prompt, /isolated execution/)
+  assert.match(scenario.expected_output, /optional mechanism/)
+  assert.match(scenario.expected_output, /fallback or explicit handoff/)
+  assert.ok(scenario.assertions.some((assertion) => /resumable next step/.test(assertion)))
 })
 
 test('the scenario input check rejects missing, empty, directory and escaping files', () => {

@@ -20,7 +20,7 @@ Eval coverage follows falsifiable behavior rather than skill count. A central na
 
 ## Verification
 
-Six clean-context agent runs on 2026-11-18 exercised the capability profiles against the development corpus.
+Seven clean-context agent runs on 2026-11-18 exercised the capability profiles and the forge rule against the development corpus.
 
 | Scenario | Observed evidence |
 |---|---|
@@ -30,6 +30,7 @@ Six clean-context agent runs on 2026-11-18 exercised the capability profiles aga
 | Simplification survey without isolation but with separable evidence | Runtime and documentation were surveyed in separate passes with consumer evidence and rejected alternatives |
 | Simplification survey when domain separation is required | The run preserved runtime evidence and handed off the unverified module reachability work with a resumable next step |
 | Simplification survey with isolated contexts | Three clean contexts surveyed runtime, documentation and tests, and the combined result retained each domain's evidence |
+| Skill forge capability fallback | The run kept the audit result and independence boundary, classified isolated execution as an optional preferred mechanism, defined a verifiable fallback or resumable handoff, and required no fixed subagent count or tool name |
 
 [The capability scenario test](../../../../tests/skill-scenarios.test.ts) validates the corpus, containment and temporary staging. [The repository shape test](../../../../tests/repository-shape.test.ts) rejects an `evals/` directory in the distribution tree. The corpus gate also skips `tests/skill-evals/**` from translation discovery, so the repository check continues to report only its 39 maintained pairs.
 
@@ -47,7 +48,7 @@ Six clean-context agent runs on 2026-11-18 exercised the capability profiles aga
 
 - A host without subagents can complete a local task through a verifiable route or receive an explicit handoff for a task that requires separation.
 - A capable host retains the isolated-context preference without a fixed subagent count, depth, or tool name.
-- The two affected skills have capability-absent and capability-present scenarios in a development-only corpus that is staged for evaluation.
+- The two affected skills have capability-absent and capability-present scenarios, and the forge has a capability-design scenario, all in a development-only corpus that is staged for evaluation.
 - Distribution and installation remain limited to runtime skill resources.
 - Eval coverage remains proportional to non-mechanical behavior. Other skills add scenarios when their own falsifiable behavior changes, not merely to make every skill carry an eval directory.
 - The forge workflow requires capability-dependent skills to record the capability-present and capability-absent conclusions.
