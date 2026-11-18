@@ -16,7 +16,7 @@ import { REPO_ROOT } from './helpers/fixtures.ts'
 const SKILLS = join(REPO_ROOT, 'skills')
 
 const DEFAULT_CONTRACT =
-  'A default is the value or strategy this skill declares at its use site. It applies when the current request and existing project instructions leave that choice open. A user turn or explicit parameter supplies a one-off value. Existing project instructions supply a persistent override and are read without being modified or copied. Missing project instructions are valid, so do not ask for a default or create an instruction file merely to select one.'
+  'A default is the value or strategy this skill declares at its use site. It applies when the current request and existing project instructions leave that choice open. A user turn or explicit parameter supplies a one-off value. Existing project instructions supply a persistent override and are read without being modified or copied. Missing project instructions are valid, so do not ask the user to choose a default or create or modify an instruction file merely to select one.'
 
 const DEFAULT_BEARING = [
   'dsh-spec-agent-notes',
@@ -113,6 +113,6 @@ test('the forge accepts future defaults without project instructions', () => {
   const forge = read('dsh-spec-skill-forge')
   assert.match(
     forge,
-    /a forged skill that declares a default applies it when the current request and existing project instructions leave that choice open, without asking for or creating project instructions merely to select it/,
+    /a forged skill that declares a default applies it when the current request and existing project instructions leave that choice open, without asking for or creating or modifying project instructions merely to select it/,
   )
 })
