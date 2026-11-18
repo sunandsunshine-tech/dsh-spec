@@ -1,0 +1,22 @@
+# Pairing consistency record for 2026-11-17-skill-defaults-complete-without-project-instructions.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-11-17-skill-defaults-complete-without-project-instructions.md --target <lang>
+/agent-note-skill-defaults-complete-without-project-instructions:
+  en: 2a3cfce1f8c6c517
+  zh: 7fbbd3dfc8d3cc76
+/agent-note-skill-defaults-complete-without-project-instructions/problem:
+  en: 70cd631f4a21f015
+  zh: 0f27376b1aaa46bb
+/agent-note-skill-defaults-complete-without-project-instructions/decision:
+  en: b6d124c44b825dca
+  zh: 87e98fcce103900c
+/agent-note-skill-defaults-complete-without-project-instructions/verification:
+  en: daf2fe3c9c592e19
+  zh: bb3261b477b8f955
+/agent-note-skill-defaults-complete-without-project-instructions/alternatives-considered:
+  en: 2629b36598c09361
+  zh: ddc2f2b4ae9c76f6
+/agent-note-skill-defaults-complete-without-project-instructions/consequences:
+  en: d65380f56828b3bd
+  zh: 32c50b12474e9385

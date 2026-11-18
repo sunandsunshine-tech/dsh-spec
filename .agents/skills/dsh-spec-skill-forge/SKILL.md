@@ -15,6 +15,10 @@ Forge one Agent Skill from the request, a source, or an existing skill, and keep
 
 **Anchors make context judgeable.** Express that context in the form the task demands — a natural-language contract, a strong type, a checked script, a worked example. Positive and negative boundaries and verification conditions state what must stay true, what must not happen and how completion is decided; they are not a workflow. The anchoring need not be mechanically complete. For an ambiguous area that could affect safety, correctness or produce substantial irreversible consequences, state a safety fallback and its trigger. For an open area, state the allowed range and the boundaries it must not cross. The design is effective when its context and anchors constrain the goal while leaving the route open.
 
+## Defaults
+
+A default is the value or strategy this skill declares at its use site. It applies when the current request and existing project instructions leave that choice open. A user turn or explicit parameter supplies a one-off value. Existing project instructions supply a persistent override and are read without being modified or copied. Missing project instructions are valid, so do not ask the user to choose a default or create or modify an instruction file merely to select one.
+
 ## Tools
 
 Run these from the project root; `<skill-dir>` is the directory containing this `SKILL.md`.
@@ -93,7 +97,7 @@ Every requirement carries a verification anchor at the most precise level availa
 
 Run the gate as a separate read-only check; `publish` does not run it. When review is needed, run `pair` so that an orphan draft fails and the project's translation consistency gate can check the translation.
 
-**Complete**: every source constraint has one disposition row with its home; every requirement of the forged skill carries one anchor; the gate passed with the parameters used; every judged item has a conclusion; every unverified item carries its reason; the declared review drafts are translated and the project's translation consistency gate has been run when review was needed; the record states the evidence, the pages read and their dates, and the rulings as current facts; no round or review narrative remains.
+**Complete**: every source constraint has one disposition row with its home; every requirement of the forged skill carries one anchor; the gate passed with the parameters used; every judged item has a conclusion; every unverified item carries its reason; the declared review drafts are translated and the project's translation consistency gate has been run when review was needed; a forged skill that declares a default applies it when the current request and existing project instructions leave that choice open, without asking for or creating or modifying project instructions merely to select it; the record states the evidence, the pages read and their dates, and the rulings as current facts; no round or review narrative remains.
 
 **Failure**: fix and rerun; never claim a failed or unrun check as passed. An unresolved gap: record a ruling.
 

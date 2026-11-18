@@ -9,6 +9,10 @@ license: "MIT; upstream and repository notices in THIRD_PARTY_NOTICES"
 
 Land dependent PRs through GitHub's native stack object and `gh stack merge`. Do not reproduce stack semantics by merging and retargeting individual PRs with `gh pr merge` and `gh pr edit`. The landing repository's own instructions (its `AGENTS.md` or equivalent) own the merge-forward and rebase histories it allows. Review-fix propagation is outside this skill: after any push that rewrites heads, re-audit unresolved threads, approvals, mergeability and checks before merging, as § Refresh only when needed requires.
 
+## Defaults
+
+A default is the value or strategy this skill declares at its use site. It applies when the current request and existing project instructions leave that choice open. A user turn or explicit parameter supplies a one-off value. Existing project instructions supply a persistent override and are read without being modified or copied. Missing project instructions are valid, so do not ask the user to choose a default or create or modify an instruction file merely to select one.
+
 ## Require native stack support
 
 Run `gh stack --version` before changing GitHub state. If the extension or the server-side stacked-PR feature is unavailable, stop and report it; do not fall back to merging and retargeting PRs one at a time. GitHub stacks require every head branch to live in the same repository, so a cross-fork chain is a stop.

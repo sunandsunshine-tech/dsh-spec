@@ -123,6 +123,7 @@ function zh(title = '指南', body = '简介段落。'): TargetSpec {
 test('init writes a terminology template and never overwrites it', () => {
   const fixture = makeFixture()
   try {
+    assert.equal(fixture.exists('AGENTS.md'), false)
     const first = run(fixture.root, 'init', '--target', 'zh=中文')
     assert.equal(first.status, 0, first.output)
     const template = fixture.read('.agents/dsh-spec-translate-docs/terminology.md')
@@ -131,6 +132,38 @@ test('init writes a terminology template and never overwrites it', () => {
     assert.equal(second.status, 0, second.output)
     assert.match(second.output, /already exists/)
     assert.equal(fixture.read('.agents/dsh-spec-translate-docs/terminology.md'), template)
+    assert.equal(fixture.exists('AGENTS.md'), false)
+  } finally {
+    fixture.dispose()
+  }
+})
+
+test('init uses the default target without project instructions', () => {
+  const fixture = makeFixture()
+  try {
+    assert.equal(fixture.exists('AGENTS.md'), false)
+    const result = run(fixture.root, 'init')
+    assert.equal(result.status, 0, result.output)
+    assert.match(
+      fixture.read('.agents/dsh-spec-translate-docs/terminology.md'),
+      /\| English \| 中文 \| First occurrence \| Forbidden renderings \| Note \|/,
+    )
+    assert.equal(fixture.exists('AGENTS.md'), false)
+  } finally {
+    fixture.dispose()
+  }
+})
+
+test('a terminology override leaves existing project instructions unchanged', () => {
+  const fixture = makeFixture()
+  try {
+    const instructions = '# Project instructions\n\nThe Chinese terminology table lives at `docs/terminology.md`.\n'
+    fixture.write('AGENTS.md', instructions)
+    const result = run(fixture.root, 'init', '--target', 'zh=中文', '--terminology', 'zh=docs/terminology.md')
+    assert.equal(result.status, 0, result.output)
+    assert.match(fixture.read('docs/terminology.md'), /\| English \| 中文 \|/)
+    assert.equal(fixture.exists('.agents/dsh-spec-translate-docs/terminology.md'), false)
+    assert.equal(fixture.read('AGENTS.md'), instructions)
   } finally {
     fixture.dispose()
   }

@@ -13,6 +13,8 @@ Keep the parenthetical to the availability and name. Do not use the surrounding 
 
 The requirement must remain complete without the name; the name is not a link, path, or dependency.
 
+Each default remains at its use site. A forged skill with a default applies it when the current request and existing project instructions leave that choice open. Missing project instructions are valid, and selecting a default never requires asking the user or creating or modifying an instruction file.
+
 ## Model-facing description budget
 
 Descriptions stay within 500 characters, enforced by the corpus gate (`--description-max 500`). DSH's model-facing catalog truncates beyond 500 UTF-16 code units; BMP-only text keeps the character count equal to that unit budget, so descriptions use BMP characters only.

@@ -11,6 +11,10 @@ An Agent Note is a durable decision record: the *why* and the *what was given up
 
 This skill owns the full lifecycle of those records — where they live, when to write one, the uniform format, how they move and are pruned, and how finished ones are frozen into an archive. The references hold the full rules; the bundled script decides the mechanical ones.
 
+## Defaults
+
+A default is the value or strategy this skill declares at its use site. It applies when the current request and existing project instructions leave that choice open. A user turn or explicit parameter supplies a one-off value. Existing project instructions supply a persistent override and are read without being modified or copied. Missing project instructions are valid, so do not ask the user to choose a default or create or modify an instruction file merely to select one.
+
 ## Procedure
 
 1. **Check supersession before writing.** Search the active tree for notes that own or constrain the same decision. Use the project's current code, configuration, package documentation, generated catalogs, newer notes and inbound links to establish whether an older rationale still owns or constrains anything. Plan one change for every match: update the owner, consolidate a full supersession, archive a qualifying implemented note, or reject or delete a stale proposal. A new note never competes with an existing owner.

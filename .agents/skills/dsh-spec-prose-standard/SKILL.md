@@ -14,6 +14,10 @@ This skill owns editorial judgement, required prose coverage, and the leakage au
 
 `Contract`, `boundary`, `shape`, `surface`, `seam`, `gate`, and `vocabulary` are terms to check before use, not banned words. First ask whether the exact rule, API, field set, type, validation, timing point, component split, or failure states the fact better. Keep a term when it names the exact technical subject, including caller/callee contracts and security or process boundaries.
 
+## Defaults
+
+A default is the value or strategy this skill declares at its use site. It applies when the current request and existing project instructions leave that choice open. A user turn or explicit parameter supplies a one-off value. Existing project instructions supply a persistent override and are read without being modified or copied. Missing project instructions are valid, so do not ask the user to choose a default or create or modify an instruction file merely to select one.
+
 ## Inputs and exclusions
 
 - Require an explicit `scope` — paths, globs, or named surfaces. If missing, report the required input and stop; never infer a project-wide scope or begin an interview.
