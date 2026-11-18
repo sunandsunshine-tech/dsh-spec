@@ -154,8 +154,8 @@ Status: implemented
 | A16 | 记录是合法的 `implemented/process` 笔记，且 notes 检查在项目声明的伴随文件下通过。 | 机械 | `node skills/dsh-spec-agent-notes/scripts/notes.mjs check --root .agents/dsh-spec-agent-notes --companion .zh.md --companion .i18n.yaml` 裁决该项。 |
 | A17 | 发布状态已 push，且未触碰的共享文件有记录。 | 机械 | 落地提交已 push 且未创建 PR，`submodules/dsh` 留在其固定提交，`skills/` 与 `.agents/skills/` 只承载已发布技能与其镜像。 |
 | A18 | 该适配能改善一般软件项目中的 agent 简化查找。 | 未验证 | 没有现场试验、没有安装技能评估、没有联网 harness 运行；来源流程与记录下来的适配是证据，效果未测量。 |
-| A19 | 依赖能力的宽泛工作场景具备两类能力 profile 的表示，并携带声明的输入夹具。 | 机械 | `skills/dsh-spec-find-simplifications/evals/evals.json` 携带可运行的无隔离完成、无隔离交接与隔离上下文场景，输入文件位于 `evals/files/vendor/project/`；`tests/skill-scenarios.test.ts` 验证语料与输入包含关系。 |
-| A20 | 能力缺失路径的真实模型行为 | 未验证 | 仓库没有 agent eval runner；官方 eval 场景已准备可执行，但本次变更没有运行或评分能力可用/能力缺失的模型轨迹。 |
+| A19 | 依赖能力的宽泛工作场景具备两类能力 profile 的表示，并携带声明的输入夹具，从开发侧存储暂存到临时技能副本。 | 机械 | `tests/skill-evals/dsh-spec-find-simplifications/evals/evals.json` 携带无隔离完成、无隔离交接与隔离上下文场景，输入文件位于 `evals/files/vendor/project/`；`tests/skill-scenarios.test.ts` 验证暂存、输入包含关系以及交付树中没有 `evals/`。 |
+| A20 | 能力可用与能力缺失路径的真实模型行为 | 判断 | 2026-11-18 的六次干净上下文运行产生了预期的顺序调查、明确边界交接与隔离 fan-out 证据。[能力记录](2026-11-17-delegation-is-a-capability-choice-not-a-skill-dependency.zh.md) 拥有逐场景结果。 |
 
 ## 备选方案
 

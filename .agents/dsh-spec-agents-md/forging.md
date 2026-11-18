@@ -21,6 +21,10 @@ A forged skill states the result it needs and distinguishes a required capabilit
 
 For a capability-dependent skill, the review must cover both profiles when both are possible in the adopter's environment: capability present and capability absent. The absent-capability evidence is a completed observable result with its owning validation or an explicit handoff. A static keyword check does not establish this behavior.
 
+Evaluation scenarios are development assets. When `skills/` is the distribution tree or is mirrored into an installed skill tree, keep eval manifests and fixture inputs outside it. For an eval run, stage them at the official `evals/` path inside a temporary skill copy. A delivered skill carries only resources its users need at runtime.
+
+A central natural-language behavior that realistic prompts can falsify carries a development eval scenario unless a deterministic command or test decides it. Capability-dependent behavior adds both capability profiles. Model evals run when the owned behavior changes, not in routine CI, and the delivered skill never carries them.
+
 ## Model-facing description budget
 
 Descriptions stay within 500 characters, enforced by the corpus gate (`--description-max 500`). DSH's model-facing catalog truncates beyond 500 UTF-16 code units; BMP-only text keeps the character count equal to that unit budget, so descriptions use BMP characters only.

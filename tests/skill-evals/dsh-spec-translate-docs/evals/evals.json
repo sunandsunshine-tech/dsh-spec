@@ -20,17 +20,17 @@
     },
     {
       "id": "no-isolation-whole-document-handoff",
-      "prompt": "The host provides no subagents, isolated contexts, or parallel execution. Translate the new multi-section document evals/files/vendor/docs/new-guide.md into Chinese, but you cannot create a fresh context for this task.",
-      "expected_output": "The run either completes through a staged independent review that preserves source-to-counterpart verification, or stops before claiming completion and hands off the source, target language, pending translation, and the next verification command.",
+      "prompt": "The host provides no subagents, isolated or clean contexts, parallel execution, staged independent review, or another independent verification mechanism. Translate the new multi-section document evals/files/vendor/docs/new-guide.md into Chinese, but you cannot preserve the required production and review separation.",
+      "expected_output": "The run stops before claiming completion and hands off the source, target language, pending translation, completed work, missing mechanism, and next verification command.",
       "files": [
         "evals/files/vendor/docs/new-guide.md",
         "evals/files/vendor/.agents/dsh-spec-translate-docs/terminology.md"
       ],
       "assertions": [
-        "The run does not silently substitute the working context for the required independent production or review boundary.",
-        "If the run completes, the whole-document translation and a source-to-counterpart verification are both evidenced.",
-        "If the run cannot preserve the boundary, it hands off with the source path, target language, pending work, and next step.",
-        "The run does not report either completion or handoff without evidence."
+        "The run does not translate or claim completion in the working context.",
+        "The run explains that the required independent production or review boundary is unavailable.",
+        "The handoff names the source path, target language, completed work, pending work, missing mechanism, and next step.",
+        "The run does not report a handoff without evidence."
       ]
     },
     {

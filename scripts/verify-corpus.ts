@@ -19,7 +19,8 @@ const USAGE = `usage: verify-corpus.ts [--base-ref=<ref>] [--help]
 
 Check the repository's own corpus: every skill entry, sibling-skill references, the notes tree and
 its archive, the maintained translation pairs and the vendored-notices submission. Run from the
-repository root.
+repository root. Development eval inputs under tests/skill-evals are excluded from translation
+discovery.
 
   --base-ref=<ref>  trusted pre-change commit for the notes archive baseline
                     (default: HEAD; CI passes the base commit)
@@ -71,6 +72,8 @@ function main(): void {
   const repoRoot = process.cwd()
   const node = process.execPath
   const skipped = [
+    '--skip',
+    'tests/skill-evals/**',
     '--skip',
     '.agents/dsh-spec-agent-notes/archived/**',
     '--skip',

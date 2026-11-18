@@ -37,7 +37,8 @@ function stubSiblingCorpus(context: { after(callback: () => void): void }, faili
   write(
     root,
     'skills/dsh-spec-translate-docs/scripts/translate-pair.mjs',
-    "if (process.argv[2] === 'list') console.log('ok sample.zh.md')\n",
+    "if (!process.argv.includes('tests/skill-evals/**')) process.exit(4)\n" +
+      "if (process.argv[2] === 'list') console.log('ok sample.zh.md')\n",
   )
   write(root, 'scripts/submit-vendored.ts', 'process.exit(0)\n')
   write(
@@ -113,6 +114,12 @@ test('the corpus gate runs and reports a passing sibling-reference gate', (t) =>
   const result = runScript('scripts/verify-corpus.ts', [], stubSiblingCorpus(t, false))
   assert.equal(result.status, 0, result.output)
   assert.match(result.stdout, /ok {3}sibling skill references/)
+})
+
+test('translation discovery excludes the development eval corpus', (t) => {
+  const result = runScript('scripts/verify-corpus.ts', [], stubSiblingCorpus(t, false))
+  assert.equal(result.status, 0, result.output)
+  assert.match(result.stdout, /ok {3}translation pairs/)
 })
 
 test('a sibling-reference finding fails the corpus gate', (t) => {

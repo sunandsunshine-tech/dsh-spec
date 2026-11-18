@@ -10,7 +10,7 @@
         "evals/files/vendor/project/src/runtime.ts",
         "evals/files/vendor/project/src/dead.ts",
         "evals/files/vendor/project/docs/guide.md",
-        "evals/files/vendor/project/tests/runtime.test.ts"
+        "evals/files/vendor/project/tests/runtime.check.ts"
       ],
       "assertions": [
         "Both declared domains are accounted for in the final report or in an explicit handoff.",
@@ -28,7 +28,7 @@
         "evals/files/vendor/project/src/runtime.ts",
         "evals/files/vendor/project/src/dead.ts",
         "evals/files/vendor/project/docs/guide.md",
-        "evals/files/vendor/project/tests/runtime.test.ts"
+        "evals/files/vendor/project/tests/runtime.check.ts"
       ],
       "assertions": [
         "The run identifies the required separation that the host cannot provide.",
@@ -46,7 +46,7 @@
         "evals/files/vendor/project/src/runtime.ts",
         "evals/files/vendor/project/src/dead.ts",
         "evals/files/vendor/project/docs/guide.md",
-        "evals/files/vendor/project/tests/runtime.test.ts"
+        "evals/files/vendor/project/tests/runtime.check.ts"
       ],
       "assertions": [
         "The work uses isolated contexts for the independent domains when available.",

@@ -257,8 +257,8 @@ Status: implemented
 | V35 | CLI 失败模式 | 机械 | write 不带配对或 --all 的用法错误；不完整的点名配对；畸形记录；空选择；未知选项／动词；无效 glob；裸非默认目标；在非 write 动词上使用 --source-lang；遗留旗标；--all 记录每个完整选中配对并丢弃退役目标 |
 | V37 | 按目标顺序写入 | 机械 | 源编辑后，编辑 zh 并写入 zh 使 ja 失败；编辑 ja 并写入 ja 使 zh 保持绿色且源哈希行不变；随后两个目标都检查为绿 |
 | V38 | 文风默认值的丰富度 | 机械 | style-examples.md 携带上游品质的校准点（误报／漏检、bilingual from birth、grandfathered、cookbook）以及防御／测试／长段落样例组；translation-rules 仍是唯一的优先级归属；出处只在通知中 |
-| V39 | 依赖能力的整篇文档场景与可运行输入 | 机械 | `skills/dsh-spec-translate-docs/evals/evals.json` 携带无隔离完成、无隔离交接与隔离上下文场景，输入位于 `evals/files/vendor/`；`tests/skill-scenarios.test.ts` 验证语料与输入包含关系。 |
-| V40 | 能力缺失整篇文档路径的真实模型行为 | 未验证 | 仓库没有 agent eval runner；官方 eval 场景已准备可执行，但本次变更没有运行或评分模型轨迹。 |
+| V39 | 依赖能力的整篇文档场景与可运行输入，从开发侧存储暂存 | 机械 | `tests/skill-evals/dsh-spec-translate-docs/evals/evals.json` 携带局部完成、明确整篇交接与隔离上下文场景，输入位于 `evals/files/vendor/`；`tests/skill-scenarios.test.ts` 验证暂存、包含关系以及交付树中没有 `evals/`。 |
+| V40 | 能力可用与能力缺失的真实模型行为 | 判断 | 2026-11-18 的六次干净上下文运行产生了预期的局部完成、明确整篇交接与隔离整篇结果。[能力记录](2026-11-17-delegation-is-a-capability-choice-not-a-skill-dependency.zh.md) 拥有逐场景证据。 |
 
 ## 考虑过的替代方案
 

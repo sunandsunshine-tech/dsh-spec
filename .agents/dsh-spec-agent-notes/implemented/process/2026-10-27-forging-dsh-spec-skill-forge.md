@@ -22,6 +22,7 @@ The forge uses declared companions instead of its own pair record:
 - Before `publish`, the adopter removes review-draft-only content from the work-draft sources; `publish` copies the sources unchanged.
 - Cross-skill guidance: the forge names the optional notes, translation, prose and prompt skills only as availability-qualified examples; the Agent Skills best practices outrank the prose and prompt requirements.
 - **Default completion.** A forged skill that declares a default applies it when the current request and existing project instructions leave that choice open. Missing project instructions are valid, so the skill neither asks the user to choose the default nor creates or modifies an instruction file merely to select it. [The default record](2026-11-17-skill-defaults-complete-without-project-instructions.md) owns this acceptance.
+- **Evaluation coverage.** A central natural-language behavior that realistic prompts can falsify gets a development eval when a deterministic check cannot decide it. Capability branches cover both profiles. Eval assets are staged outside the delivered skill, and model evals run on behavior changes rather than in routine CI.
 - Delivery language is English; the review language is Chinese, paired only at the stop; the additional trigger language is Chinese, present in the description.
 
 ## Design

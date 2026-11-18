@@ -14,6 +14,25 @@ A skill states the result and the separation or coverage property it needs. A su
 
 This note owns portability of a skill's required result. [Delegation follows the harness and the prompt](2026-09-23-delegation-follows-the-harness-and-the-prompt.md) continues to own the repository-level rule that a skill does not prescribe a carrier ladder. A capability preference with a stated fallback is not a carrier-selection protocol.
 
+Evaluation scenarios live under `tests/skill-evals/` as development assets. An eval run stages them at the official `evals/` path inside a temporary skill copy. The delivered `skills/` tree and its `.agents/skills/` installation mirror contain no eval manifests or fixture inputs.
+
+Eval coverage follows falsifiable behavior rather than skill count. A central natural-language behavior gets a development scenario when realistic prompts can falsify it and a deterministic check cannot decide it. Capability branches add both profiles. Mechanical contracts keep their unit or integration tests, and model evals run when the owning behavior changes rather than in routine CI.
+
+## Verification
+
+Six clean-context agent runs on 2026-11-18 exercised the capability profiles against the development corpus.
+
+| Scenario | Observed evidence |
+|---|---|
+| Translation local update without isolation | The counterpart was edited directly, `translate-pair write` and `check` exited 0, and no subagent was used |
+| Translation whole document when every independent mechanism is unavailable | No pair files changed and the handoff named the source, target language, completed work, pending work, missing mechanism and next command |
+| Translation whole document with an isolated context | One isolated agent produced the complete counterpart, and the parent's `translate-pair check` exited 0 |
+| Simplification survey without isolation but with separable evidence | Runtime and documentation were surveyed in separate passes with consumer evidence and rejected alternatives |
+| Simplification survey when domain separation is required | The run preserved runtime evidence and handed off the unverified module reachability work with a resumable next step |
+| Simplification survey with isolated contexts | Three clean contexts surveyed runtime, documentation and tests, and the combined result retained each domain's evidence |
+
+[The capability scenario test](../../../../tests/skill-scenarios.test.ts) validates the corpus, containment and temporary staging. [The repository shape test](../../../../tests/repository-shape.test.ts) rejects an `evals/` directory in the distribution tree. The corpus gate also skips `tests/skill-evals/**` from translation discovery, so the repository check continues to report only its 39 maintained pairs.
+
 ## Alternatives considered
 
 - **Keep the mandatory subagent path.** It loses independent installation and turns a host capability gap into a task-content failure.
@@ -22,10 +41,13 @@ This note owns portability of a skill's required result. [Delegation follows the
 - **Treat any in-context execution as equivalent.** It permits silent quality loss and false completion.
 - **Require a project declaration of available capabilities.** It adds configuration burden and overlaps the rule that an absent project declaration is a valid state.
 - **Require a sibling skill as the fallback.** It recreates an installation dependency under another name.
+- **Ship the eval corpus inside each skill.** It makes every adopter install this repository's development prompts and fixtures. Temporary staging keeps the official eval layout without changing the delivered skill.
 
 ## Consequences
 
 - A host without subagents can complete a local task through a verifiable route or receive an explicit handoff for a task that requires separation.
 - A capable host retains the isolated-context preference without a fixed subagent count, depth, or tool name.
-- The two affected skills carry capability-absent and capability-present scenarios in their local eval corpora.
+- The two affected skills have capability-absent and capability-present scenarios in a development-only corpus that is staged for evaluation.
+- Distribution and installation remain limited to runtime skill resources.
+- Eval coverage remains proportional to non-mechanical behavior. Other skills add scenarios when their own falsifiable behavior changes, not merely to make every skill carry an eval directory.
 - The forge workflow requires capability-dependent skills to record the capability-present and capability-absent conclusions.

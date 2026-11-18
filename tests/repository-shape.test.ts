@@ -83,6 +83,14 @@ test('every package script is one command', () => {
   }
 })
 
+test('the functional suite does not discover development eval fixtures', () => {
+  const evalRoot = join(REPO_ROOT, 'tests', 'skill-evals')
+  const testFiles = readdirSync(evalRoot, { recursive: true })
+    .filter((path): path is string => typeof path === 'string' && path.endsWith('.test.ts'))
+    .sort()
+  assert.deepEqual(testFiles, [], 'development eval inputs match the functional suite glob')
+})
+
 test('every landed skill has an identical installed copy', () => {
   const skills = readdirSync(join(REPO_ROOT, 'skills'), { withFileTypes: true })
     .filter((entry) => entry.isDirectory() && !entry.name.startsWith('.'))
@@ -92,6 +100,7 @@ test('every landed skill has an identical installed copy', () => {
   for (const name of skills) {
     const landed = join(REPO_ROOT, 'skills', name)
     const installed = join(REPO_ROOT, '.agents', 'skills', name)
+    assert.equal(existsSync(join(landed, 'evals')), false, `${name} ships developer eval inputs`)
     assert.equal(existsSync(installed), true, `${name} is not installed`)
     const left = hashTree(landed)
     const right = hashTree(installed)
