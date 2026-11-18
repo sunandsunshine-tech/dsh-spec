@@ -1,0 +1,22 @@
+# Pairing consistency record for 2026-11-18-agent-notes-capability-aware-bilingual-defaults.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/feature/2026-11-18-agent-notes-capability-aware-bilingual-defaults.md --target <lang>
+/agent-note-agent-notes-default-to-capability-aware-bilingual-companions:
+  en: da21a262a909e986
+  zh: 52a39cd8d3bd7032
+/agent-note-agent-notes-default-to-capability-aware-bilingual-companions/problem:
+  en: 5cc92a1ac95f8ecd
+  zh: 8dc3ad6bab960529
+/agent-note-agent-notes-default-to-capability-aware-bilingual-companions/decision:
+  en: 15c26124e180f506
+  zh: 1773141ea1a81ee0
+/agent-note-agent-notes-default-to-capability-aware-bilingual-companions/verification:
+  en: 4c624aef05ac9569
+  zh: 6eee9731db7f1ab1
+/agent-note-agent-notes-default-to-capability-aware-bilingual-companions/alternatives-considered:
+  en: 9c7045f877aab37b
+  zh: 67a69a01f32852e0
+/agent-note-agent-notes-default-to-capability-aware-bilingual-companions/consequences:
+  en: bf2bc976138ce85a
+  zh: 443982dd9a6081c3

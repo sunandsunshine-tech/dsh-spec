@@ -34,9 +34,19 @@ const USE_SITE_PINS = [
     text: 'The root defaults to `.agents/dsh-spec-agent-notes/`',
   },
   {
+    skill: 'dsh-spec-agent-notes',
+    file: 'SKILL.md',
+    text: 'Choose translation companions for each new note and each unit first entering the archive in this order:',
+  },
+  {
     skill: 'dsh-spec-translate-docs',
     file: 'references/pairing-contract.md',
     text: 'The default target is `zh` (display name `中文`).',
+  },
+  {
+    skill: 'dsh-spec-translate-docs',
+    file: 'SKILL.md',
+    text: 'when a workflow skill that owns a document scope authorizes a default pair',
   },
   {
     skill: 'dsh-spec-pr-description',
@@ -115,4 +125,43 @@ test('the forge accepts future defaults without project instructions', () => {
     forge,
     /a forged skill that declares a default applies it when the current request and existing project instructions leave that choice open, without asking for or creating or modifying project instructions merely to select it/,
   )
+})
+
+test('companion defaults are capability-aware and fail closed', () => {
+  const notes = read('dsh-spec-agent-notes')
+  const ladder = [
+    "the current request's explicit choice",
+    'an existing persistent project override',
+    'an available, enabled project-scoped translation mechanism that resolves exactly one target language',
+    'no translation companion, which leaves the note English-only',
+  ]
+  let previous = -1
+  for (const step of ladder) {
+    const position = notes.indexOf(step)
+    assert.ok(position > previous, `missing or out-of-order companion default: ${step}`)
+    previous = position
+  }
+  assert.match(notes, /without falling back to English-only/)
+  assert.match(
+    notes,
+    /does not add a translation companion to an active note merely because the skill changed or to a sealed unit/,
+  )
+  assert.match(notes, /When an existing active note first enters the archive/)
+  assert.match(notes, /Other companions, such as diagrams, remain direct project declarations/)
+  assert.match(notes, /requires project evidence outside `\.agents\/skills`.*and availability/)
+  assert.match(notes, /Installation alone is insufficient/)
+
+  const translate = read('dsh-spec-translate-docs')
+  assert.match(translate, /An owner authorization names the source paths or globs it covers/)
+  assert.match(translate, /does not extend to sibling documents, documents outside those paths or `\.agents\/skills`/)
+  assert.match(translate, /Do not report the source as English-only because translation failed/)
+  assert.match(
+    translate,
+    /New pair\*\* \(standing instructions, explicit instruction or a bounded workflow-owner authorization\)/,
+  )
+  assert.match(
+    translate,
+    /beyond the documents selected by the project instructions, the user or a bounded workflow owner/,
+  )
+  assert.doesNotMatch(translate, /dsh-spec-agent-notes/)
 })

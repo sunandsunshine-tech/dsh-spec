@@ -9,7 +9,8 @@
 /**
  * The pairing CLI: list/check/write existing pairs, brief minimal updates, initialise
  * terminology, and render or splice a generated region. Creation and update follow the project's
- * standing instructions or the user's instruction; the gate never requires a source to be paired.
+ * standing instructions, the user's instruction, or a workflow owner's bounded authorization;
+ * the gate never requires a source to be paired.
  *
  * Exit codes: 0 clean or written, 1 violations or nothing to record, 2 usage or a precondition.
  */

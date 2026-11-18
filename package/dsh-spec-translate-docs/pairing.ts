@@ -9,7 +9,8 @@
  * Structural signatures, generated-region comparison and the existing-pair check.
  *
  * The gate only checks pairs that already exist. Creation and update follow the project's
- * standing instructions or the user's instruction; this module never requires a source to be paired.
+ * standing instructions, the user's instruction, or a workflow owner's bounded authorization;
+ * this module never requires a source to be paired.
  */
 
 import type { Nodes } from 'mdast'

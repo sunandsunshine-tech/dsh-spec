@@ -47,6 +47,51 @@
         "The final counterpart and pairing record pass the project's check.",
         "The run does not require a particular subagent count, depth, or tool name."
       ]
+    },
+    {
+      "id": "owner-authorizes-one-source-scope",
+      "prompt": "A workflow skill owns only evals/files/owner-scope/docs/owned/new-note.md and authorizes its default Chinese pair. Create that pair and do not touch the sibling document outside the owned scope.",
+      "expected_output": "The owned source receives an English-to-Chinese counterpart and consistency record. The sibling document remains unpaired and otherwise unchanged.",
+      "files": [
+        "evals/files/owner-scope/docs/owned/new-note.md",
+        "evals/files/owner-scope/docs/unowned/sibling.md",
+        "evals/files/owner-scope/.agents/dsh-spec-translate-docs/terminology.md"
+      ],
+      "assertions": [
+        "The workflow owner's authorization is limited to the named source path.",
+        "Only the owned source receives a counterpart and consistency record.",
+        "The sibling document remains unchanged and unpaired."
+      ]
+    },
+    {
+      "id": "owner-authorization-excludes-skill-text",
+      "prompt": "A workflow skill owns evals/files/owner-skills/docs/new-note.md and authorizes its default Chinese pair. A translation skill body also exists under .agents/skills. Complete only the owned documentation pair.",
+      "expected_output": "The owned document is paired. The skill body under .agents/skills receives no counterpart and is not modified.",
+      "files": [
+        "evals/files/owner-skills/docs/new-note.md",
+        "evals/files/owner-skills/.agents/skills/dsh-spec-translate-docs/SKILL.md",
+        "evals/files/owner-skills/.agents/dsh-spec-translate-docs/terminology.md"
+      ],
+      "assertions": [
+        "The owner authorization applies to the named documentation source.",
+        "No counterpart or consistency record is created for the skill body.",
+        "The skill body remains unchanged."
+      ]
+    },
+    {
+      "id": "ambiguous-target-grants-no-default-pair",
+      "prompt": "A workflow skill owns evals/files/multiple-targets/docs/new-note.md but does not select between the project's Chinese and Japanese targets. Process the authorization without asking me to invent a target.",
+      "expected_output": "No default pair is created because the target language is not uniquely resolved. The response reports the source, both possible targets and the missing target selection.",
+      "files": [
+        "evals/files/multiple-targets/docs/new-note.md",
+        "evals/files/multiple-targets/.agents/dsh-spec-translate-docs/terminology.md",
+        "evals/files/multiple-targets/.agents/dsh-spec-translate-docs/terminology.ja.md"
+      ],
+      "assertions": [
+        "The run does not choose an arbitrary target.",
+        "No counterpart or consistency record is created.",
+        "The handoff names the source and the unresolved target selection."
+      ]
     }
   ]
 }

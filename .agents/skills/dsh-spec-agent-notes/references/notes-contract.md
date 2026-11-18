@@ -124,7 +124,20 @@ Moving a file between lifecycle folders means updating the `Status:` line and re
 
 ### Companions
 
-A note may travel with companion files the project keeps for it — translations in any language, consistency records, diagrams. The project declares their suffixes (for example `.zh.md` and `.i18n.yaml`) with repeated `--companion` arguments; the format gate then treats each companion as part of its source note's unit and skips it as a separate note. It reports a companion without a regular-file source note in a class folder or at a lifecycle root; a readable deeper declared companion is ignored like the source's walker, while an unreadable declared companion in a class folder or at a lifecycle root is reported. A project without companions passes no suffix. Notes are written for the agent in English; a translation is an optional companion for readers of that language.
+A note may travel with companion files the project keeps for it, including translations in any language, consistency records and diagrams. The project's translation mechanism owns translation filenames and consistency records. A project may declare other companions directly. The format gate treats every declared companion as part of its source note's unit and skips it as a separate note. It reports a companion without a regular-file source note in a class folder or at a lifecycle root. A readable deeper declared companion is ignored like the source's walker, while an unreadable declared companion in a class folder or at a lifecycle root is reported.
+
+For each new note and each unit first entering the archive, select translation companions in this order:
+
+1. The current request's explicit choice.
+2. An existing persistent project override.
+3. An available, enabled project-scoped translation mechanism that resolves exactly one target language for this unit.
+4. No translation companion, which leaves the note English-only.
+
+A project-scoped mechanism is enabled by evidence outside `.agents/skills`, such as standing instructions, terminology data or an existing maintained pair. An installed translation skill alone does not enable it or make it available. A request or override may select no translation, one or more target languages, a bounded source scope or an exclusion. When multiple targets remain without a unique selection, select no translation companion and do not ask merely to replace the default.
+
+The selected translation mechanism owns translation filenames, record content and consistency checks. This skill owns translation selection, `--companion` declarations for the complete unit, seal-time completeness and frozenness. Diagrams and other non-translation companions remain whatever the project declares. "English-only" selects no translation companion and does not remove those companions. A bilingual unit is complete only after its counterpart and consistency record exist and pass the project's check. If translation or pairing fails, stop with the unfinished unit, source, target, failed step and resumable next step. Do not relabel the unit English-only and do not seal it.
+
+This default does not add a translation companion to an active note merely because the skill changed or to a sealed unit. When an existing active note first enters the archive, select and complete its translation companions for that archive unit before sealing. Existing active notes may otherwise remain selectively translated. A project without a translation mechanism continues with English-only notes and passes no translation suffix while retaining any other declared companions.
 
 Companions are one unit with their note: they move folders with it, enter the archive with it, and are deleted with it. Their internal consistency is the project's own pairing gate's business; this contract owns the unit rules. Archive-unit completeness is enforced when the archive seals a new unit, not replayed over frozen units during verification; a sealed unit cannot gain a companion later.
 
@@ -158,7 +171,7 @@ The check decides the mechanical subset; the archive seal checks a newly sealed 
 - the header block, the per-lifecycle skeleton and the alternatives section match this contract;
 - every companion suffix declared in a class folder or at a lifecycle root joins a source file, and an orphan is reported.
 
-It does not decide whether a note should exist, whether its rationale is sound, or whether a supersession was classified correctly. Those are judgment, recorded in the note and the change.
+It does not decide whether a note should exist, whether its rationale is sound, whether its companion plan follows the default ladder, or whether a supersession was classified correctly. Those are judgment, recorded in the note and the change.
 
 ## Reporting
 

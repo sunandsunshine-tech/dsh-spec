@@ -23,7 +23,7 @@ Establish whether a rationale still owns or constrains anything from the project
 
 The archive root is always `{notes root}/archived`, a frozen branch of the same notes tree; there is no separate archive location. The path is `{notes root}/archived/{class}/{stem}`; `implemented` is deliberately absent from it because only implemented notes can enter.
 
-- A **unit** is the note plus every companion the project declares for it (translations in any language, consistency records, diagrams — declared with repeated `--companion <suffix>`). The unit moves, seals, and is deleted as one.
+- A **unit** is the note plus every companion the project declares for it (translations in any language, consistency records, diagrams — declared with repeated `--companion <suffix>`). The unit moves, seals, and is deleted as one. For a unit first entering the archive, [the notes contract](notes-contract.md#companions) selects its translation companions while non-translation companions remain directly declared by the project. A selected translation and its consistency record must be complete before sealing. Translation or pairing failure leaves the unit unfinished and unsealed.
 - The six class directories (`feature`, `bug-fix`, `simplification`, `architecture`, `process`, `testing`) are required. `init` creates them with `.gitkeep` placeholders in empty class folders; the gate ignores those placeholders inside class folders, and they never enter the manifest. A root-level `.gitkeep` is not a placeholder.
 - Class directories contain regular files only. The gate rejects an unknown class directory and any root file other than `manifest.json` or an optional, ignored `AGENTS.md`.
 - An empty class directory is allowed and holds no unit; the gate rejects unknown kinds, gaps in the six known directories, and unknown root files.
@@ -36,7 +36,7 @@ An archival change makes exactly these moves and edits:
 1. Initialize the tree once if the project has no notes tree: `node <skill-dir>/scripts/notes.mjs init` creates the lifecycle and class folders and the six archived class folders with ignored placeholders, and never overwrites an existing file.
 2. Move the complete unit from `implemented/{class}/` to `archived/{class}/`.
 3. Make no body edits. Insert `Archived: YYYY-MM-DD` immediately below the sole `Status: implemented` line in every Markdown side of the unit, using the archival date, identical on every side. The date may not predate the note's filename date.
-4. Re-record the companions' consistency records through the project's own pairing mechanism; the metadata edit changes their hashes.
+4. Re-record the companions' consistency records through the project's own pairing mechanism. The metadata edit changes their hashes. A unit first entering the archive completes any companion selected by the notes contract before this step. Failure stops the handover and leaves the unit unsealed.
 5. Search for inbound links from active prose. Redirect them to current authority, retarget them to the archived path only when the historical snapshot is intentionally cited, or delete them. Never inspect, verify or repair links out of the archived note.
 6. Seal, stage and verify:
 

@@ -1,6 +1,6 @@
 ---
 name: dsh-spec-agent-notes
-description: "Use before a non-trivial change to decide whether it needs a durable decision record, and when creating, updating, moving, reviewing, pruning, archiving, restoring, or auditing Agent Notes. Covers the lifecycle, unified format, supersession, frozen archive and bundled checks. Not for ordinary documentation or transient notes. 用于在非平凡变更前判断是否需要持久决策记录，以及在创建、更新、移动、评审、修剪、归档、恢复或审计 Agent Notes 时使用。涵盖生命周期、分类、统一格式、取代、冻结归档与随附检查。不用于普通文档或临时笔记。"
+description: "Use before a non-trivial change to decide whether it needs a durable decision record, and when creating, updating, moving, reviewing, pruning, archiving, restoring, or auditing Agent Notes. Covers the lifecycle, unified format, supersession, capability-aware companions, frozen archive and bundled checks. Not for ordinary documentation or transient notes. 用于在非平凡变更前判断是否需要持久决策记录，以及在创建、更新、移动、评审、修剪、归档、恢复或审计 Agent Notes 时使用。涵盖生命周期、分类、统一格式、取代、能力感知伴随文件、冻结归档与随附检查。不用于普通文档或临时笔记。"
 license: "MIT; upstream and repository notices in THIRD_PARTY_NOTICES"
 compatibility: "Requires Node.js 22.19+ or 24+ and Git; every command runs inside the project's Git checkout. No install, no network."
 ---
@@ -65,7 +65,18 @@ Write a note only for lasting decision rationale that code, tests and existing d
 
 ## Companions
 
-A project may keep companions beside a note — translations, consistency records, diagrams — declared by suffix, such as `.zh.md` or `.i18n.yaml`. Declare them with repeated `--companion <suffix>`; the count and languages are the project's choice. The active check skips them and pairs each with its source note; the active tree may translate selectively. The archive treats them as one unit and requires every declared suffix only when it seals a new unit: verification compares the manifest, so a later suffix is not replayed over sealed units. A project without companions passes no suffix and works with the Markdown note alone. Notes are written in English for the agent; a translation is an optional companion for readers. The project's own pairing gate owns companion consistency (when available, consider using the dsh-spec-translate-docs skill); this skill owns pairing, seal-time unit completeness and frozenness.
+Translation companion names and records belong to the project's translation mechanism. Other companions, such as diagrams, remain direct project declarations and are unaffected by this default.
+
+Choose translation companions for each new note and each unit first entering the archive in this order:
+
+1. the current request's explicit choice;
+2. an existing persistent project override;
+3. an available, enabled project-scoped translation mechanism that resolves exactly one target language;
+4. no translation companion, which leaves the note English-only.
+
+A mechanism requires project evidence outside `.agents/skills` (instructions, terminology data or an existing maintained pair) and availability. Installation alone is insufficient. A request or override may choose translation targets, scope or an exclusion. Multiple targets without a unique selection use no translation companion without asking.
+
+The ladder does not add a translation companion to an active note merely because the skill changed or to a sealed unit. When an existing active note first enters the archive, select and complete its translation companions before sealing. Failure leaves the unit unsealed and reports its source, target, failed step and resumable next step, without falling back to English-only. The pairing mechanism owns translation and consistency (when available, use the dsh-spec-translate-docs skill). The [notes contract](references/notes-contract.md#companions) owns ownership, enablement and full rules.
 
 ## Pruning and consolidation
 

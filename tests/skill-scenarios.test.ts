@@ -1,6 +1,6 @@
 /**
- * Development-side capability scenarios for the skills whose work can need an isolated context,
- * plus the forge rule that requires capability-present and capability-absent conclusions.
+ * Development-side model scenarios for isolated-context capabilities, Agent Notes companion
+ * defaults, Translate Docs scoped authorization and the forge's capability conclusions.
  *
  * The source corpus lives under tests/ because skills/ is a distribution artifact. The tests stage
  * a temporary skill copy with the corpus at the official evals/ path. They validate the scenario
@@ -60,6 +60,9 @@ const REQUIRED: RequiredProfile[] = [
       'no-isolation-local-update-completes',
       'no-isolation-whole-document-handoff',
       'isolated-context-whole-document',
+      'owner-authorizes-one-source-scope',
+      'owner-authorization-excludes-skill-text',
+      'ambiguous-target-grants-no-default-pair',
     ],
     noIsolationIds: ['no-isolation-local-update-completes', 'no-isolation-whole-document-handoff'],
     isolatedIds: ['isolated-context-whole-document'],
@@ -86,7 +89,31 @@ const FORGE_REQUIRED: RequiredProfile = {
   handoffIds: [],
 }
 
-const ALL_REQUIRED = [...REQUIRED, FORGE_REQUIRED]
+interface GeneralProfile {
+  skill: string
+  ids: string[]
+}
+
+const GENERAL_REQUIRED: GeneralProfile[] = [
+  {
+    skill: 'dsh-spec-agent-notes',
+    ids: [
+      'enabled-translation-defaults-bilingual',
+      'no-translation-defaults-english-only',
+      'user-selects-english-only',
+      'project-override-bounds-language-and-scope',
+      'translation-failure-stays-incomplete',
+      'installed-skill-is-not-enabled',
+      'multiple-targets-default-to-english-only',
+      'unavailable-translation-defaults-english-only',
+      'existing-note-first-archive-uses-ladder',
+      'non-translation-companion-survives',
+      'existing-notes-are-not-backfilled',
+    ],
+  },
+]
+
+const ALL_REQUIRED = [...REQUIRED, FORGE_REQUIRED, ...GENERAL_REQUIRED]
 
 const EVAL_SOURCE_ROOT = join(REPO_ROOT, 'tests', 'skill-evals')
 
@@ -166,6 +193,27 @@ function validateCorpus(corpus: ScenarioCorpus, required: RequiredProfile): void
   }
 }
 
+function validateGeneralCorpus(corpus: ScenarioCorpus, required: GeneralProfile): void {
+  assert.equal(corpus.skill_name, required.skill)
+  assert.ok(corpus.evals.length > 0, 'an empty eval corpus is not a passing corpus')
+  const byId = new Map(corpus.evals.map((scenario) => [scenario.id, scenario]))
+  assert.equal(byId.size, corpus.evals.length, 'eval ids must be unique')
+  for (const id of required.ids) assert.ok(byId.has(id), required.skill + ' must include ' + id)
+
+  for (const scenario of corpus.evals) {
+    assertNonEmptyString(scenario.id, 'eval id')
+    assertNonEmptyString(scenario.prompt, scenario.id + ' prompt')
+    assertNonEmptyString(scenario.expected_output, scenario.id + ' expected output')
+    assertNonEmptyStrings(scenario.assertions, scenario.id + ' assertions')
+    assert.ok((scenario.files?.length ?? 0) > 0, scenario.id + ' must ship its input files')
+    assertNonEmptyStrings(scenario.files, scenario.id + ' files')
+    const skillRoot = join(EVAL_SOURCE_ROOT, required.skill)
+    for (const file of scenario.files ?? []) {
+      assertInputFile(skillRoot, file, scenario.id)
+    }
+  }
+}
+
 function assertNonEmptyString(value: unknown, label: string): asserts value is string {
   assert.equal(typeof value, 'string', label + ' must be a string')
   assert.ok(value.trim().length > 0, label + ' must not be blank')
@@ -180,6 +228,18 @@ function assertNonEmptyStrings(values: readonly unknown[] | undefined, label: st
 test('the capability scenario corpus covers absent and available isolated execution', () => {
   for (const required of REQUIRED) validateCorpus(readCorpus(required.skill), required)
   validateCorpus(readCorpus(FORGE_REQUIRED.skill), FORGE_REQUIRED)
+})
+
+test('the companion scenario corpus covers the default ladder and bounded authorization', () => {
+  for (const required of GENERAL_REQUIRED) validateGeneralCorpus(readCorpus(required.skill), required)
+})
+
+test('the companion scenario corpus fails closed when evidence is missing', () => {
+  const required = GENERAL_REQUIRED[0]
+  assert.throws(() => validateGeneralCorpus({ skill_name: required.skill, evals: [] }, required), /empty eval corpus/)
+  const evidenceFree = readCorpus(required.skill)
+  evidenceFree.evals[0].assertions = []
+  assert.throws(() => validateGeneralCorpus(evidenceFree, required), /assertions must not be empty/)
 })
 
 test('completion evidence and handoff evidence are both present for absent capabilities', () => {

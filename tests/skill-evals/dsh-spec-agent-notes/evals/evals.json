@@ -1,0 +1,168 @@
+{
+  "skill_name": "dsh-spec-agent-notes",
+  "evals": [
+    {
+      "id": "enabled-translation-defaults-bilingual",
+      "prompt": "Record the implemented process decision \"Release windows run in UTC\" in the provided enabled-translation project. The project has no AGENTS.md and the request does not choose companions. Complete the note unit and report its validation.",
+      "expected_output": "The new note is written in English with one Chinese counterpart and one consistency record because the project has enabled translation data with one target language.",
+      "files": [
+        "evals/files/enabled-translation/README.md",
+        "evals/files/enabled-translation/.agents/dsh-spec-translate-docs/terminology.md"
+      ],
+      "assertions": [
+        "The result selects English plus Chinese from the enabled project mechanism.",
+        "The counterpart and consistency record are completed with the note.",
+        "The run does not require or create AGENTS.md.",
+        "The pairing check is reported with its actual result."
+      ]
+    },
+    {
+      "id": "no-translation-defaults-english-only",
+      "prompt": "Record the implemented process decision \"Release windows run in UTC\" in the provided project with no translation mechanism and no AGENTS.md. Do not ask me to choose a companion default.",
+      "expected_output": "The new note is English-only and no translation companion, consistency record or AGENTS.md is created.",
+      "files": [
+        "evals/files/no-translation/README.md"
+      ],
+      "assertions": [
+        "The result uses English-only without asking for a default.",
+        "No translation companion or consistency record is created.",
+        "No AGENTS.md is created or modified."
+      ]
+    },
+    {
+      "id": "user-selects-english-only",
+      "prompt": "Record the implemented process decision \"Release windows run in UTC\" in the provided enabled-translation project, but keep this note English-only. Do not change the project's translation mechanism.",
+      "expected_output": "The explicit English-only request overrides the enabled bilingual default and leaves the project translation data unchanged.",
+      "files": [
+        "evals/files/enabled-translation/README.md",
+        "evals/files/enabled-translation/.agents/dsh-spec-translate-docs/terminology.md"
+      ],
+      "assertions": [
+        "The current request's English-only choice wins over the enabled mechanism.",
+        "No counterpart or consistency record is created for this note.",
+        "Existing project translation data is unchanged."
+      ]
+    },
+    {
+      "id": "project-override-bounds-language-and-scope",
+      "prompt": "Record the implemented process decision \"Queue retries stop after three attempts\" as a new note under notes/ in the provided project. Follow the persistent project override and do not modify it.",
+      "expected_output": "The new note follows the project's Japanese target for notes/, and the scope exclusion remains unchanged.",
+      "files": [
+        "evals/files/project-override/AGENTS.md",
+        "evals/files/project-override/.agents/dsh-spec-translate-docs/terminology.ja.md",
+        "evals/files/project-override/notes/README.md"
+      ],
+      "assertions": [
+        "The project override selects Japanese for the authorized notes scope.",
+        "The override's exclusions are honored.",
+        "AGENTS.md and the terminology table are not rewritten."
+      ]
+    },
+    {
+      "id": "translation-failure-stays-incomplete",
+      "prompt": "Create and archive the implemented process note \"Release windows run in UTC\" in the provided enabled project. The project's Japanese terminology table is invalid. Finish the requested operation now.",
+      "expected_output": "The run stops with an explicit unfinished unit after the enabled Japanese translation stage fails, reports the source, target, failed step and next step, and does not seal or silently use English-only.",
+      "files": [
+        "evals/files/translation-failure/README.md",
+        "evals/files/translation-failure/AGENTS.md",
+        "evals/files/translation-failure/.agents/dsh-spec-translate-docs/terminology.ja.md"
+      ],
+      "assertions": [
+        "The selected Japanese companion plan remains required after terminology failure.",
+        "The response reports the source, target, failed step and resumable next step.",
+        "The unit is not sealed or relabeled English-only.",
+        "The run does not claim completion."
+      ]
+    },
+    {
+      "id": "installed-skill-is-not-enabled",
+      "prompt": "Record the implemented process decision \"Release windows run in UTC\" in the provided project. A translation skill is installed under .agents/skills, but the project has no translation data, existing pair or translation instruction.",
+      "expected_output": "The new note is English-only because skill installation does not enable the project's translation mechanism.",
+      "files": [
+        "evals/files/installed-skill-only/README.md",
+        "evals/files/installed-skill-only/.agents/skills/dsh-spec-translate-docs/SKILL.md"
+      ],
+      "assertions": [
+        "Installed skill text is not treated as a project override.",
+        "The result uses English-only.",
+        "No pair is created under .agents/skills or beside the new note."
+      ]
+    },
+    {
+      "id": "multiple-targets-default-to-english-only",
+      "prompt": "Record the implemented process decision \"Release windows run in UTC\" in the provided project. Translation is enabled for Chinese and Japanese, but no request, override or unique target selects either language.",
+      "expected_output": "The new note is English-only because no unique target language resolves the enabled mechanism. No pair is created and the run does not ask for a default.",
+      "files": [
+        "evals/files/multiple-targets/README.md",
+        "evals/files/multiple-targets/.agents/dsh-spec-translate-docs/terminology.md",
+        "evals/files/multiple-targets/.agents/dsh-spec-translate-docs/terminology.ja.md"
+      ],
+      "assertions": [
+        "The result does not choose Chinese or Japanese arbitrarily.",
+        "The result uses English-only without asking for a default.",
+        "No counterpart or consistency record is created."
+      ]
+    },
+    {
+      "id": "unavailable-translation-defaults-english-only",
+      "prompt": "Record the implemented process decision \"Release windows run in UTC\" in a project configured for Chinese translation, but the translation workflow is unavailable in this host. Complete the note without this optional capability.",
+      "expected_output": "The note is completed without a translation companion because the configured translation mechanism is unavailable. No pair is created and the run does not ask for a default.",
+      "files": [
+        "evals/files/unavailable-translation/README.md",
+        "evals/files/unavailable-translation/.agents/dsh-spec-translate-docs/terminology.md"
+      ],
+      "assertions": [
+        "The unavailable translation capability is not treated as an installation prerequisite.",
+        "The note is completed without a translation companion.",
+        "No counterpart or consistency record is created."
+      ]
+    },
+    {
+      "id": "existing-note-first-archive-uses-ladder",
+      "prompt": "Archive the existing implemented note in the provided enabled-translation project. Complete the archive unit before sealing it.",
+      "expected_output": "The existing active note first gains the English-to-Chinese counterpart and consistency record selected for its archive unit, then the complete unit is sealed.",
+      "files": [
+        "evals/files/first-archive/README.md",
+        "evals/files/first-archive/.agents/dsh-spec-translate-docs/terminology.md",
+        "evals/files/first-archive/.agents/dsh-spec-agent-notes/implemented/process/2026-11-01-existing.md"
+      ],
+      "assertions": [
+        "The first archive follows the translation ladder for the existing active note.",
+        "The counterpart and consistency record are completed before sealing.",
+        "The sealed unit contains the complete selected composition."
+      ]
+    },
+    {
+      "id": "non-translation-companion-survives",
+      "prompt": "Record the implemented process decision \"Release windows run in UTC\" in the provided project. The project requires a non-translation `.metadata.yaml` companion for every note and has no translation mechanism. Preserve that companion while selecting English-only.",
+      "expected_output": "The new note is English-only for translation purposes and still carries its project-declared `.metadata.yaml` companion. The notes check receives that companion declaration and passes.",
+      "files": [
+        "evals/files/non-translation-companion/README.md",
+        "evals/files/non-translation-companion/AGENTS.md"
+      ],
+      "assertions": [
+        "English-only removes only a translation companion.",
+        "The project-declared metadata companion remains part of the note unit.",
+        "The notes check is run with the metadata companion declaration.",
+        "No translation counterpart or consistency record is created."
+      ]
+    },
+    {
+      "id": "existing-notes-are-not-backfilled",
+      "prompt": "Record a new implemented process decision \"Release windows run in UTC\" in the provided enabled-translation project. Leave existing notes alone and report the companion plan.",
+      "expected_output": "Only the new note receives the bilingual default. The existing English-only note and sealed history remain untouched.",
+      "files": [
+        "evals/files/existing-notes/README.md",
+        "evals/files/existing-notes/.agents/dsh-spec-translate-docs/terminology.md",
+        "evals/files/existing-notes/.agents/dsh-spec-agent-notes/implemented/feature/2026-11-01-existing.md",
+        "evals/files/existing-notes/.agents/dsh-spec-agent-notes/archived/feature/2026-10-02-sealed.md",
+        "evals/files/existing-notes/.agents/dsh-spec-agent-notes/archived/manifest.json"
+      ],
+      "assertions": [
+        "The new note follows the enabled bilingual default.",
+        "The active English-only note is not backfilled by the new-note operation.",
+        "The sealed unit remains unchanged with no translation companion."
+      ]
+    }
+  ]
+}
