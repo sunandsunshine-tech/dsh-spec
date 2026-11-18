@@ -9,7 +9,7 @@ Nothing here requires a source to be paired.
 A pair is:
 
 - a source document `foo.md`, with no language suffix;
-- one counterpart per target: `foo.<lang>.md`;
+- one counterpart per target: `foo.zh.md` for the default target, `foo.<lang>.md` otherwise;
 - one **aggregate** record for the source: `foo.i18n.yaml`, holding every target language.
 
 A source may have counterparts in any subset of the declared targets; different sources may carry
@@ -22,10 +22,8 @@ stores the code and never the display. A source filename must not carry a target
 `foo.fr.md` is the fr target's counterpart, not a source. Mixed source languages are created by
 writing each source separately, not by one `write --all` command.
 
-The target language is the adopter's language. The workflow determines it and supplies
-`--target <lang>=<display>`. The script has no target default, and every new target carries an
-explicit display name. Existing counterpart and record paths can identify their targets without
-this flag.
+The default target is `zh` (display name `中文`). An explicit non-default target must carry a
+display name (`--target ja=日本語`); `--target zh` alone resolves to `中文`.
 
 ## The record
 
@@ -80,8 +78,8 @@ Named arguments:
 | `foo.i18n.yaml` | every target of that source that has a record entry; `--target` narrows |
 
 A named source selects only its own counterpart files and record entries, or the target named with
-`--target`, never a target inferred from a sibling counterpart file; a new target with no artifact
-of its own needs `--target <lang>=<display>`.
+`--target`, never a target inferred from a sibling counterpart file; a non-default target with no
+artifact of its own needs `--target <lang>`.
 
 `--select <glob>` and `--skip <glob>` narrow a corpus-wide run to existing pairs by source path;
 they are selection only. They never demand or forbid pairing, never create an "excluded artifact"
@@ -190,13 +188,12 @@ work by the standing instructions and `--skip`; it is not a corpus exclusion sta
 
 ## Project data
 
-- **Terminology.** Default root `.agents/dsh-spec-translate-docs/`; the default file is
-  `terminology.<lang>.md`. A pre-existing `terminology.md` remains a read-compatible location for
-  `zh`. `--terminology <lang>=<path>` overrides the path; location and naming are otherwise the
-  project's. The table format is fixed: source term, target rendering, first-occurrence form,
-  forbidden renderings, note. `init` writes the current per-language template and never overwrites
-  an existing file. `brief` requires the target's table and exits 2 with the init hint when it is
-  missing.
+- **Terminology.** Default root `.agents/dsh-spec-translate-docs/`; default files `terminology.md`
+  for the default target and `terminology.<lang>.md` for another target. `--terminology
+  <lang>=<path>` overrides the path; location and naming are otherwise the project's. The table
+  format is fixed: source term, target rendering, first-occurrence form, forbidden renderings, note.
+  `init` writes the template for one target and never overwrites an existing file. `brief` requires
+  the target's table and exits 2 with the init hint when it is missing.
 - **Style.** [style-examples.md](style-examples.md) is the skill's default style file: guidance plus reviewed English-to-Chinese samples, read before every translation including a lightweight update. The project's standing instructions may name its own style file in any location or format; that file replaces the default whole file. The binding priority lives in [translation rules](translation-rules.md); the style file points to it. No project path is required and the script never reads style files.
 
 ## The script
@@ -213,8 +210,7 @@ Verbs:
 | `region render --slug <slug> --body <file\|->` | print a marker-delimited region |
 | `region splice <file> --slug <slug> --body <file\|->` | replace the one existing region and validate the whole file; 0 written, 2 usage or validation |
 
-Shared options: `--target <lang>=<display>` (repeatable; required when no existing artifact
-identifies the target), `--source-lang <code>[=<display>]`
+Shared options: `--target <lang>[=<display>]` (repeatable), `--source-lang <code>[=<display>]`
 (write only, first record; the code is stored, the display is not), `--select <glob>`,
 `--skip <glob>`, `--generated <glob>`, `--terminology <lang>=<path>`, `--root <dir>`,
 and the verb-specific `--apply` and `--all`.

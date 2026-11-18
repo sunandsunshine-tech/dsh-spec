@@ -54,7 +54,7 @@ interface TargetSpec {
 }
 
 function target(code: string, name: string, title: string, body: string): TargetSpec {
-  return { code, name, suffix: '.' + code + '.md', title, body }
+  return { code, name, suffix: code === 'zh' ? '.zh.md' : '.' + code + '.md', title, body }
 }
 
 function sourceSwitcher(sourceLabel: string, sourcePath: string, targets: TargetSpec[]): string {
@@ -98,7 +98,7 @@ function pair(
 }
 
 function terminology(fixture: Fixture, rows: string, targetName = '中文', code = 'zh'): void {
-  const name = 'terminology.' + code + '.md'
+  const name = code === 'zh' ? 'terminology.md' : 'terminology.' + code + '.md'
   fixture.write(
     '.agents/dsh-spec-translate-docs/' + name,
     [
@@ -123,14 +123,47 @@ function zh(title = '指南', body = '简介段落。'): TargetSpec {
 test('init writes a terminology template and never overwrites it', () => {
   const fixture = makeFixture()
   try {
+    assert.equal(fixture.exists('AGENTS.md'), false)
     const first = run(fixture.root, 'init', '--target', 'zh=中文')
     assert.equal(first.status, 0, first.output)
-    const template = fixture.read('.agents/dsh-spec-translate-docs/terminology.zh.md')
+    const template = fixture.read('.agents/dsh-spec-translate-docs/terminology.md')
     assert.match(template, /\| English \| 中文 \| First occurrence \| Forbidden renderings \| Note \|/)
     const second = run(fixture.root, 'init', '--target', 'zh=中文')
     assert.equal(second.status, 0, second.output)
     assert.match(second.output, /already exists/)
-    assert.equal(fixture.read('.agents/dsh-spec-translate-docs/terminology.zh.md'), template)
+    assert.equal(fixture.read('.agents/dsh-spec-translate-docs/terminology.md'), template)
+    assert.equal(fixture.exists('AGENTS.md'), false)
+  } finally {
+    fixture.dispose()
+  }
+})
+
+test('init uses the default target without project instructions', () => {
+  const fixture = makeFixture()
+  try {
+    assert.equal(fixture.exists('AGENTS.md'), false)
+    const result = run(fixture.root, 'init')
+    assert.equal(result.status, 0, result.output)
+    assert.match(
+      fixture.read('.agents/dsh-spec-translate-docs/terminology.md'),
+      /\| English \| 中文 \| First occurrence \| Forbidden renderings \| Note \|/,
+    )
+    assert.equal(fixture.exists('AGENTS.md'), false)
+  } finally {
+    fixture.dispose()
+  }
+})
+
+test('a terminology override leaves existing project instructions unchanged', () => {
+  const fixture = makeFixture()
+  try {
+    const instructions = '# Project instructions\n\nThe Chinese terminology table lives at `docs/terminology.md`.\n'
+    fixture.write('AGENTS.md', instructions)
+    const result = run(fixture.root, 'init', '--target', 'zh=中文', '--terminology', 'zh=docs/terminology.md')
+    assert.equal(result.status, 0, result.output)
+    assert.match(fixture.read('docs/terminology.md'), /\| English \| 中文 \|/)
+    assert.equal(fixture.exists('.agents/dsh-spec-translate-docs/terminology.md'), false)
+    assert.equal(fixture.read('AGENTS.md'), instructions)
   } finally {
     fixture.dispose()
   }
@@ -142,7 +175,7 @@ test('init resolves a relative --root against the working directory', () => {
     fixture.write('nested/.keep', '')
     const first = run(fixture.root, 'init', '--root', 'nested', '--target', 'zh=中文')
     assert.equal(first.status, 0, first.output)
-    const path = 'nested/.agents/dsh-spec-translate-docs/terminology.zh.md'
+    const path = 'nested/.agents/dsh-spec-translate-docs/terminology.md'
     const template = fixture.read(path)
     const second = run(fixture.root, 'init', '--root', 'nested', '--target', 'zh=中文')
     assert.equal(second.status, 0, second.output)
@@ -678,7 +711,7 @@ test('brief handles target-to-source, both sides changed, terminology and precon
     const both = run(fixture.root, 'brief', 'docs/foo.md', '--target', 'zh=中文')
     assert.equal(both.status, 0, both.output)
     assert.match(both.stdout, /BOTH sides changed/)
-    fixture.remove('.agents/dsh-spec-translate-docs/terminology.zh.md')
+    fixture.remove('.agents/dsh-spec-translate-docs/terminology.md')
     pair(fixture, 'docs/no-table.md', 'English', 'No table', 'Intro.', [zh('无表', '简介。')])
     assert.equal(writeRecord(fixture, 'docs/no-table.md').status, 0)
     fixture.commit('no table')
@@ -686,32 +719,6 @@ test('brief handles target-to-source, both sides changed, terminology and precon
     const missingTable = run(fixture.root, 'brief', 'docs/no-table.md', '--target', 'zh=中文')
     assert.equal(missingTable.status, 2, missingTable.output)
     assert.match(missingTable.output, /terminology table missing/)
-  } finally {
-    fixture.dispose()
-  }
-})
-
-test('a legacy zh terminology file remains readable', () => {
-  const fixture = makeFixture()
-  try {
-    pair(fixture, 'docs/foo.md', 'English', 'Guide', 'The widget runs.', [zh('指南', '部件运行。')])
-    fixture.write(
-      '.agents/dsh-spec-translate-docs/terminology.md',
-      [
-        '# Terminology',
-        '',
-        '| English | 中文 | First occurrence | Forbidden renderings | Note |',
-        '|---|---|---|---|---|',
-        '| widget | 部件 | | | legacy table |',
-        '',
-      ].join('\n'),
-    )
-    assert.equal(writeRecord(fixture, 'docs/foo.md').status, 0)
-    fixture.commit('pair')
-    fixture.write('docs/foo.zh.md', fixture.read('docs/foo.zh.md').replace('部件运行。', '部件现在运行。'))
-    const brief = run(fixture.root, 'brief', 'docs/foo.md', '--target', 'zh=中文')
-    assert.equal(brief.status, 0, brief.output)
-    assert.match(brief.stdout, /widget/)
   } finally {
     fixture.dispose()
   }
@@ -855,36 +862,6 @@ test('a named argument that selects no pair fails even beside a valid one', () =
   }
 })
 
-test('init requires the adopter target and uses its terminology root without project instructions', () => {
-  const fixture = makeFixture()
-  try {
-    assert.equal(fixture.exists('AGENTS.md'), false)
-    assert.equal(run(fixture.root, 'init').status, 2)
-    const result = run(fixture.root, 'init', '--target', 'ja=日本語')
-    assert.equal(result.status, 0, result.output)
-    const table = fixture.read('.agents/dsh-spec-translate-docs/terminology.ja.md')
-    assert.match(table, /\| English \| 日本語 \|/)
-    assert.equal(fixture.exists('AGENTS.md'), false)
-  } finally {
-    fixture.dispose()
-  }
-})
-
-test('a target override leaves project instructions unchanged and creates no default copy', () => {
-  const fixture = makeFixture()
-  try {
-    const instructions = '# Project instructions\n\nThe Japanese terminology table lives at `docs/terminology.ja.md`.\n'
-    fixture.write('AGENTS.md', instructions)
-    const result = run(fixture.root, 'init', '--target', 'ja=日本語', '--terminology', 'ja=docs/terminology.ja.md')
-    assert.equal(result.status, 0, result.output)
-    assert.match(fixture.read('docs/terminology.ja.md'), /\| English \| 日本語 \|/)
-    assert.equal(fixture.exists('.agents/dsh-spec-translate-docs/terminology.ja.md'), false)
-    assert.equal(fixture.read('AGENTS.md'), instructions)
-  } finally {
-    fixture.dispose()
-  }
-})
-
 test('hidden and vendored trees follow the default prune list', () => {
   const fixture = makeFixture()
   try {
@@ -938,7 +915,6 @@ test('CLI failure modes: legacy flags, malformed targets, write modes and source
     assert.equal(run(fixture.root, 'list', '--scope', 'docs/**').status, 2)
     assert.equal(run(fixture.root, 'list', '--exclude', 'docs/**').status, 2)
     assert.equal(run(fixture.root, 'list', '--target', 'ja').status, 2)
-    assert.equal(run(fixture.root, 'list', '--target', 'zh').status, 2)
     assert.equal(run(fixture.root, 'write', '--all').status, 0)
     assert.equal(run(fixture.root, 'write', 'docs/foo.md', '--apply').status, 2)
     assert.equal(run(fixture.root, 'check', 'docs/foo.md', '--source-lang', 'en=English').status, 2)

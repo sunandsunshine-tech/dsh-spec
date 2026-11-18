@@ -29,6 +29,7 @@ import { maskGeneratedRegions, renderGeneratedRegion, spliceGeneratedRegion } fr
 import { loadPairState, mechanicalUpdateErrors, planBriefing, renderBrief, writeBrief } from './update.ts'
 import {
   DEFAULT_SOURCE_LANGUAGE,
+  DEFAULT_TARGET,
   pairKey,
   pairPaths,
   parseSourceLanguage,
@@ -51,7 +52,7 @@ const USAGE = [
   '  region  render or splice a generated region for a generator',
   '',
   'Options:',
-  '  --target <lang>=<display>     target language, repeatable',
+  '  --target <lang>[=<display>]   target language, repeatable (default: zh=中文)',
   '  --source-lang <code>[=<display>]  source language for a first record',
   '  --select <glob>               select existing pairs by source path, repeatable',
   '  --skip <glob>                 skip source paths, repeatable',
@@ -69,7 +70,7 @@ const USAGE = [
 
 class UsageError extends Error {}
 
-const TARGET_SELECTION_HINT = 'a new target needs --target <lang>=<display>'
+const TARGET_SELECTION_HINT = 'a non-default target needs --target <lang>'
 
 interface TerminologyOverride {
   code: string
@@ -222,6 +223,7 @@ function parseOptions(argv: string[]): { verb: string; options: Options } {
     }
   }
   if (options.targets.length > 0) options.restrict = [...options.targets]
+  else options.targets = [DEFAULT_TARGET]
   if (verb === 'region') {
     if (options.regionSlug === undefined || options.regionBody === undefined)
       throw new UsageError('region needs --slug and --body')
@@ -269,22 +271,16 @@ function corpusOf(options: Options): PairCorpus {
   })
 }
 
-function terminologyPaths(options: Options, target: Language): string[] {
+function terminologyPath(options: Options, target: Language): string {
   const override = options.terminology.find((entry) => entry.code === target.code)
-  if (override !== undefined) return [isAbsolute(override.path) ? override.path : join(options.root, override.path)]
-  const root = join(options.root, '.agents', 'dsh-spec-translate-docs')
-  const current = join(root, 'terminology.' + target.code + '.md')
-  return target.code === 'zh' ? [current, join(root, 'terminology.md')] : [current]
+  if (override !== undefined) return isAbsolute(override.path) ? override.path : join(options.root, override.path)
+  const name = target.code === DEFAULT_TARGET.code ? 'terminology.md' : 'terminology.' + target.code + '.md'
+  return join(options.root, '.agents', 'dsh-spec-translate-docs', name)
 }
 
 function readTerminology(options: Options, target: Language): string {
-  const paths = terminologyPaths(options, target)
-  const path = paths[0] as string
-  let content: string | undefined
-  for (const candidate of paths) {
-    content = readRepositoryFile(options.root, candidate)
-    if (content !== undefined) break
-  }
+  const path = terminologyPath(options, target)
+  const content = readRepositoryFile(options.root, path)
   if (content === undefined) {
     throw new UsageError(
       'terminology table missing for ' +
@@ -649,7 +645,7 @@ function verbInit(options: Options): number {
   const targets = options.restrict ?? options.targets
   if (targets.length !== 1) throw new UsageError('init takes exactly one target (--target <lang>[=<display>])')
   const target = targets[0] as Language
-  const path = terminologyPaths(options, target)[0] as string
+  const path = terminologyPath(options, target)
   if (readRepositoryFile(options.root, path) !== undefined) {
     console.log('translate-pair: ' + path + ' already exists; the template was not written')
     return 0

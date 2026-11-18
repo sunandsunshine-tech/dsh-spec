@@ -11,8 +11,8 @@
  *
  * A source carries no language suffix; the source language is a property of the pair, read from
  * the record once one exists and supplied with --source-lang when the record is first written.
- * The target is supplied by the workflow from the adopter's language; the script has no target
- * default. Every target shares the source's single foo.i18n.yaml record.
+ * The default target is Simplified Chinese, which keeps the upstream counterpart naming; every
+ * target shares the source's single foo.i18n.yaml record.
  */
 
 /** One language of a pair; name is the display name the switcher line uses. */
@@ -22,6 +22,9 @@ export interface Language {
   /** Display name written into the switcher line. */
   name: string
 }
+
+/** The default target when no --target is passed. */
+export const DEFAULT_TARGET: Language = { code: 'zh', name: '中文' }
 
 const LANGUAGE_CODE = /^[a-z]{2,3}(?:-[A-Za-z0-9]{1,8})*$/
 
@@ -52,9 +55,9 @@ function parseLanguage(
   return { code, name: code }
 }
 
-/** Parse one --target value; every new target needs an explicit display name. */
+/** Parse one --target value; zh alone keeps the default display name. */
 export function parseTarget(value: string): Language {
-  return parseLanguage(value, '--target', { requireDisplay: true })
+  return parseLanguage(value, '--target', { requireDisplay: true, defaultLanguage: DEFAULT_TARGET })
 }
 
 /** Parse one --source-lang value; en alone keeps the English display name. */
@@ -68,9 +71,14 @@ export function parseSourceLanguage(value: string): Language {
 /** The source language assumed only when a record and the flag are both absent. */
 export const DEFAULT_SOURCE_LANGUAGE: Language = { code: 'en', name: 'English' }
 
+/** Whether the language keeps the upstream zh file naming. */
+export function isDefaultLanguage(language: Language): boolean {
+  return language.code === DEFAULT_TARGET.code
+}
+
 /** The counterpart file suffix for one target: .zh.md or .<code>.md. */
 export function counterpartSuffix(language: Language): string {
-  return '.' + language.code + '.md'
+  return isDefaultLanguage(language) ? '.zh.md' : '.' + language.code + '.md'
 }
 
 /** The single aggregate record path for a source. */
@@ -125,7 +133,7 @@ export function languageFromCounterpartFilename(path: string): Language | undefi
   const match = /\.([a-z]{2,3}(?:-[A-Za-z0-9]{1,8})*)\.md$/.exec(path)
   if (match?.[1]) {
     const code = match[1]
-    return { code, name: code }
+    return code === DEFAULT_TARGET.code ? DEFAULT_TARGET : { code, name: code }
   }
   return undefined
 }

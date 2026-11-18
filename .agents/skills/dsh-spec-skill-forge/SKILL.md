@@ -17,7 +17,7 @@ Forge one Agent Skill from the request, a source, or an existing skill, and keep
 
 ## Defaults
 
-A default is the value or strategy declared by this skill. It applies only when the user and existing project instructions leave the choice open. A user turn or explicit parameter is temporary. Existing project instructions are a persistent override, read without being rewritten or copied. Missing instructions are valid, so do not ask for a default or create an instruction file merely to select one. An activated project sibling applies its own contract only inside the delegated step and receives the caller's explicit values and applicable authority. The sibling remains optional, and its default cannot supply an unrelated choice. Defaults never grant authorization, widen scope or replace required inputs or stop conditions.
+A default is the value or strategy this skill declares at its use site. It applies when the current request and existing project instructions leave that choice open. A user turn or explicit parameter supplies a one-off value. Existing project instructions supply a persistent override and are read without being modified or copied. Missing project instructions are valid, so do not ask for a default or create an instruction file merely to select one.
 
 ## Tools
 
@@ -97,7 +97,7 @@ Every requirement carries a verification anchor at the most precise level availa
 
 Run the gate as a separate read-only check; `publish` does not run it. When review is needed, run `pair` so that an orphan draft fails and the project's translation consistency gate can check the translation.
 
-**Complete**: every source constraint has one disposition row with its home; every requirement of the forged skill carries one anchor; the gate passed with the parameters used; every judged item has a conclusion; every unverified item carries its reason; the declared review drafts are translated and the project's translation consistency gate has been run when review was needed; a forged skill that declares a default resolves it when a valid invocation leaves that choice unspecified and project instructions are silent, while still enforcing separately required inputs and authorizations, and its default contract satisfies § Defaults, including activated-skill composition; the record states the evidence, the pages read and their dates, and the rulings as current facts; no round or review narrative remains.
+**Complete**: every source constraint has one disposition row with its home; every requirement of the forged skill carries one anchor; the gate passed with the parameters used; every judged item has a conclusion; every unverified item carries its reason; the declared review drafts are translated and the project's translation consistency gate has been run when review was needed; a forged skill that declares a default applies it when the current request and existing project instructions leave that choice open, without asking for or creating project instructions merely to select it; the record states the evidence, the pages read and their dates, and the rulings as current facts; no round or review narrative remains.
 
 **Failure**: fix and rerun; never claim a failed or unrun check as passed. An unresolved gap: record a ruling.
 

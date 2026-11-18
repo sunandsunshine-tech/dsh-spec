@@ -14625,6 +14625,11 @@ function bindTarget(sourceHash, targetHash) {
 	return createHash("sha256").update(sourceHash + "\n" + targetHash).digest("hex").slice(0, 16);
 }
 // targets.ts
+/** The default target when no --target is passed. */
+const DEFAULT_TARGET = {
+	code: "zh",
+	name: "中文"
+};
 const LANGUAGE_CODE = /^[a-z]{2,3}(?:-[A-Za-z0-9]{1,8})*$/;
 /**
 * Parse one language option value.
@@ -14648,9 +14653,12 @@ function parseLanguage(value, flag, options) {
 		name: code
 	};
 }
-/** Parse one --target value; every new target needs an explicit display name. */
+/** Parse one --target value; zh alone keeps the default display name. */
 function parseTarget(value) {
-	return parseLanguage(value, "--target", { requireDisplay: true });
+	return parseLanguage(value, "--target", {
+		requireDisplay: true,
+		defaultLanguage: DEFAULT_TARGET
+	});
 }
 /** Parse one --source-lang value; en alone keeps the English display name. */
 function parseSourceLanguage(value) {
@@ -14667,9 +14675,13 @@ const DEFAULT_SOURCE_LANGUAGE = {
 	code: "en",
 	name: "English"
 };
+/** Whether the language keeps the upstream zh file naming. */
+function isDefaultLanguage(language) {
+	return language.code === DEFAULT_TARGET.code;
+}
 /** The counterpart file suffix for one target: .zh.md or .<code>.md. */
 function counterpartSuffix(language) {
-	return "." + language.code + ".md";
+	return isDefaultLanguage(language) ? ".zh.md" : "." + language.code + ".md";
 }
 /** The single aggregate record path for a source. */
 function recordPath(source) {
@@ -14707,7 +14719,7 @@ function languageFromCounterpartFilename(path) {
 	const match = /\.([a-z]{2,3}(?:-[A-Za-z0-9]{1,8})*)\.md$/.exec(path);
 	if (match?.[1]) {
 		const code = match[1];
-		return {
+		return code === DEFAULT_TARGET.code ? DEFAULT_TARGET : {
 			code,
 			name: code
 		};
@@ -16748,7 +16760,7 @@ const USAGE = [
 	"  region  render or splice a generated region for a generator",
 	"",
 	"Options:",
-	"  --target <lang>=<display>     target language, repeatable",
+	"  --target <lang>[=<display>]   target language, repeatable (default: zh=中文)",
 	"  --source-lang <code>[=<display>]  source language for a first record",
 	"  --select <glob>               select existing pairs by source path, repeatable",
 	"  --skip <glob>                 skip source paths, repeatable",
@@ -16764,7 +16776,7 @@ const USAGE = [
 	"  region splice <file> --slug <slug> --body <file|->"
 ].join("\n");
 var UsageError = class extends Error {};
-const TARGET_SELECTION_HINT = "a new target needs --target <lang>=<display>";
+const TARGET_SELECTION_HINT = "a non-default target needs --target <lang>";
 function assertGlob(flag, pattern) {
 	let brackets = 0;
 	let braces = 0;
@@ -16891,6 +16903,7 @@ function parseOptions(argv) {
 		}
 	}
 	if (options.targets.length > 0) options.restrict = [...options.targets];
+	else options.targets = [DEFAULT_TARGET];
 	if (verb === "region") {
 		if (options.regionSlug === void 0 || options.regionBody === void 0) throw new UsageError("region needs --slug and --body");
 		if (options.pairs.length > 0) throw new UsageError("region takes no pair arguments");
@@ -16930,21 +16943,15 @@ function corpusOf(options) {
 		repositoryReadFile: (path) => readRepositoryFile(options.root, path)
 	});
 }
-function terminologyPaths(options, target) {
+function terminologyPath(options, target) {
 	const override = options.terminology.find((entry) => entry.code === target.code);
-	if (override !== void 0) return [isAbsolute(override.path) ? override.path : join(options.root, override.path)];
-	const root = join(options.root, ".agents", "dsh-spec-translate-docs");
-	const current = join(root, "terminology." + target.code + ".md");
-	return target.code === "zh" ? [current, join(root, "terminology.md")] : [current];
+	if (override !== void 0) return isAbsolute(override.path) ? override.path : join(options.root, override.path);
+	const name = target.code === DEFAULT_TARGET.code ? "terminology.md" : "terminology." + target.code + ".md";
+	return join(options.root, ".agents", "dsh-spec-translate-docs", name);
 }
 function readTerminology(options, target) {
-	const paths = terminologyPaths(options, target);
-	const path = paths[0];
-	let content;
-	for (const candidate of paths) {
-		content = readRepositoryFile(options.root, candidate);
-		if (content !== void 0) break;
-	}
+	const path = terminologyPath(options, target);
+	const content = readRepositoryFile(options.root, path);
 	if (content === void 0) throw new UsageError("terminology table missing for " + target.code + ": run init --target " + target.code + "=" + target.name + " (expected " + path + ")");
 	return content;
 }
@@ -16980,7 +16987,7 @@ function namedPairAbsent(options, paths) {
 function verbList(options) {
 	const corpus = corpusOf(options);
 	const pairs = options.pairs.length > 0 ? selected(options, corpus) : discoveredPairs(options, corpus);
-	if (options.pairs.length > 0 && pairs.length === 0) console.error("translate-pair: no pair was selected for " + options.pairs.join(", ") + "; a new target needs --target <lang>=<display>");
+	if (options.pairs.length > 0 && pairs.length === 0) console.error("translate-pair: no pair was selected for " + options.pairs.join(", ") + "; a non-default target needs --target <lang>");
 	const counts = {
 		ok: 0,
 		"out-of-sync": 0,
@@ -17200,7 +17207,7 @@ function verbInit(options) {
 	const targets = options.restrict ?? options.targets;
 	if (targets.length !== 1) throw new UsageError("init takes exactly one target (--target <lang>[=<display>])");
 	const target = targets[0];
-	const path = terminologyPaths(options, target)[0];
+	const path = terminologyPath(options, target);
 	if (readRepositoryFile(options.root, path) !== void 0) {
 		console.log("translate-pair: " + path + " already exists; the template was not written");
 		return 0;

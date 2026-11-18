@@ -13,7 +13,7 @@ This skill owns the full lifecycle of those records — where they live, when to
 
 ## Defaults
 
-A default is the value or strategy declared by this skill. It applies only when the user and existing project instructions leave the choice open. A user turn or explicit parameter is temporary. Existing project instructions are a persistent override, read without being rewritten or copied. Missing instructions are valid, so do not ask for a default or create an instruction file merely to select one. An activated project sibling applies its own contract only inside the delegated step and receives the caller's explicit values and applicable authority. The sibling remains optional, and its default cannot supply an unrelated choice. Defaults never grant authorization, widen scope or replace required inputs or stop conditions.
+A default is the value or strategy this skill declares at its use site. It applies when the current request and existing project instructions leave that choice open. A user turn or explicit parameter supplies a one-off value. Existing project instructions supply a persistent override and are read without being modified or copied. Missing project instructions are valid, so do not ask for a default or create an instruction file merely to select one.
 
 ## Procedure
 

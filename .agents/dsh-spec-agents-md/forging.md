@@ -13,7 +13,7 @@ Keep the parenthetical to the availability and name. Do not use the surrounding 
 
 The requirement must remain complete without the name; the name is not a link, path, or dependency.
 
-When the forged skill activates a sibling available in the project for a bounded delegated step, that sibling may apply its own defaults inside the step when its conditions match. The activated value cannot resolve an unrelated choice, override an explicit value, copy itself into the forged skill or project instructions, or make the sibling mandatory. A delegated invocation carries only the caller's applicable authority and scope, so the sibling default cannot grant authorization or widen the step. Merely installing or naming a sibling does not activate its defaults.
+Each default remains at its use site. A forged skill with a default applies it when the current request and existing project instructions leave that choice open. Missing project instructions are valid, and selecting a default never requires asking the user or creating or modifying an instruction file.
 
 ## Model-facing description budget
 

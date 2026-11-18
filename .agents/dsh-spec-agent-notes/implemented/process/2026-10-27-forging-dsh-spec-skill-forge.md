@@ -21,7 +21,7 @@ The forge uses declared companions instead of its own pair record:
 - The forge writes no `.i18n.yaml`, stores no source hash, and has no `pair --check`. Whether a pair is current is decided by the project's own pairing gate; the forge does not import that gate, and the review draft names the translation skill only as an availability-qualified example.
 - Before `publish`, the adopter removes review-draft-only content from the work-draft sources; `publish` copies the sources unchanged.
 - Cross-skill guidance: the forge names the optional notes, translation, prose and prompt skills only as availability-qualified examples; the Agent Skills best practices outrank the prose and prompt requirements.
-- **Default completion.** A forged skill that declares a default resolves it when a valid invocation leaves that choice unspecified and existing project instructions are silent, while still enforcing separately required inputs and authorizations, and satisfies the forge's `## Defaults` contract, including a default from an available sibling activated for a bounded delegated step. [The cross-skill default record](2026-11-17-skill-defaults-complete-without-project-instructions.md) owns this acceptance.
+- **Default completion.** A forged skill that declares a default applies it when the current request and existing project instructions leave that choice open. Missing project instructions are valid, so the skill neither asks the user to choose the default nor creates or modifies an instruction file merely to select it. [The default record](2026-11-17-skill-defaults-complete-without-project-instructions.md) owns this acceptance.
 - Delivery language is English; the review language is Chinese, paired only at the stop; the additional trigger language is Chinese, present in the description.
 
 ## Design
@@ -70,5 +70,5 @@ Unchanged: the guiding principle, tool names, Stop/Intent/Source/Disposition/Scr
 - The `pair` command is read-only. Its no-declaration report lists candidate companions by suffix relation; the shortest-suffix rule and proximity to a `.md` source make it a heuristic, and it never deletes.
 - The [2026-10-26 record](2026-10-26-forging-dsh-spec-skill-forge.md) owns the forge's anchor design; this record partially supersedes that record's review-command and pair-record design.
 - The description-reversal rule and the current-source rule for earlier decision records are in the skill body; both are judged in review rather than mechanically checked.
-- A forged skill with a default must complete without project instructions; [the cross-skill default record](2026-11-17-skill-defaults-complete-without-project-instructions.md) partially constrains this record.
+- A forged skill with a default must complete without project instructions; [the default record](2026-11-17-skill-defaults-complete-without-project-instructions.md) partially constrains this record.
 - Costs and open risks: the forge cannot detect stale translations; manual source cleanup is unverified; `publish` is not transactional and removes declared drafts before copying; the candidate heuristic can report false positives. The VCS is the rollback.

@@ -13,7 +13,7 @@ This skill runs when the user asks for translation or pair maintenance, when the
 
 ## Defaults
 
-A default is the value or strategy declared by this skill. It applies only when the user and existing project instructions leave the choice open. A user turn or explicit parameter is temporary. Existing project instructions are a persistent override, read without being rewritten or copied. Missing instructions are valid, so do not ask for a default or create an instruction file merely to select one. An activated project sibling applies its own contract only inside the delegated step and receives the caller's explicit values and applicable authority. The sibling remains optional, and its default cannot supply an unrelated choice. Defaults never grant authorization, widen scope or replace required inputs or stop conditions.
+A default is the value or strategy this skill declares at its use site. It applies when the current request and existing project instructions leave that choice open. A user turn or explicit parameter supplies a one-off value. Existing project instructions supply a persistent override and are read without being modified or copied. Missing project instructions are valid, so do not ask for a default or create an instruction file merely to select one.
 
 ## What this skill is
 
@@ -22,8 +22,6 @@ A self-contained mechanism for a corpus of paired Markdown documents: the skill 
 ## The pairing model
 
 A pair is a source `foo.md`, one counterpart per target `foo.zh.md` or `foo.<lang>.md`, and one aggregate record `foo.i18n.yaml`. The [pairing contract](references/pairing-contract.md) owns the record and signature format, switchers, selection, regions, links, terminology, the CLI's options/defaults/exit codes and discovery prunes; the [style examples](references/style-examples.md) file carries the default voice guidance and samples. The script is `<skill-dir>/scripts/translate-pair.mjs`; its verbs are `list`, `check`, `write`, `brief` (with `--apply`), `init`, and `region render|splice`.
-
-The target language is the adopter's language. A workflow creating a new pair resolves it and passes `--target <lang>=<display>`; the script has no target default.
 
 ## Triage by change type
 

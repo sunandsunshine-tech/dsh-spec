@@ -1,5 +1,5 @@
 /**
- * The cross-skill default contract.
+ * The shared default contract.
  *
  * Concrete defaults stay with the data or behavior that uses them. Each skill that selects a
  * behavior when a valid invocation leaves the choice unspecified and existing project instructions
@@ -16,7 +16,7 @@ import { REPO_ROOT } from './helpers/fixtures.ts'
 const SKILLS = join(REPO_ROOT, 'skills')
 
 const DEFAULT_CONTRACT =
-  "A default is the value or strategy declared by this skill. It applies only when the user and existing project instructions leave the choice open. A user turn or explicit parameter is temporary. Existing project instructions are a persistent override, read without being rewritten or copied. Missing instructions are valid, so do not ask for a default or create an instruction file merely to select one. An activated project sibling applies its own contract only inside the delegated step and receives the caller's explicit values and applicable authority. The sibling remains optional, and its default cannot supply an unrelated choice. Defaults never grant authorization, widen scope or replace required inputs or stop conditions."
+  'A default is the value or strategy this skill declares at its use site. It applies when the current request and existing project instructions leave that choice open. A user turn or explicit parameter supplies a one-off value. Existing project instructions supply a persistent override and are read without being modified or copied. Missing project instructions are valid, so do not ask for a default or create an instruction file merely to select one.'
 
 const DEFAULT_BEARING = [
   'dsh-spec-agent-notes',
@@ -36,7 +36,7 @@ const USE_SITE_PINS = [
   {
     skill: 'dsh-spec-translate-docs',
     file: 'references/pairing-contract.md',
-    text: "The target language is the adopter's language.",
+    text: 'The default target is `zh` (display name `中文`).',
   },
   {
     skill: 'dsh-spec-pr-description',
@@ -51,7 +51,7 @@ const USE_SITE_PINS = [
   {
     skill: 'dsh-spec-merging-stacked-prs',
     file: 'SKILL.md',
-    text: 'When neither prescribes one, use `squash`.',
+    text: 'When neither prescribes one, use `merge`.',
   },
   {
     skill: 'dsh-spec-skill-forge',
@@ -62,11 +62,11 @@ const USE_SITE_PINS = [
 
 const CONCRETE_VALUE_MARKERS: Record<string, string> = {
   'dsh-spec-agent-notes': '.agents/dsh-spec-agent-notes',
-  'dsh-spec-merging-stacked-prs': '`squash`',
+  'dsh-spec-merging-stacked-prs': '`merge`',
   'dsh-spec-pr-description': '## Motivation',
   'dsh-spec-prose-standard': '`automatic`',
   'dsh-spec-skill-forge': 'additional trigger language',
-  'dsh-spec-translate-docs': "adopter's language",
+  'dsh-spec-translate-docs': '`zh`',
 }
 
 function read(skill: string, file = 'SKILL.md'): string {
@@ -113,6 +113,6 @@ test('the forge accepts future defaults without project instructions', () => {
   const forge = read('dsh-spec-skill-forge')
   assert.match(
     forge,
-    /a forged skill that declares a default resolves it when a valid invocation leaves that choice unspecified and project instructions are silent, while still enforcing separately required inputs and authorizations, and its default contract satisfies § Defaults, including activated-skill composition/,
+    /a forged skill that declares a default applies it when the current request and existing project instructions leave that choice open, without asking for or creating project instructions merely to select it/,
   )
 })
