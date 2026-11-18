@@ -18,11 +18,13 @@ Status: implemented
 
 每个带默认值的技能都携带一个 `## Defaults` 段落，并表达同一项约定。默认值是技能在自己使用处声明的值或策略。当有效调用未指定该选择、且现有项目指令未作规定时，默认值生效。用户轮次或显式调用参数提供一次性值。持久覆盖在现有项目指令中陈述，只能读取，不能重写或复制。缺少项目指令是有效状态，不应让用户选择默认值，也不应只为选择默认值而新增指令文件。该约定不豁免单独要求的输入、授权或停止条件。
 
+技能正文承载高层来源与归属规则。本记录拥有详细优先级、激活组合、授权边界与例子，因此安装后的技能不重复这些理由。
+
 同一项约定允许默认值沿真实技能激活组合。A 可以为一项有界工作激活项目内可用的 B。B 随后在该部分内按自己的顺序解析未指定选择，因此 B 的项目指令可以覆盖 B 的默认值，A 显式传入的值在 B 中属于显式输入。被激活的默认值不能解析 A 的无关选择，不能覆盖 A 的显式值，也不能让 B 成为必需。没有真实激活时，仅仅安装或作为示例点名不贡献默认值。被委托的调用只携带被委托的步骤以及调用方适用的授权和范围，B 的默认值不能授予授权或扩大该范围。A → B → C 在每条激活边上遵循同一规则。
 
 这是 [#87](https://github.com/sunandsunshine-tech/dsh-spec/issues/87) 的使能基础，不是该 issue 的实现。#87 仍拥有 Agent Notes 的双语默认阶梯、Translate Docs 的文档所有者授权来源、目标语言可解析性、翻译失败语义和 `.agents/skills` 内容排除。本记录只说明被激活兄弟技能为何能在不成为依赖、不获得额外授权时贡献默认值。
 
-该规则不移动也不重复任何具体值。笔记根仍位于笔记位置约定中，翻译目标与数据根仍位于配对约定中，变更描述的结构与语言阶梯仍位于该技能中，行文模式与文风指引仍位于各自的使用位置，堆叠合并的回退方案仍位于合并流程中，锻造技能的语言与记录默认值仍位于锻造技能使用它们的位置。
+该规则不移动也不重复任何具体值。笔记根仍位于笔记位置约定中，翻译目标选择与数据根仍位于配对约定中，变更描述的结构与语言阶梯仍位于该技能中，行文模式与文风指引仍位于各自的使用位置，堆叠合并的回退方案仍位于合并流程中，锻造技能的语言与记录默认值仍位于锻造技能使用它们的位置。
 
 技能锻造的完成条件现在要求：未来每个声明默认值的锻造技能，在有效调用未指定该选择且项目指令未作规定时解析该默认值，同时仍执行单独要求的输入与授权，并满足锻造技能的 `## Defaults` 一节，包括被激活技能的组合规则。这样，该规则成为未来技能验收的一部分，而不只是现有技能恰好遵循的一项惯例。
 
@@ -36,7 +38,7 @@ Status: implemented
 | 一个没有 `AGENTS.md` 的 Git 项目会初始化默认笔记根，且不创建 `AGENTS.md` | `node --test tests/agent-notes.test.ts` case `init creates the default notes skeleton idempotently` |
 | 笔记根覆盖不会改动现有项目指令 | `node --test tests/agent-notes.test.ts` case `--root overrides one invocation without rewriting existing project instructions` |
 | 干净上下文调用会发现持久笔记根覆盖 | 2026-11-18 的干净上下文运行读取现有 `AGENTS.md`，初始化 `.project-notes`，没有创建默认根，也没有改动项目现有文件 |
-| 一个没有 `AGENTS.md` 的 Git 项目会初始化默认翻译目标，术语位于默认术语根，且不创建 `AGENTS.md` | `node --test tests/translation-docs.test.ts` case `init uses the default target and terminology root without project instructions` |
+| 一个没有 `AGENTS.md` 的 Git 项目会初始化采用者目标及对应按语言术语根，且不创建 `AGENTS.md` | `node --test tests/translation-docs.test.ts` case `init requires the adopter target and uses its terminology root without project instructions` |
 | 翻译目标与术语覆盖不会改动现有项目指令，也不会创建默认副本 | `node --test tests/translation-docs.test.ts` case `a target override leaves project instructions unchanged and creates no default copy` |
 | 被激活的可用兄弟技能只把自身默认值贡献给被委托步骤 | 2026-11-18 的干净上下文 `dsh-spec-find-simplifications` 运行要求写 Agent Note 但未点名根目录，随后使用了被激活 Agent Notes 技能的默认根，且未改动项目指令 |
 | 仅安装或点名的兄弟技能不贡献默认值 | 组合场景要求真实激活，绝不把兄弟值合并进调用方的无关选择 |

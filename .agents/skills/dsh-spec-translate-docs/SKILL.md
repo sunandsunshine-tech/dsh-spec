@@ -13,7 +13,7 @@ This skill runs when the user asks for translation or pair maintenance, when the
 
 ## Defaults
 
-A default is a value or strategy declared by this skill at its use site. It applies when a valid invocation, including one delegated by another skill, leaves the choice unspecified and existing project instructions are silent. A user turn or explicit invocation parameter supplies a one-off value. A persistent override is stated in existing project instructions and is read without being rewritten or copied. Missing instructions are valid. Do not ask the user to choose a default or edit an instruction file merely to select one. When this skill activates a sibling available in the project for an unspecified part, that sibling may apply its own defaults when its conditions match. The activated default resolves only that part. It cannot override an explicit value or project instruction, supply an unrelated choice, or make the sibling mandatory. Delegation carries only the caller's applicable authority and scope. Sibling defaults cannot grant authority or widen it. Defaults never waive required inputs, authorizations or stop conditions.
+A default is the value or strategy declared by this skill. It applies only when the user and existing project instructions leave the choice open. A user turn or explicit parameter is temporary. Existing project instructions are a persistent override, read without being rewritten or copied. Missing instructions are valid, so do not ask for a default or create an instruction file merely to select one. An activated project sibling applies its own contract only inside the delegated step and receives the caller's explicit values and applicable authority. The sibling remains optional, and its default cannot supply an unrelated choice. Defaults never grant authorization, widen scope or replace required inputs or stop conditions.
 
 ## What this skill is
 
@@ -22,6 +22,8 @@ A self-contained mechanism for a corpus of paired Markdown documents: the skill 
 ## The pairing model
 
 A pair is a source `foo.md`, one counterpart per target `foo.zh.md` or `foo.<lang>.md`, and one aggregate record `foo.i18n.yaml`. The [pairing contract](references/pairing-contract.md) owns the record and signature format, switchers, selection, regions, links, terminology, the CLI's options/defaults/exit codes and discovery prunes; the [style examples](references/style-examples.md) file carries the default voice guidance and samples. The script is `<skill-dir>/scripts/translate-pair.mjs`; its verbs are `list`, `check`, `write`, `brief` (with `--apply`), `init`, and `region render|splice`.
+
+The target language is the adopter's language. A workflow creating a new pair resolves it and passes `--target <lang>=<display>`; the script has no target default.
 
 ## Triage by change type
 

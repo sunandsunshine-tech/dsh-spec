@@ -101,7 +101,7 @@ A change starts as a decision record: the note states what was decided, what los
 | `.agents/skills/` | Installed copies an agent loads: written by `gh skill install` or `pnpm run skill:refresh`, so an edit there is lost |
 | `.agents/dsh-spec-agent-notes/` | The decision records |
 | `.agents/dsh-spec-agents-md/` | Agent-facing detail the root `AGENTS.md` links |
-| `.agents/dsh-spec-translate-docs/` | The terminology table the paired documents share |
+| `.agents/dsh-spec-translate-docs/` | Per-language terminology tables for paired documents |
 | `.github/` | Issue templates, the CI workflows and the Dependabot configuration |
 | `submodules/dsh/` | The pinned extraction baseline: read it, never edit it |
 

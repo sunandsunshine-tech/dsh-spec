@@ -101,7 +101,7 @@ gh skill install sunandsunshine-tech/dsh-spec --all --dir .agents/skills
 | `.agents/skills/` | agent 加载的安装副本：由 `gh skill install` 或 `pnpm run skill:refresh` 写入，在那里的手改会丢 |
 | `.agents/dsh-spec-agent-notes/` | 决策记录 |
 | `.agents/dsh-spec-agents-md/` | 根 `AGENTS.md` 链接的、面向 agent 的细节 |
-| `.agents/dsh-spec-translate-docs/` | 成对文档共享的术语表 |
+| `.agents/dsh-spec-translate-docs/` | 成对文档使用的按语言术语表 |
 | `.github/` | issue 模板、CI 工作流与 Dependabot 配置 |
 | `submodules/dsh/` | pin 住的抽取基线：可以读，不要改 |
 
