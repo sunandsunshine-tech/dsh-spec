@@ -17,7 +17,7 @@ For each new note and each unit first entering the archive, Agent Notes selects 
 3. an available, enabled project-scoped translation mechanism that resolves exactly one target language for the unit.
 4. no translation companion, which leaves the note English-only.
 
-A translation mechanism is enabled by project evidence outside `.agents/skills`, such as instructions, terminology data or an existing maintained pair. Installing a translation skill alone does not enable it or make it available. A project override or request may choose no translation, one or more targets, a bounded scope or an exclusion, and none of those choices requires creating or modifying `AGENTS.md`. When more than one target remains without a unique selection, the fallback selects no translation companion without asking for a default.
+A translation mechanism is enabled by project evidence that translation is configured, such as instructions, terminology data or an existing maintained pair. Installing a translation skill alone does not enable it or make it available. A project override or request may choose no translation, one or more targets, a bounded scope or an exclusion, and none of those choices requires creating or modifying `AGENTS.md`. When more than one target remains without a unique selection, the fallback selects no translation companion without asking for a default.
 
 The ladder does not add a translation companion to an active note merely because the skill changed or to a sealed unit. When an existing active note first enters the archive, its archive unit selects and completes translation companions before sealing. Existing active notes may otherwise remain selectively translated.
 
@@ -68,4 +68,4 @@ Agent Notes owns translation selection and declares the complete unit for the sc
 - Active notes retain their composition until they first enter the archive. Sealed history never gains a translation companion.
 - Translation failure becomes an explicit handover instead of a successful English-only result.
 - The two skills remain independently installable and the scripts gain no new command or project-config parser.
-- The `description` fields gain the new trigger vocabulary, and installed copies, repository notices and paired decision records move with the change.
+- Translate Docs' description names authorized scopes while its body owns the mechanism. Agent Notes' description remains focused on note lifecycle triggers. Installed copies, repository notices and paired decision records move with the change.

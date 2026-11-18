@@ -127,7 +127,7 @@ test('the forge accepts future defaults without project instructions', () => {
   )
 })
 
-test('companion defaults are capability-aware and fail closed', () => {
+test('companion defaults follow project state and fail closed', () => {
   const notes = read('dsh-spec-agent-notes')
   const ladder = [
     "the current request's explicit choice",
@@ -148,8 +148,9 @@ test('companion defaults are capability-aware and fail closed', () => {
   )
   assert.match(notes, /When an existing active note first enters the archive/)
   assert.match(notes, /Other companions, such as diagrams, remain direct project declarations/)
-  assert.match(notes, /requires project evidence outside `\.agents\/skills`.*and availability/)
+  assert.match(notes, /requires project evidence that translation is enabled.*and availability/)
   assert.match(notes, /Installation alone is insufficient/)
+  assert.doesNotMatch(notes, /\.agents\/skills/)
 
   const translate = read('dsh-spec-translate-docs')
   assert.match(translate, /An owner authorization names the source paths or globs it covers/)
@@ -163,5 +164,7 @@ test('companion defaults are capability-aware and fail closed', () => {
     translate,
     /beyond the documents selected by the project instructions, the user or a bounded workflow owner/,
   )
+  assert.match(translate, /add in-scope counterparts/)
+  assert.doesNotMatch(translate, /workflow owner's bounded default/)
   assert.doesNotMatch(translate, /dsh-spec-agent-notes/)
 })

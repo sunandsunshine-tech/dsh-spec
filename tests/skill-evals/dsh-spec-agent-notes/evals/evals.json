@@ -76,7 +76,7 @@
     },
     {
       "id": "installed-skill-is-not-enabled",
-      "prompt": "Record the implemented process decision \"Release windows run in UTC\" in the provided project. A translation skill is installed under .agents/skills, but the project has no translation data, existing pair or translation instruction.",
+      "prompt": "Record the implemented process decision \"Release windows run in UTC\" in the provided project. A translation skill is installed for the project, but the project has no translation data, existing pair or translation instruction.",
       "expected_output": "The new note is English-only because skill installation does not enable the project's translation mechanism.",
       "files": [
         "evals/files/installed-skill-only/README.md",
@@ -85,7 +85,7 @@
       "assertions": [
         "Installed skill text is not treated as a project override.",
         "The result uses English-only.",
-        "No pair is created under .agents/skills or beside the new note."
+        "No translation companion is created for the new note."
       ]
     },
     {
