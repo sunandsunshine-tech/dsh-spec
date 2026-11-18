@@ -51,7 +51,7 @@ const USE_SITE_PINS = [
   {
     skill: 'dsh-spec-merging-stacked-prs',
     file: 'SKILL.md',
-    text: 'When neither prescribes one, use `merge`.',
+    text: "The landing repository's policy selects the merge method. When its instructions prescribe one, use it; otherwise, when its GitHub merge settings allow exactly one method, use that method; otherwise use `squash`.",
   },
   {
     skill: 'dsh-spec-skill-forge',
@@ -62,7 +62,7 @@ const USE_SITE_PINS = [
 
 const CONCRETE_VALUE_MARKERS: Record<string, string> = {
   'dsh-spec-agent-notes': '.agents/dsh-spec-agent-notes',
-  'dsh-spec-merging-stacked-prs': '`merge`',
+  'dsh-spec-merging-stacked-prs': '`squash`',
   'dsh-spec-pr-description': '## Motivation',
   'dsh-spec-prose-standard': '`automatic`',
   'dsh-spec-skill-forge': 'additional trigger language',

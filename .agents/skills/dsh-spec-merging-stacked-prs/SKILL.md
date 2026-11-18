@@ -88,7 +88,7 @@ Re-query the official stack immediately before merging. Require every selected P
 
 "Land the stack" selects the whole stack; a partial landing requires an explicit boundary PR and includes every layer from the bottom through that boundary. Treat each PR's state independently: a ready top layer does not prove its dependencies are ready.
 
-The merge method is the landing repository's policy: pass the method its instructions prescribe or its GitHub merge settings name. When neither prescribes one, use `merge`.
+The landing repository's policy selects the merge method. When its instructions prescribe one, use it; otherwise, when its GitHub merge settings allow exactly one method, use that method; otherwise use `squash`.
 
 Resolve every blocker through its owning PR or stop and report it.
 
