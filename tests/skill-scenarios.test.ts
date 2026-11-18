@@ -1,5 +1,6 @@
 /**
- * Development-side capability scenarios for the two skills whose work can need an isolated context.
+ * Development-side capability scenarios for the skills whose work can need an isolated context,
+ * plus the forge rule that requires capability-present and capability-absent conclusions.
  *
  * The source corpus lives under tests/ because skills/ is a distribution artifact. The tests stage
  * a temporary skill copy with the corpus at the official evals/ path. They validate the scenario
