@@ -61,7 +61,6 @@ const REQUIRED: RequiredProfile[] = [
       'no-isolation-whole-document-handoff',
       'isolated-context-whole-document',
       'owner-authorizes-one-source-scope',
-      'owner-authorization-excludes-skill-text',
       'ambiguous-target-grants-no-default-pair',
     ],
     noIsolationIds: ['no-isolation-local-update-completes', 'no-isolation-whole-document-handoff'],

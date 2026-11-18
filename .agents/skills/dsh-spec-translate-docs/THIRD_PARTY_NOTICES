@@ -25,7 +25,7 @@ bilingual-document workflow.
   languages, selection filters instead of the repository manifest, an existence-aware link
   predicate, the skill's own generated-region format with a section anchor and render/splice CLI,
   a public-URL switcher allowance,
-  generated-source globs, bounded authorization from a workflow skill that owns a document scope,
+  generated-source globs, bounded authorization from the workflow responsible for a document scope,
   and one command surface instead of two `pnpm run` scripts.
   The upstream subagent-only execution split is re-bound to a capability-neutral
   preferred-isolation route with a verifiable or explicit-handoff fallback.

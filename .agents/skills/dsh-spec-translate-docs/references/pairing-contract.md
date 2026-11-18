@@ -2,15 +2,13 @@
 
 The rules the skill's script enforces and the workflow follows. The check verifies **existing
 pairs**; creation and update are driven by the project's standing instructions, the user's
-instruction, or a workflow skill that owns the source's document scope. Nothing here requires a
+instruction, or the workflow responsible for the source's document scope. Nothing here requires a
 source to be paired unless one of those authorization sources selects it.
 
-A workflow owner's authorization names source paths or globs and requires one uniquely resolved
-target language. It cannot extend to sibling documents, documents outside those paths or
-`.agents/skills`. Skill installation alone grants no project scope and no default pair. Multiple
-targets without a unique selection grant no default pair. Once selected, translation and pairing
-are required work. A translation or pairing failure remains an incomplete handoff and cannot be
-reported as an English-only source.
+An authorization selects source paths or globs and requires one uniquely resolved target language.
+Multiple targets without a unique selection grant no default pair. Once selected, translation and
+pairing are required work. A translation or pairing failure remains an incomplete handoff and
+cannot be reported as an English-only source.
 
 ## The pair
 

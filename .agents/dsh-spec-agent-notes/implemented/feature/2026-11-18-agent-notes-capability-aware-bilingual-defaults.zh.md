@@ -23,7 +23,7 @@ Agent Notes 曾把翻译伴随文件视为可选，Translate Docs 也只允许�
 
 当默认阶梯选定一个配对时，翻译与一致性检查就是该单元的必需工作。翻译、术语或配对失败时，流程以未完成单元停止，并报告源文件、目标语言、失败步骤与可继续的下一步。该单元不能被重新标记为 English-only，新归档单元必须在 `archive --write` 封印它之前完成。
 
-Translate Docs 接受拥有文档范围的工作流技能作为第三种通用授权来源。该授权点名源文件路径或 glob，要求唯一解析出的目标语言，不能扩展到兄弟文档或 `.agents/skills`，目标不明确时不授予默认配对。该规则不点名 Agent Notes，也不导入它的 API。
+Translate Docs 接受对文档范围负责的工作流作为第三种通用授权来源。该授权点名源文件路径或 glob，要求唯一解析出的目标语言，目标不明确时不授予默认配对。该规则不点名 Agent Notes，也不导入它的 API。技能拥有的目录树由 CLI 剪枝清单排除在默认语料发现之外，不转化为工作流指令中的授权规则。
 
 Agent Notes 拥有翻译选择，并为脚本声明完整单元，包括项目直接提供的非翻译伴随文件。项目的翻译机制拥有翻译文件名、记录与一致性。图示及其他非翻译伴随文件仍由项目声明，不受翻译阶梯影响。脚本仍由参数驱动，不读取项目指令。
 
@@ -34,10 +34,10 @@ Agent Notes 拥有翻译选择，并为脚本声明完整单元，包括项目�
 | 要求 | 证据 |
 |---|---|
 | 四步默认、零回填边界与失败即停规则仍留在使用位置 | `node --test tests/skill-defaults.test.ts` |
-| 工作流所有者授权有明确范围、保持通用、依赖目标语言并排除 `.agents/skills` | `node --test tests/skill-defaults.test.ts` |
+| 负责工作流的授权有明确范围且依赖目标语言，技能拥有的目录树仍由 CLI 发现剪枝 | `node --test tests/skill-defaults.test.ts tests/translation-docs.test.ts` |
 | Agent Notes 与 Translate Docs 的开发语料覆盖已启用、缺失、覆盖、失败、歧义和排除配置 | `node --test tests/skill-scenarios.test.ts` |
 | Agent Notes 行为 | 十一次干净上下文（clean-context）运行覆盖已启用的双语创建、无机制、English-only 请求覆盖、带排除的唯一日语项目覆盖、无效日语术语交接、仅安装但不启用、多目标 English-only 回退、翻译机制不可用回退、首次归档翻译、活跃与已封印单元的零回填，以及保留非翻译伴随文件。十一次均满足场景断言。 |
-| Translate Docs 行为 | 三次干净上下文（clean-context）运行覆盖单路径所有者授权、`.agents/skills` 排除与目标歧义交接。三次均满足场景断言。 |
+| Translate Docs 行为 | 两次干净上下文（clean-context）运行覆盖单路径工作流授权与目标歧义交接。两次均满足场景断言。 |
 | 既有配对与归档行为保持不变 | `node --test tests/agent-notes.test.ts tests/translation-docs.test.ts` |
 | 两个改动技能仍通过规格检查 | `node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs <changed-skill-dir>` |
 | 语料、安装副本、笔记与翻译记录保持一致 | `pnpm run check:corpus` |

@@ -46,7 +46,7 @@ const USE_SITE_PINS = [
   {
     skill: 'dsh-spec-translate-docs',
     file: 'SKILL.md',
-    text: 'when a workflow skill that owns a document scope authorizes a default pair',
+    text: 'when the workflow responsible for a document scope authorizes a pair',
   },
   {
     skill: 'dsh-spec-pr-description',
@@ -153,18 +153,22 @@ test('companion defaults follow project state and fail closed', () => {
   assert.doesNotMatch(notes, /\.agents\/skills/)
 
   const translate = read('dsh-spec-translate-docs')
-  assert.match(translate, /An owner authorization names the source paths or globs it covers/)
-  assert.match(translate, /does not extend to sibling documents, documents outside those paths or `\.agents\/skills`/)
-  assert.match(translate, /Do not report the source as English-only because translation failed/)
+  assert.match(translate, /Once selected, translation and pairing are required, and failure is handed off unfinished/)
+  assert.doesNotMatch(translate, /\.agents\/skills/)
   assert.match(
     translate,
-    /New pair\*\* \(standing instructions, explicit instruction or a bounded workflow-owner authorization\)/,
+    /New pair\*\* \(standing instructions, explicit instruction or authorization from the responsible workflow\)/,
   )
   assert.match(
     translate,
-    /beyond the documents selected by the project instructions, the user or a bounded workflow owner/,
+    /beyond the documents selected by the project instructions, the user or the responsible workflow/,
   )
   assert.match(translate, /add in-scope counterparts/)
   assert.doesNotMatch(translate, /workflow owner's bounded default/)
   assert.doesNotMatch(translate, /dsh-spec-agent-notes/)
+
+  const pairing = read('dsh-spec-translate-docs', 'references/pairing-contract.md')
+  assert.match(pairing, /An authorization selects source paths or globs/)
+  assert.match(pairing, /A translation or pairing failure remains an incomplete handoff/)
+  assert.match(pairing, /\.agents\/skills/)
 })

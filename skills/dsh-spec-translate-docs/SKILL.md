@@ -9,11 +9,7 @@ compatibility: "Requires Node.js 22.19+ or 24+ and Git for the briefing. No inst
 
 ## Invocation boundary
 
-This skill runs when the user asks for translation or pair maintenance, when the project's standing instructions say an existing pair is maintained, when a documented change touches a side of an existing pair, or when a workflow skill that owns a document scope authorizes a default pair for a source it creates or archives in that scope. The standing instructions, the user's explicit instruction and that bounded owner authorization authorize creating or updating a pair. The check never demands that a document be paired.
-
-An owner authorization names the source paths or globs it covers and requires one uniquely resolved target language. It does not extend to sibling documents, documents outside those paths or `.agents/skills`. Installing a skill does not itself enable a project or grant a default pair. If multiple targets remain and no request or project override selects one, the owner grants no default pair.
-
-Once an authorized pair is selected, translation and consistency checking are required work. Translation, terminology or pairing failure leaves the work incomplete with the source, target, failed step and resumable next step. Do not report the source as English-only because translation failed.
+This skill runs when the user asks for translation or pair maintenance, when the project's standing instructions say an existing pair is maintained, when a documented change touches a side of an existing pair, or when the workflow responsible for a document scope authorizes a pair in that scope. Those same sources authorize creating or updating a pair, and the check never demands that a document be paired. Once selected, translation and pairing are required, and failure is handed off unfinished. The [pairing contract](references/pairing-contract.md) owns path scope, target resolution and failure details.
 
 ## Defaults
 
@@ -21,7 +17,7 @@ A default is the value or strategy this skill declares at its use site. It appli
 
 ## What this skill is
 
-A self-contained mechanism for a corpus of paired Markdown documents: the skill entry, three references, and one bundled script. `<skill-dir>` is the directory containing this `SKILL.md`; run the script from the project root. The script is parameter-driven; the pairing contract owns the options, their defaults and the override rules. The check verifies existing pairs only: file structure, Markdown structure, generated-region equality and the recorded hashes. It does not decide independently that a source should have a counterpart. That decision belongs to the standing instructions, the user, or a workflow skill's authorization bounded to its owned document scope.
+A self-contained mechanism for a corpus of paired Markdown documents: the skill entry, three references, and one bundled script. `<skill-dir>` is the directory containing this `SKILL.md`; run the script from the project root. The script is parameter-driven; the pairing contract owns the options, their defaults and the override rules. The check verifies existing pairs only: file structure, Markdown structure, generated-region equality and the recorded hashes. It does not decide independently that a source should have a counterpart. That decision belongs to the standing instructions, the user, or the workflow responsible for the document scope.
 
 ## The pairing model
 
@@ -31,7 +27,7 @@ A pair is a source `foo.md`, one counterpart per target `foo.zh.md` or `foo.<lan
 
 - **Existing pair, small local change** (one or two Markdown units in one section; no new or moved terminology, no structural change, no generated region): update the counterpart directly on the spot. This is the lightweight path.
 - **Existing pair, any other change**: the briefing path.
-- **New pair** (standing instructions, explicit instruction or a bounded workflow-owner authorization): the whole-document path and its isolation rule.
+- **New pair** (standing instructions, explicit instruction or authorization from the responsible workflow): the whole-document path and its isolation rule.
 - **Deleted or renamed document**: remove the counterpart, remove its link from the source switcher, then run `write --all` for the source; a recorded target with no counterpart is dropped. A named `write --target` never drops a target, and an entry without a counterpart is an incomplete pair.
 - **Generated region**: the generator updates both sides; never edit a region by hand.
 - **Frozen or excluded document**: the standing instructions say it is not maintained; do not create, update or repair its pairs.
@@ -75,14 +71,14 @@ A generated source (`--generated`) omits only its own switcher; the counterpart 
 
 - `list` reports the pairs that exist; use `--select <glob>` and `--skip <glob>` to narrow the set. There is no completeness report: a source without a counterpart is simply not a pair.
 - `brief` with no pair argument reports every drifted existing pair; a pair it cannot brief is reported on stderr, the other briefs are still emitted without `--apply`, and the command exits 2. A generated-region drift is fatal for the whole run.
-- Discovery walks hidden directories; dependency/build trees, `.agents/skills` and `.agents/dsh-spec-translate-docs` are pruned by default. Frozen or vendored trees are kept out of the work by the standing instructions and the selection filters, not by an exclusion-artifact rule.
+- Discovery walks hidden directories and applies the [pairing contract's default prune trees](references/pairing-contract.md#discovery). Frozen or vendored trees are kept out of the work by the standing instructions and the selection filters.
 - In a change that edits a paired document, the work list is the change's diff: every changed side needs its counterpart brought along and the pair recorded in the same change.
 - A source-side change is reflected in every existing target pair of that source in the same change. A translation-only correction that leaves the source untouched stays pair-local.
 
 ## Finish the pair
 
 1. `write` each confirmed pair; after a source-side change that affects several targets, use `write --all` for the source so every existing target signature is refreshed in one render. The record diff is the reviewable statement that the two sides say the same thing. Regenerate frozen regions on both sides; they are not translated.
-2. Do not widen the work beyond the documents selected by the project instructions, the user or a bounded workflow owner.
+2. Do not widen the work beyond the documents selected by the project instructions, the user or the responsible workflow.
 3. Before handing over, the touched pairs are green under `check`, and a range-wide run checks every existing pair the change touched (when available, use the `dsh-spec-pre-push-checks` skill).
 4. Keep the handover reviewable: say which pairs are new, which were minimally updated, and list pending terms and terminology decisions prominently.
 

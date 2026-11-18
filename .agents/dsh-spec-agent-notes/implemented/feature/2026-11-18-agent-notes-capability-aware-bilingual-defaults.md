@@ -23,7 +23,7 @@ The ladder does not add a translation companion to an active note merely because
 
 When the ladder selects a pair, the translation and consistency check are required work for that unit. Translation, terminology or pairing failure stops with the unfinished unit, source, target, failed step and resumable next step. It cannot be relabeled English-only, and a new archive unit is completed before `archive --write` seals it.
 
-Translate Docs accepts a workflow skill that owns a document scope as a third generic authorization source. The authorization names source paths or globs, requires one uniquely resolved target, cannot extend to sibling documents or `.agents/skills`, and grants no default when targets are ambiguous. The rule does not name Agent Notes or import its API.
+Translate Docs accepts the workflow responsible for a document scope as a third generic authorization source. The authorization names source paths or globs, requires one uniquely resolved target and grants no default when targets are ambiguous. The rule does not name Agent Notes or import its API. Skill-owned trees remain outside default corpus discovery through the CLI prune list, without becoming an authorization rule in the workflow instructions.
 
 Agent Notes owns translation selection and declares the complete unit for the scripts, including non-translation companions the project supplies directly. The project's translation mechanism owns translation names, records and consistency. Diagrams and other non-translation companions remain project declarations and are unaffected by the translation ladder. The scripts remain parameter-driven and do not read project instructions.
 
@@ -34,10 +34,10 @@ Agent Notes owns translation selection and declares the complete unit for the sc
 | Requirement | Evidence |
 |---|---|
 | The four-step default, zero-backfill boundary and fail-closed translation rule remain at their use sites | `node --test tests/skill-defaults.test.ts` |
-| A workflow owner's authorization is bounded, generic, target-dependent and excludes `.agents/skills` | `node --test tests/skill-defaults.test.ts` |
+| The responsible workflow's authorization is bounded and target-dependent, while skill-owned trees remain a CLI discovery prune | `node --test tests/skill-defaults.test.ts tests/translation-docs.test.ts` |
 | The Agent Notes and Translate Docs development corpora cover the enabled, absent, overridden, failed, ambiguous and excluded profiles | `node --test tests/skill-scenarios.test.ts` |
 | Agent Notes behavior | Eleven clean-context runs covered enabled bilingual creation, no mechanism, English-only request override, unique Japanese project override with exclusion, invalid Japanese terminology handoff, installed-only non-enablement, multiple-target English-only fallback, unavailable translation fallback, first-archive translation, active/sealed zero backfill and preservation of a non-translation companion. All eleven met their scenario assertions. |
-| Translate Docs behavior | Three clean-context runs covered one-path owner authorization, `.agents/skills` exclusion and ambiguous-target handoff. All three met their scenario assertions. |
+| Translate Docs behavior | Two clean-context runs covered one-path workflow authorization and ambiguous-target handoff. Both met their scenario assertions. |
 | Existing pairing and archive behavior remain intact | `node --test tests/agent-notes.test.ts tests/translation-docs.test.ts` |
 | Both changed skills remain specification-valid | `node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs <changed-skill-dir>` |
 | The corpus, installed copies, notes and translation records stay consistent | `pnpm run check:corpus` |
