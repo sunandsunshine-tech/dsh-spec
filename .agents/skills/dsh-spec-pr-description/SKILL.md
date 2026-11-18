@@ -10,7 +10,7 @@ A change request's description states why the change exists, what it changes, wh
 
 ## Defaults
 
-Defaults apply when the request and the project's existing instructions are silent; missing instructions are a valid project state. Do not ask the user to choose a default, or create or modify `AGENTS.md` or another instruction file merely to select one. A one-off override belongs in the request or an invocation parameter; a persistent override is read only from existing project instructions or another existing project source this skill names, and is never rewritten or copied.
+A default is a value or strategy declared by this skill at its use site. It applies when a valid invocation, including one delegated by another skill, leaves the choice unspecified and existing project instructions are silent. A user turn or explicit invocation parameter supplies a one-off value. A persistent override is stated in existing project instructions and is read without being rewritten or copied. Missing instructions are valid. Do not ask the user to choose a default or edit an instruction file merely to select one. When this skill activates a sibling available in the project for an unspecified part, that sibling may apply its own defaults when its conditions match. The activated default resolves only that part. It cannot override an explicit value or project instruction, supply an unrelated choice, or make the sibling mandatory. Delegation carries only the caller's applicable authority and scope. Sibling defaults cannot grant authority or widen it. Defaults never waive required inputs, authorizations or stop conditions.
 
 ## Description structure
 

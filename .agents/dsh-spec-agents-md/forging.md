@@ -13,6 +13,8 @@ Keep the parenthetical to the availability and name. Do not use the surrounding 
 
 The requirement must remain complete without the name; the name is not a link, path, or dependency.
 
+When the forged skill activates a sibling available in the project for a bounded delegated step, that sibling may apply its own defaults inside the step when its conditions match. The activated value cannot resolve an unrelated choice, override an explicit value, copy itself into the forged skill or project instructions, or make the sibling mandatory. A delegated invocation carries only the caller's applicable authority and scope, so the sibling default cannot grant authorization or widen the step. Merely installing or naming a sibling does not activate its defaults.
+
 ## Model-facing description budget
 
 Descriptions stay within 500 characters, enforced by the corpus gate (`--description-max 500`). DSH's model-facing catalog truncates beyond 500 UTF-16 code units; BMP-only text keeps the character count equal to that unit budget, so descriptions use BMP characters only.

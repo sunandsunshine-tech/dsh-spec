@@ -21,7 +21,7 @@ The forge uses declared companions instead of its own pair record:
 - The forge writes no `.i18n.yaml`, stores no source hash, and has no `pair --check`. Whether a pair is current is decided by the project's own pairing gate; the forge does not import that gate, and the review draft names the translation skill only as an availability-qualified example.
 - Before `publish`, the adopter removes review-draft-only content from the work-draft sources; `publish` copies the sources unchanged.
 - Cross-skill guidance: the forge names the optional notes, translation, prose and prompt skills only as availability-qualified examples; the Agent Skills best practices outrank the prose and prompt requirements.
-- **Default completion.** A forged skill that declares a default completes when the request and existing project instructions are silent and satisfies the forge's `## Defaults` contract. [The cross-skill default record](2026-11-17-skill-defaults-complete-without-project-instructions.md) owns this acceptance.
+- **Default completion.** A forged skill that declares a default resolves it when a valid invocation leaves that choice unspecified and existing project instructions are silent, while still enforcing separately required inputs and authorizations, and satisfies the forge's `## Defaults` contract, including a default from an available sibling activated for a bounded delegated step. [The cross-skill default record](2026-11-17-skill-defaults-complete-without-project-instructions.md) owns this acceptance.
 - Delivery language is English; the review language is Chinese, paired only at the stop; the additional trigger language is Chinese, present in the description.
 
 ## Design
