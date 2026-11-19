@@ -9,7 +9,7 @@ compatibility: "Requires Node.js 22.19+ or 24+ and Git for the briefing. No inst
 
 ## Invocation boundary
 
-This skill runs when the user asks for translation or pair maintenance, when the project's standing instructions say an existing pair is maintained, when a documented change touches a side of an existing pair, or when the workflow responsible for a document scope authorizes a pair in that scope. Those same sources authorize creating or updating a pair, and the check never demands that a document be paired. Once selected, translation and pairing are required, and failure is handed off unfinished. The [pairing contract](references/pairing-contract.md) owns path scope, target resolution and failure details.
+This skill runs when the user asks for translation or pair maintenance, when the project's standing instructions say an existing pair is maintained, when a documented change touches a side of an existing pair, or when the workflow responsible for a document scope authorizes a pair in that scope. Those same sources authorize creating or updating a pair, and the check never demands that a document be paired. Once selected, translation and pairing are required, and failure is handed off unfinished. The [pairing contract](references/pairing-contract.md) owns path scope, target-selection rules and failure details.
 
 ## Defaults
 
@@ -18,6 +18,22 @@ A default is the value or strategy this skill declares at its use site. It appli
 ## What this skill is
 
 A self-contained mechanism for a corpus of paired Markdown documents: the skill entry, three references, and one bundled script. `<skill-dir>` is the directory containing this `SKILL.md`; run the script from the project root. The script is parameter-driven; the pairing contract owns the options, their defaults and the override rules. The check verifies existing pairs only: file structure, Markdown structure, generated-region equality and the recorded hashes. It does not decide independently that a source should have a counterpart. That decision belongs to the standing instructions, the user, or the workflow responsible for the document scope.
+
+## Choose targets
+
+The responsible model or workflow resolves a target set for each source in this order:
+
+1. the current request;
+2. an existing persistent project instruction;
+3. complete pairs in the same owner-defined class or scope;
+4. the primary agent's known user language;
+5. no target.
+
+The script receives the resulting explicit `--target` values and never infers from sibling files or the user's language. An explicit set may contain multiple targets. Do not choose a target when complete peer pairs disagree or the only candidate equals the source language.
+
+Adding a target is progressive: a new source uses the current policy set, while an edited source adds only its missing targets. Untouched sources are not backfilled. A target added to an existing source uses the whole-document path because it has no confirmed state.
+
+Removing a target is a strong cleanup across every eligible active source: remove its counterparts, switcher entries and record entries. Frozen or excluded documents stay unchanged. Report every unfinished source rather than claiming the scope completed.
 
 ## The pairing model
 
@@ -28,6 +44,7 @@ A pair is a source `foo.md`, one counterpart per target `foo.zh.md` or `foo.<lan
 - **Existing pair, small local change** (one or two Markdown units in one section; no new or moved terminology, no structural change, no generated region): update the counterpart directly on the spot. This is the lightweight path.
 - **Existing pair, any other change**: the briefing path.
 - **New pair** (standing instructions, explicit instruction or authorization from the responsible workflow): the whole-document path and its isolation rule.
+- **New target on an existing source** (progressive policy addition): the whole-document path for that target, while existing targets follow their normal update path.
 - **Deleted or renamed document**: remove the counterpart, remove its link from the source switcher, then run `write --all` for the source; a recorded target with no counterpart is dropped. A named `write --target` never drops a target, and an entry without a counterpart is an incomplete pair.
 - **Generated region**: the generator updates both sides; never edit a region by hand.
 - **Frozen or excluded document**: the standing instructions say it is not maintained; do not create, update or repair its pairs.

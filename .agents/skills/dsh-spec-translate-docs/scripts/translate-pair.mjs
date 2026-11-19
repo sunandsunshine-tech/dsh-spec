@@ -15509,8 +15509,8 @@ function locateSwitchers(corpus, paths, sourceText, sourceTree, counterpartText,
 * and aggregate-record entries.
 *
 * The gate only checks pairs that already exist. Creation and update follow the project's
-* standing instructions, the user's instruction, or a workflow owner's bounded authorization;
-* this module never requires a source to be paired.
+* standing instructions, the user's instruction, or the responsible workflow; that workflow passes
+* explicit targets, and this module infers neither a target nor a requirement from sibling files.
 */
 const PRUNE_SEGMENTS = /* @__PURE__ */ new Set([
 	"node_modules",
@@ -16745,8 +16745,8 @@ function writeBrief(corpus, plan) {
 /**
 * The pairing CLI: list/check/write existing pairs, brief minimal updates, initialise
 * terminology, and render or splice a generated region. Creation and update follow the project's
-* standing instructions, the user's instruction, or a workflow owner's bounded authorization;
-* the gate never requires a source to be paired.
+* standing instructions, the user's instruction, or the responsible workflow; the caller supplies
+* explicit targets, and the gate never requires a source to be paired.
 *
 * Exit codes: 0 clean or written, 1 violations or nothing to record, 2 usage or a precondition.
 */
