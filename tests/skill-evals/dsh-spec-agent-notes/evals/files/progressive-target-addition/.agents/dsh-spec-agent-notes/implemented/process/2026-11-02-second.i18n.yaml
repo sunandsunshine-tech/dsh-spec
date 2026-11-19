@@ -1,0 +1,19 @@
+# Pairing consistency record for 2026-11-02-second.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-11-02-second.md --target <lang>
+/agent-note-second-progressive-note:
+  en: 2db01d17be987fa0
+  zh: 6d914dc7f9042adc
+/agent-note-second-progressive-note/problem:
+  en: 2c4e7f9390d1beca
+  zh: 09c42e3fe8ebdfec
+/agent-note-second-progressive-note/decision:
+  en: 6c5f9c29c6b8c470
+  zh: c29decbf344e3c9c
+/agent-note-second-progressive-note/alternatives-considered:
+  en: 03c7c50f1bd371ab
+  zh: 8a19fecb003b9c9d
+/agent-note-second-progressive-note/consequences:
+  en: f6814ca94d137e09
+  zh: 92b8200ee26b40a2

@@ -1,3 +1,3 @@
 # Project notes
 
-New decision records under this directory follow the project translation override.
+Implemented decisions use the Japanese translation override. Proposed decisions remain English-only.

@@ -37,7 +37,7 @@ function stubSiblingCorpus(context: { after(callback: () => void): void }, faili
   write(
     root,
     'skills/dsh-spec-translate-docs/scripts/translate-pair.mjs',
-    "if (!process.argv.includes('tests/skill-evals/**')) process.exit(4)\n" +
+    "if (!process.argv.includes('tests/skill-evals/**') || !process.argv.includes('tests/skill-evals/**/.*/**')) process.exit(4)\n" +
       "if (process.argv[2] === 'list') console.log('ok sample.zh.md')\n",
   )
   write(root, 'scripts/submit-vendored.ts', 'process.exit(0)\n')

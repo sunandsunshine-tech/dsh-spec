@@ -1,0 +1,10 @@
+# Pairing consistency record for second.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write docs/second.md --target <lang>
+/second-guide:
+  en: fdcd78302925de52
+  zh: d7034f2869a78b0f
+/second-guide/validation:
+  en: fdb1918182498d3c
+  zh: f8bb0bd467f64896

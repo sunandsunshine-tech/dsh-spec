@@ -1,0 +1,8 @@
+# Pairing consistency record for first.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write docs/active/first.md --target <lang>
+/active-first-guide:
+  en: 38225fdef0adbfd7
+  ja: 81d1c33a30dddcee
+  zh: 7ace5b844b84d323

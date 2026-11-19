@@ -1,3 +1,3 @@
 # Project instructions
 
-For new Agent Notes under `notes/`, use Japanese companions. Exclude `notes/private/**` from translation and leave this file unchanged.
+The Agent Notes root is `notes/`. For new notes under `notes/implemented/**`, use Japanese companions. Exclude `notes/proposed/**` from translation and leave this file unchanged.

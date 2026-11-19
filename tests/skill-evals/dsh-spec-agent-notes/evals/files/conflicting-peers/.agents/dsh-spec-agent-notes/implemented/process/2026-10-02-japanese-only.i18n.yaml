@@ -1,0 +1,19 @@
+# Pairing consistency record for 2026-10-02-japanese-only.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-10-02-japanese-only.md --target <lang>
+/agent-note-japanese-only-peer:
+  en: 04cfaa85ef7d0311
+  ja: 322d20e8ede4fad5
+/agent-note-japanese-only-peer/problem:
+  en: 26b4929042222831
+  ja: ef8259453ab65eea
+/agent-note-japanese-only-peer/decision:
+  en: dfaaa49d1a596059
+  ja: 1cdf3be96405844a
+/agent-note-japanese-only-peer/alternatives-considered:
+  en: 224bce1298f7a9df
+  ja: ac1b46f9ee409d1b
+/agent-note-japanese-only-peer/consequences:
+  en: e237a3d7aa6d6d72
+  ja: e11c3ddd4f9c603e
