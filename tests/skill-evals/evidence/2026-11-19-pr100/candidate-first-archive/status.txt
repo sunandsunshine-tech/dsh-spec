@@ -1,0 +1,4 @@
+A  .agents/dsh-spec-agent-notes/archived/manifest.json
+A  .agents/dsh-spec-agent-notes/archived/process/2026-11-01-existing.i18n.yaml
+R  .agents/dsh-spec-agent-notes/implemented/process/2026-11-01-existing.md -> .agents/dsh-spec-agent-notes/archived/process/2026-11-01-existing.md
+A  .agents/dsh-spec-agent-notes/archived/process/2026-11-01-existing.zh.md

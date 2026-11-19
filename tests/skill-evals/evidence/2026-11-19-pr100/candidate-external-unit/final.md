@@ -1,0 +1,5 @@
+Recorded the implemented process decision in [release-windows-run-in-utc.md](/tmp/pr100-dsh-spec-agent-notes-external-companion-mechanism-hY5SZw/evals/files/external-companion/.agents/dsh-spec-agent-notes/implemented/process/2026-11-19-release-windows-run-in-utc.md:1) with the required Problem, Decision, Alternatives, and Consequences sections.
+
+Added the external review companion at [release-windows-run-in-utc-review.json](/tmp/pr100-dsh-spec-agent-notes-external-companion-mechanism-hY5SZw/evals/files/external-companion/.agents/dsh-spec-agent-notes/implemented/process/reviews/release-windows-run-in-utc-review.json:1), recording independent approval with no findings. No translation companions were created and Translate Docs was not used.
+
+Validation passed with the exact `--member` relationship: `ok check — 1 note(s) and 1 companion(s) checked`. JSON parsing and `git diff --check` also passed.

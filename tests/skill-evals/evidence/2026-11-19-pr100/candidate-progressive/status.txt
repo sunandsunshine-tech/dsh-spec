@@ -1,0 +1,7 @@
+ M docs/first.i18n.yaml
+ M docs/first.md
+?? docs/first.ja.md
+?? docs/new.i18n.yaml
+?? docs/new.ja.md
+?? docs/new.md
+?? docs/new.zh.md
