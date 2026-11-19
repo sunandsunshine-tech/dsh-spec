@@ -124,22 +124,23 @@ Moving a file between lifecycle folders means updating the `Status:` line and re
 
 ### Companions
 
-A note may travel with companion files the project keeps for it, including translations in any language, consistency records and diagrams. The project's translation mechanism owns translation filenames and consistency records. A project may declare other companions directly. The format gate treats every declared companion as part of its source note's unit and skips it as a separate note. It reports a companion without a regular-file source note in a class folder or at a lifecycle root. A readable deeper declared companion is ignored like the source's walker, while an unreadable declared companion in a class folder or at a lifecycle root is reported.
+A note is the source member of a unit. The unit also contains every companion assigned to that note: translations, consistency records, diagrams or other supporting files. Repeated `--companion <suffix>` arguments classify same-stem companions. Repeated `--member <source>=<companion>` arguments declare exact membership when the mechanism uses another stem or nested path. Check paths are relative to the notes root; archive paths are relative to the archive root. A companion stays under the source's class, and an active member also stays under the same lifecycle. Neither form requires every note to have every possible companion. Notes are written for the agent in English; translations are optional reader companions.
 
-For each new note and each unit first entering the archive, select translation companions in this order:
+An external mechanism owns a companion's naming convention, content, consistency records and validation. Agent Notes does not assume a translation format, target code, aggregate record or particular skill. The responsible model discovers the project's mechanism and resolves the current unit's members; the scripts receive those facts as parameters.
+
+For a new note or a first seal unit, choose its translated target set in this order:
 
 1. The current request's explicit choice.
-2. An existing persistent project override.
-3. An available, enabled project-scoped translation mechanism that resolves exactly one target language for this unit.
-4. No translation companion, which leaves the note English-only.
+2. An existing persistent project instruction.
+3. The consistent target set of complete pairs in the same owner-defined class.
+4. The primary agent's user language, when it differs from the source language.
+5. No translated target.
 
-A project-scoped mechanism is enabled by evidence that translation is configured for the project, such as standing instructions, terminology data or an existing maintained pair. An installed translation skill alone does not enable it or make it available. A request or override may select no translation, one or more target languages, a bounded source scope or an exclusion. When multiple targets remain without a unique selection, select no translation companion and do not ask merely to replace the default.
+Matching siblings, comparable classes and user language are model judgments, not CLI inference. A target set may contain several languages; every selected target becomes a unit member. Missing evidence, conflicting sibling target sets, an unavailable mechanism or an unknown user language selects no translated target without asking for a default. Installing a mechanism does not by itself enable translation for a project.
 
-The selected translation mechanism owns translation filenames, record content and consistency checks. This skill owns translation selection, `--companion` declarations for the complete unit, seal-time completeness and frozenness. Diagrams and other non-translation companions remain whatever the project declares. "English-only" selects no translation companion and does not remove those companions. A bilingual unit is complete only after its counterpart and consistency record exist and pass the project's check. If translation or pairing fails, stop with the unfinished unit, source, target, failed step and resumable next step. Do not relabel the unit English-only and do not seal it.
+Target migration is asymmetric by cost. Adding a target is progressive: a new note receives the current target set, an edited existing note adds its missing targets, and an untouched note remains unchanged. Removing a target is consistent across every eligible active and unsealed unit. A sealed unit is historical evidence and never gains or loses a member. Range operations that inspect or record existing units do not create missing targets.
 
-This default does not add a translation companion to an active note merely because the skill changed or to a sealed unit. When an existing active note first enters the archive, select and complete its translation companions for that archive unit before sealing. Existing active notes may otherwise remain selectively translated. A project without a translation mechanism continues with English-only notes and passes no translation suffix while retaining any other declared companions.
-
-Companions are one unit with their note: they move folders with it, enter the archive with it, and are deleted with it. Their internal consistency is the project's own pairing gate's business; this contract owns the unit rules. Archive-unit completeness is enforced when the archive seals a new unit, not replayed over frozen units during verification; a sealed unit cannot gain a companion later.
+Companions form one unit with their note: they are moved, sealed and deleted together. The format gate reports a suffix-classified companion without a source and validates every path-scoped member source and companion as regular, contained files. The owning mechanism checks internal consistency. Seal preparation records the exact members expected for each new unit; seal-time completeness applies that unit's expected set, not a global target union. Verification does not replay the expectation over frozen history.
 
 ## Pruning the active tree
 

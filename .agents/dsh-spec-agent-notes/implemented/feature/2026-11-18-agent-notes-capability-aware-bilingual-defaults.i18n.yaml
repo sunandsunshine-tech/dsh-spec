@@ -2,21 +2,21 @@
 # source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
 # After editing either side, bring the other along and re-record with:
 #   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/feature/2026-11-18-agent-notes-capability-aware-bilingual-defaults.md --target <lang>
-/agent-note-agent-notes-default-to-capability-aware-bilingual-companions:
-  en: da21a262a909e986
-  zh: 52a39cd8d3bd7032
-/agent-note-agent-notes-default-to-capability-aware-bilingual-companions/problem:
-  en: 5cc92a1ac95f8ecd
-  zh: 8dc3ad6bab960529
-/agent-note-agent-notes-default-to-capability-aware-bilingual-companions/decision:
-  en: 70a46b259cd30005
-  zh: 3912487808a5ab02
-/agent-note-agent-notes-default-to-capability-aware-bilingual-companions/verification:
-  en: b3a62e5d84329c0e
-  zh: 5690d6d8ec7df41a
-/agent-note-agent-notes-default-to-capability-aware-bilingual-companions/alternatives-considered:
-  en: 9c7045f877aab37b
-  zh: 67a69a01f32852e0
-/agent-note-agent-notes-default-to-capability-aware-bilingual-companions/consequences:
-  en: 4bf07da1f743b91e
-  zh: 12c824eddb4fd235
+/agent-note-agent-notes-select-adaptive-units-before-sealing:
+  en: 06702811ce24347f
+  zh: e38b68ed48962245
+/agent-note-agent-notes-select-adaptive-units-before-sealing/problem:
+  en: 8975f3d08e79728c
+  zh: 5390d55d8abb31aa
+/agent-note-agent-notes-select-adaptive-units-before-sealing/decision:
+  en: 9a6b56e9f3b9d336
+  zh: b5783078ed43b500
+/agent-note-agent-notes-select-adaptive-units-before-sealing/verification:
+  en: 148c2d00bb188f71
+  zh: b46d6a8c94ae5d9a
+/agent-note-agent-notes-select-adaptive-units-before-sealing/alternatives-considered:
+  en: 22cc045ab8a9286f
+  zh: 2249ee144e8cd279
+/agent-note-agent-notes-select-adaptive-units-before-sealing/consequences:
+  en: 9a1ff14286d9d636
+  zh: 9d16d8dc3585d7ad

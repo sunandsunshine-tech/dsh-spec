@@ -65,18 +65,21 @@ Write a note only for lasting decision rationale that code, tests and existing d
 
 ## Companions
 
-Translation companion names and records belong to the project's translation mechanism. Other companions, such as diagrams, remain direct project declarations and are unaffected by this default.
+A unit is a note plus every companion the project assigns to it. Companions may be translations, records, diagrams or other support. An external mechanism owns names, formats and checks and determines the companion set; Agent Notes owns the declared unit's grouping, movement and sealing. Installing a mechanism alone neither enables nor makes it available.
 
-Choose translation companions for each new note and each unit first entering the archive in this order:
+Repeated `--companion <suffix>` classifies same-stem companions. When a mechanism uses another stem or a nested path, repeated `--member <source>=<companion>` declares the exact relationship. Paths are notes-root-relative for `check` and archive-root-relative for `archive`; the companion stays under the source class.
 
-1. the current request's explicit choice;
-2. an existing persistent project override;
-3. an available, enabled project-scoped translation mechanism that resolves exactly one target language;
-4. no translation companion, which leaves the note English-only.
+When translation is available, choose this note's target set in this order:
 
-A mechanism requires project evidence that translation is enabled (instructions, terminology data or an existing maintained pair) and availability. Installation alone is insufficient. Multiple targets without a unique selection use no translation companion without asking.
+1. the current request;
+2. existing project instructions;
+3. a consistent target set from complete pairs in the same owner-defined class;
+4. the primary agent's user language, when it differs from the source language;
+5. no translation companion.
 
-The ladder does not add a translation companion to an active note merely because the skill changed or to a sealed unit. When an existing active note first enters the archive, select and complete its translation companions before sealing. Failure leaves the unit unsealed and hands off its source, target, failed step and next step, without falling back to English-only. The pairing mechanism owns translation and consistency (when available, use the dsh-spec-translate-docs skill). The [notes contract](references/notes-contract.md#companions) owns ownership, enablement and full rules.
+The model judges comparable files and project evidence; scripts receive resolved companion facts. A target set may contain several languages. Translation requires project evidence and availability; missing or conflicting evidence selects none without asking.
+
+Adding a target is progressive: new notes use the current set, edited notes gain missing targets, and untouched notes do not change. Removing a target clears every eligible active and unsealed unit; sealed units stay frozen. Failure leaves the unit unfinished with source, target, failed step and next step; it never becomes English-only. The [notes contract](references/notes-contract.md#companions) owns full rules. Use the project's translation mechanism (when available, use the dsh-spec-translate-docs skill).
 
 ## Pruning and consolidation
 
@@ -92,20 +95,15 @@ The keep, archive, reject or delete decision is semantic, never a matter of word
 
 Only an `implemented/` note may enter. Load [the archive contract](references/archive-contract.md) before archiving; it owns the archive path, units, six class directories and seal rules.
 
-1. Move the complete unit — the note and every declared companion — to `archived/{class}/`.
-2. Make no body edits. Insert `Archived: YYYY-MM-DD` immediately below the sole `Status: implemented` line in every Markdown side, using the archival date, identical on every side. Existing title punctuation, blank-line layout and language-switcher wording are preserved, not prerequisites.
-3. Re-record companion consistency records through the project's own pairing mechanism. Do not translate, reformat, update facts or repair links inside the note.
-4. Repair or delete inbound links from active prose; retarget them into the archive only when the historical snapshot is intentionally cited.
-5. Seal, stage and verify. Once sealed, a unit is permanently frozen: never edit, update, move, translate, reformat or delete it, and never add a companion. It is not authority for current behavior; new decisions and facts belong in an active note or current documentation, and documentation gates skip archived sources, including their outbound links. The archive's structure and hashes live in `<root>/archived/manifest.json`, append-only against the baseline at the manifest's project-relative path. [The archive contract](references/archive-contract.md#the-frozen-guarantee) owns the full guarantee.
+1. Finish selected companions and owner checks while the note is active; failure leaves it active and unfinished.
+2. Move the complete unit to `archived/{class}/`.
+3. Add an identical `Archived: YYYY-MM-DD` below the sole `Status: implemented` line on every Markdown side, preserving existing layout and switcher wording. After the move, do not translate or edit facts, formatting or note links.
+4. Re-record existing companions through their owner and repair or remove inbound links.
+5. Prepare the seal with final membership, hashes and required owner checks; run them, then write if the prepared unit is unchanged and every check passed. Stage and verify.
 
-   ```sh
-   node <skill-dir>/scripts/notes.mjs init
-   node <skill-dir>/scripts/notes.mjs archive --write --root .agents/dsh-spec-agent-notes --companion <suffix>
-   git add .agents/dsh-spec-agent-notes/archived
-   node <skill-dir>/scripts/notes.mjs archive --root .agents/dsh-spec-agent-notes
-   ```
+Once sealed, a unit is permanently frozen: never edit, update, move, translate, reformat or delete it, and never add or remove a companion. It is not authority for current behavior; new decisions and facts belong in an active note or current documentation, and documentation gates skip archived sources, including their outbound links. The archive's structure and hashes live in `<root>/archived/manifest.json`, append-only against the baseline at the manifest's project-relative path. [The archive contract](references/archive-contract.md#the-frozen-guarantee) owns the full guarantee.
 
-   `--companion` is the project's declared suffix (repeat it for each; omit it when none). `--write` proves every existing seal against the baseline, appends only the new unit's hashes after enforcing the declared suffixes and the new unit's archive metadata, and writes nothing when a check fails. Verification compares the manifest and requires it to be tracked by Git when it lists artifacts, so a first seal must be staged or committed before verifying; the project needs a commit before its first seal because the baseline is read from Git, and CI passes the trusted pre-change commit with `--base-ref <ref>`.
+The archive contract owns the prepare, readiness and guarded-write commands and the Git baseline requirement.
 
 ## Checks
 
@@ -116,7 +114,8 @@ Run the commands from inside the project's Git checkout; `<skill-dir>` is this s
 | `node <skill-dir>/scripts/notes.mjs init [--root <dir>] [--json]` | Creates the notes skeleton: lifecycle and class folders, the six archived class folders, and ignored `.gitkeep` placeholders in empty folders; idempotent and never overwrites. | 0 created · 1 violations · 2 usage |
 | `node <skill-dir>/scripts/notes.mjs check [--root <dir>] [--companion <suffix>]... [--format-adopted <date>] [--json]` | The active tree: closed lifecycle and class folders, dated filenames, the header block, the per-lifecycle skeleton, the mandatory alternatives section, and companion pairing. | 0 pass · 1 violations · 2 usage |
 | `node <skill-dir>/scripts/notes.mjs archive [--root <dir>] [--base-ref <ref>] [--json]` | The frozen archive: six required class directories, manifest required, manifest schema, sealed artifacts unchanged and present, no unsealed additions, append-only against the baseline, and the tracked-manifest rule. Verification compares the manifest; it does not re-validate archive metadata or companion declarations over frozen history. | 0 pass · 1 violations · 2 usage |
-| `node <skill-dir>/scripts/notes.mjs archive --write ...` | The same checks plus archive metadata (one `Status: implemented`, `Archived:` immediately below, one identical valid date per unit) and complete declared companion suffixes for the newly sealed unit, refuses an artifact added to a sealed unit, leaves a frozen artifact whose suffix is no longer declared untouched, and rejects a new undeclared non-Markdown artifact; then it appends the new hashes to `archived/manifest.json`; it writes nothing when a check fails. | 0 sealed · 1 violations · 2 usage |
+| `node <skill-dir>/scripts/notes.mjs archive --prepare ...` | Validates the same archive and metadata rules, prints the exact new unit membership, hashes and owner readiness requirements, and writes nothing. | 0 prepared · 1 violations · 2 usage |
+| `node <skill-dir>/scripts/notes.mjs archive --write --expect-plan <plan> ...` | Rechecks the prepared state, refuses a changed plan, runs required readiness checks, and appends the verified unit hashes to `archived/manifest.json`; new artifacts require the plan, a no-op write may omit it, and any failure writes no manifest. | 0 sealed · 1 violations · 2 usage |
 
 Whether a note should be kept, archived, rejected or deleted is judgment guided by this skill's criteria; the script never picks for you.
 
