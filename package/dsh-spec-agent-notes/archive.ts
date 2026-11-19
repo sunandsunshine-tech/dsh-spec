@@ -6,11 +6,13 @@
  * THIRD_PARTY_NOTICES names the upstream paths and the relation.
  */
 // The frozen archive: class folders, sealed artifacts, the manifest and the Git baseline that
-// makes the manifest append-only. Sealing is archive --write; verification never writes.
+// makes the manifest append-only. Sealing is archive --prepare then archive --write; verification never writes.
 
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
+import { existsSync, lstatSync, readFileSync, writeFileSync } from 'node:fs'
 import { isAbsolute, join, relative, sep } from 'node:path'
-import type { Options } from './cli/args.ts'
+import type { MemberMapping, Options } from './cli/args.ts'
 import { ARCHIVE, ARCHIVE_ROOT_ALLOWLIST, CLASSES, FILENAME, GITKEEP, isClassKind, MANIFEST } from './constants.ts'
 import { companionSuffixOf, proseLines, validDate } from './format.ts'
 import {
@@ -27,6 +29,7 @@ import {
 } from './guards.ts'
 import {
   comparePaths,
+  contentHash,
   emptyManifest,
   extendManifest,
   parseManifest,
@@ -38,6 +41,7 @@ import {
 export interface ArchiveSummary {
   artifacts: number
   sealed: number
+  plan?: ArchiveSealPlan
 }
 
 export interface ArchiveResult {
@@ -58,12 +62,230 @@ interface Unit {
   key: string
 }
 
+interface SealPlan {
+  version: 1
+  baseCommit: string
+  manifestHash: string
+  companions: string[]
+  members: MemberMapping[]
+  preflight: string[]
+  artifacts: { path: string; hash: string }[]
+}
+
+export interface ArchiveSealPlan extends SealPlan {
+  id: string
+}
+
+function sealPlanFor(
+  baseCommit: string,
+  manifest: Manifest,
+  added: readonly string[],
+  artifacts: Map<string, Buffer>,
+  companions: readonly string[],
+  members: readonly MemberMapping[],
+  preflight: readonly string[],
+): SealPlan {
+  return {
+    version: 1,
+    baseCommit,
+    manifestHash: contentHash(Buffer.from(renderManifest(manifest.files))),
+    companions: [...new Set(companions)].sort(comparePaths),
+    members: [...members].sort(
+      (left, right) => comparePaths(left.source, right.source) || comparePaths(left.companion, right.companion),
+    ),
+    preflight: [...preflight],
+    artifacts: added.map((path) => {
+      const content = artifacts.get(path)
+      if (content === undefined) throw new Error(`archive artifact disappeared while planning: ${path}`)
+      return { path, hash: contentHash(content) }
+    }),
+  }
+}
+
+function planDigest(plan: SealPlan): string {
+  return createHash('sha256').update(JSON.stringify(plan)).digest('hex')
+}
+
+function renderPlan(plan: SealPlan): ArchiveSealPlan {
+  return { id: planDigest(plan), ...plan }
+}
+
+function runPreflight(projectRoot: string, command: string, args: readonly string[]): string[] {
+  const result = spawnSync(command, args, {
+    cwd: projectRoot,
+    encoding: 'utf8',
+    timeout: 30_000,
+    maxBuffer: 1024 * 1024,
+  })
+  if (result.error !== undefined) {
+    return ['archive: preflight could not start ' + JSON.stringify(command) + ': ' + result.error.message]
+  }
+  if (result.status !== 0) {
+    const status = result.status === null ? 'signal ' + String(result.signal) : 'exit ' + result.status
+    const detail = (result.stderr || result.stdout || '').trim()
+    return ['archive: preflight failed (' + status + ')' + (detail === '' ? '' : ': ' + detail)]
+  }
+  return []
+}
+
+function regularArchiveMemberPath(
+  layout: ProjectLayout,
+  archiveRoot: string,
+  archiveReal: string | undefined,
+  path: string,
+): string | undefined {
+  if (archiveReal === undefined) return 'archive root is unreadable'
+  let current = archiveRoot
+  const segments = path.split('/')
+  for (const [index, segment] of segments.entries()) {
+    current = join(current, segment)
+    let stat
+    try {
+      stat = lstatSync(current)
+    } catch {
+      return 'does not exist'
+    }
+    if (stat.isSymbolicLink()) return 'is a symbolic link'
+    const final = index === segments.length - 1
+    if (!final && !stat.isDirectory()) return 'has a non-directory ancestor'
+    if (final && !stat.isFile()) return 'is not a regular file'
+  }
+  const real = safeRealpath(current)
+  if (real === undefined) return 'is unreadable'
+  if (real !== archiveReal && !real.startsWith(archiveReal + sep)) return 'resolves outside the archive root'
+  if (!layout.isInsideProject(real)) return 'resolves outside the project checkout'
+  if (layout.isInsideGitDirectory(real)) return "resolves inside the project's Git directory"
+  return undefined
+}
+
+function explicitArchiveMembers(
+  layout: ProjectLayout,
+  archiveRoot: string,
+  archiveReal: string | undefined,
+  members: readonly MemberMapping[],
+): { errors: Violation[]; canonical: MemberMapping[]; byCompanion: Map<string, string> } {
+  const errors: Violation[] = []
+  const byCompanion = new Map<string, string>()
+  const sources = new Set<string>()
+  const canonical = new Map<string, MemberMapping>()
+  for (const member of members) {
+    const sourceParts = member.source.split('/')
+    if (sourceParts.length !== 2 || !isClassKind(sourceParts[0]) || !FILENAME.test(sourceParts[1])) {
+      errors.push(`members: ${member.source} — source must be a direct {class}/yyyy-mm-dd-topic.md note`)
+      continue
+    }
+    const companionParts = member.companion.split('/')
+    if (companionParts.length < 2 || companionParts[0] !== sourceParts[0]) {
+      errors.push(`members: ${member.source}=${member.companion} — companion must stay under the source class`)
+      continue
+    }
+    const previous = byCompanion.get(member.companion)
+    if (previous !== undefined && previous !== member.source) {
+      errors.push(`members: ${member.companion} — companion is assigned to both ${previous} and ${member.source}`)
+      continue
+    }
+    byCompanion.set(member.companion, member.source)
+    sources.add(member.source)
+    canonical.set(member.source + '\u0000' + member.companion, {
+      source: member.source,
+      companion: member.companion,
+    })
+    const sourceProblem = regularArchiveMemberPath(layout, archiveRoot, archiveReal, member.source)
+    if (sourceProblem !== undefined) errors.push(`members: ${member.source} — source ${sourceProblem}`)
+    const companionProblem = regularArchiveMemberPath(layout, archiveRoot, archiveReal, member.companion)
+    if (companionProblem !== undefined) {
+      errors.push(`members: ${member.companion} — companion ${companionProblem}`)
+    }
+  }
+  for (const source of sources) {
+    if (byCompanion.has(source)) {
+      errors.push(`members: ${source} — a source note cannot also be a declared companion`)
+    }
+  }
+  return {
+    errors,
+    canonical: [...canonical.values()].sort(
+      (left, right) => comparePaths(left.source, right.source) || comparePaths(left.companion, right.companion),
+    ),
+    byCompanion,
+  }
+}
+
+function collectClassMembers(
+  archiveRoot: string,
+  kind: string,
+  prefix: string,
+  errors: Violation[],
+  artifacts: Map<string, Buffer>,
+): void {
+  const directory = prefix === '' ? join(archiveRoot, kind) : join(archiveRoot, kind, prefix)
+  const label = ARCHIVE + '/' + kind + (prefix === '' ? '' : '/' + prefix)
+  for (const entry of safeReaddir(directory, errors, 'archive: ' + label)) {
+    const rel = kind + '/' + (prefix === '' ? '' : prefix + '/') + entry.name
+    if (prefix === '' && entry.name === GITKEEP) continue
+    if (entry.isDirectory()) {
+      collectClassMembers(archiveRoot, kind, prefix === '' ? entry.name : prefix + '/' + entry.name, errors, artifacts)
+      continue
+    }
+    if (!entry.isFile()) {
+      errors.push(
+        'archive: ' +
+          rel +
+          ' — class folders contain only regular files and directories; symbolic links and special entries are forbidden',
+      )
+      continue
+    }
+    const content = safeReadFile(join(archiveRoot, rel), errors, 'archive: ' + rel)
+    if (content !== undefined) artifacts.set(rel, content)
+  }
+}
+
 /**
  * The unit a frozen artifact belongs to: its class folder, its source-note stem and the
  * `{kind}/{stem}` key. A path that is neither Markdown nor a declared companion has no unit.
  */
-function unitKeyFor(path: string, companions: readonly string[]): UnitKey | undefined {
-  const [kind, name] = path.split('/')
+function artifactStateErrors(archiveRoot: string, before: Map<string, Buffer>): Violation[] {
+  const errors: Violation[] = []
+  const after = new Map<string, Buffer>()
+  for (const kind of CLASSES) {
+    collectClassMembers(archiveRoot, kind, '', errors, after)
+  }
+  const expectedPaths = [...before.keys()].sort(comparePaths)
+  const actualPaths = [...after.keys()].sort(comparePaths)
+  if (expectedPaths.join('\n') !== actualPaths.join('\n')) {
+    errors.push('archive: preflight changed the archive artifact set; prepare the seal again')
+    return errors
+  }
+  for (const path of expectedPaths) {
+    if (contentHash(before.get(path) ?? Buffer.alloc(0)) !== contentHash(after.get(path) ?? Buffer.alloc(0))) {
+      errors.push('archive: preflight changed ' + path + '; prepare the seal again')
+    }
+  }
+  return errors
+}
+
+function currentManifestHash(manifestPath: string): string | undefined {
+  if (!existsSync(manifestPath)) return contentHash(Buffer.from(renderManifest(emptyManifest().files)))
+  try {
+    return contentHash(Buffer.from(renderManifest(parseManifest(readFileSync(manifestPath, 'utf8')).files)))
+  } catch {
+    return undefined
+  }
+}
+
+function unitKeyFor(
+  path: string,
+  companions: readonly string[],
+  byCompanion: ReadonlyMap<string, string>,
+): UnitKey | undefined {
+  const explicitSource = byCompanion.get(path)
+  if (explicitSource !== undefined) {
+    const [kind, name] = explicitSource.split('/')
+    return { kind, key: name.slice(0, -3), unitKey: `${kind}/${name.slice(0, -3)}` }
+  }
+  const parts = path.split('/')
+  if (parts.length !== 2) return undefined
+  const [kind, name] = parts
   const companionSuffix = companionSuffixOf(name, companions)
   let key: string
   if (companionSuffix !== undefined) key = name.slice(0, -companionSuffix.length)
@@ -75,13 +297,13 @@ function unitKeyFor(path: string, companions: readonly string[]): UnitKey | unde
 function unitErrors(
   artifacts: Map<string, Buffer>,
   companions: readonly string[],
+  byCompanion: ReadonlyMap<string, string>,
   baselineFiles: Record<string, string>,
-  sealNewUnits: boolean,
 ): Violation[] {
   const errors: Violation[] = []
   const units = new Map<string, Unit>()
   for (const path of artifacts.keys()) {
-    const parsed = unitKeyFor(path, companions)
+    const parsed = unitKeyFor(path, companions, byCompanion)
     if (parsed === undefined) {
       if (!Object.prototype.hasOwnProperty.call(baselineFiles, path)) {
         errors.push(
@@ -107,7 +329,7 @@ function unitErrors(
   }
   const baselineUnits = new Set<string>()
   for (const path of Object.keys(baselineFiles)) {
-    const parsed = unitKeyFor(path, companions)
+    const parsed = unitKeyFor(path, companions, byCompanion)
     if (parsed !== undefined) baselineUnits.add(parsed.unitKey)
   }
   for (const [unitKey, unit] of [...units].sort(([left], [right]) => comparePaths(left, right))) {
@@ -125,13 +347,6 @@ function unitErrors(
     if (match === null) errors.push('archive: ' + unitKey + ' — unit name must be yyyy-mm-dd-topic')
     if (!artifacts.has(sourcePath))
       errors.push('archive: ' + unitKey + ' — incomplete unit; missing source note ' + sourcePath)
-    if (sealNewUnits) {
-      for (const suffix of companions) {
-        const companionPath = unit.kind + '/' + unit.key + suffix
-        if (!artifacts.has(companionPath))
-          errors.push('archive: ' + unitKey + ' — incomplete unit; missing ' + companionPath)
-      }
-    }
     const archiveDates: string[] = []
     for (const path of unit.paths) {
       if (!path.endsWith('.md')) continue
@@ -220,6 +435,8 @@ export function archiveCommand(layout: ProjectLayout, paths: NotesPaths, options
       )
     }
   }
+  const explicitMembers = explicitArchiveMembers(layout, archiveRoot, archiveReal, options.members)
+  errors.push(...explicitMembers.errors)
   if (!isDirectory(archiveRoot)) {
     errors.push(
       'archive: archive root not found: ' + display(projectRoot, archiveRoot) + '; run "notes.mjs init" first',
@@ -243,20 +460,7 @@ export function archiveCommand(layout: ProjectLayout, paths: NotesPaths, options
         continue
       }
       kinds.add(entry.name)
-      for (const fileEntry of safeReaddir(
-        join(archiveRoot, entry.name),
-        errors,
-        'archive: ' + ARCHIVE + '/' + entry.name,
-      )) {
-        if (fileEntry.name === GITKEEP) continue
-        const rel = entry.name + '/' + fileEntry.name
-        if (!fileEntry.isFile()) {
-          errors.push('archive: ' + rel + ' — class folders contain regular files only')
-          continue
-        }
-        const content = safeReadFile(join(archiveRoot, entry.name, fileEntry.name), errors, 'archive: ' + rel)
-        if (content !== undefined) artifacts.set(rel, content)
-      }
+      collectClassMembers(archiveRoot, entry.name, '', errors, artifacts)
     }
     for (const kind of CLASSES) {
       if (!kinds.has(kind)) errors.push('archive: ' + ARCHIVE + '/' + kind + '/ — required class directory is missing')
@@ -276,8 +480,8 @@ export function archiveCommand(layout: ProjectLayout, paths: NotesPaths, options
       errors.push(`manifest: ${error instanceof Error ? error.message : String(error)}`)
       manifest = emptyManifest()
     }
-  } else if (!options.write) {
-    errors.push('manifest: archived/manifest.json is required; seal new units with `archive --write`')
+  } else if (!options.write && !options.prepare) {
+    errors.push('manifest: archived/manifest.json is required; run `archive --prepare` to inspect a seal candidate')
   }
 
   const manifestLocationReal = manifestReal ?? (archiveReal !== undefined ? join(archiveReal, MANIFEST) : undefined)
@@ -294,7 +498,7 @@ export function archiveCommand(layout: ProjectLayout, paths: NotesPaths, options
       manifestRepoPath = rel
     }
   }
-  if (!options.write && Object.keys(manifest.files).length > 0 && manifestRepoPath !== undefined) {
+  if (!options.write && !options.prepare && Object.keys(manifest.files).length > 0 && manifestRepoPath !== undefined) {
     try {
       git(projectRoot, ['ls-files', '--error-unmatch', '--', manifestRepoPath])
     } catch {
@@ -306,10 +510,13 @@ export function archiveCommand(layout: ProjectLayout, paths: NotesPaths, options
     }
   }
   let added: string[] = []
+  let plan: SealPlan | undefined
   if (manifestRepoPath !== undefined) {
     const baseRef = options.baseRef ?? 'HEAD'
     let baseline: Manifest = emptyManifest()
+    let baseCommit: string | undefined
     try {
+      baseCommit = git(projectRoot, ['rev-parse', `${baseRef}^{commit}`]).trim()
       baseline = readBaseline(projectRoot, baseRef, manifestRepoPath)
       for (const [path, expected] of Object.entries(baseline.files)) {
         const actual = manifest.files[path]
@@ -325,15 +532,56 @@ export function archiveCommand(layout: ProjectLayout, paths: NotesPaths, options
           '; archive verification needs a Git repository and that commit',
       )
     }
-    if (options.write) errors.push(...unitErrors(artifacts, options.companions, baseline.files, options.write))
+    const sealing = options.write || options.prepare
+    if (sealing) {
+      errors.push(...unitErrors(artifacts, options.companions, explicitMembers.byCompanion, baseline.files))
+    }
     const extension = extendManifest(manifest, artifacts)
     errors.push(...extension.errors)
     added = extension.added
-    if (!options.write) {
+    if (!sealing) {
       for (const path of added)
         errors.push(
-          'archive: ' + path + ' — archived artifact is not sealed in manifest.json; seal it with "archive --write"',
+          'archive: ' +
+            path +
+            ' — archived artifact is not sealed in manifest.json; inspect it with "archive --prepare"',
         )
+    }
+    if (sealing && baseCommit !== undefined && errors.length === 0) {
+      const planPreflight =
+        options.preflightCommand === undefined ? [] : [options.preflightCommand, ...options.preflightArgs]
+      plan = sealPlanFor(
+        baseCommit,
+        manifest,
+        added,
+        artifacts,
+        options.companions,
+        explicitMembers.canonical,
+        planPreflight,
+      )
+    }
+    if (options.write && added.length > 0 && options.expectPlan === undefined) {
+      errors.push('archive: new artifacts require --expect-plan; run "archive --prepare" and inspect its plan first')
+    } else if (options.write && options.expectPlan !== undefined && plan !== undefined) {
+      const actual = planDigest(plan)
+      if (options.expectPlan !== actual) {
+        errors.push(
+          'archive: seal plan changed; expected ' +
+            options.expectPlan +
+            ' but the current state produces ' +
+            actual +
+            '; run "archive --prepare" again',
+        )
+      }
+    }
+    if (options.write && plan !== undefined && plan.preflight.length > 0 && errors.length === 0) {
+      errors.push(...runPreflight(projectRoot, plan.preflight[0] as string, plan.preflight.slice(1)))
+      if (errors.length === 0) {
+        errors.push(...artifactStateErrors(archiveRoot, artifacts))
+        if (currentManifestHash(manifestPath) !== plan.manifestHash) {
+          errors.push('archive: preflight changed the manifest; prepare the seal again')
+        }
+      }
     }
     if (options.write && errors.length === 0) {
       const rendered = renderManifest(extension.files)
@@ -343,5 +591,13 @@ export function archiveCommand(layout: ProjectLayout, paths: NotesPaths, options
     }
   }
   const sealed = options.write && errors.length === 0 ? added.length : 0
-  return { command: 'archive', errors, summary: { artifacts: artifacts.size, sealed } }
+  return {
+    command: 'archive',
+    errors,
+    summary: {
+      artifacts: artifacts.size,
+      sealed,
+      ...(plan === undefined ? {} : { plan: renderPlan(plan) }),
+    },
+  }
 }

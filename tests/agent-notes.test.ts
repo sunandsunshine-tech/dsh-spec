@@ -92,10 +92,25 @@ function initTree(project: Fixture | string): void {
   assert.equal(result.status, 0, result.stdout + result.stderr)
 }
 
-function run(target: Fixture | string, args: string[]) {
+function runRaw(target: Fixture | string, args: string[]) {
   const directory = typeof target === 'string' ? target : target.root
   const env = typeof target === 'string' ? isolatedGitEnv(directory) : target.env
   return runScript(SCRIPT, args, directory, { env })
+}
+
+/**
+ * Existing cases exercise sealing behavior, not the two-phase command spelling. Run the required
+ * preparation first and bind the write to that plan; direct-write rejection has its own case.
+ */
+function run(target: Fixture | string, args: string[]) {
+  if (!args.includes('--write') || args.includes('--expect-plan')) return runRaw(target, args)
+  const writeIndex = args.indexOf('--write')
+  const prepareArgs = args.filter((_, index) => index !== writeIndex)
+  const prepared = runRaw(target, [...prepareArgs, '--prepare'])
+  if (prepared.status !== 0) return prepared
+  const plan = /plan ([0-9a-f]{64})/.exec(prepared.stdout)?.[1]
+  assert.ok(plan, 'prepare must print a seal plan: ' + prepared.output)
+  return runRaw(target, [...args, '--expect-plan', plan])
 }
 
 function archived(note, date = '2026-10-03') {
@@ -193,6 +208,39 @@ test('check pairs declared companions with their source note', (t) => {
   assert.match(orphan.stdout, /no source note 2026-10-09-orphan\.md/)
 })
 
+test('check accepts a path-scoped nested Markdown member without counting it as a note', (t) => {
+  const project = makeProject(t)
+  const source = `${ROOT}/implemented/feature/2026-10-02-ship.md`
+  const companion = `${ROOT}/implemented/feature/support/details.md`
+  project.write(source, IMPLEMENTED)
+  project.write(companion, '# Supporting material\n')
+  const member = 'implemented/feature/2026-10-02-ship.md=implemented/feature/support/details.md'
+  const result = run(project, ['check', '--member', member])
+  assert.equal(result.status, 0, result.stdout)
+  assert.match(result.stdout, /1 note\(s\)/)
+  assert.match(result.stdout, /1 companion\(s\)/)
+})
+
+test('check rejects a path-scoped member whose source or companion is missing', (t) => {
+  const project = makeProject(t)
+  project.write(`${ROOT}/implemented/feature/2026-10-02-ship.md`, IMPLEMENTED)
+  const missing = run(project, [
+    'check',
+    '--member',
+    'implemented/feature/2026-10-02-ship.md=implemented/feature/support/missing.md',
+  ])
+  assert.equal(missing.status, 1)
+  assert.match(missing.stdout, /missing.*does not exist/)
+  project.write(`${ROOT}/implemented/feature/support/details.md`, '# Details\n')
+  const missingSource = run(project, [
+    'check',
+    '--member',
+    'implemented/feature/2026-10-03-absent.md=implemented/feature/support/details.md',
+  ])
+  assert.equal(missingSource.status, 1)
+  assert.match(missingSource.stdout, /absent\.md — source does not exist/)
+})
+
 test('check resolves a non-default root against the project root', (t) => {
   const project = makeProject(t)
   project.write(`docs/notes/proposed/process/2026-10-01-x.md`, PROPOSED)
@@ -209,7 +257,7 @@ test('archive refuses an archive without a manifest', (t) => {
   assert.equal(result.status, 1)
   assert.match(result.stdout, /manifest\.json is required/)
   assert.match(result.stdout, /not sealed in manifest\.json/)
-  assert.match(result.stdout, /seal it with .archive --write./)
+  assert.match(result.stdout, /run .archive --prepare. to inspect a seal candidate/)
 })
 
 test('archive --write seals a unit and the sealed archive verifies', (t) => {
@@ -221,6 +269,190 @@ test('archive --write seals a unit and the sealed archive verifies', (t) => {
   const manifest = JSON.parse(project.read(`${ROOT}/archived/manifest.json`))
   assert.equal(manifest.version, 1)
   assert.match(manifest.files['feature/2026-10-02-ship.md'], /^sha256:[0-9a-f]{64}$/)
+})
+
+test('archive --prepare prints a hash-bound plan and writes nothing', (t) => {
+  const project = makeProject(t)
+  initTree(project)
+  project.write(`${ROOT}/archived/feature/2026-10-02-ship.md`, archived(IMPLEMENTED))
+  const result = runRaw(project, ['archive', '--prepare'])
+  assert.equal(result.status, 0, result.stdout)
+  assert.match(result.stdout, /plan [0-9a-f]{64}/)
+  assert.match(result.stdout, /feature\/2026-10-02-ship\.md sha256:[0-9a-f]{64}/)
+  const json = runRaw(project, ['archive', '--prepare', '--json'])
+  assert.equal(json.status, 0, json.stdout)
+  const summary = JSON.parse(json.stdout)
+  assert.equal(summary.plan.artifacts[0].path, 'feature/2026-10-02-ship.md')
+  assert.match(summary.plan.artifacts[0].hash, /^sha256:[0-9a-f]{64}$/)
+  assert.equal(project.exists(`${ROOT}/archived/manifest.json`), false)
+})
+
+test('archive --write requires a matching plan for a new artifact', (t) => {
+  const project = makeProject(t)
+  initTree(project)
+  project.write(`${ROOT}/archived/feature/2026-10-02-ship.md`, archived(IMPLEMENTED))
+  const result = runRaw(project, ['archive', '--write'])
+  assert.equal(result.status, 1)
+  assert.match(result.stdout, /new artifacts require --expect-plan/)
+  assert.equal(project.exists(`${ROOT}/archived/manifest.json`), false)
+})
+
+test('archive --write rejects a plan after the candidate unit changes', (t) => {
+  const project = makeProject(t)
+  initTree(project)
+  const note = `${ROOT}/archived/feature/2026-10-02-ship.md`
+  project.write(note, archived(IMPLEMENTED))
+  const prepared = runRaw(project, ['archive', '--prepare'])
+  assert.equal(prepared.status, 0, prepared.stdout)
+  const plan = /plan ([0-9a-f]{64})/.exec(prepared.stdout)?.[1]
+  assert.ok(plan)
+  project.write(note, `${project.read(note)}\nchanged\n`)
+  const written = runRaw(project, ['archive', '--write', '--expect-plan', plan])
+  assert.equal(written.status, 1)
+  assert.match(written.stdout, /seal plan changed/)
+  assert.equal(project.exists(`${ROOT}/archived/manifest.json`), false)
+})
+
+test('archive --write lets an external preflight reject a semantically incomplete unit', (t) => {
+  const project = makeProject(t)
+  initTree(project)
+  project.write(`${ROOT}/archived/feature/2026-10-02-ship.md`, archived(IMPLEMENTED))
+  project.write(`${ROOT}/archived/feature/2026-10-02-ship.zh.md`, archived(IMPLEMENTED))
+  const record = JSON.stringify(`${ROOT}/archived/feature/2026-10-02-ship.i18n.yaml`)
+  const result = run(project, [
+    'archive',
+    '--write',
+    '--companion',
+    '.zh.md',
+    '--companion',
+    '.i18n.yaml',
+    '--preflight-command',
+    process.execPath,
+    '--preflight-arg',
+    '-e',
+    '--preflight-arg',
+    `if (!require('node:fs').existsSync(${record})) { console.error('missing pairing record'); process.exit(1) }`,
+  ])
+  assert.equal(result.status, 1)
+  assert.match(result.stdout, /preflight failed \(exit 1\): missing pairing record/)
+  assert.equal(project.exists(`${ROOT}/archived/manifest.json`), false)
+})
+
+test('archive --write seals after a successful preflight', (t) => {
+  const project = makeProject(t)
+  initTree(project)
+  project.write(`${ROOT}/archived/feature/2026-10-02-ship.md`, archived(IMPLEMENTED))
+  const result = run(project, [
+    'archive',
+    '--write',
+    '--preflight-command',
+    process.execPath,
+    '--preflight-arg',
+    '-e',
+    '--preflight-arg',
+    'process.exit(0)',
+  ])
+  assert.equal(result.status, 0, result.stdout + result.stderr)
+  assert.equal(project.exists(`${ROOT}/archived/manifest.json`), true)
+})
+
+test('archive accepts a nested different-stem external unit member', (t) => {
+  const project = makeProject(t)
+  initTree(project)
+  const source = `${ROOT}/archived/feature/2026-10-02-ship.md`
+  const companion = `${ROOT}/archived/feature/support/details.txt`
+  project.write(source, archived(IMPLEMENTED))
+  project.write(companion, 'external details\n')
+  const member = 'feature/2026-10-02-ship.md=feature/support/details.txt'
+  const result = run(project, ['archive', '--write', '--member', member])
+  assert.equal(result.status, 0, result.stdout)
+  const manifest = JSON.parse(project.read(`${ROOT}/archived/manifest.json`))
+  assert.deepEqual(Object.keys(manifest.files).sort(), [member.split('=')[0], member.split('=')[1]].sort())
+})
+
+test('archive applies Markdown metadata checks to every nested member side', (t) => {
+  const project = makeProject(t)
+  initTree(project)
+  const source = `${ROOT}/archived/feature/2026-10-02-ship.md`
+  const companion = `${ROOT}/archived/feature/support/translation-ja.md`
+  const member = 'feature/2026-10-02-ship.md=feature/support/translation-ja.md'
+  project.write(source, archived(IMPLEMENTED))
+  project.write(companion, IMPLEMENTED)
+  const incomplete = runRaw(project, ['archive', '--prepare', '--member', member])
+  assert.equal(incomplete.status, 1)
+  assert.match(incomplete.stdout, /translation-ja\.md — requires Archived/)
+  project.write(companion, archived(IMPLEMENTED))
+  const prepared = runRaw(project, ['archive', '--prepare', '--member', member])
+  assert.equal(prepared.status, 0, prepared.stdout)
+})
+
+test('archive rejects symbolic links inside a nested class directory', (t) => {
+  const project = makeProject(t)
+  initTree(project)
+  project.write(`${ROOT}/archived/feature/2026-10-02-ship.md`, archived(IMPLEMENTED))
+  project.write('target.txt', 'target\n')
+  project.mkdir(`${ROOT}/archived/feature/support`)
+  symlinkSync(join(project.root, 'target.txt'), join(project.root, ROOT, 'archived/feature/support/link.txt'))
+  const result = runRaw(project, ['archive', '--prepare'])
+  assert.equal(result.status, 1)
+  assert.match(result.stdout, /symbolic links and special entries are forbidden/)
+})
+
+test('archive rejects a path-scoped member whose companion is missing', (t) => {
+  const project = makeProject(t)
+  initTree(project)
+  project.write(`${ROOT}/archived/feature/2026-10-02-ship.md`, archived(IMPLEMENTED))
+  const member = 'feature/2026-10-02-ship.md=feature/support/missing.txt'
+  const result = run(project, ['archive', '--prepare', '--member', member])
+  assert.equal(result.status, 1)
+  assert.match(result.stdout, /missing\.txt — companion does not exist/)
+  project.write(`${ROOT}/archived/feature/support/details.txt`, 'details\n')
+  const missingSource = run(project, [
+    'archive',
+    '--prepare',
+    '--member',
+    'feature/2026-10-03-absent.md=feature/support/details.txt',
+  ])
+  assert.equal(missingSource.status, 1)
+  assert.match(missingSource.stdout, /absent\.md — source does not exist/)
+})
+
+test('archive plan binding includes the explicit member set', (t) => {
+  const project = makeProject(t)
+  initTree(project)
+  project.write(`${ROOT}/archived/feature/2026-10-02-ship.md`, archived(IMPLEMENTED))
+  project.write(`${ROOT}/archived/feature/2026-10-03-other.md`, archived(IMPLEMENTED))
+  project.write(`${ROOT}/archived/feature/support/shared.txt`, 'shared\n')
+  const first = 'feature/2026-10-02-ship.md=feature/support/shared.txt'
+  const second = 'feature/2026-10-03-other.md=feature/support/shared.txt'
+  const prepared = runRaw(project, ['archive', '--prepare', '--member', first])
+  assert.equal(prepared.status, 0, prepared.stdout)
+  const plan = /plan ([0-9a-f]{64})/.exec(prepared.stdout)?.[1]
+  assert.ok(plan)
+  const written = runRaw(project, ['archive', '--write', '--expect-plan', plan, '--member', second])
+  assert.equal(written.status, 1)
+  assert.match(written.stdout, /seal plan changed/)
+  assert.equal(project.exists(`${ROOT}/archived/manifest.json`), false)
+})
+
+test('archive --write rejects a preflight that changes the prepared unit', (t) => {
+  const project = makeProject(t)
+  initTree(project)
+  const note = `${ROOT}/archived/feature/2026-10-02-ship.md`
+  project.write(note, archived(IMPLEMENTED))
+  const result = run(project, [
+    'archive',
+    '--write',
+    '--preflight-command',
+    process.execPath,
+    '--preflight-arg',
+    '-e',
+    '--preflight-arg',
+    `require('node:fs').appendFileSync(${JSON.stringify(note)}, 'changed\\n')`,
+  ])
+  assert.equal(result.status, 1)
+  assert.match(result.stdout, /preflight changed feature\/2026-10-02-ship\.md/)
+  assert.equal(project.exists(`${ROOT}/archived/manifest.json`), false)
 })
 
 test('archive rejects a changed sealed artifact', (t) => {
@@ -274,7 +506,7 @@ test('archive rejects an unknown class directory', (t) => {
   assert.match(result.stdout, /unknown class folder/)
 })
 
-test('archive enforces declared companion completeness', (t) => {
+test('archive seals the current companion subset instead of requiring every declared suffix', (t) => {
   const project = makeProject(t)
   initTree(project)
   project.write(`${ROOT}/implemented/feature/2026-10-02-ship.md`, IMPLEMENTED)
@@ -284,9 +516,10 @@ test('archive enforces declared companion completeness', (t) => {
     `${ROOT}/archived/feature/2026-10-02-ship.zh.md`,
     archived(IMPLEMENTED.replace('A decision', '一个决定')),
   )
-  const missing = run(project, ['archive', '--write', '--companion', '.zh.md', '--companion', '.i18n.yaml'])
-  assert.equal(missing.status, 1)
-  assert.match(missing.stdout, /incomplete unit; missing feature\/2026-10-02-ship\.i18n\.yaml/)
+  const sealed = run(project, ['archive', '--write', '--companion', '.zh.md', '--companion', '.i18n.yaml'])
+  assert.equal(sealed.status, 0, sealed.stdout)
+  const manifest = JSON.parse(project.read(`${ROOT}/archived/manifest.json`))
+  assert.deepEqual(Object.keys(manifest.files).sort(), ['feature/2026-10-02-ship.md', 'feature/2026-10-02-ship.zh.md'])
 })
 
 test('check gates the pre-format alternatives comment by the adoption date', (t) => {
@@ -458,7 +691,10 @@ test('usage errors exit 2 and --json reports the summary', (t) => {
   project.write(`${ROOT}/proposed/process/2026-10-01-x.md`, PROPOSED)
   const usage = run(project, ['check', '--base-ref', 'HEAD'])
   assert.equal(usage.status, 2)
-  assert.match(usage.stderr, /^notes\.mjs: .*--base-ref belong to archive\nrun "notes\.mjs --help" for usage\n$/)
+  assert.match(
+    usage.stderr,
+    /^notes\.mjs: check takes .*seal options belong to archive\nrun "notes\.mjs --help" for usage\n$/,
+  )
   const json = run(project, ['check', '--json'])
   assert.equal(json.status, 0, json.stdout)
   assert.match(json.stdout, /^\{\n  "command"/)
@@ -650,13 +886,14 @@ test('archive rejects an artifact added to a sealed unit', (t) => {
   assert.match(result.stdout, /sealed unit cannot gain artifact/)
 })
 
-test('archive requires declared companions for a newly sealed unit', (t) => {
+test('archive accepts a newly sealed source without companion artifacts', (t) => {
   const project = makeProject(t)
   initTree(project)
   project.write(ROOT + '/archived/feature/2026-10-02-new.md', archived(IMPLEMENTED))
   const result = run(project, ['archive', '--write', '--companion', '.zh.md'])
-  assert.equal(result.status, 1)
-  assert.match(result.stdout, /incomplete unit; missing .*\.zh\.md/)
+  assert.equal(result.status, 0, result.stdout)
+  const manifest = JSON.parse(project.read(ROOT + '/archived/manifest.json'))
+  assert.deepEqual(Object.keys(manifest.files), ['feature/2026-10-02-new.md'])
 })
 
 test('archive allows an optional archived/AGENTS.md without sealing it', (t) => {
