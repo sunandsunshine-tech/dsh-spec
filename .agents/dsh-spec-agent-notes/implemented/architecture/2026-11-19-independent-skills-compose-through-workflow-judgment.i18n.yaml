@@ -1,0 +1,19 @@
+# Pairing consistency record for 2026-11-19-independent-skills-compose-through-workflow-judgment.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/architecture/2026-11-19-independent-skills-compose-through-workflow-judgment.md --target <lang>
+/agent-note-independent-skills-compose-through-workflow-judgment:
+  en: eff2a5a6b88c4cb3
+  zh: d8a044948bf2a4eb
+/agent-note-independent-skills-compose-through-workflow-judgment/problem:
+  en: fa16fa0d0cd23be4
+  zh: 5da36f8b655d6bf4
+/agent-note-independent-skills-compose-through-workflow-judgment/decision:
+  en: 266fb475e37efb8f
+  zh: e7debdf15cead709
+/agent-note-independent-skills-compose-through-workflow-judgment/alternatives-considered:
+  en: 4cb023c351dae49e
+  zh: db3bb7c47766d08e
+/agent-note-independent-skills-compose-through-workflow-judgment/consequences:
+  en: 5833ca16c9bdc71c
+  zh: dcec0f6a71915d5c

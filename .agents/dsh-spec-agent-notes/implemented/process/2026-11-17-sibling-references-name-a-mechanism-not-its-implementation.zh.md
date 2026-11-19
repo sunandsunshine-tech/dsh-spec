@@ -25,5 +25,6 @@ description 与 compatibility 不点名兄弟技能。`scripts/verify-sibling-re
 
 - 谨慎的引用仍可发现，安装不同技能子集的采用者仍能遵循通用要求。
 - 门禁能拦下未限定名称、括号细节和元数据中的兄弟技能名；跨句流程泄露和“notes companion shape”这类隐式别名仍由评审发现。
+- [独立技能通过工作流判断组合](../architecture/2026-11-19-independent-skills-compose-through-workflow-judgment.zh.md)拥有组合边界；本记录拥有引用语法。
 - 本决策部分取代 [锻造 dsh-spec-code-review](2026-10-28-forging-dsh-spec-code-review.zh.md) 中的 R12；该记录回链本决策并陈述当前规则。
 - 技能入口与安装副本在同一变更中修改。

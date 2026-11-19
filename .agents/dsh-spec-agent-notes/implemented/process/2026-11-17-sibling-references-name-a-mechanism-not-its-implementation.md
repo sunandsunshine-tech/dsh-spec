@@ -25,5 +25,6 @@ Descriptions and compatibility fields do not name sibling skills. `scripts/verif
 
 - Cautious references remain discoverable, and a project that installs a different skill subset can still follow the generic requirement.
 - The gate catches unqualified names, bracket detail and sibling names in metadata; review still catches cross-sentence process leakage and implicit aliases such as the former "notes companion shape".
+- [Independent skills compose through workflow judgment](../architecture/2026-11-19-independent-skills-compose-through-workflow-judgment.md) owns the composition boundary; this note owns the reference syntax.
 - This note partially supersedes R12 in [Forging dsh-spec-code-review](2026-10-28-forging-dsh-spec-code-review.md); that record links back to this decision and states the current rule.
 - The skill entries and installed copies change together.
