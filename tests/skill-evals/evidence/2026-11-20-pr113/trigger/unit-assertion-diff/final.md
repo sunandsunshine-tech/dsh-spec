@@ -1,13 +1,9 @@
-The assertion is not deriving the expected count from the array. The test explicitly says the count should be **3**, while the code produces **4**:
+The assertion at [test.mjs](/tmp/pr113-trigger-eval/unit-assertion-diff/project/trigger-fixtures/unit-assertion-diff/test.mjs:3) supplies:
 
 ```js
-expect(items).toHaveLength(3); // expected: 3
+assert.equal(actual, expected)
 ```
 
-Since `items` contains four elements, `actual: 4` is correct. The failure means one of these is true:
+Here, `[1, 2, 3, 4].length` evaluates to `4` and is passed as the actual value; the literal `3` is passed as the expected value. Since `4 !== 3`, Node throws an `AssertionError` reporting `expected: 3` and `actual: 4`.
 
-- The test expectation is stale and should be `4`.
-- The code should have filtered/deduplicated `items` down to three elements.
-- The assertion arguments are reversed if using a low-level `assert` API, making the displayed labels misleading.
-
-I couldn’t identify the exact cause because the workspace contains no source or test files. The assertion line and the code that constructs the four-item array would resolve which case applies.
+The failure is correct. If the array should have four elements, the expected value should be `4`. If the expected count really is three, remove one element from the array.

@@ -213,10 +213,10 @@ Every disposition row is the anchor for the requirement it carries. N1 is mechan
 
 The clean-context model evaluation under `tests/skill-evals/evidence/2026-11-20-pr113/` ran
 `codex exec --ephemeral` for candidate, previous-skill and no-skill profiles. All five candidate
-scenarios loaded the skill and passed all 20 assertions. Both baselines passed 18 of 20; each
-discarded unexpected cleanup failures in the silent-handler scenario. One candidate run per
-scenario is evidence of the tested behavior, not a claim that every phrasing or host profile has
-equal effect.
+scenarios loaded the skill and passed all 20 assertions. The previous-skill baseline passed 18 of
+20 because it discarded unexpected cleanup failures; the no-skill profile passed 19 of 20. One
+candidate run per scenario is evidence of the tested behavior, not a claim that every phrasing or
+host profile has equal effect.
 
 The ten-query trigger corpus installed the candidate in an otherwise empty project and recorded
 whether the run read `SKILL.md`. Five positive prompts triggered. Five near-miss prompts initially

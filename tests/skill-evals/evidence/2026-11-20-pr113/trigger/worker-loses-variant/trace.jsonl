@@ -1,0 +1,4 @@
+{"type":"skill","path":".agents/skills/dsh-spec-error-handling/SKILL.md","sha256":"99db04621b3294d91c3f46373279296d78b179ba042b81ff3416f1fead3ab731"}
+{"type":"command","command":"/bin/bash -c \"sed -n '1,240p' /tmp/pr113-trigger-eval/worker-loses-variant/project/.agents/skills/dsh-spec-error-handling/SKILL.md\"","exit_code":0,"status":"completed"}
+{"type":"command","command":"/bin/bash -c \"sed -n '1,280p' /tmp/pr113-trigger-eval/worker-loses-variant/project/.agents/skills/dsh-spec-error-handling/references/error-contracts.md\"","exit_code":0,"status":"completed"}
+{"type":"turn.completed","usage":{"input_tokens":53731,"cached_input_tokens":49536,"cache_write_input_tokens":0,"output_tokens":2104,"reasoning_output_tokens":1353}}

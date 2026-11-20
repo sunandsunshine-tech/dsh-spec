@@ -2,7 +2,9 @@
 
 Candidate implementation commit: `1b40307d92fb24714717ae5086df84f3640cf55b`.
 Candidate skill tree: `45cbc1bb02db3bc97ae070e5b4ec1034c6ac3b91`.
-Evaluation corpus tree: `d8fea1c70c74bbae29d779d63e1fc9dd78dda5aa`.
+Evaluation corpus tree: `46f81662cef85fbe8f0053db8c65c1884f3ebf8d`.
+Trigger corpus blob: `01a40e7d8ab08a77951576b6061d1854e98720a9`.
+Trigger fixture tree: `bdfe46c825900cbe1d22f109785b774863d1b0ef`.
 Base: `7bd235d` (`agent/104-dsh-rc5-baseline`).
 Run date: 2026-11-20.
 
@@ -37,20 +39,20 @@ requires a model run.
 | message-only | candidate | 4/4 | 29.0 s | 116,703 | 4,782 |
 | worker-boundary | no skill | 4/4 | 39.5 s | 70,578 | 6,727 |
 | worker-boundary | candidate | 4/4 | 161.0 s | 182,037 | 4,099 |
-| silent-handler | no skill | 2/4 | 19.0 s | 50,513 | 2,732 |
-| silent-handler | candidate | 4/4 | 54.0 s | 140,534 | 6,545 |
+| silent-handler | no skill | 4/4 | 29.0 s | 50,816 | 4,864 |
+| silent-handler | candidate | 4/4 | 30.0 s | 75,754 | 4,477 |
 | existing identity | no skill | 4/4 | 56.6 s | 270,512 | 11,059 |
 | existing identity | candidate | 4/4 | 106.0 s | 201,881 | 8,943 |
 | numeric status, no cause | no skill | 4/4 | 42.7 s | 261,750 | 7,458 |
 | numeric status, no cause | candidate | 4/4 | 51.0 s | 182,070 | 8,579 |
 
-Candidate total: 20/20 assertions. Previous-skill total: 18/20. No-skill total: 18/20.
+Candidate total: 20/20 assertions. Previous-skill total: 18/20. No-skill total: 19/20.
 
 | Scenario | Previous skill | Assertions | Time | Input tokens | Output tokens |
 |---|---|---:|---:|---:|---:|
 | message-only | `agent/104-dsh-rc5-baseline` | 4/4 | 33.4 s | 90,131 | 5,927 |
 | worker-boundary | `agent/104-dsh-rc5-baseline` | 4/4 | 69.5 s | 88,744 | 11,922 |
-| silent-handler | `agent/104-dsh-rc5-baseline` | 2/4 | 54.8 s | 135,439 | 6,265 |
+| silent-handler | `agent/104-dsh-rc5-baseline` | 2/4 | 26.0 s | 72,006 | 3,833 |
 | existing identity | `agent/104-dsh-rc5-baseline` | 4/4 | 48.3 s | 166,591 | 8,453 |
 | numeric status, no cause | `agent/104-dsh-rc5-baseline` | 4/4 | 52.8 s | 246,582 | 9,395 |
 
@@ -84,9 +86,9 @@ failure, so it missed the requirement to identify only the expected missing-dire
 The candidate selected the missing-directory condition, rethrew other cleanup failures, and kept
 commit and notification failures visible.
 
-Both the no-skill and previous-skill profiles missed the same two cleanup assertions. The previous
-skill therefore adds no measurable benefit for this case unless its silent-handler section is
-applied selectively.
+The previous-skill profile missed the stable-discriminant and unexpected-failure assertions because
+it still discarded every cleanup failure. The no-skill profile narrowed the catch correctly under
+the explicit state-guarantee prompt.
 
 Evidence: `baseline-silent-handler/`, `previous-silent-handler/`, `candidate-silent-handler/`.
 
@@ -119,4 +121,20 @@ The first near-miss batch produced one false positive: the TypeScript build-perf
 the skill. Adding performance tuning to the description exclusions and rerunning that query removed
 the read. The final matrix is 5/5 positive triggers and 5/5 near-miss non-triggers.
 
-Evidence: `trigger-matrix.tsv`, `trigger/<query>/final.md`.
+Each `trigger/<query>/` directory retains the final response, stderr, and a derived `trace.jsonl`
+containing command records and the final token usage. The commands are copied from the ephemeral
+`codex exec --json` stream; the large command outputs are omitted. This keeps the trigger decision
+auditable without committing the full host trace. Every trace begins with the SHA-256 of the
+installed `SKILL.md`, and the evidence test checks it against the current source.
+
+All runs use `trigger-fixtures/AGENTS.md`, which marks `.agents/skills/` as evaluator infrastructure
+and forbids reading it for task context. Five near-miss prompts name minimal files under
+`trigger-fixtures/<query>/`; the positive prompts are self-contained. This separates catalog
+selection from an incidental directory scan.
+
+Runs made after the configured gateway plugin became unavailable passed
+`-c 'plugins."codex-ds-gateway@codex-ds-adapter".enabled=false'` and
+`-c 'mcp_servers.gateway.enabled=false'`. Those settings disable a broken tool integration; they do
+not change the installed skill or its selection.
+
+Evidence: `trigger-matrix.tsv`, `trigger/<query>/final.md`, `trigger/<query>/trace.jsonl`.

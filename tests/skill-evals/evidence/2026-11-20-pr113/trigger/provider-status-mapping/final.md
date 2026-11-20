@@ -1,39 +1,26 @@
-Map both responses to the service’s existing numeric provider-failure status. Preserve the original HTTP status and retry decision as structured metadata so the numeric status remains backward-compatible without becoming the retry policy.
+Use the service’s existing numeric status as the canonical machine identity. The provider adapter classifies the failure; callers and retry code must not parse messages or rediscover semantics from the raw HTTP code.
 
-Use one owning `ProviderFailure` at the HTTP-adapter boundary:
+A practical contract is:
 
 ```text
-ProviderFailure {
-  status: <existing numeric status>
-  providerStatus: 409 | 503
-  retryable: boolean
-  retryAfterMs?: number
-  outcome: NOT_APPLIED | APPLIED | UNKNOWN
-  operation: string
-  cause: original transport failure
-}
+ServiceFailure
+  status: ServiceStatus          required, existing numeric value
+  operation: string              required
+  provider_http_status: 409|503  structured detail
+  retry_mode: never|transient|reconcile_then_retry
+  retry_after?: duration
+  cause?: error
 ```
 
-`retryable` means “it is safe to issue this operation again,” not merely “the provider returned a transient code.”
+If the existing numeric statuses already encode retry behavior, reuse that policy and omit `retry_mode`. Do not map both HTTP statuses to one generic numeric status if their handling differs.
 
-| Provider response | Numeric status | Retry behavior | Required caller action |
-|---|---|---|---|
-| HTTP 409 Conflict | Existing numeric status, unchanged | Not automatically retryable by default | Refresh/reconcile state, then resubmit under a new precondition or version |
-| HTTP 503 Service Unavailable | Existing numeric status, unchanged | Safe requests retry with bounded exponential backoff and jitter; honor valid `Retry-After` | Retry later; reconcile if the operation could have committed |
+| Provider response | Service status | Default retry contract |
+|---|---|---|
+| HTTP 409 | Existing `Conflict` numeric value | `reconcile_then_retry`: do not blindly replay the request. Reconcile state first, then retry only when the operation is idempotent or uses the same idempotency key and the provider’s API explicitly treats 409 as a concurrent-operation condition. |
+| HTTP 503 | Existing `Unavailable` numeric value | `transient`: retry subject to a finite budget. Honor `Retry-After`; otherwise use capped exponential backoff with jitter. Auto-retry only an idempotent operation or one carrying an idempotency key. |
 
-For 409, only retry when the provider explicitly documents the conflict as transient and safe repetition is guaranteed. Otherwise, a blind retry will usually reproduce the conflict.
+The provider adapter owns conversion and must retain HTTP 409/503 and the original cause as details. The numeric status remains stable across persistence, process boundaries, retry decisions, analytics, and UI projections.
 
-For 503, retry only when the operation is idempotent or carries an idempotency key. A mutating request without that guarantee should not be transparently repeated: its commit outcome may be `UNKNOWN`. Surface that uncertainty instead of claiming failure or success.
+Retry logic also needs an explicit owner, cancellation support, an attempt budget, and idempotency protection. A 409 should leave the operation unresolved until reconciliation. A 503 whose retries are exhausted must remain a visible `Unavailable` failure; it must not become success or silently disappear. Neither response permits claiming that the provider-side mutation did not occur.
 
-Classification must happen before final numeric-status mapping. The retry executor reads `retryable`, not the numeric status or message text. On exhaustion, retain the last `providerStatus`, attempt count, and `retryExhausted: true`.
-
-At service or wire boundaries, preserve `status`, `providerStatus`, `retryable`, `retryAfterMs`, `outcome`, and a correlation ID. Keep the raw cause for diagnostics but do not serialize provider bodies, credentials, or sensitive internal details. Callers must not infer failure class by parsing the message.
-
-The visible messages should differ by cause:
-
-- 409: “The request conflicted with current provider state. Refresh the resource and try again.”
-- 503: “The provider is temporarily unavailable. Retry later,” optionally noting that automatic retries were exhausted.
-
-Tests should assert both exact numeric mappings, preservation of 409/503, no automatic retry for 409, bounded retries and cancellation for 503, `UNKNOWN` outcome for unsafe mutations, and round-trip preservation of the portable failure fields. The existing numeric value remains a compatibility promise; the new metadata is additive.
-
-This uses the error-contract guidance to keep the numeric discriminator stable while treating retryability, commit outcome, raw provider status, and cause as separate responsibilities.
+User-facing reports should name the operation, state the impact or uncertainty, and give a safe next step without exposing provider internals. Tests should assert the exact numeric status, preserved provider status, retry mode, retry count and backoff behavior, cancellation, idempotency-key reuse, boundary serialization, and the final visible error after exhaustion.

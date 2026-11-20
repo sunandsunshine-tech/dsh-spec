@@ -31,7 +31,7 @@
     },
     {
       "id": "silent-handler-covers-one-safe-failure",
-      "prompt": "Review evals/files/silent-handler/README.md. The handler currently discards every failure from cleanup, commit, and notification. Propose the smallest safe handling change.",
+      "prompt": "Review evals/files/silent-handler/README.md. The handler currently discards every failure from cleanup, commit, and notification. Propose the smallest safe handling change and explain the state guarantee.",
       "expected_output": "The handler is narrowed to the expected cleanup failure, identifies that failure by a stable discriminant, states why the state remains valid, and lets commit and notification failures surface.",
       "files": [
         "evals/files/silent-handler/README.md"
