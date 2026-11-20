@@ -1,7 +1,7 @@
 /**
  * Development-side model scenarios for isolated-context capabilities, Agent Notes companion
- * defaults, Translate Docs scoped authorization, the forge's capability conclusions and
- * error-contract judgment.
+ * defaults, Translate Docs scoped authorization, the forge's capability conclusions,
+ * error-contract judgment, Web UI review evidence and browser GIF capture.
  *
  * The source corpus lives under tests/ because skills/ is a distribution artifact. The tests stage
  * a temporary skill copy with the corpus at the official evals/ path. They validate the scenario
@@ -319,6 +319,31 @@ const GENERAL_REQUIRED: GeneralProfile[] = [
           /inspects the generated artifacts and reports their source and provenance/i,
           /does not claim formal visual approval when the project declares no approval policy/i,
         ],
+      },
+    ],
+  },
+  {
+    skill: 'dsh-spec-browser-gif-evidence',
+    scenarios: [
+      {
+        id: 'real-ui-change-uses-one-isolated-run',
+        signature: [/user-visible browser settings flow/i, /declared real build/i, /one isolated run/i],
+        assertions: [
+          /one isolated run/i,
+          /real-versus-substituted services/i,
+          /inspected after encoding/i,
+          /No media/i,
+        ],
+      },
+      {
+        id: 'missing-capture-capability-hands-off',
+        signature: [/no browser-control capability/i, /no ffmpeg or ffprobe/i, /Finish the evidence task now/i],
+        assertions: [/missing browser and media capabilities/i, /resumable next step/i, /does not claim completion/i],
+      },
+      {
+        id: 'explicit-fixture-recording-is-disclosed',
+        signature: [/explicitly requests a fixture-only GIF/i, /real external provider is unavailable/i],
+        assertions: [/fixture request authorizes/i, /fixture-based/i, /does not prove/i],
       },
     ],
   },
