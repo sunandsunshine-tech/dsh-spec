@@ -1,0 +1,1 @@
+I can’t complete the rename under the current constraints: the project is mounted read-only, and the `AGENTS.md` instruction requires answering from the prompt without inspecting project files. Both access and an exception to that inspection rule are needed to locate the definitions and imports and write the changes. I did not inspect the project or `.agents/skills/`.

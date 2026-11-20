@@ -1,0 +1,7 @@
+The modal focus change is **not complete**.
+
+The source only adds an inert `data-initial-focus="close-button"` attribute to an open `<dialog>` ([Dialog.js](/tmp/pr114-eval.D6LBwj/missing-candidate/project/evals/files/no-render-project/src/Dialog.js:1)). There is no opener tracking, close handling, or explicit focus restoration. The requirement says the dialog must return focus to its opener ([AGENTS.md](/tmp/pr114-eval.D6LBwj/missing-candidate/project/evals/files/no-render-project/AGENTS.md:5)), but neither that behavior nor its interaction path exists.
+
+The test passes, but it checks only that the attribute string is present ([dialog-check.mjs](/tmp/pr114-eval.D6LBwj/missing-candidate/project/evals/files/no-render-project/tests/dialog-check.mjs:6)). It does not exercise opening, dismissal, or focus restoration. I ran `npm test`; 1 test passed.
+
+No browser-rendered or recorded evidence could be produced because those mechanisms are unavailable, as the project explicitly states. Therefore this is not a visual acceptance result: it is a source-level finding of a definite missing requirement. The remaining verification would need the complete focus behavior plus rendered evidence of focus moving from the opener into the modal and back to it after dismissal.

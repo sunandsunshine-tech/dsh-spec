@@ -286,6 +286,41 @@ const GENERAL_REQUIRED: GeneralProfile[] = [
       },
     ],
   },
+  {
+    skill: 'dsh-spec-web-ui-review',
+    scenarios: [
+      {
+        id: 'shared-widget-consumer-coverage',
+        signature: [/shared button change/i, /SearchPage/],
+        assertions: [
+          /SearchPage and SettingsPage/i,
+          /assembled consumers/i,
+          /rendered evidence/i,
+          /consumer or state not inspected is named as a gap/i,
+        ],
+      },
+      {
+        id: 'missing-rendered-evidence-handoff',
+        signature: [/No browser/i, /unit tests pass/i],
+        assertions: [
+          /does not claim visual acceptance/i,
+          /missing rendered page or recording capability/i,
+          /completed source and test evidence/i,
+          /resumable next step/i,
+        ],
+      },
+      {
+        id: 'project-declares-equivalent-evidence',
+        signature: [/labeled screenshot pair/i, /instead of a GIF/i],
+        assertions: [
+          /screenshot pair as the evidence form/i,
+          /does not require a GIF/i,
+          /simulated focus pair is rejected/i,
+          /Missing rendered coverage remains a gap/i,
+        ],
+      },
+    ],
+  },
 ]
 
 const ALL_REQUIRED = [...REQUIRED, FORGE_REQUIRED, ...GENERAL_REQUIRED]
@@ -711,6 +746,126 @@ test('error handling model evidence retains candidate and baseline runs', () => 
   assert.doesNotMatch(
     readFileSync(join(triggerRoot, 'visible-unknown-outcome', 'final.md'), 'utf8'),
     /stderr\.log|events\.jsonl/,
+  )
+})
+
+test('web UI trigger corpus keeps positive and near-miss coverage', () => {
+  const corpus = JSON.parse(
+    readFileSync(join(EVAL_SOURCE_ROOT, 'dsh-spec-web-ui-review', 'trigger-evals.json'), 'utf8'),
+  ) as {
+    skill_name: string
+    agent_file: string
+    queries: Array<{ id: string; query: string; should_trigger: boolean }>
+  }
+  assert.equal(corpus.skill_name, 'dsh-spec-web-ui-review')
+  assert.equal(corpus.queries.length, 10)
+  assert.equal(new Set(corpus.queries.map((entry) => entry.id)).size, corpus.queries.length)
+  assert.equal(corpus.queries.filter((entry) => entry.should_trigger).length, 5)
+  assert.equal(corpus.queries.filter((entry) => !entry.should_trigger).length, 5)
+  assert.ok(existsSync(join(EVAL_SOURCE_ROOT, 'dsh-spec-web-ui-review', corpus.agent_file)))
+  for (const entry of corpus.queries) {
+    assertNonEmptyString(entry.id, 'Web UI trigger eval id')
+    assertNonEmptyString(entry.query, entry.id + ' trigger query')
+  }
+})
+
+test('web UI model evidence and trigger traces stay auditable', () => {
+  const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-20-pr114')
+  const behaviorRuns = [
+    ['baseline-shared-widget', 'pass', '4/4'],
+    ['candidate-shared-widget', 'pass', '4/4'],
+    ['baseline-missing-render', 'pass', '4/4'],
+    ['candidate-missing-render', 'pass', '4/4'],
+    ['baseline-screenshot-pair', 'fail', '2/4'],
+    ['candidate-screenshot-pair', 'pass', '4/4'],
+  ] as const
+  for (const [runName, status, assertions] of behaviorRuns) {
+    const run = join(evidenceRoot, runName)
+    assert.ok(readFileSync(join(run, 'final.md'), 'utf8').trim().length > 0)
+    const body = readFileSync(join(run, 'status.txt'), 'utf8')
+    assert.match(body, new RegExp('^status: ' + status + '$', 'm'))
+    assert.match(body, new RegExp('^assertions: ' + assertions + '$', 'm'))
+    assert.match(readFileSync(join(run, 'trace.jsonl'), 'utf8'), /"type":"turn\.completed"/)
+  }
+
+  const skillHash = createHash('sha256')
+    .update(readFileSync(join(REPO_ROOT, 'skills/dsh-spec-web-ui-review/SKILL.md')))
+    .digest('hex')
+  const triggerCorpus = JSON.parse(
+    readFileSync(join(EVAL_SOURCE_ROOT, 'dsh-spec-web-ui-review', 'trigger-evals.json'), 'utf8'),
+  ) as { queries: Array<{ id: string; should_trigger: boolean }> }
+  const matrix = new Map(
+    readFileSync(join(evidenceRoot, 'trigger-matrix.tsv'), 'utf8')
+      .trim()
+      .split('\n')
+      .slice(1)
+      .map((line) => {
+        const [id, shouldTrigger, readSkill, result] = line.split('\t')
+        assert.ok(id && shouldTrigger && readSkill && result, 'malformed Web UI trigger row')
+        return [id, { shouldTrigger, readSkill, result }] as const
+      }),
+  )
+  assert.equal(matrix.size, triggerCorpus.queries.length)
+  for (const query of triggerCorpus.queries) {
+    const row = matrix.get(query.id)
+    assert.ok(row, 'missing Web UI trigger row ' + query.id)
+    assert.equal(row.shouldTrigger, String(query.should_trigger))
+    const trace = readFileSync(join(evidenceRoot, 'trigger', query.id, 'trace.jsonl'), 'utf8')
+      .trim()
+      .split('\n')
+      .map((line) => JSON.parse(line) as { type: string; command?: string; exit_code?: number | null; sha256?: string })
+    assert.equal(
+      trace.filter((entry) => entry.type === 'skill' && entry.sha256 === skillHash).length,
+      1,
+      query.id + ' does not identify the current Web UI skill',
+    )
+    const readSkill = trace.some(
+      (entry) => entry.type === 'command' && entry.exit_code === 0 && commandReadsSkill(entry.command),
+    )
+    assert.equal(row.readSkill, String(readSkill))
+    assert.equal(row.result, query.should_trigger === readSkill ? 'pass' : 'fail')
+    assert.equal(row.result, 'pass')
+    assert.ok(readFileSync(join(evidenceRoot, 'trigger', query.id, 'final.md'), 'utf8').trim().length > 0)
+  }
+})
+
+test('web UI fixtures are runnable and retain real media signatures', () => {
+  const files = join(EVAL_SOURCE_ROOT, 'dsh-spec-web-ui-review', 'evals', 'files')
+  const shared = join(files, 'shared-widget-project')
+  const missing = join(files, 'no-render-project')
+  const sharedTest = spawnSync(process.execPath, ['--test', 'tests/button-consumers.test.mjs'], {
+    cwd: shared,
+    encoding: 'utf8',
+  })
+  assert.equal(sharedTest.status, 0, (sharedTest.stdout ?? '') + (sharedTest.stderr ?? ''))
+  const missingTest = spawnSync(process.execPath, ['--test', 'tests/dialog-check.mjs'], {
+    cwd: missing,
+    encoding: 'utf8',
+  })
+  assert.equal(missingTest.status, 0, (missingTest.stdout ?? '') + (missingTest.stderr ?? ''))
+
+  for (const name of [
+    'search-before.png',
+    'search-after.png',
+    'settings-before.png',
+    'settings-after.png',
+    'search-focus-before.png',
+    'search-focus-after.png',
+    'settings-saving-before.png',
+    'settings-saving-after.png',
+  ]) {
+    assert.equal(
+      readFileSync(join(shared, 'evidence', name))
+        .subarray(1, 4)
+        .toString('ascii'),
+      'PNG',
+    )
+  }
+  assert.equal(
+    readFileSync(join(shared, 'evidence', 'shared-button.gif'))
+      .subarray(0, 3)
+      .toString('ascii'),
+    'GIF',
   )
 })
 
