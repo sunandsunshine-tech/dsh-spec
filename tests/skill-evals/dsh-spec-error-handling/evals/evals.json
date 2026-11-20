@@ -1,0 +1,76 @@
+{
+  "skill_name": "dsh-spec-error-handling",
+  "evals": [
+    {
+      "id": "message-only-failure-gets-machine-identity",
+      "prompt": "Review the failure contract in evals/files/message-only/README.md and propose the smallest code and test change that lets a caller handle the expected failure without parsing its message.",
+      "expected_output": "The owning failure gains a stable machine-readable discriminant that follows the project's conventions, the message remains an actionable report, and tests assert the exact identity and resulting state.",
+      "files": [
+        "evals/files/message-only/README.md"
+      ],
+      "assertions": [
+        "The proposal declares or reuses a stable machine-readable failure identity.",
+        "The discriminant names a consumer action rather than the call site.",
+        "The message is not used for machine routing.",
+        "Tests assert the exact identity and resulting state."
+      ]
+    },
+    {
+      "id": "worker-boundary-preserves-failure-identity",
+      "prompt": "Review evals/files/worker-boundary/README.md. The worker currently serializes only the message and the parent reconstructs a plain error. Identify the contract and test changes needed to preserve failure identity across the boundary.",
+      "expected_output": "The transport carries the project's portable machine identity, the receiving side reconstructs an equivalent owning failure, and the original cause or equivalent structured detail remains available for diagnostics.",
+      "files": [
+        "evals/files/worker-boundary/README.md"
+      ],
+      "assertions": [
+        "The project's portable machine identity crosses the worker boundary.",
+        "The receiving side reconstructs an equivalent owning failure.",
+        "The original cause or equivalent structured detail is retained.",
+        "A boundary test proves the identity survives."
+      ]
+    },
+    {
+      "id": "silent-handler-covers-one-safe-failure",
+      "prompt": "Review evals/files/silent-handler/README.md. The handler currently discards every failure from cleanup, commit, and notification. Propose the smallest safe handling change and explain the state guarantee.",
+      "expected_output": "The handler is narrowed to the expected cleanup failure, identifies that failure by a stable discriminant, states why the state remains valid, and lets commit and notification failures surface.",
+      "files": [
+        "evals/files/silent-handler/README.md"
+      ],
+      "assertions": [
+        "The silent scope contains one operation.",
+        "The expected failure is identified by a stable discriminant.",
+        "The reason states why discarding that failure leaves state valid.",
+        "Unexpected failures are rethrown or otherwise surfaced."
+      ]
+    },
+    {
+      "id": "existing-project-identity-remains-authoritative",
+      "prompt": "Review evals/files/existing-identity/AGENTS.md and README.md. Improve the failure contract and tests without replacing the project's existing machine identity.",
+      "expected_output": "The project keeps its existing `kind` discriminant and does not add `name` or `code`, the message remains a human-readable report, and tests assert the exact `kind` and resulting state.",
+      "files": [
+        "evals/files/existing-identity/AGENTS.md",
+        "evals/files/existing-identity/README.md"
+      ],
+      "assertions": [
+        "The project's existing `kind` field remains the machine identity.",
+        "No competing `name` or `code` field is added.",
+        "Tests assert the exact `kind` and resulting state.",
+        "The message is not used for machine routing."
+      ]
+    },
+    {
+      "id": "numeric-exit-identity-survives-without-cause-chain",
+      "prompt": "Review evals/files/numeric-no-cause/README.md. Preserve the checker's existing numeric failure identity across the bridge even though this runtime has no cause chain.",
+      "expected_output": "The bridge retains the exact numeric exit status as the machine identity, maps exit status 11 and 23 to different consumer actions, preserves stderr in structured diagnostics, and does not replace the numeric identity with a string code.",
+      "files": [
+        "evals/files/numeric-no-cause/README.md"
+      ],
+      "assertions": [
+        "The exact numeric exit status remains the machine identity.",
+        "Exit statuses 11 and 23 lead to different consumer actions.",
+        "The no-cause runtime preserves stderr in structured diagnostics.",
+        "No string code replaces the numeric identity."
+      ]
+    }
+  ]
+}
