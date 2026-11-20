@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: MIT
  *
  * Adapted from the DeepSeek Harness note-gate scripts at the pinned
- * `dsh-v0.2.2-rc.1` (`66491b05e3f05ad35bcdd4f6cd7ed26041d9e3db`); the skill-root
+ * `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`); the skill-root
  * THIRD_PARTY_NOTICES names the upstream paths and the relation.
  */
 // The closed vocabulary and grammars the notes gate enforces: lifecycles, classes, reserved
