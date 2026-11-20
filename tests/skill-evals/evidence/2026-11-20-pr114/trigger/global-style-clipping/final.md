@@ -1,13 +1,5 @@
-I can’t produce a trustworthy consumer trace or rendered before/after comparison from the information provided.
+The `dsh-spec-client-ui-ux` skill applies. From the prompt alone, I cannot truthfully identify affected screens or provide a real rendered before/after comparison.
 
-A valid review requires the changed spacing rule, affected component and route list, a runnable baseline and updated build, and the locale, viewport, theme, and content states where translated labels are exercised. Without those, naming consumers would be inference, and recreated screenshots would not count as authentic before evidence.
+The review must trace every consumer of the global spacing change, then inspect each assembled screen with long translated labels at constrained widths and both sides of relevant breakpoints. Check wrapping versus clipping, padding/borders/line-box alignment, scrolling, and action reachability. Preserve an actual pre-change build and capture comparable screenshots or recordings using the same viewport, locale, theme, data, and state.
 
-The fixture instructions prohibit project-file inspection, so no rendered review can be completed here. To resume, provide:
-
-- The baseline and updated builds or commits.
-- The changed selector, token, or global rule and its consumer search.
-- The relevant routes and representative long translated labels.
-- Supported locales, viewports, and themes.
-- The project’s run and browser-capture commands.
-
-The review should inspect each affected assembled screen at constrained and normal widths, checking wrapping, clipping, alignment, and action reachability. Passing tests or isolated component fixtures would not establish visual acceptance.
+Under the stated no-project-inspection/no-run constraint, consumer coverage and rendered comparison remain unverified; this is only the review scope.

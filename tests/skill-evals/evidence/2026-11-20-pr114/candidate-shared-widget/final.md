@@ -1,29 +1,37 @@
-The shared button change reaches all three current actions through one implementation, and the assembled renders are internally consistent. I found no visible clipping, target-size, or default-state contrast defect, but the focus evidence is synthetic rather than a native focus test.
+## Verdict
 
-| Consumer | Tone / state | Evidence |
+The shared change is visually coherent in the supplied 390×900 idle scenes, and both current runtime consumers are affected as intended. The evidence does not, however, support a complete interaction review: the recording contains only idle `after` and `before` variants, and most render-report claims lack corresponding artifacts.
+
+## Consumers and styling
+
+[Button.js](/tmp/pr114-eval-v2.aaQNqO/candidate-shared-widget-consumer-coverage/project/evals/files/shared-widget-project/src/Button.js:9) produces every runtime button. There are no additional product consumers:
+
+| Consumer | Buttons | States exposed by source |
 |---|---|---|
-| Search | Primary, enabled | 390 px stacked, 768 px side-by-side, focus pair, GIF |
-| Settings “Cancel” | Secondary, enabled | 390 px stacked, 768 px side-by-side, saving-state pair |
-| Settings “Delete account” | Danger, enabled or disabled with `saving=1` | 390 px and 768 px defaults, saving-state pair |
+| [SearchPage.js](/tmp/pr114-eval-v2.aaQNqO/candidate-shared-widget-consumer-coverage/project/evals/files/shared-widget-project/src/SearchPage.js:12) | `Search`, primary | Idle, hover, keyboard focus, pressed |
+| [SettingsPage.js](/tmp/pr114-eval-v2.aaQNqO/candidate-shared-widget-project/src/SettingsPage.js:9) | `Cancel`, secondary | Idle, hover, keyboard focus, pressed |
+| Same Settings page | `Delete account`, destructive | Idle, hover, keyboard focus, pressed, and disabled when `saving=1` |
 
-The consumers are defined in [SearchPage.js](/tmp/pr114-eval.D6LBwj/shared-candidate/project/evals/files/shared-widget-project/src/SearchPage.js:12) and [SettingsPage.js](/tmp/pr114-eval.D6LBwj/shared-candidate/project/evals/files/shared-widget-project/src/SettingsPage.js:9). No other literal buttons or shared-button consumers exist.
+The current `after` style uses a 44px minimum height, 12px/16px padding, 14px radius, and weight 650. The controlled `before` override uses 36px, 6.4px/9.6px padding, 4px radius, and weight 500 in [button.module.css](/tmp/pr114-eval-v2.aaQNqO/candidate-shared-widget-consumer-coverage/project/evals/files/shared-widget-project/src/button.module.css:41). Labels and tone colors remain unchanged. Both assembled panels visibly reflow slightly between variants.
 
-**Rendered evidence**
+## Recorded transition
 
-- The [recording](/tmp/pr114-eval.D6LBwj/shared-candidate/project/evals/files/shared-widget-project/evidence/shared-button.gif) is 390 × 900, four seconds, and twelve frames. Frame analysis confirms frames 0–3, 4–7, and 8–11 form three identical groups; the final group repeats the first, matching the documented after → before → after sequence.
-- The 390 × 1200 [search pair](/tmp/pr114-eval.D6LBwj/shared-candidate/project/evals/files/shared-widget-project/evidence/search-after.png) shows both panels stacked, with all actions visible and no horizontal clipping.
-- The 768 × 900 [settings pair](/tmp/pr114-eval.D6LBwj/shared-candidate/project/evals/files/shared-widget-project/evidence/settings-after.png) shows comparable side-by-side assembled layouts and all three tones.
-- The [focus pair](/tmp/pr114-eval.D6LBwj/shared-candidate/project/evals/files/shared-widget-project/evidence/search-focus-after.png) shows a clear outline around Search, but that is covered below.
-- The [saving pair](/tmp/pr114-eval.D6LBwj/shared-candidate/project/evals/files/shared-widget-project/evidence/settings-saving-after.png) shows Delete account muted and disabled while Cancel remains enabled.
-- The component has a 44 px minimum target. Default primary, danger, secondary, and focus-ring contrast calculate to 6.53:1, 7.30:1, 16.67:1, and 4.73:1 respectively. Only the light theme is declared.
+I inspected all twelve frames of [shared-button.gif](/tmp/pr114-eval-v2.aaQNqO/candidate-shared-widget-consumer-coverage/project/evals/files/shared-widget-project/evidence/shared-button.gif). The actual order is **after → before → after**, not before → after:
 
-The [render report](/tmp/pr114-eval.D6LBwj/shared-candidate/project/evals/files/shared-widget-project/evidence/render-report.md:1) accurately reflects the visible layout and disabled state. `npm test` passes: one test covers markup presence for all three consumers, including the disabled danger variant.
+| Frames | Time | Exact frame group |
+|---|---|---|
+| 1–4 | 0.000–1.333s | `after`; four identical frames |
+| 5–8 | 1.333–2.667s | `before`; four identical frames |
+| 9–12 | 2.667–4.000s | Same `after`; four identical frames |
 
-**Remaining gaps**
+The GIF runs at 3 fps and loops indefinitely. Transitions are hard cuts; there are no interpolated or animated button-size changes.
 
-- The focus evidence does not exercise native focus. `focus=1` only sets `data-focus-demo` in [app.js](/tmp/pr114-eval.D6LBwj/shared-candidate/project/evals/files/shared-widget-project/src/app.js:20), and that attribute directly applies an outline in [button.module.css](/tmp/pr114-eval.D6LBwj/shared-candidate/project/evals/files/shared-widget-project/src/button.module.css:31). No `.focus()` call, Tab traversal, or asserted active element exists. The real [`:focus-visible` rule](/tmp/pr114-eval.D6LBwj/shared-candidate/project/evals/files/shared-widget-project/src/button.module.css:26) appears sound, but the screenshot demonstrates ring geometry rather than native keyboard focus.
-- Hover and pressed visuals are neither defined nor recorded, and keyboard activation is not demonstrated.
-- Long or localized labels are absent from every artifact. Current English labels fit at 390 px, but the shared API can accept arbitrary labels and has no explicit overflow-wrap protection.
-- The component uses design-system color variables, but padding, radius, minimum height, and font weight are hard-coded in [button.module.css](/tmp/pr114-eval.D6LBwj/shared-candidate/project/evals/files/shared-widget-project/src/button.module.css:1). Without a design-token or component specification in the fixture, conformance with the rule that the design system owns spacing, type, and radius cannot be established.
-- The secondary Cancel control intentionally blends into the panel because its surface matches the panel and its border is transparent. The screenshot makes it label-like; whether that is acceptable needs a design-system affordance decision.
-- The artifacts claim one Chrome run and one continuous GIF session, but contain no source revision or capture log. Their contents can be validated, but their provenance relative to the current source cannot be independently proved from the files alone.
+## Remaining gaps
+
+- **Unverified interactive states:** hover, pressed/`:active`, keyboard `:focus-visible`, and the disabled `Delete account` state are not shown. Primary/secondary disabled states and loading/selected/expanded states do not exist in the current implementation.
+- **Synthetic focus evidence:** `?focus=1` does not focus the button. It only sets `data-focus-demo`, whose CSS paints an outline in [button.module.css](/tmp/pr114-eval-v2.aaQNqO/candidate-shared-widget-consumer-coverage/project/evals/files/shared-widget-project/src/button.module.css:31). It is not authentic keyboard-focus evidence.
+- **Missing images:** all eight PNGs named in [README.md](/tmp/pr114-eval-v2.aaQNqO/candidate-shared-widget-consumer-coverage/project/evals/files/shared-widget-project/evidence/README.md:7) are absent. Consequently, the wide 768px layout, focus, and disabled claims in [render-report.md](/tmp/pr114-eval-v2.aaQNqO/candidate-shared-widget-consumer-coverage/project/evals/files/shared-widget-project/evidence/render-report.md:7) are reported but not independently verifiable.
+- **Test scope:** the passing test only checks generated markup. It does not establish rendered interaction or visual acceptance.
+- **Provenance:** `before` is a controlled runtime query variant implemented by current CSS in [app.js](/tmp/pr114-eval-v2.aaQNqO/candidate-shared-widget-consumer-coverage/project/evals/files/shared-widget-project/src/app.js:4). It is not a historical build, prior commit, or preserved old implementation. The fixture has no commit/build metadata, and the supplied [capture-browser.mjs](/tmp/pr114-eval-v2.aaQNqO/candidate-shared-widget-consumer-coverage/project/evals/files/shared-widget-project/capture-browser.mjs:213) neither captures the `before` variant nor creates a GIF. The historical relationship therefore remains unproven.
+
+`npm test` passed: 1 test, 0 failures. No application or test files were modified, and no browser session was started.

@@ -1,5 +1,14 @@
-Yes. The shared button change satisfies the declared screenshot-evidence requirement.
+**Verdict: PASS.** The shared button change satisfies the screenshot-pair override.
 
-The [override](/tmp/pr114-eval.D6LBwj/screenshot-baseline/project/evals/files/evidence-policy-screenshot-pair.md:1) requires four before/after pairs, and all are present: Search default at 390×1200, Search focused at 390×900, Settings default at 768×900, and Settings saving-disabled at 390×900. Each pair has matching dimensions, data, and theme. Visual inspection confirms the larger rounded button styling, visible Search focus treatment, and muted disabled destructive action.
+Both consumers use the shared `buttonMarkup` implementation in [SearchPage.js](/tmp/pr114-eval-v2.AudvAh/baseline-project-declares-equivalent-evidence/project/evals/files/shared-widget-project/src/SearchPage.js:1) and [SettingsPage.js](/tmp/pr114-eval-v2.AudvAh/baseline-project-declares-equivalent-evidence/project/evals/files/shared-widget-project/src/SettingsPage.js:1). The required evidence pairs are present:
 
-The source confirms Search, Cancel, and Delete account all use the shared button, with the saving state correctly producing `disabled`. The consumer test also passes. The GIF is irrelevant because the override explicitly replaces the recording requirement. I did not launch a browser or spawn subagents.
+| Consumer/state | Before | After | Viewport |
+|---|---|---|---|
+| Search default | [PNG](/tmp/pr114-eval-v2.AudvAh/baseline-project-declares-equivalent-evidence/project/evals/files/shared-widget-project/evidence/search-before.png) | [PNG](/tmp/pr114-eval-v2.AudvAh/baseline-project-declares-equivalent-evidence/project/evals/files/shared-widget-project/evidence/search-after.png) | 390×1200 |
+| Search focused | [PNG](/tmp/pr114-eval-v2.AudvAh/baseline-project-declares-equivalent-evidence/project/evals/files/shared-widget-project/evidence/search-focus-before.png) | [PNG](/tmp/pr114-eval-v2.AudvAh/baseline-project-declares-equivalent-evidence/project/evals/files/shared-widget-project/evidence/search-focus-after.png) | 390×900 |
+| Settings default | [PNG](/tmp/pr114-eval-v2.AudvAh/baseline-project-declares-equivalent-evidence/project/evals/files/shared-widget-project/evidence/settings-before.png) | [PNG](/tmp/pr114-eval-v2.AudvAh/baseline-project-declares-equivalent-evidence/project/evals/files/shared-widget-project/evidence/settings-after.png) | 768×900 |
+| Settings saving-disabled | [PNG](/tmp/pr114-eval-v2.AudvAh/baseline-project-declares-equivalent-evidence/project/evals/files/shared-widget-project/evidence/settings-saving-before.png) | [PNG](/tmp/pr114-eval-v2.AudvAh/baseline-project-declares-equivalent-evidence/project/evals/files/shared-widget-project/evidence/settings-saving-after.png) | 390×900 |
+
+Each pair has matching dimensions, content, data, and theme. The images visibly show the shared control restyle; Search has a visible focus outline, while Settings shows the muted disabled “Delete account” action with “Cancel” remaining enabled. The consumer test also passes.
+
+The render report references a missing `README.md` and GIF, but the override explicitly makes the GIF unnecessary, and the filenames unambiguously label every required consumer, state, and before/after variant. No browser was launched and no application or test files were changed.

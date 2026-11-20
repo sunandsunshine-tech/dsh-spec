@@ -1,0 +1,148 @@
+{
+  "browser": {
+    "executable": "/tmp/shared-widget-chrome-headless-shell-runtime/chrome-headless-shell-linux64/chrome-headless-shell",
+    "userDataDirectory": "/tmp/shared-widget-chrome-d5HEEH",
+    "protocolEndpointPort": "46317"
+  },
+  "application": {
+    "origin": "http://127.0.0.1:46371",
+    "session": "one spawned Chrome process handle and one page target"
+  },
+  "evidenceDirectory": "evidence-local",
+  "screenshots": {
+    "narrowIdle": {
+      "path": "evidence-local/narrow-after-idle.png",
+      "sha256": "b98426b756ff6b3fce353415946be3a7fc2cf593a11a00c9aea9f8c60d0315fc",
+      "bytes": 38830
+    },
+    "searchHover": {
+      "path": "evidence-local/search-hover.png",
+      "sha256": "b98426b756ff6b3fce353415946be3a7fc2cf593a11a00c9aea9f8c60d0315fc",
+      "bytes": 38830
+    },
+    "searchPressed": {
+      "path": "evidence-local/search-pressed.png",
+      "sha256": "b98426b756ff6b3fce353415946be3a7fc2cf593a11a00c9aea9f8c60d0315fc",
+      "bytes": 38830
+    },
+    "searchFocus": {
+      "path": "evidence-local/search-keyboard-focus.png",
+      "sha256": "fa1c9cf6f3bf07094cfa30c40858cd7e59970ba07fa7e318b15b169a9debd363",
+      "bytes": 40076
+    },
+    "disabled": {
+      "path": "evidence-local/delete-disabled.png",
+      "sha256": "49ba298db1de920af617fb55e4c94fc30b7677a488f7b303c4e7f80f6e23468b",
+      "bytes": 38886
+    },
+    "wideIdle": {
+      "path": "evidence-local/wide-after-idle.png",
+      "sha256": "d9125b126eb3111a527f5bbc272a7e0e6e483f9b553591176dffddbfe7dfac3c",
+      "bytes": 40045
+    }
+  },
+  "states": {
+    "narrowIdle": {
+      "rect": {
+        "x": 31,
+        "y": 332,
+        "width": 95.9375,
+        "height": 45
+      },
+      "active": false,
+      "focusVisible": false,
+      "hover": false,
+      "pressed": false,
+      "disabled": false,
+      "background": "rgb(30, 106, 74)",
+      "color": "rgb(255, 255, 255)",
+      "outline": "3px none rgb(255, 255, 255)",
+      "opacity": "1"
+    },
+    "searchHover": {
+      "rect": {
+        "x": 31,
+        "y": 332,
+        "width": 95.9375,
+        "height": 45
+      },
+      "active": false,
+      "focusVisible": false,
+      "hover": true,
+      "pressed": false,
+      "disabled": false,
+      "background": "rgb(30, 106, 74)",
+      "color": "rgb(255, 255, 255)",
+      "outline": "3px none rgb(255, 255, 255)",
+      "opacity": "1"
+    },
+    "searchPressed": {
+      "rect": {
+        "x": 31,
+        "y": 332,
+        "width": 95.9375,
+        "height": 45
+      },
+      "active": true,
+      "focusVisible": false,
+      "hover": true,
+      "pressed": true,
+      "disabled": false,
+      "background": "rgb(30, 106, 74)",
+      "color": "rgb(255, 255, 255)",
+      "outline": "3px none rgb(255, 255, 255)",
+      "opacity": "1"
+    },
+    "searchFocus": {
+      "rect": {
+        "x": 31,
+        "y": 332,
+        "width": 95.9375,
+        "height": 45
+      },
+      "active": true,
+      "focusVisible": true,
+      "hover": false,
+      "pressed": false,
+      "disabled": false,
+      "background": "rgb(30, 106, 74)",
+      "color": "rgb(255, 255, 255)",
+      "outline": "3px solid rgb(27, 115, 211)",
+      "opacity": "1"
+    },
+    "disabled": {
+      "rect": {
+        "x": 136.75,
+        "y": 541,
+        "width": 169.734375,
+        "height": 45
+      },
+      "active": false,
+      "focusVisible": false,
+      "hover": false,
+      "pressed": false,
+      "disabled": true,
+      "background": "rgb(159, 45, 37)",
+      "color": "rgb(255, 255, 255)",
+      "outline": "3px none rgb(255, 255, 255)",
+      "opacity": "0.55"
+    },
+    "wideIdle": {
+      "rect": {
+        "x": 37,
+        "y": 325,
+        "width": 95.9375,
+        "height": 45
+      },
+      "active": false,
+      "focusVisible": false,
+      "hover": false,
+      "pressed": false,
+      "disabled": false,
+      "background": "rgb(30, 106, 74)",
+      "color": "rgb(255, 255, 255)",
+      "outline": "3px none rgb(255, 255, 255)",
+      "opacity": "1"
+    }
+  }
+}

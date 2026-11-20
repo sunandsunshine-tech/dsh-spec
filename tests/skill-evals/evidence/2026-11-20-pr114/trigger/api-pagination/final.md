@@ -1,3 +1,11 @@
-I can’t implement this from the provided prompt because it doesn’t identify the endpoint, backend language/framework, database layer, table, or sort key. The project’s `AGENTS.md` also explicitly prohibits inspecting project files for this task.
+No relevant installed skill applies.
 
-Please provide the relevant handler and database-query code, plus the desired cursor contract. For example: order by `created_at DESC, id DESC`, return `{items, next_cursor}`, and use a condition such as `(created_at, id) < (cursor_created_at, cursor_id)`.
+Implement cursor pagination with an opaque cursor containing the sort key and tie-breaker, such as `(created_at, id)`. Decode it and update the query to use keyset filtering:
+
+```sql
+WHERE (created_at, id) < (:cursor_created_at, :cursor_id)
+ORDER BY created_at DESC, id DESC
+LIMIT :limit_plus_one
+```
+
+Fetch `limit + 1` rows, return only `limit`, and issue `next_cursor` when an extra row exists. Add a composite `(created_at, id)` index for the query.
