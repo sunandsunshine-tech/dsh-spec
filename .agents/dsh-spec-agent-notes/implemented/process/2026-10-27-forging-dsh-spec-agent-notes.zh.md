@@ -23,7 +23,7 @@ Status: implemented
 默认记录根目录：项目根下直接放置 `.agents/dsh-spec-agent-notes/`，可用 `--root` 覆盖，并由采用方的声明指定；归档根目录始终是 `<notes root>/archived`。按 [2026-10-28 锻造记录](2026-10-28-forging-dsh-spec-agent-experience.zh.md) 的规则，来源声明是技能根 `THIRD_PARTY_NOTICES` 通知加 frontmatter 的 `license` 字段，技能规范门禁随该字段报告 15 项检查。
 
 - 交付语言是英语；评审语言是中文，由于评审语言与交付语言不同，description 追加中文触发语言。
-- 运行时：Node.js 22.19+ 或 24+；每条命令都在 Git checkout 内运行，没有非 Git 模式（R11）。
+- 运行时：Node.js 24.11+ 或 26+；每条命令都在 Git checkout 内运行，没有非 Git 模式（R11）。
 - description 承担触发：在非平凡变更前使用本技能，判断该变更是否需要持久决策记录，以及各生命周期动作；正文拥有写入范围与机械/局部豁免（R29）。
 - 跨技能指引：`## Companions` 只把 `dsh-spec-translate-docs` 作为可用性限定的示例点名；项目的配对门禁仍是约束机制。
 

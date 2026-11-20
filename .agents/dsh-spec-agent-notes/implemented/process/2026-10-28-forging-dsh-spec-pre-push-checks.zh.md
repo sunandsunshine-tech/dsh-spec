@@ -26,7 +26,7 @@ Status: implemented
 | 交付物 | 落地技能目录 `skills/dsh-spec-pre-push-checks/`（`SKILL.md`、`scripts/change-scope.mjs`、`THIRD_PARTY_NOTICES`）及其安装副本；脚本的源码与构建接线在 `package/dsh-spec-pre-push-checks/`（`change-scope.ts`、`build.ts`、`vite.config.ts`、`package.json`）；其测试在 `tests/change-scope.test.ts`，套件的清单行在 `tests/AGENTS.md`；本记录及其中文对侧 |
 | 受众与领域 | 在保持 Git 历史、通过分支与评审平台交付改动的软件工程仓库中工作的 agent |
 | 额外的触发语言 | 中文：采用者的评审语言是中文，所以描述在英文交付文字之后追加中文触发词汇 |
-| 运行时与工具 | 每套流程都需要 Git；随附报告还需要 Node.js 22.19+ 或 24+，且不使用网络；采用者无需安装、无需构建步骤 |
+| 运行时与工具 | 每套流程都需要 Git；随附报告还需要 Node.js 24.11+ 或 26+，且不使用网络；采用者无需安装、无需构建步骤 |
 | 审查草稿 | 仓库把其双语伴随文件声明为 `.zh.md` 与 `.i18n.yaml`（`CONTRIBUTING.md` 的「Bilingual documents」）；本记录自带其中文对侧 |
 
 ### 来源约束

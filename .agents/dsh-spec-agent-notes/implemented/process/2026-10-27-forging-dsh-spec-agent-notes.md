@@ -23,7 +23,7 @@ The skill `dsh-spec-agent-notes` is forged from the upstream notes contract and 
 Default notes root: `.agents/dsh-spec-agent-notes/` directly under the project root, overridable with `--root` and named by an adopter's declaration; the archive root is always `<notes root>/archived`. Per [the 2026-10-28 forging record](2026-10-28-forging-dsh-spec-agent-experience.md), the provenance declaration is the skill-root `THIRD_PARTY_NOTICES` notice plus the frontmatter `license` field, and the skill-spec gate reports 15 checks including that field.
 
 - Delivery language is English; the review language is Chinese, and additional Chinese trigger language is appended to the description because the review language differs from delivery.
-- Runtime: Node.js 22.19+ or 24+; every command runs inside a Git checkout and there is no non-Git mode (R11).
+- Runtime: Node.js 24.11+ or 26+; every command runs inside a Git checkout and there is no non-Git mode (R11).
 - The description carries the trigger — use the skill before a non-trivial change to decide whether the change needs a durable record, plus the lifecycle actions; the body owns the write scope and the mechanical/local exemptions (R29).
 - Cross-skill guidance: the `## Companions` section names the `dsh-spec-translate-docs` skill only as an availability-qualified example; the project's pairing gate remains the binding mechanism.
 

@@ -233,7 +233,7 @@ Status: implemented
 | # | 要求 | 锚点 | 证据或结论 |
 |---|---|---|---|
 | V2 | 脚本按约定所述行事：记录计算／解析／渲染／规范正文；规范切换行按结构定位（正确、位于元数据之后、缺失、标签错误、多余链接、重复、行内代码引用、多目标列举、绝对 URL 后缀）；结构签名；链接 locale；选择旗标、生成 glob 与空语料；默认剪枝树对采用者跳过（默认树下的完整配对被忽略；隐藏目录遍历；声明选择时目标识别按选择过滤；配对选择；多目标选择与批量记录的规范注释稳定性；list/check/write；简报粒度、目标到源、两侧同时改动、术语行与覆盖；机械化 `--apply`；`init`；按配对限定的简报命令按打印内容执行；带与不带声明旗标的按更新检查；非默认记录路径；纯翻译修正；无显示旗标的重记录稳定性；畸形／不配对区域、带标题的区域不透明度、单侧漂移、仅区域的简报、`--apply` 区域守卫（防御性，不计入）；生成源通过／失败与命令重复；manager 注释／重排的记录正文；autolink 解析；默认清单内容；裸非默认目标；以及除两个防御守卫（全有或全无拼接与区域交集）之外的每个文档化失败退出 | 机械 | `node --test tests/translation-docs.test.ts` 通过 |
-| V3 | 打包产物自包含且在 Node 22.19+ 上运行 | 机械 | `pnpm run skill:build dsh-spec-translate-docs` 构建一个 ESM 文件；测试在不安装、不访问网络的情况下执行它 |
+| V3 | 打包产物自包含且在 Node 24.11+ 上运行 | 机械 | `pnpm run skill:build dsh-spec-translate-docs` 构建一个 ESM 文件；测试在不安装、不访问网络的情况下执行它 |
 | V4 | 技能符合 Agent Skills 规范 | 机械 | `node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs skills/dsh-spec-translate-docs --description-max 500` 以退出码 0 结束，报告 15 项检查、0 失败、100 行正文、约 3484 个 token 与一个 395 字符的 description，含三份参考 |
 | V5 | 每份随附参考与脚本都在 SKILL.md 中被点名；链接可解析；正文在预算之内 | 机械 | 门禁的 `reference mentions`、`script coverage`、`links stay inside`、`links resolve`、`link depth` 与 `budget` 行 |
 | V6 | 许可与出处完整 | 判断加机械 | 门禁读取 `license` 字段；关于 `THIRD_PARTY_NOTICES` 的一项结论覆盖每个被改编的上游文本、脚本与 spec 文件以及随附 npm 包；解析出的解析器闭包登记在共享根通知表中 |

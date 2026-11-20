@@ -1,0 +1,19 @@
+# Pairing consistency record for 2026-11-20-development-toolchain-tracks-current-node.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-11-20-development-toolchain-tracks-current-node.md --target <lang>
+/agent-note-development-toolchain-tracks-the-current-node-implementation:
+  en: 079fe282fa4abdb0
+  zh: f53f19f245b75783
+/agent-note-development-toolchain-tracks-the-current-node-implementation/problem:
+  en: d2457ed94dba93f9
+  zh: 137a7a1360152c3d
+/agent-note-development-toolchain-tracks-the-current-node-implementation/decision:
+  en: 983d58f5ea1b973b
+  zh: 859097dc512dbb27
+/agent-note-development-toolchain-tracks-the-current-node-implementation/alternatives-considered:
+  en: 51f6ab781e95c5e2
+  zh: b4485ae3892a6079
+/agent-note-development-toolchain-tracks-the-current-node-implementation/consequences:
+  en: bd8cebd839aa5e1b
+  zh: 13b19fd487e278eb
