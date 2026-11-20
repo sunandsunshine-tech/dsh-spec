@@ -14,6 +14,14 @@ Node.js 24.11+ on the 24 line, or 26+, and the root development dependencies ins
 `pnpm install` are required; Node.js 26 is the primary development baseline. The runner executes TypeScript directly, so no transform is needed, but the sibling-reference gate imports the root `markdown-it`, `parse5` and `yaml` packages.
 `pnpm test` is the documented entry point.
 
+```sh
+pnpm run test:browser-gif
+```
+
+This separate media scenario requires `ffmpeg` and `ffprobe`. It runs once on Node 26 in CI so the
+Node matrix does not repeat the same external media process, and it fails rather than skipping when
+either binary is absent.
+
 ## Layout
 
 | Path | Owns |
@@ -38,6 +46,8 @@ Node.js 24.11+ on the 24 line, or 26+, and the root development dependencies ins
 | `translation-docs.test.ts` | The pairing mechanism (source in `package/dsh-spec-translate-docs/`, bundle at the work-draft path while forging and under `skills/` after landing): the existing-pair gate, one aggregate multi-language record per source, per-file source and target languages, `--select`/`--skip` and discovery prunes, structural switchers and link locale, generated regions with section anchors and the region helper CLI, the briefing and mechanical splice, the terminology template and the CLI's failure modes. |
 | `skill-scenarios.test.ts` | The capability, companion, error-contract and browser-evidence scenario contract for translation, simplification, forge, Agent Notes, error-handling, client UI review and browser GIF work: validates isolation profiles, generic note units, model-selected target policy, progressive target addition, active-scope target removal, archive readiness, stable failure identity, boundary preservation, silent-handler safety, rendered-consumer coverage, browser-capture handoff, fixture disclosure, declared inputs, containment, semantic content pins, and fail-closed validation of empty, blank or meaningless corpora. It stages each development corpus into a temporary skill at the official `evals/` path and runs the skill-spec gate there. Actual model runs remain external evidence. |
 | `skill-evals/<skill>/evals/` | Development-only Agent Skills eval manifests and inputs. Their canonical source stays outside `skills/`, then a runner or test copies them into a temporary skill for evaluation. They are never installed or shipped. |
+| `browser-gif-encoder.test.ts` | Fast browser GIF encoder command, preflight and missing-media contracts; every case finishes before media encoding. |
+| `browser-gif-encoder.media.ts` | One real-media scenario covering video timing, screenshots, representative-frame order and safe output replacement. The CI media step runs it once on Node 26. |
 | `repository-shape.test.ts` | The tree invariants the tooling relies on: every package script is one command, every landed skill has an identical installed copy, the split note modules carry SPDX/provenance headers, and active record test sections do not name removed commands. |
 | `change-scope.test.ts` | The bundled change-scope report: built from `package/dsh-spec-pre-push-checks/change-scope.ts`, run from the work draft or the landed `skills/dsh-spec-pre-push-checks/scripts/change-scope.mjs`; covers the committed, staged, unstaged and untracked path sets, base/head/merge-base resolution, the `--help` and usage-error contract, and the failure exits. |
 

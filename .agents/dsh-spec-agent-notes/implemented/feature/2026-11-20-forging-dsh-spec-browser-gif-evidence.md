@@ -12,13 +12,13 @@ A user-visible browser UI change needs evidence that a reviewer can inspect, but
 
 The package ships `dsh-spec-browser-gif-evidence` from `skills/dsh-spec-browser-gif-evidence/`. The skill owns capture, encoding, verification and optional publication; UI acceptance remains with the UI review workflow. A user-visible browser UI change generates GIF evidence by default from one isolated run of the adopter's real build. A project may select equivalent evidence or waive that default for a named change, and a fixture recording exists only when the user explicitly asks for one.
 
-The skill carries one focused publication reference and two Python scripts: `encode_gif.py` performs deterministic encoding and post-encode media checks, and `test_encode_gif.py` exercises the encoder through real `ffmpeg` and `ffprobe`. The installed copy mirrors the landed directory byte for byte; evaluation inputs remain under `tests/skill-evals/` and never enter either distribution tree.
+The skill carries one focused publication reference and the generated Node bundle `scripts/encode-browser-gif.mjs`; its source lives under `package/dsh-spec-browser-gif-evidence/`. The encoder writes and verifies a temporary GIF, then publishes it only after timing, dimensions, animation and size checks pass. Repository tests exercise the generated entry, stay outside the installed copy, and split fast preflight checks from one shared real-media scenario. The installed copy mirrors the landed directory byte for byte; evaluation inputs remain under `tests/skill-evals/` and never enter either distribution tree.
 
 ## Source and settings
 
 Source repository: `deepseek-ai/deepseek-harness`.
 
-Source revision read: `2e39e70496aa02986ca6a820c5d497e816b69d7e`, read on 2026-11-20. The three source files are byte-identical at the repository baseline `dsh-v0.2.2-rc.1` (`66491b05e3f05ad35bcdd4f6cd7ed26041d9e3db`).
+Source baseline: `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`), read on 2026-11-20.
 
 Source files:
 
@@ -31,9 +31,9 @@ Source files:
 | Name | `dsh-spec-browser-gif-evidence` |
 | Goal | Produce verified browser-interaction GIF evidence from one isolated run of an adopter's real build |
 | Boundary | Does not judge whether the UI design is acceptable, choose the UI states to review, install browser or media tools, or commit evidence media to a branch |
-| Deliverable | Skill entry, publication reference, encoder, encoder tests, notices, installed copy, Agent Note pair and development evaluation corpus |
+| Deliverable | Skill entry, publication reference, Node encoder bundle, notices and installed copy; repository tests, the Agent Note pair and development evaluation corpus stay outside the deliverable |
 | Audience and language | Software teams changing browser-rendered UIs; English delivery with Chinese trigger vocabulary |
-| Runtime | Python 3, `ffmpeg`, `ffprobe`, a runnable build and browser control or a project-declared Playwright fallback |
+| Runtime | Node.js 24.11+ on the 24 line or 26+, Git, `ffmpeg`, `ffprobe`, a runnable build and browser control or a project-declared Playwright fallback |
 | Review pages read | Agent Skills index, specification, best practices, evaluating skills and using scripts, read on 2026-11-20 |
 
 ## Source constraints
@@ -65,7 +65,7 @@ Source files:
 | B5 | Adapt | Project-declared build/start commands and fresh application and browser state | DSH commands and environment names are values of the generic rule |
 | B6 | Keep | Short state story, semantic readiness and stable dimensions | The capture judgment is domain-neutral |
 | B7 | Keep | No secrets, personal data or unrelated content | The safety boundary is domain-neutral |
-| B8 | Keep | Deterministic encoder and validated metadata limits | The bundled script provides the exact mechanism |
+| B8 | Adapt | Node encoder with a temporary output, post-encode validation and atomic replacement | The target's Node toolchain replaces the upstream Python carrier while preserving its timing, frame, size and metadata guarantees |
 | B9 | Keep | Ordered screenshots and durations when continuous video is unavailable | The alternate evidence form is domain-neutral |
 | B10 | Keep | Inspect encoded output for legibility, order, hold and safety | Encoder metadata does not establish visual quality |
 | B11 | Re-bind | Project publication mechanism with GitHub `gh --attach` as an example; live-head checks remain | The review platform and attachment command are adopter facts |
@@ -78,25 +78,29 @@ Source files:
 - **The DSH real-model policy is generalized to real product behavior.** A recording identifies whether the run used the real integrated path, a fixture or another substitute. A fixture is allowed only on explicit request.
 - **UI acceptance is not this skill's decision.** The separate UI review workflow decides coverage and acceptability; this skill produces and verifies the requested artifact.
 - **The encoder is shipped rather than reimplemented at runtime.** A deterministic command gives stable validation and avoids repeating the same frame-manipulation logic in an agent's context.
-- **The Python tests remain adjacent to the encoder.** They require real media tools and stay outside routine CI when those tools are absent.
+- **Encoder development tests stay in the repository.** Fast command and preflight cases run in the normal suite; one shared real-media scenario checks video timing, screenshots, representative-frame order and safe replacement on Node 26. Installed skills carry no maintenance tests.
+- **A skipped media test is not evidence.** The dedicated media entry fails with a clear diagnostic when `ffmpeg` or `ffprobe` is absent instead of treating the absence as a pass.
 
 ## Verification
 
 | Requirement | Anchor | Evidence |
 |---|---|---|
 | Agent Skills structure, links and description budget | Mechanical | `verify-skill-spec.mjs` |
-| Encoder timing, trim, speed, screenshots, overwrite and size rejection | Mechanical | Python unittest with `ffmpeg` and `ffprobe` |
-| Capability-absent handoff and explicit fixture disclosure | Judged | Development eval corpus |
+| Encoder timing, trim, speed, screenshots, atomic overwrite and size rejection | Mechanical | `tests/browser-gif-encoder.media.ts`: one shared real WebM/PPM scenario runs on Node 26 under real `ffmpeg` and `ffprobe` |
+| Command contract and preflight failures without media execution | Mechanical | `tests/cli-contract.test.ts` and `tests/browser-gif-encoder.test.ts` |
+| Capability-absent handoff and explicit fixture disclosure | Judged + Mechanical | Clean-context runs under `tests/skill-evals/evidence/2026-11-20-pr115/`; candidate, capability-absent and fixture runs pass all 12 assertions |
 | Installed copy and corpus gates | Mechanical | `skill:refresh`, `check:corpus`, repository-shape tests |
 | Existing-media branches | Dissolved | No DSH asset-branch policy is shipped |
-| Capture of a real UI with a real browser | Unverified by local CI | No browser application or media tools are available in this checkout; adopters supply them |
-| Model behavior and discovery quality | Unverified | No model eval run accompanies this commit |
+| Capture of a real UI with a real browser | Judged | The candidate run built the fixture, captured three states from one headless-Chrome session, encoded and visually inspected a GIF, and cleaned up the server and browser |
+| Model behavior and discovery quality | Judged + Mechanical | The three behavior runs pass 12/12 assertions; eight short trigger probes pass their expected positive or near-miss result |
 
 ## Alternatives considered
 
 **Copy the DSH skill and scripts verbatim.** It lost because the DSH build commands, app paths, model policy and mandatory every-GUI-PR rule would become false instructions for a general project.
 
 **Keep the workflow prose-only.** It lost because encoding, final-frame timing, size rejection and post-encode verification are repeatable mechanical obligations that should not be reinvented on each run.
+
+**Keep the upstream Python encoder.** It lost because the package already supports and tests a Node 24/26 toolchain, and the delivered skill should not add a second language runtime for one encoder. The Node implementation preserves the media checks and makes temporary-output publication explicit.
 
 **Make GIF evidence unconditional for every UI change.** It lost because native, terminal, server-rendered or non-browser UIs need project-owned alternatives, and because missing capabilities require a handoff rather than a fabricated requirement.
 
@@ -108,8 +112,7 @@ Source files:
 
 - A browser UI change has a default evidence path from one real build.
 - Missing capabilities produce an explicit unfinished handoff instead of a weaker silent result.
-- The skill ships a deterministic encoder and its tests without adding a runtime package.
+- The skill ships a deterministic encoder without adding a runtime package; its tests remain repository-side and do not burden adopters.
 - The publication reference is platform-explicit enough to act on without turning GitHub into the only review platform.
 - The main cost is environment depth: real evidence still needs a runnable application, browser control, media tools and, when requested, publication access.
 - **Rollback:** remove the skill directory and installed mirror, the Agent Note pair, the evaluation corpus and the root notice entry.
-- **Publish authorization:** the changes are prepared for a stacked pull request; publication and merge require maintainer authorization.

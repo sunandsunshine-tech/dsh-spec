@@ -60,6 +60,12 @@ const COMMANDS: CommandContract[] = [
     json: true,
   },
   {
+    script: skillBundle('dsh-spec-browser-gif-evidence', 'encode-browser-gif.mjs'),
+    tool: 'encode-browser-gif.mjs',
+    unknownArgs: ['input', 'output.gif', '--no-such-option'],
+    usageHint: true,
+  },
+  {
     script: skillBundle('dsh-spec-translate-docs', 'translate-pair.mjs'),
     tool: 'translate-pair',
     unknownArgs: ['list', '--no-such-option'],

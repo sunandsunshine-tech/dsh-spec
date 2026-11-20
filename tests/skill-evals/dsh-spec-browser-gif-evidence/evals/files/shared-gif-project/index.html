@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Fixture settings</title>
+    <style>
+      :root {
+        color: #172033;
+        background: #eef2f8;
+        font: 16px/1.5 system-ui, sans-serif;
+      }
+      body {
+        display: grid;
+        min-height: 100vh;
+        margin: 0;
+        place-items: center;
+      }
+      main {
+        width: min(26rem, calc(100vw - 3rem));
+        padding: 2rem;
+        border: 1px solid #c8d2e3;
+        border-radius: 1rem;
+        background: white;
+        box-shadow: 0 1rem 3rem rgb(23 32 51 / 12%);
+      }
+      h1 {
+        margin-block-start: 0;
+        font-size: 1.5rem;
+      }
+      button {
+        min-height: 2.75rem;
+        padding-inline: 1.1rem;
+        border: 0;
+        border-radius: 0.6rem;
+        color: white;
+        background: #2457d6;
+        font: inherit;
+        font-weight: 700;
+      }
+      button:disabled {
+        opacity: 0.65;
+      }
+      #status {
+        min-height: 1.5rem;
+        color: #43516a;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Workspace settings</h1>
+      <p>This fixture changes one browser-visible setting.</p>
+      <button id="save" type="button">Save changes</button>
+      <p id="status" role="status">Unsaved changes</p>
+    </main>
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>

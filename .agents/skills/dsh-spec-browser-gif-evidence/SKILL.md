@@ -1,8 +1,8 @@
 ---
 name: dsh-spec-browser-gif-evidence
-description: "Record and verify browser-interaction GIF evidence for user-visible UI changes from one isolated run of the adopter's real build. Use for GIF requests or required UI-change evidence; hand off when browser, media, or runtime capability is unavailable. 用于记录并验证用户可见浏览器 UI 变更的交互 GIF 证据；使用真实构建和单一隔离运行。用户要求录屏、生成 GIF 或项目需要 UI 变更证据时使用；浏览器、媒体或运行环境不可用时明确交接。"
+description: "Record and verify browser-interaction GIF evidence for user-visible UI changes from one isolated run of the adopter's real build. Use for a browser interaction recording or required UI-change evidence; not for generic image animation, format conversion, or static visual review. Hand off when browser, media, or runtime capability is unavailable. 用于记录并验证用户可见浏览器 UI 变更的交互 GIF 证据；使用真实构建和单一隔离运行。仅用于浏览器交互录制或所需的 UI 变更证据，不用于普通图片动画、格式转换或静态视觉审查；浏览器、媒体或运行环境不可用时明确交接。"
 license: "MIT; upstream and repository notices in THIRD_PARTY_NOTICES"
-compatibility: "Requires Python 3, ffmpeg, ffprobe, a runnable build, and a browser-control capability or a project-declared Playwright setup. GitHub attachment also requires gh on github.com with write access."
+compatibility: "Requires Node.js 24.11+ on the 24 line or 26+, Git, ffmpeg, ffprobe, a runnable build, and a browser-control capability or a project-declared Playwright setup. GitHub attachment also requires gh on github.com with write access."
 ---
 
 # Browser GIF evidence
@@ -20,11 +20,13 @@ Do not claim completion when the build, browser, real scenario, media tools or p
 ## Establish evidence scope
 
 - Identify the exact commit and tree that will be demonstrated. A clean working tree is preferred; otherwise record every uncommitted path included in the build.
+- Record the application origin, transport and any mode override or browser-state exception.
 - Read the project's build, start, browser-control, evidence-directory and publication instructions. Missing instructions permit a working default, not an invented project mechanism.
 - Use one isolated application run: fresh application state, workspace, session data and browser storage. Existing user browser state is an explicit exception, not an invisible default.
 - Keep every frame and artifact from one run. If capture fails, discard the run and start again; never splice a newer outcome into an older capture.
-- Use a short story of three to six meaningful states. Wait on semantic page state rather than fixed sleeps; a fixed wait may hold a verified frame for reading, but cannot establish readiness.
-- State whether the run used the real product path and real external services, a fixture, a mock or another substitute. Never expose credentials, personal data, unrelated tabs or notifications.
+- Use one demonstrated page and a short story of three to six meaningful states. Wait on semantic page state rather than fixed sleeps; a fixed wait may hold a verified frame for reading, but cannot establish readiness.
+- Preserve animations and scrolling that carry the demonstrated state, and review the complete selected interval including intermediate states.
+- State whether the run used the real product path and real external services, a fixture, a mock or another substitute. Never read or expose credential values, personal data, unrelated tabs or notifications.
 
 ## Capture
 
@@ -34,36 +36,31 @@ When browser control is unavailable and the project declares an isolated Playwri
 
 Store raw video, screenshots, capture notes and QA frames in a project-declared ignored path. When the project declares none, use a fresh temporary directory outside the tracked tree and report its path. Do not commit evidence media to a branch.
 
+Close browser contexts, stop servers started for the run and remove transient browser profiles on both success and failure. Keep the captured evidence and report the first incomplete cleanup step.
+
 ## Encode
 
-The bundled encoder requires Python 3, `ffmpeg` and `ffprobe`. It refuses to install missing media tools.
+The bundled Node encoder requires `ffmpeg` and `ffprobe`. It refuses to install missing media tools.
 
 ```sh
-python3 scripts/encode_gif.py \
+export SKILL_DIR=/absolute/path/to/this/skill
+node "$SKILL_DIR/scripts/encode-browser-gif.mjs" \
   /absolute/path/to/demo.webm \
   /absolute/path/to/demo.gif \
   --start 2 --end 32 --speed 2 --final-hold 3
 ```
 
-Video flags select one continuous interval. For a screenshot directory, use `--pattern` and `--durations` instead:
+Video flags select one continuous interval. Choose `--start` and `--end` from observed source-video times, not guessed wall-clock offsets. For a screenshot directory, use `--pattern` to match filenames with `*` or `?`, then use `--durations`:
 
 ```sh
-python3 scripts/encode_gif.py \
+node "$SKILL_DIR/scripts/encode-browser-gif.mjs" \
   /absolute/path/to/frames \
   /absolute/path/to/demo.gif \
   --pattern '*.png' \
   --durations 1.5,1.5,1.5,3.5
 ```
 
-Read the JSON summary. Shrink `--max-width` first, then `--colors` or `--fps`, when the artifact exceeds the default 5 MiB limit. Disclose any trimming, speed change or final hold beside the published evidence.
-
-Encoder maintenance uses `scripts/test_encode_gif.py`:
-
-```sh
-python3 -m unittest discover -s scripts -p 'test_*.py' -v
-```
-
-These tests require the same media binaries as the encoder and skip when either binary is absent.
+Read the JSON summary. Shrink `--max-width` first, then `--colors` or `--fps`, when the artifact exceeds the default 5 MiB limit. Disclose any trimming, speed change or final hold beside the published evidence. The encoder writes and verifies a temporary GIF before moving it into place. `--force` replaces an existing output only after encoding and validation succeed; a failed run leaves the previous output unchanged.
 
 ## Verify
 

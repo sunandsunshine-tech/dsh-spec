@@ -26,6 +26,7 @@
     "notices:check": "node scripts/sync-vendored-notices.ts --check",
     "check:corpus": "node scripts/verify-corpus.ts",
     "test": "node --test 'tests/**/*.test.ts'",
+    "test:browser-gif": "node --test tests/browser-gif-encoder.media.ts",
     "test:watch": "node --test --watch 'tests/**/*.test.ts'",
     "skill:draft": "node skills/dsh-spec-skill-forge/scripts/forge.mjs draft dsh-spec-skill-forge --from skills/dsh-spec-skill-forge",
     "skill:build": "node scripts/build-skills.ts",
