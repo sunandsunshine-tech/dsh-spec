@@ -40,7 +40,7 @@ import {
   translationPairingRecordDiff,
   type TranslationPairingRecord,
 } from './pairing-record.ts'
-import { DEFAULT_SOURCE_LANGUAGE, type Language, type PairPaths } from './targets.ts'
+import type { Language, PairPaths } from './targets.ts'
 
 /** The canonical command label printed in briefings; the skill directory is known to the agent. */
 export const COMMAND = 'node <skill-dir>/scripts/translate-pair.mjs'
@@ -225,8 +225,6 @@ interface PlannedBrief {
   scope: BriefScope
   changedText: string
   mechanicalResult?: string | undefined
-  /** The standing instructions' scope and exclusion flags, passed to every generated command. */
-  contextFlags: string
 }
 
 /** Choose the narrowest safely mapped granularity for one drifted side. */
@@ -341,6 +339,8 @@ export interface BriefPlan {
   scope: BriefScope
   changedText: string
   mechanicalResult?: string | undefined
+  /** The standing instructions' scope and exclusion flags, passed to every generated command. */
+  contextFlags: string
 }
 
 /**

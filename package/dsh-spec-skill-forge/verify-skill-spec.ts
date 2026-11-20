@@ -2,7 +2,7 @@
 // Source for scripts/verify-skill-spec.mjs — the mechanical half of Agent Skills conformance.
 //
 // dependencies   yaml (bundled); node: builtins only
-// runtime        Node.js 22.19+ or 24+
+// runtime        Node.js 24.11+ on the 24 line or 26+
 // input          a skill directory; default is this script's parent's parent
 // output         one line per check on stdout, or a JSON summary with --json
 // exit           0 every check passed · 1 a check failed · 2 usage error
@@ -13,7 +13,7 @@
 // Trigger quality and script design are judgement, not counting; they stay out of
 // this script and live in the Agent Skills guides the skill names.
 
-import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync, realpathSync, statSync, type Dirent } from 'node:fs'
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import MarkdownIt from 'markdown-it'
@@ -246,7 +246,7 @@ function checkSkill(root: string, limits: Limits): CheckOutcome {
           )
 
           const descriptionText = typeof fields.description === 'string' ? fields.description : undefined
-          const description = descriptionText === undefined ? [] : [...descriptionText]
+          const description = descriptionText === undefined ? [] : Array.from(descriptionText)
           record(
             'description',
             descriptionText !== undefined &&
@@ -257,7 +257,7 @@ function checkSkill(root: string, limits: Limits): CheckOutcome {
 
           if (keys.includes('compatibility')) {
             const compatibilityText = typeof fields.compatibility === 'string' ? fields.compatibility : undefined
-            const compatibility = compatibilityText === undefined ? [] : [...compatibilityText]
+            const compatibility = compatibilityText === undefined ? [] : Array.from(compatibilityText)
             record(
               'compatibility',
               compatibilityText !== undefined &&
@@ -448,7 +448,7 @@ function checkSkill(root: string, limits: Limits): CheckOutcome {
             : 'none named',
     )
 
-    const characters = [...bodyText]
+    const characters = Array.from(bodyText)
     const cjk =
       /[\u1100-\u11ff\u2e80-\u2fff\u3000-\u303f\u3040-\u30ff\u3100-\u31ff\u3400-\u4dbf\u4e00-\u9fff\ua960-\ua97f\uac00-\ud7af\uf900-\ufaff\ufe30-\ufe4f\uff00-\uffef]|[\u{20000}-\u{2fa1f}]/u
     let cjkCount = 0
@@ -518,10 +518,10 @@ function linksFromMarkdown(source: string): string[] {
     for (const child of token.children) {
       if (child.type === 'link_open') {
         const href = child.attrGet('href')
-        if (href) links.push(href)
+        if (href) links.push(String(href))
       } else if (child.type === 'image') {
         const src = child.attrGet('src')
-        if (src) links.push(src)
+        if (src) links.push(String(src))
       } else if (child.type === 'html_inline' && child.content) {
         links.push(...htmlLinks(child.content))
       }
@@ -553,9 +553,9 @@ function htmlLinks(source: string): string[] {
 function scriptFiles(root: string): string[] {
   const files: string[] = []
   const walk = (dir: string): void => {
-    let entries: ReturnType<typeof readdirSync>
+    let entries: Dirent<string>[]
     try {
-      entries = readdirSync(dir, { withFileTypes: true })
+      entries = readdirSync(dir, { withFileTypes: true, encoding: 'utf8' })
     } catch {
       return
     }

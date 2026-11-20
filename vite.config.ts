@@ -1,4 +1,6 @@
-export default {
+import { defineConfig } from 'vite-plus'
+
+export default defineConfig({
   fmt: {
     semi: false,
     singleQuote: true,
@@ -14,4 +16,20 @@ export default {
       'submodules/**',
     ],
   },
-}
+  lint: {
+    plugins: ['typescript'],
+    env: { node: true },
+    ignorePatterns: ['node_modules/**', '.agents/**', 'skills/**', 'submodules/**'],
+    options: {
+      typeAware: true,
+      typeCheck: true,
+    },
+    overrides: [
+      {
+        // node:test returns a Promise even for synchronous tests and intentionally registers them without awaiting.
+        files: ['tests/**/*.test.ts'],
+        rules: { 'typescript/no-floating-promises': 'off' },
+      },
+    ],
+  },
+})

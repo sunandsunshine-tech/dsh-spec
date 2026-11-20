@@ -9,7 +9,7 @@
 // Bundled checks for the dsh-spec-agent-notes skill: init, the active Agent Note tree and the frozen archive.
 //
 // dependencies   none; node: builtins only
-// runtime        Node.js 22.19+ or 24+; the project must be a Git checkout
+// runtime        Node.js 24.11+ on the 24 line or 26+; the project must be a Git checkout
 // input          a command, the notes root, declared companion suffixes and, for the archive, a Git baseline
 // output         one line per violation and a summary, or a JSON summary with --json
 // exit           0 every check passed · 1 rule violations · 2 usage error

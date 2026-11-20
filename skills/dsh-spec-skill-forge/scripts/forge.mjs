@@ -6751,8 +6751,8 @@ function parse(argv) {
 		console.log(USAGE);
 		return;
 	}
-	const command = argv[0];
-	if (command !== "draft" && command !== "pair" && command !== "publish") usageError(`unknown command: ${command}`);
+	const commandText = argv[0];
+	const command = commandText === "draft" || commandText === "pair" || commandText === "publish" ? commandText : usageError(`unknown command: ${commandText}`);
 	let forge = resolve(process.cwd(), DEFAULT_FORGE);
 	let from;
 	let into;

@@ -7,9 +7,13 @@
  */
 
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { test } from 'node:test'
+import { parse } from 'yaml'
 import { REPO_ROOT } from './helpers/fixtures.ts'
 
 test('the pinned pnpm version agrees across package.json, the workflow and the lockfile', () => {
@@ -36,13 +40,22 @@ test('the root Node engine and direct toolchain pins agree with the installed Vi
   const root = JSON.parse(readFileSync(join(REPO_ROOT, 'package.json'), 'utf8')) as {
     engines?: { node?: string }
     devDependencies?: Record<string, string>
+    scripts?: Record<string, string>
   }
   const installed = JSON.parse(readFileSync(join(REPO_ROOT, 'node_modules/vite-plus/package.json'), 'utf8')) as {
     version?: string
   }
-  assert.equal(root.engines?.node, '^22.19.0 || ^24.11.0 || >=26.0.0')
-  assert.equal(root.devDependencies?.['vite-plus'], installed.version)
+  const installedNodeTypes = JSON.parse(
+    readFileSync(join(REPO_ROOT, 'node_modules/@types/node/package.json'), 'utf8'),
+  ) as { version?: string }
+  assert.equal(root.engines?.node, '^24.11.0 || >=26.0.0')
+  assert.equal(installed.version, '1.7.0')
+  assert.equal(root.devDependencies?.['vite-plus'], '1.7.0')
+  assert.equal(installedNodeTypes.version, '24.11.0')
+  assert.equal(root.devDependencies?.['@types/node'], '24.11.0')
   assert.equal(root.devDependencies?.parse5, '8.1.1')
+  assert.equal(root.scripts?.lint, 'vp lint --deny-warnings')
+  assert.equal(root.scripts?.['check:static'], 'vp check --continue-on-error --deny-warnings')
 
   const forge = JSON.parse(readFileSync(join(REPO_ROOT, 'package/dsh-spec-skill-forge/package.json'), 'utf8')) as {
     devDependencies?: Record<string, string>
@@ -53,4 +66,108 @@ test('the root Node engine and direct toolchain pins agree with the installed Vi
     readFileSync(join(REPO_ROOT, 'package/dsh-spec-translate-docs/package.json'), 'utf8'),
   ) as { devDependencies?: Record<string, string> }
   assert.equal(translate.devDependencies?.['mdast-util-from-markdown'], '2.1.0')
+})
+
+test('the development gate checks the minimum and primary Node lines', () => {
+  const workflow = parse(readFileSync(join(REPO_ROOT, '.github/workflows/checks.yml'), 'utf8')) as {
+    jobs: {
+      checks: { strategy: { matrix: { node: unknown } }; steps: { run?: string; with?: Record<string, string> }[] }
+    }
+  }
+  assert.deepEqual(workflow.jobs.checks.strategy.matrix.node, ['24.11.0', '26'])
+  assert.ok(workflow.jobs.checks.steps.some((step) => step.with?.runtime === 'node@${{ matrix.node }}'))
+  assert.ok(workflow.jobs.checks.steps.some((step) => step.run === 'pnpm run check:static'))
+
+  const vendored = parse(readFileSync(join(REPO_ROOT, '.github/workflows/vendored.yml'), 'utf8')) as {
+    jobs: { submit: { steps: { with?: Record<string, string> }[] } }
+  }
+  assert.ok(vendored.jobs.submit.steps.some((step) => step.with?.['node-version'] === '26'))
+
+  const tsconfig = JSON.parse(readFileSync(join(REPO_ROOT, 'tsconfig.json'), 'utf8')) as {
+    compilerOptions?: Record<string, unknown>
+  }
+  assert.equal(tsconfig.compilerOptions?.strict, true)
+  assert.deepEqual(tsconfig.compilerOptions?.lib, ['ES2024'])
+  assert.equal(tsconfig.compilerOptions?.noEmit, true)
+  assert.equal(tsconfig.compilerOptions?.allowImportingTsExtensions, true)
+  assert.equal(tsconfig.compilerOptions?.erasableSyntaxOnly, true)
+})
+
+test('the root check configuration enables type-aware lint and TypeScript diagnostics', async () => {
+  const { default: config } = (await import(pathToFileURL(join(REPO_ROOT, 'vite.config.ts')).href)) as {
+    default: { lint?: { options?: { typeAware?: boolean; typeCheck?: boolean } } }
+  }
+  assert.equal(config.lint?.options?.typeAware, true)
+  assert.equal(config.lint?.options?.typeCheck, true)
+})
+
+test('every shipped script bundle targets the minimum supported Node line', async () => {
+  const skills = readdirSync(join(REPO_ROOT, 'package'), { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .sort()
+  assert.ok(skills.length > 0, 'package/ must contain shipped script packages')
+
+  for (const skill of skills) {
+    const configPath = join(REPO_ROOT, 'package', skill, 'vite.config.ts')
+    assert.ok(existsSync(configPath), `${skill} must carry a Vite+ pack configuration`)
+    const { default: config } = (await import(pathToFileURL(configPath).href)) as {
+      default: { pack?: { target?: string } }
+    }
+    assert.equal(config.pack?.target, 'node24', `${skill} must target Node 24`)
+  }
+})
+
+function runStaticGate(fixtureRoot: string, file: string) {
+  const manifest = JSON.parse(readFileSync(join(REPO_ROOT, 'package.json'), 'utf8')) as {
+    scripts?: Record<string, string>
+  }
+  const command = manifest.scripts?.['check:static']
+  assert.equal(command, 'vp check --continue-on-error --deny-warnings')
+  return spawnSync(
+    process.execPath,
+    [join(REPO_ROOT, 'node_modules/vite-plus/bin/vp'), ...command.split(' ').slice(1), file],
+    { cwd: fixtureRoot, encoding: 'utf8' },
+  )
+}
+
+test('the static gate rejects formatting, lint warnings and type errors independently', () => {
+  const cases = [
+    { kind: 'format', source: 'const formatted={answer:42}\n', expected: /format|Formatting/i },
+    { kind: 'warning', source: 'debugger\n', expected: /no-debugger|warning/i },
+    { kind: 'type', source: "const broken: number = 'wrong'\n", expected: /TS2322|not assignable|type/i },
+    { kind: 'dom', source: "document.title = 'wrong'\n", expected: /document|DOM|Cannot find name/i },
+  ] as const
+
+  const fixtureRoot = mkdtempSync(join(tmpdir(), 'dsh-static-gate-'))
+  try {
+    symlinkSync(
+      join(REPO_ROOT, 'node_modules'),
+      join(fixtureRoot, 'node_modules'),
+      process.platform === 'win32' ? 'junction' : 'dir',
+    )
+    const tsconfig = JSON.parse(readFileSync(join(REPO_ROOT, 'tsconfig.json'), 'utf8')) as {
+      include?: string[]
+      exclude?: string[]
+    }
+    tsconfig.include = ['*.ts']
+    tsconfig.exclude = ['node_modules']
+    writeFileSync(join(fixtureRoot, 'package.json'), JSON.stringify({ private: true, type: 'module' }, null, 2) + '\n')
+    writeFileSync(join(fixtureRoot, 'vite.config.ts'), readFileSync(join(REPO_ROOT, 'vite.config.ts')))
+    writeFileSync(join(fixtureRoot, 'tsconfig.json'), JSON.stringify(tsconfig, null, 2) + '\n')
+
+    for (const entry of cases) {
+      const relative = `${entry.kind}.ts`
+      writeFileSync(join(fixtureRoot, relative), entry.source)
+      const result = runStaticGate(fixtureRoot, relative)
+      assert.notEqual(
+        result.status,
+        0,
+        `${entry.kind} failure must reject static gate\n${result.stdout}${result.stderr}`,
+      )
+      assert.match(result.stdout + result.stderr, entry.expected)
+    }
+  } finally {
+    rmSync(fixtureRoot, { recursive: true, force: true })
+  }
 })

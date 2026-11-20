@@ -15863,6 +15863,7 @@ function regionMismatch(left, right, normalize) {
 * @returns the signature.
 */
 function translationStructureSignature(tree, linkContext, markdown, skippedLinkOffsets) {
+	if (tree.type !== "root") throw new Error("translation signature requires a root Markdown node");
 	const signature = {
 		headings: [],
 		code: [],
@@ -15928,6 +15929,7 @@ function maskedTreeOf(text) {
 }
 /** Count the authored headings above each region in the masked tree. */
 function regionAnchors(regions, tree) {
+	if (tree.type !== "root") throw new Error("region anchors require a root Markdown node");
 	const headings = tree.children.filter((node) => node.type === "heading").map((node) => node.position?.start.line ?? 0);
 	return regions.map((region) => ({
 		slug: region.slug,

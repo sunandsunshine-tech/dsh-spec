@@ -9,7 +9,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { existsSync, readFileSync, symlinkSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { makeFixture, REPO_ROOT } from './helpers/fixtures.ts'
 import { skillBundlePath } from './helpers/bundles.ts'

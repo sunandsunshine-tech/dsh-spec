@@ -2,7 +2,7 @@
 // Source for scripts/forge.mjs — the work-directory, review-draft and publish lifecycle.
 //
 // dependencies   none; node: builtins only
-// runtime        Node.js 22.19+ or 24+
+// runtime        Node.js 24.11+ on the 24 line or 26+
 // input          a command, a skill name, the forge directory and, for publishing, a landing directory
 // output         one line per action on stdout, or a JSON summary with --json
 // exit           0 every action succeeded · 1 an action or precondition failed · 2 usage error
@@ -225,8 +225,11 @@ function parse(argv: string[]): Options | undefined {
     console.log(USAGE)
     return undefined
   }
-  const command = argv[0]
-  if (command !== 'draft' && command !== 'pair' && command !== 'publish') usageError(`unknown command: ${command}`)
+  const commandText = argv[0]
+  const command: Options['command'] =
+    commandText === 'draft' || commandText === 'pair' || commandText === 'publish'
+      ? commandText
+      : usageError(`unknown command: ${commandText}`)
 
   let forge = resolve(process.cwd(), DEFAULT_FORGE)
   let from: string | undefined

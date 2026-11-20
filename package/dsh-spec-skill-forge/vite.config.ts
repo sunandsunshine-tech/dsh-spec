@@ -7,7 +7,7 @@ export default {
     outDir: outRoot + '/dsh-spec-skill-forge/scripts',
     format: 'esm',
     platform: 'node',
-    target: 'node22',
+    target: 'node24',
     clean: process.env.SKILL_CLEAN !== '0',
   },
 }

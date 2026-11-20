@@ -14,7 +14,7 @@
 
 import { createHash } from 'node:crypto'
 import { basename } from 'node:path'
-import type { Nodes, RootContent } from 'mdast'
+import type { Heading, Nodes, RootContent } from 'mdast'
 import { parseMarkdown } from './markdown.ts'
 import { bindTarget } from './signature.ts'
 import {
@@ -58,6 +58,12 @@ interface TopLevelBlock {
   start: number | undefined
   end: number | undefined
   line: number
+}
+
+/** One heading section plus its top-level blocks, in the order sections() discovers them. */
+interface Section {
+  heading?: Heading
+  blocks: string[]
 }
 
 function headingText(node: Nodes): string {

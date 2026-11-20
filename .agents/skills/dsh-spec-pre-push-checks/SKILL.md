@@ -2,7 +2,7 @@
 name: dsh-spec-pre-push-checks
 description: "Use before pushing, force-pushing, marking ready for review, or claiming checks pass on a branch, and immediately after an automated tool rewrites and publishes branches, to select the smallest tests and checks that cover the outgoing or just-published diff without reflexively running the full repository suite. 用于推送、强制推送、标记待评审或声称检查通过之前，以及自动化工具重写并发布分支之后，按变更范围选择最小充分的测试与检查，避免反射式运行完整仓库套件。"
 license: "MIT; upstream and repository notices in THIRD_PARTY_NOTICES"
-compatibility: "Requires Git; the bundled change-scope report also requires Node.js 22.19+ or 24+. No install is required, and the bundled report uses no network."
+compatibility: "Requires Git; the bundled change-scope report also requires Node.js 24.11+ on the 24 line or 26+. No install is required, and the bundled report uses no network."
 ---
 
 # Pre-push checks

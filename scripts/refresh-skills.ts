@@ -2,7 +2,7 @@
 // Synchronize the repository's skills into the installed copies under .agents/skills/.
 //
 // dependencies   none; node: builtins only
-// runtime        Node.js ^22.19.0 || ^24.11.0 || >=26.0.0
+// runtime        Node.js ^24.11.0 || >=26.0.0
 // input          the working directory as the repository root
 // output         one line per skill on stdout
 // exit           0 every skill was synchronized · 1 an action or precondition failed · 2 usage error

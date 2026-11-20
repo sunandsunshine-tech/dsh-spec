@@ -113,11 +113,11 @@ function run(target: Fixture | string, args: string[]) {
   return runRaw(target, [...args, '--expect-plan', plan])
 }
 
-function archived(note, date = '2026-10-03') {
+function archived(note: string, date = '2026-10-03'): string {
   return note.replace('Status: implemented', `Status: implemented\nArchived: ${date}`)
 }
 
-function seedSealedArchive(project, date = '2026-10-03') {
+function seedSealedArchive(project: Fixture, date = '2026-10-03'): void {
   initTree(project)
   project.write(`${ROOT}/implemented/feature/2026-10-02-ship.md`, IMPLEMENTED)
   project.commit('implemented note')
@@ -187,7 +187,7 @@ test('check rejects proposal-era headings in implemented notes but ignores fence
     `${ROOT}/implemented/feature/2026-10-02-ship.md`,
     IMPLEMENTED.replace('## Consequences\n', '## Acceptance criteria\n\nIt works.\n'),
   )
-  const fenced = IMPLEMENTED.replace('## Consequences\n', '## Consequences\n\n\`\`\`markdown\n## Proposal\n\`\`\`\n')
+  const fenced = IMPLEMENTED.replace('## Consequences\n', '## Consequences\n\n```markdown\n## Proposal\n```\n')
   project.write(`${ROOT}/implemented/architecture/2026-10-03-keep.md`, fenced)
   const result = run(project, ['check'])
   assert.equal(result.status, 1)
