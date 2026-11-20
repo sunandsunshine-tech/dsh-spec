@@ -1,0 +1,5 @@
+Use one native `<button type="button">`; at wide widths show the settings icon with a localized label, and below the breakpoint hide only the label. Keeping the same element mounted preserves focus when the layout changes. Give it an accessible name, visible focus ring, a tooltip reachable by keyboard and touch, DOM order matching visual order, and at least a 44×44 CSS-pixel touch target.
+
+Verify the assembled app on both sides of the breakpoint: tab to the action, focus it, resize across the breakpoint and confirm focus remains, test Enter/Space and touch emulation, and check neighboring actions for clipping or overlap. Capture comparable narrow and wide screenshots.
+
+I used `dsh-spec-client-ui-ux` for the responsive and accessibility checks. The probe prohibited project inspection and file changes, so I did not modify files or claim rendered verification.

@@ -4,8 +4,10 @@ narrow-modal-overlay	true	true	pass
 theme-focus-contrast	true	true	pass
 loading-error-layout	true	true	pass
 global-style-clipping	true	true	pass
+responsive-icon-implementation	true	true	pass
 new-brand-direction	false	false	pass
 general-accessibility-audit	false	false	pass
 component-readme	false	false	pass
 api-pagination	false	false	pass
 rename-css-token	false	false	pass
+static-svg-export	false	false	pass

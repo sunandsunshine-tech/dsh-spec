@@ -1,3 +1,3 @@
-I couldn’t verify the rendered layout or action reachability because no application URL, screenshots, or running local browser surface was provided. The candidate local ports had no active application, and browser automation could not start in this environment.
+The `dsh-spec-client-ui-ux` skill applies, but no rendered evidence is supplied and the fixture prohibits inspecting the project. I therefore can’t verify the layout or action reachability.
 
-No visual defects are confirmed or ruled out for the loading, empty, validation-error, or success states. To resume, provide the running page URL or screenshots of all four states at both the supported narrow and desktop widths. I’ll then check clipping, overflow, wrapping, focus, and whether the form action stays visible and operable.
+Provide screenshots or a recording covering loading, empty, validation-error, and success states at normal and narrow widths, including scrolling and focus behavior around the action.

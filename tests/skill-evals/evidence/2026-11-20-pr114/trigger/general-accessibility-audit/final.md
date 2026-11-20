@@ -1,3 +1,3 @@
-I can’t complete a repository-wide audit under the repository’s instructions, which prohibit reading project files for task context. I also did not use `dsh-spec-web-ui-review`: it covers browser UI changes with rendered evidence and explicitly excludes generic WCAG or design-system audits.
+No findings can be produced without inspecting the repository or rendered UI, which this probe prohibits. The installed UI/UX review skill explicitly excludes general accessibility or design-system audits outside a specific UI change, so it does not apply.
 
-No accessibility findings can be made without inspecting the implementation or rendered interface. A valid audit needs either explicit authorization to inspect the repository or a scoped UI change with its relevant routes, states, and browser evidence.
+Status: **not audited**; claiming missing ARIA attributes or WCAG failures would be speculative.

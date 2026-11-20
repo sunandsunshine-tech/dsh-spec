@@ -1,8 +1,3 @@
-No rendered pass was possible from the supplied prompt: it includes no running UI, screenshots or recording, token definition, or component inventory.
+I couldn’t verify the rendered light/dark focus states because the prompt supplies no running URL or scene, and the fixture forbids project inspection. No consumers are confirmed tested; treat every form action inheriting the shared focus token as an untested consumer.
 
-- **Light theme:** untested.
-- **Dark theme:** untested.
-- **Form-action keyboard focus:** untested, including visible focus and contrast against adjacent surfaces.
-- **Other consumers:** untested. If the token is shared, every control inheriting it is unverified; the exact consumer list cannot be determined without source inspection, which the fixture instructions prohibit.
-
-No evidence or project checks were produced. To resume, provide rendered light/dark focus captures plus the affected consumer list or a runnable review handoff.
+Provide the rendered page and theme-switch mechanism for a definitive consumer report.
