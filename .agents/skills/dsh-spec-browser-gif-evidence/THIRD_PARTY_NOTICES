@@ -1,0 +1,60 @@
+# Third-party notices
+
+The text and scripts of this skill are adapted from the DeepSeek Harness skill `record-browser-gif`.
+
+- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.2-rc.1` (`66491b05e3f05ad35bcdd4f6cd7ed26041d9e3db`).
+- Upstream paths:
+  - `.agents/skills/record-browser-gif/SKILL.md` — the source workflow and evidence policy.
+  - `.agents/skills/record-browser-gif/scripts/encode_gif.py` — the deterministic GIF encoder.
+  - `.agents/skills/record-browser-gif/scripts/test_encode_gif.py` — the encoder's media-subprocess tests.
+- Relation: adapted. The default browser-UI evidence requirement, single-run integrity, capture and encoding separation, deterministic encoder, artifact verification, no-media-commit rule, live-head checks and optional pull-request attachment are carried. DSH commands, application paths, credentials-provider overlay, real-model policy, mandatory every-GUI-PR policy, existing DSH assets branches and GitHub-specific publication details are re-bound to adopter declarations, made capability-dependent, or moved to the publication reference. The encoder and its tests keep their technical behavior; explanatory names and paths are generalized.
+
+This skill is distributed under the MIT licence. The upstream and repository notices follow so that an installed copy carries them. This file is not part of the skill's instructions.
+
+## Upstream notice
+
+MIT License
+
+Copyright (c) 2026 DeepSeek
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+## Repository notice
+
+MIT License
+
+Copyright (c) 2026 北京三与叁山餐饮服务有限公司 (SunAndSunshine)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

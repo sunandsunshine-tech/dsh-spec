@@ -1,0 +1,34 @@
+# Pairing consistency record for 2026-11-20-forging-dsh-spec-browser-gif-evidence.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/feature/2026-11-20-forging-dsh-spec-browser-gif-evidence.md --target <lang>
+/agent-note-forging-dsh-spec-browser-gif-evidence-from-record-browser-gif:
+  en: a6b6189edc6dc2c0
+  zh: 30c508b19b7823ee
+/agent-note-forging-dsh-spec-browser-gif-evidence-from-record-browser-gif/problem:
+  en: f2638d064e4d924b
+  zh: e47018fa496026e8
+/agent-note-forging-dsh-spec-browser-gif-evidence-from-record-browser-gif/decision:
+  en: cb92c8e0ad83f7b4
+  zh: 188aed5dab497cff
+/agent-note-forging-dsh-spec-browser-gif-evidence-from-record-browser-gif/source-and-settings:
+  en: 15067a263b5865fe
+  zh: cdfe7a066705f448
+/agent-note-forging-dsh-spec-browser-gif-evidence-from-record-browser-gif/source-constraints:
+  en: bc5c836ea0d44e12
+  zh: 6dd8b101b3aa726e
+/agent-note-forging-dsh-spec-browser-gif-evidence-from-record-browser-gif/dispositions:
+  en: 2bd7cd69594978d9
+  zh: 34e55d87394db96b
+/agent-note-forging-dsh-spec-browser-gif-evidence-from-record-browser-gif/rulings:
+  en: 2aed97329bddda62
+  zh: 205c1430904b06c1
+/agent-note-forging-dsh-spec-browser-gif-evidence-from-record-browser-gif/verification:
+  en: 91783982180c956c
+  zh: 48cd3721d6c2650a
+/agent-note-forging-dsh-spec-browser-gif-evidence-from-record-browser-gif/alternatives-considered:
+  en: c5cfdcec45b80c79
+  zh: 6b9a7c4ed11f72d7
+/agent-note-forging-dsh-spec-browser-gif-evidence-from-record-browser-gif/consequences:
+  en: 1ff5c5842a58df18
+  zh: 17ff627fd93fb844
