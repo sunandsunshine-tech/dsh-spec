@@ -1,0 +1,14 @@
+
+> test
+> node --test tests/config.test.mjs
+
+✔ loads the optional feature flag (1.185648ms)
+✔ restores the pre-test global state (0.102702ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 42.253579

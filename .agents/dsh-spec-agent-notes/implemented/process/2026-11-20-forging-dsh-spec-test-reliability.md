@@ -12,7 +12,7 @@ Upstream `dsh-ci-test-reliability` contains the missing procedure and a diagnosi
 
 ## Decision
 
-The package ships `dsh-spec-test-reliability` as a general software-engineering skill. It owns test isolation, execution-topology modeling, resource allocation, process-global containment, platform semantics, timeout budgets, state synchronization, quiescent disposal, regression proof, flake-masking rejection, and read-only flake diagnosis.
+The package ships `dsh-spec-test-reliability` as a general software-engineering skill. It owns test isolation, execution-topology modeling, resource allocation, process-global containment, platform semantics, deterministic test-duration design, timeout budgets, state synchronization, quiescent disposal, regression proof, flake-masking rejection, and read-only flake diagnosis.
 
 The skill separates test design from command selection. It names `dsh-spec-pre-push-checks` only after stating the generic requirement to use the project's check-selection practice:
 
@@ -28,14 +28,12 @@ The skill ships no script and has no runtime dependency. Its decisions depend on
 
 ## Source and revision
 
-Upstream source read on 2026-11-20:
+Upstream source baseline read on 2026-11-20:
 
 - Repository: `https://github.com/deepseek-ai/deepseek-harness`
-- Revision: `2e39e70496aa02986ca6a820c5d497e816b69d7e`
+- Baseline: `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`)
 - `.agents/skills/dsh-ci-test-reliability/SKILL.md`
 - `.agents/skills/dsh-ci-test-reliability/references/ci-flake-diagnosis.md`
-
-Both source files are byte-identical from the repository's current `dsh-v0.2.2-rc.1` extraction pin through the source revision above.
 
 ## Settings
 
@@ -63,6 +61,7 @@ Both source files are byte-identical from the repository's current `dsh-v0.2.2-r
 | R12 | Retries and global serialization are not default fixes. | They hide ownership and topology defects and impose suite-wide cost. | Permit masking by default. |
 | R13 | A diagnosis-only request is read-only and classifies evidence without changing code, workflow, or rerun state. | Investigation authority does not imply repair authority. | Authorize unrelated mutations from diagnosis. |
 | R14 | Evaluation manifests and fixtures remain development-only assets. | Adopters need runtime instructions, not the repository's development prompts and sample failures. | Ship evals inside the skill. |
+| R15 | Deterministic test duration is design feedback: default to fast contract cases plus one shared expensive scenario, and repeat external work only in lanes where the result can differ. | More timeout preserves duplicate setup and over-broad coverage while making the suite slower and less informative. | Treat larger timeouts or a full external-work matrix as the default. |
 
 ## Constraint dispositions
 
@@ -77,6 +76,7 @@ Both source files are byte-identical from the repository's current `dsh-v0.2.2-r
 | S4 | `SK:43–54` | Treat process-global state as exclusive; capture absence, restore immediately, use a bounded scope and fallback interception. | Adapt | Contain process-global state | Replace JavaScript-only identifiers with cross-language equivalents while retaining examples. |
 | S5 | `SK:56–65` | Respect platform-owned precision, environment-name case, handle release, permissions and signals. | Keep | Respect platform-owned semantics | Generic platform rules survive. |
 | S6 | `SK:67–73` | Budget timeouts against the lane; raise setup and teardown together; keep outer waits larger than the subject timeout. | Keep | Budget timeouts against the lane | Generic test-runner rule. |
+| S6a | Target requirement | Excessive deterministic test time is a test-design problem rather than a timeout budget; distinct slow work from fast contracts and run one shared representative expensive scenario. | Adapt | Design the smallest sufficient test | Prevents a timeout increase from masking repeated setup or an over-broad matrix. |
 | S7 | `SK:75–83` | Synchronize on readiness, state transitions, owned promises and barriers; timeouts bound waits; restore real time. | Adapt | Synchronize on state | Remove Node/Vitest vocabulary while preserving the rules. |
 | S8 | `SK:85–89` | Register cleanup immediately, detach everything owned, and wait for quiescence. | Keep | Dispose to quiescence | Generic lifecycle contract. |
 | S9 | `SK:91–100` | Prove the intended regression with a failing control; prove overlap or concurrent-process isolation where relevant. | Keep | Prove the intended regression | Generic evidence rule. |
@@ -93,14 +93,15 @@ Both source files are byte-identical from the repository's current `dsh-v0.2.2-r
 
 | # | Requirement | Anchor | Evidence |
 |---|---|---|---|
-| A0 | The skill conforms to the Agent Skills format, references stay one level deep, and the description remains under the package catalogue budget. | Mechanical | The skill-spec gate passed 14 checks; `SKILL.md` is 132 lines, its description is 281 characters, and the estimated body is 2,430 tokens. |
+| A0 | The skill conforms to the Agent Skills format, references stay one level deep, and the description remains under the package catalogue budget. | Mechanical | The skill-spec gate passed 14 checks; `SKILL.md` is 146 lines, its description is 434 characters, and the estimated body is 2,824 tokens. |
 | A1 | The source's topology, resource, global-state, platform, timeout, synchronization, disposal, regression and masking rules are present. | Judged | `SKILL.md` sections against S0–S12 |
 | A2 | Diagnosis preserves evidence, classification, topology limits, ownership and read-only authority. | Judged | `references/ci-flake-diagnosis.md` against F0–F4 |
 | A3 | The skill names no framework, CI provider, source product path or command as a requirement. | Judged + Mechanical | Review found no source-product referent; the corpus sibling-reference gate passed. |
 | A4 | The pre-push relationship is optional and names only the mechanism. | Mechanical | The corpus sibling-reference gate passed. |
-| A5 | Development scenarios cover port allocation, exact global restoration and diagnosis-only behavior. | Mechanical | The scenario and repository-shape tests passed 17/17, including temporary staging of the new eval corpus. |
-| A6 | Runtime model behavior against the scenarios. | Unverified | The scenario corpus is validated, but no clean-context model run has been executed for this skill. |
-| A7 | The installed copy, notices, active note tree and translation pairs are consistent. | Mechanical | The full functional suite passed 392/392; corpus, notes, pairing, notices, format, static and bundle checks passed. |
+| A5 | Runnable fixtures cover deterministic port failure, exact global restoration, read-only diagnosis and a slow repeated-suite redesign. | Mechanical | Repository tests run the fixtures' positive and negative controls and stage all declared inputs; the four direct fixture entries take under one second in aggregate. |
+| A6 | Runtime model behavior against the scenarios. | Judged + Mechanical | Clean-context runs under `tests/skill-evals/evidence/2026-11-20-pr116/` pass 16/16 assertions across the four behavior scenarios. |
+| A6a | The description routes reliability and test-duration work without capturing adjacent product-performance, coverage, documentation, or visual-review tasks. | Judged + Mechanical | Four positive and four near-miss selection probes in the same evidence directory pass 8/8 through the stable `SELECT:` marker. |
+| A7 | The installed copy, notices, active note tree and translation pairs are consistent. | Mechanical | The final full functional suite and corpus, notes, pairing, notices, format, static and bundle checks pass; the functional command is the owning evidence, without duplicating a process count here. |
 
 ## Pages read
 
@@ -124,6 +125,8 @@ Read on 2026-11-20:
 
 **Treat any retry as invalid.** It lost because a documented transient external provider can require a bounded retry at that boundary. The exception is narrower than retry as a local flake fix.
 
+**Multiply every timeout group by three.** It lost because the elapsed time is already evidence of repeated setup or an over-broad test layer; larger budgets retain the wasteful design and make failures slower to diagnose.
+
 **Make diagnosis imply a fix.** It lost because the requested scope controls write authority. Diagnosis reports evidence and handoff unless the user also authorizes repair.
 
 **Ship the eval corpus inside the skill.** It lost because every adopter would receive development prompts and fixture failures rather than runtime capability.
@@ -132,6 +135,6 @@ Read on 2026-11-20:
 
 - The package gains a general skill for test design, review and flaky diagnosis without a framework or CI-provider dependency.
 - The main entry carries the operating rules; the diagnosis reference loads only for an existing probabilistic failure.
-- Three development scenarios cover the central behaviours, but their runtime model results remain unverified until a clean-context eval run.
+- Four runnable development scenarios cover the central behaviours, and clean-context model results are retained under `tests/skill-evals/evidence/2026-11-20-pr116/`.
 - The source licence and relation travel with installed copies.
 - Rollback is a revert of the implementing commit; the extraction submodule remains untouched.
