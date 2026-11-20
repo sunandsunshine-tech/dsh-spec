@@ -38,7 +38,7 @@ function isClassKind(value) {
 * SPDX-License-Identifier: MIT
 *
 * Adapted from the DeepSeek Harness note-gate scripts at the pinned
-* `dsh-v0.2.2-rc.1` (`66491b05e3f05ad35bcdd4f6cd7ed26041d9e3db`); the skill-root
+* `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`); the skill-root
 * THIRD_PARTY_NOTICES names the upstream paths and the relation.
 */
 function display(projectRoot, path) {
@@ -171,7 +171,7 @@ function resolveNotesPaths(projectRoot, rootOption) {
 * SPDX-License-Identifier: MIT
 *
 * Adapted from the DeepSeek Harness note-gate scripts at the pinned
-* `dsh-v0.2.2-rc.1` (`66491b05e3f05ad35bcdd4f6cd7ed26041d9e3db`); the skill-root
+* `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`); the skill-root
 * THIRD_PARTY_NOTICES names the upstream paths and the relation.
 */
 const STATUS = {
@@ -258,7 +258,7 @@ function formatErrors(projectRoot, file, lifecycle, noteDate, formatAdopted) {
 * SPDX-License-Identifier: MIT
 *
 * Adapted from the DeepSeek Harness note-gate scripts at the pinned
-* `dsh-v0.2.2-rc.1` (`66491b05e3f05ad35bcdd4f6cd7ed26041d9e3db`); the skill-root
+* `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`); the skill-root
 * THIRD_PARTY_NOTICES names the upstream paths and the relation.
 */
 function emptyManifest() {
@@ -340,7 +340,7 @@ function extendManifest(manifest, artifacts) {
 * SPDX-License-Identifier: MIT
 *
 * Adapted from the DeepSeek Harness note-gate scripts at the pinned
-* `dsh-v0.2.2-rc.1` (`66491b05e3f05ad35bcdd4f6cd7ed26041d9e3db`); the skill-root
+* `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`); the skill-root
 * THIRD_PARTY_NOTICES names the upstream paths and the relation.
 */
 function sealPlanFor(baseCommit, manifest, added, artifacts, companions, members, preflight) {
@@ -701,7 +701,7 @@ function archiveCommand(layout, paths, options) {
 * SPDX-License-Identifier: MIT
 *
 * Adapted from the DeepSeek Harness note-gate scripts at the pinned
-* `dsh-v0.2.2-rc.1` (`66491b05e3f05ad35bcdd4f6cd7ed26041d9e3db`); the skill-root
+* `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`); the skill-root
 * THIRD_PARTY_NOTICES names the upstream paths and the relation.
 */
 var UsageError = class extends Error {};
@@ -886,7 +886,7 @@ function parseArgs(argv) {
 * SPDX-License-Identifier: MIT
 *
 * Adapted from the DeepSeek Harness note-gate scripts at the pinned
-* `dsh-v0.2.2-rc.1` (`66491b05e3f05ad35bcdd4f6cd7ed26041d9e3db`); the skill-root
+* `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`); the skill-root
 * THIRD_PARTY_NOTICES names the upstream paths and the relation.
 */
 function initCommand(layout, requestedRoot) {
@@ -993,7 +993,7 @@ function initCommand(layout, requestedRoot) {
 * SPDX-License-Identifier: MIT
 *
 * Adapted from the DeepSeek Harness note-gate scripts at the pinned
-* `dsh-v0.2.2-rc.1` (`66491b05e3f05ad35bcdd4f6cd7ed26041d9e3db`); the skill-root
+* `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`); the skill-root
 * THIRD_PARTY_NOTICES names the upstream paths and the relation.
 */
 function entryKind(path) {
@@ -1242,7 +1242,7 @@ function walkActiveTree(layout, root, companions, members, formatAdopted) {
 * SPDX-License-Identifier: MIT
 *
 * Adapted from the DeepSeek Harness note-gate scripts at the pinned
-* `dsh-v0.2.2-rc.1` (`66491b05e3f05ad35bcdd4f6cd7ed26041d9e3db`); the skill-root
+* `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`); the skill-root
 * THIRD_PARTY_NOTICES names the upstream paths and the relation.
 */
 function runCommand(options, layout, paths) {
