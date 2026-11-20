@@ -1,0 +1,6 @@
+status: fail
+assertions: 2/4
+time_seconds: 19.0
+input_tokens: 50513
+output_tokens: 2732
+failures: ignored cleanup failure lacks a stable discriminant; unexpected cleanup failures are discarded

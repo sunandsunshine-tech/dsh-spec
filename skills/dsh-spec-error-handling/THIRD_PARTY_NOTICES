@@ -2,9 +2,11 @@
 
 The text of this skill is adapted from the DeepSeek Harness skill `dsh-error-handling`.
 
-- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`).
-- Upstream path: `.agents/skills/dsh-error-handling/SKILL.md`.
-- Relation: adapted for software projects of any kind. The description, the H1, two re-binds and six assumption-bearing units are rewritten; the remaining 20 body lines are carried as written.
+- Upstream: <https://github.com/deepseek-ai/deepseek-harness>.
+- Source revision: `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`).
+- Upstream paths: `.agents/skills/dsh-error-handling/SKILL.md` and `.agents/skills/dsh-error-handling/references/error-codes.md`.
+- Silent failure handling was read from commit `603ed7e7d0da17d3290e44d5b3b999a636840a2d`.
+- Relation: adapted for software projects of any kind. Product-specific error types, registry behavior, paths, and examples are replaced by project-owned contracts; stable machine identity, foreign-error conversion, boundary preservation, compatibility, silent-handler safety, and verification are retained.
 
 This skill is distributed under the MIT licence. The upstream and repository notices follow so that an installed copy carries them. This file is not part of the skill's instructions.
 

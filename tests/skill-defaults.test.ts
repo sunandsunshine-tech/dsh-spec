@@ -20,6 +20,7 @@ const DEFAULT_CONTRACT =
 
 const DEFAULT_BEARING = [
   'dsh-spec-agent-notes',
+  'dsh-spec-error-handling',
   'dsh-spec-merging-stacked-prs',
   'dsh-spec-pr-description',
   'dsh-spec-prose-standard',
@@ -37,6 +38,11 @@ const USE_SITE_PINS = [
     skill: 'dsh-spec-agent-notes',
     file: 'SKILL.md',
     text: "When translation is available, choose this note's target set in this order:",
+  },
+  {
+    skill: 'dsh-spec-error-handling',
+    file: 'SKILL.md',
+    text: 'when none exist, use a stable name and `UPPER_SNAKE_CASE` code',
   },
   {
     skill: 'dsh-spec-translate-docs',
@@ -72,6 +78,7 @@ const USE_SITE_PINS = [
 
 const CONCRETE_VALUE_MARKERS: Record<string, string> = {
   'dsh-spec-agent-notes': '.agents/dsh-spec-agent-notes',
+  'dsh-spec-error-handling': 'UPPER_SNAKE_CASE',
   'dsh-spec-merging-stacked-prs': '`squash`',
   'dsh-spec-pr-description': '## Motivation',
   'dsh-spec-prose-standard': '`automatic`',
