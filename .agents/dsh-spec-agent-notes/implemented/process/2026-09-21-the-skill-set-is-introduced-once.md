@@ -1,4 +1,4 @@
-# Agent Note: The skill set is introduced once, in the project README
+# Agent Note: The skill set has no per-skill READMEs
 
 Status: implemented
 
@@ -10,7 +10,7 @@ Every skill carried a README pair beside its entry — what the skill is for, wh
 
 ## Decision
 
-The per-skill READMEs are removed, and the root README carries one table naming every shipped skill and what each is for. The entry (`SKILL.md`) stays what an agent loads, and the references beside it stay the workflow's own material; a skill directory holds the entry, its references, and the scripts or notices its deliverable needs, and no README. The package README documents the skill script packages and how their bundles are built.
+The per-skill READMEs are absent. The root README remains the adoption overview: it names the universal starting group, maps five need-based groups, summarizes provenance and links to one detailed selection guide. [Choosing dsh-spec skills](../../../../docs/choosing-skills.md) owns each group's role, recommended companion explanations, common combinations and capability requirements. The entry (`SKILL.md`) stays what an agent loads, and the references beside it stay the workflow's own material; a skill directory holds the entry, its references, and the scripts or notices its deliverable needs, and no README.
 
 ## Alternatives considered
 
@@ -22,12 +22,13 @@ The per-skill READMEs are removed, and the root README carries one table naming 
 
 ## Consequences
 
-- One overview, one home: the root README's table, in both languages.
+- One overview and one detailed selection home: the root README pair summarizes adoption, and the guide pair owns selection detail.
 - Eight pairs fewer to record, and a skill directory that contains only what its deliverable needs: the entry, its references, and any scripts or notices.
 - The installed copy loses the READMEs: it mirrors the landed skill, so a file the revision no longer ships does not survive a refresh.
-- What this costs is depth: a reader who wants to know what `dsh-pre-push-checks` does gets one line in a table rather than a page. The entry and its references remain the place to go deeper, and the line is what the table is for.
+- What this costs is a second maintained pair: the detailed guide extends selection depth beyond the README's group rows, while the entry and its references remain the place to inspect a skill's implementation.
 - Verification: `pnpm test` and `node scripts/verify-corpus.ts --base-ref=HEAD` pass; the spec gate conforms for every skill directory with no README present; no skill README remains beside an entry.
 
 ## Related
 
 - [The shipped skill text is an extraction](2026-09-21-the-shipped-skill-text-is-an-extraction.md) — the change that removed the rules those READMEs had come to carry, and the note whose references to them this change updates.
+- [Skill selection has one detailed home](2026-11-20-skill-selection-has-one-detailed-home.md) — this record's current division between the concise README and the detailed guide.
