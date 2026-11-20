@@ -53,6 +53,10 @@ jobs:
       - name: the functional suite
         run: pnpm test
 
+      - name: the browser GIF media dependency
+        if: matrix.node == '26'
+        run: sudo apt-get update && sudo apt-get install --yes ffmpeg
+
       - name: the browser GIF media scenario
         if: matrix.node == '26'
         run: pnpm run test:browser-gif

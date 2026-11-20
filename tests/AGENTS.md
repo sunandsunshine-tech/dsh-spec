@@ -19,8 +19,8 @@ pnpm run test:browser-gif
 ```
 
 This separate media scenario requires `ffmpeg` and `ffprobe`. It runs once on Node 26 in CI so the
-Node matrix does not repeat the same external media process, and it fails rather than skipping when
-either binary is absent.
+Node matrix does not repeat the same external media process; CI installs the binaries only for that
+line, and the test fails rather than skipping when either binary is absent.
 
 ## Layout
 
