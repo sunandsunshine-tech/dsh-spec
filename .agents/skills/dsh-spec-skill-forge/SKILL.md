@@ -2,7 +2,7 @@
 name: dsh-spec-skill-forge
 description: "Use when creating, writing, rewriting, forging, improving, adapting, or migrating an Agent Skill (SKILL.md) — its description, structure, triggers, or specification conformance need work — from an idea, reference material, or one or more existing skills. Produces the skill directory and a record of the decisions behind it. Not for merely installing, loading, or using an installed skill. 用于创建、编写、改写、锻造、优化、适配或迁移技能（Agent Skill / SKILL.md）。确定技能描述、触发时机、结构与规范符合性，产出技能目录与锻造记录。不用于安装、加载或使用已安装的技能。"
 license: "MIT; bundled dependency notices in THIRD_PARTY_NOTICES"
-compatibility: "Requires Node.js 22.19+ or 24+ for the bundled scripts. No build step or install."
+compatibility: "Requires Node.js 24.11+ on the 24 line or 26+ for the bundled scripts. No build step or install."
 ---
 
 # Skill forging

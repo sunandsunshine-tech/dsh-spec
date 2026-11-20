@@ -6,7 +6,7 @@ export default {
     outDir: outRoot + '/dsh-spec-pre-push-checks/scripts',
     format: 'esm',
     platform: 'node',
-    target: 'node22',
+    target: 'node24',
     clean: true,
   },
 }

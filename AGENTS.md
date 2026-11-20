@@ -22,6 +22,8 @@ pnpm run format
   # formats the TypeScript sources with the project's Oxfmt settings
 pnpm run format:check
   # checks the source formatting
+pnpm run check:static
+  # checks formatting, type-aware lint and TypeScript diagnostics in one pass
 
 pnpm run check:corpus
   # checks the shipped corpus: every skill entry, sibling-skill references, the notes tree and
@@ -61,7 +63,7 @@ pnpm run skill:refresh
   # copies skills/ into the installed .agents/skills/ copies
 ```
 
-Node.js `^22.19.0 || ^24.11.0 || >=26.0.0`, and the pnpm and Vite+ versions the root `package.json` pins, are the toolchain. Source formatting is Oxfmt through `vp fmt`, configured in the root `vite.config.ts` and checked with `pnpm run format:check`.
+The repository develops and checks on Node.js 26; shipped scripts support `^24.11.0 || >=26.0.0`, and CI covers both supported Node lines. The pnpm and Vite+ versions the root `package.json` pins are part of that toolchain. Source formatting is Oxfmt through `vp fmt`, configured in the root `vite.config.ts`; `pnpm run check:static` adds Oxlint and the `tsrs` type checker.
 
 ## Boundaries
 

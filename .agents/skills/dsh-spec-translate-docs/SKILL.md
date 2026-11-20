@@ -2,7 +2,7 @@
 name: dsh-spec-translate-docs
 description: "Use when translating documentation, updating a counterpart, or checking a pair — maintain paired Markdown documents in declared target languages: keep pairs in step, update small changes directly, add in-scope counterparts, brief or isolate larger ones, and record and verify consistency. 用于翻译文档、更新对侧文件或检查配对：维护声明目标语言的配对 Markdown 文档——编辑后保持既有配对一致、直接更新小型局部改动、在授权范围内新增对侧、运行最小更新简报或隔离整篇翻译，并记录与校验配对一致性。"
 license: "MIT; upstream and repository notices in THIRD_PARTY_NOTICES"
-compatibility: "Requires Node.js 22.19+ or 24+ and Git for the briefing. No install and no network access."
+compatibility: "Requires Node.js 24.11+ on the 24 line or 26+ and Git for the briefing. No install and no network access."
 ---
 
 # Translating paired documents

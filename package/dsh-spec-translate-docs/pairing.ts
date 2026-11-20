@@ -56,6 +56,7 @@ export function translationStructureSignature(
   markdown: string,
   skippedLinkOffsets: ReadonlySet<number>,
 ): TranslationStructureSignature {
+  if (tree.type !== 'root') throw new Error('translation signature requires a root Markdown node')
   const signature: TranslationStructureSignature = { headings: [], code: [], tables: [], lists: [], links: [] }
   const visit = (node: Nodes): void => {
     if (node.type === 'heading') signature.headings.push(node.depth)
@@ -137,6 +138,7 @@ function maskedTreeOf(text: string): { tree: Nodes } | { error: string } {
 
 /** Count the authored headings above each region in the masked tree. */
 function regionAnchors(regions: readonly GeneratedRegion[], tree: Nodes): { slug: string; anchor: number }[] {
+  if (tree.type !== 'root') throw new Error('region anchors require a root Markdown node')
   const headings = tree.children.filter((node) => node.type === 'heading').map((node) => node.position?.start.line ?? 0)
   return regions.map((region) => ({
     slug: region.slug,

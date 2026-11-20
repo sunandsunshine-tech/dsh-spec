@@ -20,6 +20,7 @@ import { test } from 'node:test'
 import { makeFixture, REPO_ROOT } from './helpers/fixtures.ts'
 import type { Fixture } from './helpers/fixtures.ts'
 import { runScript } from './helpers/cli.ts'
+import type { CliResult } from './helpers/cli.ts'
 
 /** The address GitHub stamps on Dependabot's commits, per bot installation id. */
 const BOT_AUTHOR = '49699333+dependabot[bot]@users.noreply.github.com'
@@ -75,7 +76,7 @@ function stubGh(fixture: Fixture, facts: GhFacts): Record<string, string | undef
  * @param fixture - the fixture whose last commit the range names.
  * @param env - extra environment, notably the `PATH` that carries a `gh` stand-in.
  */
-function gate(fixture: Fixture, env: Record<string, string | undefined> = {}): { status: number; output: string } {
+function gate(fixture: Fixture, env: Record<string, string | undefined> = {}): CliResult {
   return runScript(
     'scripts/verify-dco.ts',
     [

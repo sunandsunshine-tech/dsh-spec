@@ -2,7 +2,7 @@
 // Check how the shipped skills name one another.
 //
 // dependencies   markdown-it, parse5 and yaml (root development dependencies)
-// runtime        Node.js ^22.19.0 || ^24.11.0 || >=26.0.0
+// runtime        Node.js ^24.11.0 || >=26.0.0
 // input          the working directory as the repository root
 // output         one FAIL line per offending mention, or the final passing summary
 // exit           0 every reference is optional and exact · 1 a finding or empty corpus · 2 usage error
@@ -11,7 +11,7 @@
 // name siblings. In SKILL.md and references, a sibling name appears only as
 // `(when available, use the NAME skill)` or `(when available, consider using the NAME skill)`.
 
-import { lstatSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs'
+import { lstatSync, readFileSync, readdirSync, realpathSync, statSync, type Dirent } from 'node:fs'
 import { isAbsolute, join, relative, sep } from 'node:path'
 import MarkdownIt from 'markdown-it'
 import { parseFragment, type DefaultTreeAdapterTypes } from 'parse5'
@@ -71,7 +71,7 @@ const HTML_SPACING_TAGS = new Set([
   'tr',
   'ul',
 ])
-const TRIM_EDGE = new Set([...`()[]{}<>.,;:!?'"\`|`])
+const TRIM_EDGE = new Set(Array.from(`()[]{}<>.,;:!?'"\`|`))
 
 interface Finding {
   file: string
@@ -319,9 +319,9 @@ function markdownFiles(root: string, skillRoot: string, repoRoot: string, findin
       if (visited.has(real)) return
       visited.add(real)
       active.add(real)
-      let entries: ReturnType<typeof readdirSync>
+      let entries: Dirent<string>[]
       try {
-        entries = readdirSync(path, { withFileTypes: true })
+        entries = readdirSync(path, { withFileTypes: true, encoding: 'utf8' })
       } catch (error) {
         findings.push({
           file: displayPath(repoRoot, path),

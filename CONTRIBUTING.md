@@ -10,21 +10,21 @@ Each command below runs from the repository root and prints what it checked.
 
 ```sh
 pnpm run check:corpus
-pnpm run format:check
+pnpm run check:static
 pnpm run skill:verify-bundles
 pnpm test
 node scripts/verify-dco.ts --base=origin/main
 ```
 
-`pnpm run format:check` checks the TypeScript sources against the project's Oxfmt settings.
+`pnpm run check:static` checks formatting with Oxfmt, lint rules with Oxlint, and the TypeScript program with `tsrs`.
 
 `pnpm test` is the functional suite: what the DCO check decides about a range, the payload the vendored-notices submission posts, the skill gate, the Agent Note gate, the change-scope report, the draft lifecycle, the installed-copy refresh and the shipped pairing mechanism.
 
 `node scripts/verify-dco.ts --base=origin/main` reads a commit range and asserts that every commit carries a `Signed-off-by:` trailer matching its author, or its committer where the two differ; a commit claiming a bot identity is verified against GitHub as well.
 
-Every change owes these checks. CI installs the pinned toolchain and runs the corpus gate, `format:check`, the bundle check and the suite on every pull request and on every push to `main`, and the DCO check on every pull request; the bundle and format checks need the Vite+ toolchain locally; the corpus gate needs Node and the Git checkout, with no install or build.
+Every change owes these checks. CI installs the pinned toolchain and runs the corpus gate, `check:static`, the bundle check and the suite on every pull request and on every push to `main`, and the DCO check on every pull request; the bundle and static checks need the Vite+ toolchain locally; the corpus gate needs Node and the Git checkout, with no install or build.
 
-Node 22.19 on the 22 line, 24.11 on the 24 line, or 26+ is the requirement: the root `packageManager` pins pnpm and the root `vite-plus` devDependency pins the Vite+ toolchain, installed with `pnpm install`; the checks are TypeScript that Node strips by itself, the suite runs on `node --test`, and running them needs no build step. The pnpm version is recorded in three places — `packageManager`, the checks workflow's `pnpm/setup` version and the lockfile's self-management document — and `tests/toolchain.test.ts` fails when they disagree, so bump all three together.
+The repository develops and checks on Node.js 26. Shipped script bundles support Node.js `^24.11.0 || >=26.0.0`; Node 22 is not supported. The root `packageManager` pins pnpm and the root `vite-plus` devDependency pins the Vite+ toolchain, installed with `pnpm install`; the checks are TypeScript that Node strips by itself, the suite runs on `node --test`, and running them needs no build step. CI runs both supported Node lines. The pnpm version is recorded in three places — `packageManager`, the checks workflow's `pnpm/setup` version and the lockfile's self-management document — and `tests/toolchain.test.ts` fails when they disagree, so bump all three together.
 
 ## AI involvement
 

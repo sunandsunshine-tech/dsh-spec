@@ -4,7 +4,7 @@
 //
 // dependencies   none directly; node: builtins only. The spawned sibling-reference gate imports
 //                the root markdown-it, parse5 and yaml packages installed by pnpm.
-// runtime        Node.js ^22.19.0 || ^24.11.0 || >=26.0.0 with pnpm-installed development dependencies;
+// runtime        Node.js ^24.11.0 || >=26.0.0 with pnpm-installed development dependencies;
 //                Git for the notes archive baseline
 // input          the working directory as the repository root; NOTES_BASE_REF or --base-ref names
 //                the archive baseline (default: HEAD)
@@ -88,7 +88,7 @@ function main(): void {
   let failed = false
 
   /** Run one gate and record its outcome; its output is printed only when it fails. */
-  function gate(label, args) {
+  function gate(label: string, args: string[]): void {
     const result = spawnSync(node, args, { cwd: repoRoot, encoding: 'utf8' })
     if (result.status === 0) {
       process.stdout.write('ok   ' + label + '\n')

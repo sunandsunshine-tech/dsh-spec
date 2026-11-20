@@ -26,7 +26,7 @@ The landed directory holds `SKILL.md`, `scripts/change-scope.mjs` and `THIRD_PAR
 | Deliverable | The landed skill directory `skills/dsh-spec-pre-push-checks/` (`SKILL.md`, `scripts/change-scope.mjs`, `THIRD_PARTY_NOTICES`) and its installed copy; the script's source and build wiring in `package/dsh-spec-pre-push-checks/` (`change-scope.ts`, `build.ts`, `vite.config.ts`, `package.json`); its tests in `tests/change-scope.test.ts` with the suite's inventory row in `tests/AGENTS.md`; this record with its Chinese pair |
 | Audience and domain | An agent working in a software-engineering repository that keeps a Git history and delivers changes through branches and a review platform |
 | Additional trigger language | Chinese: the adopter's review language is Chinese, so the description appends the Chinese trigger vocabulary after the English delivery text |
-| Runtime and tools | Git is required for every procedure; the bundled report also requires Node.js 22.19+ or 24+ and uses no network; no install and no build step are required for an adopter |
+| Runtime and tools | Git is required for every procedure; the bundled report also requires Node.js 24.11+ or 26+ and uses no network; no install and no build step are required for an adopter |
 | Review drafts | The repository declares its bilingual companions as `.zh.md` and `.i18n.yaml` (`CONTRIBUTING.md` "Bilingual documents"); this record carries its own Chinese pair |
 
 ### Source constraints

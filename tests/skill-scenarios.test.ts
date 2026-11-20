@@ -337,7 +337,7 @@ function validateGeneralCorpus(corpus: ScenarioCorpus, required: GeneralProfile)
 }
 
 function assertNonEmptyString(value: unknown, label: string): asserts value is string {
-  assert.equal(typeof value, 'string', label + ' must be a string')
+  assert.ok(typeof value === 'string', label + ' must be a string')
   assert.ok(value.trim().length > 0, label + ' must not be blank')
 }
 

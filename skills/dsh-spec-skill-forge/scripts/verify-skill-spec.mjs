@@ -19901,11 +19901,11 @@ function checkSkill(root, limits) {
 					const name = fields.name;
 					record("name", typeof name === "string" && name.length > 0 && name.length <= limits.nameMax && NAME.test(name) && name === basename(root), typeof name === "string" ? `${name} (dir: ${basename(root)})` : "(missing or not a string)");
 					const descriptionText = typeof fields.description === "string" ? fields.description : void 0;
-					const description = descriptionText === void 0 ? [] : [...descriptionText];
+					const description = descriptionText === void 0 ? [] : Array.from(descriptionText);
 					record("description", descriptionText !== void 0 && descriptionText.trim().length > 0 && description.length <= limits.descriptionMax, `${description.length} characters`);
 					if (keys.includes("compatibility")) {
 						const compatibilityText = typeof fields.compatibility === "string" ? fields.compatibility : void 0;
-						const compatibility = compatibilityText === void 0 ? [] : [...compatibilityText];
+						const compatibility = compatibilityText === void 0 ? [] : Array.from(compatibilityText);
 						record("compatibility", compatibilityText !== void 0 && compatibilityText.trim().length > 0 && compatibility.length <= limits.compatibilityMax, `${compatibility.length} characters`);
 					}
 					for (const key of ["license", "allowed-tools"]) {
@@ -19992,7 +19992,7 @@ function checkSkill(root, limits) {
 		const missingReferences = referenced.filter((path) => !existsSync(join(root, path)));
 		const deepReferences = referenced.filter((path) => pathComponents(path).length > 2);
 		record("reference targets", missingReferences.length === 0 && deepReferences.length === 0, missingReferences.length ? `missing: ${missingReferences.join(", ")}` : deepReferences.length ? `deeper than one level: ${deepReferences.join(", ")}` : referenced.length ? `${referenced.length} path(s) named` : "none named");
-		const characters = [...bodyText];
+		const characters = Array.from(bodyText);
 		const cjk = /[\u1100-\u11ff\u2e80-\u2fff\u3000-\u303f\u3040-\u30ff\u3100-\u31ff\u3400-\u4dbf\u4e00-\u9fff\ua960-\ua97f\uac00-\ud7af\uf900-\ufaff\ufe30-\ufe4f\uff00-\uffef]|[\u{20000}-\u{2fa1f}]/u;
 		let cjkCount = 0;
 		let others = 0;
@@ -20054,10 +20054,10 @@ function linksFromMarkdown(source) {
 		if (token.type !== "inline" || !token.children) continue;
 		for (const child of token.children) if (child.type === "link_open") {
 			const href = child.attrGet("href");
-			if (href) links.push(href);
+			if (href) links.push(String(href));
 		} else if (child.type === "image") {
 			const src = child.attrGet("src");
-			if (src) links.push(src);
+			if (src) links.push(String(src));
 		} else if (child.type === "html_inline" && child.content) links.push(...htmlLinks(child.content));
 	}
 	return links;
@@ -20084,7 +20084,10 @@ function scriptFiles(root) {
 	const walk = (dir) => {
 		let entries;
 		try {
-			entries = readdirSync(dir, { withFileTypes: true });
+			entries = readdirSync(dir, {
+				withFileTypes: true,
+				encoding: "utf8"
+			});
 		} catch {
 			return;
 		}

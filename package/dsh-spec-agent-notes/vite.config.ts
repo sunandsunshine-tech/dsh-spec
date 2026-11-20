@@ -6,7 +6,7 @@ export default {
     outDir: outRoot + '/dsh-spec-agent-notes/scripts',
     format: 'esm',
     platform: 'node',
-    target: 'node22',
+    target: 'node24',
     clean: true,
   },
 }

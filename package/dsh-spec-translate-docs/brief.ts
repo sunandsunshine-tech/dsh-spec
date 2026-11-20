@@ -494,18 +494,18 @@ export function renderTranslationBrief(input: TranslationBriefInput): string {
   out.push(
     'The ' +
       sourceName +
-      ' side changed; bring \`' +
+      ' side changed; bring `' +
       input.counterpartPath +
-      '\` along with the smallest edit that covers the change.',
+      '` along with the smallest edit that covers the change.',
   )
   if (input.scope.kind === 'mechanical') {
     out.push('')
     out.push('## Mechanical update - no translation judgment involved')
     out.push('')
     out.push(
-      'Every change since the last confirmed state is inside fenced code blocks, which are byte-identical across the pair. Run \`' +
+      'Every change since the last confirmed state is inside fenced code blocks, which are byte-identical across the pair. Run `' +
         input.applyCommand +
-        '\` to splice the updated fences into the counterpart (the result is structure-validated before writing), then record the pair.',
+        '` to splice the updated fences into the counterpart (the result is structure-validated before writing), then record the pair.',
     )
   }
   out.push('')
@@ -542,9 +542,9 @@ export function renderTranslationBrief(input: TranslationBriefInput): string {
       out.push('')
       out.push(
         input.scope.reason +
-          ' Open \`' +
+          ' Open `' +
           input.counterpartPath +
-          "\` directly, locate the affected regions yourself, and reconcile under the skill's references/translation-rules.md.",
+          "` directly, locate the affected regions yourself, and reconcile under the skill's references/translation-rules.md.",
       )
       break
     default:
@@ -572,8 +572,8 @@ export function renderTranslationBrief(input: TranslationBriefInput): string {
   out.push(
     '1. Apply the smallest counterpart edit that covers the change, then verify the changed spans clause by clause against the source.',
   )
-  out.push('2. \`' + input.recordCommand + '\`')
-  out.push('3. \`' + input.checkCommand + '\`')
+  out.push('2. `' + input.recordCommand + '`')
+  out.push('3. `' + input.checkCommand + '`')
   out.push('')
   return out.join('\n')
 }

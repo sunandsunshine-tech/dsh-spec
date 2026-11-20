@@ -9,7 +9,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { existsSync, readFileSync, symlinkSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { makeFixture, REPO_ROOT } from './helpers/fixtures.ts'
 import { skillBundlePath } from './helpers/bundles.ts'
@@ -400,14 +400,43 @@ test('select and skip filter existing pairs; empty selection and malformed globs
   }
 })
 
-test('the corpus skip patterns exclude a populated submodule', () => {
+test('the broad submodule skip excludes a visible populated submodule', () => {
   const fixture = makeFixture()
   try {
-    pair(fixture, 'submodules/dsh/.agents/skills/example/SKILL.md', 'English', 'Example', 'Body.', [zh()])
-    assert.equal(writeRecord(fixture, 'submodules/dsh/.agents/skills/example/SKILL.md').status, 0)
-    const list = run(fixture.root, 'list', '--skip', 'submodules/**', '--skip', 'submodules/**/.*/**')
-    assert.equal(list.status, 0, list.output)
-    assert.doesNotMatch(list.stdout, /submodules\/dsh/)
+    const source = 'submodules/dsh/docs/guide.md'
+    pair(fixture, source, 'English', 'Guide', 'Intro.', [zh()])
+    assert.equal(writeRecord(fixture, source).status, 0)
+
+    const visible = run(fixture.root, 'list')
+    assert.equal(visible.status, 0, visible.output)
+    assert.match(visible.stdout, /submodules\/dsh\/docs\/guide\.md \[zh\]/)
+
+    const skipped = run(fixture.root, 'list', '--skip', 'submodules/**')
+    assert.equal(skipped.status, 0, skipped.output)
+    assert.doesNotMatch(skipped.stdout, /submodules\/dsh\/docs\/guide\.md/)
+  } finally {
+    fixture.dispose()
+  }
+})
+
+test('the hidden submodule skip excludes a populated hidden submodule', () => {
+  const fixture = makeFixture()
+  try {
+    const source = 'submodules/dsh/docs/.hidden/guide.md'
+    pair(fixture, source, 'English', 'Guide', 'Intro.', [zh()])
+    assert.equal(writeRecord(fixture, source).status, 0)
+
+    const visible = run(fixture.root, 'list')
+    assert.equal(visible.status, 0, visible.output)
+    assert.match(visible.stdout, /submodules\/dsh\/docs\/\.hidden\/guide\.md \[zh\]/)
+
+    const broadOnly = run(fixture.root, 'list', '--skip', 'submodules/**')
+    assert.equal(broadOnly.status, 0, broadOnly.output)
+    assert.match(broadOnly.stdout, /submodules\/dsh\/docs\/\.hidden\/guide\.md/)
+
+    const skipped = run(fixture.root, 'list', '--skip', 'submodules/**/.*/**')
+    assert.equal(skipped.status, 0, skipped.output)
+    assert.doesNotMatch(skipped.stdout, /submodules\/dsh\/docs\/\.hidden\/guide\.md/)
   } finally {
     fixture.dispose()
   }
