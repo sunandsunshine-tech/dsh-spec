@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  checks:
+  validate:
     name: checks (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
     strategy:
@@ -65,3 +65,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/verify-dco.ts --base="origin/${{ github.base_ref }}" --head="${{ github.event.pull_request.head.sha }}"
+
+  checks:
+    name: checks
+    if: always()
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: require every matrix check
+        env:
+          MATRIX_RESULT: ${{ needs.validate.result }}
+        run: test "$MATRIX_RESULT" = "success"

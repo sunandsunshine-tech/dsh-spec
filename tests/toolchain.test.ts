@@ -71,12 +71,16 @@ test('the root Node engine and direct toolchain pins agree with the installed Vi
 test('the development gate checks the minimum and primary Node lines', () => {
   const workflow = parse(readFileSync(join(REPO_ROOT, '.github/workflows/checks.yml'), 'utf8')) as {
     jobs: {
-      checks: { strategy: { matrix: { node: unknown } }; steps: { run?: string; with?: Record<string, string> }[] }
+      validate: { strategy: { matrix: { node: unknown } }; steps: { run?: string; with?: Record<string, string> }[] }
+      checks: { name?: string; needs?: string; steps: { run?: string }[] }
     }
   }
-  assert.deepEqual(workflow.jobs.checks.strategy.matrix.node, ['24.11.0', '26'])
-  assert.ok(workflow.jobs.checks.steps.some((step) => step.with?.runtime === 'node@${{ matrix.node }}'))
-  assert.ok(workflow.jobs.checks.steps.some((step) => step.run === 'pnpm run check:static'))
+  assert.deepEqual(workflow.jobs.validate.strategy.matrix.node, ['24.11.0', '26'])
+  assert.ok(workflow.jobs.validate.steps.some((step) => step.with?.runtime === 'node@${{ matrix.node }}'))
+  assert.ok(workflow.jobs.validate.steps.some((step) => step.run === 'pnpm run check:static'))
+  assert.equal(workflow.jobs.checks.name, 'checks')
+  assert.equal(workflow.jobs.checks.needs, 'validate')
+  assert.equal(workflow.jobs.checks.steps[0]?.run, 'test "$MATRIX_RESULT" = "success"')
 
   const vendored = parse(readFileSync(join(REPO_ROOT, '.github/workflows/vendored.yml'), 'utf8')) as {
     jobs: { submit: { steps: { with?: Record<string, string> }[] } }
