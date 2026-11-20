@@ -6,7 +6,7 @@ Use this contract only when the task includes publishing evidence to a change re
 
 Read the project's declaration for its review platform and attachment mechanism. The project owns the command, authentication requirements, supported hosting service and body format.
 
-For a GitHub pull request, `gh --attach` is the working example. It requires `gh` 2.99.0 or later, a repository on `github.com` and write access. When the installed client does not support attachment, keep the verified local GIF and report the version requirement without installing or upgrading the client.
+For a GitHub pull request, `gh --attach` is the working example. Run `gh --version` before relying on it. Attachment requires `gh` 2.99.0 or later, a repository on `github.com` and write access; GitHub Enterprise Server is not supported. When the installed client does not support attachment, keep the verified local GIF and report the requirement without installing or upgrading the client.
 
 Do not publish by committing the GIF or another media file to a branch.
 
@@ -43,7 +43,8 @@ After attachment:
 
 1. Re-read the demonstrated pull request's live head and require it to equal the recorded commit.
 2. Re-read the body and confirm every local GIF reference now resolves to the uploaded URL.
-3. Fetch every uploaded URL and confirm a successful response and a GIF media type.
-4. Report the pull request, demonstrated commit and artifact order.
+3. Render the body through the review platform's Markdown renderer and confirm every uploaded reference becomes the expected image element.
+4. Fetch every uploaded URL and confirm a successful response and a GIF media type.
+5. Report the pull request, demonstrated commit and artifact order.
 
 When any publication check fails, leave the verified local artifacts intact and report the failed operation and remaining step. Do not substitute a committed branch asset.

@@ -1,0 +1,5 @@
+Created and verified [fixture-demo.gif](/tmp/dsh-pr115-behavior-clean.9zycuS/fixture/evidence-local/fixture-demo.gif). It shows one isolated Chrome run progressing through unsaved changes → saving → changes saved. The GIF is 720×480, 8 seconds, 80 frames, and 37,822 bytes; SHA-256 is `8a20eeab1fa3ce44188c73e8eb845b0e1f7d71f12d9d2a639d688cc9d98372bc`.
+
+The [capture report](/tmp/dsh-pr115-behavior-clean.9zycuS/fixture/evidence-local/capture-report.json) and [full-timeline contact sheet](/tmp/dsh-pr115-behavior-clean.9zycuS/fixture/evidence-local/qa/fixture-demo-contact-sheet.png) are also available. Verification ran against loopback at commit `91b7a076a731701f3c8b548a036f6234e051a89f`; source remains unchanged and all artifacts are under ignored `evidence-local/`.
+
+This evidence covers only the local fixture demonstration. No external provider was involved, and it does not prove the production provider flow.
