@@ -10,6 +10,7 @@
 
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import {
   cpSync,
   existsSync,
@@ -435,6 +436,13 @@ function assertNonEmptyStrings(values: readonly unknown[] | undefined, label: st
   for (const value of values) assertNonEmptyString(value, label)
 }
 
+function commandReadsSkill(command: string | undefined): boolean {
+  if (command === undefined) return false
+  if (command.includes('dsh-spec-error-handling/SKILL.md')) return true
+  if (/find\s+\.agents\b/.test(command) && /-exec\s+(cat|sed|head|tail)\b/.test(command)) return true
+  return /(?:cat|sed|head|tail)\s+[^\n]*\.agents\b/.test(command)
+}
+
 test('the capability scenario corpus covers absent and available isolated execution', () => {
   for (const required of REQUIRED) validateCorpus(readCorpus(required.skill), required)
   validateCorpus(readCorpus(FORGE_REQUIRED.skill), FORGE_REQUIRED)
@@ -599,9 +607,13 @@ test('error handling trigger corpus keeps positive and near-miss coverage', () =
     readFileSync(join(EVAL_SOURCE_ROOT, 'dsh-spec-error-handling', 'trigger-evals.json'), 'utf8'),
   ) as {
     skill_name: string
-    queries: Array<{ id: string; query: string; should_trigger: boolean }>
+    agent_file: string
+    queries: Array<{ id: string; query: string; should_trigger: boolean; files?: string[] }>
   }
   assert.equal(corpus.skill_name, 'dsh-spec-error-handling')
+  assertNonEmptyString(corpus.agent_file, 'trigger agent file')
+  assert.ok(corpus.agent_file.startsWith('trigger-fixtures/'))
+  assert.ok(existsSync(join(EVAL_SOURCE_ROOT, 'dsh-spec-error-handling', corpus.agent_file)))
   assert.equal(corpus.queries.length, 10)
   assert.equal(new Set(corpus.queries.map((entry) => entry.id)).size, corpus.queries.length)
   assert.equal(corpus.queries.filter((entry) => entry.should_trigger).length, 5)
@@ -609,6 +621,12 @@ test('error handling trigger corpus keeps positive and near-miss coverage', () =
   for (const entry of corpus.queries) {
     assertNonEmptyString(entry.id, 'trigger eval id')
     assertNonEmptyString(entry.query, entry.id + ' trigger query')
+    for (const file of entry.files ?? []) {
+      assert.ok(file.startsWith('trigger-fixtures/'), entry.id + ' fixture escapes trigger-fixtures')
+      const absolute = join(EVAL_SOURCE_ROOT, 'dsh-spec-error-handling', file)
+      assert.ok(existsSync(absolute), entry.id + ' fixture is missing: ' + file)
+      assert.ok(statSync(absolute).size > 0, entry.id + ' fixture is empty: ' + file)
+    }
   }
 })
 
@@ -622,7 +640,7 @@ test('error handling model evidence retains candidate and baseline runs', () => 
       const status = readFileSync(join(run, 'status.txt'), 'utf8')
       assert.ok(final.trim().length > 0, run + ' must retain a final response')
       assert.match(status, /^assertions: \d\/\d$/m)
-      if (profile === 'candidate' || scenario !== 'silent-handler') {
+      if (profile !== 'previous' || scenario !== 'silent-handler') {
         assert.match(status, /^status: pass$/m)
         assert.match(status, /^assertions: 4\/4$/m)
       } else {
@@ -633,13 +651,53 @@ test('error handling model evidence retains candidate and baseline runs', () => 
   }
 
   const triggerRoot = join(evidenceRoot, 'trigger')
+  const skillHash = createHash('sha256')
+    .update(readFileSync(join(REPO_ROOT, 'skills/dsh-spec-error-handling/SKILL.md')))
+    .digest('hex')
   const triggerCorpus = JSON.parse(
     readFileSync(join(EVAL_SOURCE_ROOT, 'dsh-spec-error-handling', 'trigger-evals.json'), 'utf8'),
-  ) as { queries: Array<{ id: string }> }
-  assert.equal(readFileSync(join(evidenceRoot, 'trigger-matrix.tsv'), 'utf8').trim().split('\n').length, 11)
+  ) as { agent_file: string; queries: Array<{ id: string; should_trigger: boolean }> }
+  assert.ok(existsSync(join(EVAL_SOURCE_ROOT, 'dsh-spec-error-handling', triggerCorpus.agent_file)))
+  const matrixLines = readFileSync(join(evidenceRoot, 'trigger-matrix.tsv'), 'utf8').trim().split('\n')
+  assert.equal(matrixLines[0], 'id\tshould_trigger\tread_skill\tresult')
+  const matrix = new Map(
+    matrixLines.slice(1).map((line) => {
+      const [id, shouldTrigger, readSkill, result] = line.split('\t')
+      assert.ok(id && shouldTrigger && readSkill && result, 'malformed trigger matrix row: ' + line)
+      return [id, { shouldTrigger, readSkill, result }] as const
+    }),
+  )
+  assert.equal(matrix.size, triggerCorpus.queries.length)
   for (const query of triggerCorpus.queries) {
+    const row = matrix.get(query.id)
+    assert.ok(row, 'missing trigger matrix row ' + query.id)
+    assert.equal(row.shouldTrigger, String(query.should_trigger))
+    const trace = readFileSync(join(triggerRoot, query.id, 'trace.jsonl'), 'utf8')
+      .trim()
+      .split('\n')
+      .map((line) => JSON.parse(line) as { type: string; command?: string; exit_code?: number | null; sha256?: string })
+    assert.equal(
+      trace.filter((entry) => entry.type === 'skill' && entry.sha256 === skillHash).length,
+      1,
+      query.id + ' trace must identify the exact skill blob',
+    )
+    const readSkill = trace.some(
+      (entry) => entry.type === 'command' && entry.exit_code === 0 && commandReadsSkill(entry.command),
+    )
+    assert.equal(row.readSkill, String(readSkill), query.id + ' trace disagrees with the matrix')
+    assert.equal(row.result, query.should_trigger === readSkill ? 'pass' : 'fail')
+    assert.equal(row.result, 'pass', query.id + ' has the wrong trigger result')
+    assert.ok(
+      trace.some((entry) => entry.type === 'turn.completed'),
+      query.id + ' trace lacks usage',
+    )
     assert.ok(readFileSync(join(triggerRoot, query.id, 'final.md'), 'utf8').trim().length > 0)
+    assert.ok(readFileSync(join(triggerRoot, query.id, 'stderr.log'), 'utf8').trim().length > 0)
   }
+  assert.doesNotMatch(
+    readFileSync(join(triggerRoot, 'visible-unknown-outcome', 'final.md'), 'utf8'),
+    /stderr\.log|events\.jsonl/,
+  )
 })
 
 test('the scenario input check rejects missing, empty, directory and escaping files', () => {

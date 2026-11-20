@@ -1,24 +1,11 @@
-The boundary contract should be a **tagged serialized result**, never a stringified error.
+Preserve a **structured, versioned failure envelope**, not the error’s rendered text.
 
-```text
-Result<T, Failure> =
-  Ok { value: T }
-  Err {
-    code: StableFailureCode   // machine identity
-    message: string           // human-readable only
-    details?: structured data // e.g. status, cause, attempt metadata
-    effect: none | partial | committed | unknown
-  }
-```
+The worker should send:
 
-Preserve these properties:
+- A stable machine-readable discriminant such as `kind` or `code`, using the same variant names as the in-process result type.
+- The retry disposition: `safe`, `unsafe`, or `unknown`, plus structured details such as `retry_after_ms` and whether side effects were absent, committed, or unknown.
+- Structured recovery details and the original cause/status where available.
+- A separate human-readable message, used only for reporting.
+- An explicit invariant that unknown or unrecognized failures are never automatically retried.
 
-- **Success/error identity:** structurally distinguish `Ok` from `Err`.
-- **Failure identity:** retain the exact stable discriminant, such as `timeout`, `validation_failed`, or `cancelled`.
-- **Retry-relevant structure:** retain HTTP/RPC status, limits, cause codes, and whether work had no effect, partial effect, committed effect, or unknown effect.
-- **Human message:** preserve it for reporting, but never parse it for control flow.
-- **Compatibility:** treat failure codes as public contract values; do not rename or reuse them.
-
-The parent should reconstruct an equivalent owning failure from that envelope and then apply its retry policy to the discriminant. Permanent, validation, authorization, and cancellation failures stay non-retryable. Transient failures may be retried. An unknown outcome must not be blindly retried unless the operation is proven idempotent; it should be reconciled or surfaced as uncertain. A malformed envelope or unknown discriminant should become a protocol/decode failure and fail closed.
-
-If the transport truly requires text, serialize a canonical JSON tagged union into that text rather than `Debug`, `Display`, or `error.to_string()`. Boundary tests should verify that every expected discriminant round-trips and causes the intended retry decision.
+The parent should reconstruct an equivalent owned failure and dispatch using the discriminant and retry disposition—never by parsing the message. Only failures explicitly marked retry-safe should be retried; the parent still owns the retry budget and cancellation. These literal identities are a compatibility contract, so changing them requires versioning or migration.

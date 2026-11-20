@@ -1,16 +1,15 @@
-Yes, if the cleanup and commit share the same catch block. For example:
+Yes. The catch can create false success by treating partial or failed cleanup as harmless. If `commit_batch()` is outside the `try`, its exceptions are not hidden, but cleanup failures still are—and the batch proceeds against an unknown filesystem state.
 
-```text
-try {
-    cleanup_temporary_files()
-    commit_batch()
-} catch (failure) {
-    ignore
-}
+That is unsafe when cleanup can fail for reasons beyond “the temporary file was already removed,” such as permissions, disk/I/O errors, sensitive files remaining, retry-name collisions, or a cleanup helper that unexpectedly performs flushing, closing, or other integrity-related work. A broad handler also hides programming defects.
+
+A safe silent case is narrow: the temp file is already absent, leftover state remains valid, and the caller cannot act on it. Prefer something like:
+
+```python
+for path in temp_paths:
+    try:
+        path.unlink(missing_ok=True)
+    except OSError as exc:
+        report_cleanup_failure(path, exc)
 ```
 
-A commit failure is then misclassified as harmless cleanup noise. The caller may believe the batch succeeded when it was rejected, partially written, or left in an unknown state. The catch can also swallow unexpected programming errors, cancellation, or interruption.
-
-The scope is only safe if the cleanup failure is ignored in a handler that excludes `commit_batch()`, and each cleanup operation catches only documented, genuinely disposable failures. Keep the commit outside that suppression and surface its structured failure to the caller.
-
-If the commit already runs strictly after a cleanup-only handler, the handler cannot hide commit failures. As described, though, the shared scope is unsafe. The workspace contained no source snapshot, so this review is based on the stated control flow.
+Logging and continuing is acceptable only if residual files are genuinely harmless. If cleanup is required for security, disk capacity, retry safety, or commit consistency, propagate the failure and do not commit. In all cases, keep `commit_batch()` outside the cleanup `try`; if it is currently inside, that is a more serious bug because commit failures would also be swallowed.
