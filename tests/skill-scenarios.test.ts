@@ -612,6 +612,36 @@ test('error handling trigger corpus keeps positive and near-miss coverage', () =
   }
 })
 
+test('error handling model evidence retains candidate and baseline runs', () => {
+  const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-20-pr113')
+  const scenarios = ['existing-identity', 'message-only', 'numeric-no-cause', 'silent-handler', 'worker-boundary']
+  for (const scenario of scenarios) {
+    for (const profile of ['baseline', 'previous', 'candidate']) {
+      const run = join(evidenceRoot, profile + '-' + scenario)
+      const final = readFileSync(join(run, 'final.md'), 'utf8')
+      const status = readFileSync(join(run, 'status.txt'), 'utf8')
+      assert.ok(final.trim().length > 0, run + ' must retain a final response')
+      assert.match(status, /^assertions: \d\/\d$/m)
+      if (profile === 'candidate' || scenario !== 'silent-handler') {
+        assert.match(status, /^status: pass$/m)
+        assert.match(status, /^assertions: 4\/4$/m)
+      } else {
+        assert.match(status, /^status: fail$/m)
+        assert.match(status, /^assertions: 2\/4$/m)
+      }
+    }
+  }
+
+  const triggerRoot = join(evidenceRoot, 'trigger')
+  const triggerCorpus = JSON.parse(
+    readFileSync(join(EVAL_SOURCE_ROOT, 'dsh-spec-error-handling', 'trigger-evals.json'), 'utf8'),
+  ) as { queries: Array<{ id: string }> }
+  assert.equal(readFileSync(join(evidenceRoot, 'trigger-matrix.tsv'), 'utf8').trim().split('\n').length, 11)
+  for (const query of triggerCorpus.queries) {
+    assert.ok(readFileSync(join(triggerRoot, query.id, 'final.md'), 'utf8').trim().length > 0)
+  }
+})
+
 test('the scenario input check rejects missing, empty, directory and escaping files', () => {
   const root = mkdtempSync(join(tmpdir(), 'skill-scenarios-files-'))
   const files = join(root, 'evals', 'files')
