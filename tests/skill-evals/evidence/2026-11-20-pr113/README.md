@@ -1,6 +1,8 @@
 # PR #113 clean-context model evidence
 
-Candidate source: the PR #113 worktree after the error-contract review changes.
+Candidate implementation commit: `1b40307d92fb24714717ae5086df84f3640cf55b`.
+Candidate skill tree: `45cbc1bb02db3bc97ae070e5b4ec1034c6ac3b91`.
+Evaluation corpus tree: `d8fea1c70c74bbae29d779d63e1fc9dd78dda5aa`.
 Base: `7bd235d` (`agent/104-dsh-rc5-baseline`).
 Run date: 2026-11-20.
 
