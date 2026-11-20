@@ -1,0 +1,57 @@
+{
+  "skill_name": "dsh-spec-pre-push-checks",
+  "evals": [
+    {
+      "id": "select-integrated-evidence",
+      "prompt": "Select the local evidence for evals/files/review-integration. The change projects an existing worker failure to a message-only result, routes on that message, and changes the shared Button/Settings surface. The consumer test passes. The relevant sibling guidance is installed, and the attached screenshot was captured from this exact build. Select the smallest boundary and rendered-UI evidence, inspect the image, and do not copy sibling commands.",
+      "expected_output": "The selected evidence includes a boundary test for the project's existing `kind` identity and structured `detail`, rejects message-text routing, inspects the attached current-build screenshot, identifies that the saving/disabled Settings state and 390-pixel narrow viewport remain unproved, and does not present the consumer test as visual acceptance.",
+      "files": [
+        "evals/files/review-integration/AGENTS.md",
+        "evals/files/review-integration/package.json",
+        "evals/files/review-integration/index.html",
+        "evals/files/review-integration/server.mjs",
+        "evals/files/review-integration/src/app.js",
+        "evals/files/review-integration/src/Button.js",
+        "evals/files/review-integration/src/SearchPage.js",
+        "evals/files/review-integration/src/SettingsPage.js",
+        "evals/files/review-integration/src/button.module.css",
+        "evals/files/review-integration/src/styles.css",
+        "evals/files/review-integration/src/worker-client.js",
+        "evals/files/review-integration/tests/button-consumers.test.mjs",
+        "evals/files/review-integration/evidence/settings-after.png"
+      ],
+      "assertions": [
+        "The selection includes the existing `kind` identity and structured `detail` across the worker boundary.",
+        "The selection rejects message-text routing.",
+        "The selection inspects the attached current-build screenshot and identifies that the Settings saving/disabled state remains unproved.",
+        "The selection does not present the consumer test as visual acceptance of the saving state.",
+        "The selection uses sibling guidance only as an optional mechanism."
+      ]
+    },
+    {
+      "id": "select-minimum-without-siblings",
+      "prompt": "Select the local evidence for evals/files/review-integration without error-handling or client-UI sibling guidance and without a rendered screenshot or browser-control capability. The worker drops existing failure metadata and routes on message text; the shared Button/Settings consumer test passes and the Settings saving state changes. Keep the minimum boundary checks and report the unavailable saving-state evidence as an unfinished check with a concrete next step.",
+      "expected_output": "The selection still requires the existing `kind` identity and structured `detail`, rejects message-text routing, and reports Settings saving/disabled rendered evidence as unavailable rather than treating the consumer test as visual acceptance.",
+      "files": [
+        "evals/files/review-integration/AGENTS.md",
+        "evals/files/review-integration/package.json",
+        "evals/files/review-integration/index.html",
+        "evals/files/review-integration/server.mjs",
+        "evals/files/review-integration/src/app.js",
+        "evals/files/review-integration/src/Button.js",
+        "evals/files/review-integration/src/SearchPage.js",
+        "evals/files/review-integration/src/SettingsPage.js",
+        "evals/files/review-integration/src/button.module.css",
+        "evals/files/review-integration/src/styles.css",
+        "evals/files/review-integration/src/worker-client.js",
+        "evals/files/review-integration/tests/button-consumers.test.mjs"
+      ],
+      "assertions": [
+        "The selection still requires the existing `kind` identity and structured `detail`.",
+        "The selection rejects message-text routing.",
+        "The selection reports Settings saving/disabled rendered evidence as unavailable.",
+        "The selection gives a concrete next step before completion."
+      ]
+    }
+  ]
+}

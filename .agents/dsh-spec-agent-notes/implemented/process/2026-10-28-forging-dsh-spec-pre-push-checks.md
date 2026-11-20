@@ -102,6 +102,10 @@ The report is the mechanical half of the skill. Its source is `package/dsh-spec-
 - Attribution: attribution is stated outside the loaded text. The frontmatter `license` field names the skill-root `THIRD_PARTY_NOTICES`, which carries the upstream and repository MIT notices, the adapted skill text's upstream path and pinned baseline, and the origin of `change-scope` (the port's taken-at commit, the same content at the pinned baseline). The package source header states provenance too; the bundle's comment retention plays no part.
 - Tests: `tests/change-scope.test.ts` locates the landed bundle, preferring a work draft when one exists, as the suite locates the forge's bundles (`tests/skill-spec.test.ts` resolves the gate that way).
 
+### Review integrations
+
+The proof selection includes a boundary test proving that the project's existing stable machine-readable failure identity survives the machine-consumable boundary, the original cause or equivalent structured detail remains available, and consumers do not route on message text. It also includes rendered evidence from the assembled browser UI across affected states and consumers; a focused unit test does not establish either the boundary contract or visual acceptance. The requirements remain complete without another skill, and their concrete mechanisms appear only in availability-qualified examples. Model evidence under `tests/skill-evals/evidence/2026-11-20-pr119/` covers the capability-present and capability-absent profiles at 5/5 and 4/4 assertions; the repository scenario test binds the scenario inputs, skill hashes and retained artifacts.
+
 ### Rulings
 
 - **U11 and U12 are dissolved, not re-bound.** A fixed expected-output or profile placement has no equivalent means in an unspecified software-engineering repository: inventing a tree would be a new mechanism. The adopter's conventions and the owning test lane's command take over.

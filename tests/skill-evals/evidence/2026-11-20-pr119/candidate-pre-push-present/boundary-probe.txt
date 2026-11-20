@@ -1,0 +1,87 @@
+✖ worker boundary preserves the project machine identity (1.083362ms)
+✖ worker boundary preserves structured detail (0.523617ms)
+✖ consumer routes on kind, not message text (0.153963ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 0
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 11.580126
+
+✖ failing tests:
+
+test at [eval1]:13:1
+✖ worker boundary preserves the project machine identity (1.083362ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + undefined
+  - 'permission-denied'
+
+      at TestContext.<anonymous> (file:///tmp/dsh-pr119-pre-push-present-v3.4L8hHY/project/evals/files/review-integration/[eval1]:14:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.start (node:internal/test_runner/test:1262:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 'permission-denied',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at [eval1]:17:1
+✖ worker boundary preserves structured detail (0.523617ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+
+  + undefined
+  - {
+  -   action: 'delete-account',
+  -   requiredRole: 'owner'
+  - }
+
+      at TestContext.<anonymous> (file:///tmp/dsh-pr119-pre-push-present-v3.4L8hHY/project/evals/files/review-integration/[eval1]:18:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: [Object],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at [eval1]:24:1
+✖ consumer routes on kind, not message text (0.153963ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+
+  + 'retry'
+  - 'request-access'
+       ^
+
+      at TestContext.<anonymous> (file:///tmp/dsh-pr119-pre-push-present-v3.4L8hHY/project/evals/files/review-integration/[eval1]:25:10)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
+      at Test.postRun (node:internal/test_runner/test:1542:19)
+      at Test.run (node:internal/test_runner/test:1467:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'retry',
+    expected: 'request-access',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

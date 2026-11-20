@@ -5,7 +5,7 @@ The text of this skill is adapted from the DeepSeek Harness skill `dsh-code-revi
 - Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`).
 - Upstream paths:
   - `.agents/skills/dsh-code-review/SKILL.md` — the review procedure: review basis and scope, sources of truth, blocking requirements, manual checks and reporting findings.
-- Relation: adapted. The review mechanism, its section order and its concrete checks are carried; the DeepSeek Harness repository paths, commands, framework rules, sibling-skill names and product vocabulary are replaced by the adopting project's standing instructions, its own conventions and availability-qualified example names; the description is generalized, the Chinese trigger keywords are added and the title is made repository-neutral. The skill ships no script and depends on no other skill.
+- Relation: adapted. The review mechanism, its section order and its concrete checks are carried; the DeepSeek Harness repository paths, commands, framework rules, sibling-skill names and product vocabulary are replaced by the adopting project's standing instructions, its own conventions and availability-qualified example names; the description is generalized, the Chinese trigger keywords are added and the title is made repository-neutral. The target adds a project-neutral machine-failure identity check, structured-detail preservation and rendered-UI evidence checks without importing another skill's implementation. The skill ships no script and depends on no other skill.
 
 This skill is distributed under the MIT licence. The upstream and repository notices follow so that an installed copy carries them. This file is not part of the skill's instructions.
 
