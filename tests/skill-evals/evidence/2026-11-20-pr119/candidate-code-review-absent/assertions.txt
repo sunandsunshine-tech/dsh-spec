@@ -1,0 +1,4 @@
+PASS The review still requires the existing `kind` identity and structured `detail`.
+PASS The review rejects routing on the error message.
+PASS The review reports Settings saving/disabled rendered evidence as unavailable.
+PASS The review gives a resumable next step instead of claiming visual acceptance.

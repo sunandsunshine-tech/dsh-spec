@@ -7,46 +7,49 @@
   zh: 5ec2ee96869afe64
 /agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/problem:
   en: a32a40586021c140
-  zh: 6712881fa896ecaa
+  zh: ece7aac5f3d8f590
 /agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/decision:
   en: 396a08eceda628cd
-  zh: 5b6f13e21aa00e83
+  zh: ac7e5fdfd2a6cca3
 /agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/source-and-revision:
   en: c66ee32407605577
   zh: 0686c8ba1ba914da
+/agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/review-integrations:
+  en: 1af86f8d7b738ec0
+  zh: 28ef231cbf1a8860
 /agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/target-shape:
   en: 1e6486fbba4c5fbb
-  zh: a8fe90d1de56b4d7
+  zh: a74fd9261820f17c
 /agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/constraint-dispositions:
   en: 6f5759253ac6a9b1
   zh: 5f6d323a61f6fb64
 /agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/constraint-dispositions/frontmatter-title-and-description:
   en: 0b6bf77b3ceeca8d
-  zh: ca9f175ea4fe0a90
+  zh: 73003913cb1da0eb
 /agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/constraint-dispositions/review-framing-and-sequence:
   en: 7134ed9145fadddd
-  zh: eaefcfc552875f19
+  zh: b2df085b4063bf7a
 /agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/constraint-dispositions/sources-of-truth:
   en: 3be228e0262f7c5c
-  zh: 405e9061789b8c2a
+  zh: 3ae47840349a2e1b
 /agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/constraint-dispositions/blocking-requirements:
   en: 5b3fecaeaf0f93fb
-  zh: 2fadb1a6612e94d1
+  zh: 53a16db47f6ceea8
 /agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/constraint-dispositions/manual-checks:
   en: c410cb975d218ea7
-  zh: 4696db8b6dd71b60
+  zh: 1e4c0581b5f508b3
 /agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/constraint-dispositions/reporting-findings:
   en: 86e8589fa68ed800
-  zh: 79a72af4c298260f
+  zh: 6a5926c2f56c1ca4
 /agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/target-rulings:
   en: 72c4cd0fa03ac17a
-  zh: 8f228450bce18e23
+  zh: 580976f98f73ee6e
 /agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/requirement-anchors:
   en: af116aeeaa8d6dcb
-  zh: 31c7abe3edd78c7a
+  zh: 6c2bdc41fac622e8
 /agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/alternatives-considered:
   en: d096cdf3bef297b7
-  zh: 9b2b40deb87e448a
+  zh: 2f887a8ca6669b5a
 /agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/consequences:
   en: c7c51e271bd022ed
-  zh: 92361e7e62797dcc
+  zh: ae6aabf3d1d01435
