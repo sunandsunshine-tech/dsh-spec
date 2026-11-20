@@ -1,6 +1,7 @@
 /**
  * Development-side model scenarios for isolated-context capabilities, Agent Notes companion
- * defaults, Translate Docs scoped authorization and the forge's capability conclusions.
+ * defaults, Translate Docs scoped authorization, the forge's capability conclusions and
+ * error-contract judgment.
  *
  * The source corpus lives under tests/ because skills/ is a distribution artifact. The tests stage
  * a temporary skill copy with the corpus at the official evals/ path. They validate the scenario
@@ -104,6 +105,31 @@ interface GeneralProfile {
 }
 
 const GENERAL_REQUIRED: GeneralProfile[] = [
+  {
+    skill: 'dsh-spec-error-handling',
+    scenarios: [
+      {
+        id: 'message-only-failure-gets-machine-identity',
+        signature: [/stable machine-readable discriminant/i, /without parsing its message/i],
+        assertions: [/machine-readable failure identity/i, /consumer action/i, /not used for machine routing/i],
+      },
+      {
+        id: 'worker-boundary-preserves-failure-identity',
+        signature: [/worker boundary/i, /serializes only the message/i],
+        assertions: [/portable machine identity cross/i, /equivalent owning failure/i, /cause or equivalent structured detail/i],
+      },
+      {
+        id: 'silent-handler-covers-one-safe-failure',
+        signature: [/cleanup, commit, and notification/i, /discards every failure/i],
+        assertions: [/silent scope contains one operation/i, /stable discriminant/i, /unexpected failures/i],
+      },
+      {
+        id: 'existing-project-identity-remains-authoritative',
+        signature: [/existing machine identity/i, /Project.*kind/i],
+        assertions: [/kind.*machine identity/i, /No competing.*name.*code/i, /exact.*kind.*resulting state/i],
+      },
+    ],
+  },
   {
     skill: 'dsh-spec-agent-notes',
     scenarios: [

@@ -1,0 +1,5 @@
+status: pass
+assertions: 4/4
+time_seconds: 35.6
+input_tokens: 95361
+output_tokens: 6296
