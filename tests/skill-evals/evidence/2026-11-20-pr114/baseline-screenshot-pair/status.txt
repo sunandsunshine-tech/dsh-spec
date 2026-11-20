@@ -1,0 +1,5 @@
+status: fail
+assertions: 2/4
+time_seconds: 57.4
+input_tokens: 209798
+output_tokens: 12019

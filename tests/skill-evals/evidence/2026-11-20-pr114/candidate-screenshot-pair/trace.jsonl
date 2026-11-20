@@ -1,0 +1,25 @@
+{"type":"skill","path":".agents/skills/dsh-spec-client-ui-ux/SKILL.md","sha256":"6131f5f18451a5b89782afc0989428ec3d594d5be0b29fab9e9c335b81b6c612"}
+{"type":"command","command":"/bin/bash -c 'cat /tmp/pr114-eval-v2.AudvAh/candidate-project-declares-equivalent-evidence/project/.agents/skills/dsh-spec-client-ui-ux/SKILL.md'","exit_code":0}
+{"type":"command","command":"/bin/bash -c \"pwd && rg --files -g 'AGENTS.md' -g '\"'!node_modules'\"' -g '\"'!vendor'\"' -g '\"'!dist'\"' -g '\"'!build'\"' . /tmp/pr114-eval-v2.AudvAh/candidate-project-declares-equivalent-evidence 2>/dev/null | sort -u\"","exit_code":0}
+{"type":"command","command":"/bin/bash -c 'git status --short && git diff --stat && git diff --name-only && git log -5 --oneline'","exit_code":128}
+{"type":"command","command":"/bin/bash -c \"sed -n '1,240p' evals/files/evidence-policy-screenshot-pair.md\"","exit_code":0}
+{"type":"command","command":"/bin/bash -c \"find evals/files/shared-widget-project -maxdepth 4 -type f -printf '%p\\\\t%s bytes\\\\n' | sort\"","exit_code":0}
+{"type":"command","command":"/bin/bash -c 'cat AGENTS.md'","exit_code":0}
+{"type":"command","command":"/bin/bash -c \"for f in src/Button.js src/SearchPage.js src/SettingsPage.js src/app.js src/button.module.css src/styles.css tests/button-consumers.test.mjs package.json index.html; do printf '\\\\n### %s\\\\n' \\\"\"'$f\"; sed -n '\"'1,260p' \\\"\"'$f\"; done'","exit_code":0}
+{"type":"command","command":"/bin/bash -c \"cat evidence/render-report.md && printf '\\\\n### file metadata\\\\n' && file evidence/*.png && printf '\\\\n### hashes\\\\n' && sha256sum evidence/*.png\"","exit_code":0}
+{"type":"command","command":"/bin/bash -c \"sed -n '1,260p' capture-browser.mjs && printf '\\\\n### server\\\\n' && sed -n '1,220p' server.mjs\"","exit_code":0}
+{"type":"command","command":"/bin/bash -c \"stat -c '%n | size=%s | mtime=%y' evidence/* capture-browser.mjs src/* tests/* | sort\"","exit_code":0}
+{"type":"command","command":"/bin/bash -c \"find . -maxdepth 3 -type f -printf '%P\\\\n' | sort && printf '\\\\n### README/GIF references\\\\n' && rg -n \\\"README|gif|focus-demo|focusDemo|focus=1|Screenshot|screenshot|label\\\" . -g '\"'!evidence/*.png'\"'\"","exit_code":0}
+{"type":"command","command":"/bin/bash -c 'npm test'","exit_code":0}
+{"type":"command","command":"/bin/bash -c \"sed -n '261,520p' capture-browser.mjs\"","exit_code":0}
+{"type":"command","command":"/bin/bash -c 'command -v magick || command -v convert || true; command -v identify || true; command -v compare || true'","exit_code":0}
+{"type":"command","command":"/bin/bash -c \"identify -verbose evidence/search-before.png | sed -n '1,80p'\"","exit_code":0}
+{"type":"command","command":"/bin/bash -c 'git -C .. status --short 2>/dev/null || true; find .. -maxdepth 2 -name .git -print'","exit_code":0}
+{"type":"command","command":"/bin/bash -c \"nl -ba src/app.js && printf '\\\\n### button css\\\\n' && nl -ba src/button.module.css\"","exit_code":0}
+{"type":"command","command":"/bin/bash -c \"nl -ba evidence/render-report.md && printf '\\\\n### consumers\\\\n' && nl -ba src/SearchPage.js && printf '\\\\n' && nl -ba src/SettingsPage.js && printf '\\\\n### tests\\\\n' && nl -ba tests/button-consumers.test.mjs\"","exit_code":0}
+{"type":"command","command":"/bin/bash -c \"nl -ba ../../evidence-policy-screenshot-pair.md && printf '\\\\n### project policy\\\\n' && nl -ba AGENTS.md\"","exit_code":1}
+{"type":"command","command":"/bin/bash -c \"nl -ba ../evidence-policy-screenshot-pair.md && printf '\\\\n### project policy\\\\n' && nl -ba AGENTS.md\"","exit_code":0}
+{"type":"command","command":"/bin/bash -c \"nl -ba capture-browser.mjs | sed -n '238,258p'\"","exit_code":0}
+{"type":"turn.completed","usage":{"input_tokens":486386,"cached_input_tokens":467840,"cache_write_input_tokens":0,"output_tokens":13700,"reasoning_output_tokens":7062}}
+{"type":"final","path":"final.md"}
+{"type":"stderr","path":"stderr.log"}

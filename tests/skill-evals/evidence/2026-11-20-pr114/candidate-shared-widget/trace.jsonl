@@ -1,0 +1,33 @@
+{"type":"skill","path":".agents/skills/dsh-spec-client-ui-ux/SKILL.md","sha256":"6131f5f18451a5b89782afc0989428ec3d594d5be0b29fab9e9c335b81b6c612"}
+{"type":"command","command":"/bin/bash -c 'cat .agents/skills/dsh-spec-client-ui-ux/SKILL.md'","exit_code":0}
+{"type":"command","command":"/bin/bash -c \"pwd && rg --files -g 'AGENTS.md' -g '\"'!node_modules'\"' -g '\"'!dist'\"' -g '\"'!build'\"' | sort\"","exit_code":0}
+{"type":"command","command":"/bin/bash -c \"find evals/files/shared-widget-project -maxdepth 3 -type f -printf '%P\\\\n' | sort\"","exit_code":0}
+{"type":"command","command":"/bin/bash -c 'git status --short && git log --oneline -8 -- evals/files/shared-widget-project'","exit_code":128}
+{"type":"command","command":"/bin/bash -c 'cat AGENTS.md'","exit_code":0}
+{"type":"command","command":"/bin/bash -c 'cat evidence/README.md && cat evidence/render-report.md'","exit_code":0}
+{"type":"command","command":"/bin/bash -c \"file evidence/shared-button.gif && identify -verbose evidence/shared-button.gif | sed -n '1,80p'\"","exit_code":0}
+{"type":"command","command":"/bin/bash -c 'nl -ba src/Button.js && nl -ba src/button.module.css'","exit_code":0}
+{"type":"command","command":"/bin/bash -c 'nl -ba src/SearchPage.js && nl -ba src/SettingsPage.js && nl -ba src/app.js'","exit_code":0}
+{"type":"command","command":"/bin/bash -c 'nl -ba src/styles.css && nl -ba index.html'","exit_code":0}
+{"type":"command","command":"/bin/bash -c 'nl -ba tests/button-consumers.test.mjs && nl -ba package.json && nl -ba capture-browser.mjs && nl -ba server.mjs'","exit_code":0}
+{"type":"command","command":"/bin/bash -c 'command -v ffmpeg || true; command -v ffprobe || true; command -v gifsicle || true; command -v python3 || true; command -v chafa || true; command -v viu || true'","exit_code":0}
+{"type":"command","command":"/bin/bash -c \"find evidence -maxdepth 1 -type f -printf '%f\\\\t%s bytes\\\\n' | sort && find . -maxdepth 2 -type d -printf '%p\\\\n' | sort\"","exit_code":0}
+{"type":"command","command":"/bin/bash -c \"find /tmp/pr114-eval-v2.aaQNqO/candidate-shared-widget-consumer-coverage/project -maxdepth 4 -type f \\\\( -name '*.png' -o -name '*.gif' -o -name '*report*' -o -name 'README.md' \\\\) -printf '%p\\\\n' | sort\"","exit_code":0}
+{"type":"command","command":"/bin/bash -c 'ffprobe -v error -count_frames -show_entries stream=width,height,nb_frames,avg_frame_rate,r_frame_rate,duration -show_entries frame=best_effort_timestamp_time,pkt_duration_time -of json evidence/shared-button.gif'","exit_code":0}
+{"type":"command","command":"/bin/bash -c 'ffprobe -v error -show_entries format=duration,size,format_name -show_entries stream=codec_name,pix_fmt,width,height,nb_frames -of default=noprint_wrappers=1 evidence/shared-button.gif'","exit_code":0}
+{"type":"command","command":"/bin/bash -c 'sha256sum evidence/shared-button.gif evidence/render-report.md evidence/README.md'","exit_code":0}
+{"type":"command","command":"/bin/bash -c 'frame_dir=$(mktemp -d /tmp/shared-widget-frames.XXXXXX) && ffmpeg -v error -i evidence/shared-button.gif -vsync 0 \"$frame_dir/frame-%02d.png\" && printf '\"'%s\\\\n' \\\"\"'$frame_dir\" && find \"$frame_dir\" -maxdepth 1 -type f -printf '\"'%f\\\\t%s\\\\n' | sort\"","exit_code":8}
+{"type":"command","command":"/bin/bash -c 'frame_dir=$(mktemp -d /tmp/shared-widget-frames.XXXXXX) && ffmpeg -v error -i evidence/shared-button.gif -fps_mode passthrough \"$frame_dir/frame-%02d.png\" && printf '\"'%s\\\\n' \\\"\"'$frame_dir\" && find \"$frame_dir\" -maxdepth 1 -type f -printf '\"'%f\\\\t%s\\\\n' | sort\"","exit_code":0}
+{"type":"command","command":"/bin/bash -c 'sha256sum /tmp/shared-widget-frames.lWKkbZ/frame-*.png'","exit_code":0}
+{"type":"command","command":"/bin/bash -c \"rg -n --hidden --glob '\"'!evidence/shared-button.gif'\"' \\\"buttonMarkup|<button|class=.?button|\\\\.button|variant|focusDemo|saving\\\" .\"","exit_code":0}
+{"type":"command","command":"/bin/bash -c 'ffprobe -v error -show_format -show_streams -of json evidence/shared-button.gif'","exit_code":0}
+{"type":"command","command":"/bin/bash -c 'npm test'","exit_code":0}
+{"type":"command","command":"/bin/bash -c \"ls -la . && ls -la evals/files/shared-widget-project && stat -c '%F %n' .git 2>/dev/null || true\"","exit_code":0}
+{"type":"command","command":"/bin/bash -c 'git -C evals/files/shared-widget-project status --short'","exit_code":128}
+{"type":"command","command":"/bin/bash -c 'strings evidence/shared-button.gif | head -40'","exit_code":0}
+{"type":"command","command":"/bin/bash -c 'ffmpeg -v error -i /tmp/shared-widget-frames.lWKkbZ/frame-01.png -i /tmp/shared-widget-frames.lWKkbZ/frame-05.png -filter_complex \"blend=all_mode=difference,eq=contrast=2:brightness=0.15\" -frames:v 1 /tmp/shared-widget-frames.lWKkbZ/after-before-diff.png && file /tmp/shared-widget-frames.lWKkbZ/after-before-diff.png'","exit_code":0}
+{"type":"command","command":"/bin/bash -c 'command -v exiftool || true; command -v xxd || true'","exit_code":0}
+{"type":"command","command":"/bin/bash -c \"node -e \\\"const b=require('fs').readFileSync('evidence/shared-button.gif'); const s=b.indexOf('NETSCAPE2.0'); console.log({netscapeOffset:s, bytes:s<0?null:[...b.subarray(s,s+17)]})\\\"\"","exit_code":0}
+{"type":"turn.completed","usage":{"input_tokens":526650,"cached_input_tokens":506240,"cache_write_input_tokens":0,"output_tokens":21738,"reasoning_output_tokens":12362}}
+{"type":"final","path":"final.md"}
+{"type":"stderr","path":"stderr.log"}

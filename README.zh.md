@@ -71,6 +71,7 @@ gh skill install sunandsunshine-tech/dsh-spec --all --dir .agents/skills
 | `dsh-spec-merging-stacked-prs` | 把相互依赖的 GitHub PR（Pull Request）作为一条堆叠 PR 链落地 | dsh |
 | `dsh-spec-pr-description` | 撰写变更请求描述：改动为何存在、改了什么、由什么证明，以及 AI Usage 声明 | dsh |
 | `dsh-spec-pre-push-checks` | 推送或声称检查通过之前，选出覆盖待推送 diff 的最小测试与检查 | dsh |
+| `dsh-spec-client-ui-ux` | 按受影响消费方、响应式与输入状态、渲染证据和披露缺口评审项目内浏览器渲染 UI 变更 | dsh |
 
 ### 构建技能集合
 

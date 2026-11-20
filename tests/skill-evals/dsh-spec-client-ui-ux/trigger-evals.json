@@ -1,0 +1,66 @@
+{
+  "skill_name": "dsh-spec-client-ui-ux",
+  "agent_file": "trigger-fixtures/AGENTS.md",
+  "queries": [
+    {
+      "id": "shared-button-change",
+      "query": "Our shared button height changed. Review the search and settings pages, every current consumer, focus and disabled states, and the rendered evidence.",
+      "should_trigger": true
+    },
+    {
+      "id": "narrow-modal-overlay",
+      "query": "The new modal can overlap a fixed header at a 390px viewport. Review the assembled page, responsive constraint, dismissal, and focus behavior.",
+      "should_trigger": true
+    },
+    {
+      "id": "theme-focus-contrast",
+      "query": "A theme token changed the focus outline on form actions. Check the rendered light and dark states and report any untested consumers.",
+      "should_trigger": true
+    },
+    {
+      "id": "loading-error-layout",
+      "query": "The account form now has loading, empty, validation-error, and success states. Review the browser-rendered layout and whether the action remains reachable.",
+      "should_trigger": true
+    },
+    {
+      "id": "global-style-clipping",
+      "query": "A global spacing change may clip long translated labels in several screens. Trace affected consumers and compare the real rendered before and after.",
+      "should_trigger": true
+    },
+    {
+      "id": "responsive-icon-implementation",
+      "query": "Implement a responsive icon-only settings action in our browser app. Keep it understandable on touch and keyboard, preserve focus across the layout change, and verify the assembled narrow and wide states.",
+      "should_trigger": true
+    },
+    {
+      "id": "new-brand-direction",
+      "query": "Create three new brand directions, choose colors and typography, and propose a visual identity for our landing page.",
+      "should_trigger": false
+    },
+    {
+      "id": "general-accessibility-audit",
+      "query": "Audit this repository for missing ARIA attributes and generic WCAG checklist failures outside any specific UI change.",
+      "should_trigger": false
+    },
+    {
+      "id": "component-readme",
+      "query": "Write a README page explaining how developers import and configure the Button component.",
+      "should_trigger": false
+    },
+    {
+      "id": "api-pagination",
+      "query": "Add cursor pagination to the backend list API and update the database query.",
+      "should_trigger": false
+    },
+    {
+      "id": "rename-css-token",
+      "query": "Rename the CSS variable `--color-accent` to `--brand-primary` and update all imports without reviewing rendered pages.",
+      "should_trigger": false
+    },
+    {
+      "id": "static-svg-export",
+      "query": "Export the existing SVG glyph as a standalone icon file and document its viewBox; no browser UI or interaction behavior changes.",
+      "should_trigger": false
+    }
+  ]
+}

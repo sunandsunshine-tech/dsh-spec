@@ -1,0 +1,1 @@
+No skill applies. `dsh-spec-client-ui-ux` explicitly excludes source-only refactors where rendered-page review is skipped. I won’t inspect or modify any files for this probe.

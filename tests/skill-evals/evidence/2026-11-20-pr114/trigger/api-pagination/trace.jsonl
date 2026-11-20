@@ -1,0 +1,3 @@
+{"type":"skill","path":".agents/skills/dsh-spec-client-ui-ux/SKILL.md","sha256":"6131f5f18451a5b89782afc0989428ec3d594d5be0b29fab9e9c335b81b6c612"}
+{"type":"turn.completed","usage":{"input_tokens":14327,"cached_input_tokens":12288,"cache_write_input_tokens":0,"output_tokens":406,"reasoning_output_tokens":278}}
+{"type":"trigger-result","should_trigger":false,"read_skill":false,"result":"pass"}
