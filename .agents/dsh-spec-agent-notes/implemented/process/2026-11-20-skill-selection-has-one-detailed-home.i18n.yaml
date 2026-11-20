@@ -1,0 +1,19 @@
+# Pairing consistency record for 2026-11-20-skill-selection-has-one-detailed-home.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-11-20-skill-selection-has-one-detailed-home.md --target <lang>
+/agent-note-skill-selection-has-one-detailed-home:
+  en: 715c560236a0f8a8
+  zh: fc9fb0d0f219655b
+/agent-note-skill-selection-has-one-detailed-home/problem:
+  en: f92156d8684021e6
+  zh: f78d9559da926bef
+/agent-note-skill-selection-has-one-detailed-home/decision:
+  en: efe4aa0489d6e851
+  zh: a4eada0a23a097c5
+/agent-note-skill-selection-has-one-detailed-home/alternatives-considered:
+  en: 90a16d24643b9966
+  zh: 27fb8dd4fddefc7e
+/agent-note-skill-selection-has-one-detailed-home/consequences:
+  en: aa5e8d4129d7a0e3
+  zh: ee2ba7ca3d1b8bc7
