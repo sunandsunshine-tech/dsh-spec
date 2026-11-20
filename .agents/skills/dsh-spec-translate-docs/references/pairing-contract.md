@@ -1,8 +1,15 @@
 # Pairing contract
 
 The rules the skill's script enforces and the workflow follows. The check verifies **existing
-pairs**; creation and update are driven by the project's standing instructions or the user's instruction.
-Nothing here requires a source to be paired.
+pairs**; creation and update are driven by the project's standing instructions, the user's
+instruction, or the workflow responsible for the source's document scope. Nothing here requires a
+source to be paired unless one of those authorization sources selects it.
+
+The responsible model or workflow resolves the target set and supplies it through explicit
+`--target` values. The script never infers a target from a sibling file, operating-system locale or
+the primary agent's user language. An explicit set may contain multiple targets; every selected
+target must be completed. Once selected, translation and pairing are required work, and failure
+remains an incomplete handoff.
 
 ## The pair
 
@@ -15,6 +22,30 @@ A pair is:
 A source may have counterparts in any subset of the declared targets; different sources may carry
 different target sets. There is no completeness rule and no "required" pair.
 
+### Target selection and change
+
+The responsible workflow resolves a target set for one source in this order:
+
+1. the current request;
+2. an existing persistent project instruction;
+3. complete pairs in the same owner-defined class or scope;
+4. the primary agent's known user language;
+5. no target.
+
+Use peer pairs only as evidence for that source's default. A conflicting peer set, an unknown user
+language or a candidate equal to the source language selects no default target. Do not ask merely
+to replace a default.
+
+Target addition is progressive. A new source uses the current policy set; an existing source gains
+missing targets only when its content changes. Untouched sources are not backfilled. A target added
+to an existing source starts from the whole-document path because that target has no
+last-confirmed state.
+
+Target removal is a strong cleanup across the eligible active scope. Remove the counterparts,
+switcher entries and aggregate-record entries, and report unfinished sources individually. Frozen
+or excluded documents remain unchanged. These rules define an end state; they do not require a
+range mutation to be one filesystem transaction.
+
 The source language is a property of the source file: it is the code on the source hash line
 of every record section once one exists. When the first record is written it is supplied with
 `--source-lang <code>[=<display>]`, defaulting to `en` only when the flag is omitted; the record
@@ -22,8 +53,9 @@ stores the code and never the display. A source filename must not carry a target
 `foo.fr.md` is the fr target's counterpart, not a source. Mixed source languages are created by
 writing each source separately, not by one `write --all` command.
 
-The default target is `zh` (display name `中文`). An explicit non-default target must carry a
-display name (`--target ja=日本語`); `--target zh` alone resolves to `中文`.
+The mechanical default target is `zh` (display name `中文`) when `--target` is omitted. It is not
+an inference from project context. An explicit non-default target must carry a display name
+(`--target ja=日本語`); `--target zh` alone resolves to `中文`.
 
 ## The record
 
@@ -84,6 +116,10 @@ artifact of its own needs `--target <lang>`.
 `--select <glob>` and `--skip <glob>` narrow a corpus-wide run to existing pairs by source path;
 they are selection only. They never demand or forbid pairing, never create an "excluded artifact"
 violation, and never change link normalization.
+
+Range `check`, `list`, `brief` and `write --all` never create missing targets. They inspect or
+record existing pairs, so a policy that adds a target does not turn untouched sources into failed
+or backfilled work.
 
 Empty results by verb:
 

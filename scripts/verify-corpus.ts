@@ -74,12 +74,14 @@ function main(): void {
   const skipped = [
     '--skip',
     'tests/skill-evals/**',
+    // Node's glob does not descend into hidden segments for the broad eval pattern; exclude the
+    // nested fixture trees explicitly so their .agents documents cannot reach the pair gate.
+    '--skip',
+    'tests/skill-evals/**/.*/**',
     '--skip',
     '.agents/dsh-spec-agent-notes/archived/**',
     '--skip',
     'submodules/**',
-    // Node's glob does not descend into hidden segments for the broad submodule pattern;
-    // exclude the nested .agents tree explicitly so a populated submodule cannot reach the pair gate.
     '--skip',
     'submodules/**/.*/**',
   ]

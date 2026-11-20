@@ -34,9 +34,19 @@ const USE_SITE_PINS = [
     text: 'The root defaults to `.agents/dsh-spec-agent-notes/`',
   },
   {
+    skill: 'dsh-spec-agent-notes',
+    file: 'SKILL.md',
+    text: "When translation is available, choose this note's target set in this order:",
+  },
+  {
     skill: 'dsh-spec-translate-docs',
     file: 'references/pairing-contract.md',
-    text: 'The default target is `zh` (display name `中文`).',
+    text: 'The mechanical default target is `zh` (display name `中文`) when `--target` is omitted.',
+  },
+  {
+    skill: 'dsh-spec-translate-docs',
+    file: 'SKILL.md',
+    text: 'when the workflow responsible for a document scope authorizes a pair',
   },
   {
     skill: 'dsh-spec-pr-description',
@@ -115,4 +125,55 @@ test('the forge accepts future defaults without project instructions', () => {
     forge,
     /a forged skill that declares a default applies it when the current request and existing project instructions leave that choice open, without asking for or creating or modifying project instructions merely to select it/,
   )
+})
+
+test('companion defaults follow project state and fail closed', () => {
+  const notes = read('dsh-spec-agent-notes')
+  const ladder = [
+    'the current request;',
+    'existing project instructions;',
+    'a consistent target set from complete pairs in the same owner-defined class;',
+    "the primary agent's user language, when it differs from the source language;",
+    'no translation companion.',
+  ]
+  let previous = -1
+  for (const step of ladder) {
+    const position = notes.indexOf(step)
+    assert.ok(position > previous, `missing or out-of-order companion default: ${step}`)
+    previous = position
+  }
+  assert.match(notes, /Failure leaves the unit unfinished.*never becomes English-only/)
+  assert.match(notes, /Adding a target is progressive/)
+  assert.match(notes, /Removing a target clears every eligible active and unsealed unit/)
+  assert.match(
+    notes,
+    /The model judges comparable files and project evidence; scripts receive resolved companion facts/,
+  )
+  assert.match(notes, /Translation requires project evidence and availability/)
+  assert.match(notes, /Installing a mechanism alone neither enables nor makes it available/)
+  assert.doesNotMatch(notes, /\.agents\/skills/)
+
+  const translate = read('dsh-spec-translate-docs')
+  assert.match(translate, /Once selected, translation and pairing are required, and failure is handed off unfinished/)
+  assert.doesNotMatch(translate, /\.agents\/skills/)
+  assert.match(
+    translate,
+    /New pair\*\* \(standing instructions, explicit instruction or authorization from the responsible workflow\)/,
+  )
+  assert.match(
+    translate,
+    /beyond the documents selected by the project instructions, the user or the responsible workflow/,
+  )
+  assert.match(translate, /add in-scope counterparts/)
+  assert.doesNotMatch(translate, /workflow owner's bounded default/)
+  assert.doesNotMatch(translate, /dsh-spec-agent-notes/)
+
+  const pairing = read('dsh-spec-translate-docs', 'references/pairing-contract.md')
+  assert.match(pairing, /The responsible model or workflow resolves the target set/)
+  assert.match(pairing, /The script never infers a target from a sibling file/)
+  assert.match(pairing, /An explicit set may contain multiple targets/)
+  assert.match(pairing, /Target addition is progressive/)
+  assert.match(pairing, /Target removal is a strong cleanup/)
+  assert.match(pairing, /Range `check`, `list`, `brief` and `write --all` never create missing targets/)
+  assert.match(pairing, /\.agents\/skills/)
 })

@@ -8,11 +8,12 @@
 // The active tree walk: lifecycle and class folders, filenames, note headers and declared
 // companions, reported in the gate's fixed order.
 
-import { readdirSync, statSync, type Dirent } from 'node:fs'
-import { join } from 'node:path'
+import { lstatSync, readdirSync, statSync, type Dirent } from 'node:fs'
+import { join, relative, sep } from 'node:path'
 import { ARCHIVE, CLASSES, FILENAME, isClassKind, isLifecycle, LIFECYCLES, ROOT_ALLOWLIST } from './constants.ts'
 import { companionSuffixOf, formatErrors } from './format.ts'
 import { display, isDirectory, safeReaddir, safeRealpath, type ProjectLayout, type Violation } from './guards.ts'
+import type { MemberMapping } from './cli/args.ts'
 
 export interface CheckResult {
   command: 'check'
@@ -64,10 +65,99 @@ function markdownFiles(
   return found
 }
 
+function relativePath(root: string, path: string): string {
+  return relative(root, path).split(sep).join('/')
+}
+
+function regularMemberPath(layout: ProjectLayout, root: string, rootReal: string, path: string): string | undefined {
+  let current = root
+  const segments = path.split('/')
+  for (const [index, segment] of segments.entries()) {
+    current = join(current, segment)
+    let stat
+    try {
+      stat = lstatSync(current)
+    } catch {
+      return 'does not exist'
+    }
+    if (stat.isSymbolicLink()) return 'is a symbolic link'
+    const final = index === segments.length - 1
+    if (!final && !stat.isDirectory()) return 'has a non-directory ancestor'
+    if (final && !stat.isFile()) return 'is not a regular file'
+  }
+  const real = safeRealpath(current)
+  if (real === undefined) return 'is unreadable'
+  if (real !== rootReal && !real.startsWith(rootReal + sep)) return 'resolves outside the notes root'
+  if (!layout.isInsideProject(real)) return 'resolves outside the project checkout'
+  if (layout.isInsideGitDirectory(real)) return "resolves inside the project's Git directory"
+  return undefined
+}
+
+function explicitMemberState(
+  layout: ProjectLayout,
+  root: string,
+  rootReal: string,
+  members: readonly MemberMapping[],
+): {
+  errors: Violation[]
+  sources: Set<string>
+  companions: Set<string>
+  existingCompanions: number
+} {
+  const errors: Violation[] = []
+  const sources = new Set<string>()
+  const companions = new Set<string>()
+  const companionSource = new Map<string, string>()
+  let existingCompanions = 0
+  for (const member of members) {
+    const sourceParts = member.source.split('/')
+    if (
+      sourceParts.length !== 3 ||
+      !isLifecycle(sourceParts[0]) ||
+      !isClassKind(sourceParts[1]) ||
+      !FILENAME.test(sourceParts[2])
+    ) {
+      errors.push(`members: ${member.source} — source must be a direct {lifecycle}/{class}/yyyy-mm-dd-topic.md note`)
+      continue
+    }
+    const companionParts = member.companion.split('/')
+    if (companionParts.length < 3 || companionParts[0] !== sourceParts[0] || companionParts[1] !== sourceParts[1]) {
+      errors.push(
+        `members: ${member.source}=${member.companion} — companion must stay under the source lifecycle and class`,
+      )
+      continue
+    }
+    const previous = companionSource.get(member.companion)
+    if (previous !== undefined && previous !== member.source) {
+      errors.push(`members: ${member.companion} — companion is assigned to both ${previous} and ${member.source}`)
+      continue
+    }
+    companionSource.set(member.companion, member.source)
+    const firstCompanion = !companions.has(member.companion)
+    sources.add(member.source)
+    companions.add(member.companion)
+    const sourceProblem = regularMemberPath(layout, root, rootReal, member.source)
+    if (sourceProblem !== undefined) errors.push(`members: ${member.source} — source ${sourceProblem}`)
+    const companionProblem = regularMemberPath(layout, root, rootReal, member.companion)
+    if (companionProblem !== undefined) {
+      errors.push(`members: ${member.companion} — companion ${companionProblem}`)
+    } else if (firstCompanion) {
+      existingCompanions += 1
+    }
+  }
+  for (const source of sources) {
+    if (companions.has(source)) {
+      errors.push(`members: ${source} — a source note cannot also be a declared companion`)
+    }
+  }
+  return { errors, sources, companions, existingCompanions }
+}
+
 export function walkActiveTree(
   layout: ProjectLayout,
   root: string,
   companions: readonly string[],
+  members: readonly MemberMapping[],
   formatAdopted: string | undefined,
 ): CheckResult {
   const projectRoot = layout.projectRoot
@@ -104,6 +194,17 @@ export function walkActiveTree(
     errors.push(`structure: notes root not found: ${display(projectRoot, root)}; run init or pass --root`)
     return { command: 'check', errors, notes, companionFiles }
   }
+  const explicitMembers =
+    rootReal === undefined
+      ? {
+          errors: [`structure: notes root is unreadable: ${display(projectRoot, root)}`],
+          sources: new Set<string>(),
+          companions: new Set<string>(),
+          existingCompanions: 0,
+        }
+      : explicitMemberState(layout, root, rootReal, members)
+  errors.push(...explicitMembers.errors)
+  companionFiles += explicitMembers.existingCompanions
   for (const entry of safeReaddir(root, errors, `structure: ${display(projectRoot, root)}`)) {
     if (entry.name === 'INDEX.md') {
       errors.push(
@@ -172,7 +273,9 @@ export function walkActiveTree(
         continue
       }
       for (const noteEntry of safeReaddir(classRoot, errors, `structure: ${display(projectRoot, classRoot)}`)) {
+        const noteRelative = lifecycleName + '/' + classEntry.name + '/' + noteEntry.name
         const noteKind = entryKind(join(classRoot, noteEntry.name))
+        if (noteKind === 'file' && explicitMembers.companions.has(noteRelative)) continue
         if (noteKind !== 'file') {
           if (noteKind === 'dir') {
             for (const file of markdownFiles(join(classRoot, noteEntry.name), (broken) =>
@@ -180,6 +283,7 @@ export function walkActiveTree(
                 `structure: ${display(projectRoot, broken)} — unreadable Markdown entry (dangling symlink or special file)`,
               ),
             )) {
+              if (explicitMembers.companions.has(relativePath(root, file))) continue
               if (companions.some((suffix) => file.endsWith(suffix))) continue
               errors.push(
                 `structure: ${display(projectRoot, file)} — expected {lifecycle}/{class}/file.md (nested deeper)`,

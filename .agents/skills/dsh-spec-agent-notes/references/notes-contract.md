@@ -124,9 +124,23 @@ Moving a file between lifecycle folders means updating the `Status:` line and re
 
 ### Companions
 
-A note may travel with companion files the project keeps for it — translations in any language, consistency records, diagrams. The project declares their suffixes (for example `.zh.md` and `.i18n.yaml`) with repeated `--companion` arguments; the format gate then treats each companion as part of its source note's unit and skips it as a separate note. It reports a companion without a regular-file source note in a class folder or at a lifecycle root; a readable deeper declared companion is ignored like the source's walker, while an unreadable declared companion in a class folder or at a lifecycle root is reported. A project without companions passes no suffix. Notes are written for the agent in English; a translation is an optional companion for readers of that language.
+A note is the source member of a unit. The unit also contains every companion assigned to that note: translations, consistency records, diagrams or other supporting files. Repeated `--companion <suffix>` arguments classify same-stem companions. Repeated `--member <source>=<companion>` arguments declare exact membership when the mechanism uses another stem or nested path. Check paths are relative to the notes root; archive paths are relative to the archive root. A companion stays under the source's class, and an active member also stays under the same lifecycle. Neither form requires every note to have every possible companion. Notes are written for the agent in English; translations are optional reader companions.
 
-Companions are one unit with their note: they move folders with it, enter the archive with it, and are deleted with it. Their internal consistency is the project's own pairing gate's business; this contract owns the unit rules. Archive-unit completeness is enforced when the archive seals a new unit, not replayed over frozen units during verification; a sealed unit cannot gain a companion later.
+An external mechanism owns a companion's naming convention, content, consistency records and validation. Agent Notes does not assume a translation format, target code, aggregate record or particular skill. The responsible model discovers the project's mechanism and resolves the current unit's members; the scripts receive those facts as parameters.
+
+For a new note or a first seal unit, choose its translated target set in this order:
+
+1. The current request's explicit choice.
+2. An existing persistent project instruction.
+3. The consistent target set of complete pairs in the same owner-defined class.
+4. The primary agent's user language, when it differs from the source language.
+5. No translated target.
+
+Matching siblings, comparable classes and user language are model judgments, not CLI inference. A target set may contain several languages; every selected target becomes a unit member. Missing evidence, conflicting sibling target sets, an unavailable mechanism or an unknown user language selects no translated target without asking for a default. Installing a mechanism does not by itself enable translation for a project.
+
+Target migration is asymmetric by cost. Adding a target is progressive: a new note receives the current target set, an edited existing note adds its missing targets, and an untouched note remains unchanged. Removing a target is consistent across every eligible active and unsealed unit. A sealed unit is historical evidence and never gains or loses a member. Range operations that inspect or record existing units do not create missing targets.
+
+Companions form one unit with their note: they are moved, sealed and deleted together. The format gate reports a suffix-classified companion without a source and validates every path-scoped member source and companion as regular, contained files. The owning mechanism checks internal consistency. Seal preparation records the exact members expected for each new unit; seal-time completeness applies that unit's expected set, not a global target union. Verification does not replay the expectation over frozen history.
 
 ## Pruning the active tree
 
@@ -158,7 +172,7 @@ The check decides the mechanical subset; the archive seal checks a newly sealed 
 - the header block, the per-lifecycle skeleton and the alternatives section match this contract;
 - every companion suffix declared in a class folder or at a lifecycle root joins a source file, and an orphan is reported.
 
-It does not decide whether a note should exist, whether its rationale is sound, or whether a supersession was classified correctly. Those are judgment, recorded in the note and the change.
+It does not decide whether a note should exist, whether its rationale is sound, whether its companion plan follows the default ladder, or whether a supersession was classified correctly. Those are judgment, recorded in the note and the change.
 
 ## Reporting
 

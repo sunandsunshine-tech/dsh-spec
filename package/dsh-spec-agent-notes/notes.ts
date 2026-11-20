@@ -14,7 +14,7 @@
 // output         one line per violation and a summary, or a JSON summary with --json
 // exit           0 every check passed · 1 rule violations · 2 usage error
 
-import { archiveCommand, type ArchiveResult } from './archive.ts'
+import { archiveCommand, type ArchiveResult, type ArchiveSealPlan } from './archive.ts'
 import { parseArgs, UsageError, USAGE, type Options } from './cli/args.ts'
 import {
   detectProjectRoot,
@@ -41,11 +41,13 @@ interface Summary {
   companions?: number
   artifacts?: number
   sealed?: number
+  plan?: ArchiveSealPlan
 }
 
 function runCommand(options: Options, layout: ProjectLayout, paths: NotesPaths): CommandResult {
   if (options.command === 'init') return initCommand(layout, paths.root)
-  if (options.command === 'check') return walkActiveTree(layout, paths.root, options.companions, options.formatAdopted)
+  if (options.command === 'check')
+    return walkActiveTree(layout, paths.root, options.companions, options.members, options.formatAdopted)
   return archiveCommand(layout, paths, options)
 }
 
@@ -66,7 +68,12 @@ function main(): void {
     console.log(USAGE)
     return
   }
-  const label = options.command === 'archive' && options.write ? 'archive --write' : options.command
+  const label =
+    options.command === 'archive' && options.write
+      ? 'archive --write'
+      : options.command === 'archive' && options.prepare
+        ? 'archive --prepare'
+        : options.command
   const projectRoot = detectProjectRoot()
   if (projectRoot === undefined) {
     const bare = isBareRepository()
@@ -97,7 +104,11 @@ function main(): void {
       ? { created: result.actions.length }
       : result.command === 'check'
         ? { notes: result.notes, companions: result.companionFiles }
-        : { artifacts: result.summary.artifacts, sealed: result.summary.sealed }),
+        : {
+            artifacts: result.summary.artifacts,
+            sealed: result.summary.sealed,
+            ...(result.summary.plan === undefined ? {} : { plan: result.summary.plan }),
+          }),
   }
   if (options.json) {
     console.log(JSON.stringify(summary, null, 2))
@@ -110,6 +121,22 @@ function main(): void {
       )
     } else if (result.command === 'check') {
       console.log('ok   check — ' + result.notes + ' note(s) and ' + result.companionFiles + ' companion(s) checked')
+    } else if (options.prepare && result.summary.plan !== undefined) {
+      const plan = result.summary.plan
+      console.log(
+        'ok   archive --prepare — plan ' +
+          plan.id +
+          '; ' +
+          plan.artifacts.length +
+          ' new artifact(s); preflight: ' +
+          (plan.preflight.length === 0 ? 'none' : plan.preflight.join(' ')),
+      )
+      for (const artifact of plan.artifacts) {
+        console.log('     ' + artifact.path + ' ' + artifact.hash)
+      }
+      for (const member of plan.members) {
+        console.log('     member ' + member.source + ' -> ' + member.companion)
+      }
     } else if (options.write) {
       console.log(
         'ok   archive --write — sealed ' +

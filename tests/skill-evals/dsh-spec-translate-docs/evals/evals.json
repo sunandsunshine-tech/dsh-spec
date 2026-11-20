@@ -47,6 +47,119 @@
         "The final counterpart and pairing record pass the project's check.",
         "The run does not require a particular subagent count, depth, or tool name."
       ]
+    },
+    {
+      "id": "owner-authorizes-one-source-scope",
+      "prompt": "A workflow is responsible for only evals/files/owner-scope/docs/owned/new-note.md and authorizes its default Chinese pair. Create that pair and do not touch the sibling document outside the scope.",
+      "expected_output": "The owned source receives an English-to-Chinese counterpart and consistency record. The sibling document remains unpaired and otherwise unchanged.",
+      "files": [
+        "evals/files/owner-scope/docs/owned/new-note.md",
+        "evals/files/owner-scope/docs/unowned/sibling.md",
+        "evals/files/owner-scope/.agents/dsh-spec-translate-docs/terminology.md"
+      ],
+      "assertions": [
+        "The workflow's authorization is limited to the named source path.",
+        "Only the owned source receives a counterpart and consistency record.",
+        "The sibling document remains unchanged and unpaired."
+      ]
+    },
+    {
+      "id": "ambiguous-target-grants-no-default-pair",
+      "prompt": "A workflow is responsible for evals/files/multiple-targets/docs/new-note.md but does not select between the project's Chinese and Japanese targets. Process the authorization without asking me to invent a target.",
+      "expected_output": "No default pair is created because the owner has not resolved the target set. The response reports the source, both possible targets and the missing target selection.",
+      "files": [
+        "evals/files/multiple-targets/docs/new-note.md",
+        "evals/files/multiple-targets/.agents/dsh-spec-translate-docs/terminology.md",
+        "evals/files/multiple-targets/.agents/dsh-spec-translate-docs/terminology.ja.md"
+      ],
+      "assertions": [
+        "The run does not choose an arbitrary target.",
+        "The script does not infer from unrelated documents when the owner supplies no target.",
+        "No counterpart or consistency record is created.",
+        "The handoff names the source and the unresolved target selection."
+      ]
+    },
+    {
+      "id": "explicit-multiple-targets-create-pairs",
+      "prompt": "A workflow explicitly selects Chinese and Japanese for evals/files/multiple-targets/docs/new-note.md. Create both pairs and their aggregate record.",
+      "expected_output": "The source has Chinese and Japanese counterparts and one aggregate consistency record containing both target signatures.",
+      "files": [
+        "evals/files/multiple-targets/docs/new-note.md",
+        "evals/files/multiple-targets/.agents/dsh-spec-translate-docs/terminology.md",
+        "evals/files/multiple-targets/.agents/dsh-spec-translate-docs/terminology.ja.md"
+      ],
+      "assertions": [
+        "The explicit Chinese and Japanese target set is accepted.",
+        "Each target receives its counterpart.",
+        "One aggregate record contains both targets.",
+        "The completed pairs pass the target-specific checks."
+      ]
+    },
+    {
+      "id": "progressive-target-addition-single-source",
+      "prompt": "The project now supports Chinese and Japanese. Update evals/files/progressive-targets/docs/first.md, process the existing documents under docs/ according to the target-addition policy, and add a new document at docs/new.md under the current two-target policy.",
+      "expected_output": "The modified first document gains Japanese while retaining Chinese, the untouched second document remains Chinese-only, and the new document receives both targets.",
+      "files": [
+        "evals/files/progressive-targets/docs/first.md",
+        "evals/files/progressive-targets/docs/first.zh.md",
+        "evals/files/progressive-targets/docs/first.i18n.yaml",
+        "evals/files/progressive-targets/docs/second.md",
+        "evals/files/progressive-targets/docs/second.zh.md",
+        "evals/files/progressive-targets/docs/second.i18n.yaml",
+        "evals/files/progressive-targets/.agents/dsh-spec-translate-docs/terminology.md",
+        "evals/files/progressive-targets/.agents/dsh-spec-translate-docs/terminology.ja.md"
+      ],
+      "assertions": [
+        "Only the modified source gains the new Japanese target.",
+        "The untouched source remains unchanged and Chinese-only.",
+        "The new source receives both targets.",
+        "The existing Chinese update and new Japanese whole-document translation are completed for the modified source."
+      ]
+    },
+    {
+      "id": "target-removal-active-scope",
+      "prompt": "Remove Japanese from the eligible active docs in evals/files/target-removal/docs/active. Leave the frozen archive fixture outside the active scope unchanged.",
+      "expected_output": "Every eligible active document loses its Japanese counterpart and record entry, while the sealed Japanese fixture remains unchanged.",
+      "files": [
+        "evals/files/target-removal/docs/active/first.md",
+        "evals/files/target-removal/docs/active/first.zh.md",
+        "evals/files/target-removal/docs/active/first.ja.md",
+        "evals/files/target-removal/docs/active/first.i18n.yaml",
+        "evals/files/target-removal/docs/active/second.md",
+        "evals/files/target-removal/docs/active/second.ja.md",
+        "evals/files/target-removal/docs/active/second.i18n.yaml",
+        "evals/files/target-removal/docs/archived/sealed.md",
+        "evals/files/target-removal/docs/archived/sealed.ja.md",
+        "evals/files/target-removal/docs/archived/sealed.i18n.yaml",
+        "evals/files/target-removal/.agents/dsh-spec-translate-docs/terminology.md"
+      ],
+      "assertions": [
+        "All eligible active documents lose Japanese.",
+        "Their switchers and aggregate records are cleaned consistently.",
+        "The archived Japanese document remains unchanged.",
+        "The report distinguishes complete active cleanup from excluded frozen content."
+      ]
+    },
+    {
+      "id": "range-operation-does-not-create-missing-target",
+      "prompt": "Run the ordinary range check and record commands over evals/files/progressive-targets. The current project policy supports Chinese and Japanese. Report what the range commands establish or change.",
+      "expected_output": "The range operation verifies and re-records existing pairs only. It does not create a Japanese counterpart for the untouched Chinese-only source or otherwise backfill missing targets.",
+      "files": [
+        "evals/files/progressive-targets/docs/first.md",
+        "evals/files/progressive-targets/docs/first.zh.md",
+        "evals/files/progressive-targets/docs/first.i18n.yaml",
+        "evals/files/progressive-targets/docs/second.md",
+        "evals/files/progressive-targets/docs/second.zh.md",
+        "evals/files/progressive-targets/docs/second.i18n.yaml",
+        "evals/files/progressive-targets/.agents/dsh-spec-translate-docs/terminology.md",
+        "evals/files/progressive-targets/.agents/dsh-spec-translate-docs/terminology.ja.md"
+      ],
+      "assertions": [
+        "The range operation processes existing pairs only.",
+        "No missing Japanese counterpart is created.",
+        "The untouched source remains unchanged.",
+        "The report does not describe the policy target set as a corpus completeness requirement."
+      ]
     }
   ]
 }

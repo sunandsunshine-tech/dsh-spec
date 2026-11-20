@@ -1,0 +1,7 @@
+Implemented the Chinese/Japanese progressive target-addition policy:
+
+- Updated [first.md](/tmp/pr100-dsh-spec-translate-docs-progressive-target-addition-single-source-I46Pio/evals/files/progressive-targets/docs/first.md) with Japanese and Chinese switcher links, added [first.ja.md](/tmp/pr100-dsh-spec-translate-docs-progressive-target-addition-single-source-I46Pio/evals/files/progressive-targets/docs/first.ja.md), retained the existing Chinese translation, and refreshed [first.i18n.yaml](/tmp/pr100-dsh-spec-translate-docs-progressive-target-addition-single-source-I46Pio/evals/files/progressive-targets/docs/first.i18n.yaml).
+- Left `second.md` and its Chinese pair unchanged. No Japanese backfill was created.
+- Added [new.md](/tmp/pr100-dsh-spec-translate-docs-progressive-target-addition-single-source-I46Pio/evals/files/progressive-targets/docs/new.md) with [new.zh.md](/tmp/pr100-dsh-spec-translate-docs-progressive-target-addition-single-source-I46Pio/evals/files/progressive-targets/docs/new.zh.md), [new.ja.md](/tmp/pr100-dsh-spec-translate-docs-progressive-target-addition-single-source-I46Pio/evals/files/progressive-targets/docs/new.ja.md), and [new.i18n.yaml](/tmp/pr100-dsh-spec-translate-docs-progressive-target-addition-single-source-I46Pio/evals/files/progressive-targets/docs/new.i18n.yaml).
+
+All five resulting pairs pass the corpus-wide consistency check. No terminology decisions remain pending.

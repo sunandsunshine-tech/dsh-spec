@@ -11,7 +11,8 @@
  * and aggregate-record entries.
  *
  * The gate only checks pairs that already exist. Creation and update follow the project's
- * standing instructions or the user's instruction; this module never requires a source to be paired.
+ * standing instructions, the user's instruction, or the responsible workflow; that workflow passes
+ * explicit targets, and this module infers neither a target nor a requirement from sibling files.
  */
 
 import { readdirSync, readFileSync, statSync } from 'node:fs'

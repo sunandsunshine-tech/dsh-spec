@@ -1,6 +1,6 @@
 ---
 name: dsh-spec-translate-docs
-description: "Use when translating documentation, updating a counterpart, or checking a pair — maintain paired Markdown documents in declared target languages: keep pairs in step, update small changes directly, add in-scope counterparts, brief or isolate larger ones, and record and verify consistency. 用于翻译文档、更新对侧文件或检查配对：维护声明目标语言的配对 Markdown 文档——编辑后保持既有配对一致、直接更新小型局部改动、在常驻指令或用户指令范围内新增对侧、运行最小更新简报或隔离整篇翻译，并记录与校验配对一致性。"
+description: "Use when translating documentation, updating a counterpart, or checking a pair — maintain paired Markdown documents in declared target languages: keep pairs in step, update small changes directly, add in-scope counterparts, brief or isolate larger ones, and record and verify consistency. 用于翻译文档、更新对侧文件或检查配对：维护声明目标语言的配对 Markdown 文档——编辑后保持既有配对一致、直接更新小型局部改动、在授权范围内新增对侧、运行最小更新简报或隔离整篇翻译，并记录与校验配对一致性。"
 license: "MIT; upstream and repository notices in THIRD_PARTY_NOTICES"
 compatibility: "Requires Node.js 22.19+ or 24+ and Git for the briefing. No install and no network access."
 ---
@@ -9,7 +9,7 @@ compatibility: "Requires Node.js 22.19+ or 24+ and Git for the briefing. No inst
 
 ## Invocation boundary
 
-This skill runs when the user asks for translation or pair maintenance, when the project's standing instructions say an existing pair is maintained, or when a documented change touches a side of an existing pair. The standing instructions and the user's explicit instruction authorise creating or updating a pair; the check never demands that a document be paired. A file outside both the standing instructions and the user's explicit instruction is left alone.
+This skill runs when the user asks for translation or pair maintenance, when the project's standing instructions say an existing pair is maintained, when a documented change touches a side of an existing pair, or when the workflow responsible for a document scope authorizes a pair in that scope. Those same sources authorize creating or updating a pair, and the check never demands that a document be paired. Once selected, translation and pairing are required, and failure is handed off unfinished. The [pairing contract](references/pairing-contract.md) owns path scope, target-selection rules and failure details.
 
 ## Defaults
 
@@ -17,7 +17,23 @@ A default is the value or strategy this skill declares at its use site. It appli
 
 ## What this skill is
 
-A self-contained mechanism for a corpus of paired Markdown documents: the skill entry, three references, and one bundled script. `<skill-dir>` is the directory containing this `SKILL.md`; run the script from the project root. The script is parameter-driven; the pairing contract owns the options, their defaults and the override rules. The check verifies existing pairs only: file structure, Markdown structure, generated-region equality and the recorded hashes. It does not decide that a source should have a counterpart; that decision belongs to the standing instructions or the user.
+A self-contained mechanism for a corpus of paired Markdown documents: the skill entry, three references, and one bundled script. `<skill-dir>` is the directory containing this `SKILL.md`; run the script from the project root. The script is parameter-driven; the pairing contract owns the options, their defaults and the override rules. The check verifies existing pairs only: file structure, Markdown structure, generated-region equality and the recorded hashes. It does not decide independently that a source should have a counterpart. That decision belongs to the standing instructions, the user, or the workflow responsible for the document scope.
+
+## Choose targets
+
+The responsible model or workflow resolves a target set for each source in this order:
+
+1. the current request;
+2. an existing persistent project instruction;
+3. complete pairs in the same owner-defined class or scope;
+4. the primary agent's known user language;
+5. no target.
+
+The script receives the resulting explicit `--target` values and never infers from sibling files or the user's language. An explicit set may contain multiple targets. Do not choose a target when complete peer pairs disagree or the only candidate equals the source language.
+
+Adding a target is progressive: a new source uses the current policy set, while an edited source adds only its missing targets. Untouched sources are not backfilled. A target added to an existing source uses the whole-document path because it has no confirmed state.
+
+Removing a target is a strong cleanup across every eligible active source: remove its counterparts, switcher entries and record entries. Frozen or excluded documents stay unchanged. Report every unfinished source rather than claiming the scope completed.
 
 ## The pairing model
 
@@ -27,7 +43,8 @@ A pair is a source `foo.md`, one counterpart per target `foo.zh.md` or `foo.<lan
 
 - **Existing pair, small local change** (one or two Markdown units in one section; no new or moved terminology, no structural change, no generated region): update the counterpart directly on the spot. This is the lightweight path.
 - **Existing pair, any other change**: the briefing path.
-- **New pair** (standing instructions or explicit instruction): the whole-document path and its isolation rule.
+- **New pair** (standing instructions, explicit instruction or authorization from the responsible workflow): the whole-document path and its isolation rule.
+- **New target on an existing source** (progressive policy addition): the whole-document path for that target, while existing targets follow their normal update path.
 - **Deleted or renamed document**: remove the counterpart, remove its link from the source switcher, then run `write --all` for the source; a recorded target with no counterpart is dropped. A named `write --target` never drops a target, and an entry without a counterpart is an incomplete pair.
 - **Generated region**: the generator updates both sides; never edit a region by hand.
 - **Frozen or excluded document**: the standing instructions say it is not maintained; do not create, update or repair its pairs.
@@ -71,14 +88,14 @@ A generated source (`--generated`) omits only its own switcher; the counterpart 
 
 - `list` reports the pairs that exist; use `--select <glob>` and `--skip <glob>` to narrow the set. There is no completeness report: a source without a counterpart is simply not a pair.
 - `brief` with no pair argument reports every drifted existing pair; a pair it cannot brief is reported on stderr, the other briefs are still emitted without `--apply`, and the command exits 2. A generated-region drift is fatal for the whole run.
-- Discovery walks hidden directories; dependency/build trees, `.agents/skills` and `.agents/dsh-spec-translate-docs` are pruned by default. Frozen or vendored trees are kept out of the work by the standing instructions and the selection filters, not by an exclusion-artifact rule.
+- Discovery walks hidden directories and applies the [pairing contract's default prune trees](references/pairing-contract.md#discovery). Frozen or vendored trees are kept out of the work by the standing instructions and the selection filters.
 - In a change that edits a paired document, the work list is the change's diff: every changed side needs its counterpart brought along and the pair recorded in the same change.
 - A source-side change is reflected in every existing target pair of that source in the same change. A translation-only correction that leaves the source untouched stays pair-local.
 
 ## Finish the pair
 
 1. `write` each confirmed pair; after a source-side change that affects several targets, use `write --all` for the source so every existing target signature is refreshed in one render. The record diff is the reviewable statement that the two sides say the same thing. Regenerate frozen regions on both sides; they are not translated.
-2. Do not widen the work to unrequested documents; the standing instructions and the user's instruction bound the change.
+2. Do not widen the work beyond the documents selected by the project instructions, the user or the responsible workflow.
 3. Before handing over, the touched pairs are green under `check`, and a range-wide run checks every existing pair the change touched (when available, use the `dsh-spec-pre-push-checks` skill).
 4. Keep the handover reviewable: say which pairs are new, which were minimally updated, and list pending terms and terminology decisions prominently.
 
