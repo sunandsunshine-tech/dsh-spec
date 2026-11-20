@@ -1,0 +1,60 @@
+# CI flake diagnosis
+
+Use this workflow only when investigating an existing probabilistic test or CI failure. Preserve the requested read/write scope: diagnosis does not authorize a fix, workflow rerun, or CI configuration change.
+
+## Freeze the evidence
+
+Record the repository, workflow or job, revision, runner labels, timestamps, exact failing test or command, and the first stable failure signature. Keep infrastructure messages separate from test output.
+
+Compare multiple failing and passing runs. Prefer runs of the same revision; when that is impossible, verify that the relevant test and CI configuration are identical across the compared revisions. One passing rerun does not prove an infrastructure fault, and one timeout does not prove a product race.
+
+Use CI logs and metadata to establish whether failures overlap on one host or resource namespace. Preserve links to supporting runs instead of pasting large logs.
+
+## Classify the failure
+
+Classify from recorded evidence, not from the eventual fix:
+
+- **Host-resource collision:** independent processes or jobs acquire the same port, socket, database, predictable path, cache, or external namespace.
+- **Incomplete lifecycle:** teardown returns before children, workers, streams, servers, or callbacks reach quiescence; later output or mutations appear in another test.
+- **Process-global contamination:** outcome depends on test order or leaked environment, working directory, timers, globals, mocks, locale, or module state.
+- **Load-sensitive synchronization:** a sleep, polling interval, or assumed scheduler turn substitutes for observable readiness or completion.
+- **Platform or entry-path mismatch:** the failure consistently follows an operating system, shell, filesystem rule, source/build mode, or executable entry. Precision, name case, handle-release timing, and permission behavior can differ between platforms.
+- **Product concurrency defect:** the test controls its resources, reproduces deterministically with explicit overlap, and exposes a race in shipped behavior.
+- **External-provider transience:** a live API or network boundary owns the failure and it matches the documented retry policy.
+- **Runner infrastructure:** checkout, dependency download, disk, host process, or runner service fails independently of the test command. Require direct runner evidence before assigning this class. When a self-hosted pool exposes no host metrics, classify only what the logs establish: the same signature across unrelated branches on one pool supports shared-host contention, while the exact host or co-tenant remains unverified.
+
+If evidence supports more than one independent fact, report each one. Do not collapse a timeout, signal, exit code, and assertion into one inferred outcome.
+
+## Reproduce the smallest relevant topology
+
+Start with the owning test file or focused test name. Increase concurrency only to the first topology that reproduces the signature:
+
+1. one test process;
+2. concurrent cases or files;
+3. multiple independent test processes;
+4. the owning repository gate with its configured worker count;
+5. separate jobs or runner processes sharing the implicated host resource.
+
+Match the active test configuration, environment controls, source/build mode, and platform. Do not lower a production timeout or add random load merely to manufacture a different failure.
+
+Where the signature belongs to a platform the available host cannot run, the ladder stops at the last reachable rung. Record that limit rather than substituting a passing run on another platform, then use CI as the reproduction and change one suspected owner per run.
+
+For a suspected race, replace probabilistic timing with a barrier at the contested transition. For a suspected host collision, prove simultaneous acquisition of the same identifier or prove that atomic unique allocation removes the conflict.
+
+## Fix at the owner
+
+When implementation is authorized, fix the component that allocates the resource, publishes readiness, mutates global state, or owns teardown. Do not hide the failure in a snapshot normalizer, retry wrapper, broader timeout, global serialization setting, or weaker assertion.
+
+Keep stable fixture data separate from live resource allocation. A recorded URL can remain stable while the fixture maps its transport to an operating-system-assigned port; a stable expected path can remain an assertion without becoming a shared writable directory.
+
+## Close the investigation
+
+The evidence is complete when:
+
+- the original signature has a supported classification;
+- the smallest relevant topology reproduces it, or the external evidence is sufficient and the reproduction limit is explicit;
+- an authorized fix fails under a negative control or pre-fix state and passes under the same topology afterward;
+- any concurrent-process, restoration, or quiescent-teardown proof required by the resource owner passes;
+- remaining CI checks are reported as passing, pending, skipped, or failing from their observed state.
+
+Do not run until a test happens to pass and call that result stable. Stop after the selected evidence establishes the conclusion, or report the missing fact that blocks classification.

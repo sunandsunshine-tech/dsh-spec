@@ -1,0 +1,77 @@
+{
+  "skill_name": "dsh-spec-test-reliability",
+  "evals": [
+    {
+      "id": "reserve-port-at-listener",
+      "prompt": "The runnable project in evals/files/port-collision intermittently fails with EADDRINUSE when its repository suite runs in parallel. Make the test reliable, run the focused test, and explain the evidence it needs.",
+      "expected_output": "The test allocates the port through the listener itself, reads the assigned address after readiness, and does not fall back to a scan-then-bind race or global serialization.",
+      "files": [
+        "evals/files/port-collision/README.md",
+        "evals/files/port-collision/package.json",
+        "evals/files/port-collision/support/server.mjs",
+        "evals/files/port-collision/tests/server.test.mjs",
+        "evals/files/port-collision/ci.log"
+      ],
+      "assertions": [
+        "The response identifies the scan-then-bind race as the cause.",
+        "The pre-fix fixture fails deterministically with EADDRINUSE.",
+        "The fix uses the listener's atomic port allocation and waits for readiness.",
+        "The response rejects global serialization and an unexplained timeout increase.",
+        "The edited project's focused test passes."
+      ]
+    },
+    {
+      "id": "restore-exact-global-state",
+      "prompt": "Review the runnable project in evals/files/global-state. The test passes alone but changes behavior when another test runs first. Make the fixture safe under parallel and possibly repeated execution, then run its focused suite.",
+      "expected_output": "The fixture captures absent-versus-present global state, restores it exactly through immediate cleanup and a fallback, and proves the original clock and environment are restored.",
+      "files": [
+        "evals/files/global-state/README.md",
+        "evals/files/global-state/package.json",
+        "evals/files/global-state/src/config.mjs",
+        "evals/files/global-state/support/clock.mjs",
+        "evals/files/global-state/tests/config.test.mjs",
+        "evals/files/global-state/fixtures/project/.gitkeep"
+      ],
+      "assertions": [
+        "The response distinguishes an absent environment entry from one restored to an empty or string value.",
+        "Restoration is registered immediately and includes a fallback after an early failure.",
+        "The response restores real timers and verifies the restored state.",
+        "The focused suite passes after the fix."
+      ]
+    },
+    {
+      "id": "diagnose-without-fixing",
+      "prompt": "Tell me why evals/files/diagnosis-only/ci.log fails intermittently. Do not change code, workflows, or rerun CI; I only need the supported diagnosis and remaining limits.",
+      "expected_output": "The response preserves the read-only scope, separates timeout and signal evidence, classifies the repeated host-resource signature, names the smallest relevant reproduction and its limits, and makes no code or CI change.",
+      "files": [
+        "evals/files/diagnosis-only/README.md",
+        "evals/files/diagnosis-only/ci.log",
+        "evals/files/diagnosis-only/package.json",
+        "evals/files/diagnosis-only/support/server.mjs",
+        "evals/files/diagnosis-only/tests/server.test.mjs"
+      ],
+      "assertions": [
+        "The response makes no code, workflow, rerun, or configuration change.",
+        "The response cites the repeated EADDRINUSE signature across unrelated jobs.",
+        "The response states that host metrics are unavailable and identifies the remaining reproduction limit."
+      ]
+    },
+    {
+      "id": "redesign-slow-repeated-suite",
+      "prompt": "The runnable project in evals/files/slow-suite repeats the same expensive fixture for every case and in both Node matrix lanes; the proposed patch multiplies three timeout groups by three. Redesign the tests rather than enlarging timeouts, edit the project, and run the suite.",
+      "expected_output": "The revision keeps fast contract cases separate, runs one shared expensive representative scenario, avoids repeating external work where compatibility cannot change the result, and uses timeouts only as named watchdogs.",
+      "files": [
+        "evals/files/slow-suite/README.md",
+        "evals/files/slow-suite/package.json",
+        "evals/files/slow-suite/tests/report.test.mjs",
+        "evals/files/slow-suite/.github/workflows/ci.yml"
+      ],
+      "assertions": [
+        "The revision removes repeated expensive fixture setup instead of increasing all group timeouts.",
+        "Fast contract cases remain separate from the one shared expensive scenario.",
+        "The expensive check is not duplicated across lanes where its result cannot differ.",
+        "The edited project's test entry passes."
+      ]
+    }
+  ]
+}

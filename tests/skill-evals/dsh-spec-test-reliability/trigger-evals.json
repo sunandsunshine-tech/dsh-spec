@@ -1,0 +1,46 @@
+{
+  "skill_name": "dsh-spec-test-reliability",
+  "agent_file": "trigger-fixtures/AGENTS.md",
+  "queries": [
+    {
+      "id": "parallel-port-collision",
+      "query": "Our server test intermittently fails with EADDRINUSE only when CI runs several test processes in parallel.",
+      "should_trigger": true
+    },
+    {
+      "id": "test-order-global-leak",
+      "query": "A config test passes alone but changes after another test runs first because environment and fake-timer state leak.",
+      "should_trigger": true
+    },
+    {
+      "id": "teardown-child-leak",
+      "query": "The test server returns from teardown but a child process keeps running and mutates the next test.",
+      "should_trigger": true
+    },
+    {
+      "id": "slow-repeated-fixture",
+      "query": "Every case rebuilds the same eight-second browser fixture, so the suite is too slow; redesign the test layers without adding more timeout.",
+      "should_trigger": true
+    },
+    {
+      "id": "production-latency",
+      "query": "Optimize the production API so p95 latency drops from 300 ms to 150 ms.",
+      "should_trigger": false
+    },
+    {
+      "id": "coverage-percentage",
+      "query": "Raise unit-test line coverage from 80% to 90% by adding assertions for untested branches.",
+      "should_trigger": false
+    },
+    {
+      "id": "test-plan-document",
+      "query": "Write a release test-plan document describing which product features should be checked manually.",
+      "should_trigger": false
+    },
+    {
+      "id": "ui-visual-review",
+      "query": "Review the settings page screenshots for visual hierarchy and color consistency.",
+      "should_trigger": false
+    }
+  ]
+}

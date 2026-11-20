@@ -1,0 +1,4 @@
+PASS The response distinguishes an absent environment entry from one restored to an empty or string value.
+PASS Restoration is registered immediately and includes a fallback after an early failure.
+PASS The response restores real timers and verifies the restored state.
+PASS The focused suite passes after the fix.

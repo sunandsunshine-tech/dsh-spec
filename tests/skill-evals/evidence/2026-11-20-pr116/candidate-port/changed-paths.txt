@@ -1,0 +1,3 @@
+evals/files/port-collision/README.md
+evals/files/port-collision/support/server.mjs
+evals/files/port-collision/tests/server.test.mjs

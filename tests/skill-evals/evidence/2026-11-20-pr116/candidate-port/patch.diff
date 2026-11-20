@@ -1,0 +1,68 @@
+diff --git a/evals/files/port-collision/README.md b/evals/files/port-collision/README.md
+index 7e147c4..10a8ec2 100644
+--- a/evals/files/port-collision/README.md
++++ b/evals/files/port-collision/README.md
+@@ -1,9 +1,10 @@
+ # Port collision fixture
+ 
+-The suite starts several test processes in one CI job. `findFreePort()` asks the operating
+-system for a free port, closes the probe, and later reopens the real listener on the returned
+-number.
++The suite starts several test processes in one CI job. The original fixture asked the operating
++system for a free port, closed the probe, and later reopened the real listener on the returned
++number. A competing process could claim that number in between, producing the `EADDRINUSE`
++signature in `ci.log`.
+ 
+-Run `npm test`. A competitor listener acquires the probed port before the application listener, so
+-the pre-fix fixture fails deterministically with `EADDRINUSE`. The retained CI log shows the same
+-signature from two shards.
++The test now asks the actual listener to bind port `0`. After the listening callback fires, it reads
++the operating-system-assigned port from `server.address().port`. Run `npm test`; concurrent
++independent test processes are the relevant regression check.
+diff --git a/evals/files/port-collision/support/server.mjs b/evals/files/port-collision/support/server.mjs
+index e72bc0b..8e52ad1 100644
+--- a/evals/files/port-collision/support/server.mjs
++++ b/evals/files/port-collision/support/server.mjs
+@@ -19,15 +19,3 @@ export async function listen(port) {
+     close: () => new Promise((resolve, reject) => server.close((error) => (error ? reject(error) : resolve()))),
+   }
+ }
+-
+-export async function findFreePort(afterProbe) {
+-  const probe = createServer()
+-  await new Promise((resolve, reject) => {
+-    probe.once('error', reject)
+-    probe.listen(0, '127.0.0.1', resolve)
+-  })
+-  const port = probe.address().port
+-  await new Promise((resolve, reject) => probe.close((error) => (error ? reject(error) : resolve())))
+-  await afterProbe?.(port)
+-  return port
+-}
+diff --git a/evals/files/port-collision/tests/server.test.mjs b/evals/files/port-collision/tests/server.test.mjs
+index ec6a6cc..ceeb3d8 100644
+--- a/evals/files/port-collision/tests/server.test.mjs
++++ b/evals/files/port-collision/tests/server.test.mjs
+@@ -1,20 +1,15 @@
+ import assert from 'node:assert/strict'
+ import { after, before, test } from 'node:test'
+-import { findFreePort, listen } from '../support/server.mjs'
++import { listen } from '../support/server.mjs'
+ 
+ let server
+-let competitor
+ 
+ before(async () => {
+-  const port = await findFreePort(async (candidate) => {
+-    competitor = await listen(candidate)
+-  })
+-  server = await listen(port)
++  server = await listen(0)
+ })
+ 
+ after(async () => {
+   await server?.close()
+-  await competitor?.close()
+ })
+ 
+ test('serves diagnostics', async () => {

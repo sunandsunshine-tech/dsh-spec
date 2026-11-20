@@ -1,0 +1,16 @@
+
+> test
+> node --test tests/report.test.mjs tests/report.integration.test.mjs
+
+✔ representative report passes the shared row contract (81.349428ms)
+✔ renders the first row (0.565782ms)
+✔ renders the second row (0.083074ms)
+✔ renders the third row (0.0689ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 119.624299

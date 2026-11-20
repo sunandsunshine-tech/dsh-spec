@@ -1,8 +1,10 @@
 /**
- * The corpus gate's archive baseline: the CLI forwards --base-ref to the notes archive.
+ * The corpus gate's orchestration: argument forwarding and gate classification.
  *
  * A green gate that silently ignored the flag would verify the change against its own tip instead
- * of the protected branch, so the forwarding is pinned here rather than left to a manual run.
+ * of the protected branch, so the forwarding is pinned here. The real maintained corpus is one
+ * shared integration run through `pnpm run check:corpus`; these cases use a stub corpus so the
+ * functional suite does not repeat that work.
  */
 
 import assert from 'node:assert/strict'
@@ -32,7 +34,18 @@ function stubSiblingCorpus(context: { after(callback: () => void): void }, faili
   write(
     root,
     'skills/dsh-spec-agent-notes/scripts/notes.mjs',
-    "if (process.argv[2] === 'check') console.log(JSON.stringify({ notes: 1 }))\n",
+    `if (process.argv[2] === 'check') console.log(JSON.stringify({ notes: 1 }))
+if (process.argv[2] === 'archive') {
+  const args = process.argv.slice(3)
+  const equals = args.find((arg) => arg.startsWith('--base-ref='))
+  const flag = args.indexOf('--base-ref')
+  const baseRef = equals?.slice('--base-ref='.length) ?? (flag === -1 ? undefined : args[flag + 1])
+  if (baseRef && baseRef !== 'HEAD') {
+    console.error('cannot read baseline ' + baseRef)
+    process.exit(1)
+  }
+}
+`,
   )
   write(
     root,
@@ -104,10 +117,10 @@ test('an empty notes corpus fails the corpus gate', () => {
   }
 })
 
-test('a valid archive baseline passes the notes archive gate', () => {
-  const result = runScript('scripts/verify-corpus.ts', ['--base-ref=HEAD'])
+test('a valid archive baseline passes the notes archive gate', (t) => {
+  const result = runScript('scripts/verify-corpus.ts', ['--base-ref=HEAD'], stubSiblingCorpus(t, false))
+  assert.equal(result.status, 0, result.output)
   assert.match(result.stdout, /ok   notes archive/)
-  assert.match(result.stdout, /^(?:ok {3}|FAIL )sibling skill references$/m)
 })
 
 test('the corpus gate runs and reports a passing sibling-reference gate', (t) => {
@@ -129,8 +142,12 @@ test('a sibling-reference finding fails the corpus gate', (t) => {
   assert.match(result.output, /FAIL skills\/dsh-spec-a\/SKILL\.md:6 — dsh-spec-b is outside/)
 })
 
-test('an unreadable archive baseline fails the notes archive gate', () => {
-  const result = runScript('scripts/verify-corpus.ts', ['--base-ref=refs/heads/dsh-spec-missing-baseline'])
+test('an unreadable archive baseline fails the notes archive gate', (t) => {
+  const result = runScript(
+    'scripts/verify-corpus.ts',
+    ['--base-ref=refs/heads/dsh-spec-missing-baseline'],
+    stubSiblingCorpus(t, false),
+  )
   assert.equal(result.status, 1, result.output)
   assert.match(result.stdout, /FAIL notes archive/)
   assert.match(result.output, /cannot read baseline/)
