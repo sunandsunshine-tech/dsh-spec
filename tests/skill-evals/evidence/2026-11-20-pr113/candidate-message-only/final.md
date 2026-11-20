@@ -1,6 +1,6 @@
-The contract currently uses `message` as both display text and failure identity. That is unstable and prevents a caller from distinguishing the expected rejection from transport or implementation failures.
+The contract in [README.md](/tmp/pr113-eval.FHwx6T/message-only-candidate/project/README.md:3) uses `message` as both the human-readable report and the failure identity. That makes expected handling brittle because presentation text may change or be localized.
 
-The smallest compatible change is to add one stable machine-readable `code` to the existing failure result:
+The smallest safe change is to add one stable machine-readable discriminant:
 
 ```json
 {
@@ -9,46 +9,15 @@ The smallest compatible change is to add one stable machine-readable `code` to t
 }
 ```
 
-Production code, assuming the existing failure is an async rejection:
+The implementation change is to add that literal `code` wherever the unsupported-account failure is constructed. Existing callers remain compatible, while new callers can handle the failure with `failure.code === "ACCOUNT_NOT_ELIGIBLE"`. The code must be assigned explicitly rather than derived from the message, and transport or implementation failures must never receive this code. If the project already uses `name`, `kind`, or another error-discriminant convention, use that instead of introducing `code`.
+
+The corresponding test should assert both the identity and the required state guarantee:
 
 ```ts
-type SubmitAccountFailure = {
-  code: "ACCOUNT_NOT_ELIGIBLE";
-  message: string;
-};
+const failure = await submitAccount(unsupportedAccount).catch(error => error);
 
-return Promise.reject({
-  code: "ACCOUNT_NOT_ELIGIBLE",
-  message: "account is not eligible",
-} satisfies SubmitAccountFailure);
+expect(failure.code).toBe("ACCOUNT_NOT_ELIGIBLE");
+expect(accountStore.get(unsupportedAccount.id)).toEqual(accountBefore);
 ```
 
-Callers can then handle only that condition and surface everything else:
-
-```ts
-try {
-  await submitAccount(account);
-} catch (error) {
-  if (error?.code === "ACCOUNT_NOT_ELIGIBLE") {
-    display(error.message);
-    return;
-  }
-  throw error;
-}
-```
-
-Add one regression test that asserts both the exact identity and the required state guarantee:
-
-```ts
-it("rejects an ineligible account without changing its state", async () => {
-  const before = snapshotAccount(account.id);
-
-  await expect(submitAccount(account)).rejects.toMatchObject({
-    code: "ACCOUNT_NOT_ELIGIBLE",
-  });
-
-  expect(snapshotAccount(account.id)).toEqual(before);
-});
-```
-
-This adds no new error hierarchy and no message parsing. The `message` remains display-only and can change independently of the caller’s logic.
+This verifies that a caller can recognize the expected rejection without inspecting its message and that the failed submission leaves the account unchanged. The repository contains only the README, so there is no language-specific implementation or existing test file to patch.

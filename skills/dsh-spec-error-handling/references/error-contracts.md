@@ -6,7 +6,7 @@ Use this guide when defining or reviewing a failure path whose machine identity 
 
 First identify the project's existing machine-readable discriminant. It may be an error type, name, code, status, result variant, exit status, tagged union member, or a documented combination. Preserve its field names, literal values, and construction mechanism.
 
-Do not add another discriminant, rename an existing value, or migrate existing consumers merely to match this guide. If the owning project has no established convention for a new failure path, use [Fallback conventions](#fallback-conventions).
+Do not add another discriminant, rename an existing value, or migrate existing consumers merely to match this guide. If the owning project has no established convention for a new failure path, use [Fallback requirements](#fallback-requirements).
 
 ## Separate the responsibilities
 
@@ -29,16 +29,16 @@ Different runtimes realize these responsibilities with different fields. A type,
 
 Choose the condition from the consumer's next action, not from the function that emitted it. Split conditions when consumers must act differently; merge conditions that every consumer handles alike.
 
-## Fallback conventions
+## Fallback requirements
 
 This section applies only when the owning project has no convention for a newly introduced failure identity.
 
-- Use a stable type or name for the owning failure family.
-- Use an `UPPER_SNAKE_CASE` code for the condition its consumer can act on.
-- Assign literals rather than deriving identity from mutable status text, identifiers, paths, or foreign codes.
-- Declare the allowed values as a closed set, union, enum, or constants beside the owning failure.
+- Choose one stable machine-readable discriminator for each condition its consumer can act on.
+- A string code, numeric status, numeric exit status, tagged variant, or documented combination of these may carry the identity.
+- Assign literal values rather than deriving identity from display text, mutable identifiers, paths, or foreign codes.
+- Record the complete supported set in the project's existing code, type, schema, or documentation mechanism.
 
-Common fallback condition names include `INVALID_ARGUMENT`, `NOT_FOUND`, `PERMISSION_DENIED`, `CANCELLED`, `TIMEOUT`, `UNAVAILABLE`, `CONFLICT`, and `<OPERATION>_FAILED`. These are examples, not a required vocabulary: use the project's domain language and split or merge them according to consumer action.
+No field name, code spelling, or declaration form is required. Use the project's domain language and split or merge conditions according to consumer action.
 
 ## Convert foreign failures at their owner
 

@@ -57,6 +57,20 @@
         "Tests assert the exact `kind` and resulting state.",
         "The message is not used for machine routing."
       ]
+    },
+    {
+      "id": "numeric-exit-identity-survives-without-cause-chain",
+      "prompt": "Review evals/files/numeric-no-cause/README.md. Preserve the checker's existing numeric failure identity across the bridge even though this runtime has no cause chain.",
+      "expected_output": "The bridge retains the exact numeric exit status as the machine identity, maps exit status 11 and 23 to different consumer actions, preserves stderr in structured diagnostics, and does not replace the numeric identity with a string code.",
+      "files": [
+        "evals/files/numeric-no-cause/README.md"
+      ],
+      "assertions": [
+        "The exact numeric exit status remains the machine identity.",
+        "Exit statuses 11 and 23 lead to different consumer actions.",
+        "The no-cause runtime preserves stderr in structured diagnostics.",
+        "No string code replaces the numeric identity."
+      ]
     }
   ]
 }

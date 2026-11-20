@@ -96,6 +96,7 @@ const FORGE_REQUIRED: RequiredProfile = {
 interface GeneralRequirement {
   id: string
   signature: RegExp[]
+  expectedOutput?: RegExp[]
   assertions: RegExp[]
 }
 
@@ -111,22 +112,65 @@ const GENERAL_REQUIRED: GeneralProfile[] = [
       {
         id: 'message-only-failure-gets-machine-identity',
         signature: [/stable machine-readable discriminant/i, /without parsing its message/i],
-        assertions: [/machine-readable failure identity/i, /consumer action/i, /not used for machine routing/i],
+        expectedOutput: [/stable machine-readable discriminant/i, /exact identity and resulting state/i],
+        assertions: [
+          /machine-readable failure identity/i,
+          /consumer action/i,
+          /not used for machine routing/i,
+          /exact identity and resulting state/i,
+        ],
       },
       {
         id: 'worker-boundary-preserves-failure-identity',
         signature: [/worker boundary/i, /serializes only the message/i],
-        assertions: [/portable machine identity cross/i, /equivalent owning failure/i, /cause or equivalent structured detail/i],
+        expectedOutput: [
+          /portable machine identity/i,
+          /equivalent owning failure/i,
+          /cause or equivalent structured detail/i,
+        ],
+        assertions: [
+          /portable machine identity cross/i,
+          /equivalent owning failure/i,
+          /cause or equivalent structured detail/i,
+          /boundary test/i,
+        ],
       },
       {
         id: 'silent-handler-covers-one-safe-failure',
         signature: [/cleanup, commit, and notification/i, /discards every failure/i],
-        assertions: [/silent scope contains one operation/i, /stable discriminant/i, /unexpected failures/i],
+        expectedOutput: [/narrowed to the expected cleanup failure/i, /lets commit and notification failures surface/i],
+        assertions: [
+          /silent scope contains one operation/i,
+          /stable discriminant/i,
+          /reason states why discarding.*state valid/i,
+          /unexpected failures/i,
+        ],
       },
       {
         id: 'existing-project-identity-remains-authoritative',
         signature: [/existing machine identity/i, /Project.*kind/i],
-        assertions: [/kind.*machine identity/i, /No competing.*name.*code/i, /exact.*kind.*resulting state/i],
+        expectedOutput: [/does not add `name` or `code`/i, /exact `kind` and resulting state/i],
+        assertions: [
+          /kind.*machine identity/i,
+          /No competing.*name.*code/i,
+          /exact.*kind.*resulting state/i,
+          /message is not used for machine routing/i,
+        ],
+      },
+      {
+        id: 'numeric-exit-identity-survives-without-cause-chain',
+        signature: [/no cause chain/i, /numeric failure identity/i],
+        expectedOutput: [
+          /exact numeric exit status/i,
+          /stderr in structured diagnostics/i,
+          /does not replace the numeric identity with a string code/i,
+        ],
+        assertions: [
+          /exact numeric exit status/i,
+          /different consumer actions/i,
+          /stderr in structured diagnostics/i,
+          /No string code replaces the numeric identity/i,
+        ],
       },
     ],
   },
@@ -355,9 +399,27 @@ function validateGeneralCorpus(corpus: ScenarioCorpus, required: GeneralProfile)
     for (const pattern of requirement.signature) {
       assert.match(text, pattern, requirement.id + ' must preserve the scenario semantics ' + pattern)
     }
-    const assertions = scenario.assertions.join('\n')
-    for (const pattern of requirement.assertions) {
-      assert.match(assertions, pattern, requirement.id + ' must preserve the assertion ' + pattern)
+    for (const pattern of requirement.expectedOutput ?? []) {
+      assert.match(scenario.expected_output, pattern, requirement.id + ' must preserve the expected output ' + pattern)
+    }
+    if (requirement.expectedOutput === undefined) {
+      const assertions = scenario.assertions.join('\n')
+      for (const pattern of requirement.assertions) {
+        assert.match(assertions, pattern, requirement.id + ' must preserve the assertion ' + pattern)
+      }
+    } else {
+      assert.equal(
+        scenario.assertions.length,
+        requirement.assertions.length,
+        requirement.id + ' must preserve every assertion',
+      )
+      for (const [index, pattern] of requirement.assertions.entries()) {
+        assert.match(
+          scenario.assertions[index] as string,
+          pattern,
+          requirement.id + ' must preserve assertion ' + index + ' ' + pattern,
+        )
+      }
     }
   }
 }
@@ -530,6 +592,24 @@ test('the forge eval covers capability preference, fallback and a bounded handof
   assert.match(scenario.expected_output, /optional mechanism/)
   assert.match(scenario.expected_output, /fallback or explicit handoff/)
   assert.ok(scenario.assertions.some((assertion) => /resumable next step/.test(assertion)))
+})
+
+test('error handling trigger corpus keeps positive and near-miss coverage', () => {
+  const corpus = JSON.parse(
+    readFileSync(join(EVAL_SOURCE_ROOT, 'dsh-spec-error-handling', 'trigger-evals.json'), 'utf8'),
+  ) as {
+    skill_name: string
+    queries: Array<{ id: string; query: string; should_trigger: boolean }>
+  }
+  assert.equal(corpus.skill_name, 'dsh-spec-error-handling')
+  assert.equal(corpus.queries.length, 10)
+  assert.equal(new Set(corpus.queries.map((entry) => entry.id)).size, corpus.queries.length)
+  assert.equal(corpus.queries.filter((entry) => entry.should_trigger).length, 5)
+  assert.equal(corpus.queries.filter((entry) => !entry.should_trigger).length, 5)
+  for (const entry of corpus.queries) {
+    assertNonEmptyString(entry.id, 'trigger eval id')
+    assertNonEmptyString(entry.query, entry.id + ' trigger query')
+  }
 })
 
 test('the scenario input check rejects missing, empty, directory and escaping files', () => {

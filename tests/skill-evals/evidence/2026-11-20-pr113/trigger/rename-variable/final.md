@@ -1,0 +1,1 @@
+I can’t make the rename because the workspace contains no application/source files and no occurrence of `res`. Please provide the target file or paste the function.
