@@ -1,0 +1,3 @@
+{"type":"skill","path":".agents/skills/dsh-spec-web-ui-review/SKILL.md","sha256":"5ea239b5b26e1a3e1d125ccb75dbbf3c36be3cf3a854692fe3ced905ccf7b4ad"}
+{"type":"command","command":"/bin/bash -c \"sed -n '1,240p' /tmp/pr114-trigger.rg5QO1/theme-focus-contrast/project/.agents/skills/dsh-spec-web-ui-review/SKILL.md\"","exit_code":0,"status":"completed"}
+{"type":"turn.completed","usage":{"input_tokens":34586,"cached_input_tokens":29696,"cache_write_input_tokens":0,"output_tokens":1520,"reasoning_output_tokens":1088}}

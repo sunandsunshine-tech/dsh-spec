@@ -1,0 +1,83 @@
+{
+  "skill_name": "dsh-spec-web-ui-review",
+  "evals": [
+    {
+      "id": "shared-widget-consumer-coverage",
+      "prompt": "Review the shared button change in evals/files/shared-widget-project. The application is runnable, and one continuous recording plus a render report are available under its `evidence/` directory. Inspect the source and those rendered artifacts without launching another browser; trace every current consumer and report the evidence and any remaining gap.",
+      "expected_output": "The review traces both current consumers, inspects the assembled search and settings pages in the affected states, preserves a continuous recorded demonstration or the project's declared equivalent, and does not infer consumer coverage from the shared component fixture alone.",
+      "files": [
+        "evals/files/shared-widget-project/AGENTS.md",
+        "evals/files/shared-widget-project/index.html",
+        "evals/files/shared-widget-project/package.json",
+        "evals/files/shared-widget-project/server.mjs",
+        "evals/files/shared-widget-project/src/app.js",
+        "evals/files/shared-widget-project/src/Button.js",
+        "evals/files/shared-widget-project/src/button.module.css",
+        "evals/files/shared-widget-project/src/SearchPage.js",
+        "evals/files/shared-widget-project/src/SettingsPage.js",
+        "evals/files/shared-widget-project/src/styles.css",
+        "evals/files/shared-widget-project/tests/button-consumers.test.mjs",
+        "evals/files/shared-widget-project/evidence/README.md",
+        "evals/files/shared-widget-project/evidence/render-report.md",
+        "evals/files/shared-widget-project/evidence/shared-button.gif"
+      ],
+      "assertions": [
+        "Both SearchPage and SettingsPage are identified as current consumers of the shared button.",
+        "The review inspects the assembled consumers and affected interactive states rather than only Button.js.",
+        "The report distinguishes rendered evidence from tests or source inspection.",
+        "Any consumer or state not inspected is named as a gap."
+      ]
+    },
+    {
+      "id": "missing-rendered-evidence-handoff",
+      "prompt": "Review the modal focus change in evals/files/no-render-project. No browser, rendered page, recording mechanism, or equivalent visual-evidence mechanism is available, but the unit tests pass. Tell me whether the UI change is complete.",
+      "expected_output": "The review uses the source and tests to identify what they can establish, then hands off the rendered behavior with the missing browser and evidence capability instead of claiming visual completion.",
+      "files": [
+        "evals/files/no-render-project/AGENTS.md",
+        "evals/files/no-render-project/package.json",
+        "evals/files/no-render-project/src/Dialog.js",
+        "evals/files/no-render-project/tests/dialog-check.mjs"
+      ],
+      "assertions": [
+        "The response does not claim visual acceptance from passing tests.",
+        "The handoff names the missing rendered page or recording capability.",
+        "The response preserves the completed source and test evidence.",
+        "The response gives a resumable next step for checking the rendered focus behavior."
+      ]
+    },
+    {
+      "id": "project-declares-equivalent-evidence",
+      "prompt": "Review evals/files/shared-widget-project using the override in evals/files/evidence-policy-screenshot-pair.md. The project declares labeled screenshot pairs as its required browser evidence instead of a GIF, and those images are under the fixture's `evidence/` directory. Inspect the source and images without launching another browser, then report whether the shared button change satisfies the requirement.",
+      "expected_output": "The review follows the project's screenshot-pair requirement, does not demand a GIF, notices that the simulated focus treatment does not prove native focus, and marks the focused-state coverage as missing rather than passing it.",
+      "files": [
+        "evals/files/shared-widget-project/AGENTS.md",
+        "evals/files/shared-widget-project/index.html",
+        "evals/files/shared-widget-project/package.json",
+        "evals/files/shared-widget-project/server.mjs",
+        "evals/files/shared-widget-project/src/app.js",
+        "evals/files/shared-widget-project/src/Button.js",
+        "evals/files/shared-widget-project/src/button.module.css",
+        "evals/files/shared-widget-project/src/SearchPage.js",
+        "evals/files/shared-widget-project/src/SettingsPage.js",
+        "evals/files/shared-widget-project/src/styles.css",
+        "evals/files/shared-widget-project/tests/button-consumers.test.mjs",
+        "evals/files/evidence-policy-screenshot-pair.md",
+        "evals/files/shared-widget-project/evidence/search-before.png",
+        "evals/files/shared-widget-project/evidence/search-after.png",
+        "evals/files/shared-widget-project/evidence/settings-before.png",
+        "evals/files/shared-widget-project/evidence/settings-after.png",
+        "evals/files/shared-widget-project/evidence/search-focus-before.png",
+        "evals/files/shared-widget-project/evidence/search-focus-after.png",
+        "evals/files/shared-widget-project/evidence/settings-saving-before.png",
+        "evals/files/shared-widget-project/evidence/settings-saving-after.png",
+        "evals/files/shared-widget-project/evidence/render-report.md"
+      ],
+      "assertions": [
+        "The review accepts the project-declared screenshot pair as the evidence form.",
+        "The review does not require a GIF when the project declares the equivalent form.",
+        "The simulated focus pair is rejected as proof of native focus.",
+        "Missing rendered coverage remains a gap rather than a passing visual claim."
+      ]
+    }
+  ]
+}

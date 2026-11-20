@@ -1,0 +1,3 @@
+I couldn’t verify the rendered layout or action reachability because no application URL, screenshots, or running local browser surface was provided. The candidate local ports had no active application, and browser automation could not start in this environment.
+
+No visual defects are confirmed or ruled out for the loading, empty, validation-error, or success states. To resume, provide the running page URL or screenshots of all four states at both the supported narrow and desktop widths. I’ll then check clipping, overflow, wrapping, focus, and whether the form action stays visible and operable.

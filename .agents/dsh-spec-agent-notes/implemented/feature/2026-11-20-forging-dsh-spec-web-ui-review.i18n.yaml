@@ -1,0 +1,34 @@
+# Pairing consistency record for 2026-11-20-forging-dsh-spec-web-ui-review.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/feature/2026-11-20-forging-dsh-spec-web-ui-review.md --target <lang>
+/agent-note-forging-dsh-spec-web-ui-review-from-the-dsh-ui-skills:
+  en: bdb4df3432e41ff1
+  zh: fe922f12e2c8d0cd
+/agent-note-forging-dsh-spec-web-ui-review-from-the-dsh-ui-skills/problem:
+  en: 0b45fd75c242849c
+  zh: 3f9bca02c05ec4fa
+/agent-note-forging-dsh-spec-web-ui-review-from-the-dsh-ui-skills/decision:
+  en: 9c126ee1539cfa42
+  zh: da5b22d0342551a4
+/agent-note-forging-dsh-spec-web-ui-review-from-the-dsh-ui-skills/source-and-revision:
+  en: 3ef0ca81bb675e34
+  zh: 8a4944372b9ab2fb
+/agent-note-forging-dsh-spec-web-ui-review-from-the-dsh-ui-skills/target-rulings:
+  en: 5cf131c4236a8efa
+  zh: f7e26ece19df43bf
+/agent-note-forging-dsh-spec-web-ui-review-from-the-dsh-ui-skills/constraint-dispositions:
+  en: 0432c615feff4b8a
+  zh: 6e2c273d1ccf87cf
+/agent-note-forging-dsh-spec-web-ui-review-from-the-dsh-ui-skills/verification:
+  en: 2aa45e4a98d66a69
+  zh: de4b15611e7a94a0
+/agent-note-forging-dsh-spec-web-ui-review-from-the-dsh-ui-skills/verification/model-evaluation:
+  en: 4680b0cba4f482d5
+  zh: 25c91e6223df1843
+/agent-note-forging-dsh-spec-web-ui-review-from-the-dsh-ui-skills/alternatives-considered:
+  en: 89d13d94b9f46157
+  zh: 33c537c1ce9dd410
+/agent-note-forging-dsh-spec-web-ui-review-from-the-dsh-ui-skills/consequences:
+  en: de737ff5b6400665
+  zh: d2df3d9f74620038

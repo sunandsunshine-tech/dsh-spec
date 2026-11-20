@@ -1,0 +1,6 @@
+status: fail
+assertions: 2/4
+time_seconds: 75
+input_tokens: 243620
+output_tokens: 12968
+failures: accepted simulated focus; did not report the missing rendered focus state

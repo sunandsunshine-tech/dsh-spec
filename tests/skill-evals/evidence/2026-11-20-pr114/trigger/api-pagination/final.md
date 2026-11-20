@@ -1,0 +1,3 @@
+I can’t implement this from the provided prompt because it doesn’t identify the endpoint, backend language/framework, database layer, table, or sort key. The project’s `AGENTS.md` also explicitly prohibits inspecting project files for this task.
+
+Please provide the relevant handler and database-query code, plus the desired cursor contract. For example: order by `created_at DESC, id DESC`, return `{items, next_cursor}`, and use a condition such as `(created_at, id) < (cursor_created_at, cursor_id)`.
