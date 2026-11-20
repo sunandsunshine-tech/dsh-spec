@@ -323,6 +323,30 @@ const GENERAL_REQUIRED: GeneralProfile[] = [
     ],
   },
   {
+    skill: 'dsh-spec-test-reliability',
+    scenarios: [
+      {
+        id: 'reserve-port-at-listener',
+        signature: [/EADDRINUSE/i, /scan-then-bind/i],
+        assertions: [/atomic port allocation/i, /waits? for readiness/i, /rejects? global serialization/i],
+      },
+      {
+        id: 'restore-exact-global-state',
+        signature: [/passes alone/i, /another test runs first/i],
+        assertions: [/absent environment entry/i, /registered immediately/i, /restores real timers/i],
+      },
+      {
+        id: 'diagnose-without-fixing',
+        signature: [/Do not change code/i, /only need the supported diagnosis/i],
+        assertions: [
+          /no code, workflow, rerun, or configuration change/i,
+          /repeated EADDRINUSE signature/i,
+          /reproduction topology remains unverified/i,
+        ],
+      },
+    ],
+  },
+  {
     skill: 'dsh-spec-browser-gif-evidence',
     scenarios: [
       {

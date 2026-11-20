@@ -1,0 +1,9 @@
+run=1001 revision=abc123 job=test-shard-2 runner=pool-a status=failed
+Error: listen EADDRINUSE: address already in use 127.0.0.1:43127
+process signal: SIGTERM
+
+run=1002 revision=def456 job=test-shard-4 runner=pool-a status=failed
+Error: listen EADDRINUSE: address already in use 127.0.0.1:43127
+process signal: SIGTERM
+
+run=1003 revision=def456 job=test-shard-4 runner=pool-b status=passed

@@ -1,0 +1,13 @@
+import { listen } from './support/server'
+import { findFreePort } from './support/network'
+
+test('isolated readiness fixture', async () => {
+  const port = await findFreePort()
+  const server = await listen(port)
+  try {
+    const response = await fetch(`http://127.0.0.1:${port}/ready`)
+    assert.equal(response.status, 200)
+  } finally {
+    await server.close()
+  }
+})

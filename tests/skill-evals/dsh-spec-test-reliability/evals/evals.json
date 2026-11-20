@@ -1,0 +1,49 @@
+{
+  "skill_name": "dsh-spec-test-reliability",
+  "evals": [
+    {
+      "id": "reserve-port-at-listener",
+      "prompt": "The server test sample in evals/files/port-collision/tests/server.fixture.txt intermittently fails with EADDRINUSE when the repository suite runs in parallel. Make the test reliable and explain the evidence it needs.",
+      "expected_output": "The test allocates the port through the listener itself, reads the assigned address after readiness, and does not fall back to a scan-then-bind race or global serialization.",
+      "files": [
+        "evals/files/port-collision/README.md",
+        "evals/files/port-collision/tests/server.fixture.txt",
+        "evals/files/port-collision/ci.log"
+      ],
+      "assertions": [
+        "The response identifies the scan-then-bind race as the cause.",
+        "The fix uses the listener's atomic port allocation and waits for readiness.",
+        "The response rejects global serialization and an unexplained timeout increase."
+      ]
+    },
+    {
+      "id": "restore-exact-global-state",
+      "prompt": "Review evals/files/global-state/tests/config.fixture.txt. The test passes alone but changes behavior when another test runs first. Make the fixture safe under parallel and possibly repeated execution.",
+      "expected_output": "The fixture captures absent-versus-present global state, restores it exactly through immediate cleanup and a fallback, and proves the original clock and environment are restored.",
+      "files": [
+        "evals/files/global-state/README.md",
+        "evals/files/global-state/tests/config.fixture.txt"
+      ],
+      "assertions": [
+        "The response distinguishes an absent environment entry from one restored to an empty or string value.",
+        "Restoration is registered immediately and includes a fallback after an early failure.",
+        "The response restores real timers and verifies the restored state."
+      ]
+    },
+    {
+      "id": "diagnose-without-fixing",
+      "prompt": "Tell me why evals/files/diagnosis-only/ci.log fails intermittently. Do not change code, workflows, or rerun CI; I only need the supported diagnosis and remaining limits.",
+      "expected_output": "The response preserves the read-only scope, separates timeout and signal evidence, classifies the repeated host-resource signature, names the smallest relevant reproduction and its limits, and makes no code or CI change.",
+      "files": [
+        "evals/files/diagnosis-only/README.md",
+        "evals/files/diagnosis-only/ci.log",
+        "evals/files/diagnosis-only/tests/server.fixture.txt"
+      ],
+      "assertions": [
+        "The response makes no code, workflow, rerun, or configuration change.",
+        "The response cites the repeated EADDRINUSE signature across unrelated jobs.",
+        "The response states which reproduction topology remains unverified."
+      ]
+    }
+  ]
+}

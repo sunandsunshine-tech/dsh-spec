@@ -1,0 +1,16 @@
+import { chdir, cwd } from 'node:process'
+import { useFakeTimers, useRealTimers } from './support/clock'
+import { loadConfig } from '../src/config'
+
+test('loads the optional feature flag', async () => {
+  process.env.FEATURE_FLAG = 'on'
+  chdir('fixtures/project')
+  useFakeTimers(1_700_000_000_000)
+
+  const config = await loadConfig()
+  snapshots.expect(config).toMatchSnapshot()
+
+  delete process.env.FEATURE_FLAG
+  chdir(cwd())
+  useRealTimers()
+})
