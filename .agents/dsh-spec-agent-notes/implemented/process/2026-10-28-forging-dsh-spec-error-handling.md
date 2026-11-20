@@ -25,6 +25,13 @@ Source revision: `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`),
 
 Silent failure handling was read from `deepseek-ai/deepseek-harness` commit `603ed7e7d0da17d3290e44d5b3b999a636840a2d` on 2026-11-20. The repository pin is owned by [the baseline issue](https://github.com/sunandsunshine-tech/dsh-spec/issues/104); this record owns the source revisions from which the text was adapted.
 
+Agent Skills pages read on 2026-11-20:
+
+- [documentation index](https://agentskills.io/llms.txt)
+- [best practices for skill creators](https://agentskills.io/skill-creation/best-practices.md)
+- [optimizing skill descriptions](https://agentskills.io/skill-creation/optimizing-descriptions.md)
+- [evaluating skill output quality](https://agentskills.io/skill-creation/evaluating-skills.md)
+
 Adopter declaration: `AGENTS.md` — its standing orders, boundaries and conventions.
 
 Read for the repository's procedure and record format, not as design sources: `CONTRIBUTING.md` (commit convention, DCO, bilingual pairs), `skills/dsh-spec-agent-notes/references/notes-contract.md` (this record's format), `skills/dsh-spec-skill-forge/SKILL.md` (the forging procedure), the repository's skills and earlier records (format and precedent only; none of their wording is carried into the skill), and the `dsh-spec-agent-experience` skill for the repository's precedent on a ported skill's shape and provenance treatment.
@@ -50,9 +57,9 @@ The later upstream additions are adapted as follows.
 
 | Unit | Upstream | Target text |
 |---|---|---|
-| E1 | An error that carries a machine code extends `HarnessError`. | A family that carries machine-readable identity uses the project's existing discriminant mechanism; a stable name and code are fallback conventions only when the project has no convention for a new failure. |
+| E1 | An error that carries a machine code extends `HarnessError`. | A family that carries machine-readable identity uses the project's existing discriminant mechanism; without one, a new failure gains a stable machine-readable discriminant and literal values. |
 | E2 | Prefer one error class per owning package or domain over one class per failure. | Prefer one family per owning package or domain over one type per failure. |
-| E3 | `name` is the class name and `code` is a stable `UPPER_SNAKE_CASE` string. | The name and code follow project conventions; absent a convention, use a stable name and `UPPER_SNAKE_CASE` code. |
+| E3 | `name` is the class name and `code` is a stable `UPPER_SNAKE_CASE` string. | Identity and literal values follow project conventions; absent a convention, choose a string code, numeric status or exit status, tagged variant, or documented combination and record its complete supported set. |
 | E4 | A code names the failure class consumers act on, not the call site. | The target keeps this rule verbatim apart from terminology. |
 | E5 | Convert Node, SDK, protocol, native, worker, and cross-realm errors at the owning package with the original cause. | Convert operating-system, SDK, protocol, native, worker, and cross-realm failures at the owning domain with the original cause where supported, or equivalent structured detail or diagnostics otherwise. |
 | E6 | A process or worker boundary transports `name` and `code` and reconstructs the error. | A process, worker, or wire boundary transports the portable machine identity and reconstructs an equivalent owning failure; an identical runtime class is not required. |
@@ -108,7 +115,7 @@ The first table covers the original source: the 31 disposition rows plus the thr
 |---|---|---|---|---|---|
 | P35 | E1 | Coded failures extend a shared base error | the runtime has inheritance and one base error | some languages use values or plain objects | Changed: re-bound to the project's base error when one exists |
 | P36 | E2 | One family per owning domain | the runtime has classes | domains and structured error families exist without classes | Changed: family and subtype vocabulary covers both |
-| P37 | E3 | Stable name and code conventions | a declaration can carry machine-readable identity | every structured failure has some machine discriminant | Shared or vacuous; the target supplies a default |
+| P37 | E3 | Stable name and code conventions | a declaration can carry machine-readable identity | every structured failure can carry a machine discriminant | Shared or vacuous; the target supplies a result-only fallback strategy |
 | P38 | E4 | A code names the consumer action | the consumer can act on the condition | the same distinction is the purpose of a machine-readable code | Shared; kept |
 | P39 | E5 | Convert foreign failures at the dependency owner | an external dependency boundary exists | no conversion is needed where the failure originates in the owning domain | Shared or vacuous |
 | P40 | E6 | Preserve identity across a process, worker, or wire boundary | such a boundary exists | the rule imposes no requirement on projects without one; the receiving owner reconstructs an equivalent failure without requiring an identical runtime class | Shared or vacuous |
@@ -119,11 +126,11 @@ The first table covers the original source: the 31 disposition rows plus the thr
 
 ### Description
 
-The skill's frontmatter description, exactly (465 characters, under the repository's 500-character catalog budget):
+The skill's frontmatter description, exactly (484 characters, under the repository's 500-character catalog budget):
 
-> Apply error-handling principles when designing, implementing, or reviewing failures in applications, libraries, command-line tools, and services: exceptions, result variants, status or exit codes, recovery, retries, background tasks, silent handlers, and user-visible error reports. Not for general code review or test design, or for debugging unrelated to failure handling. 用于应用、库、命令行工具和服务中的错误处理：异常、结果变体、状态码或退出码、恢复、重试、后台任务、静默捕获与用户可见错误报告；不用于一般代码评审、测试设计，或与失败处理无关的调试。
+> Apply error-handling principles when designing, implementing, or reviewing failures in applications, libraries, command-line tools, and services: exceptions, result variants, status or exit codes, recovery, retries, background tasks, silent handlers, and user-visible error reports. Not for general code review, test design, performance tuning, or debugging unrelated to failure handling. 用于应用、库、命令行工具和服务中的错误处理：异常、结果变体、状态码或退出码、恢复、重试、后台任务、静默捕获与用户可见错误报告；不用于一般代码评审、测试设计、性能调优，或与失败处理无关的调试。
 
-The English sentence is the delivery language. It names the adopting system shapes, failure representations, and adjacent tasks the skill covers, then excludes general code review, test design, and debugging unrelated to failure handling. The Chinese sentence is the additional trigger language.
+The English sentence is the delivery language. It names the adopting system shapes, failure representations, and adjacent tasks the skill covers, then excludes general code review, test design, performance tuning, and debugging unrelated to failure handling. The Chinese sentence is the additional trigger language.
 
 ### Constraint dispositions
 
@@ -167,9 +174,9 @@ Dispositions use the forge skill's values: **Keep** carries the original wording
 
 | # | Source | Constraint | Disposition | Home | Basis |
 |---|---|---|---|---|---|
-| E1 | rc.5 `SKILL.md` | A coded error extends the shared `HarnessError`. | Re-bind | `SK` § Typed, structured failures | the project's existing type, name, code, status, variant, exit status or documented combination is authoritative; no ecosystem-specific base is required |
+| E1 | rc.5 `SKILL.md` | A coded error extends the shared `HarnessError`. | Re-bind | `SK` § Typed, structured failures | the project's existing type, name, code, status, variant, exit status or documented combination is authoritative; no ecosystem-specific base, field name or fallback spelling is required |
 | E2 | rc.5 `SKILL.md` | Prefer one class per domain over one class per failure. | Adapt | `SK` § Typed, structured failures | family and subtype retain the ownership distinction without assuming classes |
-| E3 | rc.5 `SKILL.md` | Name is the class name; code is `UPPER_SNAKE_CASE` and declared beside the class. | Adapt | `SK` § Typed, structured failures | the project's convention wins; the target supplies a portable default and declaration requirement |
+| E3 | rc.5 `SKILL.md` | Name is the class name; code is `UPPER_SNAKE_CASE` and declared beside the class. | Adapt | `SK` § Typed, structured failures | the project's convention wins; otherwise the target requires one stable machine-readable discriminator and a recorded supported set without prescribing a field or spelling |
 | E4 | rc.5 `SKILL.md` | A code names the consumer action, not the call site. | Keep | `SK` § Typed, structured failures | domain-neutral |
 | E5 | rc.5 `SKILL.md` | Convert foreign errors at the owning package with the original cause. | Adapt | `SK` § Typed, structured failures | the owning package becomes the package, module, service, or domain that owns the dependency; runtimes without cause chaining retain the original in structured detail or diagnostics |
 | E6 | rc.5 `SKILL.md` | A process or worker transports `name` and `code` and reconstructs the class. | Re-bind | `SK` § Typed, structured failures | transport preserves the project's portable identity; the receiving owner reconstructs an equivalent owning failure, while `name` and `code` remain one field realization |
@@ -196,7 +203,7 @@ Dispositions use the forge skill's values: **Keep** carries the original wording
 | R12 | The exception vocabulary becomes handling/failure vocabulary in the heading and the two sentences that name it (N11a, N15, N27); "failure" covers exceptions, result values and other explicit failure models. | The source is TypeScript, but the target scope includes languages whose failures are values; the ownership, containment and verification rules survive the vocabulary change. | Restore the exception words, which narrows the skill to one failure model. |
 | R13 | Where the source names a reporting surface or a documentation practice, the target names the surface the affected user or system actually uses, and the contract record may be the owning API's documentation or the project's equivalent record (N12, N21, N23). | The target scope includes projects with no UI or default logs and with no API documentation; the rule keeps its required content and its conditional "where one exists". | Restore a fixed surface or documentation practice. |
 | R14 | Issue #104 owns the repository extraction pin. This skill records the rc.5 source revision and commit `603ed7e7d0da17d3290e44d5b3b999a636840a2d`, which supplies the silent-handler rules. | Provenance must distinguish the release baseline from a later source read; describing both as the pin would be false. | Move the source revision back to the baseline only when a release tag contains it. |
-| R15 | Product-specific error bases, registry fields, concrete error classes, errno names, and upgrade-guide paths dissolve into project-owned families, discriminants, details, causes, and migration records. Common code names are fallback examples for a project with no convention, never a mandatory vocabulary or a second identity for an existing system. | The target must preserve an adopter's current error model while still giving projects without one a concrete default. | Restore a concrete platform contract and narrow the skill's stated scope. |
+| R15 | Product-specific error bases, registry fields, concrete error classes, errno names, and upgrade-guide paths dissolve into project-owned families, discriminants, details, causes, and migration records. A project without a convention chooses one stable machine-readable discriminator and records its supported set; no field name, code spelling, declaration form or vocabulary is prescribed. | The target must preserve an adopter's current error model while still retaining a result-only fallback for new failures. | Restore a concrete platform contract or mandatory string-code vocabulary and narrow the skill's stated scope. |
 | R16 | Silent handling is a separate section because it owns a safety judgment that is easy to confuse with logging or recovery. | The upstream check exposes a recurring shape; the target needs the reason, discriminant, state consequence, and selective surfacing at one point of use. | Fold the section into general handling only if the distinction stops changing decisions. |
 | R17 | The detailed code guide lives in `references/error-contracts.md`. | The guide is used only when defining or reviewing a machine-readable failure contract, so lazy loading avoids carrying its tables through every error-handling task. | Inline the guide when the entry can lose a proportionate amount of other context. |
 
@@ -205,10 +212,17 @@ Dispositions use the forge skill's values: **Keep** carries the original wording
 Every disposition row is the anchor for the requirement it carries. N1 is mechanical: the skill gate checks the name and directory match. N2-N30, N11a, and E1-E10 are judged against the source sentence. N30 retains an external literature link. The skill gate mechanically checks format, size, references, and link integrity. The development eval corpus records message-only failures, boundary-loss failures, silent multi-step handling, and preservation of an existing project discriminant.
 
 The clean-context model evaluation under `tests/skill-evals/evidence/2026-11-20-pr113/` ran
-`codex exec --ephemeral` for candidate and no-skill profiles. All four candidate scenarios loaded
-the skill and passed all 16 assertions. The no-skill baseline passed 14 of 16; it discarded
-unexpected cleanup failures in the silent-handler scenario. One candidate run per scenario is
-evidence of the tested behavior, not a claim that every phrasing or host profile has equal effect.
+`codex exec --ephemeral` for candidate, previous-skill and no-skill profiles. All five candidate
+scenarios loaded the skill and passed all 20 assertions. Both baselines passed 18 of 20; each
+discarded unexpected cleanup failures in the silent-handler scenario. One candidate run per
+scenario is evidence of the tested behavior, not a claim that every phrasing or host profile has
+equal effect.
+
+The ten-query trigger corpus installed the candidate in an otherwise empty project and recorded
+whether the run read `SKILL.md`. Five positive prompts triggered. Five near-miss prompts initially
+produced four non-triggers and one performance-tuning false positive; adding performance tuning to
+the description's exclusions made the rerun five of five non-triggers. The first run was not used
+as final evidence for that query.
 
 ## Alternatives considered
 
@@ -235,7 +249,7 @@ evidence of the tested behavior, not a claim that every phrasing or host profile
 ## Consequences
 
 - The set ships `dsh-spec-error-handling` from `skills/dsh-spec-error-handling/` with an identical installed copy; the deliverable is the entry, one contract reference, and the skill-root notice.
-- The entry assumes no UI, default-enabled logs, API-documentation practice, application runtime, base error, or single failure model. The reference supplies defaults for names and codes only when the project has no convention.
+- The entry assumes no UI, default-enabled logs, API-documentation practice, application runtime, base error, or single failure model. The reference supplies result-only fallback requirements for a new failure when the project has no convention.
 - The detailed contract has one reference owner; the entry links to it where family and code decisions need that detail.
 - Costs: the reference adds a second runtime-loaded file for contract work; generalized wording is less concrete than product examples; one clean-context run per scenario covers the changed decisions but does not establish trigger precision across all prompts.
 - Risks: over-generalization can lose the source's force; a sentence outside the audit can still carry an unrecorded assumption; an adaptation can drift; the description can compete with a code-review skill.

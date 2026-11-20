@@ -1,0 +1,1 @@
+I can’t complete the review because the workspace contains no README or Git repository—only `.agents/skills/dsh-spec-error-handling/`. Please provide the README text or place the file in `/tmp/pr113-trigger-eval/readme-prose-only/project`, and I’ll identify the heading typo and capitalization inconsistencies.

@@ -1,37 +1,36 @@
-[README.md](/tmp/pr113-eval.FHwx6T/worker-boundary-candidate/project/README.md:11) documents the failure, but not yet the required contract. The wire payload needs enough structured information for the parent to reconstruct an equivalent owning failure without interpreting display text.
+[README.md](/tmp/pr113-eval.FHwx6T/worker-boundary-candidate/project/README.md:1) documents the defect but provides no implementation or tests to inspect. Assuming no existing error convention, use a stable `code` as the machine-readable identity.
 
-A suitable contract would be:
+**Contract changes**
+
+Replace the message-only payload with a structured failure contract:
 
 ```json
 {
-  "name": "ReportError",
   "code": "REPORT_LOCKED",
   "message": "report target is locked",
-  "details": {},
   "cause": {
-    "name": "SystemError",
-    "code": "EBUSY",
-    "message": "resource busy"
+    "name": "FilesystemError",
+    "code": "EACCES",
+    "message": "permission denied"
   }
 }
 ```
 
-Contract changes needed:
+- `code` is required and authoritative. Retry and recovery logic must use it, never parse `message`.
+- Preserve the readable `message` separately from machine identity.
+- Serialize `cause` explicitly because `Error.cause` may be non-enumerable. Preserve nested name, message, code, and cause recursively.
+- Worker catch-all handling must map unclassified defects to a stable fallback such as `WORKER_UNEXPECTED_FAILURE`; it must not promote a foreign cause code to the top-level identity.
+- The parent should reconstruct the owning failure from `code`—for example, `ReportLockedError` for `REPORT_LOCKED`. A valid unknown future code should remain a generic worker failure with its original code preserved.
+- Missing or malformed identity should reconstruct the conservative unexpected-failure fallback, not infer identity from the message.
+- Message-only legacy payloads may retain their text but must remain unclassified failures.
+- Failure reconstruction must still throw or reject; it must never become success.
 
-- Make `code` the authoritative, stable discriminant. Retry policy must inspect `code`, never `message` or `name`.
-- Document a closed set of codes. Preserve `REPORT_LOCKED` exactly and give unexpected worker defects a separate fallback such as `WORKER_FAILED`; never map them to `REPORT_LOCKED`.
-- Explicitly serialize `name`, `code`, `message`, optional JSON-safe `details`, and a normalized cause chain. Do not rely on `JSON.stringify(error)`, because JavaScript error properties and causes are not reliably enumerable.
-- Reconstruct the owning error family in the parent, or an `Error` carrying equivalent `name`, `code`, and `details`. Reconstruct the transported cause as `cause`, rather than folding its text into the message.
-- Define retry behavior for each identity. The locked condition and unexpected defect may need different outcomes, but that policy must be documented rather than inferred.
-- Define compatibility behavior for message-only payloads. They should become an explicit unknown-worker failure and must not be classified as `REPORT_LOCKED`. Malformed payloads and non-`Error` throws need similar fail-closed handling.
+**Required tests**
 
-Tests needed at the real boundary, not just against the serializer:
-
-- A `REPORT_LOCKED` worker failure round-trips with exact `code`, `name`, and message, and the parent receives the reconstructed owning failure.
-- An unexpected worker `TypeError` remains distinct from `REPORT_LOCKED`, with its original diagnostic information retained.
-- A nested original cause survives serialization and is exposed as the reconstructed error’s `cause`, including its `name`, `code`, and message.
-- Retry classification is asserted for both identities using exact codes. If a retry occurs, also assert the resulting state, such as no duplicate write and no false success.
-- A legacy `{ "message": "..." }` payload produces the documented unknown-failure identity, not `REPORT_LOCKED`.
-- Unknown codes, missing codes, and non-`Error` thrown values are surfaced as failures rather than being silently converted into success or a known condition.
-
-There are currently no implementation or test files in the repository, so these would be new boundary tests rather than modifications to an existing suite.
+1. Round-trip `REPORT_LOCKED` through the real serialization and reconstruction path; assert the reconstructed code, type/name, and exact message.
+2. Preserve a nested cause, including its own code, without letting the cause code replace `REPORT_LOCKED`.
+3. Throw `REPORT_LOCKED` and an arbitrary worker defect with identical messages; assert retry policy makes different decisions, proving it uses identity rather than text.
+4. Exercise the real worker entry point with a plain error; assert `WORKER_UNEXPECTED_FAILURE` and preserved diagnostics.
+5. Test a future/unknown code and assert it remains preserved and is handled conservatively.
+6. Test legacy and malformed payloads, including message-only data and missing or non-string codes; assert the message survives but retry policy does not recognize `REPORT_LOCKED`.
+7. Where the operation has observable state, assert the failure leaves it uncommitted rather than reported as successful.

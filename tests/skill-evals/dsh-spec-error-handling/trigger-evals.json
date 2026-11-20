@@ -1,0 +1,55 @@
+{
+  "skill_name": "dsh-spec-error-handling",
+  "queries": [
+    {
+      "id": "worker-loses-variant",
+      "query": "A worker serializes our result variant as text, so the parent retries the wrong failures. What failure contract should we preserve across that boundary?",
+      "should_trigger": true
+    },
+    {
+      "id": "cleanup-catch-scope",
+      "query": "We ignore every failure from temporary-file cleanup and then commit a batch. Review whether that catch scope can hide a real failure.",
+      "should_trigger": true
+    },
+    {
+      "id": "provider-status-mapping",
+      "query": "Our provider returns HTTP 409 and 503, and the service must map them into its existing numeric status without losing retry behavior. Design the failure contract.",
+      "should_trigger": true
+    },
+    {
+      "id": "cli-exit-handling",
+      "query": "This CLI exits 11 for invalid configuration and 23 when the checker is unavailable. Callers must not parse stdout, so how should the command and test contract represent those failures?",
+      "should_trigger": true
+    },
+    {
+      "id": "visible-unknown-outcome",
+      "query": "After a backend failure the UI reports success even though the write outcome is unknown. Review the failure report and safe next action.",
+      "should_trigger": true
+    },
+    {
+      "id": "readme-prose-only",
+      "query": "Review this README for a typo in the heading and inconsistent capitalization in the first paragraph.",
+      "should_trigger": false
+    },
+    {
+      "id": "unit-assertion-diff",
+      "query": "Why does this assertion print expected 3 but actual 4 when the input array contains four items?",
+      "should_trigger": false
+    },
+    {
+      "id": "add-pagination",
+      "query": "Add cursor pagination to the list endpoint and update the OpenAPI schema.",
+      "should_trigger": false
+    },
+    {
+      "id": "build-performance",
+      "query": "Profile why the TypeScript build takes forty seconds and recommend a faster incremental setup.",
+      "should_trigger": false
+    },
+    {
+      "id": "rename-variable",
+      "query": "Rename the local variable `res` to `response` in this function and leave behavior unchanged.",
+      "should_trigger": false
+    }
+  ]
+}
