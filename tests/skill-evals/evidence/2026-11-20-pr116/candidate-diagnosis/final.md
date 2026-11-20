@@ -1,23 +1,29 @@
-**Supported diagnosis**
+The intermittent failure is a scan-then-bind race on a shared loopback port, not a timeout.
 
-Both failures in [ci.log](/tmp/dsh-pr116-behavior-final.HOhv5D/diagnosis/ci.log:1) have the same signature: `EADDRINUSE` on `127.0.0.1:43127`. That is a host-resource collision.
+In [server.mjs](/tmp/dsh-pr116-diagnosis.Y6T4AI/evals/files/diagnosis-only/support/server.mjs:3), `findFreePort()`:
 
-The checked-in test exposes the likely mechanism in [server.mjs](/tmp/dsh-pr116-behavior-final.HOhv5D/diagnosis/support/server.mjs:3) and [server.test.mjs](/tmp/dsh-pr116-behavior-final.HOhv5D/diagnosis/tests/server.test.mjs:6):
+1. Lets the OS assign a port with `listen(0)`.
+2. Reads that port number.
+3. Closes the probe, releasing the reservation.
+4. Returns only the number.
 
-1. A probe listens on an OS-assigned port.
-2. The probe records the number and closes, releasing the port.
-3. The test later binds a different server to that number.
+The test then calls `listen(port)` in [server.test.mjs](/tmp/dsh-pr116-diagnosis.Y6T4AI/evals/files/diagnosis-only/tests/server.test.mjs:6). Between those operations, another process can claim the released port. The probe established only that the port was free earlier; it did not reserve it for the real listener. Concurrent shards on the shared pool make that window likely to be hit intermittently.
 
-Nothing reserves the port between steps 2 and 3. On the shared pool, another shard or local process can claim it first. Whether that happens depends on timing and host activity, explaining the intermittency.
+The [CI log](/tmp/dsh-pr116-diagnosis.Y6T4AI/evals/files/diagnosis-only/ci.log:1) supports a host-resource collision:
 
-The recorded `SIGTERM` is a separate event and does not establish the cause. Run 1003’s pass on `pool-b` supports environment or contention dependence, but one pass does not prove stability or rule out a product race.
+- The exact `EADDRINUSE: 127.0.0.1:43127` signature occurs across different revisions and shards: `abc123` shard 2 and `def456` shard 4.
+- Both failures are on `pool-a`.
+- The same revision `def456` and shard 4 pass on `pool-b`.
 
-**Remaining limits**
+That establishes a shared-resource signature rather than a revision-specific or job-specific failure. The passing `pool-b` run does not disprove the race; it encountered a different schedule or namespace.
 
-- The failures are for revisions `abc123` and `def456`, but neither object exists locally; HEAD is `b7a449e`. I therefore cannot prove those runs used exactly the inspected source and configuration.
-- `43127` appears only in the log; the current source acquires a dynamic port. That is consistent with the race, but not forensic proof for the historical runs.
-- No host IDs, timestamps, workflow configuration, or process-owner data are present. The exact host and competing process are unknown, and simultaneous acquisition cannot be proven.
-- It is unclear whether the occupant was another live shard or a stale process.
-- As requested, no CI or tests were rerun, so there is no concurrent-process reproduction or negative-control result.
+The subsequent `SIGTERM` lines are separate evidence. The log contains no timeout message, duration, or deadline, so it does not support calling this a timeout. `SIGTERM` may be job cancellation or process teardown after the bind error, but its exact cause and ordering are not established.
 
-Inspected with `cat ci.log`, `rg` for the port and server calls, `git show HEAD`, and `git cat-file` for the logged revisions. No files were changed and no tests or CI runs were started.
+Remaining limits:
+
+- The exact process or co-tenant occupying port `43127` is unknown.
+- The self-hosted pool exposes no host statistics, so contention cannot be measured or attributed to a specific host.
+- The log lacks timestamps, host identifiers, and process details, so simultaneous acquisition cannot be proven for those particular runs.
+- The smallest relevant reproduction is two independent test processes on one host, ideally with a barrier around release and rebind. That was not run because this is diagnosis-only and CI was not to be rerun.
+
+I made no code, workflow, or configuration changes and ran no tests or CI. Read-only commands included `nl -ba` on the log, test, and server fixture; `git status --short --branch` remained clean.

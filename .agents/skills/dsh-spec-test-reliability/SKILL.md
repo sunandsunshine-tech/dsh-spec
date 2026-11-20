@@ -71,7 +71,7 @@ Prefer an observation that holds on every supported platform.
 
 ## Design the smallest sufficient test
 
-Elapsed time is usually a property of test design, not a budget to raise. Before changing a timeout, remove repeated work or move evidence to the narrowest sufficient layer:
+For a deterministic test, elapsed time is first a property of test design, not a budget to raise. Before changing a timeout, remove repeated work or move evidence to the narrowest sufficient layer:
 
 - keep fast contract and preflight cases independent of expensive browsers, media, containers, or real services;
 - create one expensive fixture per owning scenario instead of rebuilding it for every case;

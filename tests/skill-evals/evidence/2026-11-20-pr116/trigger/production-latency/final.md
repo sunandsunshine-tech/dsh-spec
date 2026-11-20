@@ -1,3 +1,3 @@
-The installed test-reliability skill targets slow or unstable automated tests and CI fixture conditions, not production API latency optimization. No installed skill clearly applies to this request.
+The request concerns production API performance optimization, while the installed reliability skill is specifically for slow or unstable automated tests and fixtures. No listed skill clearly applies.
 
 SELECT: none

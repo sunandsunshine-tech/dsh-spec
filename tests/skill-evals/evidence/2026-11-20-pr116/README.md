@@ -1,11 +1,11 @@
 # PR #116 clean-context model evidence
 
 Base: `cb2eeb2993b0c8f6061401c468b48e25f5d3b5a3`.
-Candidate skill tree: `3fffaefaa984b2bc611a85b1c2946578c466b905`.
+Candidate skill tree: `21205d05e7f7e06c9b6b5f77affcbb7aa90d7aec`.
 Evaluation files tree: `72c08ca5bafa1b3560c3fd8a3023fc6d6847da80`.
 Trigger fixture tree: `646b2925dca8c38961c1dde85f407b759383ff62`.
 Trigger corpus blob: `a6f558db17fb64afed0817c782a6c4ca6fb4d391`.
-Skill file SHA-256: `c0a2bbcee189f9e5bba61b0d22db45fc12b8db27afb4fc084b0d8dd47dad9a90`.
+Skill file SHA-256: `3441d8d58e80a5850c3ba1a01f0870d8ede7f6835725b69a8a2a38246aaf806a`.
 Model: host-configured Codex model; Codex CLI 0.171.0-alpha.13.
 
 ## Method
@@ -59,6 +59,8 @@ Evidence: `trigger-matrix.tsv`, `trigger-input.sha256`, and `trigger/<query>/`.
 - `candidate-slow-suite/`: fast/shared redesign patch and focused test.
 - `trigger/`: final response, stderr and derived trace for every routing probe.
 
-Model runs are development evidence and do not run in routine CI. Repository tests verify input and
-artifact hashes, assertions, skill hashes and trigger decisions; a skill or fixture change
-invalidates the evidence until it is rerun.
+Model runs are development evidence and do not run in routine CI. Each behavior trace records the
+successful command that read the installed skill, and `skill.sha256` binds that installation to the
+current skill file. Trigger evidence binds the model-facing name and description rather than the
+whole body. Repository tests also verify input and artifact hashes, assertions and trigger decisions.
+A change to an affected surface invalidates that evidence until it is rerun.

@@ -1,3 +1,3 @@
-No installed skill clearly applies: the request concerns screenshot-based visual hierarchy and color review, while the available DSH skill is limited to automated test reliability and CI concurrency.
+The request concerns visual hierarchy and color consistency in screenshots, which is outside the scope of the test-reliability skill; no other installed skill clearly applies.
 
 SELECT: none

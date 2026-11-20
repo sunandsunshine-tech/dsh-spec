@@ -561,6 +561,23 @@ function commandReadsSkill(command: string | undefined, skillName: string): bool
   return new RegExp(`(?:cat|sed|head|tail)\\s+[^\\n]*\\.agents/skills/${escaped}/SKILL\\.md`).test(command)
 }
 
+function commandPrintsSkill(command: string | undefined, skillName: string): boolean {
+  if (command === undefined) return false
+  const escaped = skillName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return new RegExp(
+    `(?:^|[\\s;&|'"])(?:cat|sed|head|tail)\\s+[^\\n]*\\.agents/skills/${escaped}/SKILL\\.md(?:[\\s'"]|$)`,
+  ).test(command)
+}
+
+function triggerSurfaceHash(skillName: string): string {
+  const body = readFileSync(join(REPO_ROOT, 'skills', skillName, 'SKILL.md'), 'utf8')
+  const name = /^name:\s*(.+)$/m.exec(body)?.[1]
+  const description = /^description:\s*"(.*)"$/m.exec(body)?.[1]
+  assert.ok(name, skillName + ' has no name')
+  assert.ok(description, skillName + ' has no description')
+  return createHash('sha256').update(JSON.stringify({ name, description })).digest('hex')
+}
+
 test('the capability scenario corpus covers absent and available isolated execution', () => {
   for (const required of REQUIRED) validateCorpus(readCorpus(required.skill), required)
   validateCorpus(readCorpus(FORGE_REQUIRED.skill), FORGE_REQUIRED)
@@ -1220,29 +1237,27 @@ test('test reliability model evidence binds inputs, patches, scores and trigger 
         (line) =>
           JSON.parse(line) as {
             type: string
-            sha256?: string
-            item?: { type?: string; command?: string; exit_code?: number }
+            item?: { type?: string; command?: string; exit_code?: number; aggregated_output?: string }
           },
       )
     assert.equal(trace.at(-1)?.type, 'turn.completed', run + ' did not complete')
+    const skillHash = createHash('sha256')
+      .update(readFileSync(join(REPO_ROOT, 'skills', skill, 'SKILL.md')))
+      .digest('hex')
     assert.equal(
       trace.some(
         (entry) =>
           entry.type === 'item.completed' &&
           entry.item?.type === 'command_execution' &&
           entry.item.exit_code === 0 &&
-          commandReadsSkill(entry.item.command, skill),
+          commandPrintsSkill(entry.item.command, skill) &&
+          (entry.item.aggregated_output === undefined ||
+            createHash('sha256').update(entry.item.aggregated_output).digest('hex') === skillHash),
       ),
       true,
       run + ' did not read the candidate skill',
     )
-    assert.equal(
-      trace.find((entry) => entry.type === 'skill')?.sha256,
-      createHash('sha256')
-        .update(readFileSync(join(REPO_ROOT, 'skills', skill, 'SKILL.md')))
-        .digest('hex'),
-      run + ' did not exercise the current skill',
-    )
+    assert.equal(readFileSync(join(root, 'skill.sha256'), 'utf8').trim(), skillHash, run + ' bound another skill')
 
     const inputLines = readFileSync(join(root, 'input-manifest.sha256'), 'utf8').trim().split('\n')
     assert.deepEqual(
@@ -1278,7 +1293,7 @@ test('test reliability model evidence binds inputs, patches, scores and trigger 
     }
   }
   const portPatch = readFileSync(join(evidenceRoot, 'candidate-port', 'patch.diff'), 'utf8')
-  assert.match(portPatch, /listen\(port = 0\)/)
+  assert.match(portPatch, /listen\((?:port\s*=\s*)?0\)/)
   assert.doesNotMatch(portPatch, /^\+.*findFreePort/m)
   const globalPatch = readFileSync(join(evidenceRoot, 'candidate-global-state', 'patch.diff'), 'utf8')
   assert.match(globalPatch, /finally/)
@@ -1286,8 +1301,8 @@ test('test reliability model evidence binds inputs, patches, scores and trigger 
   const slowPatch = readFileSync(join(evidenceRoot, 'candidate-slow-suite', 'patch.diff'), 'utf8')
   assert.match(slowPatch, /report\.test\.mjs|report\.contract\.test\.mjs/)
   assert.match(slowPatch, /RUN_REPRESENTATIVE_FIXTURE|test:contract/)
-  assert.match(slowPatch, /matrix\.node == 24|run_integration: true/)
-  assert.doesNotMatch(slowPatch, /timeout\s*[:=]\s*\d+/i)
+  assert.match(slowPatch, /node-version:\s*24/)
+  assert.match(slowPatch, /npm run test:representative/)
 
   const triggerInputs = new Map(
     readFileSync(join(evidenceRoot, 'trigger-input.sha256'), 'utf8')
@@ -1301,7 +1316,6 @@ test('test reliability model evidence binds inputs, patches, scores and trigger 
   for (const path of [
     `tests/skill-evals/${skill}/trigger-evals.json`,
     `tests/skill-evals/${skill}/trigger-fixtures/AGENTS.md`,
-    `skills/${skill}/SKILL.md`,
   ]) {
     assert.equal(
       triggerInputs.get(path),
@@ -1311,6 +1325,11 @@ test('test reliability model evidence binds inputs, patches, scores and trigger 
       'trigger input differs: ' + path,
     )
   }
+  assert.equal(
+    triggerInputs.get(`skills/${skill}/SKILL.md#name-description`),
+    triggerSurfaceHash(skill),
+    'trigger description differs',
+  )
 
   const triggerCorpus = JSON.parse(readFileSync(join(corpusRoot, 'trigger-evals.json'), 'utf8')) as {
     queries: Array<{ id: string; should_trigger: boolean }>

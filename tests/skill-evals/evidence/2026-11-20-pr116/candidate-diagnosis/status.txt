@@ -1,5 +1,5 @@
 status: pass
 assertions: 3/3
-time_seconds: 41.09
-input_tokens: 111031
-output_tokens: 7251
+time_seconds: 48.27
+input_tokens: 98527
+output_tokens: 9484

@@ -101,7 +101,7 @@ Status: implemented
 | A5 | 可运行 fixture 覆盖确定性端口失败、精确全局状态恢复、只读诊断，以及重新设计一个缓慢且重复执行昂贵 setup 的套件。 | Mechanical | 仓库测试运行 fixture 的正向与负向控制，并暂存所有声明输入；四个直接 fixture 入口合计不到一秒。 |
 | A6 | 场景上的运行时模型行为。 | Judged + Mechanical | `tests/skill-evals/evidence/2026-11-20-pr116/` 下的干净上下文运行在四个行为场景中通过 16/16 项断言。 |
 | A6a | description 能路由可靠性工作与测试耗时工作，同时不捕获相邻的产品性能、覆盖率、文档或视觉评审任务。 | Judged + Mechanical | 同一证据目录中的四个正例和四个近邻反例通过稳定 `SELECT:` 标记达到 8/8。 |
-| A7 | 安装副本、notices、活跃记录树和翻译配对一致。 | Mechanical | 最终完整功能套件以及语料、决策记录、配对、notices、格式、静态与 bundle 检查均通过；功能命令本身是所属证据，此处不再复制进程计数。 |
+| A7 | 安装副本、notices、活跃记录树和翻译配对一致。 | Mechanical | 最终功能套件用桩化语料验证编排约定；真实语料由 `pnpm run check:corpus` 步骤拥有。决策记录、配对、notices、格式、静态与 bundle 检查均通过，此处不再复制进程计数。 |
 
 ## Pages read
 
