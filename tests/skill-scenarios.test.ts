@@ -1,7 +1,7 @@
 /**
  * Development-side model scenarios for isolated-context capabilities, Agent Notes companion
- * defaults, Translate Docs scoped authorization, the forge's capability conclusions and
- * error-contract judgment.
+ * defaults, Translate Docs scoped authorization, the forge's capability conclusions,
+ * error-contract judgment, Web UI review evidence and browser GIF capture.
  *
  * The source corpus lives under tests/ because skills/ is a distribution artifact. The tests stage
  * a temporary skill copy with the corpus at the official evals/ path. They validate the scenario
@@ -25,7 +25,7 @@ import {
   writeFileSync,
 } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join, sep } from 'node:path'
+import { dirname, join, sep } from 'node:path'
 import { test } from 'node:test'
 
 import { REPO_ROOT } from './helpers/fixtures.ts'
@@ -319,6 +319,31 @@ const GENERAL_REQUIRED: GeneralProfile[] = [
           /inspects the generated artifacts and reports their source and provenance/i,
           /does not claim formal visual approval when the project declares no approval policy/i,
         ],
+      },
+    ],
+  },
+  {
+    skill: 'dsh-spec-browser-gif-evidence',
+    scenarios: [
+      {
+        id: 'real-ui-change-uses-one-isolated-run',
+        signature: [/user-visible browser settings flow/i, /declared real build/i, /one isolated run/i],
+        assertions: [
+          /one isolated run/i,
+          /real-versus-substituted services/i,
+          /inspected after encoding/i,
+          /No media/i,
+        ],
+      },
+      {
+        id: 'missing-capture-capability-hands-off',
+        signature: [/no browser-control capability/i, /no ffmpeg or ffprobe/i, /Finish the evidence task now/i],
+        assertions: [/missing browser and media capabilities/i, /resumable next step/i, /does not claim completion/i],
+      },
+      {
+        id: 'explicit-fixture-recording-is-disclosed',
+        signature: [/explicitly requests a fixture-only GIF/i, /real external provider is unavailable/i],
+        assertions: [/fixture request authorizes/i, /fixture-based/i, /does not prove/i],
       },
     ],
   },
@@ -975,6 +1000,32 @@ test('web UI fixtures are runnable and retain real media signatures', () => {
   )
 })
 
+test('browser GIF fixtures build and their capture entries parse', (t) => {
+  const root = mkdtempSync(join(tmpdir(), 'browser-gif-fixture-'))
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+  const scenario = readCorpus('dsh-spec-browser-gif-evidence').evals.find(
+    (entry) => entry.id === 'real-ui-change-uses-one-isolated-run',
+  )
+  assert.ok(scenario)
+  const prefix = 'evals/files/shared-gif-project/'
+  for (const file of scenario.files ?? []) {
+    assert.ok(file.startsWith(prefix), 'unexpected browser GIF fixture input: ' + file)
+    const destination = join(root, file.slice(prefix.length))
+    mkdirSync(dirname(destination), { recursive: true })
+    cpSync(join(EVAL_SOURCE_ROOT, 'dsh-spec-browser-gif-evidence', file), destination)
+  }
+
+  const build = spawnSync(process.execPath, ['build.mjs'], { cwd: root, encoding: 'utf8' })
+  assert.equal(build.status, 0, (build.stdout ?? '') + (build.stderr ?? ''))
+  for (const file of ['dist/index.html', 'dist/src/app.js']) {
+    assert.equal(existsSync(join(root, file)), true, 'fixture build did not produce ' + file)
+  }
+  for (const file of ['capture-browser.mjs', 'server.mjs']) {
+    const syntax = spawnSync(process.execPath, ['--check', file], { cwd: root, encoding: 'utf8' })
+    assert.equal(syntax.status, 0, (syntax.stdout ?? '') + (syntax.stderr ?? ''))
+  }
+})
+
 test('the browser evidence fixture does not leak an unready server', async (t) => {
   if (process.platform === 'win32') {
     t.skip('the failure path uses POSIX process liveness checks')
@@ -1024,6 +1075,175 @@ test('web UI evidence README pins the exact committed trees and corpus', () => {
     const result = spawnSync('git', ['rev-parse', object], { cwd: REPO_ROOT, encoding: 'utf8' })
     assert.equal(result.status, 0, result.stderr)
     assert.match(readme, new RegExp('^' + label + ': `' + result.stdout.trim() + '`\\.$', 'm'))
+  }
+})
+
+test('browser GIF evidence README pins the exact committed trees and corpus', () => {
+  const readme = readFileSync(join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-20-pr115/README.md'), 'utf8')
+  for (const [label, object] of [
+    ['Candidate skill tree', 'HEAD:skills/dsh-spec-browser-gif-evidence'],
+    ['Evaluation files tree', 'HEAD:tests/skill-evals/dsh-spec-browser-gif-evidence/evals/files'],
+    ['Trigger fixture tree', 'HEAD:tests/skill-evals/dsh-spec-browser-gif-evidence/trigger-fixtures'],
+    ['Trigger corpus blob', 'HEAD:tests/skill-evals/dsh-spec-browser-gif-evidence/trigger-evals.json'],
+  ] as const) {
+    const result = spawnSync('git', ['rev-parse', object], { cwd: REPO_ROOT, encoding: 'utf8' })
+    assert.equal(result.status, 0, result.stderr)
+    assert.match(readme, new RegExp('^' + label + ': `' + result.stdout.trim() + '`\\.$', 'm'))
+  }
+  const skillHash = createHash('sha256')
+    .update(readFileSync(join(REPO_ROOT, 'skills/dsh-spec-browser-gif-evidence/SKILL.md')))
+    .digest('hex')
+  assert.match(readme, new RegExp('^Skill file SHA-256: `' + skillHash + '`\\.$', 'm'))
+})
+
+test('browser GIF model evidence binds inputs, scores, artifacts and trigger decisions', () => {
+  const skill = 'dsh-spec-browser-gif-evidence'
+  const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-20-pr115')
+  const corpusRoot = join(EVAL_SOURCE_ROOT, skill)
+  const behaviorScenarios = new Map([
+    ['candidate-real', 'real-ui-change-uses-one-isolated-run'],
+    ['candidate-absent', 'missing-capture-capability-hands-off'],
+    ['candidate-fixture', 'explicit-fixture-recording-is-disclosed'],
+  ])
+  const scenarioFiles = new Map(readCorpus(skill).evals.map((scenario) => [scenario.id, scenario.files ?? []] as const))
+  for (const run of ['candidate-real', 'candidate-absent', 'candidate-fixture']) {
+    const root = join(evidenceRoot, run)
+    assert.match(readFileSync(join(root, 'status.txt'), 'utf8'), /^status: pass\nassertions: 4\/4$/m)
+    const assertions = readFileSync(join(root, 'assertions.txt'), 'utf8').trim().split('\n')
+    assert.equal(assertions.length, 4, run + ' assertion count')
+    assert.equal(
+      assertions.every((line) => line.startsWith('PASS ')),
+      true,
+      run + ' has a failed assertion',
+    )
+    assert.ok(readFileSync(join(root, 'final.md'), 'utf8').trim().length > 0)
+    const trace = readFileSync(join(root, 'trace.jsonl'), 'utf8')
+      .trim()
+      .split('\n')
+      .map(
+        (line) => JSON.parse(line) as { type: string; item?: { type?: string; command?: string; exit_code?: number } },
+      )
+    assert.equal(trace.at(-1)?.type, 'turn.completed', run + ' did not complete')
+    assert.equal(
+      trace.some(
+        (entry) =>
+          entry.type === 'item.completed' &&
+          entry.item?.type === 'command_execution' &&
+          entry.item.exit_code === 0 &&
+          commandReadsSkill(entry.item.command, skill),
+      ),
+      true,
+      run + ' did not read the candidate skill',
+    )
+    const manifests =
+      run === 'candidate-absent' ? ['input-manifest.sha256'] : ['input-manifest.sha256', 'artifacts.sha256']
+    for (const manifest of manifests) {
+      const lines = readFileSync(join(root, manifest), 'utf8').trim().split('\n')
+      if (manifest === 'input-manifest.sha256') {
+        const scenario = behaviorScenarios.get(run)
+        assert.ok(scenario)
+        assert.deepEqual(
+          lines.map((line) => line.split(/\s{2,}/)[1]),
+          scenarioFiles.get(scenario),
+          run + ' input manifest does not match the declared scenario files',
+        )
+      }
+      for (const line of lines) {
+        const [hash, relative] = line.split(/\s{2,}/)
+        assert.match(hash ?? '', /^[0-9a-f]{64}$/, run + ' malformed hash')
+        const target =
+          manifest === 'input-manifest.sha256' ? join(corpusRoot, relative ?? '') : join(root, relative ?? '')
+        assert.equal(
+          createHash('sha256').update(readFileSync(target)).digest('hex'),
+          hash,
+          run + ' changed ' + relative,
+        )
+      }
+    }
+    if (run === 'candidate-absent') assert.equal(existsSync(join(root, 'artifact')), false)
+  }
+  for (const gif of ['candidate-real/artifact/settings-save.gif', 'candidate-fixture/artifact/fixture-demo.gif']) {
+    assert.equal(readFileSync(join(evidenceRoot, gif)).subarray(0, 3).toString('ascii'), 'GIF')
+  }
+  for (const run of ['candidate-real', 'candidate-fixture']) {
+    const report = JSON.parse(readFileSync(join(evidenceRoot, run, 'artifact', 'capture-report.json'), 'utf8')) as {
+      states: Record<string, { status: string; button: string; disabled: boolean }>
+    }
+    assert.deepEqual(report.states.initial, {
+      status: 'Unsaved changes',
+      button: 'Save changes',
+      disabled: false,
+    })
+    assert.deepEqual(report.states.saving, {
+      status: 'Saving changes',
+      button: 'Saving…',
+      disabled: true,
+    })
+    assert.deepEqual(report.states.final, {
+      status: 'Changes saved',
+      button: 'Save changes',
+      disabled: false,
+    })
+  }
+
+  const triggerInputs = new Map(
+    readFileSync(join(evidenceRoot, 'trigger-input.sha256'), 'utf8')
+      .trim()
+      .split('\n')
+      .map((line) => {
+        const [hash, path] = line.split(/\s{2,}/)
+        return [path, hash] as const
+      }),
+  )
+  for (const path of [
+    `tests/skill-evals/${skill}/trigger-evals.json`,
+    `tests/skill-evals/${skill}/trigger-fixtures/AGENTS.md`,
+    `skills/${skill}/SKILL.md`,
+  ]) {
+    assert.equal(
+      triggerInputs.get(path),
+      createHash('sha256')
+        .update(readFileSync(join(REPO_ROOT, path)))
+        .digest('hex'),
+      'trigger input differs: ' + path,
+    )
+  }
+
+  const triggerCorpus = JSON.parse(readFileSync(join(corpusRoot, 'trigger-evals.json'), 'utf8')) as {
+    queries: Array<{ id: string; should_trigger: boolean }>
+  }
+  const matrix = new Map(
+    readFileSync(join(evidenceRoot, 'trigger-matrix.tsv'), 'utf8')
+      .trim()
+      .split('\n')
+      .slice(1)
+      .map((line) => {
+        const [id, shouldTrigger, selected, result] = line.split('\t')
+        assert.ok(id && shouldTrigger && selected && result, 'malformed browser GIF trigger row')
+        return [id, { shouldTrigger, selected, result }] as const
+      }),
+  )
+  assert.equal(matrix.size, triggerCorpus.queries.length)
+  for (const query of triggerCorpus.queries) {
+    const row = matrix.get(query.id)
+    assert.ok(row, 'missing browser GIF trigger row ' + query.id)
+    const final = readFileSync(join(evidenceRoot, 'trigger', query.id, 'final.md'), 'utf8')
+    const marker = final.trim().split('\n').at(-1)
+    assert.ok(
+      marker === 'SELECT: dsh-spec-browser-gif-evidence' || marker === 'SELECT: none',
+      query.id + ' is missing a stable selection marker',
+    )
+    const selected = marker === 'SELECT: dsh-spec-browser-gif-evidence'
+    const trace = readFileSync(join(evidenceRoot, 'trigger', query.id, 'trace.jsonl'), 'utf8')
+      .trim()
+      .split('\n')
+      .map((line) => JSON.parse(line) as { type: string })
+    assert.equal(trace.at(-1)?.type, 'turn.completed', query.id + ' did not complete')
+    assert.equal(row.shouldTrigger, String(query.should_trigger))
+    assert.equal(row.selected, String(selected))
+    assert.equal(row.result, query.should_trigger === selected ? 'pass' : 'fail')
+    assert.equal(row.result, 'pass')
+    assert.ok(final.trim().length > 0)
   }
 })
 

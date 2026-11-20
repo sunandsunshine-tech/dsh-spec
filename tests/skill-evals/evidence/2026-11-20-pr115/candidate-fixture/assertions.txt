@@ -1,0 +1,4 @@
+PASS The explicit fixture request authorizes the substitute recording.
+PASS The run labels the evidence as fixture-based rather than real-provider evidence.
+PASS The encoded GIF is captured from one isolated run and inspected after encoding.
+PASS The report states which real behavior the evidence does not prove.

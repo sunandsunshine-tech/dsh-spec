@@ -1,0 +1,28 @@
+{"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c 'cat /tmp/dsh-pr115-behavior-clean.9zycuS/real/.agents/skills/dsh-spec-browser-gif-evidence/SKILL.md'","exit_code":0}}
+{"type":"skill","path":".agents/skills/dsh-spec-browser-gif-evidence/SKILL.md","sha256":"ee42109fe7fab280b2063b461a5979a593572c47bbe9b2efcd97898ebac8e7c3"}
+{"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c 'git status --short --branch'","exit_code":0}}
+{"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c \"git rev-parse HEAD && git show -s --format='%H%n%T%n%cd%n%s' --date=iso-strict HEAD\"","exit_code":0}}
+{"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c \"sed -n '1,240p' package.json\"","exit_code":0}}
+{"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c \"rg --files -g 'AGENTS.md' -g 'README*' -g '*.mjs' -g '*.js' -g '*.ts' -g '.gitignore' | sed -n '1,240p'\"","exit_code":0}}
+{"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c \"sed -n '1,280p' capture-browser.mjs\"","exit_code":0}}
+{"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c \"sed -n '1,260p' build.mjs && sed -n '1,320p' server.mjs\"","exit_code":0}}
+{"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c \"sed -n '1,360p' src/app.js\"","exit_code":0}}
+{"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c \"cat .gitignore && sed -n '1,180p' AGENTS.md\"","exit_code":0}}
+{"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c 'npm run build'","exit_code":0}}
+{"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c \"node --version && ffmpeg -version | sed -n '1p' && ffprobe -version | sed -n '1p'\"","exit_code":0}}
+{"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c \"if [ -d evidence-local ]; then find evidence-local -maxdepth 1 -type f -printf '%f\\\\n' | sort; else printf 'evidence-local absent\\\\n'; fi\"","exit_code":0}}
+{"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c \"sed -n '1,260p' index.html\"","exit_code":0}}
+{"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c 'npm run evidence'","exit_code":0}}
+{"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c \"node /tmp/dsh-pr115-behavior-clean.9zycuS/real/.agents/skills/dsh-spec-browser-gif-evidence/scripts/encode-browser-gif.mjs /tmp/dsh-pr115-behavior-clean.9zycuS/real/evidence-local /tmp/dsh-pr115-behavior-clean.9zycuS/real/evidence-local/settings-save.gif --pattern '*.png' --durations 2,2,3\"","exit_code":0}}
+{"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c \"ffmpeg -hide_banner -loglevel error -i evidence-local/settings-save.gif -vf \\\"select='eq(n,0)+eq(n,20)+eq(n,40)+eq(n,69)',scale=360:-1:flags=lanczos,tile=2x2:padding=8:margin=8\\\" -frames:v 1 evidence-local/settings-save-qa-contact.png -y\"","exit_code":0}}
+{"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c 'ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,width,height,avg_frame_rate,nb_frames,duration:format=format_name,duration,size -of json evidence-local/settings-save.gif'","exit_code":0}}
+{"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c 'sha256sum evidence-local/settings-save.gif evidence-local/00-initial.png evidence-local/01-saving.png evidence-local/02-saved.png evidence-local/capture-report.json'","exit_code":0}}
+{"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c 'git status --short'","exit_code":0}}
+{"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c 'git check-ignore -v dist evidence-local evidence-local/settings-save.gif evidence-local/00-initial.png evidence-local/01-saving.png evidence-local/02-saved.png evidence-local/capture-report.json evidence-local/settings-save-qa-contact.png'","exit_code":0}}
+{"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c \"ss -ltnp | rg ':46483\\\\b' || true\"","exit_code":0}}
+{"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c \"pgrep -af 'server\\\\.mjs|gif-evidence-chrome-' || true\"","exit_code":0}}
+{"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c 'file evidence-local/00-initial.png evidence-local/01-saving.png evidence-local/02-saved.png evidence-local/settings-save.gif evidence-local/settings-save-qa-contact.png'","exit_code":0}}
+{"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c \"ffmpeg -hide_banner -loglevel error -i evidence-local/settings-save.gif -vf \\\"select='eq(n,0)+eq(n,19)+eq(n,20)+eq(n,39)+eq(n,40)+eq(n,69)',scale=360:-1:flags=lanczos,tile=3x2:padding=8:margin=8\\\" -frames:v 1 evidence-local/settings-save-qa-boundaries.png -y\"","exit_code":0}}
+{"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c 'git status --short'","exit_code":0}}
+{"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c \"stat -c '%n | %s bytes' evidence-local/settings-save.gif evidence-local/capture-report.json\"","exit_code":0}}
+{"type":"turn.completed","usage":{"input_tokens":321953,"cached_input_tokens":309248,"cache_write_input_tokens":0,"output_tokens":10480,"reasoning_output_tokens":3617}}
