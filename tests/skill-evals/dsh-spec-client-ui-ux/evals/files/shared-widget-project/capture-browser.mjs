@@ -20,13 +20,14 @@ const evidence = join(root, 'evidence-local')
 mkdirSync(evidence, { recursive: true })
 const profile = mkdtempSync(join(tmpdir(), 'shared-widget-chrome-'))
 let browser
+let socket
 const server = spawn(process.execPath, [process.env.SERVER_ENTRY ?? 'server.mjs'], {
   cwd: root,
   stdio: ['ignore', 'pipe', 'inherit'],
 })
 
 async function stopChild(child) {
-  if (child.exitCode !== null) return
+  if (!child || child.exitCode !== null) return
   const exited = new Promise((resolve) => child.once('exit', resolve))
   child.kill()
   const stopped = await Promise.race([exited.then(() => true), delay(2_000).then(() => false)])
@@ -46,79 +47,80 @@ function emergencyCleanup() {
 }
 
 process.once('exit', emergencyCleanup)
-const baseUrl = await new Promise((resolve, reject) => {
-  const timer = setTimeout(
-    () => reject(new Error('server did not report a URL')),
-    Number(process.env.SERVER_READY_TIMEOUT_MS ?? 10_000),
+try {
+  const baseUrl = await new Promise((resolve, reject) => {
+    const timer = setTimeout(
+      () => reject(new Error('server did not report a URL')),
+      Number(process.env.SERVER_READY_TIMEOUT_MS ?? 10_000),
+    )
+    server.stdout.once('data', (chunk) => {
+      clearTimeout(timer)
+      resolve(chunk.toString().trim())
+    })
+  })
+
+  const usesWindowsPath = /\.exe$/i.test(chrome)
+  const windowsProfile = usesWindowsPath
+    ? spawnSync('wslpath', ['-w', profile], { encoding: 'utf8' }).stdout.trim()
+    : profile
+  browser = spawn(
+    chrome,
+    [
+      '--headless=new',
+      '--remote-debugging-port=0',
+      `--user-data-dir=${windowsProfile}`,
+      '--no-first-run',
+      '--no-default-browser-check',
+      '--disable-gpu',
+      'about:blank',
+    ],
+    { stdio: ['ignore', 'ignore', 'pipe'] },
   )
-  server.stdout.once('data', (chunk) => {
-    clearTimeout(timer)
-    resolve(chunk.toString().trim())
+  const devtoolsUrl = await new Promise((resolve, reject) => {
+    let buffered = ''
+    const timer = setTimeout(() => reject(new Error('Chrome did not expose a DevTools endpoint')), 20_000)
+    browser.stderr.on('data', (chunk) => {
+      buffered += chunk.toString()
+      const match = /DevTools listening on (ws:\/\/[^\s]+)/.exec(buffered)
+      if (!match) return
+      clearTimeout(timer)
+      resolve(match[1])
+    })
+    browser.once('exit', (code) => reject(new Error(`Chrome exited before DevTools was ready: ${code}`)))
   })
-})
 
-const usesWindowsPath = /\.exe$/i.test(chrome)
-const windowsProfile = usesWindowsPath
-  ? spawnSync('wslpath', ['-w', profile], { encoding: 'utf8' }).stdout.trim()
-  : profile
-browser = spawn(
-  chrome,
-  [
-    '--headless=new',
-    '--remote-debugging-port=0',
-    `--user-data-dir=${windowsProfile}`,
-    '--no-first-run',
-    '--no-default-browser-check',
-    '--disable-gpu',
-    'about:blank',
-  ],
-  { stdio: ['ignore', 'ignore', 'pipe'] },
-)
-const devtoolsUrl = await new Promise((resolve, reject) => {
-  let buffered = ''
-  const timer = setTimeout(() => reject(new Error('Chrome did not expose a DevTools endpoint')), 20_000)
-  browser.stderr.on('data', (chunk) => {
-    buffered += chunk.toString()
-    const match = /DevTools listening on (ws:\/\/[^\s]+)/.exec(buffered)
-    if (!match) return
-    clearTimeout(timer)
-    resolve(match[1])
-  })
-  browser.once('exit', (code) => reject(new Error(`Chrome exited before DevTools was ready: ${code}`)))
-})
-
-const endpoint = new URL(devtoolsUrl)
-const port = endpoint.port
-let pageTarget
-for (let attempt = 0; attempt < 100; attempt += 1) {
-  const targets = await fetch(`http://127.0.0.1:${port}/json/list`).then((response) => response.json())
-  const pageTargets = targets.filter((target) => target.type === 'page')
-  if (pageTargets.length === 1) pageTarget = pageTargets[0]
-  if (pageTarget) break
-  await delay(50)
-}
-if (!pageTarget) throw new Error('Chrome did not create a page target')
-
-const socket = new WebSocket(pageTarget.webSocketDebuggerUrl)
-await new Promise((resolve, reject) => {
-  socket.addEventListener('open', resolve, { once: true })
-  socket.addEventListener('error', reject, { once: true })
-})
-let nextId = 0
-const pending = new Map()
-const listeners = new Map()
-socket.addEventListener('message', (event) => {
-  const message = JSON.parse(event.data)
-  if (message.id !== undefined) {
-    const request = pending.get(message.id)
-    if (!request) return
-    pending.delete(message.id)
-    if (message.error) request.reject(new Error(message.error.message))
-    else request.resolve(message.result)
-    return
+  const endpoint = new URL(devtoolsUrl)
+  const port = endpoint.port
+  let pageTarget
+  for (let attempt = 0; attempt < 100; attempt += 1) {
+    const targets = await fetch(`http://127.0.0.1:${port}/json/list`).then((response) => response.json())
+    const pageTargets = targets.filter((target) => target.type === 'page')
+    if (pageTargets.length === 1) pageTarget = pageTargets[0]
+    if (pageTarget) break
+    await delay(50)
   }
-  for (const listener of listeners.get(message.method) ?? []) listener(message.params)
-})
+  if (!pageTarget) throw new Error('Chrome did not create a page target')
+
+  socket = new WebSocket(pageTarget.webSocketDebuggerUrl)
+  await new Promise((resolve, reject) => {
+    socket.addEventListener('open', resolve, { once: true })
+    socket.addEventListener('error', reject, { once: true })
+  })
+  let nextId = 0
+  const pending = new Map()
+  const listeners = new Map()
+  socket.addEventListener('message', (event) => {
+    const message = JSON.parse(event.data)
+    if (message.id !== undefined) {
+      const request = pending.get(message.id)
+      if (!request) return
+      pending.delete(message.id)
+      if (message.error) request.reject(new Error(message.error.message))
+      else request.resolve(message.result)
+      return
+    }
+    for (const listener of listeners.get(message.method) ?? []) listener(message.params)
+  })
 
 function command(method, params = {}) {
   const id = ++nextId
@@ -204,9 +206,8 @@ async function pressTab(times) {
   }
 }
 
-const screenshots = {}
-const states = {}
-try {
+  const screenshots = {}
+  const states = {}
   await command('Page.enable')
   await command('Runtime.enable')
 
@@ -274,7 +275,7 @@ try {
   writeFileSync(join(evidence, 'review-state.json'), JSON.stringify(report, null, 2) + '\n')
   console.log(JSON.stringify(report, null, 2))
 } finally {
-  socket.close()
+  socket?.close()
   await stopChild(browser)
   await stopChild(server)
   rmSync(profile, { recursive: true, force: true })
