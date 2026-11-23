@@ -4,7 +4,7 @@ English | [中文](README.zh.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) ![Node](https://img.shields.io/badge/node-24.11%2B%20%7C%2026%2B-339933) [![Release](https://img.shields.io/github/v/release/sunandsunshine-tech/dsh-spec)](https://github.com/sunandsunshine-tech/dsh-spec/releases/latest)
 
-`dsh-spec` is a set of Agent Skills that carry the development pattern the [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) team works by: decisions written down, prose kept honest, and skills built by the same procedure they document. A project installs the skills it needs into its own tree.
+`dsh-spec` is a set of Agent Skills that carry the development pattern the [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (`dsh`) team works by: decisions written down, prose kept honest, and skills built by the same procedure they document. A project installs the skills it needs into its own tree.
 
 Skills are either ported from the DeepSeek Harness project or forged for this package. [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) carries the provenance, the adapted files and the bundled npm packages.
 
@@ -22,17 +22,28 @@ The GitHub CLI ships an agent skill of its own; browse [its repository](https://
 
 Install into the project, not into your home directory, and commit the result. A project-scoped copy puts every collaborator, every agent and CI run on the revision you installed at; a user-scoped copy is per machine and changes only when `gh skill update` runs. Commit `.agents/skills/` after the first install.
 
-Install each skill on its own. Name a version after `@` — a tag or a commit SHA — to pin it; with no version named the CLI takes the latest tagged release, or the default branch when the repository has no tagged release.
+Install each skill with its own `gh skill install` invocation. Pass `--pin <tag-or-commit>` to pin it; with no pin the CLI takes the latest tagged release, or the default branch when the repository has no tagged release. Replace the placeholder in the command below with the tag or commit the project will share.
+
+### Start with the universal group
+
+The universal collaboration group covers project instructions, decision records, durable prose and document translation and pairing:
 
 ```sh
-gh skill install sunandsunshine-tech/dsh-spec dsh-spec-agent-notes --dir .agents/skills
+PIN="<tag-or-commit>"
+for skill in \
+  dsh-spec-agent-experience \
+  dsh-spec-agents-md \
+  dsh-spec-agent-notes \
+  dsh-spec-prose-standard \
+  dsh-spec-translate-docs
+do
+  gh skill install sunandsunshine-tech/dsh-spec "$skill" --pin "$PIN" --dir .agents/skills
+done
 ```
 
-Install every skill in the repository with `--all`:
+Add skills from the other groups when their work enters the project. The [skill-selection guide](docs/choosing-skills.md) explains what each skill adds, why its recommended companions help and which combinations fit common work.
 
-```sh
-gh skill install sunandsunshine-tech/dsh-spec --all --dir .agents/skills
-```
+`--all` is available, but it is not the default adoption path. Unrelated skills add selection choices and update obligations without adding capability the project uses.
 
 `gh skill update` refreshes an unpinned install; a pinned skill is skipped until it is unpinned.
 
@@ -40,46 +51,21 @@ gh skill install sunandsunshine-tech/dsh-spec --all --dir .agents/skills
 
 Give your agent these instructions:
 
-> Install the `dsh-spec` skills from `sunandsunshine-tech/dsh-spec` with the GitHub CLI into `.agents/skills/`. Check the prerequisites above first, and ask me if any of them is missing.
+> Install `dsh-spec-agent-experience`, `dsh-spec-agents-md`, `dsh-spec-agent-notes`, `dsh-spec-prose-standard` and `dsh-spec-translate-docs` from `sunandsunshine-tech/dsh-spec` with the GitHub CLI into `.agents/skills/`. Run one `gh skill install` command per skill and pass the same tag or commit to `--pin` in every command. If I have not supplied that tag or commit, ask me instead of choosing one. Check the prerequisites above first, and ask me if any of them is missing.
 
-## The skills
+## Choose skills
 
-Each skill is self-contained and installed on its own; a skill names another only as an availability-qualified example.
+Each skill is self-contained and installed on its own. Recommended companions are optional additions, not dependencies.
 
-### Recording decisions
-
-| Skill | What it is for | Source |
+| Adopter need | Skills | Provenance |
 |---|---|---|
-| `dsh-spec-agent-notes` | Decision records: when a change needs one, what it records, and how a note moves through `proposed/`, `implemented/` and `rejected/` | dsh |
+| **Universal collaboration — start here** | `dsh-spec-agent-experience`, `dsh-spec-agents-md`, `dsh-spec-agent-notes`, `dsh-spec-prose-standard`, `dsh-spec-translate-docs` | DeepSeek Harness; `dsh-spec-agents-md` is forged here |
+| **Software change and quality** | `dsh-spec-find-simplifications`, `dsh-spec-code-review`, `dsh-spec-pre-push-checks`, `dsh-spec-error-handling`, `dsh-spec-test-reliability` | DeepSeek Harness |
+| **Change descriptions and landing** | `dsh-spec-pr-description`, `dsh-spec-merging-stacked-prs` | DeepSeek Harness |
+| **Browser UI evidence** | `dsh-spec-client-ui-ux`, `dsh-spec-browser-gif-evidence` | DeepSeek Harness |
+| **Agent skill authoring** | `dsh-spec-skill-forge` | forged here |
 
-### Shaping instructions and text
-
-| Skill | What it is for | Source |
-|---|---|---|
-| `dsh-spec-agent-experience` | Writing prompts — system prompts, tool definitions, skill instructions and multi-step workflows — so their information is discoverable and context is used efficiently | dsh |
-| `dsh-spec-agents-md` | Writing `AGENTS.md`: which content belongs there, which becomes a pointer to its owning document, and how scope and updates are settled | this package |
-| `dsh-spec-prose-standard` | Durable prose: where text is required, keeping complete propositions while cutting transcripts, and auditing leakage | dsh |
-| `dsh-spec-translate-docs` | Keeping a paired document's two sides in step: minimal updates, whole-document translation, and the pairing record and check | dsh |
-
-### Reviewing and delivering a change
-
-| Skill | What it is for | Source |
-|---|---|---|
-| `dsh-spec-code-review` | Reviewing a proposed change against the project's declared standards, plus the checks code alone cannot show | dsh |
-| `dsh-spec-browser-gif-evidence` | Recording and verifying browser-interaction GIF evidence from one isolated real-build run, with explicit substitute policy and optional attachment | dsh |
-| `dsh-spec-error-handling` | Error handling: failures, recovery, retries, background tasks and user-visible error reports | dsh |
-| `dsh-spec-find-simplifications` | Finding evidence-backed simplifications, and writing or consolidating the proposals for them | dsh |
-| `dsh-spec-test-reliability` | Designing stable tests and fixing slow, flaky, or resource-bound fixtures | dsh |
-| `dsh-spec-merging-stacked-prs` | Landing dependent GitHub pull requests as one stacked-PR chain | dsh |
-| `dsh-spec-pr-description` | Writing a change-request description: why it exists, what it changes, what proves it, and the AI Usage declaration | dsh |
-| `dsh-spec-pre-push-checks` | Selecting the smallest tests and checks that cover an outgoing diff before pushing or claiming checks pass | dsh |
-| `dsh-spec-client-ui-ux` | Reviewing project-local browser-rendered UI changes against affected consumers, responsive and input states, rendered evidence, and disclosed gaps | dsh |
-
-### Building a skill set
-
-| Skill | What it is for | Source |
-|---|---|---|
-| `dsh-spec-skill-forge` | Forging a skill from an idea, a source, or an existing skill: pin the problem and the shape, anchor the domain, build a prototype, and keep the decision record | this package |
+Read [Choosing dsh-spec skills](docs/choosing-skills.md) before adding a specialized group. It owns the group detail, companion explanations, common combinations and capability requirements.
 
 ## How the skills fit together
 
@@ -99,6 +85,7 @@ A change starts as a decision record: the note states what was decided, what los
 |---|---|
 | `skills/` | The deliverable: the skills, each with its own entry |
 | `package/` | Skill script sources, bundled into the work directory before landing |
+| `docs/` | The maintained bilingual guides for adopter installation and skill selection |
 | `scripts/` | Repository tooling that is not shipped: DCO, corpus gate, vendored notices, the bundle build/verify and refresh |
 | `tests/` | The functional suite for the repository tooling and the shipped script contracts |
 | `.agents/skills/` | Installed copies an agent loads: written by `gh skill install` or `pnpm run skill:refresh`, so an edit there is lost |
@@ -113,6 +100,7 @@ The commands this repository runs to format, test and check a change are in [AGE
 ## Read next
 
 - [AGENTS.md](AGENTS.md) — the rules that hold in every session, and the commands this repository runs.
+- [Choosing dsh-spec skills](docs/choosing-skills.md) — group roles, recommended companions, common combinations and capability requirements.
 - [`skills/dsh-spec-skill-forge/SKILL.md`](skills/dsh-spec-skill-forge/SKILL.md) — the skill-authoring entry.
 - [The `dsh-spec-agent-notes` skill](skills/dsh-spec-agent-notes/SKILL.md) — the decision-record contract and lifecycle.
 

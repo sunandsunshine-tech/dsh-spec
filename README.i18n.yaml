@@ -3,32 +3,23 @@
 # After editing either side, bring the other along and re-record with:
 #   node <skill-dir>/scripts/translate-pair.mjs write README.md --target <lang>
 /dsh-spec:
-  en: 552f55b60260a79e
-  zh: 11da705d4fae673b
+  en: 9af12479b6814399
+  zh: 124a494b9b0e5d6b
 /dsh-spec/prerequisites:
   en: bc2af3ecf0b27867
   zh: f7eb94b00774b2b0
 /dsh-spec/install:
-  en: 1d46a91a57606400
-  zh: 152b95374926cd16
+  en: a32407a683b38dab
+  zh: da755f1b2f820fbc
+/dsh-spec/install/start-with-the-universal-group:
+  en: 47e214c0c4df6c56
+  zh: 19c3ab80f0ade43f
 /dsh-spec/install/install-with-an-agent:
-  en: a1c408ab71d6c4c3
-  zh: 427c555da5d08e4b
-/dsh-spec/the-skills:
-  en: 0c271388c599f354
-  zh: 15767d22804531e3
-/dsh-spec/the-skills/recording-decisions:
-  en: 97c4b9c42d2b3785
-  zh: 683d49fb05436744
-/dsh-spec/the-skills/shaping-instructions-and-text:
-  en: 9ebbc4a1c21ffd6e
-  zh: d64428643e877e51
-/dsh-spec/the-skills/reviewing-and-delivering-a-change:
-  en: 098864a7dd41d846
-  zh: 94122a5b41ab0525
-/dsh-spec/the-skills/building-a-skill-set:
-  en: 8f972ea15ca920f3
-  zh: 8452d12a8f3d2926
+  en: 83fc96ce8330911d
+  zh: 0c80f7212e822891
+/dsh-spec/choose-skills:
+  en: 66df5505d2d6e647
+  zh: a9cc0f0ddb026dd3
 /dsh-spec/how-the-skills-fit-together:
   en: 19ecbb32abe551d9
   zh: a82abcde378eefc9
@@ -36,11 +27,11 @@
   en: fb23f1e7852970a8
   zh: 629ad7936864454b
 /dsh-spec/working-on-this-repository:
-  en: 41804db4ccc9a330
-  zh: b5e4c947ad1613a5
+  en: 05a4aa697cf7f495
+  zh: 8f64d9f69fe89b7e
 /dsh-spec/read-next:
-  en: d390f1879140e6c2
-  zh: 511cfe33ef5d8550
+  en: d99254a5efdbeb42
+  zh: aadeb0c4d8c7b7f0
 /dsh-spec/license:
   en: e14f98700a78e1f1
   zh: 82aa42878bf0dc50
