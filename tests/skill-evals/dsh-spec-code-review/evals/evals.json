@@ -20,6 +20,10 @@
         "evals/files/review-integration/tests/button-consumers.test.mjs",
         "evals/files/review-integration/evidence/settings-after.png"
       ],
+      "install": [
+        "dsh-spec-client-ui-ux",
+        "dsh-spec-error-handling"
+      ],
       "assertions": [
         "The review requires the existing `kind` identity and structured `detail` to survive the worker boundary.",
         "The review rejects routing on the error message.",
