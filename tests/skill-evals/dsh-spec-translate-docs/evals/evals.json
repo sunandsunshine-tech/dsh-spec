@@ -161,6 +161,25 @@
         "The untouched source remains unchanged.",
         "The report does not describe the policy target set as a corpus completeness requirement."
       ]
+    },
+    {
+      "id": "source-rename-keeps-pair",
+      "prompt": "In evals/files/source-rename, rename docs/old-guide.md to docs/new-guide.md. Keep the Chinese counterpart, switchers, aggregate record and inbound links coherent, then run the pair check. Do not retranslate unchanged content.",
+      "expected_output": "The source, Chinese counterpart and aggregate record move to the new stem; switchers and inbound links name the new paths; the pair check passes.",
+      "files": [
+        "evals/files/source-rename/AGENTS.md",
+        "evals/files/source-rename/docs/index.md",
+        "evals/files/source-rename/docs/old-guide.md",
+        "evals/files/source-rename/docs/old-guide.zh.md",
+        "evals/files/source-rename/docs/old-guide.i18n.yaml",
+        "evals/files/source-rename/.agents/dsh-spec-translate-docs/terminology.md"
+      ],
+      "assertions": [
+        "The source and Chinese counterpart use the new stem.",
+        "Both switchers name the new paths.",
+        "The aggregate record follows the renamed source.",
+        "Inbound links and the pair check use the new path successfully."
+      ]
     }
   ]
 }

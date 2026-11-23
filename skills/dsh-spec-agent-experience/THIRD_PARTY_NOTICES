@@ -2,9 +2,12 @@
 
 The text of this skill is adapted from the DeepSeek Harness skill `agent-experience`.
 
-- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`).
+- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.3-alpha.2` (`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`).
 - Historical adapted revision: `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`).
-- Upstream path: `packages/preset/agent-preset/skills/agent-experience/SKILL.md`.
+- Historical adapted path: `packages/preset/agent-preset/skills/agent-experience/SKILL.md`.
+- Upstream paths:
+  - `.agents/skills/agent-experience/SKILL.md` — the alpha.2 forwarding entry.
+  - `packages/preset/agent-preset/skills/dsh-doc/references/tool-design.md` — the eleven carried prompt and tool-design rules.
 - Relation: adapted for prompt writing. The description and four of the eleven rules are rewritten and the title is added; the other seven rules are carried as written apart from one normalized apostrophe.
 
 This skill is distributed under the MIT licence. The upstream and repository notices follow so that an installed copy carries them. This file is not part of the skill's instructions.

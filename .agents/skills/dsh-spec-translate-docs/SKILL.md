@@ -48,6 +48,7 @@ A pair is a source `foo.md`, one counterpart per target `foo.zh.md` or `foo.<lan
 - **Deleted or renamed document**: follow § Finish the pair; a named `write --target` never drops a target, and an entry without a counterpart is an incomplete pair.
 - **Generated region**: the generator updates both sides; never edit a region by hand.
 - **Frozen or excluded document**: the standing instructions say it is not maintained; do not create, update or repair its pairs.
+- **Locale-selected detail page**: when the project selects the page by locale metadata and publishes no in-document switcher or record, leave it outside the pair contract; the project's link, prose and review checks keep both localized versions in step.
 
 Every successful update path continues with § Finish the pair.
 
@@ -98,7 +99,7 @@ A generated source (`--generated`) omits only its own switcher; the counterpart 
 
 1. A new pair or whole-document translation carries the source and counterpart switcher lines; a generated source omits only its own switcher. Regenerate generated regions on both sides; they are not translated.
 2. Edit a target, then run `write --target`; never write before editing. When several targets change, edit and write each target sequentially, then run `write --all` once after all targets are updated so the aggregate record is refreshed in one render. Never hand-edit the aggregate record; the script writes it. The record diff is the reviewable statement that the sides match.
-3. For a deleted or renamed document, remove the counterpart and its source-switcher link, then run `write --all` for the source; a recorded target with no counterpart is dropped. When the last target is removed, `write --all` removes the empty aggregate record. A named `write --target` never retires a target.
+3. When a source and its pairs are deleted, delete them together: the source, every counterpart, the aggregate record and inbound links. When a source is renamed, move the source, its counterparts and record to the new stem, repair their switchers and inbound links, then run `write --all` for the renamed source. When only a target is retired, leave the source in place, remove that counterpart and its switcher entry, and run `write --all` for the source; when the last target is removed, that command removes the empty aggregate record. A named `write --target` never retires a target.
 4. Do not widen the work beyond the documents selected by the project instructions, the user or the responsible workflow.
 5. Before handing over, the touched pairs are green under `check`, and a range-wide run checks every existing pair the change touched (when available, use the `dsh-spec-pre-push-checks` skill). Report the exact `write` and `check` commands and their observed results.
 6. Keep the handover reviewable: say which pairs are new, which were minimally updated, and list pending terms and terminology decisions prominently.

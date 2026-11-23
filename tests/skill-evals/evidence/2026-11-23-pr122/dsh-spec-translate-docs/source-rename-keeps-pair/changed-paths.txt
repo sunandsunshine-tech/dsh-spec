@@ -1,0 +1,4 @@
+evals/files/source-rename/docs/index.md
+evals/files/source-rename/docs/new-guide.i18n.yaml
+evals/files/source-rename/docs/new-guide.md
+evals/files/source-rename/docs/new-guide.zh.md

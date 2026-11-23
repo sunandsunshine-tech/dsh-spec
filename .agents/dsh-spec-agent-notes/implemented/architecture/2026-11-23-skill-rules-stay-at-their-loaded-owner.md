@@ -25,7 +25,7 @@ One resource owns each fact. Other resources may state the local consequence nee
 
 The 15 skills remain separate. A skill may name another only as an availability-qualified optional example. Shared tools, separate products, different triggers or different runtime prerequisites do not create a reason to merge skills.
 
-Model evidence follows the changed behavior described in [Model evidence binds the behavior it exercises](2026-11-23-model-evidence-binds-changed-behavior.md). A structure-only change uses the affected behavior scenarios rather than every historical scenario.
+Model evidence follows the changed behavior described in [Model evidence binds the behavior it exercises](../testing/2026-11-23-model-evidence-binds-changed-behavior.md). A structure-only change uses the affected behavior scenarios rather than every historical scenario.
 
 ## Alternatives considered
 

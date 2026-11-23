@@ -1,0 +1,2 @@
+9941b1e8ff47d964bab667442fb228358b3f330d340cf73962a51eaee1fd0f1d  skills/dsh-spec-merging-stacked-prs/SKILL.md
+f84722324822857dec797d74349d69cc5df09b2b77b9847c6a6e279369be0587  skills/dsh-spec-merging-stacked-prs/THIRD_PARTY_NOTICES

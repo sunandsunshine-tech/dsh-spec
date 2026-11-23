@@ -31,7 +31,7 @@ Status: implemented
 
 ### 来源与修订
 
-上游来源修订：`dsh-v0.2.2-alpha.2`（`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`），文件 `.agents/skills/dsh-merging-stacked-prs/SKILL.md`；当前抽取基线是 `dsh-v0.2.2-rc.5`（`9c2670d3bce5275e0d1610272958121af87787bb`）。该文件是技能唯一的内容来源。
+上游来源：固定 `submodules/dsh` 基线的 `dsh-v0.2.3-alpha.2`（`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`），文件 `.agents/skills/dsh-merging-stacked-prs/SKILL.md`。该文件是技能唯一的内容来源。
 
 ### 约束处置
 
@@ -42,7 +42,7 @@ Status: implemented
 | S1 | frontmatter `name` | 技能按落地动作命名。 | 改编 | SK frontmatter | 请求命名 `dsh-spec-merging-stacked-prs` |
 | S2 | frontmatter `description` | 在落地一串相互依赖的 PR（A ← B ← C）、合并一个 base 是另一个开放 PR 分支的 PR，或请求提到「stacked PRs」「PR stack」「dependent PRs」或按序合并相关 PR 时使用；每条同仓库链在落地前都必须使用 GitHub 官方的 stacked-PR 特性，好让 GitHub 拥有栈级规则、CI、顺序、重定向与合并状态；该链落地到 master。 | 改编 | SK frontmatter | 保留触发词汇与要求含义；来源的 `master` 变成仓库的默认分支（R4）；增加中文触发语言 |
 | S3 | intro | 通过 GitHub 原生 stack 对象与 `gh stack merge` 落地相互依赖的 PR；不要靠合并并重定向单个 PR 来复现栈语义。 | 保留 | SK intro | 来源机制 |
-| S4 | intro | 根 `AGENTS.md` 拥有允许的 merge-forward 与 rebase 历史。 | 重绑 | SK intro, § Refresh | 该指涉是上游仓库文档；目的是历史策略属于被落地的仓库，因此它变成落地仓库自己的指令（其 `AGENTS.md` 或等价物）（R10） |
+| S4 | intro | 根 `AGENTS.md` 拥有允许的 merge-forward 与 rebase 历史。 | 重绑 | SK intro, § Refresh | 历史策略属于落地仓库；alpha.2 把带检查 rerere 解决结果的 rebase 设为默认，并只为 PR 作者的明确请求保留 merge-forward（R10） |
 | S5 | intro | 栈评审指南拥有评审修复的传播。 | 消解 | SK intro, § Refresh | 该指南不是目标的一部分；接管的检查是重新审计规则：任何 head 改写之后，重新获取 head 并重新审计讨论串、批准、可合并性与检查 |
 | S6 | § Require native stack support | 在改动 GitHub 状态之前运行 `gh stack --version`；扩展或服务器端特性不可用时硬停车；不要回退到手工合并与重定向。 | 保留 | SK § Require native stack support | 已核验：`gh stack version 0.1.1` 存在 |
 | S7 | § Require native stack support | GitHub 栈要求每个 head 分支都在同一仓库；跨 fork 的链硬停车。 | 保留 | SK § Require native stack support | 同一限制成立 |
@@ -58,11 +58,11 @@ Status: implemented
 | S17 | § Link missing stack members | 重新查询并要求一个栈编号、预期 trunk、完整 PR 集合，以及预期的位置与 base 链。 | 保留 | SK § Link missing stack members | 重新查询就是同一条内联 GraphQL 查询 |
 | S18 | § Link missing stack members | 绝不自动解散、重排或重建既有栈；链接是增量的，而已合并或已排队的条目不能被解除栈。 | 改编 | SK § Link missing stack members | 增量的规则被保留；`gh stack unstack --help` 确认已排队／自动合并的条目保持入栈，而已合并条目的主张未验证，因此目标文本陈述停止规则而不是该主张 |
 | S19 | § Refresh only when needed | 不要仅因为存在刷新机制就改写分支；当实机合并状态或仓库规则需要更新后的 trunk 时才刷新。 | 保留 | SK § Refresh only when needed | 未变 |
-| S20 | § Refresh only when needed | 原生级联 rebase：当本地尚未跟踪时用 `gh stack checkout <pr-or-stack>` 检出远程栈，然后运行 `gh stack sync`；它可能在本地校验之前 rebase 并 lease 保护地 force-push 每一个活跃层；检查被改写的范围，为每个受影响层运行检查，并且在它们通过之前不要合并或声称就绪。 | 保留 | SK § Refresh only when needed | `gh stack sync --help` 确认 fetch、级联 rebase 与原子 force-with-lease push |
+| S20 | 上游 `SKILL.md` § Refresh only when needed 与 `.agents/notes/implemented/process/2026-11-19-prefer-rebase-with-rerere.md` | 原生级联 rebase：当本地尚未跟踪时用 `gh stack checkout <pr-or-stack>` 检出远程栈，启用 `rerere.enabled`，保持 `rerere.autoUpdate` 未设置或为 false，然后运行 `gh stack sync`；它可能在本地校验之前 rebase 并 lease 保护地 force-push 每一个活跃层；检查每个重放的解决结果与被改写的范围，为每个受影响层运行检查，并且在它们通过之前不要合并或声称就绪。 | 改编 | SK § Refresh only when needed | alpha.2 把带检查 rerere 解决结果的 rebase 设为默认，并保持自动暂存关闭；技能给出粗粒度默认，上游记录拥有精确 rerere 设置，`gh stack sync --help` 确认 fetch、级联 rebase 与原子 force-with-lease push |
 | S21 | § Refresh only when needed | 同步冲突时使用 `gh stack rebase`，解决并校验，然后用 `gh stack push` 发布。 | 保留 | SK § Refresh only when needed | 两条命令都确认 |
 | S22 | § Refresh only when needed | 当本地与远程的栈组成分歧时，取消并询问，而不是删除或重建远程栈。 | 保留 | SK § Refresh only when needed | 非交互式分歧会中止而不推送 |
-| S23 | § Refresh only when needed | 增量 merge-forward：把 trunk 合入受影响的底层分支，自底向上把每个更新后的父层传播进它的子层，正常推送；当 base 前进时保留进行中的检查点。 | 保留 | SK § Refresh only when needed | 未变 |
-| S24 | § Refresh only when needed | 任何历史改写都在评审后允许，但它会使提交 OID 假设失效；推送后重新获取确切 head，并重新审计讨论串、批准、可合并性与检查；绝不使用原始 `--force`，也绝不覆盖一个并发前进的 head。 | 重绑 | SK § Refresh only when needed | 「允许」是目标仓库的策略：在落地仓库的指令允许处，改写可在评审后进行；OID、重新审计与 force 规则保留（R10） |
+| S23 | § Refresh only when needed | 增量 merge-forward：把 trunk 合入受影响的底层分支，自底向上把每个更新后的父层传播进它的子层，正常推送；当 base 前进时保留进行中的检查点。 | 改编 | SK § Refresh only when needed | alpha.2 只在策略允许且 PR 作者明确请求时使用这条历史 |
+| S24 | § Refresh only when needed | 任何历史改写都在评审后允许，但它会使提交 OID 假设失效；推送后重新获取确切 head，并重新审计讨论串、批准、可合并性与检查；绝不使用原始 `--force`，也绝不覆盖一个并发前进的 head。 | 重绑 | SK § Refresh only when needed | 在落地仓库允许处，rebase 是默认；merge-forward 需要 PR 作者的明确请求；OID、重新审计与 force 规则保留（R10） |
 | S25 | § Preflight the merge range | 合并之前立即重新查询官方栈；要求每个选中的 PR 开放、非草稿、顺序正确，并符合仓库的评审与检查要求。 | 改编 | SK § Preflight the merge range | 符合性从同一份元数据中的 `mergeStateStatus` 与 `reviewDecision` 读取（R2） |
 | S26 | § Preflight the merge range | 独立对待每个 PR 的状态。 | 保留 | SK § Preflight the merge range | 未变 |
 | S27 | § Preflight the merge range | 「落地整个栈」选择整个栈；部分落地需要一个显式的边界 PR，并包含从底层到它的每一层。 | 保留 | SK § Preflight the merge range | 未变 |

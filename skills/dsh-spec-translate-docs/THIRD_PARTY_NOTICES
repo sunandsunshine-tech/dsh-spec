@@ -3,8 +3,9 @@
 The text and bundled mechanism of this skill are adapted from the DeepSeek Harness
 bilingual-document workflow.
 
-- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.2-rc.5`
-  (`9c2670d3bce5275e0d1610272958121af87787bb`).
+- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.3-alpha.2`
+  (`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`).
+- Historical adapted revision: `dsh-v0.2.1-rc.3` (`1f81c047fc48fa190a683e469daa699857e9afe8`).
 - Upstream paths:
   - `.agents/skills/dsh-translate-docs/SKILL.md` — the workflow.
   - `docs/i18n/README.md` — the pairing contract.

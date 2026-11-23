@@ -30,7 +30,7 @@ Design rulings for this skill:
 
 ### Mechanism source and provenance
 
-Upstream `deepseek-ai/deepseek-harness`, source revision read `1f81c047fc48fa190a683e469daa699857e9afe8` (`dsh-v0.2.1-rc.3`), from `submodules/dsh`; the repository's current pinned baseline is `9c2670d3bce5275e0d1610272958121af87787bb` (`dsh-v0.2.2-rc.5`):
+Upstream `deepseek-ai/deepseek-harness`, source revision read `1f81c047fc48fa190a683e469daa699857e9afe8` (`dsh-v0.2.1-rc.3`), from `submodules/dsh`; the repository's current pinned baseline is `4b399c39a6d1479cd84ca591b4d7c88e24d38a96` (`dsh-v0.2.3-alpha.2`):
 
 | Upstream path | Blob | Lines | Relation |
 |---|---|---|---|
@@ -55,6 +55,8 @@ Upstream `deepseek-ai/deepseek-harness`, source revision read `1f81c047fc48fa190
 | `scripts/translation-pairing.manifest.json` | `f9bb1549a2395e139e66d2f7e51f1c5df482c97e` | 13 | dissolved: scope and exclusions are passed as flags from the adopter's declaration |
 
 The repository's old `scripts/dsh-spec-manager/` translation engine is **not** a source. The implementation reads upstream only, and no skill text, script or test names it.
+
+Alpha.2 adds a document-class exclusion in `docs/i18n/README.md`: locale-selected bundle detail pages use their locales' files without an in-document switcher or consistency record. The target adapts that project mechanism into a general rule: when an adopter selects a detail page by locale metadata and publishes no pair artifacts, it remains outside the pairing contract while the project's link, prose and review checks keep both localizations in step. The localization script's project-specific exclusion list is dissolved into the adopter's declaration.
 
 Licensing: upstream and this repository are MIT. The skill states the relation and origin in its `THIRD_PARTY_NOTICES`, written outside the loaded instructions as the package's convention requires. The bundle's parser packages are pinned to the versions the upstream lock names (`mdast-util-from-markdown` 2.0.3, `mdast-util-gfm` 3.1.0, `micromark-extension-gfm` 3.0.0 and their runtime closure). The resolved bundle's parser closure is registered in the shared root `THIRD_PARTY_NOTICES.md`; the skill-root `THIRD_PARTY_NOTICES` records the exact bundled versions and lists the adapted upstream files and the npm packages the bundle includes.
 
@@ -301,6 +303,7 @@ This is the model-led selection reading: the responsible workflow resolves envir
 - **Migration is a one-time aggregate re-record.** The selected live corpus is re-recorded once; there is no v1-record compatibility layer and no per-target record reader. Archived, frozen and vendored trees are not selected.
 - **Creation intent is resolved per source.** The responsible model or workflow combines the request, project policy, complete peer evidence and the primary agent's user language into an explicit target set. The script never reads project instructions or performs environmental inference; the agent passes --select/--skip, targets, terminology and generated globs. A CI run that forgets the declaration's flags checks fewer pairs, not a wrong corpus.
 - **Hidden and vendored trees are adopter layout.** The walk enters hidden directories and prunes only the default trees; a broad declaration must use --skip for frozen or vendored trees.
+- **Locale-selected detail pages are outside the pair contract.** When the project maps a document by locale metadata and publishes no in-document switcher or record, the project's link, prose and review checks keep the localized pages in step rather than inventing a pair artifact for them.
 - **Translation quality is unverified by the mechanism.** The check proves pair consistency, not that the prose reads well; translation quality is not measured.
 - **Capability absence is explicit rather than silently lower quality.** [Delegation is a capability choice, not a skill dependency](2026-11-17-delegation-is-a-capability-choice-not-a-skill-dependency.md) owns the current boundary.
 - **The repository's previous pairing mechanism is gone.** The legacy manager engine and the old installed copy are gone (R71).

@@ -30,15 +30,16 @@ The skill ships no script and has no runtime dependency. Its decisions depend on
 
 ## Source and revision
 
-Upstream source baseline read on 2026-11-20:
+Upstream source baseline read on 2026-11-23:
 
 - Repository: `https://github.com/deepseek-ai/deepseek-harness`
-- Baseline: `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`)
+- Baseline: `dsh-v0.2.3-alpha.2` (`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`)
 - `.agents/skills/dsh-ci-test-reliability/SKILL.md`
 - `.agents/skills/dsh-ci-test-reliability/references/ci-flake-diagnosis.md`
 
 ## Settings
 
+- Publish authorization: the maintainer authorized landing this skill in the package and opening its subissue and pull request.
 - Delivery language: English.
 - Trigger language: Chinese terms appended to the description.
 - Record language: English with a Chinese companion and a pairing record.
@@ -137,6 +138,6 @@ Read on 2026-11-20:
 
 - The package gains a general skill for test design, review and flaky diagnosis without a framework or CI-provider dependency.
 - The main entry carries the operating rules; the diagnosis reference loads only for an existing probabilistic failure.
-- Four runnable development scenarios cover the central behaviours. PR116 model results remain as answer-contaminated historical evidence; current isolated runs live under the PR121 evidence tree.
+- Four runnable development scenarios cover the central behaviours. PR116 retains historical model provenance; current targeted model reruns live under `tests/skill-evals/evidence/2026-11-23-pr121/`.
 - The source licence and relation travel with installed copies.
 - Rollback is a revert of the implementing commit; the extraction submodule remains untouched.

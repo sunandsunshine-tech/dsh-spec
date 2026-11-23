@@ -30,7 +30,7 @@ Status: implemented
 
 ### 机制来源与出处
 
-上游 `deepseek-ai/deepseek-harness`，读取的来源修订是 `1f81c047fc48fa190a683e469daa699857e9afe8`（`dsh-v0.2.1-rc.3`），来自 `submodules/dsh`；仓库当前 pin 的基线是 `9c2670d3bce5275e0d1610272958121af87787bb`（`dsh-v0.2.2-rc.5`）：
+上游 `deepseek-ai/deepseek-harness`，读取的来源修订是 `1f81c047fc48fa190a683e469daa699857e9afe8`（`dsh-v0.2.1-rc.3`），来自 `submodules/dsh`；仓库当前 pin 的基线是 `4b399c39a6d1479cd84ca591b4d7c88e24d38a96`（`dsh-v0.2.3-alpha.2`）：
 
 | 上游路径 | Blob | 行数 | 关系 |
 |---|---|---|---|
@@ -55,6 +55,8 @@ Status: implemented
 | `scripts/translation-pairing.manifest.json` | `f9bb1549a2395e139e66d2f7e51f1c5df482c97e` | 13 | 消解：范围与排除项作为旗标从采用者的声明传入 |
 
 本仓库旧的 `scripts/dsh-spec-manager/` 翻译引擎**不是**来源。实现只读取上游，且技能文本、脚本或测试都不点名它。
+
+Alpha.2 在 `docs/i18n/README.md` 中新增了文档类别排除：按 locale 选择的 bundle 详情页使用各 locale 的文件，不带文内切换器或一致性记录。目标把该产品机制改编为通用规则：当采用者通过 locale 元数据选择详情页并且不发布配对产物时，该文档不在配对契约内，由项目的链接、行文与评审检查保持两侧本地化内容同步。本地化脚本中的项目专属排除表被消解为采用者声明。
 
 许可：上游与本仓库均为 MIT。技能在其 `THIRD_PARTY_NOTICES` 中陈述关系与来源，按包的约定写在加载指令之外。打包产物的解析器包 pin 到上游锁文件所命名的版本（`mdast-util-from-markdown` 2.0.3、`mdast-util-gfm` 3.1.0、`micromark-extension-gfm` 3.0.0 及其运行时闭包）。解析出的打包产物的解析器闭包登记在共享根 `THIRD_PARTY_NOTICES.md` 中；技能根 `THIRD_PARTY_NOTICES` 记录确切的打包版本，并列出被改编的上游文件与打包产物包含的 npm 包。
 
@@ -301,6 +303,7 @@ Status: implemented
 - **迁移是一次性的聚合重记录。** 选中的活跃语料被重记录一次；不存在 v1 记录兼容层，也没有按目标的记录读取器。归档、冻结与 vendored 目录树不被选中。
 - **创建意图按源解析。** 负责的模型或工作流把请求、项目政策、完整 peer 证据与主 agent 用户语言组合成显式目标集。脚本从不读取项目指令或执行环境推断；agent 传入 --select/--skip、目标、术语与生成 glob。忘记声明旗标的 CI 运行检查更少的配对，而不是错误的语料。
 - **隐藏与 vendored 目录树是采用者布局。** 遍历进入隐藏目录，只剪掉默认树；宽泛声明必须对冻结或 vendored 目录树使用 --skip。
+- **按 locale 选择的详情页不在配对契约内。** 当项目通过 locale 元数据映射文档且页面没有文内切换器或记录时，由项目的链接、行文与评审检查保持本地化页面同步，而不是为其发明配对产物。
 - **翻译质量不被机制验证。** 检查证明配对一致，而不是行文读起来好；翻译质量未测量。
 - **能力缺失要明确，不能以静默降质代替。** [委派是能力选择，不是技能依赖](2026-11-17-delegation-is-a-capability-choice-not-a-skill-dependency.zh.md)拥有当前边界。
 - **仓库之前的配对机制已移除。** 遗留 manager 引擎与旧的安装副本已移除（R71）。

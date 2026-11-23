@@ -10,11 +10,11 @@ Status: implemented
 
 ## 决策
 
-本包交付 `dsh-spec-pr-description`，作为对上游技能的改编，该技能位于 `.agents/skills/dsh-pr-description/SKILL.md`，来源修订为 `f3803c96974ad4a94195fb97e5c637e9c2a3afe3`（`dsh-v0.2.2-alpha.2`）；当前抽取基线是 `dsh-v0.2.2-rc.5`（`9c2670d3bce5275e0d1610272958121af87787bb`）。
+本包交付 `dsh-spec-pr-description`，作为对固定版本的上游技能的改编，该技能位于 `submodules/dsh/.agents/skills/dsh-pr-description/SKILL.md`（`submodules/dsh` 固定于 `dsh-v0.2.3-alpha.2`，`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`）。
 
 落地目录包含 `SKILL.md`、`references/ai-usage.md`、`references/default-conventions.md` 与 `THIRD_PARTY_NOTICES`；安装副本镜像到 `.agents/skills/dsh-spec-pr-description/`。根 `THIRD_PARTY_NOTICES.md` 的改编技能段落点名该技能，根 `README.md` 的技能表列出它。
 
-技能把上游机制作为义务保留：描述陈述改动为何存在（带同项目受跟踪 Issue 引用，若有）、改了什么、由什么证明，以及 AI 参与程度。入口拥有四块内容、测试设计形式、测试条目与 proof 块纪律、以四类为典型示例的一般披露义务、可替换的默认小节结构、创建与更新触发条件以及最终回读门禁。`references/ai-usage.md` 是 AI Usage 模型的唯一所有者：五个级别、五个阶段、5% 倍数评级、决策记录限制、固定于 AI-DECLARATION 0.1.2 的徽章与声明块、更新时机、语言适配、替换与结构校验。入口要求在写入该小节前加载这份 reference，并在最终回读时应用其清单；每个 stack 层只记录本层相对其 base 的工作。项目约定提供取值、形式、位置与示例；它们绝不取消义务。
+技能把上游机制作为义务保留：描述陈述改动为何存在（带同项目受跟踪 Issue 引用，若有）、改了什么、由什么证明，以及 AI 参与程度。入口拥有四块内容、测试设计形式、测试条目与 proof 块纪律、以四类为典型示例的一般披露义务、可替换的默认小节结构、创建与更新触发条件以及最终回读门禁。`references/ai-usage.md` 是 AI Usage 模型的唯一所有者：五个级别、五个阶段、5% 倍数评级、决策记录限制、固定于 AI-DECLARATION 0.1.2 的徽章与声明块、更新时机、语言适配、替换与结构校验。入口要求以 manifest 和调用点为权威，报告模块职责、运行时依赖边与反向边；在写入该小节前加载这份 reference，并在最终回读时应用其清单。每个 stack 层只记录本层相对其 base 的工作。项目约定提供取值、形式、位置与示例；它们绝不取消义务。
 
 尚未处理任何评审意见时，review 行保持 `n/a`，决策记录单元格留空；未处理评审意见的说明写在表格之后。
 
@@ -26,7 +26,7 @@ Status: implemented
 
 ### 处置摘要
 
-处置摘要以一处位置、一种处置与一个归属覆盖每个来源单元，锚点为每项要求点名一项检查。承载：四块内容及其内容要求、固定英文标签的默认词汇、测试设计形式与测试条目纪律、以四类为示例的一般披露义务、创建与更新状态，以及回读义务。AI Usage 模型及其精确校验现在只在 `references/ai-usage.md` 有一个归属；入口拥有写入前加载、回读前加载和 stack 局部记录这三项选择该归属的规则。重绑：小节结构（默认且可替换）、描述语言（现有描述 → 文档 → 请求）、Issue 引用（声明语法、跟踪器惯例形式或具名链接）、正文路径与工具（项目默认值、GitHub 示例），以及披露的形式、取值、位置与示例（项目约定）。消解：声明表与缺失路由、标签、Priority、Project 与生命周期的校验要求、文档预算取值、GUI GIF 强制要求、仓库工具与产物路径，以及显式的仓库级 AI 声明规则。新增：把描述默认值与可选跟踪器示例分开的 `default-conventions` reference、保留的 GitHub 示例、唯一的 AI Usage reference，以及许可证与通知。
+处置摘要按承载、重绑定与消解对来源义务分组，并为每组命名归宿；交付的 `SKILL.md`、两个参考与 notices 是验证锚点。承载：四块内容及其内容要求、固定英文标签的默认词汇、测试设计形式与测试条目纪律、以四类为示例的一般披露义务、模块职责与依赖边报告、创建与更新状态，以及回读义务。AI Usage 模型及其精确校验现在只在 `references/ai-usage.md` 有一个归属；入口拥有写入前加载、回读前加载和 stack 局部记录这三项选择该归属的规则。重绑：小节结构（默认且可替换）、描述语言（现有描述 → 文档 → 请求）、Issue 引用（声明语法、跟踪器惯例形式或具名链接）、正文路径与工具（项目默认值、GitHub 示例），以及披露的形式、取值、位置与示例（项目约定）。消解：声明表与缺失路由、标签、Priority、Project 与生命周期的校验要求、文档预算取值、GUI GIF 强制要求、仓库工具与产物路径，以及显式的仓库级 AI 声明规则。新增：把描述默认值与可选跟踪器示例分开的 `default-conventions` reference、保留的 GitHub 示例、模块职责与依赖边报告、唯一的 AI Usage reference，以及许可证与通知。
 
 ## 备选方案
 

@@ -24,6 +24,28 @@
         "The review row remains n/a with an empty decision-record cell, and the no-comments statement follows the table.",
         "The update does not invent tracker labels, Project fields, or dates."
       ]
+    },
+    {
+      "id": "workspace-boundaries-expose-reverse-edge",
+      "prompt": "Prepare the `Changes` section for the change in evals/files/workspace-dependencies by comparing the base manifests under base/ with the current package manifests. The project uses the default description structure. Report affected package responsibilities and every added or removed runtime dependency edge, including any reverse edge, without inventing a dependency that the manifests do not contain.",
+      "expected_output": "The section derives edges from the base-to-head manifest diff, names the app and core responsibilities, records the added app → core edge and the removed app → legacy edge, preserves the existing core → app reverse edge, and does not claim that the reverse edge is absent.",
+      "files": [
+        "evals/files/workspace-dependencies/AGENTS.md",
+        "evals/files/workspace-dependencies/base/packages/app/package.json",
+        "evals/files/workspace-dependencies/base/packages/core/package.json",
+        "evals/files/workspace-dependencies/base/packages/legacy/package.json",
+        "evals/files/workspace-dependencies/packages/app/package.json",
+        "evals/files/workspace-dependencies/packages/core/package.json",
+        "evals/files/workspace-dependencies/change.md"
+      ],
+      "assertions": [
+        "The section states the app and core package responsibilities.",
+        "The dependency edges are derived from the base-to-head manifest diff.",
+        "The added runtime edge is written as app → core.",
+        "The removed runtime edge is written as app → legacy.",
+        "The existing core → app runtime edge is reported rather than called absent.",
+        "The section does not hide the dependency cycle behind a composition-only explanation."
+      ]
     }
   ]
 }

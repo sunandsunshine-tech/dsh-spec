@@ -1,0 +1,7 @@
+{
+  "name": "@example/core",
+  "private": true,
+  "dependencies": {
+    "@example/app": "workspace:*"
+  }
+}

@@ -26,7 +26,7 @@ DeepSeek Harness 带有一套成熟的 UI 变更工作流和响应式交互规�
 
 ## 来源与修订
 
-上游来源为 `deepseek-ai/deepseek-harness` 的 `dsh-v0.2.2-rc.5`（`9c2670d3bce5275e0d1610272958121af87787bb`），读取日期为 2026-11-20：
+上游来源为 `deepseek-ai/deepseek-harness` 的 `dsh-v0.2.3-alpha.2`（`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`），读取日期为 2026-11-23：
 
 - `.agents/skills/dsh-client-ui-ux/SKILL.md`
 - `.agents/skills/dsh-client-ui-ux/references/alignment.md`
@@ -73,13 +73,14 @@ Agent Skills 的 overview、specification、best-practices、description-optimiz
 | D16 | `dsh-client-ui-ux/SKILL.md:117-120` | 用户可感知的 UI 变更可能要求设计师或产品审批；上游点名的名单属于产品数据。 | 消解 | 当所声称的验收包含签核时，技能报告项目审批策略缺失，绝不自行编造评审人。 |
 | D17 | `record-browser-gif/SKILL.md:12-22` | 用户可见的 GUI 变更会附带由变更后构建生成、如实反映结果的浏览器证据；采集与发布彼此分开。 | 重新绑定 | 默认采用已记录的浏览器证据，并支持项目覆盖和能力交接；所选机制负责采集和发布。 |
 | D18 | 仓库 `AGENTS.md` 和 `dsh-spec-skill-forge/SKILL.md` | 每个技能都独立安装，并且在首选能力缺失时仍须完成工作或交接。 | 适配 | 技能不声明兄弟依赖，并包含能力缺失时的交接。 |
+| D19 | alpha.2 `references/icons.md` | 共享和行内线稿在 viewport 变化时保持声明的 stroke 行为；填充仍按几何缩放；普通摆放或复用修复不得改变该渲染契约，库级渲染变化要验证全部消费方。 | 适配 | icon/touch-help 与消费方检查按目标 CSS 尺寸和设备像素比对照项目声明；不搬用上游宽度或组件名。 |
 
 ## 验证锚点
 
 | # | 要求 | 锚点 | 证据 |
 |---|---|---|---|
 | A0 | 技能遵守 Agent Skills 格式，frontmatter 与外部链接均正确闭合，并保持在技能目录的 description 预算内。 | 机械检查 | `node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs skills/dsh-spec-client-ui-ux --description-max 500` 决定这一点。 |
-| A1 | 每项上游约束 D1-D18 在交付指令中都各有一项处置和一个落点。 | 判断 | 对照 `SKILL.md` 和所指名的参考文件，为每一行得出一项结论。 |
+| A1 | 每项上游约束 D1-D19 在交付指令中都各有一项处置和一个落点。 | 判断 | 对照 `SKILL.md` 和所指名的参考文件，为每一行得出一项结论。 |
 | A2 | 指令文件不包含 DSH 产品路径、token、名单、源仓库名称、固定视口或硬兄弟依赖。 | 机械检查 + 判断 | 对 `SKILL.md` 和交付的参考文件进行来源扫描，排除必需的 `THIRD_PARTY_NOTICES`；兄弟引用门禁决定命名形式。 |
 | A3 | 用户可见的浏览器 UI 变更默认采用如实反映结果的渲染证据；接受项目提供的等价证据；证据不可用时，产生明确、可据以恢复工作的交接。 | 判断 | 对照 `## Record browser evidence by default` 得出一项结论；能力存在与能力缺失的模型运行见 A6。 |
 | A4 | 评审覆盖组装后的页面、受影响的消费方、布局关系、交互、响应式与指针行为、滚动与浮层行为、焦点/输入适配、locale 内容、几何和平台 chrome。 | 判断 | 对照 D2-D14，为每条最低检查项目得出一项结论。 |

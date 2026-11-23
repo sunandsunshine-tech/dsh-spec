@@ -1,0 +1,6 @@
+PASS The section states the app and core package responsibilities.
+PASS The dependency edges are derived from the base-to-head manifest diff.
+PASS The added runtime edge is written as app → core.
+PASS The removed runtime edge is written as app → legacy.
+PASS The existing core → app runtime edge is reported rather than called absent.
+PASS The section does not hide the dependency cycle behind a composition-only explanation.

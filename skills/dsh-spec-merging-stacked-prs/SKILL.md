@@ -7,7 +7,7 @@ license: "MIT; upstream and repository notices in THIRD_PARTY_NOTICES"
 
 # Landing an official GitHub PR stack
 
-Land dependent PRs through GitHub's native stack object and `gh stack merge`. Do not reproduce stack semantics by merging and retargeting individual PRs with `gh pr merge` and `gh pr edit`. The landing repository's own instructions (its `AGENTS.md` or equivalent) own the merge-forward and rebase histories it allows. Review-fix propagation is outside this skill: after any push that rewrites heads, re-audit unresolved threads, approvals, mergeability and checks before merging, as § Refresh only when needed requires.
+Land dependent PRs through GitHub's native stack object and `gh stack merge`. Do not reproduce stack semantics by merging and retargeting individual PRs with `gh pr merge` and `gh pr edit`. Rebase with rerere is the default branch refresh; merge-forward requires the PR author's explicit request and a policy that allows it. The landing repository's instructions remain authoritative. Review-fix propagation is outside this skill: after any push that rewrites heads, re-audit unresolved threads, approvals, mergeability and checks before merging, as § Refresh only when needed requires.
 
 ## Defaults
 
@@ -75,12 +75,12 @@ Never dissolve, reorder or rebuild an existing stack automatically; `gh stack li
 
 ## Refresh only when needed
 
-Do not rewrite branches merely because a refresh mechanism exists. When the live merge state or the repository's rules require the branch to be updated onto the trunk, choose one of the histories below that the landing repository's instructions allow.
+Do not rewrite branches merely because a refresh mechanism exists. When the live merge state or the repository's rules require the branch to be updated onto the trunk, enable rerere with `git config rerere.enabled true`, ensure `rerere.autoUpdate` is unset or false so replayed resolutions stay unstaged, then rebase. Inspect every replayed resolution before staging it. Use merge-forward only when the PR author explicitly requests it and the landing repository allows that history.
 
-- **Native cascading rebase.** Check out the remote stack with `gh stack checkout <pr-or-stack>` when it is not tracked locally, then run `gh stack sync`. The command may rebase and lease-protected force-push every active layer before local validation, so immediately inspect the rewritten scope, run the relevant checks for every affected layer, and do not merge or claim readiness until they pass. If sync detects a rebase conflict, use `gh stack rebase`, resolve and validate it, then publish with `gh stack push`. If checkout or sync reports divergent local and remote stack compositions, cancel and ask rather than deleting or recreating the remote stack automatically.
-- **Incremental merge-forward.** Merge the trunk into the bottom affected branch, then propagate each updated parent into its child in bottom-to-top order and push normally. If the base advances during an in-progress merge, preserve that checkpoint before merging the newer tip.
+- **Native cascading rebase (default).** Check out the remote stack with `gh stack checkout <pr-or-stack>` when it is not tracked locally, then run `gh stack sync`. The command may rebase and lease-protected force-push every active layer before local validation, so immediately inspect the rewritten scope, run the relevant checks for every affected layer, and do not merge or claim readiness until they pass. If sync detects a rebase conflict, use `gh stack rebase`, resolve and validate it, then publish with `gh stack push`. If checkout or sync reports divergent local and remote stack compositions, cancel and ask rather than deleting or recreating the remote stack automatically.
+- **Incremental merge-forward (author-requested exception).** Merge the trunk into the bottom affected branch, then propagate each updated parent into its child in bottom-to-top order and push normally. If the base advances during an in-progress merge, preserve that checkpoint before merging the newer tip. Do not choose this history merely because it avoids force-pushing.
 
-A history rewrite is allowed after review where the landing repository's instructions allow it, but it invalidates commit-OID assumptions. Re-fetch exact heads and re-audit unresolved review threads, approvals, mergeability and checks after the push. Never use raw `--force`, and never overwrite a concurrently advanced remote head. Read the landing repository's instructions before choosing a history; when they name no allowed history, ask the user or stop rather than choosing one on the repository's behalf.
+A history rewrite is allowed after review where the landing repository's instructions allow it, but it invalidates commit-OID assumptions. Re-fetch exact heads and re-audit unresolved review threads, approvals, mergeability and checks after the push. Never use raw `--force`, and never overwrite a concurrently advanced remote head. When repository policy forbids rebase, require its allowed alternative or stop; when policy is silent, the native cascading rebase default above applies.
 
 ## Preflight the merge range
 

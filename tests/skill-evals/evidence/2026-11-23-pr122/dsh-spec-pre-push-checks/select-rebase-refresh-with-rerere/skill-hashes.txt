@@ -1,0 +1,3 @@
+b2333ba9c4279a5ce91d302c3b6a4d5e430632993a32b0b6ace6af504748854b  skills/dsh-spec-pre-push-checks/SKILL.md
+e0ad035625b04918c01a88e09df574ff10ff98975ef3a1c79e223ac780a5fc1a  skills/dsh-spec-pre-push-checks/THIRD_PARTY_NOTICES
+8760550b804bc19bfb69c0eb67a8ece9559178e92e596cab424fc74f244589d2  skills/dsh-spec-pre-push-checks/scripts/change-scope.mjs

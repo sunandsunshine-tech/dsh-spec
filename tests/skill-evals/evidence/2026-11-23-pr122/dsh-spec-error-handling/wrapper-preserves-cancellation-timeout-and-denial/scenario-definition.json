@@ -1,0 +1,14 @@
+{
+  "id": "wrapper-preserves-cancellation-timeout-and-denial",
+  "prompt": "Review evals/files/wrapper-classification/README.md. Correct the execution wrapper without replacing the worker's failure identities or reducing them to display text.",
+  "expected_output": "Cancellation, timeout, and denial remain distinct machine-readable outcomes on the downstream result, preserve any available cause or details, and lead to their corresponding recovery actions instead of a generic message-only failure.",
+  "files": [
+    "evals/files/wrapper-classification/README.md"
+  ],
+  "assertions": [
+    "The downstream result keeps cancellation, timeout, and denial as distinct machine-readable outcomes.",
+    "The wrapper does not reduce the failures to display text or an indistinguishable success-shaped result.",
+    "Available cause or structured detail remains preserved.",
+    "The three outcomes lead to their distinct downstream recovery actions."
+  ]
+}

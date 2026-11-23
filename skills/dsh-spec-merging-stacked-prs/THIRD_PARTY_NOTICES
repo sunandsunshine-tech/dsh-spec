@@ -2,9 +2,11 @@
 
 The text of this skill is adapted from the DeepSeek Harness skill `merging-stacked-prs`.
 
-- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`).
-- Upstream path: `.agents/skills/dsh-merging-stacked-prs/SKILL.md`.
-- Relation: adapted for general GitHub pull-request operation. The source's mechanism, commands, field lists and GraphQL query are carried; the repository-specific document pointers and policy values are disposed, the merge method remains governed by the landing repository's policy and defaults to squash when that policy selects none, the allowed refresh histories are left to the landing repository's instructions, and the skill ships as one file without bundled scripts.
+- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.3-alpha.2` (`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`).
+- Upstream paths:
+  - `.agents/skills/dsh-merging-stacked-prs/SKILL.md` — the stack mechanism and command surface.
+  - `.agents/notes/implemented/process/2026-11-19-prefer-rebase-with-rerere.md` — the authoritative rebase default and rerere settings.
+- Relation: adapted for general GitHub pull-request operation. The source's mechanism, commands, field lists and GraphQL query are carried; the repository-specific document pointers and policy values are disposed; the merge method remains governed by the landing repository's policy and defaults to squash when that policy selects none; rebase with inspected rerere resolutions is the default refresh, merge-forward requires the PR author's explicit request, and lease protection remains mandatory. The skill ships as one file without bundled scripts.
 
 This skill is distributed under the MIT licence. The upstream and repository notices follow so that an installed copy carries them. This file is not part of the skill's instructions.
 

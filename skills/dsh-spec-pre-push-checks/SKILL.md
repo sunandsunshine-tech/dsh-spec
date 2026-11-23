@@ -58,7 +58,7 @@ Run the complete local approximation only when the user explicitly requests it, 
 
 ## Protect history-rewriting pushes
 
-Where the repository's instructions allow a history rewrite, rebase is an option for a standalone branch and for a branch in a stack, including after review. Before a standalone history rewrite, fetch the current remote branch and record its exact OID; publish with `--force-with-lease=<branch>:<observed-oid>` so a concurrent update aborts the push. A stack tool or other automation that publishes branches it manages supplies lease protection for the branches it manages; if it does not, record the OID and use the lease yourself. Raw `--force` is never allowed.
+Where the repository's instructions allow a history rewrite, rebase with rerere is the default refresh for a standalone branch and for a branch in a stack, including after review. Before rebasing, enable `git config rerere.enabled true`, ensure `rerere.autoUpdate` is unset or false so replayed resolutions stay unstaged, and inspect each replayed resolution before staging it. Before a standalone history rewrite, fetch the current remote branch and record its exact OID; publish with `--force-with-lease=<branch>:<observed-oid>` so a concurrent update aborts the push. A stack tool or other automation that publishes branches it manages supplies lease protection for the branches it manages; if it does not, record the OID and use the lease yourself. Raw `--force` is never allowed.
 
 After any rewritten push, fetch the live heads again and re-audit unresolved review threads, approvals, mergeability and checks. Commit hashes and inline-comment anchors from before the rewrite are not current evidence.
 

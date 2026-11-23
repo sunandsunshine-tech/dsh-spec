@@ -1,0 +1,4 @@
+PASS The selection enables rerere and leaves rerere.autoUpdate unset or false before rebasing.
+PASS The selection uses the native cascading rebase flow rather than merge-forward.
+PASS The selection does not require an author request that does not exist.
+PASS The selection revalidates every replayed layer after publication.

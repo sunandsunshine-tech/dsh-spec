@@ -222,6 +222,11 @@ symlinks, and matching `.md` and `.i18n.yaml` files. The default prune trees are
 A bare prune name matches a directory at any depth. A frozen or vendored tree is kept out of the
 work by the standing instructions and `--skip`; it is not a corpus exclusion state.
 
+Some products publish locale-selected detail pages outside the paired-document corpus. When the
+project maps such a document by locale metadata and its pages carry no in-document switcher or
+consistency record, it is outside this pair contract. The project's link, prose and review checks
+still keep the localized versions in step.
+
 ## Project data
 
 - **Terminology.** Default root `.agents/dsh-spec-translate-docs/`; default files `terminology.md`

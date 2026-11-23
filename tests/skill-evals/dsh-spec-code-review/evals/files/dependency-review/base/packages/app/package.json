@@ -1,0 +1,7 @@
+{
+  "name": "@review/app",
+  "private": true,
+  "dependencies": {
+    "@review/legacy": "workspace:*"
+  }
+}

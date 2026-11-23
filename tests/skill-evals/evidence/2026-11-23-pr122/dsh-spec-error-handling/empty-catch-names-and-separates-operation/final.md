@@ -1,0 +1,1 @@
+Updated [README.md](/workspace/evals/files/empty-catch/README.md:7) so the handler tolerates only the structured `ENOENT` failure and rethrows all other cleanup errors. `commitBatch()` and `notifyOwner()` now run outside the catch, so commit or notification failures remain visible and propagate normally.

@@ -25,7 +25,7 @@ Status: implemented
 
 15 个技能保持独立。技能只能以带 availability 限定的可选示例提到另一技能。共享工具、不同产物、不同触发或不同运行前提都不构成合并技能的理由。
 
-模型证据跟随[模型证据只证明它实际检验的行为](2026-11-23-model-evidence-binds-changed-behavior.zh.md)所描述的变化行为。纯结构变化使用受影响的行为场景，而不是所有历史场景。
+模型证据跟随[模型证据只证明它实际检验的行为](../testing/2026-11-23-model-evidence-binds-changed-behavior.zh.md)所描述的变化行为。纯结构变化使用受影响的行为场景，而不是所有历史场景。
 
 ## Alternatives considered
 

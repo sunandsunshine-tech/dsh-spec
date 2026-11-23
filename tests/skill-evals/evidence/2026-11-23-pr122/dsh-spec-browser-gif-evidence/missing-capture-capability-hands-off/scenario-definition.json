@@ -1,0 +1,19 @@
+{
+  "id": "missing-capture-capability-hands-off",
+  "prompt": "The provided project changed a user-visible browser UI, but the host has no browser-control capability, no declared Playwright fallback, and no ffmpeg or ffprobe. Finish the evidence task now.",
+  "expected_output": "The run preserves any possible preparation, does not claim that the UI was demonstrated, and hands off the missing capture, runtime and media capabilities with the unfinished GIF evidence and a resumable next step.",
+  "capabilities": {
+    "browser": false,
+    "media": false
+  },
+  "files": [
+    "evals/files/no-capture-project/README.md",
+    "evals/files/no-capture-project/src/SettingsPanel.js"
+  ],
+  "assertions": [
+    "The run names the missing browser and media capabilities.",
+    "It does not substitute source inspection for the required rendered evidence.",
+    "It reports the unfinished evidence and a resumable next step.",
+    "It does not claim completion."
+  ]
+}

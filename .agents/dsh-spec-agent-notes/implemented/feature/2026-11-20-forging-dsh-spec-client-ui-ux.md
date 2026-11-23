@@ -26,7 +26,7 @@ The skill is one `SKILL.md` with a skill-root `THIRD_PARTY_NOTICES`. It ships no
 
 ## Source and revision
 
-Upstream source is `deepseek-ai/deepseek-harness` at `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`), read on 2026-11-20:
+Upstream source is `deepseek-ai/deepseek-harness` at `dsh-v0.2.3-alpha.2` (`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`), read on 2026-11-23:
 
 - `.agents/skills/dsh-client-ui-ux/SKILL.md`
 - `.agents/skills/dsh-client-ui-ux/references/alignment.md`
@@ -73,13 +73,14 @@ Publish authorization: the maintainer authorized landing this skill in the packa
 | D16 | `dsh-client-ui-ux/SKILL.md:117-120` | A perceivable UI change can require designer or product approval; the source's named roster is product data. | Dissolve | The skill reports a missing project approval policy when sign-off is part of claimed acceptance and never invents reviewers. |
 | D17 | `record-browser-gif/SKILL.md:12-22` | A user-visible GUI change carries truthful browser evidence from the changed build; capture and publication are separate. | Re-bind | Recorded browser evidence is the default, with project override and capability handoff; the selected mechanism owns capture and publication. |
 | D18 | Repository `AGENTS.md` and `dsh-spec-skill-forge/SKILL.md` | Each skill installs independently and still completes or hands off when a preferred capability is absent. | Adapt | The skill names no sibling dependency and includes a capability-absent handoff. |
+| D19 | alpha.2 `references/icons.md` | Shared and inline line artwork keeps its declared stroke behavior as the viewport changes; fills remain geometry; ordinary placement or reuse fixes do not alter that rendering contract, and library rendering changes validate every consumer. | Adapt | Icon/touch-help and consumer checks inspect the project's declared stroke contract at target CSS size and device-pixel ratio; no upstream widths or component names are copied. |
 
 ## Verification anchors
 
 | # | Requirement | Anchor | Evidence |
 |---|---|---|---|
 | A0 | The skill obeys the Agent Skills format, closes frontmatter and external links, and stays within the catalogue description budget. | Mechanical | `node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs skills/dsh-spec-client-ui-ux --description-max 500` decides it. |
-| A1 | Every source constraint D1-D18 has one disposition and one home in the shipped instructions. | Judged | One conclusion per row against `SKILL.md` and the named reference. |
+| A1 | Every source constraint D1-D19 has one disposition and one home in the shipped instructions. | Judged | One conclusion per row against `SKILL.md` and the named reference. |
 | A2 | Instruction files contain no DSH product path, token, roster, source repository name, fixed viewport, or hard sibling dependency. | Mechanical + Judged | Source scan over `SKILL.md` and shipped references, excluding the required `THIRD_PARTY_NOTICES`; the sibling-reference gate decides the naming form. |
 | A3 | A user-visible browser UI change defaults to truthful rendered evidence; equivalent project evidence is accepted; unavailable evidence produces an explicit resumable handoff. | Judged | One conclusion against `## Record browser evidence by default`; capability-present and capability-absent model runs are A6. |
 | A4 | The review covers the assembled page, affected consumers, layout relationships, interaction, responsive and pointer behavior, scroll and overlay behavior, focus/input adaptation, locale content, geometry, and platform chrome. | Judged | One conclusion per minimum-check bullet against D2-D14. |

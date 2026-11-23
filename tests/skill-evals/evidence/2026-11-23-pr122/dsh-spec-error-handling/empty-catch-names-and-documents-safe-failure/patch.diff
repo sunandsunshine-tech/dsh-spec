@@ -1,0 +1,15 @@
+diff --git a/evals/files/empty-handler/README.md b/evals/files/empty-handler/README.md
+index fd8440c..3fe2386 100644
+--- a/evals/files/empty-handler/README.md
++++ b/evals/files/empty-handler/README.md
+@@ -6,7 +6,8 @@ continued existence, and no caller can act on a failure from that removal.
+ ```js
+ try {
+   await unlink(tempFile)
+-} catch {
+-  // ignore
++} catch (_cleanupFailed) {
++  // Safe to suppress: the owner's state does not depend on the temporary file,
++  // and callers cannot act on a cleanup failure.
+ }
+ ```

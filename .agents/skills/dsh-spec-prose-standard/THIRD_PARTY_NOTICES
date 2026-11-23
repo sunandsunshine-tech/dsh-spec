@@ -2,7 +2,7 @@
 
 The text of this skill is adapted and merged from two DeepSeek Harness skills, `dsh-prose-standard` and `dsh-trim-cot-leakage`, and generalised to durable text.
 
-- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`).
+- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.3-alpha.2` (`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`).
 - Upstream paths:
   - `.agents/skills/dsh-prose-standard/SKILL.md` — the editorial standard, required prose coverage, workflow and borderline rules.
   - `.agents/skills/dsh-prose-standard/references/examples.md` — the prose calibration cases.

@@ -85,6 +85,48 @@
         "Known plugin codes are exported for shared handling.",
         "Consumers tolerate unknown plugin codes instead of rejecting compatible additions."
       ]
+    },
+    {
+      "id": "empty-catch-names-and-separates-operation",
+      "prompt": "Review evals/files/empty-catch/README.md. The project already uses structured failures with the `ENOENT` code. Correct the silent handler without hiding commit or notification failures.",
+      "expected_output": "The cleanup operation has its own catch with a meaningful binding, the safe reason is inside the handler, and only the structured ENOENT cleanup failure is discarded; commit and notification failures remain visible.",
+      "files": [
+        "evals/files/empty-catch/README.md"
+      ],
+      "assertions": [
+        "The silent handler covers only the temporary-directory removal.",
+        "The catch binding names the expected cleanup failure rather than using a bare underscore.",
+        "The safety reason appears inside the catch handler.",
+        "Only the structured ENOENT failure is tolerated; commit and notification failures surface."
+      ]
+    },
+    {
+      "id": "empty-catch-names-and-documents-safe-failure",
+      "prompt": "Review evals/files/empty-handler/README.md. The cleanup failure is fully tolerated and the owner's state remains valid. Correct the empty handler so its form and explanation are reviewable.",
+      "expected_output": "The handler remains empty apart from its explanation, binds the expected failure with a meaningful underscore-prefixed name, and states inside the handler why discarding that failure leaves the owner's state valid.",
+      "files": [
+        "evals/files/empty-handler/README.md"
+      ],
+      "assertions": [
+        "The catch body contains no executable statement.",
+        "The catch binding names the expected cleanup failure instead of using `catch {}` or `catch (_)`.",
+        "The safety reason is inside the catch handler.",
+        "The reason states the failure identity and why discarding it leaves the state valid."
+      ]
+    },
+    {
+      "id": "wrapper-preserves-cancellation-timeout-and-denial",
+      "prompt": "Review evals/files/wrapper-classification/README.md. Correct the execution wrapper without replacing the worker's failure identities or reducing them to display text.",
+      "expected_output": "Cancellation, timeout, and denial remain distinct machine-readable outcomes on the downstream result, preserve any available cause or details, and lead to their corresponding recovery actions instead of a generic message-only failure.",
+      "files": [
+        "evals/files/wrapper-classification/README.md"
+      ],
+      "assertions": [
+        "The downstream result keeps cancellation, timeout, and denial as distinct machine-readable outcomes.",
+        "The wrapper does not reduce the failures to display text or an indistinguishable success-shaped result.",
+        "Available cause or structured detail remains preserved.",
+        "The three outcomes lead to their distinct downstream recovery actions."
+      ]
     }
   ]
 }

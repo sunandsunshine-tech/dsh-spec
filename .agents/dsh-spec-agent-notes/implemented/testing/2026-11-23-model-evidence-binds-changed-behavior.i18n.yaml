@@ -1,10 +1,10 @@
 # Pairing consistency record for 2026-11-23-model-evidence-binds-changed-behavior.md (references/pairing-contract.md): per heading
 # source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
 # After editing either side, bring the other along and re-record with:
-#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/architecture/2026-11-23-model-evidence-binds-changed-behavior.md --target <lang>
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/testing/2026-11-23-model-evidence-binds-changed-behavior.md --target <lang>
 /agent-note-model-evidence-binds-the-behavior-it-exercises:
-  en: b28a9e554c76490a
-  zh: 068c4d1e453498ab
+  en: 2b7a43268a49bddc
+  zh: aecd4cd2cea5c353
 /agent-note-model-evidence-binds-the-behavior-it-exercises/problem:
   en: 33e966f4ee7a227d
   zh: 2bbc29995cddc440
