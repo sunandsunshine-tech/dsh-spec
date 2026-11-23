@@ -82,6 +82,16 @@ const USE_SITE_PINS = [
     file: 'SKILL.md',
     text: 'A user-visible browser UI behavior change produces truthful recorded evidence by default.',
   },
+  {
+    skill: 'dsh-spec-test-reliability',
+    file: 'SKILL.md',
+    text: 'By default, split a mixed test into fast contract cases and one shared real-resource scenario',
+  },
+  {
+    skill: 'dsh-spec-test-reliability',
+    file: 'SKILL.md',
+    text: 'A diagnosis-only request stays read-only until the user also authorizes repair.',
+  },
 ]
 
 const CONCRETE_VALUE_MARKERS: Record<string, string> = {

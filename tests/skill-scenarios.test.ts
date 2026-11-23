@@ -344,12 +344,23 @@ const GENERAL_REQUIRED: GeneralProfile[] = [
       {
         id: 'reserve-port-at-listener',
         signature: [/EADDRINUSE/i, /scan-then-bind/i],
-        assertions: [/atomic port allocation/i, /waits? for readiness/i, /rejects? global serialization/i],
+        assertions: [
+          /atomic port allocation/i,
+          /pre-fix fixture fails deterministically/i,
+          /waits? for readiness/i,
+          /rejects? global serialization/i,
+          /focused test passes/i,
+        ],
       },
       {
         id: 'restore-exact-global-state',
         signature: [/passes alone/i, /another test runs first/i],
-        assertions: [/absent environment entry/i, /registered immediately/i, /restores real timers/i],
+        assertions: [
+          /absent environment entry/i,
+          /registered immediately/i,
+          /restores real timers/i,
+          /focused suite passes/i,
+        ],
       },
       {
         id: 'diagnose-without-fixing',
@@ -357,7 +368,17 @@ const GENERAL_REQUIRED: GeneralProfile[] = [
         assertions: [
           /no code, workflow, rerun, or configuration change/i,
           /repeated EADDRINUSE signature/i,
-          /reproduction topology remains unverified/i,
+          /host metrics are unavailable/i,
+        ],
+      },
+      {
+        id: 'redesign-slow-repeated-suite',
+        signature: [/repeats the same expensive fixture/i, /multiplies three timeout groups/i],
+        assertions: [
+          /removes repeated expensive fixture setup/i,
+          /Fast contract cases remain separate/i,
+          /not duplicated across lanes/i,
+          /test entry passes/i,
         ],
       },
     ],
@@ -554,12 +575,6 @@ function commandReadsSkill(command: string | undefined, skillName = 'dsh-spec-er
   return new RegExp(
     `(?:^|[\\s;&|'"])(?:cat|sed|head|tail)\\s+[^\\n]*\\.agents/skills/${escaped}/SKILL\\.md(?:[\\s'"]|$)`,
   ).test(command)
-}
-
-function filesUnder(root: string): string[] {
-  return readdirSync(root, { recursive: true })
-    .filter((path): path is string => typeof path === 'string' && statSync(join(root, path)).isFile())
-    .sort()
 }
 
 function triggerSurfaceHash(skillName: string): string {
@@ -1289,6 +1304,33 @@ test('browser GIF fixtures build and their capture entries parse', (t) => {
   }
 })
 
+test('test reliability fixtures run with the intended positive and negative controls', () => {
+  const root = join(EVAL_SOURCE_ROOT, 'dsh-spec-test-reliability', 'evals', 'files')
+  const env = { ...process.env }
+  delete env.NODE_TEST_CONTEXT
+  const collidingPort = spawnSync(process.execPath, ['--test', 'tests/server.test.mjs'], {
+    cwd: join(root, 'port-collision'),
+    encoding: 'utf8',
+    env,
+  })
+  assert.notEqual(collidingPort.status, 0)
+  assert.match((collidingPort.stdout ?? '') + (collidingPort.stderr ?? ''), /EADDRINUSE/)
+  for (const [project, args] of [
+    ['diagnosis-only', ['--test', 'tests/server.test.mjs']],
+    ['slow-suite', ['--test', 'tests/report.test.mjs']],
+  ] as const) {
+    const result = spawnSync(process.execPath, [...args], { cwd: join(root, project), encoding: 'utf8', env })
+    assert.equal(result.status, 0, project + ': ' + (result.stdout ?? '') + (result.stderr ?? ''))
+  }
+  const leakingGlobals = spawnSync(process.execPath, ['--test', '--test-concurrency=1', 'tests/config.test.mjs'], {
+    cwd: join(root, 'global-state'),
+    encoding: 'utf8',
+    env,
+  })
+  assert.notEqual(leakingGlobals.status, 0)
+  assert.match((leakingGlobals.stdout ?? '') + (leakingGlobals.stderr ?? ''), /restores the pre-test global state/)
+})
+
 test('the browser evidence fixture does not leak an unready server', async (t) => {
   if (process.platform === 'win32') {
     t.skip('the failure path uses POSIX process liveness checks')
@@ -1325,6 +1367,173 @@ test('the browser evidence fixture does not leak an unready server', async (t) =
   const pid = Number(readFileSync(pidFile, 'utf8'))
   assert.throws(() => process.kill(pid, 0), /ESRCH/)
   assert.deepEqual(readdirSync(profiles), [])
+})
+
+test('test reliability model evidence binds inputs, patches, scores and trigger decisions', () => {
+  const skill = 'dsh-spec-test-reliability'
+  const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-20-pr116')
+  const corpusRoot = join(EVAL_SOURCE_ROOT, skill)
+  const behaviorScenarios = new Map([
+    ['candidate-port', 'reserve-port-at-listener'],
+    ['candidate-global-state', 'restore-exact-global-state'],
+    ['candidate-diagnosis', 'diagnose-without-fixing'],
+    ['candidate-slow-suite', 'redesign-slow-repeated-suite'],
+  ])
+  const scenarios = new Map(readCorpus(skill).evals.map((scenario) => [scenario.id, scenario] as const))
+  for (const [run, scenarioId] of behaviorScenarios) {
+    const root = join(evidenceRoot, run)
+    const scenario = scenarios.get(scenarioId)
+    assert.ok(scenario, 'missing test-reliability scenario ' + scenarioId)
+    const status = readFileSync(join(root, 'status.txt'), 'utf8')
+    assert.match(status, /^status: pass$/m)
+    const assertionCount = Number(/^assertions: (\d+)\/\1$/m.exec(status)?.[1])
+    assert.ok(Number.isInteger(assertionCount) && assertionCount > 0, run + ' assertion count')
+    const passed = readFileSync(join(root, 'assertions.txt'), 'utf8').trim().split('\n')
+    assert.equal(passed.length, assertionCount, run + ' assertion lines')
+    assert.equal(
+      passed.every((line) => line.startsWith('PASS ')),
+      true,
+      run + ' has a failed assertion',
+    )
+    assert.ok(readFileSync(join(root, 'final.md'), 'utf8').trim().length > 0)
+    const trace = readFileSync(join(root, 'trace.jsonl'), 'utf8')
+      .trim()
+      .split('\n')
+      .map(
+        (line) =>
+          JSON.parse(line) as {
+            type: string
+            sha256?: string
+            item?: { type?: string; command?: string; exit_code?: number }
+          },
+      )
+    assert.equal(trace.at(-1)?.type, 'turn.completed', run + ' did not complete')
+    assert.equal(
+      trace.some(
+        (entry) =>
+          entry.type === 'item.completed' &&
+          entry.item?.type === 'command_execution' &&
+          entry.item.exit_code === 0 &&
+          commandReadsSkill(entry.item.command, skill),
+      ),
+      true,
+      run + ' did not read the candidate skill',
+    )
+    assert.equal(
+      trace.find((entry) => entry.type === 'skill')?.sha256,
+      createHash('sha256')
+        .update(readFileSync(join(REPO_ROOT, 'skills', skill, 'SKILL.md')))
+        .digest('hex'),
+      run + ' did not exercise the current skill',
+    )
+
+    const inputLines = readFileSync(join(root, 'input-manifest.sha256'), 'utf8').trim().split('\n')
+    assert.deepEqual(
+      inputLines.map((line) => line.split(/\s{2,}/)[1]),
+      scenario.files,
+      run + ' input manifest does not match the declared scenario files',
+    )
+    for (const line of inputLines) {
+      const [hash, relative] = line.split(/\s{2,}/)
+      assert.equal(
+        createHash('sha256')
+          .update(readFileSync(join(corpusRoot, relative ?? '')))
+          .digest('hex'),
+        hash,
+        run + ' changed ' + relative,
+      )
+    }
+    if (run === 'candidate-diagnosis') {
+      assert.equal(readFileSync(join(root, 'changed-paths.txt'), 'utf8'), '')
+      assert.equal(existsSync(join(root, 'patch.diff')), false)
+    } else {
+      for (const line of readFileSync(join(root, 'artifacts.sha256'), 'utf8').trim().split('\n')) {
+        const [hash, relative] = line.split(/\s{2,}/)
+        assert.equal(
+          createHash('sha256')
+            .update(readFileSync(join(root, relative ?? '')))
+            .digest('hex'),
+          hash,
+          run + ' changed ' + relative,
+        )
+      }
+      assert.match(readFileSync(join(root, 'test-output.txt'), 'utf8'), /pass [1-9]/)
+    }
+  }
+  const portPatch = readFileSync(join(evidenceRoot, 'candidate-port', 'patch.diff'), 'utf8')
+  assert.match(portPatch, /listen\(port = 0\)/)
+  assert.doesNotMatch(portPatch, /^\+.*findFreePort/m)
+  const globalPatch = readFileSync(join(evidenceRoot, 'candidate-global-state', 'patch.diff'), 'utf8')
+  assert.match(globalPatch, /finally/)
+  assert.match(globalPatch, /(?:t\.after|afterEach)/)
+  const slowPatch = readFileSync(join(evidenceRoot, 'candidate-slow-suite', 'patch.diff'), 'utf8')
+  assert.match(slowPatch, /report\.test\.mjs|report\.contract\.test\.mjs/)
+  assert.match(slowPatch, /RUN_REPRESENTATIVE_FIXTURE|test:contract/)
+  assert.match(slowPatch, /matrix\.node == 24|run_integration: true/)
+  assert.doesNotMatch(slowPatch, /timeout\s*[:=]\s*\d+/i)
+
+  const triggerInputs = new Map(
+    readFileSync(join(evidenceRoot, 'trigger-input.sha256'), 'utf8')
+      .trim()
+      .split('\n')
+      .map((line) => {
+        const [hash, path] = line.split(/\s{2,}/)
+        return [path, hash] as const
+      }),
+  )
+  for (const path of [
+    `tests/skill-evals/${skill}/trigger-evals.json`,
+    `tests/skill-evals/${skill}/trigger-fixtures/AGENTS.md`,
+    `skills/${skill}/SKILL.md`,
+  ]) {
+    assert.equal(
+      triggerInputs.get(path),
+      createHash('sha256')
+        .update(readFileSync(join(REPO_ROOT, path)))
+        .digest('hex'),
+      'trigger input differs: ' + path,
+    )
+  }
+
+  const triggerCorpus = JSON.parse(readFileSync(join(corpusRoot, 'trigger-evals.json'), 'utf8')) as {
+    queries: Array<{ id: string; should_trigger: boolean }>
+  }
+  const matrix = new Map(
+    readFileSync(join(evidenceRoot, 'trigger-matrix.tsv'), 'utf8')
+      .trim()
+      .split('\n')
+      .slice(1)
+      .map((line) => {
+        const [id, shouldTrigger, selected, result] = line.split('\t')
+        assert.ok(id && shouldTrigger && selected && result, 'malformed test-reliability trigger row')
+        return [id, { shouldTrigger, selected, result }] as const
+      }),
+  )
+  assert.ok(triggerCorpus.queries.length > 0, 'test-reliability trigger corpus must not be empty')
+  assert.equal(
+    triggerCorpus.queries.some((query) => query.should_trigger),
+    true,
+  )
+  assert.equal(
+    triggerCorpus.queries.some((query) => !query.should_trigger),
+    true,
+  )
+  assert.equal(matrix.size, triggerCorpus.queries.length)
+  for (const query of triggerCorpus.queries) {
+    const row = matrix.get(query.id)
+    assert.ok(row, 'missing test-reliability trigger row ' + query.id)
+    const final = readFileSync(join(evidenceRoot, 'trigger', query.id, 'final.md'), 'utf8')
+    const marker = final.trim().split('\n').at(-1)
+    assert.ok(
+      marker === 'SELECT: dsh-spec-test-reliability' || marker === 'SELECT: none',
+      query.id + ' is missing a stable selection marker',
+    )
+    const selected = marker === 'SELECT: dsh-spec-test-reliability'
+    assert.equal(row.shouldTrigger, String(query.should_trigger))
+    assert.equal(row.selected, String(selected))
+    assert.equal(row.result, query.should_trigger === selected ? 'pass' : 'fail')
+    assert.equal(row.result, 'pass')
+  }
 })
 
 test('browser GIF model evidence binds inputs, scores, artifacts and trigger decisions', () => {
@@ -1421,6 +1630,9 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
       }
     }
     if (run === 'candidate-absent') assert.equal(existsSync(join(root, 'artifact')), false)
+  }
+  for (const gif of ['candidate-real/artifact/settings-save.gif', 'candidate-fixture/artifact/fixture-demo.gif']) {
+    assert.equal(readFileSync(join(evidenceRoot, gif)).subarray(0, 3).toString('ascii'), 'GIF')
   }
   for (const run of ['candidate-real', 'candidate-fixture']) {
     const artifactRoot = join(evidenceRoot, run, 'artifact')

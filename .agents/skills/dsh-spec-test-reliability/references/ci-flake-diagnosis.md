@@ -21,7 +21,7 @@ Classify from recorded evidence, not from the eventual fix:
 - **Platform or entry-path mismatch:** the failure consistently follows an operating system, shell, filesystem rule, source/build mode, or executable entry. Precision, name case, handle-release timing, and permission behavior can differ between platforms.
 - **Product concurrency defect:** the test controls its resources, reproduces deterministically with explicit overlap, and exposes a race in shipped behavior.
 - **External-provider transience:** a live API or network boundary owns the failure and it matches the documented retry policy.
-- **Runner infrastructure:** checkout, dependency download, disk, host process, or runner service fails independently of the test command. Require direct runner evidence before assigning this class.
+- **Runner infrastructure:** checkout, dependency download, disk, host process, or runner service fails independently of the test command. Require direct runner evidence before assigning this class. When a self-hosted pool exposes no host metrics, classify only what the logs establish: the same signature across unrelated branches on one pool supports shared-host contention, while the exact host or co-tenant remains unverified.
 
 If evidence supports more than one independent fact, report each one. Do not collapse a timeout, signal, exit code, and assertion into one inferred outcome.
 

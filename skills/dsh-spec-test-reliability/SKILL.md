@@ -1,7 +1,7 @@
 ---
 name: dsh-spec-test-reliability
 license: "MIT; upstream and repository notices in THIRD_PARTY_NOTICES"
-description: "Use when designing, reviewing, or diagnosing tests and fixtures that can fail under CI concurrency, shared host resources, clocks, process-global state, subprocesses, network listeners, or asynchronous teardown. 用于设计、评审或诊断在 CI 并发、共享主机资源、时钟、进程全局状态、子进程、网络监听或异步清理条件下可能不稳定的测试与 fixture。"
+description: "Use when designing, reviewing, or diagnosing slow, over-broad, or unstable automated tests and fixtures that can fail under CI concurrency, shared host resources, clocks, process-global state, subprocesses, network listeners, or asynchronous teardown. Not for general test plans, product QA checklists, or coverage-only work. 用于设计、评审或诊断过慢、范围过大，或在 CI 并发、共享主机资源、时钟、进程全局状态、子进程、网络监听或异步清理条件下可能不稳定的自动化测试与 fixture；不用于普通测试计划、产品 QA 清单或单纯覆盖率工作。"
 ---
 
 # Reliable tests
@@ -30,6 +30,8 @@ Assume these layers can overlap unless the active configuration proves otherwise
 Process isolation does not isolate host ports, predictable filesystem paths, external services, databases, sockets, caches, or inherited child processes. For every acquired resource, identify its owner, atomic allocation mechanism, observable readiness signal, registered cleanup, and quiescent completion signal.
 
 Do not serialize an entire suite because one fixture lacks isolation. Narrow the exclusive scope or change the allocation first.
+
+By default, split a mixed test into fast contract cases and one shared real-resource scenario, and run expensive evidence only in a lane where the result can differ. A diagnosis-only request stays read-only until the user also authorizes repair.
 
 ## Allocate resources atomically
 
@@ -67,11 +69,23 @@ A value the operating system owns does not always round-trip unchanged.
 
 Prefer an observation that holds on every supported platform.
 
+## Design the smallest sufficient test
+
+Elapsed time is usually a property of test design, not a budget to raise. Before changing a timeout, remove repeated work or move evidence to the narrowest sufficient layer:
+
+- keep fast contract and preflight cases independent of expensive browsers, media, containers, or real services;
+- create one expensive fixture per owning scenario instead of rebuilding it for every case;
+- use the smallest input that can expose the intended regression;
+- run an expensive integration or evidence scenario once on a representative CI lane unless portability requires another run;
+- split a test that repeats the same slow assertion across many tiny variations, or collapse the variations into one table-driven contract with one external execution.
+
+A timeout may bound named awaited work; it does not make duplicate setup or a suite-wide integration matrix affordable. Do not multiply every test group's timeout because one group is slow.
+
 ## Budget timeouts against the lane
 
 A per-case timeout overrides the runner or job budget instead of yielding to it. A suite bound by process creation takes the lane budget; a tighter value states why it is tighter.
 
-Raise setup and teardown budgets with the case budget because they pay the same contention. Where a timeout is the subject, keep the outer wait far larger than the timeout under test.
+When a budget must change, size setup and teardown with the named work because they pay the same contention; otherwise moving only the case budget relocates the failure. Where a timeout is the subject, keep the outer wait far larger than the timeout under test.
 
 ## Synchronize on state
 

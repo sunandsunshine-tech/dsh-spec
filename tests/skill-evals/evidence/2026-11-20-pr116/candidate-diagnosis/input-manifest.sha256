@@ -1,0 +1,5 @@
+740a11e5b81d741060b335c3325c6930c81399034cb070f3a2d5dcdd5ec6f6a4  evals/files/diagnosis-only/README.md
+4d208cee6da3f4df86601a52cb84be807682e5c1343be86a043fd3813a869e8d  evals/files/diagnosis-only/ci.log
+e62cc817cea93fd450d2580b63c987e50079731671281d6c0019c0c3d0aaf928  evals/files/diagnosis-only/package.json
+7aaad470ec0f83d6b302715dbf33cca94229155e8b270b44e7d76db52c3e652d  evals/files/diagnosis-only/support/server.mjs
+d35b199244ccc6460c17e1030df141f5c5ac9de91e9b2c22ef5c9c71fe3805fa  evals/files/diagnosis-only/tests/server.test.mjs

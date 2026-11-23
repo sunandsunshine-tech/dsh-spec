@@ -1,0 +1,6 @@
+8c18ff68dabbf734fbab86cbdefadc01e27b8cb658d7bcc6c24bd4feee541cab  evals/files/global-state/README.md
+671f08291d7540079144863d51651e4cf34b3303232b3e881ea510e61a589b27  evals/files/global-state/package.json
+aeec51f7ff16175a130141e544c02f777816d44409b9d4e0f76e7f0dd2883f7f  evals/files/global-state/src/config.mjs
+909b9249e6ae3b0729166b5ff7430032f3f216421f4fb1ea3d2dfd1a403426ef  evals/files/global-state/support/clock.mjs
+18a5db61f0d5aee2472dc3629a7ebb588792b8417effae3025615c7b2b2d6c1d  evals/files/global-state/tests/config.test.mjs
+01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b  evals/files/global-state/fixtures/project/.gitkeep

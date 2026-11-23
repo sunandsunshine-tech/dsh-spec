@@ -1,0 +1,54 @@
+diff --git a/README.md b/README.md
+index 7e147c4..81319c5 100644
+--- a/README.md
++++ b/README.md
+@@ -3,3 +3,3 @@
+-The suite starts several test processes in one CI job. `findFreePort()` asks the operating
+-system for a free port, closes the probe, and later reopens the real listener on the returned
+-number.
++The suite can run several test processes in one CI job. The fixture binds its listener directly
++to an operating-system-assigned port and reads the actual address only after the listener is
++ready.
+@@ -7,3 +7,2 @@ number.
+-Run `npm test`. A competitor listener acquires the probed port before the application listener, so
+-the pre-fix fixture fails deterministically with `EADDRINUSE`. The retained CI log shows the same
+-signature from two shards.
++Run `npm test`. The retained CI log shows the pre-fix signature from two shards:
++`EADDRINUSE` after a separately probed port was released and bound again.
+diff --git a/support/server.mjs b/support/server.mjs
+index e72bc0b..cd047bb 100644
+--- a/support/server.mjs
++++ b/support/server.mjs
+@@ -3 +3 @@ import { createServer } from 'node:http'
+-export async function listen(port) {
++export async function listen(port = 0) {
+@@ -22,12 +21,0 @@ export async function listen(port) {
+-
+-export async function findFreePort(afterProbe) {
+-  const probe = createServer()
+-  await new Promise((resolve, reject) => {
+-    probe.once('error', reject)
+-    probe.listen(0, '127.0.0.1', resolve)
+-  })
+-  const port = probe.address().port
+-  await new Promise((resolve, reject) => probe.close((error) => (error ? reject(error) : resolve())))
+-  await afterProbe?.(port)
+-  return port
+-}
+diff --git a/tests/server.test.mjs b/tests/server.test.mjs
+index ec6a6cc..017ce08 100644
+--- a/tests/server.test.mjs
++++ b/tests/server.test.mjs
+@@ -3 +3 @@ import { after, before, test } from 'node:test'
+-import { findFreePort, listen } from '../support/server.mjs'
++import { listen } from '../support/server.mjs'
+@@ -6 +5,0 @@ let server
+-let competitor
+@@ -9,4 +8 @@ before(async () => {
+-  const port = await findFreePort(async (candidate) => {
+-    competitor = await listen(candidate)
+-  })
+-  server = await listen(port)
++  server = await listen()
+@@ -17 +12,0 @@ after(async () => {
+-  await competitor?.close()

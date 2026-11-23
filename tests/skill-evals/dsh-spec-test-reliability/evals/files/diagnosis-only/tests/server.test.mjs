@@ -1,5 +1,6 @@
-import { listen } from './support/server'
-import { findFreePort } from './support/network'
+import assert from 'node:assert/strict'
+import { test } from 'node:test'
+import { findFreePort, listen } from '../support/server.mjs'
 
 test('isolated readiness fixture', async () => {
   const port = await findFreePort()

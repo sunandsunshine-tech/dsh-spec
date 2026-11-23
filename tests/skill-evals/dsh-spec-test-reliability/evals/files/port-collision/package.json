@@ -1,0 +1,8 @@
+{
+  "name": "port-collision-fixture",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/server.test.mjs"
+  }
+}

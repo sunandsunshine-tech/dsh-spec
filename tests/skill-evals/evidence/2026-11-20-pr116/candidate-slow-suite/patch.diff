@@ -1,0 +1,48 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index 94de77b..acc811a 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -10,0 +11,2 @@ jobs:
++    env:
++      RUN_REPRESENTATIVE_FIXTURE: ${{ matrix.node == 24 && 'true' || 'false' }}
+diff --git a/tests/report.test.mjs b/tests/report.test.mjs
+index b240ddf..93c2a74 100644
+--- a/tests/report.test.mjs
++++ b/tests/report.test.mjs
+@@ -10 +10,2 @@ async function expensiveFixture() {
+-for (const [name, expected] of [
++const expectedRows = [1, 2, 3]
++const rowCases = [
+@@ -14,5 +15,10 @@ for (const [name, expected] of [
+-]) {
+-  test(name, async () => {
+-    const fixture = await expensiveFixture()
+-    assert.equal(fixture.rows.length, 3)
+-    assert.ok(fixture.rows.includes(expected))
++]
++
++function assertRowContract(rows, expected) {
++  assert.equal(rows.length, expectedRows.length)
++  assert.ok(rows.includes(expected))
++}
++
++for (const [name, expected] of rowCases) {
++  test(name, () => {
++    assertRowContract(expectedRows, expected)
+@@ -20,0 +27,16 @@ for (const [name, expected] of [
++
++const runRepresentativeFixture =
++  process.env.RUN_REPRESENTATIVE_FIXTURE !== 'false'
++
++test(
++  'loads the representative report fixture',
++  {
++    skip: runRepresentativeFixture
++      ? false
++      : 'runs in one representative CI Node lane',
++  },
++  async () => {
++    const fixture = await expensiveFixture()
++    assert.deepEqual(fixture.rows, expectedRows)
++  },
++)
