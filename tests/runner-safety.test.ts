@@ -20,6 +20,7 @@ import { test } from 'node:test'
 
 const safety = (await import('./skill-evals/runner-safety.mjs' as string)) as {
   acquireFileLock(path: string): Promise<{ release(): Promise<void> }>
+  addOutputBytes(currentBytes: number, chunk: string, limitBytes: number, label: string): number
   assertCredentialFreeBaseUrl(value: string, label: string): URL
   assertEvidenceRunPath(root: string, output: string, expectedSkill?: string): void
   assertInputFile(root: string, file: string, label: string): string
@@ -409,6 +410,11 @@ test('input modes are bound in the manifest format', async () => {
   } finally {
     rmSync(root, { recursive: true, force: true })
   }
+})
+
+test('model process output remains inside its per-stream byte budget', () => {
+  assert.equal(safety.addOutputBytes(0, 'é', 2, 'stdout'), 2)
+  assert.throws(() => safety.addOutputBytes(2, 'x', 2, 'stdout'), /stdout exceeds 2 bytes/)
 })
 
 test('machine paths retain spaces and non-ASCII names and artifact hashing refuses links', async () => {

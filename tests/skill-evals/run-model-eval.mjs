@@ -25,6 +25,7 @@ import {
   assertNoSymlinkComponents,
   assertProjectPath,
   assertRegularNonEmptyFile,
+  addOutputBytes,
   acquireFileLock,
   browserExecutablePaths,
   capabilityMaskPaths,
@@ -161,8 +162,11 @@ function runInterruptible(command, args, options) {
       stdio: ['ignore', 'pipe', 'pipe'],
       ...options,
     })
-    let stdout = ''
-    let stderr = ''
+    const stdout = []
+    const stderr = []
+    let stdoutBytes = 0
+    let stderrBytes = 0
+    let outputError
     let interrupted
     let killTimer
     const cleanup = () => {
@@ -182,10 +186,22 @@ function runInterruptible(command, args, options) {
     child.stdout.setEncoding('utf8')
     child.stderr.setEncoding('utf8')
     child.stdout.on('data', (chunk) => {
-      stdout += chunk
+      try {
+        stdoutBytes = addOutputBytes(stdoutBytes, chunk, 128 * 1024 * 1024, 'model stdout')
+        stdout.push(chunk)
+      } catch (error) {
+        outputError ??= error
+        child.kill('SIGKILL')
+      }
     })
     child.stderr.on('data', (chunk) => {
-      stderr += chunk
+      try {
+        stderrBytes = addOutputBytes(stderrBytes, chunk, 128 * 1024 * 1024, 'model stderr')
+        stderr.push(chunk)
+      } catch (error) {
+        outputError ??= error
+        child.kill('SIGKILL')
+      }
     })
     child.once('error', (error) => {
       cleanup()
@@ -193,7 +209,11 @@ function runInterruptible(command, args, options) {
     })
     child.once('close', (status, signal) => {
       cleanup()
-      resolveRun({ status, signal, stdout, stderr, interrupted })
+      if (outputError) {
+        rejectRun(outputError)
+        return
+      }
+      resolveRun({ status, signal, stdout: stdout.join(''), stderr: stderr.join(''), interrupted })
     })
   })
 }

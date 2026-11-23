@@ -314,6 +314,12 @@ export function parseNulSeparatedPaths(output) {
   return output.split('\0').filter(Boolean)
 }
 
+export function addOutputBytes(currentBytes, chunk, limitBytes, label) {
+  const nextBytes = currentBytes + Buffer.byteLength(chunk)
+  if (nextBytes > limitBytes) throw new Error(`${label} exceeds ${limitBytes} bytes`)
+  return nextBytes
+}
+
 export function hashFileNoFollow(path) {
   const fd = openSync(path, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0))
   try {
