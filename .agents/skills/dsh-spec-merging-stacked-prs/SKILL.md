@@ -54,7 +54,7 @@ query($owner: String!, $name: String!, $number: Int!) {
 }'
 ```
 
-Follow `pageInfo.hasNextPage` with an `after` argument when the stack is larger than the page. Establish the expected bottom-to-top order from the live PR bases: the bottom targets the trunk, and each higher PR targets the head branch immediately below it. The trunk is the repository's default branch (`gh repo view --json defaultBranchRef`).
+Follow `pageInfo.hasNextPage` with an `after` argument when the stack is larger than the page. Establish the expected bottom-to-top order from the live PR bases: the bottom targets the trunk, and each higher PR targets the head branch immediately below it. The trunk is the stack's `baseRefName`, or the bottom PR's `baseRefName` when linking a chain; it need not be the repository default branch.
 
 ## Link missing stack members
 
@@ -84,7 +84,7 @@ A history rewrite is allowed after review where the landing repository's instruc
 
 ## Preflight the merge range
 
-Re-query the official stack immediately before merging. Require every selected PR to be open, non-draft, in the expected order, and compliant with the repository's review and check requirements. Read that compliance from the same metadata, not from `mergeStateStatus` alone. A `CHANGES_REQUESTED` review, a failed required check, a conflict, a still-computing `UNKNOWN`, or a `BEHIND` state that repository policy forbids are blockers. `BLOCKED` can describe only the unmerged parent of a dependent layer and is a blocker only when its required reviews, checks, or conflicts establish one. `UNSTABLE` is a blocker only when a required check failed.
+Re-query the official stack immediately before merging. Require every selected PR to be open, non-draft, in the expected order, and compliant with the full base-branch protections for the stack trunk and each dependent base. Use `gh pr checks <pr> --required` for required checks; a raw `statusCheckRollup` can retain superseded failures and does not identify required checks. A `CHANGES_REQUESTED` review, a failed required check, a conflict, a still-computing `UNKNOWN`, or any `BEHIND` state is a blocker. The native stack also requires linear history: the trunk head must be an ancestor of the bottom PR head, and each lower head must be an ancestor of the next higher head. Refresh the stack when either condition fails. `BLOCKED` can describe the unmerged parent of a dependent layer and is a blocker only when its required reviews, checks, conflicts, or missing base requirements establish one. `UNSTABLE` is a blocker only when a required check failed.
 
 "Land the stack" selects the whole stack; a partial landing requires an explicit boundary PR and includes every layer from the bottom through that boundary. Treat each PR's state independently: a ready top layer does not prove its dependencies are ready.
 
@@ -127,6 +127,7 @@ Anything other than `0` blocks deletion.
 
 - [ ] Native `gh stack` support is available, every PR branch is in the same repository, and the worktree is clean with live head OIDs fetched.
 - [ ] Live PR bases establish one bottom-to-top chain; the official stack object reports one stack with the expected trunk, entries and order; an eligible same-author unstacked chain was linked, or user direction was asked for.
+- [ ] The declared stack base, full base-branch protections, required checks, and linear trunk-to-tip ancestry pass; no selected layer is `BEHIND`.
 - [ ] Any rewritten layer passed the relevant checks, and review threads, approvals, mergeability and checks were re-audited after the push.
 - [ ] Re-querying the official stack before the merge finds every selected PR open, non-draft, in order, with no changes-requested review or failed required check; dependency-only `BLOCKED` is not treated as a failure.
 - [ ] The whole stack, or the explicitly bounded prefix, was merged through `gh stack merge` with the landing repository's method; no per-PR merge command was used.
