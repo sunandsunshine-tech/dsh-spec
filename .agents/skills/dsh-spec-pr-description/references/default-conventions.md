@@ -26,18 +26,18 @@ A project that declares no conventions of its own can take this file as its work
 
 ## Optional tracker lifecycle examples
 
-These examples cover tracker metadata around a change. The change-description skill does not require them; use a project's own tracker policy when one exists.
+These examples cover tracker metadata around a change. The change-description skill does not require them, and they authorize no external write. Use a project's own tracker policy whenever one exists; perform lifecycle operations only when the user or project explicitly includes that work in the task.
 
 ### Pull-request labels
 
 - Exactly one kind label from a closed set: `kind/feature`, `kind/bug-fix`, `kind/doc`, `kind/testing`, `kind/cleanup`, `kind/dependency`; the kind records the dominant intent. Issues use the tracker's native issue type instead.
 - At least one materially affected `area/*` label; the set is extensible with `area/<lowercase-kebab-case>` for a durable, reusable domain — not for one change, an incidental path, a temporary project, a status or a person.
 - At most one priority label, `p0`–`p3`. A resolving change matches the highest priority among the issues it resolves; when it carries a priority, every issue it resolves has one.
-- Default for a change without tracker conventions: set the labels the tracker offers and omit them where none apply; the description itself carries no label requirement.
+- A project that explicitly chooses to maintain labels may select from these names; when the task does not authorize label work, leave labels unchanged.
 
 ### Project fields, statuses and dates
 
 - Project single-select `Priority` and date `Start Date` fields; maintainers set the Project Priority manually, and the tracker's own issue priority field is not the same value.
 - Statuses: `Inbox`, `Backlog`, `Ready`, `In progress`, `In review`, `Done`, `No action`.
 - Opening the change initializes an empty `Start Date` for every referenced issue, informational references included, from the creation date in the project time zone; existing values are preserved. Opened, reopened or body-edited changes can advance resolving issues to `In progress`, a review request to `In review`, and a changes-requested review back to `In progress`.
-- Default for a change without tracker conventions: record the fields and statuses the tracker already shows and otherwise let the tracker's defaults stand; the description does not restate them.
+- A project that explicitly chooses to maintain these fields may record them; otherwise read any existing metadata needed for review and leave it unchanged. The description never restates or mutates tracker lifecycle state by default.

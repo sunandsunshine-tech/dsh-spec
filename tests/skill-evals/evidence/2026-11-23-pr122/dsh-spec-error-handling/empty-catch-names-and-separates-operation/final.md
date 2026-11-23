@@ -1,8 +1,8 @@
-Updated [README.md](/workspace/evals/files/empty-catch/README.md:6) so the handler:
+Updated [README.md](/workspace/evals/files/empty-catch/README.md:6) so:
 
-- Applies only to temporary-directory removal.
-- Ignores only structured `ENOENT` failures.
-- Rethrows every other cleanup failure.
-- Leaves commit and notification outside the handler so their failures propagate.
+- The catch block covers only `removeTemporaryDirectory()`.
+- Cleanup suppresses only the structured `ENOENT` failure.
+- All other cleanup failures rethrow.
+- `commitBatch()` and `notifyOwner()` remain outside the handler, so their failures propagate.
 
-`git diff --check` passes.
+Verification: `git diff --check` passes.

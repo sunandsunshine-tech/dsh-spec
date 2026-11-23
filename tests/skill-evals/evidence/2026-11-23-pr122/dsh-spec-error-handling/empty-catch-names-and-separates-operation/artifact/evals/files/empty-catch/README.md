@@ -7,14 +7,18 @@ A missing temporary directory is the only safe cleanup failure.
 try {
   await removeTemporaryDirectory()
 } catch (error) {
-  if (error?.code !== 'ENOENT') {
+  if (error.code !== 'ENOENT') {
     throw error
   }
-  // A missing temporary directory means cleanup is already complete.
+
+  // The directory is already absent, so cleanup's postcondition holds.
 }
 
 await commitBatch()
 await notifyOwner()
 ```
+
+Only a missing temporary directory is safe to suppress. Keep commit and
+notification outside the cleanup handler so their failures propagate.
 
 The project represents a missing path with the existing `ENOENT` code on its structured failure.

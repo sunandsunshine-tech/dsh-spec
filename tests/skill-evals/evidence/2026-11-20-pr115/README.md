@@ -4,11 +4,13 @@
 > `final.md` reports a different application origin and GIF byte count from the artifact in the
 > same leaf, and the retained media was regenerated after the model run. The model response is left
 > unchanged for review history; its execution status is not a statement that the retained trace and
-> media came from one run.
+> media came from one run. Current same-run evidence is under
+> `tests/skill-evals/evidence/2026-11-23-pr122/dsh-spec-browser-gif-evidence/real-ui-change-uses-one-isolated-run/`.
 
 These runs exercise `dsh-spec-browser-gif-evidence` against the declared local build.
-`evaluation-files.sha256` freezes the historical fixture inputs; the current evaluation fixture has
-separate deterministic capture coverage in `tests/browser-gif-capture.test.ts`.
+The checked-in `evaluation-files.sha256` freezes the historical fixture hashes without requiring
+branch-only Git objects. The current evaluation fixture has separate deterministic capture coverage
+in `tests/browser-gif-capture.test.ts`.
 
 | Scenario | Assertions | Result |
 |---|---:|---|

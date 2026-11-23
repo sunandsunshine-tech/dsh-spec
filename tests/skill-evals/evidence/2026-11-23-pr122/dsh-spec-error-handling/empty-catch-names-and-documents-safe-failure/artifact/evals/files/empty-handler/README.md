@@ -6,8 +6,8 @@ continued existence, and no caller can act on a failure from that removal.
 ```js
 try {
   await unlink(tempFile)
-} catch (_cleanupFailed) {
-  // Cleanup failure is safe to discard: the owner does not depend on the
-  // temporary file's continued existence, and no caller can act on the failure.
+} catch (cleanupError) {
+  // Any `unlink` failure is tolerated: removal is best effort, the owner has no
+  // state that depends on the file, and no caller can act on this failure.
 }
 ```

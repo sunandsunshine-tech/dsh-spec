@@ -1,7 +1,8 @@
-Renamed the pair and record to [new-guide.md](/workspace/evals/files/source-rename/docs/new-guide.md), [new-guide.zh.md](/workspace/evals/files/source-rename/docs/new-guide.zh.md), and [new-guide.i18n.yaml](/workspace/evals/files/source-rename/docs/new-guide.i18n.yaml). Updated both switchers and the inbound [index.md](/workspace/evals/files/source-rename/docs/index.md:3) link. Chinese prose was left unchanged.
+Renamed the document set to `new-guide.*`, including the [Chinese counterpart](/workspace/evals/files/source-rename/docs/new-guide.zh.md) and refreshed aggregate record. Updated both language switchers and the inbound [index link](/workspace/evals/files/source-rename/docs/index.md:3). Chinese prose was not retranslated; only its switcher path changed.
 
-Validation:
+Commands and results:
 
-- `translate-pair.mjs write --all --select docs/new-guide.md` — record written successfully.
-- `translate-pair.mjs check docs/new-guide.md` — `1 pair(s) consistent`.
-- No remaining `old-guide` references; `git diff --check` passed.
+- `write --all` → `1 record(s) written`
+- `check docs/new-guide.md` → `1 pair(s) consistent`
+
+No stale `old-guide` references remain.

@@ -1,8 +1,8 @@
 diff --git a/evals/files/empty-catch/README.md b/evals/files/empty-catch/README.md
-index 6d7a031..276b044 100644
+index 6d7a031..f772314 100644
 --- a/evals/files/empty-catch/README.md
 +++ b/evals/files/empty-catch/README.md
-@@ -6,11 +6,15 @@ A missing temporary directory is the only safe cleanup failure.
+@@ -6,11 +6,19 @@ A missing temporary directory is the only safe cleanup failure.
  ```js
  try {
    await removeTemporaryDirectory()
@@ -11,14 +11,18 @@ index 6d7a031..276b044 100644
 -} catch (_) {
 -  // ignore
 +} catch (error) {
-+  if (error?.code !== 'ENOENT') {
++  if (error.code !== 'ENOENT') {
 +    throw error
 +  }
-+  // A missing temporary directory means cleanup is already complete.
++
++  // The directory is already absent, so cleanup's postcondition holds.
  }
 +
 +await commitBatch()
 +await notifyOwner()
  ```
  
++Only a missing temporary directory is safe to suppress. Keep commit and
++notification outside the cleanup handler so their failures propagate.
++
  The project represents a missing path with the existing `ENOENT` code on its structured failure.

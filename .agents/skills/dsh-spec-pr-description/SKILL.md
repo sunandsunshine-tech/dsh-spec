@@ -10,7 +10,7 @@ A change request's description states why the change exists, what it changes, wh
 
 ## Defaults
 
-A default is the value or strategy this skill declares at its use site. It applies when the current request and existing project instructions leave that choice open. A user turn or explicit parameter supplies a one-off value. Existing project instructions supply a persistent override and are read without being modified or copied. Missing project instructions are valid, so do not ask the user to choose a default or create or modify an instruction file merely to select one.
+Apply this skill's use-site default only when neither the request nor existing project instructions choose one. Treat existing instructions as authoritative read-only input; do not ask for, create, modify, or copy instructions merely to select a default.
 
 ## Description structure
 
@@ -30,14 +30,14 @@ Each change request in a stack has its own description, covering only its layer 
 
 - **Interface changes**: summarize changes to commands, flags, configuration keys, environment variables, public APIs and exports, extension or plugin registration values, protocols, and persisted formats; write `None` when there are none.
 - **Behavior changes**: summarize results that users, models, developers, or the system can observe, including defaults, performance, timing, and output; write `None` when there are none. Changes to documentation and agent instructions are behavior changes for the readers they guide.
-- **Module responsibilities and dependencies**: when the change adds or removes a package, module, or workspace boundary, a runtime dependency between them, or a responsibility assigned to one of them, report the affected responsibilities, added and removed dependency edges, optional edges, composition-only relationships, and reverse edges; write `None` when none moves. When a change adds or changes a call across packages, include the bounded call flow in three to six pseudo-code lines.
+- **Module responsibilities and dependencies**: when the change adds or removes a package, module, or workspace boundary, a runtime dependency between them, or a responsibility assigned to one of them, report the affected responsibilities, added and removed dependency edges, optional edges, composition-only relationships, and reverse edges; write `None` when none moves. When a change adds or changes a cross-package call, include a bounded pseudo-code call flow.
 - State only behavior that the diff guarantees and the tests cover.
 
 ### Module responsibilities and dependencies
 
 Derive the edge set from the base-to-head manifest diff, never from memory. Read the adopting project's declared runtime-dependency manifests and optional or peer-like edge declarations; when conventions declare no equivalent, use the files that build or launch each unit. Name every added or removed runtime dependency as `A → B` for “A depends on B”; keep development-only, test-fixture, template, and third-party edges out, and keep composition roots in a separate item because mounting a unit is not a runtime call. For each added edge `A → B`, verify that B's runtime dependencies do not name A, then state that no reverse edge exists or list each one.
 
-A responsibility table uses one row per changed or depended-on unit: the unit, its responsibility in one sentence, and whether this change adds, removes, changes, or leaves it in place. A reviewer uses the table to judge that each affected unit has one coherent responsibility and that each added edge is required by that responsibility. A package that only supplies a dependency needs a row only when its responsibility explains why the edge is necessary. Call flow is a short bounded path, not an implementation walkthrough; omit it when no cross-package call changes.
+A responsibility table uses one row per changed or depended-on unit: the unit, its responsibility in one sentence, and whether this change adds, removes, changes, or leaves it in place. A reviewer uses the table to judge that each affected unit has one coherent responsibility and that each added edge is required by that responsibility. A package that only supplies a dependency needs a row only when its responsibility explains why the edge is necessary. Call flow is a short bounded path, not an implementation walkthrough; include it only when the change adds or changes a cross-package call.
 
 ### Testing
 

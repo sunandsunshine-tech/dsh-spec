@@ -1,5 +1,5 @@
 diff --git a/evals/files/empty-handler/README.md b/evals/files/empty-handler/README.md
-index fd8440c..ba22f96 100644
+index fd8440c..86e8d67 100644
 --- a/evals/files/empty-handler/README.md
 +++ b/evals/files/empty-handler/README.md
 @@ -6,7 +6,8 @@ continued existence, and no caller can act on a failure from that removal.
@@ -8,8 +8,8 @@ index fd8440c..ba22f96 100644
    await unlink(tempFile)
 -} catch {
 -  // ignore
-+} catch (_cleanupFailed) {
-+  // Cleanup failure is safe to discard: the owner does not depend on the
-+  // temporary file's continued existence, and no caller can act on the failure.
++} catch (cleanupError) {
++  // Any `unlink` failure is tolerated: removal is best effort, the owner has no
++  // state that depends on the file, and no caller can act on this failure.
  }
  ```

@@ -20,9 +20,11 @@ An edit invalidates the scenarios whose behavior it changes. Those scenarios rec
 
 An integration scenario records every sibling revision it read. A sibling edit invalidates that scenario only when it changes the sibling behavior on which the integration depends.
 
+Current input and skill manifests bind regular-file mode alongside content. Historical runs validate their recorded hashes against checked-in evidence manifests rather than rewrite history or require branch-only Git objects. The resolved profile records auth routing, browser/media availability and sandbox mode. Inline provider credentials remain in a host-side loopback proxy; the model namespace receives only a placeholder.
+
 ## Verification
 
-`tests/skill-scenarios.test.ts` distinguishes trigger and behavior evidence. It verifies that trigger manifests use the frontmatter surface, that behavioral traces and run manifests identify the exact revision used, that input and artifact hashes still resolve, and that recorded skill hashes remain internally consistent. `tests/skill-evals/README.md` states the evidence model; the affected evidence READMEs state the scope of their runs.
+`tests/skill-scenarios.test.ts` distinguishes trigger and behavior evidence. It verifies that trigger manifests use the frontmatter surface, that behavioral traces and run manifests identify the exact revision used, that current inputs and skill modes still match, that historical inputs match their checked-in manifests, and that recorded skill hashes remain internally consistent. `tests/skill-evals/README.md` states the evidence model; the affected evidence READMEs state the scope of their runs.
 
 ## Alternatives considered
 

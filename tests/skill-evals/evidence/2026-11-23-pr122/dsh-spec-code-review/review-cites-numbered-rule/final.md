@@ -1,7 +1,7 @@
-**Finding — API-2**
+One blocking violation found:
 
-[src/config.ts](/workspace/evals/files/numbered-rule-review/src/config.ts:1) exports `parseConfig` without API documentation. The function throws when the input is empty or whitespace-only, but callers are never told that it can throw or why.
+- **`API-2`** — [src/config.ts](/workspace/evals/files/numbered-rule-review/src/config.ts:1) exports `parseConfig` without API documentation naming its error behavior. The function throws `"configuration is empty"` on line 2, but callers have no documented indication that it can throw. This violates [AGENTS.md](/workspace/evals/files/numbered-rule-review/AGENTS.md:4).
 
-No other numbered rules are violated: `API-1` is satisfied because the sole parameter is typed as `string`, and `API-3` does not apply because this is a new additive export rather than a breaking signature change.
+`API-1` is satisfied because the parameter is explicitly typed as `string`. `API-3` does not apply because this adds a new export rather than changing an existing signature.
 
-No files or Git state were modified.
+Reviewed `HEAD` (`0ec7040`) against `HEAD^` (`89dc8ec`). The worktree remains clean; no files or Git state were modified.

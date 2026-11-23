@@ -16,14 +16,14 @@ Status: implemented
 
 落地的技能是 `skills/dsh-spec-merging-stacked-prs/`：`SKILL.md` 加技能根的 `THIRD_PARTY_NOTICES`，frontmatter 的 `license` 字段点名它，因为文本改编自上游技能。它在 `.agents/skills/dsh-spec-merging-stacked-prs/` 的安装副本与之逐字节一致。该技能不随附脚本、包源或仓库测试文件：来源自己的只读 `gh` 与 GraphQL 命令按原样内联承载（R11）。
 
-机制就是上游机制，未作改动：官方的 GitHub stack 对象是成员资格权威；一条符合条件的同作者链——未入栈，或某个既有栈中保序的子集——以增量方式被链接；原生级联 rebase 与增量 merge-forward 是两种刷新历史；合并通过 `gh stack merge` 进行，绝不通过逐个 pull request 的 `gh pr merge` 加重定向；选择整个栈或一个显式限定的前缀；每个选中的 pull request 必须在删除分支之前报告 `MERGED`，而删除是单独的最后一轮。改编如下：
+机制来自上游：官方的 GitHub stack 对象是成员资格权威；一条符合条件的同作者链——未入栈，或某个既有栈中保序的子集——以增量方式被链接；原生级联 rebase 配合 rerere 是默认刷新方式，增量 merge-forward 只在 pull request 作者明确请求时使用；合并通过 `gh stack merge` 进行，绝不通过逐个 pull request 的 `gh pr merge` 加重定向；选择整个栈或一个显式限定的前缀；每个选中的 pull request 都按其实际必需评审与检查判断，因依赖父层尚未合并而形成的 `BLOCKED` 不算失败；每个选中的 pull request 必须在删除分支之前报告 `MERGED`，而删除是单独的最后一轮。改编如下：
 
 1. **名称与触发语言。** 目标名是请求的 `dsh-spec-merging-stacked-prs`；description 保留来源的触发词汇与要求含义，并追加中文触发语言。来源固定的 `master` 在正文中变成仓库的默认分支（R4）。
 2. **上游文档指针。** 根 `AGENTS.md` 指针与 cookbook 页面被处置而非承载：历史规则重绑到落地仓库自己的指令（R10），评审修复的传播被消解，因为它在技能范围之外，改写后重新审计的检查作为接管的规则保留。
 3. **合并方法。** 来源固定的 `--merge` 被重绑：合并方法是落地仓库的策略（R5）。技能采用其指令规定的方法，其次采用 GitHub 设置唯一允许的方法，否则使用 `squash`。[squash 默认值决策](2026-11-18-stack-merge-defaults-to-squash.zh.md)部分取代 R5 中的回退事实。
 4. **没有合并授权门。** 来源没有把合并挡在人类回答之后，来源边界中也没有任何东西增加这样一道门；不携带逐 pull request 授权（R8）。来源自己的询问保留：对冲突或意外栈条目的用户指示，作者不同或不可用时询问，以及在本地／远程分歧时取消。
 5. **已核验的 CLI（命令行界面）表面。** 已安装的 `gh stack` 0.1.1 提供来源所假定的命令与旗标——`link --base`、`checkout`、`sync`、`rebase`、`push`、`merge --yes --merge/--squash/--rebase`——并且没有 `--delete-branch`。两个已核验的行为塑造了文本：`gh stack link` 的分支参数会被推送且可以创建 pull request，而一个匹配不到任何 pull request 的数字参数会被当作分支名，因此链接命令使用 pull request URL（R1）；并且落地的技能只链接开放的 pull request，遇到已关闭或已合并的条目时停下并询问（R9）。
-6. **符合性证据。** 来源要求每个选中的 pull request 符合仓库的评审与检查要求。该证据从同一份元数据中读取：`mergeStateStatus` 不是 `CLEAN`（包括仍在计算的 `UNKNOWN`），或 `reviewDecision` 为 `CHANGES_REQUESTED`，都是阻塞项（R2）。
+6. **符合性证据。** 来源要求每个选中的 pull request 符合仓库的评审与检查要求。该证据从同一份元数据中读取：`CHANGES_REQUESTED`、必需检查失败、冲突、仍在计算的 `UNKNOWN`，或仓库禁止的 `BEHIND` 状态都是阻塞项；`BLOCKED` 与 `UNSTABLE` 要检查其原因，而不是仅凭标签拒绝（R2）。
 7. **部分落地。** 部分落地之后，技能重新查询官方栈，把已经报告 `MERGED` 的层视为已落地，并校验剩余 PR 仍按预期顺序链接、且目标为 trunk 或它下面的那一层（R3）。
 8. **交付。** frontmatter 增加可选的 `compatibility` 字段，说明技能所需的运行时；交付语言为英文并追加中文触发语言，中文评审草稿中文在前（R6）。本记录带有中文对侧与一致性记录。
 
@@ -90,7 +90,7 @@ PR122 的 `refresh-stack-with-rerere` 模型运行通过 4/4 项断言，覆盖�
 | # | 裁决 | 依据 | 可逆方式 |
 |---|---|---|---|
 | R1 | 链接命令使用 pull request URL，而不是数字或分支名。 | `gh stack link --help`：分支参数会被推送且可以创建 pull request，而匹配不到任何 pull request 的数字参数会被当作分支名；URL 总能解析为 pull request | 改变命令形式；先解析数字 |
-| R2 | 符合性证据是同一份元数据中的 `mergeStateStatus` 与 `reviewDecision`：不等于 `CLEAN`（包括 `UNKNOWN`）的值，或 `CHANGES_REQUESTED`，都是阻塞项。 | 来源要求符合仓库的评审与检查要求；GitHub 报告的状态就是该判定 | 改变证据字段或阻塞集合 |
+| R2 | 符合性证据是仓库要求的评审与检查结果：`CHANGES_REQUESTED`、必需检查失败、冲突、仍在计算的 `UNKNOWN`，或仓库禁止的 `BEHIND` 状态会阻塞；`BLOCKED` 与 `UNSTABLE` 要按原因判断，因为依赖栈可能仅因开放父层而 `BLOCKED`。 | 来源要求符合仓库的评审与检查要求；聚合字段本身不足以识别仅由依赖造成的阻塞 | 改变证据字段或阻塞集合 |
 | R3 | 部分落地之后，已经报告 `MERGED` 的层就是已落地；重新查询并按预期顺序校验剩余范围。 | GitHub 在部分落地之后重定向并 rebase 剩余层；来源要求重新查询并校验剩余层 | 调整规则 |
 | R4 | 来源的 `master` 变成仓库的默认分支。 | 一个交付技能不能点名另一个仓库的默认分支 | 无需 |
 | R5 | 合并方法是仓库策略。技能采用落地仓库指令规定的方法，其次采用 GitHub 设置唯一允许的方法，否则默认使用 `squash`。 | 来源的固定值是某个仓库的策略；目标领域有规定 squash 或 rebase 的仓库，GitHub 会拒绝仓库不允许的方法，而请求指定的回退方案是 squash | 在 [squash 默认值决策](2026-11-18-stack-merge-defaults-to-squash.zh.md)中保留该回退方案，或把它替换成一个显式配置输入 |

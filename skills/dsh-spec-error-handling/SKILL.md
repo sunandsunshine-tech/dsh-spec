@@ -10,7 +10,7 @@ Define failures, their owners, and what remains safe after failure.
 
 ## Defaults
 
-A default is the value or strategy this skill declares at its use site. It applies when the current request and existing project instructions leave that choice open. A user turn or explicit parameter supplies a one-off value. Existing project instructions supply a persistent override and are read without being modified or copied. Missing project instructions are valid, so do not ask the user to choose a default or create or modify an instruction file merely to select one.
+Apply this skill's use-site default only when neither the request nor existing project instructions choose one. Treat existing instructions as authoritative read-only input; do not ask for, create, modify, or copy instructions merely to select a default.
 
 ## Typed, structured failures
 
@@ -32,7 +32,7 @@ An execution wrapper that classifies cancellation, timeout, denial or another ex
 
 ## Silent failure handlers
 
-A silent handler or empty catch clause discards every failure in its scope. Use one only when every discarded failure leaves the owner's state valid and no caller could act on it. Narrow the handler to one syntactic statement, not one line; several operations need separate handlers, while a compound statement still needs review for the number of operations it contains. Bind the expected failure through the language's normal mechanism with a meaningful name; for example, JavaScript uses `_cleanupFailed` rather than `catch {}` or `catch (_)`, while languages with an explicit exception parameter name that parameter. State why discarding it is safe in the handler or on the line that closes it. A comment such as "ignore" or "expected" without the failure identity and state consequence is not a reason.
+A silent handler or empty catch clause discards every failure in its scope. Use one only when every discarded failure leaves the owner's state valid and no caller could act on it. Narrow the handler to one independently tolerated operation; separate operations that can fail independently, and inspect a compound statement by the operations it actually performs. Bind the expected failure through the language's normal mechanism and give it a meaningful name when that mechanism accepts one. State why discarding it is safe in the handler or on the line that closes it. A comment such as "ignore" or "expected" without the failure identity and state consequence is not a reason.
 
 When only some failures are safe to discard, select the expected failure by the project's discriminant, then rethrow or otherwise surface the rest. Wrap each independently tolerated operation separately; do not let one expected missing-directory failure hide a later commit or notification failure. Logging, reporting, rethrowing, and returning a fallback are handled failures rather than silent ones; they still need the ownership, state, and reporting rules above. Use a project check for the mechanical form where one exists (when available, use the dsh-spec-pre-push-checks skill). Review decides whether the named failure and stated reason are true.
 

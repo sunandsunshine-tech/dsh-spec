@@ -1,6 +1,6 @@
-1935d408ae3167a6eacfaf463821c5dfe3828ad0cc54c629d39511b00e3ee9d9  skills/dsh-spec-translate-docs/SKILL.md
-dcc7d8c61e8e4de2ed3ebd7810acf5ac1c215b5b6ceab4defacf867b153c4be1  skills/dsh-spec-translate-docs/THIRD_PARTY_NOTICES
-661b773af09550b28a33378be799fd8b866ab500c92bf499a84a219de33d91d5  skills/dsh-spec-translate-docs/references/pairing-contract.md
-1fedc09be6c2758aacb590e992dff2b6a90c28eaafa957656d315176ee03f486  skills/dsh-spec-translate-docs/references/style-examples.md
-b9c24c46d36fb3aa7cd17de9932d1e4a06ed1955f7ea1744a1b22f76ff87c5c2  skills/dsh-spec-translate-docs/references/translation-rules.md
-9b6d490d74500319f02fffbbcc20b7add896e229d61570fa209c2643f4debe26  skills/dsh-spec-translate-docs/scripts/translate-pair.mjs
+b8c0ca06c023573b36b9de32c1d98d8bde6a8742b468154c0752c9efa9e9436e  skills/dsh-spec-translate-docs/SKILL.md  mode=0644
+dcc7d8c61e8e4de2ed3ebd7810acf5ac1c215b5b6ceab4defacf867b153c4be1  skills/dsh-spec-translate-docs/THIRD_PARTY_NOTICES  mode=0644
+661b773af09550b28a33378be799fd8b866ab500c92bf499a84a219de33d91d5  skills/dsh-spec-translate-docs/references/pairing-contract.md  mode=0644
+1fedc09be6c2758aacb590e992dff2b6a90c28eaafa957656d315176ee03f486  skills/dsh-spec-translate-docs/references/style-examples.md  mode=0644
+b9c24c46d36fb3aa7cd17de9932d1e4a06ed1955f7ea1744a1b22f76ff87c5c2  skills/dsh-spec-translate-docs/references/translation-rules.md  mode=0644
+9b6d490d74500319f02fffbbcc20b7add896e229d61570fa209c2643f4debe26  skills/dsh-spec-translate-docs/scripts/translate-pair.mjs  mode=0755

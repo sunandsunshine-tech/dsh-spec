@@ -1,4 +1,4 @@
-2726fb0ed9d57ee3dff699fe9d941777bbe6b1d7a5af1d35d673d2c01b9b20d9  skills/dsh-spec-pr-description/SKILL.md
-ca2eb8b691b2a704e3358f6e7648b37211e2a8c660f58c56c8cc6fcd0d147ec1  skills/dsh-spec-pr-description/THIRD_PARTY_NOTICES
-3770ecf19f4e6f091801fe54cf35b876d75afcadbcaccafdd01c138f46cd0cb0  skills/dsh-spec-pr-description/references/ai-usage.md
-b23492dbbbbfe0c95f85e9c696e6413b5ff27a3a5b176c65ef6296dbd1295e57  skills/dsh-spec-pr-description/references/default-conventions.md
+01c70b410bea7a0e51f80d024d3e5f2f13795717ff79143a76749170dbf57dcf  skills/dsh-spec-pr-description/SKILL.md  mode=0644
+ca2eb8b691b2a704e3358f6e7648b37211e2a8c660f58c56c8cc6fcd0d147ec1  skills/dsh-spec-pr-description/THIRD_PARTY_NOTICES  mode=0644
+3770ecf19f4e6f091801fe54cf35b876d75afcadbcaccafdd01c138f46cd0cb0  skills/dsh-spec-pr-description/references/ai-usage.md  mode=0644
+14211a2f51ee41d342b1eea52015746eea3daa1615f187cb4688a29a575f9544  skills/dsh-spec-pr-description/references/default-conventions.md  mode=0644

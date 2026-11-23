@@ -1,24 +1,27 @@
-Use a **rebase refresh, bottom-to-top**, via `gh stack sync`. Do not merge the trunk forward: [AGENTS.md](/workspace/evals/files/rebase-refresh/AGENTS.md) permits post-review rebases but requires an explicit author request for merge-forward, and [stack.md](/workspace/evals/files/rebase-refresh/stack.md) confirms none exists.
-
-The smallest validation sequence after `gh stack sync` is:
-
-1. Confirm the worktree is clean, enable `rerere`, keep `rerere.autoUpdate` disabled, and record the exact remote OIDs and published stack order before syncing.
-2. Run `gh stack sync` once. Because it rewrites and publishes in one operation, validation occurs afterward.
-3. Re-query all three rewritten remote heads and the published order.
-4. Walk the stack base-to-tip, using each live parent as the next base:
-   - bottom layer against trunk
-   - middle layer against the refreshed bottom
-   - top layer against the refreshed middle
-5. For each layer, run the change-scope report and only the focused evidence its diff selects:
+Use a **rebase refresh**, not merge-forward:
 
 ```sh
-node .agents/skills/dsh-spec-pre-push-checks/scripts/change-scope.mjs \
-  --base <live-parent> \
-  --head <layer-head>
+git status --short --branch
+git config rerere.enabled true
+git config --unset-all rerere.autoUpdate  # only if currently set
+# Verify the live stack order and record all three remote-head OIDs.
+gh stack sync
 ```
 
-Run the owning focused tests once per affected layer, plus typecheck/build/docs checks only when their surfaces changed.
+`gh stack sync` rewrites and publishes in one operation, so validation follows publication. Replayed `rerere` resolutions must be inspected and staged manually.
 
-6. Re-audit review threads, approvals, mergeability, and checks against the new OIDs. Keep all three changes unmerged until every selected check passes. A failure blocks merging and requires a repair, validation of the repair, and a corrected publication.
+After sync, run this sequence:
 
-No repository-wide suite is warranted reflexively. This fixture contains no application manifests or live stack refs, so exact test names cannot be narrowed further from the provided project content.
+1. Re-query the published stack order and all three remote heads; verify each local head matches its remote.
+2. For each layer, bottom to top, inspect only its outgoing diff against its live parent/trunk base:
+
+   ```sh
+   node .agents/skills/dsh-spec-pre-push-checks/scripts/change-scope.mjs \
+     --base <verified-live-base> \
+     --head <rewritten-layer-head>
+   ```
+
+3. Run the narrowest owning test for each affected layer. Add adjacent tests only for shared contracts. Add typecheck, build/package smoke, documentation checks, browser evidence, or generated-output checks only when that branch’s paths reach those surfaces. Do not run the full suite merely because this is a refresh.
+4. Re-audit unresolved review threads, approvals, mergeability, and CI checks because every commit hash changed. Keep all three PRs unmerged until every selected check passes.
+
+The current fixture contains only the base checkout and has no stack branches, remotes, or project test scripts, so concrete per-layer test names cannot be selected here.

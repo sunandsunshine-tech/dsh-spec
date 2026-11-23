@@ -20,9 +20,11 @@ Status: implemented
 
 集成场景记录它读取的每个兄弟技能修订。只有当兄弟技能中该集成所依赖的行为发生变化时，才使该集成场景失效。
 
+当前的输入与技能清单同时绑定常规文件模式和内容。历史运行用已提交的证据清单校验其所记录哈希，不重写历史，也不依赖仅存在于分支历史中的 Git 对象。解析后的 profile 记录认证路由、浏览器／媒体可用性与沙箱模式。内联提供方凭据只留在宿主侧回环代理中；模型命名空间只收到占位值。
+
 ## Verification
 
-`tests/skill-scenarios.test.ts` 区分触发证据与行为证据：触发清单使用 frontmatter 表面，行为 trace 与运行清单标识所用确切修订，输入和产物哈希仍可解析，记录的技能哈希保持内部一致。`tests/skill-evals/README.md` 说明证据模型；相关证据 README 说明各次运行的范围。
+`tests/skill-scenarios.test.ts` 区分触发证据与行为证据：触发清单使用 frontmatter 表面，行为 trace 与运行清单标识所用确切修订，当前输入与技能模式仍匹配，历史输入匹配其已提交清单，记录的技能哈希保持内部一致。`tests/skill-evals/README.md` 说明证据模型；相关证据 README 说明各次运行的范围。
 
 ## Alternatives considered
 

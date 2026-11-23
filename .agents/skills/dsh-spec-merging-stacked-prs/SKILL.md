@@ -11,7 +11,7 @@ Land dependent PRs through GitHub's native stack object and `gh stack merge`. Do
 
 ## Defaults
 
-A default is the value or strategy this skill declares at its use site. It applies when the current request and existing project instructions leave that choice open. A user turn or explicit parameter supplies a one-off value. Existing project instructions supply a persistent override and are read without being modified or copied. Missing project instructions are valid, so do not ask the user to choose a default or create or modify an instruction file merely to select one.
+Apply this skill's use-site default only when neither the request nor existing project instructions choose one. Treat existing instructions as authoritative read-only input; do not ask for, create, modify, or copy instructions merely to select a default.
 
 ## Require native stack support
 
@@ -84,7 +84,7 @@ A history rewrite is allowed after review where the landing repository's instruc
 
 ## Preflight the merge range
 
-Re-query the official stack immediately before merging. Require every selected PR to be open, non-draft, in the expected order, and compliant with the repository's review and check requirements. Read that compliance from the same metadata: a `mergeStateStatus` other than `CLEAN` (a still-computing `UNKNOWN` included) or a `reviewDecision` of `CHANGES_REQUESTED` is a blocker.
+Re-query the official stack immediately before merging. Require every selected PR to be open, non-draft, in the expected order, and compliant with the repository's review and check requirements. Read that compliance from the same metadata, not from `mergeStateStatus` alone. A `CHANGES_REQUESTED` review, a failed required check, a conflict, a still-computing `UNKNOWN`, or a `BEHIND` state that repository policy forbids are blockers. `BLOCKED` can describe only the unmerged parent of a dependent layer and is a blocker only when its required reviews, checks, or conflicts establish one. `UNSTABLE` is a blocker only when a required check failed.
 
 "Land the stack" selects the whole stack; a partial landing requires an explicit boundary PR and includes every layer from the bottom through that boundary. Treat each PR's state independently: a ready top layer does not prove its dependencies are ready.
 
@@ -128,7 +128,7 @@ Anything other than `0` blocks deletion.
 - [ ] Native `gh stack` support is available, every PR branch is in the same repository, and the worktree is clean with live head OIDs fetched.
 - [ ] Live PR bases establish one bottom-to-top chain; the official stack object reports one stack with the expected trunk, entries and order; an eligible same-author unstacked chain was linked, or user direction was asked for.
 - [ ] Any rewritten layer passed the relevant checks, and review threads, approvals, mergeability and checks were re-audited after the push.
-- [ ] Re-querying the official stack before the merge finds every selected PR open, non-draft, in order, with `mergeStateStatus: CLEAN` and no changes-requested review.
+- [ ] Re-querying the official stack before the merge finds every selected PR open, non-draft, in order, with no changes-requested review or failed required check; dependency-only `BLOCKED` is not treated as a failure.
 - [ ] The whole stack, or the explicitly bounded prefix, was merged through `gh stack merge` with the landing repository's method; no per-PR merge command was used.
 - [ ] Every selected PR reports `MERGED`; after a partial landing, the remaining layers form the expected official stack.
 - [ ] Branch deletion happened only in the final pass, after merged-state and zero-dependent verification.

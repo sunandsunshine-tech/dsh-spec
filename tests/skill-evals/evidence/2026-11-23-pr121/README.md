@@ -11,6 +11,9 @@ hashes and a scenario-definition hash, and retained declared build/evidence outp
 `skills-tree.sha256` manifest binds the recorded skill files without requiring a local-only Git
 object.
 
+The checked-in `evaluation-files.sha256` freezes each historical scenario input hash under the same
+repository-relative path used by the run.
+
 | Skill | Runs | Assertions |
 |---|---:|---:|
 | `dsh-spec-agent-notes` | 3 | 12/12 |
@@ -23,7 +26,7 @@ object.
 | `dsh-spec-pre-push-checks` | 2 | 10/10 |
 | `dsh-spec-test-reliability` | 2 | 10/10 |
 
-The runs total 18 scenarios and record 83/83 reviewer-certified assertions. The runner isolates the
-source and answer tree, but it is not a general network sandbox. Historical PR #116 and PR #119
-traces that were exposed to `evals/evals.json` are retained only as provenance in their original
-directories and do not support current source/answer-isolation claims.
+The runs total 18 scenarios and record 83/83 reviewer-certified assertions. This runner predates
+the host-side credential proxy and recorded sandbox profile; it is not evidence for those later
+properties. Historical PR #116 and PR #119 traces that were exposed to `evals/evals.json` remain
+provenance only and do not support current source/answer-isolation claims.

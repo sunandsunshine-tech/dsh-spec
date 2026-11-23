@@ -1,1 +1,1 @@
-time_seconds: 87.55
+time_seconds: 57.10

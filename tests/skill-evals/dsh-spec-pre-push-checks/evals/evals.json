@@ -33,10 +33,6 @@
         "dsh-spec-client-ui-ux",
         "dsh-spec-error-handling"
       ],
-      "install": [
-        "dsh-spec-client-ui-ux",
-        "dsh-spec-error-handling"
-      ],
       "assertions": [
         "The selection includes the existing `kind` identity and structured `detail` across the worker boundary.",
         "The selection rejects message-text routing.",

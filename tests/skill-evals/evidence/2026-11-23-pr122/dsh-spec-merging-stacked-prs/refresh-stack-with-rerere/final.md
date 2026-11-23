@@ -1,17 +1,10 @@
-Use GitHub’s native cascading rebase for the `main ← feature/base ← feature/service ← feature/ui` stack. Merge-forward is excluded because no author requested it and [AGENTS.md](/workspace/evals/files/stack-policy/AGENTS.md) permits it only on an explicit request.
+Use **native cascading rebase**, not merge-forward. The policy permits rebase, and merge-forward requires an explicit author request that is absent.
 
-Refresh and validation sequence:
+Sequence:
 
-1. Ensure the worktree is clean and native `gh stack` support and the official stack are available.
-2. Enable `rerere.enabled`; leave `rerere.autoUpdate` unset or false.
-3. Check out the remote stack if needed, then run `gh stack sync`.
-4. Inspect every rewritten layer and every rerere replay; inspect and stage replayed resolutions manually.
-5. Run the relevant validation for all three affected layers, bottom-to-top:
-   - `feature/base`
-   - `feature/service`
-   - `feature/ui`
-6. If sync conflicts, use `gh stack rebase`, resolve and validate the affected layers, then publish through `gh stack push`.
-7. Re-fetch the exact head OIDs and re-audit unresolved review threads, approvals, mergeability, and checks after the rewrite/push.
-8. Before any landing, re-query the official stack and require every selected PR to be open, non-draft, correctly ordered, `CLEAN`, and free of changes-requested reviews.
-
-Do not use per-PR merge/retarget operations or raw force-pushes.
+1. Use a clean worktree and verify the official `gh stack` chain. Enable rerere with auto-update disabled.
+2. Run `gh stack sync` to refresh the three layers as one cascade.
+3. If conflicts occur, use `gh stack rebase`; inspect every replayed resolution before staging it, validate the resolution, then publish with `gh stack push`.
+4. After the rewrite, validate every affected layer bottom-to-top: `feature/base`, then `feature/service`, then `feature/ui`.
+5. Re-fetch each exact head OID and re-audit unresolved threads, approvals, mergeability, and required checks for all three PRs.
+6. Re-run the stack preflight before considering a merge. Do not merge until every rewritten layer has passed.

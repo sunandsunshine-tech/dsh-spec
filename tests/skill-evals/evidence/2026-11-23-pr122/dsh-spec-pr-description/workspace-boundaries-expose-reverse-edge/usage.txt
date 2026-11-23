@@ -1,2 +1,2 @@
-input_tokens: 202534
-output_tokens: 12346
+input_tokens: 75738
+output_tokens: 6410

@@ -1,2 +1,2 @@
-8e9a825fc7dc64b8ce9309d3ddb1f712011c18161aafa9ab87b250c418eb8dae  skills/dsh-spec-client-ui-ux/SKILL.md
-541ae59807e0f6fcc3def16c97843a6ec7a81b706878ee028761f0a8418f8ad7  skills/dsh-spec-client-ui-ux/THIRD_PARTY_NOTICES
+44819d31e4aad0ea4dbeef3dab969f773f0746439d7c9599f2ba58dff23dc94a  skills/dsh-spec-client-ui-ux/SKILL.md  mode=0644
+541ae59807e0f6fcc3def16c97843a6ec7a81b706878ee028761f0a8418f8ad7  skills/dsh-spec-client-ui-ux/THIRD_PARTY_NOTICES  mode=0644
