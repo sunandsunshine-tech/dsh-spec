@@ -1038,6 +1038,12 @@ test('evidence paths and replay modes reject symlinked ancestors and non-regular
       () => assertRegularReplayPaths(regularRoot, ['regular.md'], new Map([['regular.md', '120000']]), ['regular.md']),
       /non-regular file/,
     )
+    symlinkSync('/nonexistent/target', join(regularRoot, 'dangling.md'))
+    assert.throws(
+      () =>
+        assertRegularReplayPaths(regularRoot, ['dangling.md'], new Map([['dangling.md', '120000']]), ['dangling.md']),
+      /non-regular file/,
+    )
   } finally {
     rmSync(root, { recursive: true, force: true })
     rmSync(outside, { recursive: true, force: true })
@@ -1348,9 +1354,14 @@ function assertRegularReplayPaths(
   changedPaths: string[],
 ): void {
   for (const path of stagedPaths) {
-    if (!existsSync(join(root, path))) continue
     const mode = trackedModes.get(path)
+    const pathExists = existsSync(join(root, path))
+    if (mode === undefined) {
+      assert.equal(pathExists, false, root + ' staged an unknown non-regular file: ' + path)
+      continue
+    }
     assert.ok(mode === '100644' || mode === '100755', root + ' staged a non-regular file: ' + path)
+    if (!pathExists) continue
   }
   assert.deepEqual(
     [...stagedPaths].sort(),
