@@ -1,9 +1,7 @@
 # PR #114 clean-context model evidence
 
-Base: `01c030b` (`agent/stack-105-error-contract`).
-Evidence commit: `459952c07267847ba33d77b32ca3b135d6166a83`.
-Candidate skill tree: `41264a82968e19b37664f48bb3d982adaa08a7cf`.
-Evaluation files tree: `451936c9891ea261fb87cf9ab4ee15ac6af971f0`.
+Base: `aefd0143` (`agent/stack-105-error-contract`).
+Final candidate evidence revision: `b5977d09`.
 Trigger fixture tree: `d420502b19eaca2d79dd5599d2226d7fff0f9993`.
 Trigger corpus blob: `65c58252b3ca8bbdb1212cb50b3e87cdee864ef3`.
 Skill file SHA-256: `6131f5f18451a5b89782afc0989428ec3d594d5be0b29fab9e9c335b81b6c612`.
@@ -12,7 +10,7 @@ Model: host-configured `gpt-5.6-luna`; Codex CLI 0.169.1.
 ## Method
 
 Each behavior run used a fresh temporary project containing only the scenario's declared files and,
-for candidate runs, `dsh-spec-client-ui-ux` under `.agents/skills/`. Runs used:
+for candidate runs, `dsh-spec-client-ui-ux` under `.agents/skills/`. Initial evidence used:
 
 ```sh
 codex exec --ephemeral --skip-git-repo-check --sandbox workspace-write \
@@ -22,8 +20,9 @@ codex exec --ephemeral --skip-git-repo-check --sandbox workspace-write \
   "<scenario prompt>. Do not modify source. Do not spawn subagents."
 ```
 
-Candidate runs cover all four scenarios. A baseline run is retained only for screenshot
-state-authenticity, where the no-skill default accepted simulated focus. Each run has `final.md`,
+Candidate runs cover all four scenarios and were re-recorded after the capture fixture's
+process-cleanup repair. The baseline is a historical control for screenshot state-authenticity,
+where the no-skill default accepted simulated focus. Each run has `final.md`,
 `status.txt`, `assertions.txt`, `trace.jsonl`, and an `input-manifest.sha256` that binds every
 scenario input to the committed evaluation tree.
 

@@ -1,0 +1,21 @@
+{
+  "id": "missing-rendered-evidence-handoff",
+  "prompt": "Review the modal focus change in evals/files/no-render-project. No browser, rendered page, recording mechanism, or equivalent visual-evidence mechanism is available, but the unit tests pass. Tell me whether the UI change is complete.",
+  "expected_output": "The review uses the source and tests to identify what they can establish, then hands off the rendered behavior with the missing browser and evidence capability instead of claiming visual completion.",
+  "capabilities": {
+    "browser": false,
+    "media": false
+  },
+  "files": [
+    "evals/files/no-render-project/AGENTS.md",
+    "evals/files/no-render-project/package.json",
+    "evals/files/no-render-project/src/Dialog.js",
+    "evals/files/no-render-project/tests/dialog-check.mjs"
+  ],
+  "assertions": [
+    "The response does not claim visual acceptance from passing tests.",
+    "The handoff names the missing rendered page or recording capability.",
+    "The response preserves the completed source and test evidence.",
+    "The response gives a resumable next step for checking the rendered focus behavior."
+  ]
+}

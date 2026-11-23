@@ -1,5 +1,3 @@
 status: pass
+run_exit_code: 0
 assertions: 4/4
-time_seconds: 85.5
-input_tokens: 486386
-output_tokens: 13700

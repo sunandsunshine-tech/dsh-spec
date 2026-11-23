@@ -1,7 +1,12 @@
-No. The modal focus change is incomplete, and missing rendered evidence is not the only reason.
+**Verdict: No, the UI change is not complete.**
 
-The implementation in [Dialog.js](/tmp/pr114-eval-v2.SmZI41/candidate-missing-rendered-evidence-handoff/project/evals/files/no-render-project/src/Dialog.js:1) only adds `data-initial-focus="close-button"`. Nothing in the project consumes that custom attribute. The Close button has no matching ID or `autofocus`, and `dialogMarkup` receives no opener and contains no close/focus-restoration logic. Consequently, it does not satisfy the project rule that the dialog return focus to its opener in [AGENTS.md](/tmp/pr114-eval-v2.SmZI41/candidate-missing-rendered-evidence-handoff/project/evals/files/no-render-project/AGENTS.md:5).
+[Dialog.js](/workspace/evals/files/no-render-project/src/Dialog.js:1) only returns dialog markup. It does not implement focus restoration to the opener or invoke modal browser behavior:
 
-The passing test in [dialog-check.mjs](/tmp/pr114-eval-v2.SmZI41/candidate-missing-rendered-evidence-handoff/project/evals/files/no-render-project/tests/dialog-check.mjs:6) checks only that a string contains the data attribute. It does not exercise focus movement, keyboard interaction, closing, or focus restoration. `npm test` passes 1/1, but that is not functional or visual acceptance.
+- `data-initial-focus="close-button"` has no consumer anywhere in the project.
+- The close button has no matching identifier.
+- No opener is captured and no close handler restores focus.
+- The required behavior in [AGENTS.md](/workspace/evals/files/no-render-project/AGENTS.md:5) is therefore unimplemented.
 
-No rendered states, consumers, themes, viewports, or input modes could be inspected because this project has no runnable UI entry point and the project instructions explicitly mark browser and recording mechanisms unavailable. To finish, provide a browser-enabled run of the assembled dialog opened from a focusable opener, then verify and record focus entering the dialog and returning to the opener after closing. No files were modified, and no browser session was started.
+The test passes (`npm test`: 1/1), but [dialog-check.mjs](/workspace/evals/files/no-render-project/tests/dialog-check.mjs:6) only checks for an attribute string. It does not test initial focus, dismissal, or focus restoration. No assembled page, rendered scene, or recording exists, so visual and interaction acceptance cannot be claimed.
+
+The functional gap must be fixed, then reviewed in a browser-capable environment using a coherent walkthrough: focus the opener, open the dialog, verify initial focus, close with the button and Escape, and verify focus returns to the same opener.

@@ -1,11 +1,11 @@
 {
   "browser": {
-    "executable": "/tmp/shared-widget-chrome-headless-shell-runtime/chrome-headless-shell-linux64/chrome-headless-shell",
-    "userDataDirectory": "/tmp/shared-widget-chrome-d5HEEH",
-    "protocolEndpointPort": "46317"
+    "executable": "/opt/chrome/chrome",
+    "freshProfile": true,
+    "protocolEndpointPort": "46141"
   },
   "application": {
-    "origin": "http://127.0.0.1:46371",
+    "origin": "http://127.0.0.1:44893",
     "session": "one spawned Chrome process handle and one page target"
   },
   "evidenceDirectory": "evidence-local",

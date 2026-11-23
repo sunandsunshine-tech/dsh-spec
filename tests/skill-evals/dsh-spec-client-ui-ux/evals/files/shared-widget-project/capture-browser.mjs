@@ -122,65 +122,65 @@ try {
     for (const listener of listeners.get(message.method) ?? []) listener(message.params)
   })
 
-function command(method, params = {}) {
-  const id = ++nextId
-  socket.send(JSON.stringify({ id, method, params }))
-  return new Promise((resolve, reject) => pending.set(id, { resolve, reject }))
-}
-
-function once(method) {
-  return new Promise((resolve) => {
-    const handler = (params) => {
-      listeners.set(
-        method,
-        (listeners.get(method) ?? []).filter((candidate) => candidate !== handler),
-      )
-      resolve(params)
-    }
-    listeners.set(method, [...(listeners.get(method) ?? []), handler])
-  })
-}
-
-async function navigate(path, width, height) {
-  const loaded = once('Page.loadEventFired')
-  await command('Emulation.setDeviceMetricsOverride', {
-    width,
-    height,
-    deviceScaleFactor: 1,
-    mobile: false,
-  })
-  await command('Page.navigate', { url: baseUrl + path })
-  await loaded
-  await delay(150)
-}
-
-async function evaluate(expression) {
-  const result = await command('Runtime.evaluate', {
-    expression,
-    returnByValue: true,
-    awaitPromise: true,
-  })
-  if (result.exceptionDetails) throw new Error(result.exceptionDetails.text)
-  return result.result.value
-}
-
-async function screenshot(name) {
-  const result = await command('Page.captureScreenshot', {
-    format: 'png',
-    captureBeyondViewport: false,
-  })
-  const bytes = Buffer.from(result.data, 'base64')
-  const path = join(evidence, `${name}.png`)
-  writeFileSync(path, bytes)
-  return {
-    path: `evidence-local/${name}.png`,
-    sha256: createHash('sha256').update(bytes).digest('hex'),
-    bytes: bytes.length,
+  function command(method, params = {}) {
+    const id = ++nextId
+    socket.send(JSON.stringify({ id, method, params }))
+    return new Promise((resolve, reject) => pending.set(id, { resolve, reject }))
   }
-}
 
-async function buttonState(selector) {
-  return evaluate(`(() => {
+  function once(method) {
+    return new Promise((resolve) => {
+      const handler = (params) => {
+        listeners.set(
+          method,
+          (listeners.get(method) ?? []).filter((candidate) => candidate !== handler),
+        )
+        resolve(params)
+      }
+      listeners.set(method, [...(listeners.get(method) ?? []), handler])
+    })
+  }
+
+  async function navigate(path, width, height) {
+    const loaded = once('Page.loadEventFired')
+    await command('Emulation.setDeviceMetricsOverride', {
+      width,
+      height,
+      deviceScaleFactor: 1,
+      mobile: false,
+    })
+    await command('Page.navigate', { url: baseUrl + path })
+    await loaded
+    await delay(150)
+  }
+
+  async function evaluate(expression) {
+    const result = await command('Runtime.evaluate', {
+      expression,
+      returnByValue: true,
+      awaitPromise: true,
+    })
+    if (result.exceptionDetails) throw new Error(result.exceptionDetails.text)
+    return result.result.value
+  }
+
+  async function screenshot(name) {
+    const result = await command('Page.captureScreenshot', {
+      format: 'png',
+      captureBeyondViewport: false,
+    })
+    const bytes = Buffer.from(result.data, 'base64')
+    const path = join(evidence, `${name}.png`)
+    writeFileSync(path, bytes)
+    return {
+      path: `evidence-local/${name}.png`,
+      sha256: createHash('sha256').update(bytes).digest('hex'),
+      bytes: bytes.length,
+    }
+  }
+
+  async function buttonState(selector) {
+    return evaluate(`(() => {
     const button = document.querySelector(${JSON.stringify(selector)});
     const rect = button.getBoundingClientRect();
     const style = getComputedStyle(button);
@@ -197,14 +197,14 @@ async function buttonState(selector) {
       opacity: style.opacity
     };
   })()`)
-}
-
-async function pressTab(times) {
-  for (let count = 0; count < times; count += 1) {
-    await command('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 })
-    await command('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 })
   }
-}
+
+  async function pressTab(times) {
+    for (let count = 0; count < times; count += 1) {
+      await command('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 })
+      await command('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 })
+    }
+  }
 
   const screenshots = {}
   const states = {}
@@ -261,7 +261,7 @@ async function pressTab(times) {
   const report = {
     browser: {
       executable: chrome,
-      userDataDirectory: profile,
+      freshProfile: true,
       protocolEndpointPort: port,
     },
     application: {

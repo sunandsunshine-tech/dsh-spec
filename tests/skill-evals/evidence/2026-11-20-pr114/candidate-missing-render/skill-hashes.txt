@@ -1,0 +1,2 @@
+6338f230ba7008f6453a7fb3ca5f785e01b317797034241719fd323bc57fd8ba  skills/dsh-spec-client-ui-ux/SKILL.md  mode=0644
+acecc0af3e0bb031e9976f7d073e0127bcd7bb5f0b72610f95439134bef88e8d  skills/dsh-spec-client-ui-ux/THIRD_PARTY_NOTICES  mode=0644

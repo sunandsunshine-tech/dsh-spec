@@ -1,9 +1,19 @@
-No — the shared-button change looks visually correct, but the required screenshot evidence is not fully valid.
+**Not fully accepted.** The shared-button implementation is correct, but one required screenshot state does not provide authentic browser evidence.
 
-The source change is coherent: Search and Settings both use the shared button ([SearchPage.js](/tmp/pr114-eval-v2.AudvAh/candidate-project-declares-equivalent-evidence/project/evals/files/shared-widget-project/src/SearchPage.js:12), [SettingsPage.js](/tmp/pr114-eval-v2.AudvAh/candidate-project-declares-equivalent-evidence/project/evals/files/shared-widget-project/src/SettingsPage.js:9)). The screenshots show the enlarged controls, focus ring, and genuinely disabled/muted destructive action at the required comparable viewports. The default and saving-disabled pairs are adequate.
+The implementation satisfies the visual/component intent:
 
-The problem is the focused Search pair. The [render report](/tmp/pr114-eval-v2.AudvAh/candidate-project-declares-equivalent-evidence/project/evals/files/shared-widget-project/evidence/render-report.md:9) attributes it to `focus=1`, but that parameter only sets `data-focus-demo` in [app.js](/tmp/pr114-eval-v2.AudvAh/candidate-project-declares-equivalent-evidence/project/evals/files/shared-widget-project/src/app.js:20). [button.module.css](/tmp/pr114-eval-v2.AudvAh/candidate-project-declares-equivalent-evidence/project/evals/files/shared-widget-project/src/button.module.css:31) then paints the same outline that `:focus-visible` supplies. That imitates the focused appearance without focusing the button, so it does not prove the required focused state or keyboard behavior.
+- Search, Cancel, and Delete account all render through the shared `buttonMarkup` component.
+- The after images show the intended larger, rounded, heavier buttons.
+- Default pairs match at 390 × 1200 and 768 × 900; the saving-disabled pair matches at 390 × 900.
+- Delete account uses the native disabled attribute, remains visibly muted, and Cancel stays enabled.
+- The required light theme and assembled application layouts are represented.
+- `npm test` passes.
 
-The report also references a nonexistent `README.md` and GIF. The missing GIF is non-blocking because the [override](/tmp/pr114-eval-v2.AudvAh/candidate-project-declares-equivalent-evidence/project/evals/files/evidence-policy-screenshot-pair.md:9) explicitly waives it; the stale metadata should still be corrected.
+The blocker is the focused Search evidence:
 
-`npm test` passed: 1 test, both consumers and the disabled variant covered. I did not launch a browser or modify any files. To satisfy the policy, the Search focused before/after pair needs recapturing through actual keyboard focus, such as the existing `pressTab(2)` path in [capture-browser.mjs](/tmp/pr114-eval-v2.AudvAh/candidate-project-declares-equivalent-evidence/project/evals/files/shared-widget-project/capture-browser.mjs:247).
+- [render-report.md](/workspace/evals/files/shared-widget-project/evidence/render-report.md:9) attributes the focused appearance to `focus=1`.
+- [app.js](/workspace/evals/files/shared-widget-project/src/app.js:20) only sets a `data-focus-demo` attribute for that flag; it does not focus the button.
+- [button.module.css](/workspace/evals/files/shared-widget-project/src/button.module.css:31) then paints the outline through that attribute.
+- Therefore, [search-focus-after.png](/workspace/evals/files/shared-widget-project/evidence/search-focus-after.png) demonstrates a copied focus appearance, not a real `:focus-visible` state. The same issue applies to [search-focus-before.png](/workspace/evals/files/shared-widget-project/evidence/search-focus-before.png).
+
+Replace the focused pair with captures made after real keyboard focus reaches the Search button, keeping the current 390 × 900 viewport, data, and theme. The report also incorrectly references a nonexistent README and GIF; the GIF is unnecessary under the override, but the report should not claim it exists.

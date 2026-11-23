@@ -1,0 +1,29 @@
+{
+  "id": "capability-present-real-browser",
+  "prompt": "This is an evidence-default probe for evals/files/shared-widget-project after the shared button change. The application starts with `npm start`, and a dependency-free headless-Chrome evidence command is available through the fixture. The project supplies no rendered evidence and declares no visual-evidence form. Decide what evidence the review owes, execute that path, inspect its result, and report it briefly. Do not perform a full design checklist. Do not inspect or use BrowserSkill, bsk, or another browser-control skill.",
+  "expected_output": "The review recognizes that rendered evidence is required without a project-declared form, runs the application and browser evidence path, inspects the generated artifacts, and reports their provenance without claiming unsupported formal approval.",
+  "capabilities": {
+    "browser": true,
+    "media": false
+  },
+  "files": [
+    "evals/files/shared-widget-project/index.html",
+    "evals/files/shared-widget-project/package.json",
+    "evals/files/shared-widget-project/server.mjs",
+    "evals/files/shared-widget-project/src/app.js",
+    "evals/files/shared-widget-project/src/Button.js",
+    "evals/files/shared-widget-project/src/button.module.css",
+    "evals/files/shared-widget-project/src/SearchPage.js",
+    "evals/files/shared-widget-project/src/SettingsPage.js",
+    "evals/files/shared-widget-project/src/styles.css",
+    "evals/files/shared-widget-project/tests/button-consumers.test.mjs",
+    "evals/files/shared-widget-project/browser-control.md",
+    "evals/files/shared-widget-project/capture-browser.mjs"
+  ],
+  "assertions": [
+    "The review recognizes that rendered evidence is required without relying on a project-declared form.",
+    "The review runs the application and browser evidence path.",
+    "The review inspects the generated artifacts and reports their source and provenance.",
+    "The review does not claim formal visual approval when the project declares no approval policy."
+  ]
+}

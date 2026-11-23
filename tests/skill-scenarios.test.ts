@@ -841,7 +841,7 @@ test('web UI model evidence and trigger traces stay auditable', () => {
     const manifest = readFileSync(join(run, 'input-manifest.sha256'), 'utf8')
       .trim()
       .split('\n')
-      .map((line) => /^([0-9a-f]{64})  (.+)$/.exec(line))
+      .map((line) => /^([0-9a-f]{64})  (.+?)(?:  mode=[0-7]{4})?$/.exec(line))
       .filter((match): match is RegExpExecArray => match !== null)
       .map((match) => ({ hash: match[1], path: match[2] }))
     assert.equal(manifest.length, scenario.files?.length ?? 0, runName + ' input manifest')
@@ -850,23 +850,42 @@ test('web UI model evidence and trigger traces stay auditable', () => {
       [...(scenario.files ?? [])].sort(),
       runName + ' does not cover the scenario files',
     )
-    for (const entry of manifest) {
-      const actual = join(EVAL_SOURCE_ROOT, 'dsh-spec-client-ui-ux', entry.path)
-      assert.equal(
-        createHash('sha256').update(readFileSync(actual)).digest('hex'),
-        entry.hash,
-        runName + ' input differs: ' + entry.path,
-      )
+    if (candidate) {
+      for (const entry of manifest) {
+        const actual = join(EVAL_SOURCE_ROOT, 'dsh-spec-client-ui-ux', entry.path)
+        assert.equal(
+          createHash('sha256').update(readFileSync(actual)).digest('hex'),
+          entry.hash,
+          runName + ' input differs: ' + entry.path,
+        )
+      }
     }
 
     const traceText = readFileSync(join(run, 'trace.jsonl'), 'utf8')
     const trace = traceText
       .trim()
       .split('\n')
-      .map((line) => JSON.parse(line) as { type: string; sha256?: string; path?: string })
+      .map(
+        (line) =>
+          JSON.parse(line) as {
+            type: string
+            sha256?: string
+            path?: string
+            item?: { type?: string; command?: string; exit_code?: number }
+          },
+      )
+    const skillReads = trace.filter(
+      (entry) =>
+        entry.type === 'item.completed' &&
+        entry.item?.type === 'command_execution' &&
+        entry.item.exit_code === 0 &&
+        commandReadsSkill(entry.item.command, 'dsh-spec-client-ui-ux'),
+    )
+    const skillEvents: typeof trace = trace.filter((entry) => entry.type === 'skill' && entry.sha256 === skillHash)
     assert.equal(
-      trace.filter((entry) => entry.type === 'skill' && entry.sha256 === skillHash).length,
-      candidate ? 1 : 0,
+      skillReads.length > 0 || skillEvents.length > 0,
+      candidate,
+      runName + (candidate ? ' did not read its candidate skill' : ' read the skill it was testing'),
     )
     assert.equal(trace.filter((entry) => entry.type === 'turn.completed').length, 1)
     for (const entry of trace.filter((candidate) => candidate.type === 'stderr')) {

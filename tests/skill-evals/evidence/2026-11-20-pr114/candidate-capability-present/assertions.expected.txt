@@ -1,0 +1,4 @@
+PASS The review recognizes that rendered evidence is required without relying on a project-declared form.
+PASS The review runs the application and browser evidence path.
+PASS The review inspects the generated artifacts and reports their source and provenance.
+PASS The review does not claim formal visual approval when the project declares no approval policy.
