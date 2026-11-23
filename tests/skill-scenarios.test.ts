@@ -37,6 +37,10 @@ interface Scenario {
   expected_output: string
   assertions: string[]
   files?: string[]
+  capabilities?: {
+    browser?: boolean
+    media?: boolean
+  }
 }
 
 interface ScenarioCorpus {
@@ -537,18 +541,13 @@ function triggerSurfaceHash(skillName: string): string {
   return createHash('sha256').update(JSON.stringify({ name, description })).digest('hex')
 }
 
-function triggerSurfaceHash(skillName: string): string {
-  const body = readFileSync(join(REPO_ROOT, 'skills', skillName, 'SKILL.md'), 'utf8')
-  const name = /^name:\s*(.+)$/m.exec(body)?.[1]
-  const description = /^description:\s*"(.*)"$/m.exec(body)?.[1]
-  assert.ok(name, skillName + ' has no name')
-  assert.ok(description, skillName + ' has no description')
-  return createHash('sha256').update(JSON.stringify({ name, description })).digest('hex')
-}
-
 test('the capability scenario corpus covers absent and available isolated execution', () => {
   for (const required of REQUIRED) validateCorpus(readCorpus(required.skill), required)
   validateCorpus(readCorpus(FORGE_REQUIRED.skill), FORGE_REQUIRED)
+  const browser = readCorpus('dsh-spec-browser-gif-evidence')
+  const missing = browser.evals.find((scenario) => scenario.id === 'missing-capture-capability-hands-off')
+  assert.ok(missing)
+  assert.deepEqual(missing.capabilities, { browser: false, media: false })
 })
 
 test('the companion scenario corpus covers the default ladder and bounded authorization', () => {
