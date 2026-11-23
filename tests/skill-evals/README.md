@@ -20,10 +20,11 @@ outside the model namespace. The temporary Codex home contains only a local prox
 random per-run authorization value. The proxy accepts only POST JSON requests for the provider's
 Responses or Chat Completions endpoint, preserves the upstream base path and query, and rejects
 every other path, method, media type, and authorization value. A configured model catalog is
-schema-checked for credential fields, read without following links, and copied to a fixed
-non-reserved filename. Provider URLs containing userinfo or credential-like query parameters are
-refused. Run only repository-controlled scenarios and trusted fixtures; network egress remains
-available. Traces that name the provider home or response mount fail closed.
+validated against the supported schema, rewritten from the parsed representation, read without
+following links, and copied to a fixed non-reserved filename; unknown fields fail closed. Provider
+URLs containing userinfo or credential-like query parameters are refused. Run only
+repository-controlled scenarios and trusted fixtures; network egress remains available. Traces
+that name the provider home or response mount fail closed.
 The compatibility claim is therefore source/answer-tree isolation with non-exposed provider
 credentials and reviewer-certified assertions, not a general network sandbox.
 

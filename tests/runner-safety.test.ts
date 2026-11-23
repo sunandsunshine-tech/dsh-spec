@@ -356,10 +356,20 @@ test('provider TOML parsing accepts standard spacing and quoting before proxy re
 test('model catalog and base URL validation reject credentials and path escapes', () => {
   const root = mkdtempSync(join(tmpdir(), 'runner-catalog-safety-'))
   try {
-    writeFileSync(join(root, 'catalog.json'), '{"models":["safe"]}\n')
-    assert.equal(safety.readSafeModelCatalog(root, 'catalog.json'), '{"models":["safe"]}\n')
-    writeFileSync(join(root, 'secret.json'), '{"models":[{"api_key":"secret"}]}\n')
-    assert.throws(() => safety.readSafeModelCatalog(root, 'secret.json'), /credential field/)
+    const safeCatalog = '{"models":[{"slug":"safe","display_name":"Safe"}]}'
+    writeFileSync(join(root, 'catalog.json'), safeCatalog)
+    assert.equal(safety.readSafeModelCatalog(root, 'catalog.json'), `${safeCatalog}\n`)
+    for (const payload of [
+      '{"OPENAI_API_KEY":"secret"}',
+      '{"models":[{"slug":"safe","access_token":"secret"}]}',
+      '{"models":[{"slug":"safe","x-api-key":"secret"}]}',
+      '{"models":[{"slug":"safe","client_secret":"secret"}]}',
+    ]) {
+      writeFileSync(join(root, 'secret.json'), payload)
+      assert.throws(() => safety.readSafeModelCatalog(root, 'secret.json'), /unknown field|non-empty slug/)
+    }
+    writeFileSync(join(root, 'auth.json'), safeCatalog)
+    assert.throws(() => safety.readSafeModelCatalog(root, 'auth.json'), /reserved/)
     assert.throws(() => safety.readSafeModelCatalog(root, '../catalog.json'), /escapes/)
     assert.equal(
       safety.assertCredentialFreeBaseUrl('https://provider.example/api/v1?api-version=1', 'base URL').pathname,
@@ -373,6 +383,12 @@ test('model catalog and base URL validation reject credentials and path escapes'
       () => safety.assertCredentialFreeBaseUrl('https://provider.example/v1?token=secret', 'base URL'),
       /query/,
     )
+    for (const key of ['access_token', 'api_token', 'client_secret', 'subscription-key', 'apiKey']) {
+      assert.throws(
+        () => safety.assertCredentialFreeBaseUrl(`https://provider.example/v1?${key}=secret`, 'base URL'),
+        /query/,
+      )
+    }
   } finally {
     rmSync(root, { recursive: true, force: true })
   }

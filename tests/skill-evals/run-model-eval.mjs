@@ -155,6 +155,49 @@ function run(command, args, options) {
   return result
 }
 
+function runInterruptible(command, args, options) {
+  return new Promise((resolveRun, rejectRun) => {
+    const child = spawn(command, args, {
+      stdio: ['ignore', 'pipe', 'pipe'],
+      ...options,
+    })
+    let stdout = ''
+    let stderr = ''
+    let interrupted
+    let killTimer
+    const cleanup = () => {
+      process.off('SIGINT', interrupt)
+      process.off('SIGTERM', interrupt)
+      if (killTimer) clearTimeout(killTimer)
+    }
+    const interrupt = (signal) => {
+      interrupted = signal
+      child.kill(signal)
+      killTimer = setTimeout(() => {
+        if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL')
+      }, 2_000)
+    }
+    process.once('SIGINT', interrupt)
+    process.once('SIGTERM', interrupt)
+    child.stdout.setEncoding('utf8')
+    child.stderr.setEncoding('utf8')
+    child.stdout.on('data', (chunk) => {
+      stdout += chunk
+    })
+    child.stderr.on('data', (chunk) => {
+      stderr += chunk
+    })
+    child.once('error', (error) => {
+      cleanup()
+      rejectRun(error)
+    })
+    child.once('close', (status, signal) => {
+      cleanup()
+      resolveRun({ status, signal, stdout, stderr, interrupted })
+    })
+  })
+}
+
 function modelEnvironment() {
   return {
     HOME: '/tmp',
@@ -758,11 +801,12 @@ try {
     ],
   )
   writeFileSync(join(stagedOutput, 'capabilities.json'), `${JSON.stringify(invocation.profile, null, 2)}\n`)
-  const result = run(invocation.command, invocation.args, {
+  const result = await runInterruptible(invocation.command, invocation.args, {
     cwd: invocation.cwd,
     env: modelEnvironment(),
   })
   const elapsed = (performance.now() - started) / 1000
+  if (result.interrupted) throw new Error(`model run interrupted by ${result.interrupted}`)
 
   const trace = sanitizeEvidenceText(result.stdout)
   writeFileSync(join(stagedOutput, 'trace.jsonl'), trace)
