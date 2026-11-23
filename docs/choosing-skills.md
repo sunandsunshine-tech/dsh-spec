@@ -94,7 +94,7 @@ Install this skill when the project creates, rewrites, migrates or checks Agent 
 | Work | Baseline | Work-specific group |
 |---|---|---|
 | Agent-assisted project work | Universal collaboration | Software change and quality when the work changes code |
-| Ordinary software change | Universal collaboration | Software change and quality; add change descriptions and landing when the work needs a PR |
+| Ordinary software change | Universal collaboration | Software change and quality; add change descriptions when the work needs a PR. Add landing only for GitHub's official stacked-PR workflow |
 | Official stacked PR chain | Universal collaboration | Change descriptions and landing, plus software change and quality for each layer's evidence |
 | Browser UI change | Universal collaboration | Browser UI evidence, plus software change and quality for implementation review |
 | Agent skill authoring | Universal collaboration | Agent skill authoring |

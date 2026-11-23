@@ -72,7 +72,7 @@ Read [Choosing dsh-spec skills](docs/choosing-skills.md) before adding a special
 
 ## How the skills fit together
 
-A change starts as a decision record: the note states what was decided, what lost and what proves it. The prose and translation skills keep the text that carries those decisions readable and its language pairs in step. The forge is this package's own authoring mechanism: it turns an idea, a source or an existing skill into a new skill and records the decisions behind it. The review and delivery skills cover the path a change takes from a worktree to a landed branch. Every skill installs alone; where one names another, the name is an optional example.
+A change that needs a durable reason starts as a decision record: the note states what was decided, what lost and what proves it. Mechanical and local edits need no record. The prose and translation skills keep the text that carries those decisions readable and its language pairs in step. The forge is this package's own authoring mechanism: it turns an idea, a source or an existing skill into a new skill and records the decisions behind it. The review and delivery skills cover the path a change takes from a worktree to a landed branch. Every skill installs alone; where one names another, the name is an optional example.
 
 ## Working in a project that has them
 
