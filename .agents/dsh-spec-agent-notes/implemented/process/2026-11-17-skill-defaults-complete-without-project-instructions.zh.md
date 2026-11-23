@@ -8,7 +8,7 @@ Status: implemented
 
 在使用位置声明默认值，能让该值紧邻使用它的行为。一个技能即使还会读取项目的常驻指令（standing instructions），仍可能让没有指令的状态含糊不清：执行者可能把沉默视为缺少配置、让用户选择默认值、新增 `AGENTS.md` 来记录默认值，或再建一张默认值表。这些应对方式会让临时项目依赖它并不需要的配置，并重新引入就地声明本可避免的漂移。
 
-当有效调用未指定某个默认值、且现有项目指令未作规定时，有十个技能会依据该具体默认值选择行为。它们是 `dsh-spec-agent-notes`、`dsh-spec-browser-gif-evidence`、`dsh-spec-client-ui-ux`、`dsh-spec-error-handling`、`dsh-spec-merging-stacked-prs`、`dsh-spec-pr-description`、`dsh-spec-prose-standard`、`dsh-spec-skill-forge`、`dsh-spec-test-reliability` 和 `dsh-spec-translate-docs`。它们的具体值早已位于各自的使用位置，但共享的执行规则并非如此。
+当有效调用未指定某个默认值、且现有项目指令未作规定时，有十一个技能会依据该具体默认值选择行为。它们是 `dsh-spec-agent-notes`、`dsh-spec-browser-gif-evidence`、`dsh-spec-client-ui-ux`、`dsh-spec-error-handling`、`dsh-spec-merging-stacked-prs`、`dsh-spec-pre-push-checks`、`dsh-spec-pr-description`、`dsh-spec-prose-standard`、`dsh-spec-skill-forge`、`dsh-spec-test-reliability` 和 `dsh-spec-translate-docs`。它们的具体值早已位于各自的使用位置，但共享的执行规则并非如此。
 
 ## 决策
 
@@ -16,7 +16,7 @@ Status: implemented
 
 每个带默认值的技能都携带一个 `## Defaults` 段落，并表达同一项约定。默认值是技能在自己使用处声明的值或策略。当当前请求和现有项目指令都未规定该选择时，默认值生效。用户轮次或显式参数提供一次性值。持久覆盖由现有项目指令提供，只能读取，不能改写或复制。缺少项目指令是有效状态，因此不应让用户选择默认值，也不应只为选择默认值而新增或修改指令文件。
 
-该规则不移动也不重复任何具体值。笔记根仍位于笔记位置约定中，翻译默认值与数据根仍位于配对约定中，变更描述的结构与语言阶梯仍位于该技能中，行文模式与文风指引仍位于各自的使用位置，堆叠合并的回退方案仍位于合并流程中，锻造技能的语言与记录默认值仍位于锻造技能使用它们的位置，只约束结果、不规定实现或表示形式的兜底判别值要求仍位于错误处理约定中，渲染证据的默认值仍位于 Web UI 评审流程中。
+该规则不移动也不重复任何具体值。笔记根仍位于笔记位置约定中，翻译默认值与数据根仍位于配对约定中，变更描述的结构与语言阶梯仍位于该技能中，行文模式与文风指引仍位于各自的使用位置，堆叠合并的回退方案仍位于合并流程中，由 rerere 支撑的 rebase 选择仍位于推送前检查中，锻造技能的语言与记录默认值仍位于锻造技能使用它们的位置，只约束结果、不规定实现或表示形式的兜底判别值要求仍位于错误处理约定中，渲染证据的默认值仍位于 Web UI 评审流程中。
 
 技能锻造的完成条件现在要求：未来每个声明默认值的锻造技能，在当前请求和现有项目指令都未规定该选择时应用默认值，且不要求用户选择默认值，也不只为选择默认值而新增或修改指令文件。这样，该规则成为未来技能验收的一部分，而不只是现有技能恰好遵循的一项惯例。
 
@@ -47,7 +47,7 @@ Status: implemented
 ## 后果
 
 - 一个没有 `AGENTS.md` 的项目，无需先创建项目配置，就能初始化笔记、选择默认翻译目标、写入变更描述、应用默认行文模式、落地堆叠 PR（Pull Request），或锻造技能。
-- 十个相互独立的技能有意携带同一段简短段落。每个安装仍保持自包含；`tests/skill-defaults.test.ts` 中的内容约定会检出共享约定段落缺失或重复，并防止任何具体值进入共享段落。
+- 十一个相互独立的技能有意携带同一段简短段落。每个安装仍保持自包含；`tests/skill-defaults.test.ts` 中的内容约定会检出共享约定段落缺失或重复，并防止任何具体值进入共享段落。
 - 一次性覆盖不会重写项目指令。持久覆盖仍留在已经拥有它的项目文档中；命令把其路径或值作为参数接收，不会创建第二份副本。
 - 这份清单不包含 `dsh-spec-agents-md`，其默认目录位置仅在获得授权的 AGENTS 写入任务开始后才适用；也不包含 pre-push 报告的 `HEAD` 等参数默认值：两者都不会依据缺失的项目指令选择 agent 行为。
 - [锻造决策记录](2026-10-27-forging-dsh-spec-skill-forge.zh.md) 拥有未来技能验收条款，[翻译决策记录](2026-10-28-forging-dsh-spec-translate-docs.zh.md) 拥有翻译默认值当前的放置位置。两者都受本记录部分约束，并继续有效。

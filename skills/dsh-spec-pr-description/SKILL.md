@@ -1,7 +1,7 @@
 ---
 name: dsh-spec-pr-description
 license: "MIT; upstream and repository notices in THIRD_PARTY_NOTICES"
-description: "Use when creating or updating a change-request description in any project — pull request, merge request, patch set, or change list — or after a handled review round. Covers the four content blocks, AI Usage, test evidence and disclosures. Not for commit messages, release notes, code-review findings, or the code itself. 用于创建或更新任何项目中的变更请求描述（pull request、merge request、patch set 或 change list），或在处理完评审之后。涵盖四块内容、AI Usage、测试证据与披露义务，遵循项目约定。不用于提交信息、发布说明、代码审查发现或代码改动本身。"
+description: "Use for creating or updating a change-request description in any project — pull request, merge request, patch set, or change list — or after review. Covers four content blocks, module responsibilities and dependency edges, AI Usage, test evidence and disclosures. Not for commit messages, release notes, code-review findings, or the code itself. 用于创建或更新任何项目中的变更请求描述（pull request、merge request、patch set 或 change list），或在评审之后使用。涵盖四块内容、模块职责与依赖边、AI Usage、测试证据与披露义务。不用于提交信息、发布说明、代码审查发现或代码改动本身。"
 ---
 
 # Writing change-request descriptions
@@ -35,7 +35,7 @@ Each change request in a stack has its own description, covering only its layer 
 
 ### Module responsibilities and dependencies
 
-Derive the edge set from the base-to-head manifest diff, never from memory. Compare each affected unit's `dependencies`, `peerDependencies`, and `optionalDependencies`, and name every added or removed runtime dependency as `A → B` for “A depends on B”; keep development-only, test-fixture, template, and third-party edges out, and keep composition roots in a separate item because mounting a package is not a runtime call. For each added edge `A → B`, verify that B's runtime dependencies do not name A, then state that no reverse edge exists or list each one.
+Derive the edge set from the base-to-head manifest diff, never from memory. Read the adopting project's declared runtime-dependency manifests and optional or peer-like edge declarations; when conventions declare no equivalent, use the files that build or launch each unit. Name every added or removed runtime dependency as `A → B` for “A depends on B”; keep development-only, test-fixture, template, and third-party edges out, and keep composition roots in a separate item because mounting a unit is not a runtime call. For each added edge `A → B`, verify that B's runtime dependencies do not name A, then state that no reverse edge exists or list each one.
 
 A responsibility table uses one row per changed or depended-on unit: the unit, its responsibility in one sentence, and whether this change adds, removes, changes, or leaves it in place. A reviewer uses the table to judge that each affected unit has one coherent responsibility and that each added edge is required by that responsibility. A package that only supplies a dependency needs a row only when its responsibility explains why the edge is necessary. Call flow is a short bounded path, not an implementation walkthrough; omit it when no cross-package call changes.
 

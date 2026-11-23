@@ -142,6 +142,30 @@
       ]
     },
     {
+      "id": "locale-selected-pages-are-unpaired",
+      "prompt": "Check the documentation corpus in evals/files/locale-pages. The project standing instructions declare a maintained English-Chinese guide pair and locale-selected detail pages that carry no switcher or consistency record. Use the installed dsh-spec-translate-docs skill, report the exact check command, and do not create pair artifacts for the detail pages.",
+      "expected_output": "The run checks the guide pair with `--target zh` and excludes the locale-selected detail paths from pairing with `--unpaired docs/detail*.md`; it creates no switcher or consistency record for those detail pages.",
+      "capabilities": {
+        "browser": false,
+        "media": false
+      },
+      "files": [
+        "evals/files/locale-pages/AGENTS.md",
+        "evals/files/locale-pages/.agents/dsh-spec-translate-docs/terminology.md",
+        "evals/files/locale-pages/docs/guide.md",
+        "evals/files/locale-pages/docs/guide.zh.md",
+        "evals/files/locale-pages/docs/guide.i18n.yaml",
+        "evals/files/locale-pages/docs/detail.md",
+        "evals/files/locale-pages/docs/detail.zh.md"
+      ],
+      "assertions": [
+        "The run reads the project declaration for maintained and locale-selected documents.",
+        "The run passes `--unpaired docs/detail*.md` when checking existing pairs.",
+        "The run checks the maintained guide pair with `--target zh`.",
+        "The run creates no switcher or consistency record for the detail pages."
+      ]
+    },
+    {
       "id": "range-operation-does-not-create-missing-target",
       "prompt": "Run the ordinary range check and record commands over evals/files/progressive-targets. The current project policy supports Chinese and Japanese. Report what the range commands establish or change.",
       "expected_output": "The range operation verifies and re-records existing pairs only. It does not create a Japanese counterpart for the untouched Chinese-only source or otherwise backfill missing targets.",

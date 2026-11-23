@@ -2,9 +2,10 @@
 /**
  * SPDX-License-Identifier: MIT
  *
- * Extracted from the DeepSeek Harness bilingual-document mechanism at the pinned
- * `dsh-v0.2.3-alpha.2` (`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`); the skill-root
- * THIRD_PARTY_NOTICES names the upstream paths and the relation.
+ * Extracted from the DeepSeek Harness bilingual-document mechanism at source revision
+ * `dsh-v0.2.1-rc.3` (`1f81c047fc48fa190a683e469daa699857e9afe8`) and reviewed against the
+ * current `dsh-v0.2.3-alpha.2` pin; the skill-root THIRD_PARTY_NOTICES names the upstream paths
+ * and the relation.
  */
 /**
  * The pairing CLI: list/check/write existing pairs, brief minimal updates, initialise
@@ -57,6 +58,7 @@ const USAGE = [
   '  --source-lang <code>[=<display>]  source language for a first record',
   '  --select <glob>               select existing pairs by source path, repeatable',
   '  --skip <glob>                 skip source paths, repeatable',
+  '  --unpaired <glob>             exclude locale-selected pages from pairing, repeatable',
   '  --generated <glob>            generator-owned source glob, repeatable (corpus verbs)',
   '  --terminology <lang>=<path>   terminology file override, repeatable',
   '  --root <dir>                  project root (default: working directory)',
@@ -86,6 +88,7 @@ interface Options {
   pairs: string[]
   select: string[]
   skip: string[]
+  unpaired: string[]
   generated: string[]
   terminology: TerminologyOverride[]
   apply: boolean
@@ -128,6 +131,7 @@ function parseOptions(argv: string[]): { verb: string; options: Options } {
     pairs: [],
     select: [],
     skip: [],
+    unpaired: [],
     generated: [],
     terminology: [],
     apply: false,
@@ -187,6 +191,12 @@ function parseOptions(argv: string[]): { verb: string; options: Options } {
         options.skip.push(pattern)
         break
       }
+      case '--unpaired': {
+        const pattern = value()
+        assertGlob(flag, pattern)
+        options.unpaired.push(pattern)
+        break
+      }
       case '--generated': {
         const pattern = value()
         assertGlob(flag, pattern)
@@ -241,6 +251,7 @@ function parseOptions(argv: string[]): { verb: string; options: Options } {
       options.generated.length > 0 ||
       options.select.length > 0 ||
       options.skip.length > 0 ||
+      options.unpaired.length > 0 ||
       options.sourceLanguage !== undefined
     )
       throw new UsageError('init accepts only --target, --root and --terminology')
@@ -266,6 +277,7 @@ function corpusOf(options: Options): PairCorpus {
     generated: options.generated,
     select: options.select,
     skip: options.skip,
+    unpaired: options.unpaired,
     terminology: options.terminology,
     repositoryFileExists: (path) => readRepositoryFile(options.root, path) !== undefined,
     repositoryReadFile: (path) => readRepositoryFile(options.root, path),

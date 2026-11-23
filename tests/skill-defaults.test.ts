@@ -25,6 +25,7 @@ const DEFAULT_BEARING = [
   'dsh-spec-error-handling',
   'dsh-spec-merging-stacked-prs',
   'dsh-spec-pr-description',
+  'dsh-spec-pre-push-checks',
   'dsh-spec-prose-standard',
   'dsh-spec-skill-forge',
   'dsh-spec-test-reliability',

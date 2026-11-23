@@ -30,7 +30,7 @@ Design rulings for this skill:
 
 ### Mechanism source and provenance
 
-Upstream `deepseek-ai/deepseek-harness`, source revision read `1f81c047fc48fa190a683e469daa699857e9afe8` (`dsh-v0.2.1-rc.3`), from `submodules/dsh`; the repository's current pinned baseline is `4b399c39a6d1479cd84ca591b4d7c88e24d38a96` (`dsh-v0.2.3-alpha.2`):
+Upstream `deepseek-ai/deepseek-harness`, source revision read on 2026-11-23: `1f81c047fc48fa190a683e469daa699857e9afe8` (`dsh-v0.2.1-rc.3`); the current inspected baseline is `4b399c39a6d1479cd84ca591b4d7c88e24d38a96` (`dsh-v0.2.3-alpha.2`):
 
 | Upstream path | Blob | Lines | Relation |
 |---|---|---|---|
@@ -56,7 +56,7 @@ Upstream `deepseek-ai/deepseek-harness`, source revision read `1f81c047fc48fa190
 
 The repository's old `scripts/dsh-spec-manager/` translation engine is **not** a source. The implementation reads upstream only, and no skill text, script or test names it.
 
-Alpha.2 adds a document-class exclusion in `docs/i18n/README.md`: locale-selected bundle detail pages use their locales' files without an in-document switcher or consistency record. The target adapts that project mechanism into a general rule: when an adopter selects a detail page by locale metadata and publishes no pair artifacts, it remains outside the pairing contract while the project's link, prose and review checks keep both localizations in step. The localization script's project-specific exclusion list is dissolved into the adopter's declaration.
+The current alpha.2 pin was reviewed on 2026-11-23. Its `docs/i18n/README.md` excludes locale-selected bundle detail pages from the project's pairing corpus even though those pages have no in-document switcher or consistency record. The target carries the purpose as an adopter-declared `--unpaired <glob>`: matching localized pages are excluded from discovery, existing-target inference and link normalization, while the project's link, prose and review checks keep both localizations in step.
 
 Licensing: upstream and this repository are MIT. The skill states the relation and origin in its `THIRD_PARTY_NOTICES`, written outside the loaded instructions as the package's convention requires. The bundle's parser packages are pinned to the versions the upstream lock names (`mdast-util-from-markdown` 2.0.3, `mdast-util-gfm` 3.1.0, `micromark-extension-gfm` 3.0.0 and their runtime closure). The resolved bundle's parser closure is registered in the shared root `THIRD_PARTY_NOTICES.md`; the skill-root `THIRD_PARTY_NOTICES` records the exact bundled versions and lists the adapted upstream files and the npm packages the bundle includes.
 
@@ -69,7 +69,7 @@ Licensing: upstream and this repository are MIT. The skill states the relation a
 | Pair naming | `.zh.md` + `.i18n.yaml` | `.zh.md`/`.i18n.yaml` for `zh`; `.<lang>.md`/`.<lang>.i18n.yaml` for another target | upstream compatibility plus multilingual pairs |
 | Pair selection | one pair per source | a target-suffixed path selects one pair, longest record suffix first; a source path or bare stem selects the pairs that exist for it; named pairs need no selection flags | the record must not demand pairs a repository never had, a non-default record must not be shadowed by the default suffix, and single-pair maintenance stays addressable |
 | Switcher validation | a regular expression accepted the one pair's line | the canonical switcher is located structurally as the unique top-level paragraph in the H1 section whose labels and links match; position is free (metadata may precede it), text/labels/order stay canonical; only that paragraph's links are exempt; a destination is the relative counterpart path or an absolute URL with the same pathname suffix | the fixed language pair generalised into a declared set; layout position is not semantic, and an arbitrary non-switcher link cannot gain the cross-locale exemption |
-| Discovery | corpus predicate + manifest | the repository walk with the documented default prune trees; `--select`/`--skip` narrow an existing-pair set; a filename whose suffix names no recognized target is `unrecognized` | no project config file; a silent skip would hide a real corpus file |
+| Discovery | corpus predicate + manifest | the repository walk with the documented default prune trees; `--select`/`--skip` narrow an existing-pair set; `--unpaired` excludes declared locale-selected pages; a filename whose suffix names no recognized target is `unrecognized` | no project config file; a silent skip would hide a real corpus file |
 | Record keys | `en`/`zh` | `en` and the target language code | the same `en`/`zh` key lines for the default pair |
 | Record comment | `docs/i18n/README.md` + `pnpm run …` | `references/pairing-contract.md` + the skill's `write` command, naming the language codes and no display name | the mechanism is shipped; the comment is flag-free and stays canonical for every invocation; migrated records re-record once (migration cost recorded) |
 | Scope | corpus predicate + `manifest.json` | the responsible model or workflow resolves a target set for the source; explicit `--target` values may name several targets; the verbs touch existing pairs, and `--select`/`--skip` narrow them | no project config file; environmental judgment stays with the model, while the script receives explicit facts as flags (R52) |

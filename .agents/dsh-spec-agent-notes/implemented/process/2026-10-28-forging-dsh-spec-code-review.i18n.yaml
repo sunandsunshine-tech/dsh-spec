@@ -9,14 +9,14 @@
   en: a32a40586021c140
   zh: ece7aac5f3d8f590
 /agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/decision:
-  en: 396a08eceda628cd
-  zh: ac7e5fdfd2a6cca3
+  en: 0fd78cc05848677d
+  zh: 42c1b8eae0f090c9
 /agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/source-and-revision:
-  en: f67b44830391e478
-  zh: c38373d46cdece44
+  en: 2364e735650bce49
+  zh: 3ee450db3ebb17dc
 /agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/review-integrations:
-  en: 9cc7845461db6e06
-  zh: f0e3c7d0d7515985
+  en: b69838ad5f019960
+  zh: bf7e57fcf944f7ff
 /agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/target-shape:
   en: 1e6486fbba4c5fbb
   zh: a74fd9261820f17c
@@ -30,26 +30,26 @@
   en: 7134ed9145fadddd
   zh: b2df085b4063bf7a
 /agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/constraint-dispositions/sources-of-truth:
-  en: 3be228e0262f7c5c
-  zh: 3ae47840349a2e1b
+  en: 18a3209d628dd600
+  zh: 59ca58204d74b8c0
 /agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/constraint-dispositions/blocking-requirements:
-  en: 7c20ba0c22047a41
-  zh: a7de0f48b86a028a
+  en: 5fc2bed352992c35
+  zh: 33c611a12858e49e
 /agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/constraint-dispositions/manual-checks:
-  en: c410cb975d218ea7
-  zh: 1e4c0581b5f508b3
+  en: e647744beebe4891
+  zh: 824b9dc9af0bd4ae
 /agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/constraint-dispositions/reporting-findings:
-  en: 86e8589fa68ed800
-  zh: 6a5926c2f56c1ca4
+  en: 8445dae68dc5c148
+  zh: 52c83cb8ecf0f859
 /agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/target-rulings:
-  en: 72c4cd0fa03ac17a
-  zh: 580976f98f73ee6e
+  en: 1ee1a7a129ac902b
+  zh: 0553a35d48b64809
 /agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/requirement-anchors:
-  en: af116aeeaa8d6dcb
-  zh: 6c2bdc41fac622e8
+  en: 8dc9b171923969f7
+  zh: bba4382ef4d61b09
 /agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/alternatives-considered:
-  en: d096cdf3bef297b7
-  zh: 2f887a8ca6669b5a
+  en: 84822685da2548a8
+  zh: 4f779242abe3febd
 /agent-note-forging-dsh-spec-code-review-from-the-upstream-code-review-skill/consequences:
-  en: c7c51e271bd022ed
-  zh: ae6aabf3d1d01435
+  en: fcab9b4a9df4e16f
+  zh: 557a76ee5a7e3569

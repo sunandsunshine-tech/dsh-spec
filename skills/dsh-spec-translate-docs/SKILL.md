@@ -48,7 +48,7 @@ A pair is a source `foo.md`, one counterpart per target `foo.zh.md` or `foo.<lan
 - **Deleted or renamed document**: follow § Finish the pair; a named `write --target` never drops a target, and an entry without a counterpart is an incomplete pair.
 - **Generated region**: the generator updates both sides; never edit a region by hand.
 - **Frozen or excluded document**: the standing instructions say it is not maintained; do not create, update or repair its pairs.
-- **Locale-selected detail page**: when the project selects the page by locale metadata and publishes no in-document switcher or record, leave it outside the pair contract; the project's link, prose and review checks keep both localized versions in step.
+- **Locale-selected detail page**: when the project selects the page by locale metadata and publishes no in-document switcher or record, declare its localized paths with `--unpaired <glob>` so discovery and link normalization leave them outside the pair contract; the project's link, prose and review checks keep both localized versions in step.
 
 Every successful update path continues with § Finish the pair.
 
@@ -89,7 +89,7 @@ A generated source (`--generated`) omits only its own switcher; the counterpart 
 
 ## Find the work
 
-- `list` reports the pairs that exist; use `--select <glob>` and `--skip <glob>` to narrow the set. There is no completeness report: a source without a counterpart is simply not a pair.
+- `list` reports the pairs that exist; use `--select <glob>` and `--skip <glob>` to narrow the set, and `--unpaired <glob>` to exclude locale-selected pages from pairing. There is no completeness report: a source without a counterpart is simply not a pair.
 - `brief` with no pair argument reports every drifted existing pair; a pair it cannot brief is reported on stderr, the other briefs are still emitted without `--apply`, and the command exits 2. A generated-region drift is fatal for the whole run.
 - Discovery walks hidden directories and applies the [pairing contract's default prune trees](references/pairing-contract.md#discovery). Frozen or vendored trees are kept out of the work by the standing instructions and the selection filters.
 - In a change that edits a paired document, the work list is the change's diff: every changed side needs its counterpart brought along and the pair recorded in the same change.

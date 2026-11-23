@@ -400,6 +400,28 @@ test('select and skip filter existing pairs; empty selection and malformed globs
   }
 })
 
+test('unpaired locale pages are excluded from discovery and corpus checks', () => {
+  const fixture = makeFixture()
+  try {
+    pair(fixture, 'docs/foo.md', 'English', 'Guide', 'Intro.', [zh()])
+    assert.equal(writeRecord(fixture, 'docs/foo.md').status, 0)
+    fixture.write('docs/detail.md', '# Detail\n\nEnglish detail.\n')
+    fixture.write('docs/detail.zh.md', '# 详情\n\n中文详情。\n')
+
+    const withoutDeclaration = run(fixture.root, 'check')
+    assert.equal(withoutDeclaration.status, 1, withoutDeclaration.output)
+    assert.match(withoutDeclaration.output, /docs\/detail\.md \[zh\].*incomplete pair/)
+
+    const checked = run(fixture.root, 'check', '--unpaired', 'docs/detail*.md')
+    assert.equal(checked.status, 0, checked.output)
+    const listed = run(fixture.root, 'list', '--unpaired', 'docs/detail*.md')
+    assert.equal(listed.status, 0, listed.output)
+    assert.doesNotMatch(listed.stdout, /docs\/detail/)
+  } finally {
+    fixture.dispose()
+  }
+})
+
 test('the broad submodule skip excludes a visible populated submodule', () => {
   const fixture = makeFixture()
   try {

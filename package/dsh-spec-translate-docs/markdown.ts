@@ -1,9 +1,10 @@
 /**
  * SPDX-License-Identifier: MIT
  *
- * Extracted from the DeepSeek Harness bilingual-document mechanism at the pinned
- * `dsh-v0.2.3-alpha.2` (`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`); the skill-root
- * THIRD_PARTY_NOTICES names the upstream paths and the relation.
+ * Extracted from the DeepSeek Harness bilingual-document mechanism at source revision
+ * `dsh-v0.2.1-rc.3` (`1f81c047fc48fa190a683e469daa699857e9afe8`) and reviewed against the
+ * current `dsh-v0.2.3-alpha.2` pin; the skill-root THIRD_PARTY_NOTICES names the upstream paths
+ * and the relation.
  */
 /**
  * Shared Markdown parsing and traversal for the pairing mechanism. The subset is adapted from

@@ -68,7 +68,9 @@ The later upstream additions are adapted as follows.
 | E9 | Existing `name` and `code` values persist in logs and analytics, so changes need an upgrade guide. | A persisted or externally consumed error identity is a compatibility promise and needs a migration record when changed. |
 | E10 | Tests assert `error.info.name` and `error.info.code`, not only the message. | Tests assert the project's exact machine identity, the resulting state and, where a boundary exists, the reconstructed identity. |
 | E11 | A non-zero exit or no-match result is not inherently a failure; the operation's declared outcome decides. | A non-ideal result remains a success when the operation does not define it as failure; a success-shaped failure requires an explicit output-schema contract. |
-| E12 | Provider-extensible code families remain open and consumers tolerate unknown values. | Extensible families publish their shared codes and accept unknown additions; only a truly closed local family enumerates its complete value set. |
+| E12 | Provider-extensible code families remain open and consumers tolerate unknown values. | Extensible families keep their identity open to provider-added values and publish the shared values; only a truly closed local family enumerates its complete value set. |
+| E13 | alpha.2 `SKILL.md:39-69`: an empty catch covers one syntactic statement, names the expected failure, and states its safety reason; other failures surface, with separately tolerated operations wrapped separately. | The silent-handler section carries the single-statement, named-failure, safety-reason and selective-surfacing obligations without prescribing one runtime's exception type. |
+| E14 | alpha.2 `SKILL.md:20`: an execution wrapper preserves cancellation, timeout, denial and other expected-failure identity in its downstream result. | The handling section requires the wrapper to preserve the project's stable machine identity and distinguish the failure from display text or success. |
 
 ### Presupposition audit
 

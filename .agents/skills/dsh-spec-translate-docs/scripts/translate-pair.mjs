@@ -14491,9 +14491,10 @@ function gfm(options) {
 /**
 * SPDX-License-Identifier: MIT
 *
-* Extracted from the DeepSeek Harness bilingual-document mechanism at the pinned
-* `dsh-v0.2.3-alpha.2` (`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`); the skill-root
-* THIRD_PARTY_NOTICES names the upstream paths and the relation.
+* Extracted from the DeepSeek Harness bilingual-document mechanism at source revision
+* `dsh-v0.2.1-rc.3` (`1f81c047fc48fa190a683e469daa699857e9afe8`) and reviewed against the
+* current `dsh-v0.2.3-alpha.2` pin; the skill-root THIRD_PARTY_NOTICES names the upstream paths
+* and the relation.
 */
 /**
 * Shared Markdown parsing and traversal for the pairing mechanism. The subset is adapted from
@@ -14612,9 +14613,10 @@ function markdownDestination(source, node) {
 /**
 * SPDX-License-Identifier: MIT
 *
-* Extracted from the DeepSeek Harness bilingual-document mechanism at the pinned
-* `dsh-v0.2.3-alpha.2` (`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`); the skill-root
-* THIRD_PARTY_NOTICES names the upstream paths and the relation.
+* Extracted from the DeepSeek Harness bilingual-document mechanism at source revision
+* `dsh-v0.2.1-rc.3` (`1f81c047fc48fa190a683e469daa699857e9afe8`) and reviewed against the
+* current `dsh-v0.2.3-alpha.2` pin; the skill-root THIRD_PARTY_NOTICES names the upstream paths
+* and the relation.
 */
 /**
 * Source-bound target signatures. H(sourceHash || targetContentHash), truncated to 16 hex.
@@ -14759,9 +14761,10 @@ function selectPairs(argument, declared, restrict, existingTargets) {
 /**
 * SPDX-License-Identifier: MIT
 *
-* Extracted from the DeepSeek Harness bilingual-document mechanism at the pinned
-* `dsh-v0.2.3-alpha.2` (`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`); the skill-root
-* THIRD_PARTY_NOTICES names the upstream paths and the relation.
+* Extracted from the DeepSeek Harness bilingual-document mechanism at source revision
+* `dsh-v0.2.1-rc.3` (`1f81c047fc48fa190a683e469daa699857e9afe8`) and reviewed against the
+* current `dsh-v0.2.3-alpha.2` pin; the skill-root THIRD_PARTY_NOTICES names the upstream paths
+* and the relation.
 */
 /**
 * Locale-aware resolution, validation and normalization of the relative document links a pair
@@ -15010,9 +15013,10 @@ function semanticTranslationLinkNodeTarget(node, markdown, context) {
 /**
 * SPDX-License-Identifier: MIT
 *
-* Extracted from the DeepSeek Harness bilingual-document mechanism at the pinned
-* `dsh-v0.2.3-alpha.2` (`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`); the skill-root
-* THIRD_PARTY_NOTICES names the upstream paths and the relation.
+* Extracted from the DeepSeek Harness bilingual-document mechanism at source revision
+* `dsh-v0.2.1-rc.3` (`1f81c047fc48fa190a683e469daa699857e9afe8`) and reviewed against the
+* current `dsh-v0.2.3-alpha.2` pin; the skill-root THIRD_PARTY_NOTICES names the upstream paths
+* and the relation.
 */
 /**
 * Aggregate, section-keyed consistency records. One foo.i18n.yaml per source holds, for every
@@ -15316,9 +15320,10 @@ function translationPairingRecordDiff(recorded, current, sourceCode, targetCode)
 /**
 * SPDX-License-Identifier: MIT
 *
-* Extracted from the DeepSeek Harness bilingual-document mechanism at the pinned
-* `dsh-v0.2.3-alpha.2` (`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`); the skill-root
-* THIRD_PARTY_NOTICES names the upstream paths and the relation.
+* Extracted from the DeepSeek Harness bilingual-document mechanism at source revision
+* `dsh-v0.2.1-rc.3` (`1f81c047fc48fa190a683e469daa699857e9afe8`) and reviewed against the
+* current `dsh-v0.2.3-alpha.2` pin; the skill-root THIRD_PARTY_NOTICES names the upstream paths
+* and the relation.
 */
 /**
 * Language-switcher parsing and matching: the canonical paragraph's parts, accepted link
@@ -15499,9 +15504,10 @@ function locateSwitchers(corpus, paths, sourceText, sourceTree, counterpartText,
 /**
 * SPDX-License-Identifier: MIT
 *
-* Extracted from the DeepSeek Harness bilingual-document mechanism at the pinned
-* `dsh-v0.2.3-alpha.2` (`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`); the skill-root
-* THIRD_PARTY_NOTICES names the upstream paths and the relation.
+* Extracted from the DeepSeek Harness bilingual-document mechanism at source revision
+* `dsh-v0.2.1-rc.3` (`1f81c047fc48fa190a683e469daa699857e9afe8`) and reviewed against the
+* current `dsh-v0.2.3-alpha.2` pin; the skill-root THIRD_PARTY_NOTICES names the upstream paths
+* and the relation.
 */
 /**
 * Pair discovery and the corpus: the repository walk and its prunes, the recognized language set,
@@ -15578,8 +15584,11 @@ function buildCorpus(options) {
 		}
 	})();
 	const found = new Map(options.targets.map((target) => [target.code, target]));
+	const unpaired = [...options.unpaired ?? []];
+	const isUnpaired = (path) => unpaired.some((pattern) => matchesGlob(path, pattern));
 	const recorded = /* @__PURE__ */ new Map();
 	for (const file of walkRepository(options.root)) {
+		if (isUnpaired(file)) continue;
 		const counterpart = languageFromCounterpartFilename(file);
 		if (counterpart !== void 0 && !found.has(counterpart.code)) found.set(counterpart.code, counterpart);
 		if (!file.endsWith(".i18n.yaml")) continue;
@@ -15605,12 +15614,14 @@ function buildCorpus(options) {
 		return fileExists(paths.counterpart) || fileExists(paths.record);
 	});
 	const isPaired = (path) => {
+		if (isUnpaired(path)) return false;
 		const named = languageFromCounterpartFilename(path);
 		if (named !== void 0) return hasPairArtifacts(path.slice(0, -counterpartSuffix(named).length) + ".md");
 		if (!path.endsWith(".md")) return false;
 		return hasPairArtifacts(path);
 	};
 	const existingTargets = (source) => {
+		if (isUnpaired(source)) return [];
 		const codes = recorded.get(source);
 		return recognized.filter((target) => (codes?.has(target.code) ?? false) || fileExists(pairPaths(source, target).counterpart));
 	};
@@ -15644,6 +15655,7 @@ function buildCorpus(options) {
 		generated,
 		select: [...options.select ?? []],
 		skip: [...options.skip ?? []],
+		unpaired,
 		terminology: [...options.terminology ?? []]
 	};
 }
@@ -15690,6 +15702,7 @@ function discoverPairs(corpus) {
 		});
 	};
 	for (const file of walkRepository(corpus.root)) {
+		if (corpus.unpaired.some((pattern) => matchesGlob(file, pattern))) continue;
 		const named = languageFromCounterpartFilename(file);
 		if (named !== void 0) {
 			add(pairPaths(file.slice(0, -counterpartSuffix(named).length) + ".md", named));
@@ -16441,9 +16454,10 @@ function renderTranslationBrief(input) {
 /**
 * SPDX-License-Identifier: MIT
 *
-* Extracted from the DeepSeek Harness bilingual-document mechanism at the pinned
-* `dsh-v0.2.3-alpha.2` (`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`); the skill-root
-* THIRD_PARTY_NOTICES names the upstream paths and the relation.
+* Extracted from the DeepSeek Harness bilingual-document mechanism at source revision
+* `dsh-v0.2.1-rc.3` (`1f81c047fc48fa190a683e469daa699857e9afe8`) and reviewed against the
+* current `dsh-v0.2.3-alpha.2` pin; the skill-root THIRD_PARTY_NOTICES names the upstream paths
+* and the relation.
 */
 /**
 * Update-path orchestration: recover the last-confirmed pair from Git, choose the narrowest safely
@@ -16461,6 +16475,7 @@ function commandFlags(corpus) {
 	const flags = [
 		...corpus.select.map((glob) => " --select " + shellQuote(glob)),
 		...corpus.skip.map((glob) => " --skip " + shellQuote(glob)),
+		...corpus.unpaired.map((glob) => " --unpaired " + shellQuote(glob)),
 		...corpus.generated.map((glob) => " --generated " + shellQuote(glob)),
 		...(corpus.terminology ?? []).map(({ code, path }) => " --terminology " + shellQuote(code + "=" + path))
 	];
@@ -16740,9 +16755,10 @@ function writeBrief(corpus, plan) {
 /**
 * SPDX-License-Identifier: MIT
 *
-* Extracted from the DeepSeek Harness bilingual-document mechanism at the pinned
-* `dsh-v0.2.3-alpha.2` (`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`); the skill-root
-* THIRD_PARTY_NOTICES names the upstream paths and the relation.
+* Extracted from the DeepSeek Harness bilingual-document mechanism at source revision
+* `dsh-v0.2.1-rc.3` (`1f81c047fc48fa190a683e469daa699857e9afe8`) and reviewed against the
+* current `dsh-v0.2.3-alpha.2` pin; the skill-root THIRD_PARTY_NOTICES names the upstream paths
+* and the relation.
 */
 /**
 * The pairing CLI: list/check/write existing pairs, brief minimal updates, initialise
@@ -16768,6 +16784,7 @@ const USAGE = [
 	"  --source-lang <code>[=<display>]  source language for a first record",
 	"  --select <glob>               select existing pairs by source path, repeatable",
 	"  --skip <glob>                 skip source paths, repeatable",
+	"  --unpaired <glob>             exclude locale-selected pages from pairing, repeatable",
 	"  --generated <glob>            generator-owned source glob, repeatable (corpus verbs)",
 	"  --terminology <lang>=<path>   terminology file override, repeatable",
 	"  --root <dir>                  project root (default: working directory)",
@@ -16812,6 +16829,7 @@ function parseOptions(argv) {
 		pairs: [],
 		select: [],
 		skip: [],
+		unpaired: [],
 		generated: [],
 		terminology: [],
 		apply: false,
@@ -16869,6 +16887,12 @@ function parseOptions(argv) {
 				options.skip.push(pattern);
 				break;
 			}
+			case "--unpaired": {
+				const pattern = value();
+				assertGlob(flag, pattern);
+				options.unpaired.push(pattern);
+				break;
+			}
 			case "--generated": {
 				const pattern = value();
 				assertGlob(flag, pattern);
@@ -16918,7 +16942,7 @@ function parseOptions(argv) {
 	}
 	if (options.regionSlug !== void 0 || options.regionBody !== void 0 || options.regionFile !== void 0) throw new UsageError("region options belong to the region verb");
 	if (verb === "init") {
-		if (options.pairs.length > 0 || options.apply || options.all || options.generated.length > 0 || options.select.length > 0 || options.skip.length > 0 || options.sourceLanguage !== void 0) throw new UsageError("init accepts only --target, --root and --terminology");
+		if (options.pairs.length > 0 || options.apply || options.all || options.generated.length > 0 || options.select.length > 0 || options.skip.length > 0 || options.unpaired.length > 0 || options.sourceLanguage !== void 0) throw new UsageError("init accepts only --target, --root and --terminology");
 	}
 	if (options.sourceLanguage !== void 0 && verb !== "write") throw new UsageError("--source-lang belongs to write");
 	options.root = resolve(options.root);
@@ -16942,6 +16966,7 @@ function corpusOf(options) {
 		generated: options.generated,
 		select: options.select,
 		skip: options.skip,
+		unpaired: options.unpaired,
 		terminology: options.terminology,
 		repositoryFileExists: (path) => readRepositoryFile(options.root, path) !== void 0,
 		repositoryReadFile: (path) => readRepositoryFile(options.root, path)

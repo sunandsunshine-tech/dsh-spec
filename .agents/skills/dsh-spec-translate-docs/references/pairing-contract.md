@@ -166,9 +166,9 @@ link targets. Paragraph order, inline emphasis and prose wording are review's do
 
 Paired-document links normalize to one semantic target. Resolve a destination to its base source
 path; that document is a paired document when it has at least one counterpart file or any aggregate
-record entry. `--select`/`--skip` do not affect this predicate; only existence does. Adding or
-removing a pair changes normalization for links that point at it, so affected existing pairs must
-be re-recorded in the same change.
+record entry and is not selected by `--unpaired`. `--select`/`--skip` do not affect this predicate.
+Adding or removing a pair changes normalization for links that point at it, so affected existing
+pairs must be re-recorded in the same change.
 
 ## Generated regions
 
@@ -224,8 +224,9 @@ work by the standing instructions and `--skip`; it is not a corpus exclusion sta
 
 Some products publish locale-selected detail pages outside the paired-document corpus. When the
 project maps such a document by locale metadata and its pages carry no in-document switcher or
-consistency record, it is outside this pair contract. The project's link, prose and review checks
-still keep the localized versions in step.
+consistency record, pass every localized path through `--unpaired <glob>`. Those paths are excluded
+from pair discovery, existing targets and link normalization. The project's link, prose and review
+checks still keep the localized versions in step.
 
 ## Project data
 
@@ -253,7 +254,7 @@ Verbs:
 
 Shared options: `--target <lang>[=<display>]` (repeatable), `--source-lang <code>[=<display>]`
 (write only, first record; the code is stored, the display is not), `--select <glob>`,
-`--skip <glob>`, `--generated <glob>`, `--terminology <lang>=<path>`, `--root <dir>`,
+`--skip <glob>`, `--unpaired <glob>`, `--generated <glob>`, `--terminology <lang>=<path>`, `--root <dir>`,
 and the verb-specific `--apply` and `--all`.
 
 Exit codes are 0 (clean or written), 1 (violations or nothing to record) and 2 (usage or a

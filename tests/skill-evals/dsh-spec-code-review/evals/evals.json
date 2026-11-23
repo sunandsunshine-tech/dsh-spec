@@ -80,6 +80,23 @@
       ]
     },
     {
+      "id": "review-cites-numbered-rule",
+      "prompt": "Review the outgoing change at HEAD against HEAD^ in evals/files/numbered-rule-review using the installed dsh-spec-code-review skill. Read the numbered project rules, inspect the actual diff, and cite every violated rule by its ID. Do not modify files or Git state.",
+      "expected_output": "The review reports that the new exported `parseConfig` function violates `API-2` because it has no API documentation naming its error behavior.",
+      "files": [
+        "evals/files/numbered-rule-review/AGENTS.md",
+        "evals/files/numbered-rule-review/src/config.ts",
+        "evals/files/numbered-rule-review/change.patch"
+      ],
+      "change_patch": "evals/files/numbered-rule-review/change.patch",
+      "change_root": "evals/files/numbered-rule-review",
+      "assertions": [
+        "The review cites `API-2` as the violated numbered rule.",
+        "The review identifies the new exported function without API documentation.",
+        "The review does not invent a different rule ID."
+      ]
+    },
+    {
       "id": "review-dependency-edges-and-reverse-edge",
       "prompt": "Review the dependency description and manifests in evals/files/dependency-review. Compare the base manifests with the current workspace manifests, then compare the reported responsibilities and runtime edges with that diff. Report any missing added or removed edge, unnecessary edge, wrong responsibility, or reverse-edge problem.",
       "expected_output": "The review reports the added app → validator and app → core edges, the removed app → legacy edge, and the existing core → app reverse dependency. It recognizes the description's validator responsibility but rejects its edge list as incomplete.",

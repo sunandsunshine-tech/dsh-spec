@@ -1,9 +1,10 @@
 /**
  * SPDX-License-Identifier: MIT
  *
- * Extracted from the DeepSeek Harness bilingual-document mechanism at the pinned
- * `dsh-v0.2.3-alpha.2` (`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`); the skill-root
- * THIRD_PARTY_NOTICES names the upstream paths and the relation.
+ * Extracted from the DeepSeek Harness bilingual-document mechanism at source revision
+ * `dsh-v0.2.1-rc.3` (`1f81c047fc48fa190a683e469daa699857e9afe8`) and reviewed against the
+ * current `dsh-v0.2.3-alpha.2` pin; the skill-root THIRD_PARTY_NOTICES names the upstream paths
+ * and the relation.
  */
 /**
  * Pair discovery and the corpus: the repository walk and its prunes, the recognized language set,
@@ -62,6 +63,8 @@ export interface CorpusOptions {
   select?: readonly string[]
   /** Skip globs repeated by briefing commands. */
   skip?: readonly string[]
+  /** Pages outside the pair contract even when their filenames carry a language suffix. */
+  unpaired?: readonly string[]
   /** Terminology path overrides repeated by briefing commands. */
   terminology?: { code: string; path: string }[]
 }
@@ -84,6 +87,7 @@ export interface PairCorpus {
   generated: string[]
   select: string[]
   skip: string[]
+  unpaired: string[]
   terminology: { code: string; path: string }[]
 }
 
@@ -148,8 +152,11 @@ export function buildCorpus(options: CorpusOptions): PairCorpus {
           }
         })()
   const found = new Map(options.targets.map((target) => [target.code, target]))
+  const unpaired = [...(options.unpaired ?? [])]
+  const isUnpaired = (path: string): boolean => unpaired.some((pattern) => matchesGlob(path, pattern))
   const recorded = new Map<string, Set<string>>()
   for (const file of walkRepository(options.root)) {
+    if (isUnpaired(file)) continue
     const counterpart = languageFromCounterpartFilename(file)
     if (counterpart !== undefined && !found.has(counterpart.code)) found.set(counterpart.code, counterpart)
     if (!file.endsWith('.i18n.yaml')) continue
@@ -175,12 +182,14 @@ export function buildCorpus(options: CorpusOptions): PairCorpus {
       return fileExists(paths.counterpart) || fileExists(paths.record)
     })
   const isPaired = (path: string): boolean => {
+    if (isUnpaired(path)) return false
     const named = languageFromCounterpartFilename(path)
     if (named !== undefined) return hasPairArtifacts(path.slice(0, -counterpartSuffix(named).length) + '.md')
     if (!path.endsWith('.md')) return false
     return hasPairArtifacts(path)
   }
   const existingTargets = (source: string): Language[] => {
+    if (isUnpaired(source)) return []
     const codes = recorded.get(source)
     return recognized.filter(
       (target) => (codes?.has(target.code) ?? false) || fileExists(pairPaths(source, target).counterpart),
@@ -210,6 +219,7 @@ export function buildCorpus(options: CorpusOptions): PairCorpus {
     generated,
     select: [...(options.select ?? [])],
     skip: [...(options.skip ?? [])],
+    unpaired,
     terminology: [...(options.terminology ?? [])],
   }
 }
@@ -262,6 +272,7 @@ export function discoverPairs(corpus: PairCorpus): DiscoveredPair[] {
     })
   }
   for (const file of walkRepository(corpus.root)) {
+    if (corpus.unpaired.some((pattern) => matchesGlob(file, pattern))) continue
     const named = languageFromCounterpartFilename(file)
     if (named !== undefined) {
       add(pairPaths(file.slice(0, -counterpartSuffix(named).length) + '.md', named))

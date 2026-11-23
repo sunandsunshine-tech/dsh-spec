@@ -9,6 +9,10 @@ compatibility: "Requires Git; the bundled change-scope report also requires Node
 
 Use this skill to produce the local evidence a push owes, once, from the change it actually carries. Run the selected checks once before the push and do not duplicate what the repository's hooks or CI already decide: a repository's hooks are its own and usually narrow, and CI owns exhaustive coverage and the platform matrix. The one ordering exception is an automated tool that rewrites and publishes branches as a single operation; validate its result immediately afterward and do not merge until the evidence passes.
 
+## Defaults
+
+A default is the value or strategy this skill declares at its use site. It applies when the current request and existing project instructions leave that choice open. A user turn or explicit parameter supplies a one-off value. Existing project instructions supply a persistent override and are read without being modified or copied. Missing project instructions are valid, so do not ask the user to choose a default or create or modify an instruction file merely to select one.
+
 ## Inspect the outgoing change
 
 1. Confirm the checkout and branch.

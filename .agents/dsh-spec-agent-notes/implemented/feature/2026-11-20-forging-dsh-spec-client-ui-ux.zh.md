@@ -73,7 +73,7 @@ Agent Skills 的 overview、specification、best-practices、description-optimiz
 | D16 | `dsh-client-ui-ux/SKILL.md:117-120` | 用户可感知的 UI 变更可能要求设计师或产品审批；上游点名的名单属于产品数据。 | 消解 | 当所声称的验收包含签核时，技能报告项目审批策略缺失，绝不自行编造评审人。 |
 | D17 | `record-browser-gif/SKILL.md:12-22` | 用户可见的 GUI 变更会附带由变更后构建生成、如实反映结果的浏览器证据；采集与发布彼此分开。 | 重新绑定 | 默认采用已记录的浏览器证据，并支持项目覆盖和能力交接；所选机制负责采集和发布。 |
 | D18 | 仓库 `AGENTS.md` 和 `dsh-spec-skill-forge/SKILL.md` | 每个技能都独立安装，并且在首选能力缺失时仍须完成工作或交接。 | 适配 | 技能不声明兄弟依赖，并包含能力缺失时的交接。 |
-| D19 | alpha.2 `references/icons.md` | 共享和行内线稿在 viewport 变化时保持声明的 stroke 行为；填充仍按几何缩放；普通摆放或复用修复不得改变该渲染契约，库级渲染变化要验证全部消费方。 | 适配 | icon/touch-help 与消费方检查按目标 CSS 尺寸和设备像素比对照项目声明；不搬用上游宽度或组件名。 |
+| D19 | alpha.2 `references/icons.md` | 共享和行内线稿在 viewport 变化时保持声明的 stroke 行为；填充仍按几何缩放；普通摆放或复用修复不得改变该渲染契约；图形、stroke 或渲染变化要按已声明尺寸与设备像素比验证全部消费方。 | 适配 | icon/touch-help 与受影响状态覆盖普通摆放，不要求固定尺寸/DPR 矩阵；渲染变化按目标 CSS 尺寸和受支持设备像素比对照项目声明。不搬用上游宽度或组件名。 |
 
 ## 验证锚点
 

@@ -10,7 +10,7 @@ Status: implemented
 
 ## 决策
 
-本包发布 `dsh-spec-pre-push-checks`，作为位于 `submodules/dsh/.agents/skills/dsh-pre-push-checks/SKILL.md` 的上游技能的 create-mode 适配版本（`submodules/dsh` 固定在 `dsh-v0.2.3-alpha.2`，`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`）。它保留上游机制：确认 checkout 与分支；在检查范围之前验证 base；产出一份完整的出站范围报告；选择其回归会使本次改动失败的最窄证据；不重复 hook 或 CI 已经裁决的内容；仅在点名的情形下完整排练；保护改写历史的 push；在自动改写并发布之后立即验证；对特定环境的失败做证明，而不是重新解释它们。措辞是仓库中立的：采用者自己的命令、hook、工作流与布局约定从其声明中发现；上游点名 deepseek-harness 的文件、profile、snapshot 树或兄弟技能之处，本技能泛化该规则，或把它留给那些约定。
+本包发布 `dsh-spec-pre-push-checks`，作为上游技能 `.agents/skills/dsh-pre-push-checks/SKILL.md` 与上游 `prefer-rebase-with-rerere` 决策的 create-mode 适配版本（`dsh-v0.2.3-alpha.2`，`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`，读取于 2026-11-23）。它保留上游机制：确认 checkout 与分支；在检查范围之前验证 base；产出一份完整的出站范围报告；选择其回归会使本次改动失败的最窄证据；不重复 hook 或 CI 已经裁决的内容；仅在点名的情形下完整排练；保护改写历史的 push；在自动改写并发布之后立即验证；对特定环境的失败做证明，而不是重新解释它们。措辞是仓库中立的：采用者自己的命令、hook、工作流与布局约定从其声明中发现；上游点名 deepseek-harness 的文件、profile、snapshot 树或兄弟技能之处，本技能泛化该规则，或把它留给那些约定。
 
 落地目录包含 `SKILL.md`、`scripts/change-scope.mjs` 与 `THIRD_PARTY_NOTICES`，并镜像到 `.agents/skills/dsh-spec-pre-push-checks/`；脚本的源码与构建接线留在 `package/dsh-spec-pre-push-checks/`，其测试在 `tests/change-scope.test.ts`，套件的清单行在 `tests/AGENTS.md`。被取代的上游同名安装副本 `.agents/skills/dsh-pre-push-checks/` 被移除；根 `README.md` 的技能表与根 `THIRD_PARTY_NOTICES.md` 中的适配技能枚举点名该技能。
 
@@ -31,7 +31,7 @@ Status: implemented
 
 ### 来源约束
 
-上游文件是来源；下面每个单元都是一条要求、禁令、条件或固定选择，连同它的位置。单元 U17-U18 陈述一种工作方式，其后跟着具体指令，因此各自是一个单元，而不是一组彼此独立的具体规则。有一项实现事实来自本仓库而非上游文字：U4 要求的报告是仓库已有的上游 change-scope 脚本移植（`package/dsh-spec-pre-push-checks/change-scope.ts`），其文件头点名上游路径与关系。
+上游技能与上游 rerere 决策是来源；下面每个单元都是一条要求、禁令、条件或固定选择，连同它的位置。单元 U17-U18 陈述一种工作方式，其后跟着具体指令，因此各自是一个单元，而不是一组彼此独立的具体规则。有一项实现事实来自本仓库而非上游文字：U4 要求的报告是仓库已有的上游 change-scope 脚本移植（`package/dsh-spec-pre-push-checks/change-scope.ts`），其文件头点名上游路径与关系。
 
 | 单元 | 位置 | 约束 |
 |---|---|---|
@@ -86,7 +86,7 @@ Status: implemented
 | U17 | 适配 | 收尾段：按 launcher 转发过滤器的方式传过滤器，保留 pnpm 形式作为示例；在把过滤运行当作证据之前检查选中的测试数 | 转发规则是通用的；pnpm/Vitest 是常见实现，仅作示例 |
 | U18 | 适配 | "### Focus unit coverage on the affected source"：选择与覆盖分开；通过 runner 的 coverage-include 机制点名所属测试与源范围；阈值仍在范围内适用；所属不明确时使用依赖/关联发现；显式选择无法被发现的行为；绝不抑制无测试、降低阈值或收窄 include 以隐藏未覆盖的受影响文件；若选中范围失败，补充其他相关所属测试；仅当被排除的模块不可能受该改动影响时，才收窄源范围 | 机制保留；具体 flag 是 runner 的 |
 | U19 | 适配 | "Full local rehearsal"：三个点名情形存活；清单是当前工作流与包脚本；不要发明仓库并未提供的聚合检查 | `check:pre-push` 是 deepseek-harness 的聚合检查；其缺失以泛化方式陈述 |
-| U20 | 适配 | "Protect history-rewriting pushes"：默认以 rebase + rerere 刷新；启用 `rerere.enabled`，保持 `rerere.autoUpdate` 未设置或为 false，并在暂存前检查每个重放的解决结果；fetch 并记录 OID；`--force-with-lease=<branch>:<observed-oid>`；stack 或自动化工具必须提供等价 lease 保护；原始 `--force` 绝不允许；任何改写后，重新 fetch 并重新审计 thread、approval、mergeability 与检查；改写前的 hash 与锚点不是证据 | 技能只给出粗粒度的 rerere 默认，链接的上游记录拥有 `enabled` 与 `autoUpdate` 的精确设置顺序；lease 机制与重新审计顺序保留，工具名变为示例 |
+| U20 | 适配 | "Protect history-rewriting pushes"：默认以 rebase + rerere 刷新；启用 `rerere.enabled`，保持 `rerere.autoUpdate` 未设置或为 false，并在暂存前检查每个重放的解决结果；fetch 并记录 OID；`--force-with-lease=<branch>:<observed-oid>`；stack 或自动化工具必须提供等价 lease 保护；原始 `--force` 绝不允许；任何改写后，重新 fetch 并重新审计 thread、approval、mergeability 与检查；改写前的 hash 与锚点不是证据 | 上游记录提供 `enabled` 与 `autoUpdate` 的精确设置顺序，可安装技能重复它，使行为在没有来源记录时仍然完整；lease 机制与重新审计顺序保留，工具名变为示例 |
 | U21 | 重绑 | "### Validate after an automated rewrite and publish"：工具可能把 fetch、rebase 与发布作为一个操作执行，`gh stack sync` 作为示例被点名；前后序列与修复路径被承载 | 机制（验证无法位于改写与发布之间）对任何工具代为发布的采用者都真实；deepseek-harness 工具是实例而非机制 |
 | U22 | 适配 | "Handle failures"：停下并修复或解释；不要 push 然后指望；自动发布失败后阻止合并并修复；用精确命令、失败测试与平台不匹配证明特定环境的失败，确认非平台证据，优先跨平台修复，仅在用户要求或同意时绕过 hook，并报告什么失败了 | 领域中立；只有 hook 与 CI 名词被泛化 |
 | U23 | 适配 | "Push procedure"：检查运行一次；commit，检查 fixer 改动，带 lease push，解析实际 push remote 并验证其 ref；检查远程 CI 并把 pending 报告为 pending；没有报告检查时，区分工作流运行数为零与其他原因，解决冲突而不是添加空历史，并用 `git merge-tree` 针对实际 remote 与 base 确认路径；自动发布例外使用自己的序列；GitHub 命令留在显式的 "when the review platform is GitHub" 示例中，而 provider 中立的规则独立存在 | GitHub 实现是示例；约束是 provider 中立的 |
@@ -106,7 +106,7 @@ Status: implemented
 
 ### 评审集成
 
-证据选择包括一项边界测试，证明项目现有的稳定、机器可读失败身份穿过机器可消费边界后仍然保留，原始 cause 或等价结构化细节仍然可用，消费方不依据 message 文本进行路由。它还包括组装后浏览器 UI 在受影响状态与消费方上的渲染证据；聚焦的单元测试既不能确立边界约定，也不能确立视觉验收。相关要求无需另一个技能即可完整成立，其具体机制只以带可用性限定的示例出现。`tests/skill-evals/evidence/2026-11-23-pr121/dsh-spec-pre-push-checks/` 下的模型证据覆盖 outgoing-diff 选择场景；仓库场景测试绑定场景输入、冻结的技能修订与保留的产物。
+证据选择包括一项边界测试，证明项目现有的稳定、机器可读失败身份穿过机器可消费边界后仍然保留，原始 cause 或等价结构化细节仍然可用，消费方不依据 message 文本进行路由。它还包括组装后浏览器 UI 在受影响状态与消费方上的渲染证据；聚焦的单元测试既不能确立边界约定，也不能确立视觉验收。相关要求无需另一个技能即可完整成立，其具体机制只以带可用性限定的示例出现。`tests/skill-evals/evidence/2026-11-23-pr121/dsh-spec-pre-push-checks/` 下的模型证据覆盖 outgoing-diff 选择场景，PR122 的 `select-rebase-refresh-with-rerere` 运行覆盖 alpha.2 rebase 选择；仓库场景测试绑定场景输入、冻结的技能修订与保留的产物。
 
 ### 裁定
 
