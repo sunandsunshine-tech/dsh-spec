@@ -77,11 +77,13 @@ Source files:
 ## Rulings
 
 - **The default is capability-dependent.** Missing browser, build, media or publication capability produces an explicit handoff; it never permits a claim that the UI was demonstrated.
+- **The demonstrated source is committed.** Capture starts from a clean worktree and records its commit and tree; ignored evidence paths may be created after capture starts.
 - **The DSH real-model policy is generalized to real product behavior.** A recording identifies whether the run used the real integrated path, a fixture or another substitute. A substitute requires an explicit user or project-policy choice.
 - **UI acceptance is not this skill's decision.** The separate UI review workflow decides coverage and acceptability; this skill produces and verifies the requested artifact.
 - **The encoder is shipped rather than reimplemented at runtime.** A deterministic command gives stable validation and avoids repeating the same frame-manipulation logic in an agent's context.
 - **Encoder development tests stay in the repository.** Fast command and preflight cases run in the normal suite; one shared real-media scenario checks video timing, screenshots, representative-frame order and safe replacement on Node 26. Installed skills carry no maintenance tests.
 - **A skipped media test is not evidence.** The dedicated media entry fails with a clear diagnostic when `ffmpeg` or `ffprobe` is absent instead of treating the absence as a pass.
+- **Split output is still one evidence run.** Completion accepts one verified GIF or its ordered, verified parts from the same run, with the media context beside the published embed.
 
 ## Verification
 

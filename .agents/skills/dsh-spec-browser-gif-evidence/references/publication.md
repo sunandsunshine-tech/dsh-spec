@@ -12,9 +12,9 @@ Do not publish by committing the GIF or another media file to a branch.
 
 ## Keep the demonstrated head fixed
 
-1. Record the demonstrated commit with `git rev-parse HEAD`.
+1. Record the demonstrated commit and tree from the clean capture worktree. When creating a pull request, record the branch tip that will be pushed.
 2. Immediately before attachment, re-read the pull request's live head.
-3. Stop and re-record when the live head differs from the recorded commit.
+3. Stop and re-record when the live head differs from the recorded commit or uncommitted branch tip.
 
 For evidence produced from a tooling change that demonstrates another pull request, identify that source pull request beside the embed and perform the same live-head check on the demonstrated request.
 
@@ -27,6 +27,8 @@ Publish a GIF at or below the encoder's `--max-bytes` limit. When the artifact e
 - Verify every part independently and state its position and source interval or frame range beside the embed.
 
 Write each local GIF as an ordinary Markdown image reference in the change-request body. Pass the same paths to the attachment command so the platform can replace each local reference with its uploaded URL while preserving order and alternate text.
+
+Beside the embed, state the demonstrated commit, the tree and application origin that served it, any mode or browser-state exception, the real/local/substituted services, and whether a real model round ran. State the ordered part number and source interval or frame range when the evidence is split.
 
 For GitHub, publish all parts in one create or edit invocation:
 
@@ -45,6 +47,6 @@ After attachment:
 2. Re-read the body and confirm every local GIF reference now resolves to the uploaded URL.
 3. Render the body through the review platform's Markdown renderer and confirm every uploaded reference becomes the expected image element.
 4. Fetch every uploaded URL and confirm a successful response and a GIF media type.
-5. Report the pull request, demonstrated commit and artifact order.
+5. Report the pull request, demonstrated commit and artifact order beside the published embed.
 
 When any publication check fails, leave the verified local artifacts intact and report the failed operation and remaining step. Do not substitute a committed branch asset.

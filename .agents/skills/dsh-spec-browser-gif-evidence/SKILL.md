@@ -23,7 +23,7 @@ Do not claim completion when the build, browser, real scenario, media tools or p
 
 ## Establish evidence scope
 
-- Identify the exact commit and tree that will be demonstrated. A clean working tree is preferred; otherwise record every uncommitted path included in the build.
+- Identify the exact commit and tree that will be demonstrated. Require a clean worktree before building; only ignored evidence paths may appear after capture starts. Stop when tracked or untracked source changes would contribute to the demonstrated build.
 - Record the application origin, transport and any mode override or browser-state exception.
 - Read the project's build, start, browser-control, evidence-directory and publication instructions. Missing instructions permit a working default, not an invented project mechanism.
 - Use one isolated application run: fresh application state, workspace, session data and browser storage. Existing user browser state is an explicit exception, not an invisible default.
@@ -83,4 +83,4 @@ Immediately before publication, re-read the demonstrated pull request's live hea
 
 ## Completion
 
-Evidence is complete when one verified GIF exists, its run and source are identified, its content is legible and safe, and every publication step requested by the task has succeeded. Otherwise report the exact missing capability or artifact and the resumable next step.
+Evidence is complete when one verified GIF, or the ordered set of verified GIF parts from one run, exists; its run and source are identified; its content is legible and safe; and every publication step requested by the task has succeeded. Otherwise report the exact missing capability or artifact and the resumable next step.
