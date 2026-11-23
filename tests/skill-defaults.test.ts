@@ -149,6 +149,15 @@ test('concrete defaults remain at their own use sites', () => {
   }
 })
 
+test('PR description module details stay under Changes', () => {
+  const body = read('dsh-spec-pr-description')
+  const changes = body.indexOf('### Changes')
+  const moduleDetails = body.indexOf('#### Module responsibilities and dependencies')
+  const testing = body.indexOf('### Testing')
+  assert.ok(changes >= 0 && changes < moduleDetails && moduleDetails < testing)
+  assert.doesNotMatch(body, /^### Module responsibilities and dependencies$/m)
+})
+
 test('the forge accepts future defaults without project instructions', () => {
   const forge = read('dsh-spec-skill-forge')
   assert.match(

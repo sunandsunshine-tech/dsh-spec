@@ -1,11 +1,10 @@
-Updated [change.md](/workspace/evals/files/workspace-dependencies/change.md) with the default four-part `Changes` structure.
+Updated [change.md](/workspace/evals/files/workspace-dependencies/change.md) with the default `Changes` structure.
 
-The section reports:
+It records:
 
-- Added runtime edge: `@example/app → @example/core`
-- Existing reverse edge: `@example/core → @example/app`
-- Removed runtime edge: `@example/app → @example/legacy`
-- No reverse `legacy → app` edge in the base manifest
-- Responsibilities for `app`, `core`, and the removed `legacy` package
+- Added: `@example/app → @example/core`
+- Removed: `@example/app → @example/legacy`
+- Existing reverse edge for the added dependency: `@example/core → @example/app`
+- No reverse `@example/legacy → @example/app` edge
 
-All claims were derived from the base and current manifests using the skill’s dependency and responsibility rules.
+The responsibility table covers app, core, and the removed legacy package. Manifest verification and `git diff --check` passed.

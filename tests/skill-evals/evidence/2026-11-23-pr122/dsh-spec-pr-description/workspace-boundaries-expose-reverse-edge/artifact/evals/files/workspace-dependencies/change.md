@@ -1,28 +1,21 @@
 ## Changes
 
-**Interface changes**
+### Interface changes
 
-None.
+None
 
-**Behavior changes**
+### Behavior changes
 
-None. The manifest diff changes package composition and dependency edges, not an interface or
-documented observable result.
+The `@example/app` package now delegates shared input validation to `@example/core`.
 
-**Module responsibilities and dependencies**
+### Module responsibilities and dependencies
 
-| Unit | Responsibility | Change |
+| Unit | Responsibility | Status |
 |---|---|---|
-| `@example/app` | Application workspace package; delegates shared input validation to `@example/core` and supplies the event sink used by core. | Changed: it now depends on core rather than legacy. |
-| `@example/core` | Shared runtime package; provides shared input validation and uses the app package's event sink. | Responsibility remains in place; the existing runtime dependency on app remains unchanged. |
-| `@example/legacy` | Private workspace package with no declared runtime dependencies; it was app's dependency target in the base workspace. | Removed from the workspace. |
+| `@example/app` | The application package now delegates shared input validation to `@example/core`. | Changes |
+| `@example/core` | The core package supplies the delegated shared input validation and imports `@example/app` for its event sink. | Leaves in place |
+| `@example/legacy` | The legacy package was a base runtime dependency of `@example/app`; its runtime responsibility is not specified by the available manifests. | Removes |
 
-Added runtime dependency edge: `@example/app → @example/core`.
-
-The current manifests also contain the reverse edge `@example/core → @example/app`. That edge
-already existed in the base manifests and remains unchanged.
-
-Removed runtime dependency edge: `@example/app → @example/legacy`.
-
-The base manifest contains no reverse `@example/legacy → @example/app` edge; `@example/legacy`
-declared no runtime dependencies. No other runtime dependency edges were added or removed.
+- Added runtime dependency edge: `@example/app → @example/core`.
+- Removed runtime dependency edge: `@example/app → @example/legacy`.
+- Reverse-edge check: the added edge's reverse, `@example/core → @example/app`, remains in place. The removed edge has no reverse edge because the base `@example/legacy` manifest declares no runtime dependencies.

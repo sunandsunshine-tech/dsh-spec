@@ -30,10 +30,10 @@ Each change request in a stack has its own description, covering only its layer 
 
 - **Interface changes**: summarize changes to commands, flags, configuration keys, environment variables, public APIs and exports, extension or plugin registration values, protocols, and persisted formats; write `None` when there are none.
 - **Behavior changes**: summarize results that users, models, developers, or the system can observe, including defaults, performance, timing, and output; write `None` when there are none. Changes to documentation and agent instructions are behavior changes for the readers they guide.
-- **Module responsibilities and dependencies**: when the change adds or removes a package, module, or workspace boundary, a runtime dependency between them, or a responsibility assigned to one of them, report the affected responsibilities, added and removed dependency edges, optional edges, composition-only relationships, and reverse edges; write `None` when none moves. When a change adds or changes a cross-package call, include a bounded pseudo-code call flow.
+- **Module responsibilities and dependencies**: when the change adds or removes a package, module, workspace boundary, runtime dependency, or unit responsibility, apply [Module responsibilities and dependencies](#module-responsibilities-and-dependencies); write `None` when none moves.
 - State only behavior that the diff guarantees and the tests cover.
 
-### Module responsibilities and dependencies
+#### Module responsibilities and dependencies
 
 Derive the edge set from the base-to-head manifest diff, never from memory. Read the adopting project's declared runtime-dependency manifests and optional or peer-like edge declarations; when conventions declare no equivalent, use the files that build or launch each unit. Name every added or removed runtime dependency as `A → B` for “A depends on B”; keep development-only, test-fixture, template, and third-party edges out, and keep composition roots in a separate item because mounting a unit is not a runtime call. For each added edge `A → B`, verify that B's runtime dependencies do not name A, then state that no reverse edge exists or list each one.
 
