@@ -1,5 +1,9 @@
-Ready to merge.
+The official stack is ready to merge. `#201` is `CLEAN`; `#202` and `#203` are `BLOCKED` only by their unmerged parents, which the [landing policy](/workspace/evals/files/preflight-policy/AGENTS.md) explicitly permits. All three are open, non-draft, approved, and have green required checks, with no failed checks, requested changes, conflicts, or updating state reported.
 
-All PRs are open, non-draft, approved, and have green required checks. The `BLOCKED` states on `#202` and `#203` are dependency-only, which [AGENTS.md](/workspace/evals/files/preflight-policy/AGENTS.md) explicitly permits. There are no conflicts, updating branches, requested changes, or failed checks.
+Next action: perform one native merge of the entire `#201`–`#203` stack after an immediate live preflight:
 
-Next action: merge the whole official stack through `gh stack merge` using the official stack number. No per-PR merges. Since the policy does not choose a merge method, use the sole enabled method if GitHub exposes only one; otherwise use `--squash`, the skill’s default.
+```sh
+gh stack merge <stack-number> --yes --squash
+```
+
+Use the repository’s sole allowed method instead if its GitHub settings expose exactly one. Do not merge or retarget the PRs individually. No GitHub state was changed.
