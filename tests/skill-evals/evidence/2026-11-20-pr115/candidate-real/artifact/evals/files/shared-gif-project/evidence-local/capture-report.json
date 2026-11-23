@@ -1,6 +1,6 @@
 {
   "origin": "http://127.0.0.1:45681",
-  "browser": "/mnt/c/Program Files/Google/Chrome/Application/chrome.exe",
+  "browser": "/opt/chrome/chrome",
   "session": "one Chrome process and one page target",
   "screenshots": [
     {
