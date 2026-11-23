@@ -27,6 +27,7 @@ const DEFAULT_BEARING = [
   'dsh-spec-pr-description',
   'dsh-spec-prose-standard',
   'dsh-spec-skill-forge',
+  'dsh-spec-test-reliability',
   'dsh-spec-translate-docs',
 ]
 
