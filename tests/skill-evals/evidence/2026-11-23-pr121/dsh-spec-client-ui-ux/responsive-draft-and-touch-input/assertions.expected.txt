@@ -1,0 +1,4 @@
+PASS The wide/narrow layout change preserves the in-progress draft rather than discarding it with the remounted input.
+PASS With no project rule, the coarse-pointer text input remains at least 16 CSS pixels to avoid focus zoom.
+PASS The review identifies the affected rendered draft and focused-input states that still need verification.
+PASS The review does not treat the source correction as rendered acceptance.

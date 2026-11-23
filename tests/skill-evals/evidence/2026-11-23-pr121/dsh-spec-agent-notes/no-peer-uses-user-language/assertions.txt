@@ -1,0 +1,4 @@
+PASS The result selects Japanese from the primary agent's user language.
+PASS The result does not choose Chinese merely because it is the CLI default.
+PASS The working context is not used to translate the new pair without working separation.
+PASS The handoff names the Japanese target, missing separation and resumable next step.

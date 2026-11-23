@@ -1,0 +1,4 @@
+PASS The run does not require a subagent or another execution mechanism that the host lacks.
+PASS The only changed content is the requested local update and its required pairing record.
+PASS The pairing check completes successfully after the update.
+PASS The run reports the validation command and result without claiming an unavailable isolation mechanism.

@@ -14,6 +14,8 @@ Upstream `dsh-ci-test-reliability` contains the missing procedure and a diagnosi
 
 The package ships `dsh-spec-test-reliability` as a general software-engineering skill. It owns test isolation, execution-topology modeling, resource allocation, process-global containment, platform semantics, deterministic test-duration design, timeout budgets, state synchronization, quiescent disposal, regression proof, flake-masking rejection, and read-only flake diagnosis.
 
+The fast-contract/shared-real-resource default lives in `Design the smallest sufficient test`. The diagnosis-only read-only rule lives in `Diagnose existing flakes`. The execution-topology section names neither default, so each rule has one use site.
+
 The skill separates test design from command selection. It names `dsh-spec-pre-push-checks` only after stating the generic requirement to use the project's check-selection practice:
 
 `(when available, use the dsh-spec-pre-push-checks skill)`
@@ -93,14 +95,14 @@ Upstream source baseline read on 2026-11-20:
 
 | # | Requirement | Anchor | Evidence |
 |---|---|---|---|
-| A0 | The skill conforms to the Agent Skills format, references stay one level deep, and the description remains under the package catalogue budget. | Mechanical | The skill-spec gate passed 14 checks; `SKILL.md` is 146 lines, its description is 434 characters, and the estimated body is 2,824 tokens. |
+| A0 | The skill conforms to the Agent Skills format, references stay one level deep, and the description remains under the package catalogue budget. | Mechanical | The skill-spec gate passed 14 checks; `SKILL.md` is 146 lines, its description is 434 characters, and the estimated body is 2,781 tokens. |
 | A1 | The source's topology, resource, global-state, platform, timeout, synchronization, disposal, regression and masking rules are present. | Judged | `SKILL.md` sections against S0–S12 |
 | A2 | Diagnosis preserves evidence, classification, topology limits, ownership and read-only authority. | Judged | `references/ci-flake-diagnosis.md` against F0–F4 |
 | A3 | The skill names no framework, CI provider, source product path or command as a requirement. | Judged + Mechanical | Review found no source-product referent; the corpus sibling-reference gate passed. |
 | A4 | The pre-push relationship is optional and names only the mechanism. | Mechanical | The corpus sibling-reference gate passed. |
 | A5 | Runnable fixtures cover deterministic port failure, exact global restoration, read-only diagnosis and a slow repeated-suite redesign. | Mechanical | Repository tests run the fixtures' positive and negative controls and stage all declared inputs; the four direct fixture entries take under one second in aggregate. |
 | A6 | Runtime model behavior against the scenarios. | Judged + Mechanical | The historical runs under `tests/skill-evals/evidence/2026-11-20-pr116/` are answer-contaminated and retained only as provenance. Current isolated diagnosis and slow-suite runs under `tests/skill-evals/evidence/2026-11-23-pr116/` pass 9/9 assertions. |
-| A6a | The description routes reliability and test-duration work without capturing adjacent product-performance, coverage, documentation, or visual-review tasks. | Judged + Mechanical | Four positive and four near-miss selection probes in the same evidence directory pass 8/8 through the stable `SELECT:` marker. |
+| A6a | The description routes reliability and test-duration work without capturing adjacent product-performance, coverage, documentation, or visual-review tasks. | Judged + Mechanical | Four positive and four near-miss probes pass 8/8 through the stable `SELECT:` marker; trigger input binds the frontmatter name and description. |
 | A7 | The installed copy, notices, active note tree and translation pairs are consistent. | Mechanical | The final functional suite uses a stubbed corpus contract; the real corpus is owned by the `pnpm run check:corpus` step. Notes, pairing, notices, format, static and bundle checks pass, without duplicating process counts here. |
 
 ## Pages read

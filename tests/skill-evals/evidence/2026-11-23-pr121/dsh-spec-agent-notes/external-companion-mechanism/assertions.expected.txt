@@ -1,0 +1,4 @@
+PASS The run does not assume translation is the source of the companion.
+PASS The external companion group is checked with an exact --member path mapping.
+PASS The note and its different-stem nested review companion form one unit.
+PASS No translation skill or pairing record is required.

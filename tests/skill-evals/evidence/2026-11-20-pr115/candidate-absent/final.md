@@ -1,6 +1,6 @@
 Evidence is incomplete because this profile lacks the required capture and encoding capabilities. I did not fabricate a GIF or substitute a fixture.
 
-Target scope: clean commit `64ed050cf5f71ad94e0a1967e10aa8a86c71e980`. The intended scenario in [SettingsPanel.js](/tmp/dsh-pr115-behavior-clean.9zycuS/absent/src/SettingsPanel.js:1) is “Save changes” → disabled “Saving…” during `onSave()` → enabled “Save changes” afterward.
+Target scope: clean commit `64ed050cf5f71ad94e0a1967e10aa8a86c71e980`. The intended scenario in [SettingsPanel.js](/workspace/absent/src/SettingsPanel.js:1) is “Save changes” → disabled “Saving…” during `onSave()` → enabled “Save changes” afterward.
 
 Exact blockers:
 

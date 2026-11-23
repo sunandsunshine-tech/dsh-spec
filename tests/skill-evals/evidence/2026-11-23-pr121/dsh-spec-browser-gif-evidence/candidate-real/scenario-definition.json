@@ -1,0 +1,28 @@
+{
+  "id": "real-ui-change-uses-one-isolated-run",
+  "prompt": "The project in evals/files/shared-gif-project changed a user-visible browser settings flow. Its build, start, browser-control and ignored evidence paths are declared. Use the installed dsh-spec-browser-gif-evidence skill and its bundled encoder. Record the requested GIF evidence from the real build, encode it as evidence-local/settings-save-flow.gif, inspect the encoded result, and report the origin, isolation, services, and verification.",
+  "expected_output": "The run records one isolated real-build interaction, keeps all frames from that run, encodes and inspects the GIF, reports the application origin and real-versus-substituted services, and leaves the media outside tracked content.",
+  "files": [
+    "evals/files/shared-gif-project/AGENTS.md",
+    "evals/files/shared-gif-project/.gitignore",
+    "evals/files/shared-gif-project/package.json",
+    "evals/files/shared-gif-project/build.mjs",
+    "evals/files/shared-gif-project/index.html",
+    "evals/files/shared-gif-project/src/app.js",
+    "evals/files/shared-gif-project/server.mjs",
+    "evals/files/shared-gif-project/capture-browser.mjs"
+  ],
+  "outputs": [
+    "evals/files/shared-gif-project/evidence-local/00-initial.png",
+    "evals/files/shared-gif-project/evidence-local/01-saving.png",
+    "evals/files/shared-gif-project/evidence-local/02-saved.png",
+    "evals/files/shared-gif-project/evidence-local/capture-report.json",
+    "evals/files/shared-gif-project/evidence-local/settings-save-flow.gif"
+  ],
+  "assertions": [
+    "The evidence comes from one isolated run of the declared real build.",
+    "The application origin, state isolation and real-versus-substituted services are reported.",
+    "The encoded GIF is inspected after encoding and its metadata is reported.",
+    "No media is committed to a tracked branch."
+  ]
+}

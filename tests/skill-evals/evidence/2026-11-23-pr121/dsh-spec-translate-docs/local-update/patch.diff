@@ -1,0 +1,32 @@
+diff --git a/evals/files/vendor/docs/guide.i18n.yaml b/evals/files/vendor/docs/guide.i18n.yaml
+index 3e8a2cc..5cb3387 100644
+--- a/evals/files/vendor/docs/guide.i18n.yaml
++++ b/evals/files/vendor/docs/guide.i18n.yaml
+@@ -3,5 +3,5 @@
+ # After editing either side, bring the other along and re-record with:
+ #   node <skill-dir>/scripts/translate-pair.mjs write docs/guide.md --target <lang>
+ /guide:
+-  en: 5c10a64d2f92b33e
+-  zh: e14ddbc14b4145f8
++  en: 917085cf5dd4c97c
++  zh: eb95308f84566806
+diff --git a/evals/files/vendor/docs/guide.md b/evals/files/vendor/docs/guide.md
+index 55cc3e4..1bbe25d 100644
+--- a/evals/files/vendor/docs/guide.md
++++ b/evals/files/vendor/docs/guide.md
+@@ -2,4 +2,4 @@
+ 
+ English | [中文](guide.zh.md)
+ 
+-The gate checks the paired documents.
++The gate checks both paired documents and their consistency record.
+diff --git a/evals/files/vendor/docs/guide.zh.md b/evals/files/vendor/docs/guide.zh.md
+index 643ed7b..8ae922d 100644
+--- a/evals/files/vendor/docs/guide.zh.md
++++ b/evals/files/vendor/docs/guide.zh.md
+@@ -2,4 +2,4 @@
+ 
+ [English](guide.md) | 中文
+ 
+-门禁（gate）检查配对文档。
++门禁（gate）同时检查配对文档及其一致性记录。

@@ -1,0 +1,29 @@
+{
+  "id": "review-without-siblings",
+  "prompt": "Review the outgoing change at HEAD against HEAD^ in evals/files/review-integration using the installed dsh-spec-code-review skill. Do not modify files or Git state. Error-handling and client-UI sibling guidance, a rendered screenshot and browser-control capability are unavailable. Report the minimum findings from the actual diff and source, leave rendered Settings saving-state evidence explicitly incomplete, and name the smallest resumable capture step at the supported 390-pixel viewport.",
+  "expected_output": "The review still requires the project's existing `kind` identity and structured `detail`, rejects message-text routing, and reports the unavailable Settings saving/disabled rendered evidence as an unresolved review gap with a resumable next step.",
+  "files": [
+    "evals/files/review-integration/AGENTS.md",
+    "evals/files/review-integration/package.json",
+    "evals/files/review-integration/index.html",
+    "evals/files/review-integration/server.mjs",
+    "evals/files/review-integration/src/app.js",
+    "evals/files/review-integration/src/Button.js",
+    "evals/files/review-integration/src/SearchPage.js",
+    "evals/files/review-integration/src/SettingsPage.js",
+    "evals/files/review-integration/src/button.module.css",
+    "evals/files/review-integration/src/styles.css",
+    "evals/files/review-integration/src/worker-client.js",
+    "evals/files/review-integration/tests/button-consumers.test.mjs",
+    "evals/files/review-integration/tests/worker-boundary.test.mjs",
+    "evals/files/review-integration/change.patch"
+  ],
+  "change_patch": "evals/files/review-integration/change.patch",
+  "change_root": "evals/files/review-integration",
+  "assertions": [
+    "The review still requires the existing `kind` identity and structured `detail`.",
+    "The review rejects routing on the error message.",
+    "The review reports Settings saving/disabled rendered evidence as unavailable.",
+    "The review gives a resumable next step instead of claiming visual acceptance."
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "id": "external-companion-mechanism",
+  "prompt": "Record the implemented process decision \"Release windows run in UTC\" in the provided project without the repository's Translate Docs skill. Follow its external review-companion mechanism.",
+  "expected_output": "The note succeeds with its nested, different-stem review companion. The run does not assume translation suffixes, target languages or an aggregate pairing record.",
+  "files": [
+    "evals/files/external-companion/README.md",
+    "evals/files/external-companion/AGENTS.md"
+  ],
+  "assertions": [
+    "The run does not assume translation is the source of the companion.",
+    "The external companion group is checked with an exact --member path mapping.",
+    "The note and its different-stem nested review companion form one unit.",
+    "No translation skill or pairing record is required."
+  ]
+}

@@ -97,8 +97,8 @@
     },
     {
       "id": "no-peer-uses-user-language",
-      "prompt": "Record the implemented process decision \"Release windows run in UTC\" in the provided project. Translation supports Chinese and Japanese, but there is no complete peer pair in this note class. The primary agent's user language is Japanese.",
-      "expected_output": "The new note uses Japanese as the default target because the same class has no complete pair and the primary agent reports Japanese as the user language.",
+      "prompt": "Record the implemented process decision \"Release windows run in UTC\" in the provided project. Translation supports Chinese and Japanese, but there is no complete peer pair in this note class. The primary agent's user language is Japanese. No subagent, isolated context, or independent-review mechanism is available. Select the translation target, create the English note, and hand off the translation before translating in the working context.",
+      "expected_output": "The new note selects Japanese as the target because the same class has no complete pair and the primary agent reports Japanese as the user language. It does not translate in the working context; the handoff names the source, target, missing working separation and a resumable next step.",
       "files": [
         "evals/files/multiple-targets/README.md",
         "evals/files/multiple-targets/.agents/dsh-spec-translate-docs/terminology.md",
@@ -108,7 +108,8 @@
       "assertions": [
         "The result selects Japanese from the primary agent's user language.",
         "The result does not choose Chinese merely because it is the CLI default.",
-        "A Japanese counterpart and consistency record are completed."
+        "The working context is not used to translate the new pair without working separation.",
+        "The handoff names the Japanese target, missing separation and resumable next step."
       ]
     },
     {

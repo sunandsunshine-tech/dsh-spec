@@ -1,0 +1,4 @@
+PASS The explicit Chinese and Japanese target set is accepted.
+PASS The working context is not used to translate new pairs without working separation.
+PASS No counterpart or aggregate record is created.
+PASS The handoff names both targets, missing separation and a resumable next step.

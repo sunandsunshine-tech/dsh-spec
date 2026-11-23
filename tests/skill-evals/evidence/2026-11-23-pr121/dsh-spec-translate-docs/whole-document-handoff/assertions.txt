@@ -1,0 +1,4 @@
+PASS The run does not translate or claim completion in the working context.
+PASS The run explains that the required independent production or review boundary is unavailable.
+PASS The handoff names the source path, target language, completed work, pending work, missing mechanism, and next step.
+PASS The run does not report a handoff without evidence.

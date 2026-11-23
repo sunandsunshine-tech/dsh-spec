@@ -1,4 +1,4 @@
-{"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c 'cat /tmp/dsh-pr115-behavior-clean.9zycuS/absent/.agents/skills/dsh-spec-browser-gif-evidence/SKILL.md'","exit_code":0}}
+{"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c 'cat /workspace/absent/.agents/skills/dsh-spec-browser-gif-evidence/SKILL.md'","exit_code":0}}
 {"type":"skill","path":".agents/skills/dsh-spec-browser-gif-evidence/SKILL.md","sha256":"ee42109fe7fab280b2063b461a5979a593572c47bbe9b2efcd97898ebac8e7c3"}
 {"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c 'git status --short --branch && git rev-parse HEAD && git log -5 --oneline --decorate'","exit_code":0}}
 {"type":"item.completed","item":{"type":"command_execution","command":"/bin/bash -c 'find .. -name AGENTS.md -o -name SKILL.md | sort'","exit_code":0}}

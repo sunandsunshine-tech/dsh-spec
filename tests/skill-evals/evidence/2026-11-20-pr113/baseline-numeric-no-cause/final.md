@@ -1,4 +1,4 @@
-[README.md](/tmp/pr113-eval.FHwx6T/numeric-no-cause-baseline/project/README.md:8) documents the regression rather than the required bridge contract. The fix should require:
+[README.md](/workspace/numeric-no-cause-baseline/project/README.md:8) documents the regression rather than the required bridge contract. The fix should require:
 
 - Preserve the original numeric `exitStatus` unchanged as the machine-readable failure identity.
 - Retain `stdout` and `stderr` as structured details.

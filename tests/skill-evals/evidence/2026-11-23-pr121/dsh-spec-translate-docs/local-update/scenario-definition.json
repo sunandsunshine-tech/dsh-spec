@@ -1,0 +1,17 @@
+{
+  "id": "no-isolation-local-update-completes",
+  "prompt": "The host provides no subagents, isolated contexts, or parallel execution. Treat evals/files/vendor as the project root, including its nested `.agents` terminology. In the existing English-to-Chinese pair docs/guide.md, change the final sentence to \"The gate checks both paired documents and their consistency record.\" Bring the Chinese counterpart and pairing record into sync, keep the terminology and structure intact, and leave the pair consistent.",
+  "expected_output": "The counterpart is updated directly and the pair's consistency record and check are current; the run reports the exact validation it ran.",
+  "files": [
+    "evals/files/vendor/docs/guide.md",
+    "evals/files/vendor/docs/guide.zh.md",
+    "evals/files/vendor/docs/guide.i18n.yaml",
+    "evals/files/vendor/.agents/dsh-spec-translate-docs/terminology.md"
+  ],
+  "assertions": [
+    "The run does not require a subagent or another execution mechanism that the host lacks.",
+    "The only changed content is the requested local update and its required pairing record.",
+    "The pairing check completes successfully after the update.",
+    "The run reports the validation command and result without claiming an unavailable isolation mechanism."
+  ]
+}

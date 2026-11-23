@@ -1,0 +1,6 @@
+evals/files/target-removal/docs/active/first.i18n.yaml
+evals/files/target-removal/docs/active/first.ja.md
+evals/files/target-removal/docs/active/first.md
+evals/files/target-removal/docs/active/second.i18n.yaml
+evals/files/target-removal/docs/active/second.ja.md
+evals/files/target-removal/docs/active/second.md

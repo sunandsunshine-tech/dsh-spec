@@ -1,0 +1,54 @@
+diff --git a/src/button.module.css b/src/button.module.css
+--- a/src/button.module.css
++++ b/src/button.module.css
+@@ -1,9 +1,9 @@
+ .button {
+-  min-height: 36px;
+-  padding: 0.4rem 0.6rem;
++  min-height: 44px;
++  padding: 0.75rem 1rem;
+   border: 1px solid transparent;
+-  border-radius: 0.25rem;
++  border-radius: 0.875rem;
+   font: inherit;
+-  font-weight: 500;
++  font-weight: 650;
+   cursor: pointer;
+ }
+diff --git a/src/worker-client.js b/src/worker-client.js
+--- a/src/worker-client.js
++++ b/src/worker-client.js
+@@ -1,8 +1,8 @@
+ export function projectWorkerFailure(result) {
+   const error = result.error ?? {}
+-  return { message: error.message ?? 'unknown failure', kind: error.kind, detail: error.detail }
++  return { message: error.message ?? 'unknown failure' }
+ }
+ 
+ export function classifyWorkerFailure(result) {
+-  return result.kind === 'permission_denied' ? 'request-access' : 'retry'
++  return result.message.includes('permission') ? 'request-access' : 'retry'
+ }
+diff --git a/tests/worker-boundary.test.mjs b/tests/worker-boundary.test.mjs
+new file mode 100644
+--- /dev/null
++++ b/tests/worker-boundary.test.mjs
+@@ -0,0 +1,18 @@
++import assert from 'node:assert/strict'
++import { test } from 'node:test'
++
++import { classifyWorkerFailure, projectWorkerFailure } from '../src/worker-client.js'
++
++const result = {
++  error: {
++    kind: 'permission_denied',
++    detail: { scope: 'repository' },
++    message: 'permission problem',
++  },
++}
++
++test('the worker boundary preserves and observes the machine identity', () => {
++  const projected = projectWorkerFailure(result)
++  assert.deepEqual(projected, result.error)
++  assert.equal(classifyWorkerFailure(projected), 'request-access')
++})

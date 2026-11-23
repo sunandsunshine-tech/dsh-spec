@@ -1,15 +1,15 @@
 The intermittent failure is a scan-then-bind race on a shared loopback port, not a timeout.
 
-In [server.mjs](/tmp/dsh-pr116-diagnosis.Y6T4AI/evals/files/diagnosis-only/support/server.mjs:3), `findFreePort()`:
+In [server.mjs](/workspace/evals/files/diagnosis-only/support/server.mjs:3), `findFreePort()`:
 
 1. Lets the OS assign a port with `listen(0)`.
 2. Reads that port number.
 3. Closes the probe, releasing the reservation.
 4. Returns only the number.
 
-The test then calls `listen(port)` in [server.test.mjs](/tmp/dsh-pr116-diagnosis.Y6T4AI/evals/files/diagnosis-only/tests/server.test.mjs:6). Between those operations, another process can claim the released port. The probe established only that the port was free earlier; it did not reserve it for the real listener. Concurrent shards on the shared pool make that window likely to be hit intermittently.
+The test then calls `listen(port)` in [server.test.mjs](/workspace/evals/files/diagnosis-only/tests/server.test.mjs:6). Between those operations, another process can claim the released port. The probe established only that the port was free earlier; it did not reserve it for the real listener. Concurrent shards on the shared pool make that window likely to be hit intermittently.
 
-The [CI log](/tmp/dsh-pr116-diagnosis.Y6T4AI/evals/files/diagnosis-only/ci.log:1) supports a host-resource collision:
+The [CI log](/workspace/evals/files/diagnosis-only/ci.log:1) supports a host-resource collision:
 
 - The exact `EADDRINUSE: 127.0.0.1:43127` signature occurs across different revisions and shards: `abc123` shard 2 and `def456` shard 4.
 - Both failures are on `pool-a`.

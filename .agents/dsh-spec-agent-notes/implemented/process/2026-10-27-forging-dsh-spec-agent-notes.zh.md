@@ -12,7 +12,7 @@ Status: implemented
 
 技能 `dsh-spec-agent-notes` 从上游笔记约定与归档工作流锻造而来，适配到通用的 agent 使用领域，以及预期决策能跨会话留存的读者。技能是一个目录，包含：
 
-- `SKILL.md` —— agent 加载的流程：取代检查、生命周期与类别放置、统一格式、修剪与合并、归档流程、各项检查，以及停下并交接的规则。
+- `SKILL.md` —— agent 加载的任务路由与安全边界：取代检查、生命周期选择、必需的 notes/archive 约定加载、语义修剪、单元与翻译伴随规则、归档 readiness 与冻结边界、命令入口，以及停下并交接的规则。活跃格式、分类与修剪流程由 `references/notes-contract.md` 拥有；归档移动、元数据、manifest 与封印流程由 `references/archive-contract.md` 拥有。
 - `references/notes-contract.md` —— 活跃树约定：布局、分类、何时写、文件格式、生命周期移动、伴随文件、修剪。
 - `references/archive-contract.md` —— 冻结归档：什么可以进入、单元、归档变更、manifest、冻结保证、封印与验证、交接。
 - `scripts/notes.mjs` —— 适配后的机械门禁：`init` 用于一次性生成树骨架，`check` 用于活跃树，`archive` 用于验证，`archive --prepare` 生成不写 manifest 的封印计划，绑定计划的 `archive --write` 写入冻结归档。
@@ -50,10 +50,10 @@ Status: implemented
 | # | 来源 | 约束 | 处置 | 归属 | 依据 |
 |---|---|---|---|---|---|
 | N1 | `README` § intro | 一份记录记载影响代码库的决策或提案——为什么、放弃了什么，以及代码、测试与文档无法承载的部分。 | Keep | SK intro; NC intro | 上游文本 |
-| N2 | `README` § Layout | 路径是 `{lifecycle}/{class}/yyyy-mm-dd-topic-title.md`。 | Keep | NC § Layout; SK § Where; gate walk | 上游文本 |
-| N3 | `README` § Layout | `proposed/` 存放实施前评审的提案：尚未构建，或只构建了一部分。 | Keep | NC § Layout; SK § Where | 上游文本 |
+| N2 | `README` § Layout | 路径是 `{lifecycle}/{class}/yyyy-mm-dd-topic-title.md`。 | Keep | NC § Layout; gate walk | 上游文本 |
+| N3 | `README` § Layout | `proposed/` 存放实施前评审的提案：尚未构建，或只构建了一部分。 | Keep | NC § Layout; SK § Procedure | 上游文本 |
 | N4 | `README` § Layout; `implemented/AGENTS` | `implemented/` 是已交付的决策，与实际交付的内容保持同步——同步的是事实，不是决策。 | Keep | NC § Layout, § When; SK § Procedure | 上游文本 |
-| N5 | `README` § Layout | `rejected/` 是被否决的提案，仅当其理由能阻止一种诱人且影响重大的错误时才保留。 | Keep | NC § Layout; SK § Where | 上游文本 |
+| N5 | `README` § Layout | `rejected/` 是被否决的提案，仅当其理由能阻止一种诱人且影响重大的错误时才保留。 | Keep | NC § Layout; SK § Procedure | 上游文本 |
 | N6 | `README` § Classification | 类别标出决策属于哪一类。 | Keep | NC § Classification | 上游文本 |
 | N7 | `README` § Layout | 文件名日期是主题首次被提出的时间，依据仓库历史；它随移动保留。 | Adapt | NC § Layout | “repository history” 对不绑定 VCS 的采用方变为“项目历史” |
 | N8 | `README` § Layout | 交叉引用是相对 Markdown 链接，绝不用裸正文或编号。 | Keep | NC § Layout | 上游文本 |
@@ -84,7 +84,7 @@ Status: implemented
 | N31 | `README` § When to write | 部分取代保持活跃并互相链接，同时更新每一处当前事实。 | Keep | NC § When | 上游文本 |
 | N32 | `README` § When to write | 合并不得把旧文件重写为其反面，也不得依赖 Git 历史作为理由的唯一副本。 | Adapt | NC § When | “Git history”对不绑定 VCS 的采用方变为“项目历史”（同 N7） |
 | N33 | `README` § When to write | 功能新增记录只在缺失条件下才合并进后来的移除记录；移除记录的拥有者保留所列理由；移除理由与验证缺失的测试可以保留，而过时的实现清单与只验证过被删除行为的测试不是当前验证证据；部分取代已有定义。 | Keep | NC § When | 上游文本 |
-| N34 | `README` § File format | 统一格式由一条仓库命令强制执行，该命令是文档同步的一部分。 | Adapt | SK § Checks; gate | 仓库命令变为 `<skill-dir>/scripts/notes.mjs check`；源侧的 docs-sync 接线被取消，交由项目自己的检查 |
+| N34 | `README` § File format | 统一格式由一条仓库命令强制执行，该命令是文档同步的一部分。 | Adapt | NC §§ Companions, Checks; SK § Checks; gate | 项目的检查以 `<skill-dir>/scripts/notes.mjs check` 为基础，并传入笔记契约声明的全部伴随选项；源侧的 docs-sync 接线被取消，交由项目自己的检查 |
 | N35 | `README` § Header block | 前三行精确为 `# Agent Note: <title>`、空行、`Status: <status>`，然后是一个空行。 | Keep | NC § Header; gate | 上游文本；门禁强制执行第 1–4 行 |
 | N36 | `README` § Header block | Status 有三种形式，且必须与生命周期文件夹一致；门禁会交叉核对。 | Keep | NC § Header; gate | 上游文本 |
 | N37 | `README` § Header block | Status 不带日期或括注；文件名承载日期，项目历史承载其余一切；以修正后的形式接受是正文内容。 | Adapt | NC § Header | “Git history”变为“项目历史”（N7）；状态规则保留 |
@@ -196,7 +196,7 @@ Status: implemented
 | # | 裁定 | 理由 | 可撤销方式 |
 |---|---|---|---|
 | R1 | 项目根是工作目录的 Git checkout 根；默认记录根目录是其下直接放置的 `.agents/dsh-spec-agent-notes/`，生命周期文件夹与 `archived/` 树都在该目录内。`--root` 指定项目根内的另一个目录，项目声明也可以指定一个。归档根目录始终是 `<notes root>/archived`；没有可单独配置的归档根。 | 笔记路径是分支树里的相对路径，所以 Git checkout 提供了它需要的锚点；以技能命名的命名空间让这棵树不会与采用方的其他 `.agents/` 机制冲突，而单一根目录让生命周期及其冻结分支同处一棵树。 | 修改默认值、参数，或 SKILL、两份约定与门禁中的归档子目录规则。 |
-| R2 | 上游三件套变为通用单元：一个源记录加上分配给该记录的所有伴随文件。重复的 `--companion <suffix>` 只分类可能的伴随文件，不构成项目级必需集合。外部机制拥有伴随文件的名称、格式、一致性记录与语义检查；Agent Notes 拥有单元成员关系、移动、计划阶段的完整性和冻结。对于翻译，[能力感知默认值](../feature/2026-11-18-agent-notes-capability-aware-bilingual-defaults.zh.md)按以下顺序解析目标集：当前请求、持久项目政策、同一 owner 定义类别中完整 peer 配对的一致集合、与源语言不同的主 agent 用户语言，或没有目标。这些环境判断由模型完成，脚本接收已解析事实。显式集合可以包含多个目标。新增目标采用渐进方式：新记录使用当前集合，被编辑的记录补上缺失目标，未触碰记录不回填。取消目标会清理所有符合条件的 active 与未封印单元；已封印单元不变。首次封印准备精确成员集与哈希，运行项目的无 shell readiness 命令，并只在匹配计划且确认 readiness 未修改单元后写入。 | 采用方可以替换翻译机制，因此任何后缀、目标代码、记录形状或兄弟 API 都不能成为单元模型。把 scope 政策与单单元组成分离，避免昂贵回填，同时允许低成本删除清理。哈希绑定的准备式封印记录最终状态，又不让 Agent Notes 学会另一机制的格式。 | 重新引入翻译专用的单元语义、全局后缀完整性、CLI 自动目标推断，或绕过准备式 readiness 的封印路径。 |
+| R2 | 上游三件套变为通用单元：一个源记录加上分配给该记录的所有伴随文件。重复的 `--companion <suffix>` 只分类可能的伴随文件，不构成项目级必需集合。外部机制拥有伴随文件的名称、格式、一致性记录与语义检查；Agent Notes 拥有单元成员关系、移动、计划阶段的完整性和冻结。对于翻译，[能力感知默认值](../feature/2026-11-18-agent-notes-capability-aware-bilingual-defaults.zh.md)按以下顺序解析目标集：当前请求、持久项目政策、同一 owner 定义类别中完整 peer 配对的一致集合、与源语言不同的主 agent 用户语言，或没有目标。这些环境判断由模型完成，脚本接收已解析事实。生成翻译前，所选机制的工作分离规则适用；没有分离时，源记录保持完成，目标作为具名待办成员进入交接。显式集合可以包含多个目标。新增目标采用渐进方式：新记录使用当前集合，被编辑的记录补上缺失目标，未触碰记录不回填。取消目标会清理所有符合条件的 active 与未封印单元；已封印单元不变。首次封印准备精确成员集与哈希，运行项目的无 shell readiness 命令，并只在匹配计划且确认 readiness 未修改单元后写入。 | 采用方可以替换翻译机制，因此任何后缀、目标代码、记录形状或兄弟 API 都不能成为单元模型。把 scope 政策与单单元组成分离，避免昂贵回填，同时允许低成本删除清理。哈希绑定的准备式封印记录最终状态，又不让 Agent Notes 学会另一机制的格式。翻译质量仍需要该机制的独立生产或评审边界。 | 重新引入翻译专用的单元语义、全局后缀完整性、CLI 自动目标推断，在缺少分离时于工作上下文翻译选定目标，或绕过准备式 readiness 的封印路径。 |
 | R3 | 固定的格式采用日期变为 `--format-adopted <yyyy-mm-dd>`；没有它，任何格式前注释都不被接受。 | 通用采用方有自己的采用日期；一次全新的采用不得获得逃生口。 | 去掉该标志或恢复固定日期。 |
 | R4 | 三个 Figma 封印例外不携带。 | 它们授权对一件源产物做一次性改动；携带它们会凭空发明目标策略。 | 如果采用方需要，新增一个显式例外机制。 |
 | R5 | 要求六个归档类别目录，`init` 用 `.gitkeep` 占位文件创建它们；占位文件被门禁忽略，且绝不进入 manifest。 | 上游要求六个类别目录；已提交的占位文件解决了 Git 的空目录问题，同时不削弱封闭树。 | 去掉该要求，或停止在 `init` 中创建这些目录。 |
@@ -259,7 +259,7 @@ Status: implemented
 | 26 | 功能移除时的合并条件 | 判断 | `NC` § When to write one；变更记录缺失证据 |
 | 27 | 入站链接修复与有意的历史引用 | 判断 | `AC` § The archival change；项目自己的链接检查加变更记录 |
 | 28 | 归档资格是语义判断，不是机械判断 | 判断 | `AC` § What enters；交接报告记录决定与临界案例 |
-| 29 | 停下并交接的条件 | 判断 | `SK` § Stop and hand over；交接点名阻断条件与可撤销的选项 |
+| 29 | 停下并交接的条件 | 判断 | `SK` § Archiving 与 § Stop and hand over；每次交接点名失败步骤、已完成与待办工作以及可恢复的下一步行动；archive readiness 失败时保持单元未封印、manifest 不变，并给出修复、重新 prepare 与再次 write 的顺序 |
 | 30 | 上游语料兼容性 | 机械 | 随附门禁接受上游语料：346 份活跃记录与 692 个伴随文件在上游记录根下通过 `check`，2,772 件归档产物在没有伴随文件声明的情况下通过 `archive`，上游可选的 `archived/AGENTS.md` 被接受并忽略 |
 | 31 | 译文/一致性记录的伴随文件一致性 | 未验证 | 委托给项目自己的配对门禁；本技能不运行内容检查（R2） |
 | 32 | 在没有外部基线的情况下，检测一次隐藏已封印编辑的强推重写 | 未验证 | 上游机制也没有这种证明；可信的 `--base-ref` 属于项目的 CI（R11、R28） |

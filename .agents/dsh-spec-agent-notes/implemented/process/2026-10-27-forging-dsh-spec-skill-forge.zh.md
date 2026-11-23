@@ -23,6 +23,7 @@ Status: implemented
 - 跨技能指引：锻造技能只把可选的笔记、翻译、行文和提示词技能作为可用性限定的示例点名；Agent Skills best practices 高于行文与提示词要求。
 - **默认完成。** 声明了默认值的锻造技能，在当前请求和现有项目指令都未规定该选择时应用默认值。缺少项目指令是有效状态，因此技能既不要求用户选择默认值，也不只为选择默认值而新增或修改指令文件。[默认值记录](2026-11-17-skill-defaults-complete-without-project-instructions.zh.md) 拥有这项验收。
 - **Eval 覆盖。** 若真实提示能够证伪一项核心自然语言行为，且确定性检查无法裁决，就增加开发侧 eval。能力分支覆盖两个 profile。Eval 资产暂存在交付技能之外，模型 eval 在行为变化时运行，不进入例行 CI。
+- **锚点分类。** Verification 验证锚点表是 Mechanical、Judged 与 Unverified 的唯一所有者。命令可以精确裁决的要求成为 Mechanical 锚点；判断留作文本，并点名权威机关并记录一个结论；两者都无法裁决时，记录该项未验证。
 - 交付语言为英文；审查语言为中文，只在停止时配对；附加触发语言为中文，存在于 description 中。
 
 ## 设计
@@ -51,7 +52,7 @@ Status: implemented
 | 已有决策记录 | 重绑 | `SKILL.md § Source` | 只有请求、当前契约和声明决定；只有其中一项使某项要求继续生效时，记录才提供该要求 |
 | 采用者声明：锻造记录位置 | 保留 | `.agents/dsh-spec-agent-notes/implemented/process/2026-10-27-forging-dsh-spec-skill-forge.md` | 笔记机制的默认根与本仓库 `forging-<skill-name>` 的记录命名 |
 
-未改动：指导原则、工具名称、Stop/Intent/Source/Disposition/Script conversion 各节、验证锚点表、门禁机制，以及 description/触发。Verification 一节的 Complete 条件加入上述默认完成验收。Record 与 Review 两节携带可选的同仓技能引用。
+未改动：指导原则、工具名称、Stop/Intent/Source/Disposition 各节、验证锚点表、门禁机制，以及 description/触发。Verification 一节的 Complete 条件加入上述默认完成验收。Record 与 Review 两节携带可选的同仓技能引用。
 
 ## 曾考虑的替代方案
 
@@ -71,5 +72,6 @@ Status: implemented
 - `pair` 命令是只读的。无声明报告按后缀关系列出候选伙伴；最短后缀规则和与 `.md` 源的邻近性使它成为启发式，它从不删除。
 - [2026-10-26 记录](2026-10-26-forging-dsh-spec-skill-forge.zh.md) 拥有锻造技能的锚定设计；本记录部分取代该记录的 review 命令与配对记录设计。
 - description 反转规则和已有决策记录的当前来源规则在技能正文中；两者都由审查判断，而非机械检查。
+- Verification 验证锚点表独占 Mechanical、Judged 与 Unverified 分类；独立的 Script conversion 章节不再维护该分类的第二份副本。
 - 带默认值的锻造技能必须能在没有项目指令时完成；[默认值记录](2026-11-17-skill-defaults-complete-without-project-instructions.zh.md) 部分约束本记录。
 - 代价和开放风险：锻造技能无法发现过期翻译；手工源清理未验证；`publish` 非事务，且在复制前移除已声明草稿；候选启发式会报告假阳性。VCS 是回滚手段。

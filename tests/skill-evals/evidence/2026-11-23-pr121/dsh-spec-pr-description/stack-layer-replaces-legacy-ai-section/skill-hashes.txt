@@ -1,0 +1,4 @@
+a9dd970d0897b4794e7e7f39d909f9598f98381969eefce858e0c1a1b57f1b78  skills/dsh-spec-pr-description/SKILL.md
+102e4cb1504b347a058702d5d9bd3f1315de5752c540120c38dd04ce6bcda502  skills/dsh-spec-pr-description/THIRD_PARTY_NOTICES
+3770ecf19f4e6f091801fe54cf35b876d75afcadbcaccafdd01c138f46cd0cb0  skills/dsh-spec-pr-description/references/ai-usage.md
+b23492dbbbbfe0c95f85e9c696e6413b5ff27a3a5b176c65ef6296dbd1295e57  skills/dsh-spec-pr-description/references/default-conventions.md

@@ -1,6 +1,6 @@
 {"type":"thread.started","thread_id":"01a1f9cb-b3cc-7c50-a573-b95e6e6950a8"}
-{"type":"item.completed","item":{"id":"item_0","type":"error","message":"Codex is ignoring 1 unrecognized configuration setting. Check for typos or deprecated settings.\n  user (/home/dreamstar/.codex/config.toml): `preferred_auth_method` is ignored."}}
-{"type":"item.completed","item":{"id":"item_1","type":"error","message":"Codex is ignoring 1 unrecognized configuration setting. Check for typos or deprecated settings.\n  user (/home/dreamstar/.codex/config.toml): `preferred_auth_method` is ignored."}}
+{"type":"item.completed","item":{"id":"item_0","type":"error","message":"Codex is ignoring 1 unrecognized configuration setting. Check for typos or deprecated settings.\n  user (/home/eval/.codex/config.toml): `preferred_auth_method` is ignored."}}
+{"type":"item.completed","item":{"id":"item_1","type":"error","message":"Codex is ignoring 1 unrecognized configuration setting. Check for typos or deprecated settings.\n  user (/home/eval/.codex/config.toml): `preferred_auth_method` is ignored."}}
 {"type":"turn.started"}
 {"type":"item.completed","item":{"id":"item_2","type":"agent_message","text":"The installed skill clearly applies because the symptom is an order-dependent automated test caused by leaked process-global state, specifically environment variables and fake timers.\n\nSELECT: dsh-spec-test-reliability"}}
 {"type":"turn.completed","usage":{"input_tokens":14331,"cached_input_tokens":12288,"cache_write_input_tokens":0,"output_tokens":296,"reasoning_output_tokens":255}}

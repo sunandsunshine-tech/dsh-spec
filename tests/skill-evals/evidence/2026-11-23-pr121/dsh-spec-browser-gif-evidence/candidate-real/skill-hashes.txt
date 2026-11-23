@@ -1,0 +1,4 @@
+ddbc40b91ce7f5d8dfab90ffd1e26e59105cdcf69b4bdaef8fc2b2fc24f7a4c2  skills/dsh-spec-browser-gif-evidence/SKILL.md
+5470d183fd32530018b496d998f72f1561d9dc4c6288e6263b0afe352b9653b1  skills/dsh-spec-browser-gif-evidence/THIRD_PARTY_NOTICES
+f55530d6c7b58ec9c9dc8a6d865bb817d33d49e385466462292cc8d984a55642  skills/dsh-spec-browser-gif-evidence/references/publication.md
+32e73fdd6c772c52f8f8fc70491e95be516cfd517872c822ffbf7b36e7592572  skills/dsh-spec-browser-gif-evidence/scripts/encode-browser-gif.mjs

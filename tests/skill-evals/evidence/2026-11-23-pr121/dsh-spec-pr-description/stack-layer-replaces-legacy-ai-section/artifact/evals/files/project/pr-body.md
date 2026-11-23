@@ -1,0 +1,69 @@
+# Cap idempotent HTTP retries at three attempts
+
+## Motivation
+
+Idempotent HTTP requests need a configurable ceiling so callers can bound repeated attempts without exposing non-idempotent requests to retries.
+
+## Changes
+
+**Interface changes**: `HttpClientOptions.maxAttempts` now accepts `1 | 2 | 3` and defaults to `3`. The value counts total attempts, so `3` permits at most two retries.
+
+**Behavior changes**: GET and HEAD requests retry responses with status 500 or greater, stopping after `maxAttempts`; non-idempotent methods and responses below 500 are not retried.
+
+**Retry policy**: The closed `1 | 2 | 3` union enforces the three-attempt ceiling at the type boundary, while the method restriction avoids repeating non-idempotent requests.
+
+## Testing
+
+**Test design**
+
+| Scenario | Before this layer | After this layer | Covering test |
+|:--|:--|:--|:--|
+| GET returns `503` with `maxAttempts: 3` | Retries were not bounded by this layer's attempt cap. | Exactly three total attempts are made, then the final `503` is returned. | `GET respects the configured attempt cap` |
+| POST returns `503` with `maxAttempts: 3` | Non-idempotent requests were not excluded by this layer's retry policy. | Exactly one attempt is made and the `503` is returned. | `POST does not retry` |
+
+The GET case exercises the idempotent path and the three-attempt limit; the POST case exercises the non-idempotent guard. HEAD shares the idempotent method branch with GET.
+
+**Test entries**
+
+1. `GET respects the configured attempt cap` — Ran `npm test` locally; passed. Covers the three-attempt-stop behavior for a `503` response.
+2. `POST does not retry` — Ran `npm test` locally; passed. Covers the single-attempt behavior for a non-idempotent request.
+
+<details><summary>Proof</summary>
+
+```text
+$ npm test
+
+> test
+> node --test client.spec.ts
+
+✔ GET respects the configured attempt cap (16.723833ms)
+✔ POST does not retry (0.222779ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 87.609281
+```
+
+</details>
+
+## AI Usage
+
+<!-- ai-declaration:start -->
+[![AI-DECLARATION: pair](https://img.shields.io/badge/䷼%20AI--DECLARATION-pair-ffedd5?labelColor=ffedd5)](https://ai-declaration.md)
+
+**AI declaration** ([v0.1.2](https://ai-declaration.md/en/0.1.2)): `pair`
+<!-- ai-declaration:end -->
+
+| Stage | Level | AI involvement | Decision record |
+|:--|:--|--:|:--|
+| breakdown | pair | 40% | The author identified the retry-cap scope and set the change boundary; the AI traced the affected client paths. |
+| design | assist | 20% | The author supplied the option name, the three-attempt maximum, and the decision to retry only idempotent methods; the AI filled in the mechanism. |
+| testing | pair | 35% | The author required idempotent-only and retry-limit cases; the AI wrote the cases. |
+| implementation | pair | 40% | The AI wrote the code and tests; the author required one rework to keep non-retryable responses out of the retry path. |
+| review | n/a | — |  |
+
+No review comments have been handled yet.

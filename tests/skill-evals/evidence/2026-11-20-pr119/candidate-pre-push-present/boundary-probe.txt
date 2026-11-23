@@ -20,7 +20,7 @@ test at [eval1]:13:1
   + undefined
   - 'permission-denied'
 
-      at TestContext.<anonymous> (file:///tmp/dsh-pr119-pre-push-present-v3.4L8hHY/project/evals/files/review-integration/[eval1]:14:10)
+      at TestContext.<anonymous> (file:///workspace/project/evals/files/review-integration/[eval1]:14:10)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.start (node:internal/test_runner/test:1262:17)
@@ -45,7 +45,7 @@ test at [eval1]:17:1
   -   requiredRole: 'owner'
   - }
 
-      at TestContext.<anonymous> (file:///tmp/dsh-pr119-pre-push-present-v3.4L8hHY/project/evals/files/review-integration/[eval1]:18:10)
+      at TestContext.<anonymous> (file:///workspace/project/evals/files/review-integration/[eval1]:18:10)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.processPendingSubtests (node:internal/test_runner/test:974:18)
@@ -70,7 +70,7 @@ test at [eval1]:24:1
   - 'request-access'
        ^
 
-      at TestContext.<anonymous> (file:///tmp/dsh-pr119-pre-push-present-v3.4L8hHY/project/evals/files/review-integration/[eval1]:25:10)
+      at TestContext.<anonymous> (file:///workspace/project/evals/files/review-integration/[eval1]:25:10)
       at Test.runInAsyncScope (node:async_hooks:226:14)
       at Test.run (node:internal/test_runner/test:1402:25)
       at Test.processPendingSubtests (node:internal/test_runner/test:974:18)

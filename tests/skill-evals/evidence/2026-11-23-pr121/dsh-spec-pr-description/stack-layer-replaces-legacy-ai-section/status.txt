@@ -1,0 +1,4 @@
+status: pass
+run_exit_code: 0
+assertions: 8/8
+routing: pass

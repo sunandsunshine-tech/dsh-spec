@@ -1,0 +1,4 @@
+PASS The selection still requires the existing `kind` identity and structured `detail`.
+PASS The selection rejects message-text routing.
+PASS The selection reports Settings saving/disabled rendered evidence as unavailable.
+PASS The selection gives a concrete next step before completion.

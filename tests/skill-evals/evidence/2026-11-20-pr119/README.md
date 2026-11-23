@@ -1,6 +1,13 @@
 # PR #119 review integration evidence
 
-Base: `0b206ed3d6762417385bc3df4086082d9fca8343`.
+> **Historical status:** these runs exposed `evals/evals.json` inside the model-visible project, so
+> their traces are not answer-blind. They remain historical provenance only. The
+> source/answer-tree-isolated reruns of the same capability profiles are under
+> `tests/skill-evals/evidence/2026-11-23-pr121/`.
+
+Base: `b0f1c812d0c5cb046dc0cbd431b919a505901f9f`.
+Candidate revision: `7b3374f5e2ecde79b42c475e6b32dd9ca0b3f5ae`.
+Candidate tree: `a72eaf3a56fb3657acbaa39a074fd32d539d0ca8`.
 Model: host-configured Codex model; Codex CLI 0.171.0-alpha.13.
 
 ## Method
@@ -48,11 +55,11 @@ with a concrete next step.
 - `artifact/settings-after.png`: the shared real rendered screenshot attached to present profiles.
 - `candidate-*/final.md`: the model response.
 - `candidate-*/trace.jsonl`: the raw `codex exec --json` stream; no synthetic `skill` event is added.
-- `candidate-*/skill-hashes.txt`: the target and installed optional-sibling skill contents read by the run.
+- `candidate-*/skill-hashes.txt`: every file in the target and installed optional-sibling skill trees at the candidate tree; the raw traces identify which skills the runs read.
 - `candidate-*/input-manifest.sha256`: the exact declared scenario input hashes.
 - `candidate-*/artifacts.sha256`: the rendered screenshot and focused-test evidence retained by that run.
 - `candidate-*/changed-paths.txt`: empty for every read-only or completed run.
 
-`tests/skill-scenarios.test.ts` verifies the scenario set, assertions, successful skill reads, current
-skill hashes, input files and retained artifacts. Model evaluations remain development evidence and
-do not run in routine CI.
+`tests/skill-scenarios.test.ts` verifies the scenario set, assertions, successful skill reads,
+recorded skill revisions, input files and retained artifacts. Model evaluations remain development
+evidence and do not run in routine CI.

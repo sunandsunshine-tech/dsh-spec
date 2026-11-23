@@ -83,6 +83,16 @@ const USE_SITE_PINS = [
     text: 'A user-visible browser UI behavior change produces truthful recorded evidence by default.',
   },
   {
+    skill: 'dsh-spec-client-ui-ux',
+    file: 'SKILL.md',
+    text: 'when it declares none, keep coarse-pointer text inputs at least 16 CSS pixels',
+  },
+  {
+    skill: 'dsh-spec-browser-gif-evidence',
+    file: 'SKILL.md',
+    text: 'When a change alters user-visible browser UI behavior, generate and verify GIF evidence by default.',
+  },
+  {
     skill: 'dsh-spec-test-reliability',
     file: 'SKILL.md',
     text: 'By default, split a mixed test into fast contract cases and one shared real-resource scenario',
@@ -98,17 +108,6 @@ const USE_SITE_PINS = [
     text: "Do not multiply every test group's timeout because one group is slow.",
   },
 ]
-
-const CONCRETE_VALUE_MARKERS: Record<string, string> = {
-  'dsh-spec-agent-notes': '.agents/dsh-spec-agent-notes',
-  'dsh-spec-error-handling': 'one stable machine-readable discriminant',
-  'dsh-spec-merging-stacked-prs': '`squash`',
-  'dsh-spec-pr-description': '## Motivation',
-  'dsh-spec-prose-standard': '`automatic`',
-  'dsh-spec-skill-forge': 'additional trigger language',
-  'dsh-spec-translate-docs': '`zh`',
-  'dsh-spec-client-ui-ux': 'recorded browser evidence',
-}
 
 function read(skill: string, file = 'SKILL.md'): string {
   return readFileSync(join(SKILLS, skill, file), 'utf8')
@@ -139,7 +138,6 @@ test('each default-bearing skill states one shared default contract', () => {
     const section = defaultsSection(body)
     assert.equal(section, DEFAULT_CONTRACT, skill)
     assert.doesNotMatch(section, /dsh-spec-agents-md/, skill)
-    assert.ok(!section.includes(CONCRETE_VALUE_MARKERS[skill] as string), skill)
   }
 })
 

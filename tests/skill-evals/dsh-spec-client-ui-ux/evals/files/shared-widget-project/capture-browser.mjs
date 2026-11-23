@@ -733,8 +733,6 @@ async function capture(options) {
 function findChrome() {
   const chromeCandidates = [
     process.env.CHROME_PATH,
-    '/mnt/c/Program Files/Google/Chrome/Application/chrome.exe',
-    '/mnt/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
     '/usr/bin/google-chrome',
     '/usr/bin/chromium',
   ].filter(Boolean)

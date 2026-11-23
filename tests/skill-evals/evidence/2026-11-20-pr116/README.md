@@ -1,4 +1,4 @@
-# PR #116 historical reviewer-graded model evidence
+# PR #116 historical model evidence
 
 These runs exposed the model-visible `evals/evals.json`; they are answer-contaminated and retained
 only as provenance. The current source/answer-tree-isolated diagnosis and slow-suite reruns are
@@ -7,7 +7,7 @@ under `tests/skill-evals/evidence/2026-11-23-pr116/`.
 Repository checks retain these files as historical provenance only. They do not bind the historical
 scenarios, inputs, scores, or trigger decisions to current behavior.
 
-Base: `cb2eeb2993b0c8f6061401c468b48e25f5d3b5a3`.
+Base: `27870589a4704937affd545deef04b0b9590e22c`.
 Candidate skill tree: `21205d05e7f7e06c9b6b5f77affcbb7aa90d7aec`.
 Evaluation files tree: `72c08ca5bafa1b3560c3fd8a3023fc6d6847da80`.
 Trigger fixture tree: `646b2925dca8c38961c1dde85f407b759383ff62`.
@@ -68,6 +68,6 @@ Evidence: `trigger-matrix.tsv`, `trigger-input.sha256`, and `trigger/<query>/`.
 
 Model runs are development evidence and do not run in routine CI. Each behavior trace records the
 successful command that read the installed skill, and `skill.sha256` binds that installation to the
-current skill file. Trigger evidence binds the model-facing name and description rather than the
-whole body. Repository tests also verify input and artifact hashes, assertions and trigger decisions.
-A change to an affected surface invalidates that evidence until it is rerun.
+revision used for that run. Trigger evidence binds the model-facing name and description rather than
+the whole body. Repository tests also verify input and artifact hashes, assertions and trigger
+decisions. A change invalidates the behavior it changes, not every unrelated scenario.

@@ -67,5 +67,6 @@ Evidence: `trigger-matrix.tsv`, `trigger-input.sha256`, and `trigger/<query>/`.
   one-session headless-Chrome run; `artifacts.sha256` binds every artifact.
 
 Model runs are development evidence and do not run in routine CI. Repository tests verify that
-the recorded inputs, scores, skill hash, trigger reads and artifact hashes are internally
-consistent; a skill or fixture change invalidates them.
+the recorded inputs, scores, skill revision, trigger reads and artifact hashes are internally
+consistent. The skill hash identifies the bytes used by these runs; a later edit invalidates the
+behavior it changes, not every unrelated scenario.

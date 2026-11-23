@@ -1,0 +1,3 @@
+Updated [pr-body.md](/workspace/evals/files/project/pr-body.md:1) with the complete top-layer retry-cap description using the PR-description standard. It now covers the `1 | 2 | 3` attempt option, idempotent GET/HEAD behavior, test matrix and evidence, retry-policy disclosure, and the AI Usage declaration. The stale `Human and Agent Roles` and lower-layer telemetry content were removed.
+
+Validation passed: heading order, single AI Usage section, v0.1.2 `pair` declaration, stage ordering, and review state all satisfy the required structure. `npm test` passed 2/2 locally, and `git diff --check` passed. Only `pr-body.md` was modified.

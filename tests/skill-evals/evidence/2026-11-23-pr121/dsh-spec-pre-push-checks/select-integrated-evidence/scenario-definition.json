@@ -1,0 +1,37 @@
+{
+  "id": "select-integrated-evidence",
+  "prompt": "Select the smallest local evidence for the outgoing change at HEAD against HEAD^ in evals/files/review-integration. Read and apply the installed dsh-spec-pre-push-checks, dsh-spec-error-handling, and dsh-spec-client-ui-ux skills. Do not modify files or Git state and do not author a missing test. The project declaration selects the attached current-build screenshot as its evidence override. Inspect the actual diff, the existing tests and the image; report the selected checks and any coverage that remains unproved without copying sibling commands.",
+  "expected_output": "The selected evidence includes a boundary test for the project's existing `kind` identity and structured `detail`, rejects message-text routing, inspects the attached current-build screenshot, identifies that the saving/disabled Settings state and 390-pixel narrow viewport remain unproved, and does not present the consumer test as visual acceptance.",
+  "files": [
+    "evals/files/review-integration/AGENTS.md",
+    "evals/files/review-integration/package.json",
+    "evals/files/review-integration/index.html",
+    "evals/files/review-integration/server.mjs",
+    "evals/files/review-integration/src/app.js",
+    "evals/files/review-integration/src/Button.js",
+    "evals/files/review-integration/src/SearchPage.js",
+    "evals/files/review-integration/src/SettingsPage.js",
+    "evals/files/review-integration/src/button.module.css",
+    "evals/files/review-integration/src/styles.css",
+    "evals/files/review-integration/src/worker-client.js",
+    "evals/files/review-integration/tests/button-consumers.test.mjs",
+    "evals/files/review-integration/tests/worker-boundary.test.mjs",
+    "evals/files/review-integration/evidence/settings-after.png",
+    "evals/files/review-integration/change-evidence.md",
+    "evals/files/review-integration/change.patch"
+  ],
+  "change_patch": "evals/files/review-integration/change.patch",
+  "change_root": "evals/files/review-integration",
+  "install": [
+    "dsh-spec-client-ui-ux",
+    "dsh-spec-error-handling"
+  ],
+  "assertions": [
+    "The selection includes the existing `kind` identity and structured `detail` across the worker boundary.",
+    "The selection rejects message-text routing.",
+    "The selection inspects the attached current-build screenshot and identifies that the Settings saving/disabled state remains unproved.",
+    "The selection does not present the consumer test as visual acceptance of the saving state.",
+    "The selection reports the supported 390-pixel narrow viewport as unproved.",
+    "The selection uses sibling guidance only as an optional mechanism."
+  ]
+}

@@ -6,7 +6,7 @@ description: "Use when creating or updating a change-request description in any 
 
 # Writing change-request descriptions
 
-A change request's description states why the change exists, what it changes, what proves it, and how much the AI took part. This skill defines what every description contains, how to write it, and when to update it. The four content blocks and the obligations below apply in every project; a project's conventions supply the tracker, template, language, tools, and the form, values, place and examples of disclosures, and they never remove an obligation. The project supplies them through its standing instructions (`AGENTS.md` or the file it cites), `CONTRIBUTING.md` and the change-request template; the standing instructions outrank the contributing guide, which outranks the template. A project that declares no conventions of its own can adopt the working defaults in [references/default-conventions.md](references/default-conventions.md).
+A change request's description states why the change exists, what it changes, what proves it, and how much the AI took part. This skill defines those obligations, how to write them and when to update them. A project's conventions supply the tracker, template, language, tools, and the form, values, place and examples of disclosures, but never remove an obligation. The project supplies them through its standing instructions (`AGENTS.md` or the file it cites), `CONTRIBUTING.md` and the change-request template; the standing instructions outrank the contributing guide, which outranks the template. A project that declares no conventions of its own can adopt the working defaults in [references/default-conventions.md](references/default-conventions.md).
 
 ## Defaults
 
@@ -14,7 +14,7 @@ A default is the value or strategy this skill declares at its use site. It appli
 
 ## Description structure
 
-The description states four content blocks: why the change exists, what it changes, what proves it, and how much the AI took part. The default structure uses four second-level headings in this order — `## Motivation`, `## Changes`, `## Testing`, `## AI Usage` — with the default labels `Interface changes`, `Behavior changes`, `Test design`, `Test entries`, the disclosure labels and `Proof`, written in English. A project's template or conventions may replace, rename or regroup the headings and labels; the description still states the four content blocks and one AI Usage block under the project's structure. With no declared structure, the default applies. The AI Usage block keeps its `ai-declaration` markers and its table under any structure.
+The default structure uses four second-level headings in this order — `## Motivation`, `## Changes`, `## Testing`, `## AI Usage` — with the default labels `Interface changes`, `Behavior changes`, `Test design`, `Test entries`, the disclosure labels and `Proof`, written in English. A project's template or conventions may replace, rename or regroup the headings and labels; the description still states the four content blocks and one AI Usage section under the project's structure. With no declared structure, the default applies. The AI Usage section keeps its AI-DECLARATION block and its table under any structure.
 
 The prose and table headers are written in the description's language: the language the project's existing change descriptions use; when none exist, the project's documentation language; otherwise the language of the request that asked for the description. The prose follows the project's declared prose standard (when available, consider using the `dsh-spec-prose-standard` skill).
 
@@ -68,30 +68,19 @@ The four are typical cases, not a closed list: a project may add its own categor
 
 ### AI Usage
 
-Every description carries this section, recording how much the AI took part in each stage of the change and who made the decisions.
+Every description carries exactly one AI Usage section, recording how much the AI took part in each stage and who made the decisions. Write it when the description is created and update it whenever the description changes. Each change request in a stack records only its own work against its base; do not copy another layer's AI Usage rows.
 
-The section has five stages in a fixed order (`breakdown`, `design`, `testing`, `implementation`, `review`), five levels ordered by AI involvement (`hint`, `assist`, `pair`, `copilot`, `auto`), and `n/a` for a stage that does not exist or has not happened. Each row records the level, the AI involvement as a multiple of 5% within that level's range, and the decisions behind the grade. The AI-DECLARATION block pins specification version 0.1.2; its badge shows the level with the most AI involvement among the rows, ignoring `n/a`.
-
-The section is written at creation and updated whenever the description changes. The review row records only handled review comments: until a round has been handled it reads `n/a` with a statement that none have been handled. A stage's level is updated when it changes, and the badge URL and declaration line follow the highest stage level. An existing AI-DECLARATION block is replaced in place between its `ai-declaration:start` and `ai-declaration:end` markers, so exactly one block remains.
-
-Each decision record states who made which decisions in one or two sentences, at most 80 CJK characters or 40 words, as settled fact and without hedges such as "not seen in the session" or "pending author confirmation": name one or two representative decisions and give only a count for the rest; refer to people as the author or a reviewer, never by username; leave out judgments, session times, session ids, direct quotes, and the running or handling of checks and CI (local skips, hooks, reruns, unrelated failures).
-
-Read [references/ai-usage.md](references/ai-usage.md) before writing or updating this section. It carries the level and stage definitions, the grading rules, the badge URLs, the exact declaration block and table format, the language adaptation, the update-timing detail, the specification's scope, and a filled example.
+Read [references/ai-usage.md](references/ai-usage.md) before writing or updating the section, then apply its checklist during the final read-back. That reference owns the stages, levels, grading, decision records, badge, AI-DECLARATION block, table format, language adaptation, replacement and review-update rules, and validation. Replace any earlier AI Usage section or AI-role section with this one; never keep both.
 
 ## Creating and updating the description
 
-Write the complete description when the change request is created, even when it is created outside a template: prepare the body in a path the project does not commit (the project's ignored path, otherwise a temporary directory) and create the request through the project's tool — the hosting service's own surface, or, for a GitHub project, `gh pr create --body-file <file>`, `gh pr edit <number> --body-file <file>`, and `--attach` when the description embeds media, as the example forms. On an update, save the existing description first (for a GitHub project, `gh pr view <number> --json body --jq .body` is the example form). Change only the sections that need it: keep content and media the author wrote, replace only the contents of an existing AI-DECLARATION block, and remove statements that no longer match the code. The description carries exactly one AI Usage section: when the description still has an AI section heading from the project's earlier format, that heading, its level line and its rows are replaced by the AI Usage section; never keep both.
+Write the complete description when the change request is created, even when it is created outside a template: prepare the body in a path the project does not commit (the project's ignored path, otherwise a temporary directory) and create the request through the project's tool — the hosting service's own surface, or, for a GitHub project, `gh pr create --body-file <file>`, `gh pr edit <number> --body-file <file>`, and `--attach` when the description embeds media, as the example forms. On an update, save the existing description first (for a GitHub project, `gh pr view <number> --json body --jq .body` is the example form). Change only the sections that need it: keep content and media the author wrote, replace an existing AI-DECLARATION block in place while updating every affected AI Usage row, and remove statements that no longer match the code.
 
-Before the description is considered written, read it back — the required validation for the structural items this skill fixes:
+Before the description is considered written, read it back and verify:
 
-- the description states the four content blocks — why (with its issue reference when one exists), what, the test design and entries, and the AI Usage block — under the default headings in order or under the project's structure;
-- exactly one AI Usage block exists — one section carrying the AI-DECLARATION block, under the default or a project heading;
-- the `ai-declaration:start` and `ai-declaration:end` marker pair is present;
-- the AI Usage table has one row per stage in the fixed order, keyed by the English stage identifiers;
-- every level is one of `hint`, `assist`, `pair`, `copilot`, `auto`, `n/a`;
-- the badge level equals the highest stage level, ignoring `n/a`;
-- the AI-DECLARATION block matches `references/ai-usage.md` §Section format: the badge URL matches its level, the declaration line's level equals the badge, the version is 0.1.2, and a non-English description keeps the stage and level identifiers in English with a rendering in the description's language;
-- AI Usage matches the current code and review state, and no superseded section remains.
+- the description states the four content blocks — why (with its issue reference when one exists), what, the test design and entries, and the AI Usage section — under the default headings in order or under the project's structure;
+- exactly one AI Usage section exists and no superseded section remains;
+- the AI Usage section satisfies [references/ai-usage.md](references/ai-usage.md) §Read-back validation and reflects the current code and review state;
 
 Update the description when it no longer matches the change and after a handled review round; a handled review round ends when its fixes are published and its comments are answered. Rewrite the affected sections so they state the work as it now stands: the description is not a change history.
 

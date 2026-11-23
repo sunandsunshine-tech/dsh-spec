@@ -1,4 +1,4 @@
-The contract in [README.md](/tmp/pr113-eval.FHwx6T/message-only-candidate/project/README.md:3) uses `message` as both the human-readable report and the failure identity. That makes expected handling brittle because presentation text may change or be localized.
+The contract in [README.md](/workspace/message-only-candidate/project/README.md:3) uses `message` as both the human-readable report and the failure identity. That makes expected handling brittle because presentation text may change or be localized.
 
 The smallest safe change is to add one stable machine-readable discriminant:
 

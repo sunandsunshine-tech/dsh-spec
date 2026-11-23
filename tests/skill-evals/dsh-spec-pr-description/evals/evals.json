@@ -1,0 +1,29 @@
+{
+  "skill_name": "dsh-spec-pr-description",
+  "evals": [
+    {
+      "id": "stack-layer-replaces-legacy-ai-section",
+      "prompt": "Update evals/files/project/pr-body.md for the top layer of a two-layer stack. The project declares no description template, contributing guide, or tracker conventions. Work only on this layer: it caps idempotent HTTP retries at three attempts; the lower layer's retry telemetry is context, not part of this change. The current draft contains an old `## Human and Agent Roles` section copied from another layer. Use the supplied change summary and AI notes, produce the complete final description, write it back, validate it, and report the result.",
+      "expected_output": "The updated body uses the default four-section structure, removes the old Human and Agent Roles section, carries exactly one valid AI Usage section for the retry cap only, leaves the unhandled review row at n/a with an empty decision-record cell and puts the no-comments statement after the table, and does not add tracker labels, Project fields, or dates.",
+      "files": [
+        "evals/files/project/AGENTS.md",
+        "evals/files/project/change-summary.md",
+        "evals/files/project/ai-notes.md",
+        "evals/files/project/pr-body.md",
+        "evals/files/project/package.json",
+        "evals/files/project/client.ts",
+        "evals/files/project/client.spec.ts"
+      ],
+      "assertions": [
+        "The body uses the default Motivation, Changes, Testing, and AI Usage sections.",
+        "The old Human and Agent Roles section is removed rather than retained beside AI Usage.",
+        "Exactly one AI Usage section and one AI-DECLARATION block remain.",
+        "The AI Usage table records this retry-cap layer only and does not repeat the lower layer's telemetry work.",
+        "The AI-DECLARATION version is 0.1.2 and its badge equals the highest row level.",
+        "The body reports the supplied passing test evidence without claiming an unrun check.",
+        "The review row remains n/a with an empty decision-record cell, and the no-comments statement follows the table.",
+        "The update does not invent tracker labels, Project fields, or dates."
+      ]
+    }
+  ]
+}

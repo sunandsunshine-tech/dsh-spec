@@ -1,4 +1,4 @@
-[README.md](/tmp/pr113-eval.FHwx6T/worker-boundary-candidate/project/README.md:1) documents the defect but provides no implementation or tests to inspect. Assuming no existing error convention, use a stable `code` as the machine-readable identity.
+[README.md](/workspace/worker-boundary-candidate/project/README.md:1) documents the defect but provides no implementation or tests to inspect. Assuming no existing error convention, use a stable `code` as the machine-readable identity.
 
 **Contract changes**
 

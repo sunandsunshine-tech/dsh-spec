@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "review_type": "external-companion",
+  "source": "../2026-11-23-release-windows-run-in-utc.md",
+  "source_sha256": "4ee98f7edc14581b3136202c6b4bec98c563e9a96e8e76991d5329f114500ec5",
+  "reviewed_at": "2026-11-23",
+  "status": "approved",
+  "summary": "The implemented process decision defines release-window start and end times in UTC."
+}

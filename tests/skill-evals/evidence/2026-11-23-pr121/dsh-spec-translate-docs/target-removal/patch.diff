@@ -1,0 +1,69 @@
+diff --git a/evals/files/target-removal/docs/active/first.i18n.yaml b/evals/files/target-removal/docs/active/first.i18n.yaml
+index ace05f0..67115b7 100644
+--- a/evals/files/target-removal/docs/active/first.i18n.yaml
++++ b/evals/files/target-removal/docs/active/first.i18n.yaml
+@@ -3,6 +3,5 @@
+ # After editing either side, bring the other along and re-record with:
+ #   node <skill-dir>/scripts/translate-pair.mjs write docs/active/first.md --target <lang>
+ /active-first-guide:
+-  en: 38225fdef0adbfd7
+-  ja: 81d1c33a30dddcee
+-  zh: 7ace5b844b84d323
++  en: eb8849e3145b4506
++  zh: 8ed675791d0ab7c3
+diff --git a/evals/files/target-removal/docs/active/first.ja.md b/evals/files/target-removal/docs/active/first.ja.md
+deleted file mode 100644
+index 728510b..0000000
+--- a/evals/files/target-removal/docs/active/first.ja.md
++++ /dev/null
+@@ -1,5 +0,0 @@
+-# Active first guide
+-
+-[English](first.md) | 日本語
+-
+-最初の有効なガイドは日本語を削除します。
+diff --git a/evals/files/target-removal/docs/active/first.md b/evals/files/target-removal/docs/active/first.md
+index a50d73e..4fd5367 100644
+--- a/evals/files/target-removal/docs/active/first.md
++++ b/evals/files/target-removal/docs/active/first.md
+@@ -1,5 +1,5 @@
+ # Active first guide
+ 
+-English | [日本語](first.ja.md) | [中文](first.zh.md)
++English | [中文](first.zh.md)
+ 
+ The first active guide removes Japanese.
+diff --git a/evals/files/target-removal/docs/active/second.i18n.yaml b/evals/files/target-removal/docs/active/second.i18n.yaml
+deleted file mode 100644
+index f422ed5..0000000
+--- a/evals/files/target-removal/docs/active/second.i18n.yaml
++++ /dev/null
+@@ -1,7 +0,0 @@
+-# Pairing consistency record for second.md (references/pairing-contract.md): per heading
+-# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+-# After editing either side, bring the other along and re-record with:
+-#   node <skill-dir>/scripts/translate-pair.mjs write docs/active/second.md --target <lang>
+-/active-second-guide:
+-  en: 1b1a53b0b99483eb
+-  ja: 4201710bdd4ab2f4
+diff --git a/evals/files/target-removal/docs/active/second.ja.md b/evals/files/target-removal/docs/active/second.ja.md
+deleted file mode 100644
+index a0a95b3..0000000
+--- a/evals/files/target-removal/docs/active/second.ja.md
++++ /dev/null
+@@ -1,5 +0,0 @@
+-# Active second guide
+-
+-[English](second.md) | 日本語
+-
+-二番目の有効なガイドは日本語を削除します。
+diff --git a/evals/files/target-removal/docs/active/second.md b/evals/files/target-removal/docs/active/second.md
+index 12eb89e..b806c10 100644
+--- a/evals/files/target-removal/docs/active/second.md
++++ b/evals/files/target-removal/docs/active/second.md
+@@ -1,5 +1,3 @@
+ # Active second guide
+ 
+-English | [日本語](second.ja.md)
+-
+ The second active guide removes Japanese.

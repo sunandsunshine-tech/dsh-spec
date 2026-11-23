@@ -1,0 +1,4 @@
+PASS Preparation does not write or update the manifest.
+PASS The failing external check does not seal the unit.
+PASS The manifest remains unchanged.
+PASS The handoff names the failed step and a safe recovery action.

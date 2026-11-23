@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { setTimeout as delay } from 'node:timers/promises'
+import { reportRows } from '../src/report.mjs'
 
 async function expensiveFixture() {
   await delay(80)
-  return { rows: [1, 2, 3] }
+  return { rows: reportRows() }
 }
 
 for (const [name, expected] of [

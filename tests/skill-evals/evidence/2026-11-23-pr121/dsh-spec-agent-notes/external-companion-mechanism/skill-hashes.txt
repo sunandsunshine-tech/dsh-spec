@@ -1,0 +1,5 @@
+5366ac18eb7e83fde3e7a762094f251bd0595c67b1965ef9fe4f8dcfa308d6b2  skills/dsh-spec-agent-notes/SKILL.md
+e0b8907c0327c7932cf61189c5cf03694bbacdcff38fa51430de1e8cb62c5c1c  skills/dsh-spec-agent-notes/THIRD_PARTY_NOTICES
+3635f73fe357a28ec523cea72e540174b8f44ec5f4dd48c00bbed4f2d12d7253  skills/dsh-spec-agent-notes/references/archive-contract.md
+66446353c218136fd279b98e1abc9ca774b014486ffaae1c718c555d48f4fe5c  skills/dsh-spec-agent-notes/references/notes-contract.md
+a749ae2fab8cbabf44a9be091262193be15284303de5b6b8ce542f9ec2905c8f  skills/dsh-spec-agent-notes/scripts/notes.mjs

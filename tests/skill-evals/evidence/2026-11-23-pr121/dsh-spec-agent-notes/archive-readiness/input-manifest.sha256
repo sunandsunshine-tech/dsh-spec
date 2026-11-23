@@ -1,0 +1,11 @@
+e863a450bb836e679ea16af0f878d72b3fcbf25312240d8d8c1839c4fee4694d  evals/files/archive-readiness/README.md
+e80d5cf6b1d3f3ae04a1a672c9e3de525d96d164f4ef9f02e01fff37ff31f335  evals/files/archive-readiness/AGENTS.md
+b56b3462647e4cbba934ab5c6f2ff7caf9ce4522a37ba371fa2ea11631ef6ceb  evals/files/archive-readiness/.agents/dsh-spec-agent-notes/archived/process/2026-10-01-candidate.md
+ba2092de3dcff44a55b118f57269885ee82ba8feb4cb4c13432cac1fde4a69ac  evals/files/archive-readiness/.agents/dsh-spec-agent-notes/archived/process/2026-10-01-candidate.meta.json
+01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b  evals/files/archive-readiness/.agents/dsh-spec-agent-notes/archived/architecture/.gitkeep
+01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b  evals/files/archive-readiness/.agents/dsh-spec-agent-notes/archived/bug-fix/.gitkeep
+01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b  evals/files/archive-readiness/.agents/dsh-spec-agent-notes/archived/feature/.gitkeep
+01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b  evals/files/archive-readiness/.agents/dsh-spec-agent-notes/archived/simplification/.gitkeep
+01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b  evals/files/archive-readiness/.agents/dsh-spec-agent-notes/archived/testing/.gitkeep
+a60477c75697e970a7828b56ae9a9b148b74cb342e21d276e0bbf762efe08e3e  evals/files/archive-readiness/.agents/dsh-spec-agent-notes/archived/manifest.json
+7ad70e59ae4c565653a9111e816621d4cfeaadc6dd6c7daced0dde737f423e5a  evals/files/archive-readiness/failing-readiness.sh

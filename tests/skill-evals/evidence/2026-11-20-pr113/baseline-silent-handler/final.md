@@ -21,4 +21,4 @@ The handler-level guarantee is:
 - A non-missing cleanup failure occurs before commit is attempted.
 - A failed notification may occur after the commit has already succeeded. The error is now visible, but the handler does not provide all-or-nothing rollback; retry must therefore be idempotent or notification should use an outbox.
 
-This assumes `commitBatch` itself has transactional or otherwise well-defined failure semantics. See [README.md](/tmp/pr113-eval.FHwx6T/silent-handler-baseline/project/README.md:3).
+This assumes `commitBatch` itself has transactional or otherwise well-defined failure semantics. See [README.md](/workspace/silent-handler-baseline/project/README.md:3).

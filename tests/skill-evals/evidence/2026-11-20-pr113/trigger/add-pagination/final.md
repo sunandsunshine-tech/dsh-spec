@@ -1,6 +1,6 @@
 The workspace is mounted read-only, so I could not apply the changes. The pagination logic was validated separately, including multi-page traversal and the final `null` cursor.
 
-For [server.ts](/tmp/pr113-trigger-eval/add-pagination/project/trigger-fixtures/add-pagination/src/server.ts), use:
+For [server.ts](/workspace/add-pagination/project/trigger-fixtures/add-pagination/src/server.ts), use:
 
 ```ts
 interface Item {
@@ -31,7 +31,7 @@ export function listItems(
 }
 ```
 
-For [openapi.yaml](/tmp/pr113-trigger-eval/add-pagination/project/trigger-fixtures/add-pagination/openapi.yaml), replace its contents with:
+For [openapi.yaml](/workspace/add-pagination/project/trigger-fixtures/add-pagination/openapi.yaml), replace its contents with:
 
 ```yaml
 openapi: 3.0.3

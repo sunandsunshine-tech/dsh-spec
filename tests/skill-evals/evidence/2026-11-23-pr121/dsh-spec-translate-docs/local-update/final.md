@@ -1,0 +1,3 @@
+Updated the English sentence in [guide.md](/workspace/evals/files/vendor/docs/guide.md), synchronized [guide.zh.md](/workspace/evals/files/vendor/docs/guide.zh.md), and regenerated [guide.i18n.yaml](/workspace/evals/files/vendor/docs/guide.i18n.yaml) with the installed pairing skill.
+
+Verification: `node /workspace/.agents/skills/dsh-spec-translate-docs/scripts/translate-pair.mjs check docs/guide.md` reported `1 pair(s) consistent.`

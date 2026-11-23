@@ -1,0 +1,29 @@
+{
+  "id": "select-minimum-without-siblings",
+  "prompt": "Select the smallest local evidence for the outgoing change at HEAD against HEAD^ in evals/files/review-integration without error-handling or client-UI sibling guidance and without a rendered screenshot or browser-control capability. Do not modify files or Git state and do not author a missing test. Inspect the actual diff and existing tests; keep the minimum boundary checks and report the unavailable saving-state evidence as an unfinished check with a concrete next step.",
+  "expected_output": "The selection still requires the existing `kind` identity and structured `detail`, rejects message-text routing, and reports Settings saving/disabled rendered evidence as unavailable rather than treating the consumer test as visual acceptance.",
+  "files": [
+    "evals/files/review-integration/AGENTS.md",
+    "evals/files/review-integration/package.json",
+    "evals/files/review-integration/index.html",
+    "evals/files/review-integration/server.mjs",
+    "evals/files/review-integration/src/app.js",
+    "evals/files/review-integration/src/Button.js",
+    "evals/files/review-integration/src/SearchPage.js",
+    "evals/files/review-integration/src/SettingsPage.js",
+    "evals/files/review-integration/src/button.module.css",
+    "evals/files/review-integration/src/styles.css",
+    "evals/files/review-integration/src/worker-client.js",
+    "evals/files/review-integration/tests/button-consumers.test.mjs",
+    "evals/files/review-integration/tests/worker-boundary.test.mjs",
+    "evals/files/review-integration/change.patch"
+  ],
+  "change_patch": "evals/files/review-integration/change.patch",
+  "change_root": "evals/files/review-integration",
+  "assertions": [
+    "The selection still requires the existing `kind` identity and structured `detail`.",
+    "The selection rejects message-text routing.",
+    "The selection reports Settings saving/disabled rendered evidence as unavailable.",
+    "The selection gives a concrete next step before completion."
+  ]
+}

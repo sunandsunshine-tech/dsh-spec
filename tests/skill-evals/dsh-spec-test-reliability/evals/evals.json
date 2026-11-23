@@ -60,17 +60,19 @@
     },
     {
       "id": "redesign-slow-repeated-suite",
-      "prompt": "The runnable project in evals/files/slow-suite repeats the same expensive fixture for every case and in both Node matrix lanes; the proposed patch multiplies three timeout groups by three. Redesign the tests rather than enlarging timeouts, edit the project, and run the suite.",
-      "expected_output": "The revision keeps fast contract cases separate, runs one shared expensive representative scenario, avoids repeating external work where compatibility cannot change the result, and uses timeouts only as named watchdogs.",
+      "prompt": "The runnable project in evals/files/slow-suite repeats the same expensive fixture for every case and in both Node matrix lanes; the proposed patch multiplies three timeout groups by three. Redesign it into a fast contract entry that calls the real production behavior without the expensive delay and one representative integration entry that owns the only delayed execution. Wire CI so the contract runs on both Node lanes and the representative integration runs once. Do not enlarge timeouts; edit the project and run the suites.",
+      "expected_output": "The revision keeps fast contract cases separate, runs one shared expensive representative scenario through the production behavior, avoids repeating external work where compatibility cannot change the result, and uses timeouts only as named watchdogs.",
       "files": [
         "evals/files/slow-suite/README.md",
         "evals/files/slow-suite/package.json",
+        "evals/files/slow-suite/src/report.mjs",
         "evals/files/slow-suite/tests/report.test.mjs",
         "evals/files/slow-suite/.github/workflows/ci.yml"
       ],
       "assertions": [
         "The revision removes repeated expensive fixture setup instead of increasing all group timeouts.",
         "Fast contract cases remain separate from the one shared expensive scenario.",
+        "The fast contract cases exercise the real production behavior rather than hardcoded expectations.",
         "The expensive check is not duplicated across lanes where its result cannot differ.",
         "The edited project's test entry passes."
       ]

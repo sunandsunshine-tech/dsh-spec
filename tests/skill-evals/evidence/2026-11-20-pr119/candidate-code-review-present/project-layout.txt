@@ -1,2 +1,0 @@
-parent=/tmp/dsh-pr119-code-present-parent.0UTsxl
-project=/tmp/dsh-pr119-code-present-parent.0UTsxl/project

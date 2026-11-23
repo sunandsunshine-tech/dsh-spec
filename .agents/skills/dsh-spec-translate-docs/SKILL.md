@@ -45,9 +45,15 @@ A pair is a source `foo.md`, one counterpart per target `foo.zh.md` or `foo.<lan
 - **Existing pair, any other change**: the briefing path.
 - **New pair** (standing instructions, explicit instruction or authorization from the responsible workflow): the whole-document path and its isolation rule.
 - **New target on an existing source** (progressive policy addition): the whole-document path for that target, while existing targets follow their normal update path.
-- **Deleted or renamed document**: remove the counterpart, remove its link from the source switcher, then run `write --all` for the source; a recorded target with no counterpart is dropped. A named `write --target` never drops a target, and an entry without a counterpart is an incomplete pair.
+- **Deleted or renamed document**: follow § Finish the pair; a named `write --target` never drops a target, and an entry without a counterpart is an incomplete pair.
 - **Generated region**: the generator updates both sides; never edit a region by hand.
 - **Frozen or excluded document**: the standing instructions say it is not maintained; do not create, update or repair its pairs.
+
+Every successful update path continues with § Finish the pair.
+
+## Preserve working separation
+
+The briefing and whole-document paths preserve a prose translator's independence. Use an isolated subagent when available; otherwise use a clean-context handoff, staged independent review, or another verifiable mechanism that preserves the separation. If no mechanism preserves it, follow § Stop and hand over rather than continuing in the working context.
 
 ## The lightweight update path
 
@@ -56,8 +62,6 @@ Use it only when the change is local (one or two Markdown units in one section),
 1. Load the target's terminology table, or run `init` first when it is missing. Read the style guidance from the project's declared style file, or the default [style examples](references/style-examples.md) when none is declared; consult the nearest sample only when the touched wording needs calibration.
 2. Make the smallest counterpart edit that covers the change; preserve the reviewed phrasing of everything untouched. Do not re-read or re-translate the whole document.
 3. Follow the [translation rules](references/translation-rules.md); calibrate against the nearest declared/default sample when the wording needs it.
-4. Confirm every existing target of the source in the same change: edit a target, then `write --target`, and continue; use `write --all` after all are updated. Never write a target before editing it, and run writes for one source sequentially.
-5. Run `check <source> --target <lang>`.
 
 When more than one target exists and the wording of each is more than a local patch, use the briefing path per target. If the change turns out to cross sections, need a terminology decision, or alter structure, stop and use the briefing path instead.
 
@@ -65,13 +69,12 @@ When more than one target exists and the wording of each is more than a local pa
 
 1. **Brief the change.** `node <skill-dir>/scripts/translate-pair.mjs brief <pair path> --target <lang>` prints the authored side's change since the last confirmed state at the narrowest aligned unit, with three-way text, matching terminology rows and first-occurrence notes. Generated regions never enter the briefing: aligned regeneration says nothing to brief; disagreeing current regions are a precondition failure. The pair must be committed.
 2. **Apply a mechanical-only change directly.** When the brief maps every change inside fenced code, add `--apply`; the script splices and structure-validates the counterpart. On prose changes `--apply` exits 2 and writes nothing.
-3. **Preserve independence for a prose change.** Pass the briefing (or the command to print it) to an isolated subagent when one is available; otherwise use a clean-context handoff, staged independent review, or another verifiable mechanism that preserves the separation. The brief is the translator's whole working set; it escalates to the whole-document sources only when a decision is genuinely unanswerable. The briefing rules name the project's declared style file or the default references/style-examples.md; read it before editing. If no available mechanism preserves that independence, follow § Stop and hand over rather than continuing in the working context.
+3. **Brief the prose translator.** Pass the briefing, or the command to print it, through the working separation in § Preserve working separation. The brief is the translator's whole working set; it escalates to the whole-document sources only when a decision is genuinely unanswerable. The briefing rules name the project's declared style file or the default references/style-examples.md; read it before editing.
 4. Make the smallest edit that covers the change, then verify the changed spans against the source.
-5. Record and check the pair; the briefing's Finish commands are pair-scoped. A source-side change may be confirmed one target at a time: edit a counterpart, `write --target <lang>`, then continue; untouched targets stay out of sync until written. Never write a target before editing it, and run writes for one source sequentially.
 
 ## The whole-document path
 
-Use an isolated subagent when available; otherwise use a clean-context handoff, staged independent review, or another verifiable mechanism that preserves the required separation. If no mechanism preserves it, follow § Stop and hand over rather than continuing in the working context. The translator reads the project's standing instructions, the [pairing contract](references/pairing-contract.md), the [translation rules](references/translation-rules.md), the project's declared style file or the default [style examples](references/style-examples.md) first; when the target's terminology table is missing, run `node <skill-dir>/scripts/translate-pair.mjs init --target <lang>=<name>` first. Translate the whole file section by section, keeping each section's structure locked to the source.
+The translator reads the project's standing instructions, the [pairing contract](references/pairing-contract.md), the [translation rules](references/translation-rules.md), the project's declared style file or the default [style examples](references/style-examples.md) first; when the target's terminology table is missing, run `node <skill-dir>/scripts/translate-pair.mjs init --target <lang>=<name>` first. Translate the whole file section by section, keeping each section's structure locked to the source.
 
 ### Translate
 
@@ -80,7 +83,6 @@ Use an isolated subagent when available; otherwise use a clean-context handoff, 
 - **Read the completed counterpart alone.** Rewrite phrasing whose awkwardness only appears in isolation.
 - Write only the final text, never drafts or notes.
 - Never edit a generated region; the generator writes both sides.
-- Write the switcher lines, `write` the record, and `check` the pair.
 
 A generated source (`--generated`) omits only its own switcher; the counterpart backlink remains required.
 
@@ -94,10 +96,12 @@ A generated source (`--generated`) omits only its own switcher; the counterpart 
 
 ## Finish the pair
 
-1. `write` each confirmed pair; after a source-side change that affects several targets, use `write --all` for the source so every existing target signature is refreshed in one render. The record diff is the reviewable statement that the two sides say the same thing. Regenerate frozen regions on both sides; they are not translated.
-2. Do not widen the work beyond the documents selected by the project instructions, the user or the responsible workflow.
-3. Before handing over, the touched pairs are green under `check`, and a range-wide run checks every existing pair the change touched (when available, use the `dsh-spec-pre-push-checks` skill).
-4. Keep the handover reviewable: say which pairs are new, which were minimally updated, and list pending terms and terminology decisions prominently.
+1. A new pair or whole-document translation carries the source and counterpart switcher lines; a generated source omits only its own switcher. Regenerate generated regions on both sides; they are not translated.
+2. Edit a target, then run `write --target`; never write before editing. When several targets change, edit and write each target sequentially, then run `write --all` once after all targets are updated so the aggregate record is refreshed in one render. Never hand-edit the aggregate record; the script writes it. The record diff is the reviewable statement that the sides match.
+3. For a deleted or renamed document, remove the counterpart and its source-switcher link, then run `write --all` for the source; a recorded target with no counterpart is dropped. When the last target is removed, `write --all` removes the empty aggregate record. A named `write --target` never retires a target.
+4. Do not widen the work beyond the documents selected by the project instructions, the user or the responsible workflow.
+5. Before handing over, the touched pairs are green under `check`, and a range-wide run checks every existing pair the change touched (when available, use the `dsh-spec-pre-push-checks` skill). Report the exact `write` and `check` commands and their observed results.
+6. Keep the handover reviewable: say which pairs are new, which were minimally updated, and list pending terms and terminology decisions prominently.
 
 ## Responding to translation review
 

@@ -1,4 +1,4 @@
-The assertion at [test.mjs](/tmp/pr113-trigger-eval/unit-assertion-diff/project/trigger-fixtures/unit-assertion-diff/test.mjs:3) supplies:
+The assertion at [test.mjs](/workspace/unit-assertion-diff/project/trigger-fixtures/unit-assertion-diff/test.mjs:3) supplies:
 
 ```js
 assert.equal(actual, expected)

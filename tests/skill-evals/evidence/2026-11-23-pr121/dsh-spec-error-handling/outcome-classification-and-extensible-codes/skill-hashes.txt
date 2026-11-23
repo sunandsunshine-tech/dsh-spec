@@ -1,0 +1,3 @@
+5fe38c6a9d3b13c2988c087d0d75d634dd6ea9ad59d30f2f1186c7c3d8fbe330  skills/dsh-spec-error-handling/SKILL.md
+134def8b2ef7592d000f9ceba4da58153ad2a2bf98365fb671ce0632f5eeef14  skills/dsh-spec-error-handling/THIRD_PARTY_NOTICES
+b33e83b46d544140a30b7d53f524787b8c4b8e6ab159f16821dc5f220d341afc  skills/dsh-spec-error-handling/references/error-contracts.md

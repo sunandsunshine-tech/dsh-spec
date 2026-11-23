@@ -1,0 +1,18 @@
+:root {
+  font-family: sans-serif;
+  font-size: 16px;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 16rem minmax(0, 1fr);
+  gap: 1rem;
+}
+
+.layout.narrow {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.field input {
+  font-size: 0.875rem;
+}
