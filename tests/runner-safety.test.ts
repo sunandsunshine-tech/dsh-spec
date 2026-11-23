@@ -38,6 +38,7 @@ const safety = (await import('./skill-evals/runner-safety.mjs' as string)) as {
   resolveCapability(name: string, requested: boolean | undefined, available: boolean): boolean
   resolveExecutableFile(path: string): string | undefined
   resolveMiseMediaRoot(miseInstalls: string): string | undefined
+  singleTomlStringField(lines: string[], key: string, label: string): string | undefined
   tomlField(lines: string[], key: string): string | undefined
   tomlStringValue(line: string): string | undefined
   trustedGitArgs(gitDirectory: string, project: string, args: string[]): string[]
@@ -352,6 +353,25 @@ test('provider TOML parsing accepts standard spacing and quoting before proxy re
   ]
   assert.equal(safety.tomlStringValue(safety.tomlField(section, 'base_url') ?? ''), 'https://provider.example/v1')
   assert.equal(safety.tomlStringValue(safety.tomlField(section, 'experimental_bearer_token') ?? ''), 'REAL_SECRET')
+  assert.equal(safety.singleTomlStringField(section, 'base_url', 'base URL'), 'https://provider.example/v1')
+  assert.throws(
+    () =>
+      safety.singleTomlStringField(
+        ['base_url = """https://user:secret@provider.example/v1"""'],
+        'base_url',
+        'base URL',
+      ),
+    /unparseable/,
+  )
+  assert.throws(
+    () =>
+      safety.singleTomlStringField(
+        ['base_url = "https://one.example"', 'base_url = "https://two.example"'],
+        'base_url',
+        'base URL',
+      ),
+    /more than once/,
+  )
 })
 
 test('model catalog and base URL validation reject credentials and path escapes', () => {
@@ -384,7 +404,17 @@ test('model catalog and base URL validation reject credentials and path escapes'
       () => safety.assertCredentialFreeBaseUrl('https://provider.example/v1?token=secret', 'base URL'),
       /query/,
     )
-    for (const key of ['access_token', 'api_token', 'client_secret', 'subscription-key', 'apiKey']) {
+    for (const key of [
+      'access_token',
+      'api_token',
+      'client_secret',
+      'subscription-key',
+      'apiKey',
+      'accesstoken',
+      'clientsecret',
+      'apitoken',
+      'subscriptionkey',
+    ]) {
       assert.throws(
         () => safety.assertCredentialFreeBaseUrl(`https://provider.example/v1?${key}=secret`, 'base URL'),
         /query/,

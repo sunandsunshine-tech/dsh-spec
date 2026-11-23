@@ -41,6 +41,7 @@ import {
   resolveCapability,
   resolveExecutableFile,
   resolveMiseMediaRoot,
+  singleTomlStringField,
   tomlField,
   tomlStringValue,
   trustedGitArgs,
@@ -339,11 +340,12 @@ async function createIsolatedCodexHome(root) {
     if (line.trim().startsWith('[')) break
     if (providerKeys.has(line.split('=')[0]?.trim())) section.push(line)
   }
-  const bearerLine = tomlField(section, 'experimental_bearer_token')
-  const baseUrlLine = tomlField(section, 'base_url')
-  const bearerToken = bearerLine ? tomlStringValue(bearerLine) : undefined
-  const baseUrl = baseUrlLine ? tomlStringValue(baseUrlLine) : undefined
-  if (bearerLine && !bearerToken) throw new Error('model provider has an unparseable inline bearer token')
+  const bearerToken = singleTomlStringField(
+    section,
+    'experimental_bearer_token',
+    'model provider experimental_bearer_token',
+  )
+  const baseUrl = singleTomlStringField(section, 'base_url', 'model provider base_url')
   if (bearerToken && !baseUrl) throw new Error('model provider has an inline bearer token but no parseable base_url')
   if (baseUrl) assertCredentialFreeBaseUrl(baseUrl, 'model provider base_url')
   const authProxy = bearerToken && baseUrl ? await startModelAuthProxy(baseUrl, bearerToken) : undefined

@@ -122,7 +122,13 @@ function isCredentialName(name) {
     .toLowerCase()
     .split(/[^a-z0-9]+/)
     .filter(Boolean)
-  return parts.some((part) => credentialNameParts.has(part) || credentialCompoundNames.has(part))
+  return parts.some(
+    (part) =>
+      credentialNameParts.has(part) ||
+      credentialCompoundNames.has(part) ||
+      /(?:token|secret|password|credential|credentials|signature)$/.test(part) ||
+      /(?:access|api|client|private|secret|signing|subscription)key(?:id)?$/.test(part),
+  )
 }
 
 export function assertCredentialFreeBaseUrl(value, label) {
@@ -397,6 +403,15 @@ export function tomlStringValue(line) {
   } catch {
     return undefined
   }
+}
+
+export function singleTomlStringField(section, key, label) {
+  const declarations = section.filter((line) => line.split('=')[0]?.trim() === key)
+  if (declarations.length > 1) throw new Error(`${label} is declared more than once`)
+  if (declarations.length === 0) return undefined
+  const value = tomlStringValue(declarations[0])
+  if (value === undefined) throw new Error(`${label} is unparseable`)
+  return value
 }
 
 export function tomlField(section, key) {
