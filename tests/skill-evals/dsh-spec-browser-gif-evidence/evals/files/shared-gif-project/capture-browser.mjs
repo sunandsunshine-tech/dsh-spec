@@ -25,7 +25,7 @@ const server = spawn(process.execPath, [join(root, 'server.mjs')], {
 let browser
 
 async function stop(child) {
-  if (child.exitCode !== null) return
+  if (!child || child.exitCode !== null) return
   const exited = new Promise((resolve) => child.once('exit', resolve))
   child.kill()
   const stopped = await Promise.race([exited.then(() => true), delay(2_000).then(() => false)])
@@ -45,6 +45,15 @@ function emergencyCleanup() {
 }
 
 process.once('exit', emergencyCleanup)
+const fail = async (reason) => {
+  console.error(reason)
+  await stop(browser)
+  await stop(server)
+  rmSync(profile, { recursive: true, force: true })
+  process.exit(1)
+}
+process.once('uncaughtException', fail)
+process.once('unhandledRejection', fail)
 const baseUrl = await new Promise((resolve, reject) => {
   const timer = setTimeout(() => reject(new Error('server did not report a URL')), 10_000)
   server.stdout.once('data', (chunk) => {
