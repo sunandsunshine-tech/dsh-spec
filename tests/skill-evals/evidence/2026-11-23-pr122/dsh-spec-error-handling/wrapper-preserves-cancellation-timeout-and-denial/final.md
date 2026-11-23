@@ -1,7 +1,3 @@
-Updated [README.md](/workspace/evals/files/wrapper-classification/README.md) so the wrapper returns the worker’s structured failure unchanged:
+Updated [README.md](/workspace/evals/files/wrapper-classification/README.md:6) so the execution wrapper returns the worker’s structured result unchanged. `UPSTREAM_TIMEOUT`, `CANCELLED`, `DENIED`, structured details, and causes now survive for downstream classification; display text remains separate from recovery logic.
 
-```ts
-return { ok: false, failure };
-```
-
-Downstream code now branches on `result.failure.code`, preserving `UPSTREAM_TIMEOUT`, `CANCELLED`, and `DENIED` as machine-readable identities. Display text is kept separate rather than replacing the failure. `git diff --check` passes; this fixture contains no runnable implementation or tests.
+`git diff --check` passes.

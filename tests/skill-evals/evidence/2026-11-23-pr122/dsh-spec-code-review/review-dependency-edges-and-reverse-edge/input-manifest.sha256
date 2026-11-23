@@ -1,8 +1,8 @@
-e9d4ef3125d1cc3e8a7da13d1672c758fc02fc52c53fc54a98e1803fcedc13ff  evals/files/dependency-review/AGENTS.md
-40fae956d22e86ea29a779989d38c7717c98ff3ef887c354dd320b074c859342  evals/files/dependency-review/base/packages/app/package.json
-827b27ef425bdeccdf27cc78582f06fa864b0f8a7f940c5bf88856c2ddf0731a  evals/files/dependency-review/base/packages/core/package.json
-527838e74209bf7e163080dcf7399bdea870895300644241ccdc8d4e1ecadb9c  evals/files/dependency-review/base/packages/legacy/package.json
-ba1922f00817573f828ce103033fb5a15678fa799aa02342450756876b61a8c8  evals/files/dependency-review/packages/app/package.json
-827b27ef425bdeccdf27cc78582f06fa864b0f8a7f940c5bf88856c2ddf0731a  evals/files/dependency-review/packages/core/package.json
-600b41cc1b1d064822bf49526917187b18d22ec1df6ab1ebda515b80a232400f  evals/files/dependency-review/packages/validator/package.json
-8dc3e7be78ba93010e2593dae7de93623663e2b6d9c058faff79035293a56ea1  evals/files/dependency-review/pr-description.md
+e9d4ef3125d1cc3e8a7da13d1672c758fc02fc52c53fc54a98e1803fcedc13ff  evals/files/dependency-review/AGENTS.md  mode=0644
+40fae956d22e86ea29a779989d38c7717c98ff3ef887c354dd320b074c859342  evals/files/dependency-review/base/packages/app/package.json  mode=0644
+827b27ef425bdeccdf27cc78582f06fa864b0f8a7f940c5bf88856c2ddf0731a  evals/files/dependency-review/base/packages/core/package.json  mode=0644
+527838e74209bf7e163080dcf7399bdea870895300644241ccdc8d4e1ecadb9c  evals/files/dependency-review/base/packages/legacy/package.json  mode=0644
+ba1922f00817573f828ce103033fb5a15678fa799aa02342450756876b61a8c8  evals/files/dependency-review/packages/app/package.json  mode=0644
+827b27ef425bdeccdf27cc78582f06fa864b0f8a7f940c5bf88856c2ddf0731a  evals/files/dependency-review/packages/core/package.json  mode=0644
+600b41cc1b1d064822bf49526917187b18d22ec1df6ab1ebda515b80a232400f  evals/files/dependency-review/packages/validator/package.json  mode=0644
+8dc3e7be78ba93010e2593dae7de93623663e2b6d9c058faff79035293a56ea1  evals/files/dependency-review/pr-description.md  mode=0644

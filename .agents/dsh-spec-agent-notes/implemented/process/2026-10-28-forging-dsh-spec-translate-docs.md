@@ -58,6 +58,8 @@ The repository's old `scripts/dsh-spec-manager/` translation engine is **not** a
 
 The current alpha.2 pin was reviewed on 2026-11-23. Its `docs/i18n/README.md` excludes locale-selected bundle detail pages from the project's pairing corpus even though those pages have no in-document switcher or consistency record. The target carries the purpose as an adopter-declared `--unpaired <glob>`: matching localized pages are excluded from discovery, existing-target inference and link normalization, while the project's link, prose and review checks keep both localizations in step.
 
+PR122's `locale-selected-pages-are-unpaired` model run passes 4/4 assertions: the maintained guide pair remains checked, both detail paths are excluded with `--unpaired`, and no pair artifacts are created for them.
+
 Licensing: upstream and this repository are MIT. The skill states the relation and origin in its `THIRD_PARTY_NOTICES`, written outside the loaded instructions as the package's convention requires. The bundle's parser packages are pinned to the versions the upstream lock names (`mdast-util-from-markdown` 2.0.3, `mdast-util-gfm` 3.1.0, `micromark-extension-gfm` 3.0.0 and their runtime closure). The resolved bundle's parser closure is registered in the shared root `THIRD_PARTY_NOTICES.md`; the skill-root `THIRD_PARTY_NOTICES` records the exact bundled versions and lists the adapted upstream files and the npm packages the bundle includes.
 
 ### Generalisation and simplification decisions

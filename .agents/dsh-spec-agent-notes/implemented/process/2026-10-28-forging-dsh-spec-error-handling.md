@@ -228,6 +228,8 @@ behaviors have targeted evidence under `2026-11-23-pr121` and `2026-11-23-pr122`
 The isolated run under `tests/skill-evals/evidence/2026-11-23-pr113/` exercises outcome
 classification and extensible codes directly and passes 4/4 assertions.
 
+The three PR122 runs for empty-catch scope, the safe-failure reason, and wrapper identity each pass 4/4, for 12/12 targeted assertions.
+
 The ten-query trigger corpus installed the candidate in an otherwise empty project: five positive
 prompts read `SKILL.md` and five near-miss prompts did not.
 

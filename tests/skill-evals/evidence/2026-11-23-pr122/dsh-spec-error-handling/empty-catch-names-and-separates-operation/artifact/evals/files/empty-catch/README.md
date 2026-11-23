@@ -6,12 +6,11 @@ A missing temporary directory is the only safe cleanup failure.
 ```js
 try {
   await removeTemporaryDirectory()
-} catch (_cleanupFailed) {
-  if (_cleanupFailed.code !== 'ENOENT') {
-    throw _cleanupFailed
+} catch (error) {
+  if (error?.code !== 'ENOENT') {
+    throw error
   }
-
-  // The directory is already absent, so cleanup leaves the owner's state valid.
+  // A missing temporary directory means cleanup is already complete.
 }
 
 await commitBatch()

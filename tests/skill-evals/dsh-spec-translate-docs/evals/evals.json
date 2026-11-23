@@ -143,8 +143,8 @@
     },
     {
       "id": "locale-selected-pages-are-unpaired",
-      "prompt": "Check the documentation corpus in evals/files/locale-pages. The project standing instructions declare a maintained English-Chinese guide pair and locale-selected detail pages that carry no switcher or consistency record. Use the installed dsh-spec-translate-docs skill, report the exact check command, and do not create pair artifacts for the detail pages.",
-      "expected_output": "The run checks the guide pair with `--target zh` and excludes the locale-selected detail paths from pairing with `--unpaired docs/detail*.md`; it creates no switcher or consistency record for those detail pages.",
+      "prompt": "Check the documentation corpus in evals/files/locale-pages, passing `--root evals/files/locale-pages` to the checker. The project standing instructions declare a maintained English-Chinese guide pair and locale-selected detail pages that carry no switcher or consistency record. Use the installed dsh-spec-translate-docs skill, report the exact check command, and do not create pair artifacts for the detail pages.",
+      "expected_output": "The run checks the guide pair using the default Chinese target and excludes the locale-selected detail paths from pairing with `--unpaired`; it creates no switcher or consistency record for those detail pages.",
       "capabilities": {
         "browser": false,
         "media": false
@@ -160,8 +160,8 @@
       ],
       "assertions": [
         "The run reads the project declaration for maintained and locale-selected documents.",
-        "The run passes `--unpaired docs/detail*.md` when checking existing pairs.",
-        "The run checks the maintained guide pair with `--target zh`.",
+        "The run passes `--unpaired` with selection covering both detail pages when checking existing pairs.",
+        "The run checks the maintained guide pair with the default Chinese target.",
         "The run creates no switcher or consistency record for the detail pages."
       ]
     },

@@ -7,7 +7,7 @@ continued existence, and no caller can act on a failure from that removal.
 try {
   await unlink(tempFile)
 } catch (_cleanupFailed) {
-  // Safe to suppress: the owner's state does not depend on the temporary file,
-  // and callers cannot act on a cleanup failure.
+  // Cleanup failure is safe to discard: the owner does not depend on the
+  // temporary file's continued existence, and no caller can act on the failure.
 }
 ```

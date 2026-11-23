@@ -58,6 +58,8 @@ Status: implemented
 
 当前 alpha.2 pin 于 2026-11-23 完成检查。其中的 `docs/i18n/README.md` 把按 locale 选择的 bundle 详情页排除在项目的配对语料之外，即使这些页面没有文内切换器或一致性记录。目标以采用者声明的 `--unpaired <glob>` 承载该目的：匹配的本地化页面不参与发现、既有目标推断与链接规范化，项目自己的链接、行文与评审检查仍保持两侧同步。
 
+PR122 的 `locale-selected-pages-are-unpaired` 模型运行通过 4/4 项断言：维护中的指南配对仍被检查，两个详情路径通过 `--unpaired` 排除，且不会为它们创建配对产物。
+
 许可：上游与本仓库均为 MIT。技能在其 `THIRD_PARTY_NOTICES` 中陈述关系与来源，按包的约定写在加载指令之外。打包产物的解析器包 pin 到上游锁文件所命名的版本（`mdast-util-from-markdown` 2.0.3、`mdast-util-gfm` 3.1.0、`micromark-extension-gfm` 3.0.0 及其运行时闭包）。解析出的打包产物的解析器闭包登记在共享根 `THIRD_PARTY_NOTICES.md` 中；技能根 `THIRD_PARTY_NOTICES` 记录确切的打包版本，并列出被改编的上游文件与打包产物包含的 npm 包。
 
 ### 泛化与简化决定

@@ -85,7 +85,7 @@ Agent Skills 的 overview、specification、best-practices、description-optimiz
 | A3 | 用户可见的浏览器 UI 变更默认采用如实反映结果的渲染证据；接受项目提供的等价证据；证据不可用时，产生明确、可据以恢复工作的交接。 | 判断 | 对照 `## Record browser evidence by default` 得出一项结论；能力存在与能力缺失的模型运行见 A6。 |
 | A4 | 评审覆盖组装后的页面、受影响的消费方、布局关系、交互、响应式与指针行为、滚动与浮层行为、焦点/输入适配、locale 内容、几何和平台 chrome。 | 判断 | 对照 D2-D14，为每条最低检查项目得出一项结论。 |
 | A5 | 测试、源码和 fixture 绝不能被提升为完整应用或视觉验收结论。 | 判断 | 对照最低检查的结尾段落、证据章节和报告结尾规则得出一项结论。 |
-| A6 | candidate 模型的行为覆盖证据复用、能力存在时的采集、能力缺失时的交接、项目证据覆盖，以及在精确输入清单下保留前后对比。 | 判断 + 机械检查 | 在 `tests/skill-evals/evidence/2026-11-20-pr114/` 下进行干净上下文运行；仓库场景测试重建 candidate 修订并验证 trace 完整性与已记录的输入清单。后续修改只影响它所改变行为对应的场景。 |
+| A6 | candidate 模型的行为覆盖证据复用、能力存在时的采集、能力缺失时的交接、项目证据覆盖、前后对比保留，以及普通摆放与渲染变化之间的图标规则区分。 | 判断 + 机械检查 | `tests/skill-evals/evidence/2026-11-20-pr114/` 下保留干净上下文运行；PR122 新增 `shared-icon-rendering-contract`。仓库测试验证当前场景、能力档位与输入模式；历史运行继续绑定其记录定义。 |
 | A7 | description 会在受影响的实现与评审请求上触发，并且不会在视觉方向、通用审计、文档和非 UI 任务上触发。 | 判断 + 机械检查 | `tests/skill-evals/dsh-spec-client-ui-ux/trigger-evals.json`；触发证据绑定名称与 description，每条 trace 都注明记录的技能修订和确切读取的文件。 |
 | A8 | README、安装副本、notices、Agent Note 配套文件、翻译配对、默认值清单、语料和静态检查保持一致。 | 机械检查 | `pnpm test`、`pnpm run check:static`、`pnpm run check:corpus`、`pnpm run notices:check` 和 `pnpm run skill:verify-bundles`。 |
 | A9 | 本记录及其中文配套文件使用当前源修订、路径、证据和翻译术语描述已交付行为。 | 机械检查 + 判断 | 配对检查，以及对照本记录和 `SKILL.md` 进行的语义比较。 |
@@ -93,6 +93,8 @@ Agent Skills 的 overview、specification、best-practices、description-optimiz
 ### 模型评估
 
 位于 `tests/skill-evals/evidence/2026-11-20-pr114/` 的干净上下文评估让 candidate 运行了四个场景：共享消费方覆盖、缺少渲染器时的交接、项目声明的截图证据，以及能力存在时的默认证据。candidate 通过全部 17 项断言。在截图覆盖场景中，fixture 故意包含模拟焦点处理；candidate 未将其采纳为原生焦点的证据，并报告了这一缺口，而 no-skill baseline 接受了截图，4 项断言中只通过 2 项。能力存在探针使用一次 headless Chrome 运行，未使用 BrowserSkill。
+
+PR122 新增 `tests/skill-evals/evidence/2026-11-23-pr122/dsh-spec-client-ui-ux/shared-icon-rendering-contract/`，通过 5/5 项断言。它覆盖声明的非缩放描边与有意填充约定，要求渲染变化提供目标尺寸与 DPR 矩阵，点名全部受影响消费方，并把缺失的渲染证据保留为缺口。
 
 触发语料包含六个正例查询和六个近失查询。全部十二个查询都符合预期触发结果，每条留存的 trace 都记录了已安装技能的修订。触发清单绑定 frontmatter 中的名称与 description。
 

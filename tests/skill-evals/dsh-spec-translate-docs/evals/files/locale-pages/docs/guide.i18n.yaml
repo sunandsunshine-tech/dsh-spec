@@ -3,5 +3,5 @@
 # After editing either side, bring the other along and re-record with:
 #   node <skill-dir>/scripts/translate-pair.mjs write docs/guide.md --target <lang>
 /guide:
-  en: 1c9f58b3d8ff472b
-  zh: 55e3076be678e186
+  en: 5c10a64d2f92b33e
+  zh: e14ddbc14b4145f8

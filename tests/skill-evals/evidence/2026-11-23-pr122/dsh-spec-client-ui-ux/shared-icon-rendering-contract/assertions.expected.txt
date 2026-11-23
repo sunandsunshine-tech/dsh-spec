@@ -2,4 +2,4 @@ PASS The review preserves the declared non-scaling stroke behavior and intention
 PASS The review identifies the intentional filled contour and leaves its rendered geometry unproved.
 PASS The review checks the target CSS sizes and device-pixel ratios across the shared consumers.
 PASS The review treats the missing rendered evidence as a gap.
-PASS The review does not change the shared rendering contract as an ordinary placement fix.
+PASS The review does not replace the shared rendering contract with an ordinary placement fix.

@@ -87,6 +87,7 @@ const REQUIRED: RequiredProfile[] = [
       'progressive-target-addition-single-source',
       'target-removal-active-scope',
       'range-operation-does-not-create-missing-target',
+      'source-rename-keeps-pair',
     ],
     noIsolationIds: [
       'no-isolation-local-update-completes',
@@ -207,6 +208,43 @@ const GENERAL_REQUIRED: GeneralProfile[] = [
           /tolerate unknown plugin codes/i,
         ],
       },
+      {
+        id: 'wrapper-preserves-cancellation-timeout-and-denial',
+        signature: [/execution wrapper/i, /cancellation, timeout, and denial/i],
+        expectedOutput: [/distinct machine-readable outcomes/i, /cause or details/i],
+        assertions: [
+          /distinct machine-readable outcomes/i,
+          /does not reduce.*display text/i,
+          /cause or structured detail remains preserved/i,
+          /distinct downstream recovery actions/i,
+        ],
+      },
+      {
+        id: 'empty-catch-names-and-separates-operation',
+        signature: [/silent handler/i, /structured failure/i, /ENOENT/i],
+        expectedOutput: [
+          /meaningful binding/i,
+          /safe(?:ty)? reason/i,
+          /commit and notification failures remain visible/i,
+        ],
+        assertions: [
+          /only the temporary-directory removal/i,
+          /catch binding names the expected cleanup failure/i,
+          /safety reason appears inside the catch/i,
+          /Only the structured ENOENT failure is tolerated/i,
+        ],
+      },
+      {
+        id: 'empty-catch-names-and-documents-safe-failure',
+        signature: [/empty handler/i, /cleanup failure is fully tolerated/i],
+        expectedOutput: [/handler remains empty/i, /meaningful underscore-prefixed name/i, /state valid/i],
+        assertions: [
+          /catch body contains no executable statement/i,
+          /catch binding names the expected cleanup failure/i,
+          /safety reason is inside the catch handler/i,
+          /failure identity and why discarding it leaves the state valid/i,
+        ],
+      },
     ],
   },
   {
@@ -259,6 +297,18 @@ const GENERAL_REQUIRED: GeneralProfile[] = [
           /resumable next step.*instead of claiming visual acceptance/i,
         ],
       },
+      {
+        id: 'review-dependency-edges-and-reverse-edge',
+        signature: [/dependency description/i, /base manifests/i, /current workspace manifests/i, /reverse-edge/i],
+        assertions: [
+          /verifies runtime edges from the workspace manifests/i,
+          /app → validator edge and the validator responsibility/i,
+          /app → core runtime edge/i,
+          /removed app → legacy runtime edge/i,
+          /core → app reverse dependency/i,
+          /does not accept the description's reported edge list as complete/i,
+        ],
+      },
     ],
   },
   {
@@ -304,6 +354,22 @@ const GENERAL_REQUIRED: GeneralProfile[] = [
           /rejects message-text routing/i,
           /Settings saving\/disabled rendered evidence as unavailable/i,
           /concrete next step before completion/i,
+        ],
+      },
+      {
+        id: 'select-rebase-refresh-with-rerere',
+        signature: [/three-layer stack/i, /No author has requested merge-forward/i],
+        expectedOutput: [
+          /enables rerere/i,
+          /rerere\.autoUpdate.*unset or false/i,
+          /native cascading rebase/i,
+          /does not choose merge-forward/i,
+        ],
+        assertions: [
+          /enables rerere.*before rebasing/i,
+          /native cascading rebase/i,
+          /does not require an author request that does not exist/i,
+          /revalidates every replayed layer/i,
         ],
       },
     ],
@@ -460,6 +526,17 @@ const GENERAL_REQUIRED: GeneralProfile[] = [
           /coarse-pointer text input remains at least 16 CSS pixels/i,
           /rendered draft and focused-input states/i,
           /does not treat the source correction as rendered acceptance/i,
+        ],
+      },
+      {
+        id: 'shared-icon-rendering-contract',
+        signature: [/shared icon placement/i, /stroke and fill rendering contract/i],
+        assertions: [
+          /non-scaling stroke behavior and intentional fill geometry/i,
+          /intentional filled contour.*rendered geometry unproved/i,
+          /target CSS sizes and device-pixel ratios/i,
+          /missing rendered evidence as a gap/i,
+          /does not change the shared rendering contract/i,
         ],
       },
     ],
@@ -832,6 +909,16 @@ function readGitObjectBuffer(spec: string, label: string): Buffer {
   return result.stdout
 }
 
+function assertRecordedGitObjects(
+  readme: string,
+  label: string,
+  objects: Array<readonly [name: string, kind: 'blob' | 'commit' | 'tree']>,
+): void {
+  for (const [name, kind] of objects) {
+    recordedGitObject(readme, label, name, kind)
+  }
+}
+
 function readRecordedSkillTree(readme: string, label: string): { body: string; tree: string } {
   const tree = recordedGitObject(readme, label, 'Candidate skill tree', 'tree')
   return { body: readGitObject(`${tree}:SKILL.md`, `${label} candidate tree`), tree }
@@ -845,12 +932,6 @@ function listFiles(root: string, prefix = ''): string[] {
     else if (entry.isFile()) files.push(relative.split(sep).join('/'))
   }
   return files.sort()
-}
-
-function parseHashPath(line: string, label: string): { hash: string; path: string; mode?: string } {
-  const match = /^([0-9a-f]{64})  (.+?)(?:  mode=([0-7]{4}))?$/.exec(line)
-  assert.ok(match, label + ' has a malformed hash manifest line')
-  return { hash: match[1] ?? '', path: match[2] ?? '', mode: match[3] }
 }
 
 function canonicalJson(value: unknown): string {
@@ -945,15 +1026,36 @@ function readSkillHashes(root: string): Map<string, string> {
   return actual
 }
 
-function readSkillTreeManifest(path: string): Map<string, string> {
-  return readHashManifest(path, 'skill tree')
+function assertBehaviorSkillRevision(root: string, skill: string, installed: string[] = []): void {
+  const actual = readSkillHashes(root)
+  const expected = new Map<string, string>()
+  for (const name of [skill, ...installed]) {
+    const skillRoot = join(REPO_ROOT, 'skills', name)
+    for (const file of listFiles(skillRoot).filter((entry) => entry !== 'THIRD_PARTY_NOTICES')) {
+      expected.set(
+        `skills/${name}/${file}`,
+        createHash('sha256')
+          .update(readFileSync(join(skillRoot, file)))
+          .digest('hex'),
+      )
+    }
+  }
+  for (const name of [skill, ...installed]) {
+    if (existsSync(join(REPO_ROOT, 'skills', name, 'THIRD_PARTY_NOTICES'))) {
+      assert.ok(actual.has(`skills/${name}/THIRD_PARTY_NOTICES`), root + ' did not record the notice set')
+    }
+  }
+  const actualBehavior = new Map([...actual].filter(([path]) => !path.endsWith('/THIRD_PARTY_NOTICES')))
+  assert.deepEqual([...actualBehavior.keys()].sort(), [...expected.keys()].sort(), root + ' skill file set differs')
+  for (const [path, hash] of expected) assert.equal(actual.get(path), hash, root + ' changed skill revision: ' + path)
 }
 
-function readHashManifest(path: string, label: string): Map<string, string> {
+function readSkillTreeManifest(path: string): Map<string, string> {
   const hashes = new Map<string, string>()
   for (const line of readFileSync(path, 'utf8').trim().split('\n')) {
-    const entry = parseHashPath(line, label)
-    hashes.set(entry.path, entry.hash)
+    const match = /^([0-9a-f]{64})  skills\/(.+)$/.exec(line)
+    assert.ok(match, path + ' has a malformed skill tree line')
+    hashes.set(`skills/${match[2]}`, match[1] ?? '')
   }
   return hashes
 }
@@ -1001,6 +1103,85 @@ test('historical evidence Git helpers ignore inherited redirection variables', (
     rmSync(root, { recursive: true, force: true })
   }
 })
+function stageScenarioProject(skill: string, scenario: Scenario, root: string): void {
+  const skillRoot = join(EVAL_SOURCE_ROOT, skill)
+  for (const file of scenario.files ?? []) {
+    const source = join(skillRoot, file)
+    const destination = join(root, file)
+    mkdirSync(dirname(destination), { recursive: true })
+    cpSync(source, destination)
+  }
+  for (const name of [skill, ...(scenario.install ?? [])]) {
+    cpSync(join(REPO_ROOT, 'skills', name), join(root, '.agents', 'skills', name), { recursive: true })
+  }
+}
+
+function replayEvidencePatch(root: string, skill: string, scenario: Scenario): void {
+  const patch = join(root, 'patch.diff')
+  const pathManifest = join(root, 'changed-paths.json')
+  const changedPaths = existsSync(pathManifest)
+    ? (() => {
+        const paths = JSON.parse(readFileSync(pathManifest, 'utf8'))
+        assert.ok(
+          Array.isArray(paths) && paths.every((path) => typeof path === 'string'),
+          root + ' has malformed changed paths',
+        )
+        return paths as string[]
+      })()
+    : readFileSync(join(root, 'changed-paths.txt'), 'utf8').trim().split('\n').filter(Boolean)
+  const temporaryRoot = mkdtempSync(join(tmpdir(), 'skill-evidence-replay-'))
+  try {
+    stageScenarioProject(skill, scenario, temporaryRoot)
+    const git = (...args: string[]) => {
+      const result = spawnSync('git', args, { cwd: temporaryRoot, encoding: 'utf8' })
+      assert.equal(result.status, 0, result.stderr)
+      return result.stdout
+    }
+    git('init', '-q')
+    git('config', 'user.name', 'Evidence replay')
+    git('config', 'user.email', 'evidence-replay@example.invalid')
+    git('add', '-A')
+    git('commit', '-qm', 'fixture')
+    if (changedPaths.length > 0) {
+      assert.ok(existsSync(patch), root + ' has changed files without a patch')
+      const applied = spawnSync('git', ['apply', '--binary', patch], { cwd: temporaryRoot, encoding: 'utf8' })
+      assert.equal(applied.status, 0, applied.stderr)
+      git('add', '-A')
+      assert.deepEqual(
+        git('diff', '--cached', '--name-only').trim().split('\n').filter(Boolean).sort(),
+        [...changedPaths].sort(),
+        root + ' changed-path list differs from the replayed patch',
+      )
+    } else {
+      assert.equal(readFileSync(patch, 'utf8'), '', root + ' left an unexpected patch')
+    }
+    const artifactRoot = join(root, 'artifact')
+    const expectedArtifacts = [
+      ...changedPaths.filter((path) => existsSync(join(temporaryRoot, path))),
+      ...(scenario.outputs ?? []),
+    ]
+      .filter((path, index, paths) => paths.indexOf(path) === index)
+      .sort()
+    const actualArtifacts = existsSync(artifactRoot) ? listFiles(artifactRoot).map((path) => path) : []
+    assert.deepEqual(actualArtifacts, expectedArtifacts, root + ' artifact set differs from replayed output')
+    for (const path of expectedArtifacts) {
+      if (existsSync(join(temporaryRoot, path))) {
+        assert.deepEqual(
+          readFileSync(join(artifactRoot, path)),
+          readFileSync(join(temporaryRoot, path)),
+          root + ' artifact differs from replayed output: ' + path,
+        )
+      } else {
+        assert.ok(
+          (scenario.outputs ?? []).includes(path),
+          root + ' retained an artifact outside the patch and declared outputs: ' + path,
+        )
+      }
+    }
+  } finally {
+    rmSync(temporaryRoot, { recursive: true, force: true })
+  }
+}
 
 test('trigger evidence changes only with the name or description', () => {
   const body = {
@@ -1022,8 +1203,8 @@ test('trigger evidence changes only with the name or description', () => {
 
 test('pr-description eval covers stack-local AI Usage migration', () => {
   const corpus = readCorpus('dsh-spec-pr-description')
-  assert.equal(corpus.evals.length, 1)
-  const scenario = corpus.evals[0]
+  assert.equal(corpus.evals.length, 2)
+  const scenario = corpus.evals.find((entry) => entry.id === 'stack-layer-replaces-legacy-ai-section')
   assert.ok(scenario)
   assert.equal(scenario.id, 'stack-layer-replaces-legacy-ai-section')
   assert.equal(scenario.assertions.length, 8)
@@ -1038,6 +1219,11 @@ test('pr-description eval covers stack-local AI Usage migration', () => {
   const body = readFileSync(join(EVAL_SOURCE_ROOT, 'dsh-spec-pr-description', 'evals/files/project/pr-body.md'), 'utf8')
   assert.match(body, /^## Human and Agent Roles$/m)
   assert.doesNotMatch(JSON.stringify(corpus), /## Project fields/)
+  const dependencies = corpus.evals.find((entry) => entry.id === 'workspace-boundaries-expose-reverse-edge')
+  assert.ok(dependencies)
+  assert.match(dependencies.assertions.join('\n'), /base-to-head manifest diff/)
+  assert.match(dependencies.assertions.join('\n'), /removed runtime edge is written as app → legacy/)
+  assert.match(dependencies.assertions.join('\n'), /core → app runtime edge/)
   stageSkillWithEvals('dsh-spec-pr-description')
 })
 
@@ -1095,6 +1281,11 @@ test('translation target migration scenarios keep concrete policy semantics', ()
       signature: /ordinary range check and record commands/i,
       assertion: /No missing Japanese counterpart is created/i,
     },
+    {
+      id: 'source-rename-keeps-pair',
+      signature: /rename docs\/old-guide\.md to docs\/new-guide\.md/i,
+      assertion: /aggregate record follows the renamed source/i,
+    },
   ]
   for (const requirement of requirements) {
     const scenario = byId.get(requirement.id)
@@ -1102,6 +1293,16 @@ test('translation target migration scenarios keep concrete policy semantics', ()
     assert.match(JSON.stringify(scenario), requirement.signature)
     assert.match(scenario.assertions.join('\n'), requirement.assertion)
   }
+})
+
+test('stacked-PR refresh evidence covers rerere safety and the rebase default', () => {
+  const scenario = readCorpus('dsh-spec-merging-stacked-prs').evals.find(
+    (entry) => entry.id === 'refresh-stack-with-rerere',
+  )
+  assert.ok(scenario, 'missing stacked-PR refresh scenario')
+  assert.match(scenario.expected_output, /rerere\.autoUpdate.*unset or false/i)
+  assert.match(scenario.assertions.join('\n'), /native cascading rebase/i)
+  assert.match(scenario.assertions.join('\n'), /does not require an author request/i)
 })
 
 test('the companion scenario corpus fails closed when evidence is missing', () => {
@@ -1380,10 +1581,18 @@ test('web UI trigger corpus keeps positive and near-miss coverage', () => {
 
 test('web UI historical model evidence and trigger traces stay auditable', () => {
   const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-20-pr114')
-  const evidenceReadme = readFileSync(join(evidenceRoot, 'README.md'), 'utf8')
-  assert.match(evidenceReadme, /^> \*\*Historical status:\*\* these runs predate/m)
-  const recordedSkillHash = /^Skill file SHA-256: `([0-9a-f]{64})`\.$/m.exec(evidenceReadme)?.[1]
-  assert.ok(recordedSkillHash, 'Web UI evidence does not record its skill revision')
+  const recordedSkill = assertRecordedSkillRevision(
+    readFileSync(join(evidenceRoot, 'README.md'), 'utf8'),
+    'Web UI evidence',
+    readFileSync(join(evidenceRoot, 'candidate-shared-widget/trace.jsonl'), 'utf8'),
+  )
+  const recordedSkillHash = recordedSkill.hash
+  const evaluationTree = recordedGitObject(
+    readFileSync(join(evidenceRoot, 'README.md'), 'utf8'),
+    'Web UI evidence',
+    'Evaluation files tree',
+    'tree',
+  )
   const behaviorRuns = [
     ['candidate-shared-widget', true, 'shared-widget-consumer-coverage', 'pass', 5],
     ['candidate-missing-render', true, 'missing-rendered-evidence-handoff', 'pass', 4],
@@ -1421,7 +1630,7 @@ test('web UI historical model evidence and trigger traces stay auditable', () =>
     const manifest = readFileSync(join(run, 'input-manifest.sha256'), 'utf8')
       .trim()
       .split('\n')
-      .map((line) => /^([0-9a-f]{64})  (.+?)(?:  mode=[0-7]{4})?$/.exec(line))
+      .map((line) => /^([0-9a-f]{64})  (.+)$/.exec(line))
       .filter((match): match is RegExpExecArray => match !== null)
       .map((match) => ({ hash: match[1], path: match[2] }))
     assert.equal(manifest.length, scenario.files?.length ?? 0, runName + ' input manifest')
@@ -1430,36 +1639,29 @@ test('web UI historical model evidence and trigger traces stay auditable', () =>
       [...(scenario.files ?? [])].sort(),
       runName + ' does not cover the scenario files',
     )
-    for (const entry of manifest) assert.match(entry.hash, /^[0-9a-f]{64}$/, runName + ' malformed input hash')
+    for (const entry of manifest) {
+      assert.equal(
+        createHash('sha256')
+          .update(
+            readGitObjectBuffer(`${evaluationTree}:${entry.path.replace(/^evals\/files\//, '')}`, runName + ' input'),
+          )
+          .digest('hex'),
+        entry.hash,
+        runName + ' input differs: ' + entry.path,
+      )
+    }
 
     const traceText = readFileSync(join(run, 'trace.jsonl'), 'utf8')
     const trace = traceText
       .trim()
       .split('\n')
-      .map(
-        (line) =>
-          JSON.parse(line) as {
-            type: string
-            sha256?: string
-            path?: string
-            item?: { type?: string; command?: string; exit_code?: number }
-          },
-      )
-    const skillReads = trace.filter(
-      (entry) =>
-        entry.type === 'item.completed' &&
-        entry.item?.type === 'command_execution' &&
-        entry.item.exit_code === 0 &&
-        commandReadsSkill(entry.item.command, 'dsh-spec-client-ui-ux'),
-    )
-    const skillEvents: typeof trace = trace.filter(
-      (entry) => entry.type === 'skill' && entry.sha256 === recordedSkillHash,
-    )
-    assert.equal(
-      skillReads.length > 0 || skillEvents.length > 0,
-      candidate,
-      runName + (candidate ? ' did not read its candidate skill' : ' read the skill it was testing'),
-    )
+      .map((line) => JSON.parse(line) as { type: string; sha256?: string; path?: string })
+    assert.equal(trace.filter((entry) => entry.type === 'skill').length, candidate ? 1 : 0)
+    if (candidate) {
+      const skillEvent = trace.find((entry) => entry.type === 'skill')
+      assert.equal(skillEvent?.path, `.agents/skills/dsh-spec-client-ui-ux/SKILL.md`)
+      assert.equal(skillEvent?.sha256, recordedSkillHash)
+    }
     assert.equal(trace.filter((entry) => entry.type === 'turn.completed').length, 1)
     for (const entry of trace.filter((candidate) => candidate.type === 'stderr')) {
       assert.ok(entry.path, runName + ' stderr entry lacks a path')
@@ -1512,6 +1714,11 @@ test('web UI historical model evidence and trigger traces stay auditable', () =>
     triggerInputs.get(triggerSurfacePath('dsh-spec-client-ui-ux')),
     triggerSurfaceHash('dsh-spec-client-ui-ux'),
     'Web UI trigger surface differs',
+  )
+  assert.equal(
+    triggerInputs.get(triggerSurfacePath('dsh-spec-client-ui-ux')),
+    hashTriggerSurface(recordedSkill.body, 'Web UI evidence candidate'),
+    'Web UI trigger evidence differs from its candidate revision',
   )
   const matrix = new Map(
     readFileSync(join(evidenceRoot, 'trigger-matrix.tsv'), 'utf8')
@@ -2285,10 +2492,12 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
   const skill = 'dsh-spec-browser-gif-evidence'
   const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-20-pr115')
   const corpusRoot = join(EVAL_SOURCE_ROOT, skill)
-  const historicalInputs = readHashManifest(
-    join(evidenceRoot, 'evaluation-files.sha256'),
-    'browser GIF evaluation files',
+  const recordedSkill = assertRecordedSkillRevision(
+    readFileSync(join(evidenceRoot, 'README.md'), 'utf8'),
+    'browser GIF evidence',
+    readFileSync(join(evidenceRoot, 'candidate-real/trace.jsonl'), 'utf8'),
   )
+  const recordedSkillHash = recordedSkill.hash
   const historical = JSON.parse(readFileSync(join(evidenceRoot, 'scenario-definitions.json'), 'utf8')) as Record<
     string,
     Scenario[]
@@ -2299,7 +2508,12 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
     ['candidate-fixture', 'explicit-fixture-recording-is-disclosed'],
   ])
   const historicalScenarios = new Map((historical[skill] ?? []).map((scenario) => [scenario.id, scenario] as const))
-  const currentScenarios = new Map(readCorpus(skill).evals.map((scenario) => [scenario.id, scenario] as const))
+  const evaluationTree = recordedGitObject(
+    readFileSync(join(evidenceRoot, 'README.md'), 'utf8'),
+    'browser GIF evidence',
+    'Evaluation files tree',
+    'tree',
+  )
   for (const run of ['candidate-real', 'candidate-absent', 'candidate-fixture']) {
     const root = join(evidenceRoot, run)
     const recordedSkillHash = existsSync(join(root, 'skill-hashes.txt'))
@@ -2314,15 +2528,12 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
       assert.match(status, /^current_proof: false$/m)
     }
     const assertions = readFileSync(join(root, 'assertions.txt'), 'utf8').trim().split('\n')
-    const scenarioId = behaviorScenarios.get(run) ?? ''
-    const scenario = historicalScenarios.get(scenarioId)
-    const currentScenario = currentScenarios.get(scenarioId)
-    assert.ok(scenario, run + ' names no historical scenario')
-    assert.ok(currentScenario, run + ' names no current scenario')
+    const scenario = historicalScenarios.get(behaviorScenarios.get(run) ?? '')
+    assert.ok(scenario, run + ' names no scenario')
     assert.equal(assertions.length, 4, run + ' assertion count')
     assert.deepEqual(
       assertions.map((line) => line.replace(/^PASS /, '')),
-      currentScenario.assertions,
+      scenario.assertions,
       run + ' assertion text differs from the scenario',
     )
     assert.equal(
@@ -2345,10 +2556,9 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
       )
     assert.equal(trace.at(-1)?.type, 'turn.completed', run + ' did not complete')
     const skillEvents = trace.filter((entry) => entry.type === 'skill')
-    for (const event of skillEvents) {
-      assert.equal(event.path, `.agents/skills/${skill}/SKILL.md`)
-      if (recordedSkillHash !== undefined) assert.equal(event.sha256, recordedSkillHash)
-    }
+    assert.equal(skillEvents.length, 1, run + ' does not identify the skill revision used')
+    assert.equal(skillEvents[0]?.path, `.agents/skills/${skill}/SKILL.md`)
+    assert.equal(skillEvents[0]?.sha256, recordedSkillHash)
     assert.equal(
       trace.some(
         (entry) =>
@@ -2365,28 +2575,31 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
     for (const manifest of manifests) {
       const lines = readFileSync(join(root, manifest), 'utf8').trim().split('\n')
       if (manifest === 'input-manifest.sha256') {
-        const inputs = lines.map((line) => parseHashPath(line, run + ' input manifest'))
+        const scenario = historicalScenarios.get(behaviorScenarios.get(run) ?? '')
+        assert.ok(scenario)
         assert.deepEqual(
-          inputs.map((entry) => entry.path),
+          lines.map((line) => line.split(/\s{2,}/)[1]),
           scenario.files,
           run + ' input manifest does not match the declared scenario files',
         )
-        for (const entry of inputs) {
-          assert.equal(
-            historicalInputs.get(`tests/skill-evals/${skill}/${entry.path}`),
-            entry.hash,
-            run + ' input differs from its recorded historical manifest: ' + entry.path,
-          )
-        }
-        continue
       }
       for (const line of lines) {
-        const { hash, path: relative } = parseHashPath(line, run + ' artifact manifest')
-        const target = readFileSync(join(root, relative))
+        const [hash, relative] = line.split(/\s{2,}/)
+        assert.match(hash ?? '', /^[0-9a-f]{64}$/, run + ' malformed hash')
+        const target =
+          manifest === 'input-manifest.sha256'
+            ? readGitObjectBuffer(
+                `${evaluationTree}:${(relative ?? '').replace(/^evals\/files\//, '')}`,
+                run + ' input ' + relative,
+              )
+            : readFileSync(join(root, relative ?? ''))
         assert.equal(createHash('sha256').update(target).digest('hex'), hash, run + ' changed ' + relative)
       }
     }
     if (run === 'candidate-absent') assert.equal(existsSync(join(root, 'artifact')), false)
+  }
+  for (const gif of ['candidate-real/artifact/settings-save.gif', 'candidate-fixture/artifact/fixture-demo.gif']) {
+    assert.equal(readFileSync(join(evidenceRoot, gif)).subarray(0, 3).toString('ascii'), 'GIF')
   }
   for (const run of ['candidate-real', 'candidate-fixture']) {
     const artifactRoot = join(evidenceRoot, run, 'artifact')
@@ -2464,6 +2677,11 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
     triggerSurfaceHash(skill),
     'browser GIF trigger surface differs',
   )
+  assert.equal(
+    triggerInputs.get(triggerSurfacePath(skill)),
+    hashTriggerSurface(recordedSkill.body, 'browser GIF evidence candidate'),
+    'browser GIF trigger evidence differs from its candidate revision',
+  )
 
   const triggerCorpus = JSON.parse(readFileSync(join(corpusRoot, 'trigger-evals.json'), 'utf8')) as {
     queries: Array<{ id: string; should_trigger: boolean }>
@@ -2503,13 +2721,14 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
   }
 })
 
-test('PR121 historical evidence retains its reviewer-certified recorded revisions', () => {
+test('PR121 and PR122 targeted model evidence binds current inputs and recorded revisions', () => {
   const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-23-pr121')
   const skillsTree = readSkillTreeManifest(join(evidenceRoot, 'skills-tree.sha256'))
-  const historicalInputs = readHashManifest(join(evidenceRoot, 'evaluation-files.sha256'), 'PR121 evaluation files')
+  const pr122EvidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-23-pr122')
   type EvidenceRun = {
     skill: string
     run: string
+    evidenceRoot?: string
   }
   const runs: EvidenceRun[] = [
     { skill: 'dsh-spec-pr-description', run: 'stack-layer-replaces-legacy-ai-section' },
@@ -2530,6 +2749,66 @@ test('PR121 historical evidence retains its reviewer-certified recorded revision
     { skill: 'dsh-spec-pre-push-checks', run: 'select-minimum-without-siblings' },
     { skill: 'dsh-spec-test-reliability', run: 'diagnose-without-fixing' },
     { skill: 'dsh-spec-test-reliability', run: 'redesign-slow-repeated-suite' },
+    {
+      skill: 'dsh-spec-pr-description',
+      run: 'workspace-boundaries-expose-reverse-edge',
+      evidenceRoot: pr122EvidenceRoot,
+    },
+    {
+      skill: 'dsh-spec-code-review',
+      run: 'review-dependency-edges-and-reverse-edge',
+      evidenceRoot: pr122EvidenceRoot,
+    },
+    {
+      skill: 'dsh-spec-code-review',
+      run: 'review-cites-numbered-rule',
+      evidenceRoot: pr122EvidenceRoot,
+    },
+    {
+      skill: 'dsh-spec-pre-push-checks',
+      run: 'select-rebase-refresh-with-rerere',
+      evidenceRoot: pr122EvidenceRoot,
+    },
+    {
+      skill: 'dsh-spec-error-handling',
+      run: 'empty-catch-names-and-separates-operation',
+      evidenceRoot: pr122EvidenceRoot,
+    },
+    {
+      skill: 'dsh-spec-error-handling',
+      run: 'empty-catch-names-and-documents-safe-failure',
+      evidenceRoot: pr122EvidenceRoot,
+    },
+    {
+      skill: 'dsh-spec-error-handling',
+      run: 'wrapper-preserves-cancellation-timeout-and-denial',
+      evidenceRoot: pr122EvidenceRoot,
+    },
+    {
+      skill: 'dsh-spec-client-ui-ux',
+      run: 'shared-icon-rendering-contract',
+      evidenceRoot: pr122EvidenceRoot,
+    },
+    {
+      skill: 'dsh-spec-browser-gif-evidence',
+      run: 'missing-capture-capability-hands-off',
+      evidenceRoot: pr122EvidenceRoot,
+    },
+    {
+      skill: 'dsh-spec-merging-stacked-prs',
+      run: 'refresh-stack-with-rerere',
+      evidenceRoot: pr122EvidenceRoot,
+    },
+    {
+      skill: 'dsh-spec-translate-docs',
+      run: 'source-rename-keeps-pair',
+      evidenceRoot: pr122EvidenceRoot,
+    },
+    {
+      skill: 'dsh-spec-translate-docs',
+      run: 'locale-selected-pages-are-unpaired',
+      evidenceRoot: pr122EvidenceRoot,
+    },
   ]
   const scenarioIds: Record<string, string> = {
     'dsh-spec-pr-description:stack-layer-replaces-legacy-ai-section': 'stack-layer-replaces-legacy-ai-section',
@@ -2549,8 +2828,22 @@ test('PR121 historical evidence retains its reviewer-certified recorded revision
       'outcome-classification-and-extensible-codes',
     'dsh-spec-pre-push-checks:select-integrated-evidence': 'select-integrated-evidence',
     'dsh-spec-pre-push-checks:select-minimum-without-siblings': 'select-minimum-without-siblings',
+    'dsh-spec-pre-push-checks:select-rebase-refresh-with-rerere': 'select-rebase-refresh-with-rerere',
     'dsh-spec-test-reliability:diagnose-without-fixing': 'diagnose-without-fixing',
     'dsh-spec-test-reliability:redesign-slow-repeated-suite': 'redesign-slow-repeated-suite',
+    'dsh-spec-pr-description:workspace-boundaries-expose-reverse-edge': 'workspace-boundaries-expose-reverse-edge',
+    'dsh-spec-code-review:review-dependency-edges-and-reverse-edge': 'review-dependency-edges-and-reverse-edge',
+    'dsh-spec-code-review:review-cites-numbered-rule': 'review-cites-numbered-rule',
+    'dsh-spec-error-handling:empty-catch-names-and-separates-operation': 'empty-catch-names-and-separates-operation',
+    'dsh-spec-error-handling:empty-catch-names-and-documents-safe-failure':
+      'empty-catch-names-and-documents-safe-failure',
+    'dsh-spec-error-handling:wrapper-preserves-cancellation-timeout-and-denial':
+      'wrapper-preserves-cancellation-timeout-and-denial',
+    'dsh-spec-client-ui-ux:shared-icon-rendering-contract': 'shared-icon-rendering-contract',
+    'dsh-spec-browser-gif-evidence:missing-capture-capability-hands-off': 'missing-capture-capability-hands-off',
+    'dsh-spec-merging-stacked-prs:refresh-stack-with-rerere': 'refresh-stack-with-rerere',
+    'dsh-spec-translate-docs:source-rename-keeps-pair': 'source-rename-keeps-pair',
+    'dsh-spec-translate-docs:locale-selected-pages-are-unpaired': 'locale-selected-pages-are-unpaired',
   }
   const requiredCommands: Record<string, RegExp[]> = {
     'dsh-spec-browser-gif-evidence:candidate-real': [
@@ -2567,25 +2860,42 @@ test('PR121 historical evidence retains its reviewer-certified recorded revision
   }
 
   for (const item of runs) {
-    const root = join(evidenceRoot, item.skill, item.run)
+    const root = join(item.evidenceRoot ?? evidenceRoot, item.skill, item.run)
     const scenarioId = scenarioIds[`${item.skill}:${item.run}`]
     assert.ok(scenarioId, item.skill + '/' + item.run + ' has no behavior id')
-    const scenario = JSON.parse(readFileSync(join(root, 'scenario-definition.json'), 'utf8')) as Scenario
-    assert.equal(scenario.id, scenarioId, item.skill + '/' + item.run + ' records the wrong behavior id')
+    const scenario = readCorpus(item.skill).evals.find((entry) => entry.id === scenarioId)
+    assert.ok(scenario, item.skill + '/' + item.run + ' names no current scenario')
+    const current = item.evidenceRoot === pr122EvidenceRoot
+    const recordedScenario = JSON.parse(readFileSync(join(root, 'scenario-definition.json'), 'utf8')) as Scenario
     assertAnswerBlindTrace(root)
     assert.equal(
       readFileSync(join(root, 'scenario-definition.sha256'), 'utf8').trim(),
-      `${scenarioDefinitionHash(scenario)}  ${item.skill}:${scenarioId}`,
+      `${scenarioDefinitionHash(recordedScenario)}  ${item.skill}:${scenarioId}`,
       item.skill + '/' + item.run + ' scenario definition differs',
     )
-    assertHistoricalSkillRevision(root, item.skill, scenario.install ?? [], skillsTree)
+    if (current) assert.deepEqual(recordedScenario, scenario, item.skill + '/' + item.run + ' is not current')
+    const effectiveScenario = current ? scenario : recordedScenario
+    if (current) {
+      assert.deepEqual(
+        JSON.parse(readFileSync(join(root, 'capabilities.json'), 'utf8')),
+        {
+          browser: effectiveScenario.capabilities?.browser ?? false,
+          media: effectiveScenario.capabilities?.media ?? false,
+          subagents: effectiveScenario.allow_subagents ?? false,
+        },
+        item.skill + '/' + item.run + ' capability profile differs',
+      )
+      assertBehaviorSkillRevision(root, item.skill, effectiveScenario.install ?? [])
+    } else {
+      assertHistoricalSkillRevision(root, item.skill, effectiveScenario.install ?? [], skillsTree)
+    }
     const status = readFileSync(join(root, 'status.txt'), 'utf8')
     assert.match(status, /^status: pass$/m, item.skill + '/' + item.run)
     assert.match(status, /^run_exit_code: 0$/m, item.skill + '/' + item.run)
     const recordedAssertionCount = Number(/^assertions: (\d+)\/\1$/m.exec(status)?.[1])
     assert.ok(recordedAssertionCount > 0, item.skill + '/' + item.run + ' has no passing assertion count')
     const graded = readFileSync(join(root, 'assertions.txt'), 'utf8').trim().split('\n')
-    const expectedAssertions = scenario.assertions
+    const expectedAssertions = effectiveScenario.assertions
     assert.equal(graded.length, expectedAssertions.length, item.skill + '/' + item.run + ' assertion count')
     assert.equal(
       recordedAssertionCount,
@@ -2613,15 +2923,23 @@ test('PR121 historical evidence retains its reviewer-certified recorded revision
     })
     assert.deepEqual(
       inputs.map((entry) => entry.relative).sort(),
-      [...(scenario.files ?? [])].sort(),
+      [...(effectiveScenario.files ?? [])].sort(),
       item.skill + '/' + item.run + ' input manifest differs',
     )
-    for (const entry of inputs) {
-      assert.equal(
-        historicalInputs.get(`tests/skill-evals/${item.skill}/${entry.relative}`),
-        entry.hash,
-        item.skill + '/' + item.run + ' input differs from its recorded historical manifest: ' + entry.relative,
-      )
+    if (current) {
+      for (const entry of inputs) {
+        const path = join(EVAL_SOURCE_ROOT, item.skill, entry.relative ?? '')
+        assert.equal(
+          createHash('sha256').update(readFileSync(path)).digest('hex'),
+          entry.hash,
+          item.skill + '/' + item.run + ' input changed: ' + entry.relative,
+        )
+        assert.equal(
+          entry.mode,
+          (statSync(path).mode & 0o777).toString(8).padStart(4, '0'),
+          item.skill + '/' + item.run + ' input mode changed: ' + entry.relative,
+        )
+      }
     }
 
     const skillHashFile = join(root, 'skill.sha256')
@@ -2692,8 +3010,10 @@ test('PR121 historical evidence retains its reviewer-certified recorded revision
         const candidates = [read.aggregated_output]
         const frontmatter = read.aggregated_output.indexOf('---\n')
         if (frontmatter >= 0) candidates.push(read.aggregated_output.slice(frontmatter))
-        const skillText = readFileSync(join(REPO_ROOT, path), 'utf8')
-        if (read.aggregated_output.startsWith(skillText)) candidates.push(skillText)
+        if (current) {
+          const skillText = readFileSync(join(REPO_ROOT, path), 'utf8')
+          if (read.aggregated_output.includes(skillText)) candidates.push(skillText)
+        }
         return candidates.map((output) => createHash('sha256').update(output).digest('hex'))
       })
       const unverifiableReads = reads.filter((read) => read.aggregated_output === undefined).length
@@ -2743,6 +3063,7 @@ test('PR121 historical evidence retains its reviewer-certified recorded revision
         )
       }
     }
+    replayEvidencePatch(root, item.skill, scenario)
   }
 
   const prDescriptionRoot = join(evidenceRoot, 'dsh-spec-pr-description')
@@ -2800,18 +3121,18 @@ test('the scenario input check rejects missing, empty, directory and escaping fi
 })
 
 test('a non-reading mention of a skill path is not skill evidence', () => {
-  const skill = '.agents/skills/dsh-spec-agent-notes/SKILL.md'
+  const skill = '.agents/skills/dsh-spec-example/SKILL.md'
   for (const command of [
-    `echo ${skill}`,
-    `ls ${skill}`,
+    `ls -l ${skill}`,
     `stat ${skill}`,
     `test -f ${skill}`,
-    `grep -n '${skill}' README.md`,
+    `echo ${skill}`,
+    `printf '%s\\n' ${skill}`,
   ]) {
-    assert.equal(commandReadsSkill(command, 'dsh-spec-agent-notes'), false, command)
+    assert.equal(commandPrintsFile(command, skill), false, command)
   }
-  for (const command of [`cat ${skill}`, `sed -n '1,20p' ${skill}`, `head -n 8 ${skill}`]) {
-    assert.equal(commandReadsSkill(command, 'dsh-spec-agent-notes'), true, command)
+  for (const command of [`cat ${skill}`, `sed -n '1,120p' ${skill}`, `head -40 ${skill}`, `tail -40 ${skill}`]) {
+    assert.equal(commandPrintsFile(command, skill), true, command)
   }
 })
 

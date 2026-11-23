@@ -1,6 +1,6 @@
 {
   "id": "shared-icon-rendering-contract",
-  "prompt": "Review the shared icon placement change in evals/files/icon-contract-project. The project declares its stroke and fill rendering contract and lists the affected consumers. Report the rendering and consumer checks that still need rendered evidence.",
+  "prompt": "Review the shared icon rendering change in evals/files/icon-contract-project. The project declares its stroke and fill rendering contract and lists the affected consumers. Report the rendering and consumer checks that still need rendered evidence.",
   "expected_output": "The review preserves non-scaling stroke behavior and the intentional filled contour's geometry, checks the declared sizes and device-pixel ratios across the shared consumers, and leaves the missing rendered evidence as an explicit gap rather than changing the rendering contract from source inspection alone.",
   "files": [
     "evals/files/icon-contract-project/AGENTS.md",
@@ -13,6 +13,6 @@
     "The review identifies the intentional filled contour and leaves its rendered geometry unproved.",
     "The review checks the target CSS sizes and device-pixel ratios across the shared consumers.",
     "The review treats the missing rendered evidence as a gap.",
-    "The review does not change the shared rendering contract as an ordinary placement fix."
+    "The review does not replace the shared rendering contract with an ordinary placement fix."
   ]
 }

@@ -1,0 +1,4 @@
+PASS The run reads the project declaration for maintained and locale-selected documents.
+PASS The run passes `--unpaired` with selection covering both detail pages when checking existing pairs.
+PASS The run checks the maintained guide pair with the default Chinese target.
+PASS The run creates no switcher or consistency record for the detail pages.

@@ -1,1 +1,8 @@
-Updated [README.md](/workspace/evals/files/empty-catch/README.md:7) so the handler tolerates only the structured `ENOENT` failure and rethrows all other cleanup errors. `commitBatch()` and `notifyOwner()` now run outside the catch, so commit or notification failures remain visible and propagate normally.
+Updated [README.md](/workspace/evals/files/empty-catch/README.md:6) so the handler:
+
+- Applies only to temporary-directory removal.
+- Ignores only structured `ENOENT` failures.
+- Rethrows every other cleanup failure.
+- Leaves commit and notification outside the handler so their failures propagate.
+
+`git diff --check` passes.
