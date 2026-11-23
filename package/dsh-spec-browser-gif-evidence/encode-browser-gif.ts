@@ -455,8 +455,8 @@ function encode(options: Options): Record<string, unknown> {
     throw error
   }
   const cleanupFailures = cleanupTemporary(cleanupPaths)
-  if (cleanupFailures.length > 0) throw new MediaError(`cleanup failed: ${cleanupFailures.join('; ')}`)
   if (result === undefined) throw new MediaError('encoding produced no result')
+  if (cleanupFailures.length > 0) Object.assign(result, { cleanupWarnings: cleanupFailures })
   return result
 }
 

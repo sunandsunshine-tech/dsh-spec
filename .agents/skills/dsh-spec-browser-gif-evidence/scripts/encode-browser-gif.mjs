@@ -351,8 +351,8 @@ function encode(options) {
 		throw error;
 	}
 	const cleanupFailures = cleanupTemporary(cleanupPaths);
-	if (cleanupFailures.length > 0) throw new MediaError(`cleanup failed: ${cleanupFailures.join("; ")}`);
 	if (result === void 0) throw new MediaError("encoding produced no result");
+	if (cleanupFailures.length > 0) Object.assign(result, { cleanupWarnings: cleanupFailures });
 	return result;
 }
 function main() {

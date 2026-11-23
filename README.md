@@ -66,6 +66,7 @@ Each skill is self-contained and installed on its own; a skill names another onl
 | Skill | What it is for | Source |
 |---|---|---|
 | `dsh-spec-code-review` | Reviewing a proposed change against the project's declared standards, plus the checks code alone cannot show | dsh |
+| `dsh-spec-browser-gif-evidence` | Recording and verifying browser-interaction GIF evidence from one isolated real-build run, with explicit substitute policy and optional attachment | dsh |
 | `dsh-spec-error-handling` | Error handling: failures, recovery, retries, background tasks and user-visible error reports | dsh |
 | `dsh-spec-find-simplifications` | Finding evidence-backed simplifications, and writing or consolidating the proposals for them | dsh |
 | `dsh-spec-merging-stacked-prs` | Landing dependent GitHub pull requests as one stacked-PR chain | dsh |
