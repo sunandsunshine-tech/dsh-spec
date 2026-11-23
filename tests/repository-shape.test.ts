@@ -121,3 +121,22 @@ test('agent-experience provenance names the revision and source path it actually
   const sourcePath = 'packages/preset/agent-preset/skills/agent-experience/SKILL.md'
   assert.ok(notice.includes(`\`${sourcePath}\``), 'agent-experience does not name its adapted source path')
 })
+
+test('adopter documentation catalogs every landed skill and fails fast during group install', () => {
+  const skills = readdirSync(join(REPO_ROOT, 'skills'), { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && !entry.name.startsWith('.'))
+    .map((entry) => entry.name)
+    .sort()
+  assert.ok(skills.length > 0)
+
+  for (const file of ['README.md', 'README.zh.md', 'docs/choosing-skills.md', 'docs/choosing-skills.zh.md']) {
+    const text = repoFile(file)
+    for (const skill of skills) assert.match(text, new RegExp('`' + skill + '`'), `${file}: ${skill}`)
+  }
+
+  for (const file of ['README.md', 'README.zh.md']) {
+    const install = repoFile(file).match(/```sh\nPIN="<tag-or-commit>"\n([\s\S]*?)```/)?.[1]
+    assert.ok(install, file + ' has no universal-group install block')
+    assert.match(install, /^set -e$/m, file + ' does not fail on an earlier install')
+  }
+})

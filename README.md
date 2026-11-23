@@ -30,6 +30,7 @@ The universal collaboration group covers project instructions, decision records,
 
 ```sh
 PIN="<tag-or-commit>"
+set -e
 for skill in \
   dsh-spec-agent-experience \
   dsh-spec-agents-md \

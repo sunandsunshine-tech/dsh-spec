@@ -30,6 +30,7 @@ GitHub CLI 自己也带一个 agent 技能，去[它的仓库](https://github.co
 
 ```sh
 PIN="<tag-or-commit>"
+set -e
 for skill in \
   dsh-spec-agent-experience \
   dsh-spec-agents-md \
