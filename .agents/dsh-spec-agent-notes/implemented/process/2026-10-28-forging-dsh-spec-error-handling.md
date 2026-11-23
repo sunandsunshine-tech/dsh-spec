@@ -10,7 +10,7 @@ The set extracts DeepSeek Harness's development pattern as skills, and one part 
 
 ## Decision
 
-`dsh-spec-error-handling` ships from `skills/dsh-spec-error-handling/`, and its installed copy at `.agents/skills/dsh-spec-error-handling/` mirrors it byte for byte. The skill is a `SKILL.md` and `references/error-contracts.md` for software-engineering projects of any kind: applications, libraries, command-line tools, services, embedded systems, and batch systems. The body carries six units: typed structured failures; handling, recovery or stopping; silent failure handlers; localized visible reports; compatibility and verification; and foundations. The reference owns field roles, family and code selection, fallback requirements, foreign-error conversion, compatibility, and the test checklist.
+`dsh-spec-error-handling` ships from `skills/dsh-spec-error-handling/`, and its installed copy at `.agents/skills/dsh-spec-error-handling/` mirrors it byte for byte. The skill is a `SKILL.md` and `references/error-contracts.md` for software-engineering projects of any kind: applications, libraries, command-line tools, services, embedded systems, and batch systems. The body carries six units: typed structured failures; handling, recovery or stopping; silent failure handlers; localized visible reports; compatibility and verification; and foundations. The typed-failure unit classifies by the operation's declared outcome and distinguishes closed local families from provider-extensible families. The reference owns field roles, family and code selection, outcome classification, fallback requirements, foreign-error conversion, compatibility, and the test checklist.
 
 The skill ships no script. Whether a failure has an owning family, a containment rule, a truthful reason for silent handling, and an actionable report are design judgments. The skill has no environment requirements and therefore no `compatibility` field.
 
@@ -59,7 +59,7 @@ The later upstream additions are adapted as follows.
 |---|---|---|
 | E1 | An error that carries a machine code extends `HarnessError`. | A family that carries machine-readable identity uses the project's existing discriminant mechanism; without one, a new failure gains a stable machine-readable discriminant and literal values. |
 | E2 | Prefer one error class per owning package or domain over one class per failure. | Prefer one family per owning package or domain over one type per failure. |
-| E3 | `name` is the class name and `code` is a stable `UPPER_SNAKE_CASE` string. | Identity and literal values follow project conventions; absent a convention, choose a string code, numeric status or exit status, tagged variant, or documented combination and record its complete supported set. |
+| E3 | `name` is the class name and `code` is a stable `UPPER_SNAKE_CASE` string. | Identity and literal values follow project conventions; absent a convention, choose a string code, numeric status or exit status, tagged variant, or documented combination. A closed local family may enumerate values; an extensible family documents shared values and tolerates unknown additions. |
 | E4 | A code names the failure class consumers act on, not the call site. | The target keeps this rule verbatim apart from terminology. |
 | E5 | Convert Node, SDK, protocol, native, worker, and cross-realm errors at the owning package with the original cause. | Convert operating-system, SDK, protocol, native, worker, and cross-realm failures at the owning domain with the original cause where supported, or equivalent structured detail or diagnostics otherwise. |
 | E6 | A process or worker boundary transports `name` and `code` and reconstructs the error. | A process, worker, or wire boundary transports the portable machine identity and reconstructs an equivalent owning failure; an identical runtime class is not required. |
@@ -67,6 +67,8 @@ The later upstream additions are adapted as follows.
 | E8 | Some failures are safe while others must surface; throw the rest. | When only some failures are safe, select the expected discriminant and rethrow or surface the rest. |
 | E9 | Existing `name` and `code` values persist in logs and analytics, so changes need an upgrade guide. | A persisted or externally consumed error identity is a compatibility promise and needs a migration record when changed. |
 | E10 | Tests assert `error.info.name` and `error.info.code`, not only the message. | Tests assert the project's exact machine identity, the resulting state and, where a boundary exists, the reconstructed identity. |
+| E11 | A non-zero exit or no-match result is not inherently a failure; the operation's declared outcome decides. | A non-ideal result remains a success when the operation does not define it as failure; a success-shaped failure requires an explicit output-schema contract. |
+| E12 | Provider-extensible code families remain open and consumers tolerate unknown values. | Extensible families publish their shared codes and accept unknown additions; only a truly closed local family enumerates its complete value set. |
 
 ### Presupposition audit
 
@@ -176,7 +178,7 @@ Dispositions use the forge skill's values: **Keep** carries the original wording
 |---|---|---|---|---|---|
 | E1 | rc.5 `SKILL.md` | A coded error extends the shared `HarnessError`. | Re-bind | `SK` § Typed, structured failures | the project's existing type, name, code, status, variant, exit status or documented combination is authoritative; no ecosystem-specific base, field name or fallback spelling is required |
 | E2 | rc.5 `SKILL.md` | Prefer one class per domain over one class per failure. | Adapt | `SK` § Typed, structured failures | family and subtype retain the ownership distinction without assuming classes |
-| E3 | rc.5 `SKILL.md` | Name is the class name; code is `UPPER_SNAKE_CASE` and declared beside the class. | Adapt | `SK` § Typed, structured failures | the project's convention wins; otherwise the target requires one stable machine-readable discriminator and a recorded supported set without prescribing a field or spelling |
+| E3 | rc.5 `SKILL.md` | Name is the class name; code is `UPPER_SNAKE_CASE` and declared beside the class. | Adapt | `SK` § Typed, structured failures | the project's convention wins; otherwise the target requires one stable machine-readable discriminator without prescribing a field or spelling, and distinguishes closed enumerations from extensible families |
 | E4 | rc.5 `SKILL.md` | A code names the consumer action, not the call site. | Keep | `SK` § Typed, structured failures | domain-neutral |
 | E5 | rc.5 `SKILL.md` | Convert foreign errors at the owning package with the original cause. | Adapt | `SK` § Typed, structured failures | the owning package becomes the package, module, service, or domain that owns the dependency; runtimes without cause chaining retain the original in structured detail or diagnostics |
 | E6 | rc.5 `SKILL.md` | A process or worker transports `name` and `code` and reconstructs the class. | Re-bind | `SK` § Typed, structured failures | transport preserves the project's portable identity; the receiving owner reconstructs an equivalent owning failure, while `name` and `code` remain one field realization |
@@ -184,6 +186,8 @@ Dispositions use the forge skill's values: **Keep** carries the original wording
 | E8 | rc.5 `references/error-codes.md` | Tests assert `name` and `code` for every expected failure. | Adapt | `SK` § Compatibility and verification | the target asserts the project's exact machine identity, resulting state, and reconstructed boundary identity without requiring a particular field path |
 | E9 | master `SKILL.md` | A silent catch covers one statement, names the expected failure, states a reason, and rethrows other failures. | Re-bind | `SK` § Silent failure handlers | the safety result is one operation, one expected discriminant, a truthful reason, and selective surfacing across languages |
 | E10 | request and upstream reference | Detailed family, code, conversion, compatibility, and test guidance needs one owner. | Adapt | `references/error-contracts.md` | the detailed contract is contextual material; keeping it out of the entry preserves lazy loading and the main procedure’s focus |
+| E11 | rc.5 `SKILL.md` | A non-zero exit or no matches is a non-ideal success when the operation does not define it as failure; a success-shaped failure needs an output schema that documents it. | Keep | `SK` § Typed, structured failures | the distinction belongs to the operation's declared outcome, not to whether a result feels unusual |
+| E12 | rc.5 `references/error-codes.md` | Provider-extensible families keep an open code type and consumers tolerate unknown codes. | Adapt | `SK` § Typed, structured failures; `references/error-contracts.md` § Fallback requirements | closed local families may enumerate codes; extensible families document known shared codes without rejecting future provider values |
 
 ### Target rulings
 
@@ -209,7 +213,7 @@ Dispositions use the forge skill's values: **Keep** carries the original wording
 
 ### Requirement anchors
 
-Every disposition row is the anchor for the requirement it carries. N1 is mechanical: the skill gate checks the name and directory match. N2-N30, N11a, and E1-E10 are judged against the source sentence. N30 retains an external literature link. The skill gate mechanically checks format, size, references, and link integrity. The development eval corpus records message-only failures, boundary-loss failures, silent multi-step handling, and preservation of an existing project discriminant.
+Every disposition row is the anchor for the requirement it carries. N1 is mechanical: the skill gate checks the name and directory match. N2-N30, N11a, and E1-E12 are judged against the source sentence. N30 retains an external literature link. The skill gate mechanically checks format, size, references, and link integrity. The development eval corpus records message-only failures, boundary-loss failures, silent multi-step handling, preservation of an existing project discriminant, documented non-ideal success, and provider-extensible codes.
 
 The clean-context model evaluation under `tests/skill-evals/evidence/2026-11-20-pr113/` ran
 `codex exec --ephemeral` for candidate, previous-skill and no-skill profiles. All five candidate
@@ -218,6 +222,9 @@ scenarios loaded the skill and passed all 20 assertions. The previous-skill base
 The saved no-skill outputs therefore do not establish a candidate advantage for those prompts.
 One candidate run per scenario is evidence of the tested behavior, not a claim that every phrasing
 or host profile has equal effect.
+
+The later isolated run under `tests/skill-evals/evidence/2026-11-23-pr113/` exercises the new
+outcome-classification and extensible-code contract directly and passes 4/4 assertions.
 
 The ten-query trigger corpus installed the candidate in an otherwise empty project and recorded
 whether the run read `SKILL.md`. Five positive prompts triggered. Five near-miss prompts initially

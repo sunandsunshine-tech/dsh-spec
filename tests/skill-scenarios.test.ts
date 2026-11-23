@@ -173,6 +173,17 @@ const GENERAL_REQUIRED: GeneralProfile[] = [
           /No string code replaces the numeric identity/i,
         ],
       },
+      {
+        id: 'outcome-classification-and-extensible-codes',
+        signature: [/no matches/i, /provider extensions/i],
+        expectedOutput: [/remains.*success/i, /open code type/i, /tolerate unknown codes/i],
+        assertions: [
+          /successful empty-search result/i,
+          /open code type/i,
+          /Known plugin codes are exported/i,
+          /tolerate unknown plugin codes/i,
+        ],
+      },
     ],
   },
   {

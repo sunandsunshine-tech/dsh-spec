@@ -71,6 +71,20 @@
         "The no-cause runtime preserves stderr in structured diagnostics.",
         "No string code replaces the numeric identity."
       ]
+    },
+    {
+      "id": "outcome-classification-and-extensible-codes",
+      "prompt": "Review evals/files/outcome-and-extension/README.md. Correct the CLI result classification and the plugin failure family without replacing the documented operation outcome or rejecting compatible provider extensions.",
+      "expected_output": "Exit status 1 with no matches remains the command's documented empty-search success rather than becoming an error. The plugin family keeps an open code type for third-party additions, exports its known codes, and requires consumers to tolerate unknown codes rather than rejecting them.",
+      "files": [
+        "evals/files/outcome-and-extension/README.md"
+      ],
+      "assertions": [
+        "The no-match exit status remains a successful empty-search result under the command's declared outcome.",
+        "The plugin failure family keeps an open code type for provider extensions.",
+        "Known plugin codes are exported for shared handling.",
+        "Consumers tolerate unknown plugin codes instead of rejecting compatible additions."
+      ]
     }
   ]
 }

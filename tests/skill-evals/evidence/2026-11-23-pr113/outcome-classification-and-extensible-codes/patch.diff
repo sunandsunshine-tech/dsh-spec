@@ -1,0 +1,29 @@
+diff --git a/evals/files/outcome-and-extension/README.md b/evals/files/outcome-and-extension/README.md
+index fac0497..97ecbbd 100644
+--- a/evals/files/outcome-and-extension/README.md
++++ b/evals/files/outcome-and-extension/README.md
+@@ -1,12 +1,16 @@
+ # Search CLI and plugin failures
+ 
+-The `find` command documents exit status `1` as "no matches" and tells scripts to treat that result
+-as an empty search result. Any other non-zero status is a command failure.
++For the `find` command, classify results by the documented operation outcome:
+ 
+-The plugin API exposes a shared `PluginError` family with known codes `LOAD_FAILED` and
+-`INCOMPATIBLE`. The package does not export that known list, so consumers duplicate the literals.
+-Third-party hosts may add codes without changing the shared package. Existing consumers switch on
+-every currently known code and throw on anything else.
++- Exit status `0` is a successful search.
++- Exit status `1` is a successful search with an empty result, not a command failure.
++- Any other non-zero status is a command failure.
+ 
+-Review both failure contracts and propose the smallest corrections that preserve the documented
+-operation outcomes and allow compatible provider extensions.
++The plugin API exposes an open `PluginError` family. `LOAD_FAILED` and `INCOMPATIBLE` are shared
++known codes, and the package should export their constants so consumers do not duplicate the
++literals. These codes are a known subset, not an exhaustive list: third-party hosts may add codes
++without changing the shared package.
++
++Consumers should handle the shared codes they understand and rethrow any other `PluginError`
++unchanged, preserving its code and any cause or diagnostic details. An unknown provider code must
++not be rejected, discarded, or reclassified as `INCOMPATIBLE` merely because it is unknown.

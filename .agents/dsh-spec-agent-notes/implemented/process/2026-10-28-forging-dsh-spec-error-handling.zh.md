@@ -10,7 +10,7 @@ Status: implemented
 
 ## 决策
 
-`dsh-spec-error-handling` 从 `skills/dsh-spec-error-handling/` 交付，其在 `.agents/skills/dsh-spec-error-handling/` 的安装副本与之逐字节一致。该技能是一份 `SKILL.md` 与 `references/error-contracts.md`，面向任何类型的软件工程项目：应用、库、命令行工具、服务、嵌入式系统与批处理系统。正文承载六个单元：类型化、结构化的失败；处理、恢复或停止；静默失败处理器；本地化、可见的报告；兼容性与验证；以及基础。参考文档拥有字段职责、错误族与错误码选择、兜底要求、外部错误转换、兼容性和测试清单。
+`dsh-spec-error-handling` 从 `skills/dsh-spec-error-handling/` 交付，其在 `.agents/skills/dsh-spec-error-handling/` 的安装副本与之逐字节一致。该技能是一份 `SKILL.md` 与 `references/error-contracts.md`，面向任何类型的软件工程项目：应用、库、命令行工具、服务、嵌入式系统与批处理系统。正文承载六个单元：类型化、结构化的失败；处理、恢复或停止；静默失败处理器；本地化、可见的报告；兼容性与验证；以及基础。类型化失败单元按操作声明的结果分类，并区分封闭的本地错误族与提供方可扩展的错误族。参考文档拥有字段职责、错误族与错误码选择、结果分类、兜底要求、外部错误转换、兼容性和测试清单。
 
 该技能不交付脚本。失败是否拥有一个错误族、遏制规则、静默处理的真实理由和可操作报告，都是设计判断。它没有环境要求，因此没有 `compatibility` 字段。
 
@@ -59,7 +59,7 @@ Agent Skills 页面读取于 2026-11-20：
 |---|---|---|
 | E1 | 携带机器码的错误继承 `HarnessError`。 | 携带机器可读身份的错误族使用项目现有的判别机制；没有该机制时，新失败获得稳定的机器可读判别值和字面值。 |
 | E2 | 优先每个拥有包或领域一个错误类，而不是每个失败一个类。 | 优先每个拥有包或领域一个错误族，而不是每个失败一个类型。 |
-| E3 | `name` 是类名，`code` 是稳定的 `UPPER_SNAKE_CASE` 字符串。 | 身份与字面值遵循项目约定；没有约定时，选择字符串 code、数值 status 或退出状态、带标签的 variant，或文档所述的组合，并记录其完整支持集。 |
+| E3 | `name` 是类名，`code` 是稳定的 `UPPER_SNAKE_CASE` 字符串。 | 身份与字面值遵循项目约定；没有约定时，选择字符串 code、数值 status 或退出状态、带标签的 variant，或文档所述的组合。封闭的本地错误族可枚举取值；可扩展错误族记录共享取值并容忍未知新增。 |
 | E4 | code 点名消费方要处理的失败类别，而不是调用位置。 | 除术语外，目标逐条保留该规则。 |
 | E5 | 在拥有包里转换 Node、SDK、协议、原生、worker 与跨 realm 错误，并保留原因为 cause。 | 在拥有该依赖的领域中转换操作系统、SDK、协议、原生、worker 与跨 realm 失败，并在受支持时保留原始 cause，否则保留等价的结构化细节或诊断信息。 |
 | E6 | 进程或 worker 边界传输 `name` 和 `code`，并重建错误。 | 进程、worker 或通信边界传输可移植的机器身份，并重建等价的所属失败；不要求运行时类相同。 |
@@ -67,6 +67,8 @@ Agent Skills 页面读取于 2026-11-20：
 | E8 | 有些失败安全而其余必须浮现；重抛其余失败。 | 只有部分失败安全时，选择预期判别值，并重抛或暴露其余失败。 |
 | E9 | 既有 `name` 和 `code` 会进入日志与分析，因此变更需要升级指南。 | 已持久化或被外部消费的错误身份是兼容承诺，变更时需要迁移记录。 |
 | E10 | 测试断言 `error.info.name` 和 `error.info.code`，而不只断言消息。 | 测试断言项目确切的机器身份和结果状态；存在边界时，还断言重建后的身份。 |
+| E11 | 非零退出或无匹配结果本身不是失败；由操作声明的结果决定。 | 当操作没有将其定义为失败时，非理想结果仍是成功；成功形状的失败需要明确记录在输出 schema 中。 |
+| E12 | 提供方可扩展的错误码族保持开放，消费方容忍未知值。 | 可扩展错误族公布共享 code 并接受未知新增；只有真正封闭的本地错误族才枚举完整取值集。 |
 
 ### 预设审计
 
@@ -176,7 +178,7 @@ Agent Skills 页面读取于 2026-11-20：
 |---|---|---|---|---|---|
 | E1 | rc.5 `SKILL.md` | 带 code 的错误继承共享的 `HarnessError`。 | 重绑 | `SK` § Typed, structured failures | 项目现有的类型、name、code、status、variant、退出状态或文档所述的组合具有权威性；不要求任何生态专属基类、字段名或兜底拼写 |
 | E2 | rc.5 `SKILL.md` | 优先每领域一个错误类，而不是每个失败一个类。 | 改编 | `SK` § Typed, structured failures | 错误族与子类型保留拥有关系，而不假定必须使用类 |
-| E3 | rc.5 `SKILL.md` | name 是类名；code 是 `UPPER_SNAKE_CASE` 并声明在类旁。 | 改编 | `SK` § Typed, structured failures | 项目约定优先；否则目标要求一个稳定的机器可读判别值和一份已记录的支持集，但不规定字段或拼写 |
+| E3 | rc.5 `SKILL.md` | name 是类名；code 是 `UPPER_SNAKE_CASE` 并声明在类旁。 | 改编 | `SK` § Typed, structured failures | 项目约定优先；否则目标要求一个稳定的机器可读判别值，但不规定字段或拼写，并区分封闭枚举与可扩展错误族 |
 | E4 | rc.5 `SKILL.md` | code 点名消费方行动，而不是调用位置。 | 保留 | `SK` § Typed, structured failures | 领域中立 |
 | E5 | rc.5 `SKILL.md` | 在拥有包中转换外部错误，并保留原始 cause。 | 改编 | `SK` § Typed, structured failures | 拥有包变成拥有该依赖的包、模块、服务或领域；没有 cause 链的运行时把原始错误保留在结构化细节或诊断信息中 |
 | E6 | rc.5 `SKILL.md` | 进程或 worker 传输 `name` 与 `code` 并重建类。 | 重绑 | `SK` § Typed, structured failures | 传输保留项目的可移植身份；接收侧拥有者重建等价的所属失败，而 `name` 与 `code` 仍是其中一种字段实现 |
@@ -184,6 +186,8 @@ Agent Skills 页面读取于 2026-11-20：
 | E8 | rc.5 `references/error-codes.md` | 每个预期失败的测试断言 `name` 与 `code`。 | 改编 | `SK` § Compatibility and verification | 目标断言项目确切的机器身份、结果状态及重建后的边界身份，而不要求特定的字段路径 |
 | E9 | master `SKILL.md` | 静默 catch 只覆盖一个语句、点名预期失败、说明理由，并重抛其他失败。 | 重绑 | `SK` § Silent failure handlers | 安全结果是跨语言的一个操作、一个预期判别值、真实理由和选择性暴露 |
 | E10 | 请求与上游参考文档 | 详细的错误族、code、转换、兼容性和测试指导需要一个拥有者。 | 改编 | `references/error-contracts.md` | 详细契约属于上下文材料；放在入口外可保持按需加载和主流程的重点 |
+| E11 | rc.5 `SKILL.md` | 当操作没有将其定义为失败时，非零退出或无匹配是非理想成功；成功形状的失败需要输出 schema 明确记录。 | 保留 | `SK` § Typed, structured failures | 该区分属于操作声明的结果，而不是结果看起来是否异常 |
+| E12 | rc.5 `references/error-codes.md` | 提供方可扩展错误族保持开放 code 类型，消费方容忍未知 code。 | 改编 | `SK` § Typed, structured failures；`references/error-contracts.md` § Fallback requirements | 封闭本地错误族可枚举 code；可扩展错误族记录共享 code，不拒绝未来提供方取值 |
 
 ### 目标裁决
 
@@ -209,9 +213,11 @@ Agent Skills 页面读取于 2026-11-20：
 
 ### 要求锚点
 
-每个处置行都是其承载要求的锚点。N1 是机械的：技能门禁检查名称与目录一致。N2-N30、N11a 与 E1-E10 是判断项，需对照上游句子。N30 保留外部文献链接。技能门禁机械检查格式、规模、参考文件和链接完整性。开发评估语料记录 message-only failure、边界丢失失败、静默多步骤处理，以及对项目现有判别值的保留。
+每个处置行都是其承载要求的锚点。N1 是机械的：技能门禁检查名称与目录一致。N2-N30、N11a 与 E1-E12 是判断项，需对照上游句子。N30 保留外部文献链接。技能门禁机械检查格式、规模、参考文件和链接完整性。开发评估语料记录 message-only failure、边界丢失失败、静默多步骤处理、项目现有判别值的保留、已记录的非理想成功和提供方可扩展 code。
 
 `tests/skill-evals/evidence/2026-11-20-pr113/` 下的干净上下文模型评估针对 candidate、previous-skill 与 no-skill 三个 profile 运行了 `codex exec --ephemeral`。五个候选场景都加载了该技能，并通过了全部 20 项断言。previous-skill 基线通过了 20 项中的 18 项，因为它在静默处理器场景中丢弃了意外的清理失败；no-skill profile 也通过了 20/20。因此保存的 no-skill 输出不能证明这些提示上的 candidate 优势。每个场景一次候选运行是所测试行为的证据，并不宣称每种措辞或宿主 profile 都有相同效果。
+
+`tests/skill-evals/evidence/2026-11-23-pr113/` 中较新的隔离运行直接覆盖结果分类与可扩展 code 契约，并通过 4/4 项断言。
 
 十项查询的触发语料把候选版本安装在一个原本为空的项目中，并记录每次运行是否读取了 `SKILL.md`。五个正例提示词触发了该技能。五个近失提示词初次产生四条不触发和一条 performance-tuning 误触发；把 performance tuning 加入 description 的排除项后，重跑后五条全部不触发。该条查询的首跑不作为最终证据。
 
