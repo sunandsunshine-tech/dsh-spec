@@ -30,7 +30,7 @@ import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { test } from 'node:test'
 
 import { createCaptureFixture, waitForProcessGone } from './helpers/capture-browser-fixture.ts'
-import { REPO_ROOT } from './helpers/fixtures.ts'
+import { isolatedGitEnv, REPO_ROOT } from './helpers/fixtures.ts'
 
 const safety = (await import('./skill-evals/runner-safety.mjs' as string)) as {
   isolatedGitEnvironment(
@@ -644,16 +644,18 @@ function stageSkillWithEvals(skill: string): StagedSkill {
   return { temporaryRoot, skillRoot }
 }
 
-function assertInputFile(skillRoot: string, file: string, label: string): void {
+function assertInputFile(skillRoot: string, file: string, label: string): string {
   assert.ok(file.startsWith('evals/files/'), label + ' names an input outside evals/files/')
   const absolute = join(skillRoot, file)
   assert.ok(existsSync(absolute), label + ' input does not exist: ' + file)
   const resolved = realpathSync(absolute)
   const inputRoot = realpathSync(join(skillRoot, 'evals', 'files')) + sep
   assert.ok(resolved.startsWith(inputRoot), label + ' input escapes evals/files: ' + file)
-  const stat = statSync(resolved)
+  const stat = lstatSync(absolute)
+  assert.equal(stat.isSymbolicLink(), false, label + ' input is a symbolic link: ' + file)
   assert.ok(stat.isFile(), label + ' input is not a regular file: ' + file)
   assert.ok(stat.size > 0, label + ' input is empty: ' + file)
+  return absolute
 }
 
 function validateCorpus(corpus: ScenarioCorpus, required: RequiredProfile): void {
@@ -924,6 +926,98 @@ function listFiles(root: string, prefix = ''): string[] {
   return files.sort()
 }
 
+function fileMode(path: string): string {
+  return lstatSync(path).mode & 0o111 ? '0755' : '0644'
+}
+
+function validateRecordedScenario(skill: string, value: unknown, label: string): Scenario {
+  assert.ok(value && typeof value === 'object' && !Array.isArray(value), label + ' must be an object')
+  const scenario = value as Scenario
+  const known = new Set([
+    'id',
+    'prompt',
+    'expected_output',
+    'assertions',
+    'files',
+    'change_patch',
+    'change_root',
+    'install',
+    'outputs',
+    'capabilities',
+    'allow_subagents',
+  ])
+  for (const key of Object.keys(scenario)) assert.ok(known.has(key), label + ' has unknown field ' + key)
+  assertNonEmptyString(scenario.id, label + ' id')
+  assertNonEmptyString(scenario.prompt, label + ' prompt')
+  assertNonEmptyString(scenario.expected_output, label + ' expected output')
+  assertNonEmptyStrings(scenario.assertions, label + ' assertions')
+  assertNonEmptyStrings(scenario.files, label + ' files')
+  for (const sibling of scenario.install ?? []) {
+    assert.match(sibling, /^dsh-spec-[a-z0-9-]+$/, label + ' has an invalid sibling')
+    assert.notEqual(sibling, skill, label + ' names its target as a sibling')
+    assert.ok(existsSync(join(REPO_ROOT, 'skills', sibling, 'SKILL.md')), label + ' installs a missing sibling')
+  }
+  const skillRoot = join(EVAL_SOURCE_ROOT, skill)
+  for (const file of scenario.files ?? []) assertInputFile(skillRoot, file, label)
+  for (const output of scenario.outputs ?? []) assertContainedRelativePath(output, label + ' output')
+  if (scenario.change_patch !== undefined) {
+    assertNonEmptyString(scenario.change_patch, label + ' change patch')
+    assert.ok(scenario.files?.includes(scenario.change_patch), label + ' change patch is not an input')
+    assertNonEmptyString(scenario.change_root, label + ' change root')
+    assertContainedRelativePath(scenario.change_root, label + ' change root')
+  }
+  if (scenario.capabilities !== undefined) {
+    assert.ok(
+      scenario.capabilities && typeof scenario.capabilities === 'object' && !Array.isArray(scenario.capabilities),
+      label + ' capabilities must be an object',
+    )
+    for (const [name, enabled] of Object.entries(scenario.capabilities)) {
+      assert.ok(name === 'browser' || name === 'media', label + ' has unknown capability ' + name)
+      assert.equal(typeof enabled, 'boolean', label + ' capability must be boolean')
+    }
+  }
+  if (scenario.allow_subagents !== undefined) {
+    assert.equal(typeof scenario.allow_subagents, 'boolean', label + ' allow_subagents must be boolean')
+  }
+  return scenario
+}
+
+test('hash manifests retain paths containing consecutive spaces', () => {
+  const hash = 'a'.repeat(64)
+  assert.deepEqual(parseHashPath(`${hash}  artifact/name  with  spaces.md`, 'artifact'), {
+    hash,
+    path: 'artifact/name  with  spaces.md',
+    mode: undefined,
+  })
+})
+
+test('recorded scenarios reject escaping files and sibling names before replay', () => {
+  const base = {
+    id: 'escaping-input',
+    prompt: 'Review the fixture.',
+    expected_output: 'A review.',
+    assertions: ['The review completes.'],
+  }
+  assert.throws(
+    () =>
+      validateRecordedScenario(
+        'dsh-spec-error-handling',
+        { ...base, files: ['../../package.json'] },
+        'escaping scenario',
+      ),
+    /outside evals\/files|escapes/,
+  )
+  assert.throws(
+    () =>
+      validateRecordedScenario(
+        'dsh-spec-error-handling',
+        { ...base, files: ['evals/files/empty-catch/README.md'], install: ['../../outside'] },
+        'escaping sibling',
+      ),
+    /invalid sibling/,
+  )
+})
+
 function canonicalJson(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`
   if (value && typeof value === 'object') {
@@ -1106,7 +1200,7 @@ function stageScenarioProject(skill: string, scenario: Scenario, root: string): 
   }
 }
 
-function replayEvidencePatch(root: string, skill: string, scenario: Scenario): void {
+function replayEvidencePatch(root: string, skill: string, scenario: Scenario): boolean {
   const patch = join(root, 'patch.diff')
   const pathManifest = join(root, 'changed-paths.json')
   const changedPaths = existsSync(pathManifest)
@@ -1119,11 +1213,29 @@ function replayEvidencePatch(root: string, skill: string, scenario: Scenario): v
         return paths as string[]
       })()
     : readFileSync(join(root, 'changed-paths.txt'), 'utf8').trim().split('\n').filter(Boolean)
+  const inputManifest = join(root, 'input-manifest.sha256')
+  assertRegularEvidenceFile(inputManifest, root + ' input manifest')
+  const recordedInputs = new Map(
+    readFileSync(inputManifest, 'utf8')
+      .trim()
+      .split('\n')
+      .filter(Boolean)
+      .map((line) => {
+        const entry = parseHashPath(line, root + ' input manifest')
+        return [entry.path, entry.hash] as const
+      }),
+  )
+  const inputRoot = join(EVAL_SOURCE_ROOT, skill)
+  for (const file of scenario.files ?? []) {
+    const source = assertInputFile(inputRoot, file, root + ' input ' + file)
+    if (createHash('sha256').update(readFileSync(source)).digest('hex') !== recordedInputs.get(file)) return false
+  }
   const temporaryRoot = mkdtempSync(join(tmpdir(), 'skill-evidence-replay-'))
   try {
     stageScenarioProject(skill, scenario, temporaryRoot)
+    const replayEnvironment = isolatedGitEnv(temporaryRoot)
     const git = (...args: string[]) => {
-      const result = spawnSync('git', args, { cwd: temporaryRoot, encoding: 'utf8' })
+      const result = spawnSync('git', args, { cwd: temporaryRoot, encoding: 'utf8', env: replayEnvironment })
       assert.equal(result.status, 0, result.stderr)
       return result.stdout
     }
@@ -1134,7 +1246,11 @@ function replayEvidencePatch(root: string, skill: string, scenario: Scenario): v
     git('commit', '-qm', 'fixture')
     if (changedPaths.length > 0) {
       assert.ok(existsSync(patch), root + ' has changed files without a patch')
-      const applied = spawnSync('git', ['apply', '--binary', patch], { cwd: temporaryRoot, encoding: 'utf8' })
+      const applied = spawnSync('git', ['apply', '--binary', patch], {
+        cwd: temporaryRoot,
+        encoding: 'utf8',
+        env: replayEnvironment,
+      })
       assert.equal(applied.status, 0, applied.stderr)
       git('add', '-A')
       assert.deepEqual(
@@ -1174,6 +1290,7 @@ function replayEvidencePatch(root: string, skill: string, scenario: Scenario): v
         )
       }
     }
+    return true
   } finally {
     rmSync(temporaryRoot, { recursive: true, force: true })
   }
@@ -2569,10 +2686,18 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
         )
       }
       for (const line of lines) {
-        const [hash, relative] = line.split(/\s{2,}/)
-        assert.match(hash ?? '', /^[0-9a-f]{64}$/, run + ' malformed hash')
-        if (manifest === 'input-manifest.sha256') continue
-        const target = readFileSync(join(root, relative ?? ''))
+        const { hash, path: relative } = parseHashPath(line, run + ' evidence manifest')
+        if (manifest === 'input-manifest.sha256') {
+          assert.equal(
+            historicalInputs.get(`tests/skill-evals/${skill}/${relative}`),
+            hash,
+            run + ' input differs from its recorded historical manifest: ' + relative,
+          )
+          continue
+        }
+        const artifact = join(root, relative ?? '')
+        assertRegularEvidenceFile(artifact, run + ' artifact ' + relative)
+        const target = readFileSync(artifact)
         assert.equal(createHash('sha256').update(target).digest('hex'), hash, run + ' changed ' + relative)
       }
     }
@@ -2846,7 +2971,26 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
     const scenario = readCorpus(item.skill).evals.find((entry) => entry.id === scenarioId)
     assert.ok(scenario, item.skill + '/' + item.run + ' names no current scenario')
     const current = item.evidenceRoot === pr122EvidenceRoot
-    const recordedScenario = JSON.parse(readFileSync(join(root, 'scenario-definition.json'), 'utf8')) as Scenario
+    const scenarioDefinitionFile = join(root, 'scenario-definition.json')
+    assertRegularEvidenceFile(scenarioDefinitionFile, item.skill + '/' + item.run + ' scenario definition')
+    const recordedScenario = validateRecordedScenario(
+      item.skill,
+      JSON.parse(readFileSync(scenarioDefinitionFile, 'utf8')),
+      item.skill + '/' + item.run + ' scenario definition',
+    )
+    for (const file of [
+      'input-manifest.sha256',
+      'skill-hashes.txt',
+      'status.txt',
+      'assertions.txt',
+      'final.md',
+      'trace.jsonl',
+      'artifacts.sha256',
+    ]) {
+      const path = join(root, file)
+      if (file === 'skill-hashes.txt' && existsSync(join(root, 'skill.sha256'))) continue
+      assertRegularEvidenceFile(path, item.skill + '/' + item.run + ' ' + file)
+    }
     assertAnswerBlindTrace(root)
     assert.equal(
       readFileSync(join(root, 'scenario-definition.sha256'), 'utf8').trim(),
@@ -2923,6 +3067,9 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
     }
 
     const skillHashFile = join(root, 'skill.sha256')
+    if (existsSync(skillHashFile)) {
+      assertRegularEvidenceFile(skillHashFile, item.skill + '/' + item.run + ' skill hash')
+    }
     const skillRevisions = new Map<string, string>()
     const skillHashText = readFileSync(
       existsSync(skillHashFile) ? skillHashFile : join(root, 'skill-hashes.txt'),
@@ -3027,6 +3174,7 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
           item.skill + '/' + item.run + ' escapes its evidence root',
         )
         assert.ok(existsSync(retained), item.skill + '/' + item.run + ' is missing artifact: ' + artifactPath)
+        assertRegularEvidenceFile(retained, item.skill + '/' + item.run + ' artifact ' + artifactPath)
         assert.equal(
           createHash('sha256').update(readFileSync(retained)).digest('hex'),
           hash,
@@ -3043,7 +3191,15 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
         )
       }
     }
-    replayEvidencePatch(root, item.skill, scenario)
+    const replayable = replayEvidencePatch(root, item.skill, effectiveScenario)
+    if (current) assert.equal(replayable, true, item.skill + '/' + item.run + ' is not replayable from its inputs')
+    else if (!replayable) {
+      assert.match(
+        readFileSync(join(evidenceRoot, 'README.md'), 'utf8'),
+        /historical/i,
+        item.skill + '/' + item.run + ' is not replayable but its evidence is not marked historical',
+      )
+    }
   }
 
   const prDescriptionRoot = join(evidenceRoot, 'dsh-spec-pr-description')
@@ -3120,7 +3276,9 @@ test('committed evidence text contains no local home or build-toolchain paths', 
   const root = join(REPO_ROOT, 'tests/skill-evals/evidence')
   for (const relative of readdirSync(root, { recursive: true })) {
     if (typeof relative !== 'string' || !/\.(?:md|txt|json|jsonl|log|yaml|yml)$/.test(relative)) continue
-    const text = readFileSync(join(root, relative), 'utf8')
+    const file = join(root, relative)
+    assertRegularEvidenceFile(file, relative)
+    const text = readFileSync(file, 'utf8')
     assert.doesNotMatch(
       text,
       /\/home\/dreamstar|\/mnt\/c\/Users\/|\/home\/conda/i,

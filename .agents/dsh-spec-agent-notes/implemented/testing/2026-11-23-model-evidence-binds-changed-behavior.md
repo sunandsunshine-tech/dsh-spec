@@ -20,7 +20,7 @@ An edit invalidates the scenarios whose behavior it changes. Those scenarios rec
 
 An integration scenario records every sibling revision it read. A sibling edit invalidates that scenario only when it changes the sibling behavior on which the integration depends.
 
-Current input and skill manifests bind regular-file mode alongside content. Historical runs validate their recorded hashes against checked-in evidence manifests rather than rewrite history or require branch-only Git objects. The resolved profile records auth routing, browser/media availability and sandbox mode. Inline provider credentials remain in a host-side loopback proxy; the model namespace receives only a placeholder.
+Current input and skill manifests bind normalized executable mode alongside content. Historical runs validate their recorded hashes against checked-in evidence manifests rather than rewrite history or require branch-only Git objects; an unavailable historical input is not replayed from current bytes. The resolved profile records auth routing, browser/media availability and sandbox mode. Inline provider credentials remain in a host-side loopback proxy restricted to the known model endpoints; the model namespace receives only a placeholder. Output replacement uses a kernel advisory lock held until process exit, so a crashed runner releases it without unsafe stale-lock reclamation.
 
 ## Verification
 
