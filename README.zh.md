@@ -20,9 +20,11 @@ GitHub CLI 自己也带一个 agent 技能，去[它的仓库](https://github.co
 
 ## 安装
 
-把技能装进项目里，不要装到家目录，然后提交结果。装在项目级的那份副本，让每个协作者、每个 agent 和每次 CI 运行都落在你安装时选定的修订上；装在用户级的那份每台机器各一份，只在运行 `gh skill update` 时变化。首次安装后请提交 `.agents/skills/`。
+把技能装进项目里，不要装到家目录，然后提交结果。装在项目级的那份副本，让每个协作者、每个发现同一技能目录的 agent 和每次 CI 运行都落在你安装时选定的修订上；装在用户级的那份每台机器各一份，只在运行 `gh skill update` 时变化。项目范围内，若干 agent 共用 `.agents/skills/`；其他宿主可能使用不同目录。首次安装后请提交实际安装的项目目录。
 
 每个技能使用各自的 `gh skill install` 调用安装。传入 `--pin <tag-or-commit>` 就能把它 pin 住；不指定 pin 时，CLI 取最新的带 tag 的 release，仓库没有带 tag 的 release 时则取默认分支。把下一条命令里的占位符替换成项目将要共用的 tag 或 commit。
+
+以下命令使用 `--dir .agents/skills` 安装共享目录。若宿主有自己的项目级目录，使用 `--agent <host>` 安装同一组已 pin 技能，并省略 `--dir`。
 
 ### 从通用组开始
 

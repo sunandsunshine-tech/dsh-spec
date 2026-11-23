@@ -20,9 +20,11 @@ The GitHub CLI ships an agent skill of its own; browse [its repository](https://
 
 ## Install
 
-Install into the project, not into your home directory, and commit the result. A project-scoped copy puts every collaborator, every agent and CI run on the revision you installed at; a user-scoped copy is per machine and changes only when `gh skill update` runs. Commit `.agents/skills/` after the first install.
+Install into the project, not into your home directory, and commit the result. A project-scoped copy puts every collaborator, every agent that discovers the same skills directory and CI on the revision you installed at; a user-scoped copy is per machine and changes only when `gh skill update` runs. At project scope, several agents share `.agents/skills/`; another host may use a different directory. Commit the installed project tree after the first install.
 
 Install each skill with its own `gh skill install` invocation. Pass `--pin <tag-or-commit>` to pin it; with no pin the CLI takes the latest tagged release, or the default branch when the repository has no tagged release. Replace the placeholder in the command below with the tag or commit the project will share.
+
+The commands below use `--dir .agents/skills` for the shared tree. For a host with its own project-scoped directory, install the same pinned skills with `--agent <host>` and omit `--dir`.
 
 ### Start with the universal group
 

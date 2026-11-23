@@ -6,9 +6,11 @@ This guide turns the groups in the project README into an installation choice. `
 
 ## Install model
 
-Install into `.agents/skills/` at project scope and commit the result. The project then shares one reviewed revision with collaborators, agents and CI.
+Install at project scope and commit the result. Several agent hosts share `.agents/skills/`, while another host may use a different project directory. The project then shares one reviewed revision with collaborators, agents that discover that directory and CI.
 
 Use one `gh skill install` invocation per skill. Pass the same tag or commit to `--pin` for every skill in an installation so they share one revision. `gh skill update` refreshes unpinned skills only.
+
+The example uses `--dir .agents/skills` for the shared tree. For a host with its own project-scoped directory, use `--agent <host>` and omit `--dir`.
 
 ```sh
 gh skill install sunandsunshine-tech/dsh-spec "<skill>" \
@@ -103,7 +105,7 @@ Install this skill when the project creates, rewrites, migrates or checks Agent 
 
 The requirements below supplement the global prerequisites in the project README.
 
-- `dsh-spec-merging-stacked-prs` requires GitHub's official stacked-PR feature, `gh stack`, and head branches in the same repository.
+- `dsh-spec-merging-stacked-prs` requires GitHub's official stacked-PR feature, `gh stack`, and head branches in the same repository. Install the extension with `gh extension install github/gh-stack`.
 - `dsh-spec-client-ui-ux` requires a way to run and inspect the affected UI, or an explicit handoff naming the missing scene or capability.
 - `dsh-spec-browser-gif-evidence` requires Node.js 24.11+ on the 24 line or 26+, Git, `ffmpeg`, `ffprobe`, a runnable build and browser control or a project-declared Playwright setup. GitHub attachment also requires `gh` on `github.com` with write access.
 - `dsh-spec-translate-docs` uses its bundled Node script for pairing checks. Installing it does not require every document to have a counterpart.
