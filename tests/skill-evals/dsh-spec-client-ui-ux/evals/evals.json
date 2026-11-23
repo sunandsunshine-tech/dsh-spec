@@ -5,6 +5,10 @@
       "id": "shared-widget-consumer-coverage",
       "prompt": "Review the shared button change in evals/files/shared-widget-project. The application is runnable, and one continuous recording plus a render report are available under its `evidence/` directory. Inspect the source and every recorded frame without launching another browser; trace every current consumer, state the actual ordered transition, identify which interactive states remain unverified, and distinguish the controlled before variant from historical provenance.",
       "expected_output": "The review traces both current consumers, inspects the assembled search and settings pages in the frames that exist, reports the actual ordered transition, preserves the controlled comparison without claiming it is historical provenance, and does not infer consumer or interactive-state coverage from the shared component fixture alone.",
+      "capabilities": {
+        "browser": false,
+        "media": false
+      },
       "files": [
         "evals/files/shared-widget-project/AGENTS.md",
         "evals/files/shared-widget-project/index.html",
@@ -34,6 +38,10 @@
       "id": "missing-rendered-evidence-handoff",
       "prompt": "Review the modal focus change in evals/files/no-render-project. No browser, rendered page, recording mechanism, or equivalent visual-evidence mechanism is available, but the unit tests pass. Tell me whether the UI change is complete.",
       "expected_output": "The review uses the source and tests to identify what they can establish, then hands off the rendered behavior with the missing browser and evidence capability instead of claiming visual completion.",
+      "capabilities": {
+        "browser": false,
+        "media": false
+      },
       "files": [
         "evals/files/no-render-project/AGENTS.md",
         "evals/files/no-render-project/package.json",
@@ -51,6 +59,10 @@
       "id": "project-declares-equivalent-evidence",
       "prompt": "Review evals/files/shared-widget-project using the override in evals/files/evidence-policy-screenshot-pair.md. The project declares labeled screenshot pairs as its required browser evidence instead of a GIF, and those images are under the fixture's `evidence/` directory. Inspect the source and images without launching another browser, then report whether the shared button change satisfies the requirement.",
       "expected_output": "The review follows the project's screenshot-pair requirement, does not demand a GIF, notices that the simulated focus treatment does not prove native focus, and marks the focused-state coverage as missing rather than passing it.",
+      "capabilities": {
+        "browser": false,
+        "media": false
+      },
       "files": [
         "evals/files/shared-widget-project/AGENTS.md",
         "evals/files/shared-widget-project/index.html",
@@ -86,6 +98,10 @@
       "id": "capability-present-real-browser",
       "prompt": "This is an evidence-default probe for evals/files/shared-widget-project after the shared button change. The application starts with `npm start`, and a dependency-free headless-Chrome evidence command is available through the fixture. The project supplies no rendered evidence and declares no visual-evidence form. Decide what evidence the review owes, execute that path, inspect its result, and report it briefly. Do not perform a full design checklist. Do not inspect or use BrowserSkill, bsk, or another browser-control skill.",
       "expected_output": "The review recognizes that rendered evidence is required without a project-declared form, runs the application and browser evidence path, inspects the generated artifacts, and reports their provenance without claiming unsupported formal approval.",
+      "capabilities": {
+        "browser": true,
+        "media": false
+      },
       "files": [
         "evals/files/shared-widget-project/index.html",
         "evals/files/shared-widget-project/package.json",
