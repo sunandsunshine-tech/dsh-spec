@@ -10,7 +10,7 @@ A user-visible browser UI change needs evidence that a reviewer can inspect, but
 
 ## Decision
 
-The package ships `dsh-spec-browser-gif-evidence` from `skills/dsh-spec-browser-gif-evidence/`. The skill owns capture, encoding, verification and optional publication; UI acceptance remains with the UI review workflow. A user-visible browser UI change generates GIF evidence by default from one isolated run of the adopter's real build. A project may select equivalent evidence or waive that default for a named change, and a fixture recording exists only when the user explicitly asks for one.
+The package ships `dsh-spec-browser-gif-evidence` from `skills/dsh-spec-browser-gif-evidence/`. The skill owns capture, encoding, verification and optional publication; UI acceptance remains with the UI review workflow. A user-visible browser UI change generates GIF evidence by default from one isolated run of the adopter's real build. A project may select equivalent evidence or waive that default for a named change. A fixture exists only when the user explicitly requests it or the project evidence policy selects it; mock transports, synthetic interactions and test-only hooks require an explicit substitute policy.
 
 The skill carries one focused publication reference and the generated Node bundle `scripts/encode-browser-gif.mjs`; its source lives under `package/dsh-spec-browser-gif-evidence/`. The encoder writes and verifies a temporary GIF, then publishes it only after timing, dimensions, animation and size checks pass. Repository tests exercise the generated entry, stay outside the installed copy, and split fast preflight checks from one shared real-media scenario. The installed copy mirrors the landed directory byte for byte; evaluation inputs remain under `tests/skill-evals/` and never enter either distribution tree.
 
@@ -45,7 +45,7 @@ Source files:
 | B3 | Recording conditions | Use the demonstrated tree's real server, real credentials path and real model flow; report the commit, origin, mode overrides and whether a real model round ran |
 | B4 | Separation | Recording and encoding are local; publication is separate and occurs only when the task includes attaching to a pull request |
 | B5 | Staging | Build the exact demonstrated commit with fresh scratch state and an isolated browser context; one storyboard comes from one run |
-| B6 | Capture | Use three to six meaningful states, semantic locators, verified readiness, stable viewport and one demonstrated page |
+| B6 | Capture | Use three to six meaningful states, semantic locators, verified readiness, stable viewport and one demonstrated page; tool-call evidence exposes identity, status, downstream effect and transient state |
 | B7 | Safety | Capture no secrets, personal data, unrelated tabs or notifications |
 | B8 | Encoding | Require Python, `ffmpeg` and `ffprobe`; validate timing, dimensions, frame count and maximum bytes |
 | B9 | Screenshots | When video is unavailable or a storyboard is requested, capture ordered verified screenshots with identical dimensions |
@@ -59,11 +59,11 @@ Source files:
 | Unit | Disposition | Target | Basis |
 |---|---|---|---|
 | B1 | Keep | Default, capture, encoding and verification responsibilities | The requirement is provider-neutral |
-| B2 | Re-bind | User-visible browser UI changes default to GIF evidence; project override and explicit fixture request remain | The universal hard policy belongs to DSH; the target needs a default that can be overridden |
+| B2 | Re-bind | User-visible browser UI changes default to GIF evidence; project override and explicit fixture or substitute policy remain | The universal hard policy belongs to DSH; the target needs a default that can be overridden without silently pretending a substitute is real |
 | B3 | Re-bind | Exact commit and tree, adopter-observed real services, explicit real-versus-substitute report | DSH credentials and model-round details are product facts |
 | B4 | Keep | Recording is local and publication is separate and task-dependent | The remote-state boundary is domain-neutral |
 | B5 | Adapt | Project-declared build/start commands and fresh application and browser state | DSH commands and environment names are values of the generic rule |
-| B6 | Keep | Short state story, semantic readiness and stable dimensions | The capture judgment is domain-neutral |
+| B6 | Keep | Short state story, semantic readiness, stable dimensions, and the observable tool identity, status, downstream effect and transient state needed for a tool-call demonstration | The capture judgment is domain-neutral |
 | B7 | Keep | No secrets, personal data or unrelated content | The safety boundary is domain-neutral |
 | B8 | Adapt | Node encoder with a temporary output, post-encode validation and atomic replacement | The target's Node toolchain replaces the upstream Python carrier while preserving its timing, frame, size and metadata guarantees |
 | B9 | Keep | Ordered screenshots and durations when continuous video is unavailable | The alternate evidence form is domain-neutral |
@@ -75,7 +75,7 @@ Source files:
 ## Rulings
 
 - **The default is capability-dependent.** Missing browser, build, media or publication capability produces an explicit handoff; it never permits a claim that the UI was demonstrated.
-- **The DSH real-model policy is generalized to real product behavior.** A recording identifies whether the run used the real integrated path, a fixture or another substitute. A fixture is allowed only on explicit request.
+- **The DSH real-model policy is generalized to real product behavior.** A recording identifies whether the run used the real integrated path, a fixture or another substitute. A substitute requires an explicit user or project-policy choice.
 - **UI acceptance is not this skill's decision.** The separate UI review workflow decides coverage and acceptability; this skill produces and verifies the requested artifact.
 - **The encoder is shipped rather than reimplemented at runtime.** A deterministic command gives stable validation and avoids repeating the same frame-manipulation logic in an agent's context.
 - **Encoder development tests stay in the repository.** Fast command and preflight cases run in the normal suite; one shared real-media scenario checks video timing, screenshots, representative-frame order and safe replacement on Node 26. Installed skills carry no maintenance tests.

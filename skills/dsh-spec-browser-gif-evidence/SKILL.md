@@ -13,7 +13,7 @@ Produce one truthful GIF from one isolated run of the changed build. This skill 
 
 When a change alters user-visible browser UI behavior, generate and verify GIF evidence by default. When the task also creates or updates a pull request, attach the verified GIF there. Without a pull-request task, keep the evidence local.
 
-The project's explicit instructions may select equivalent evidence or waive the default for a named change. A fixture recording is allowed only when the user explicitly asks for one.
+The project's explicit instructions may select equivalent evidence or waive the default for a named change. A fixture recording is allowed only when the user explicitly requests it or the project's evidence policy selects that form. Do not use a mock transport, synthetic interaction, or test-only hook unless the user or project policy explicitly requires that substitute.
 
 Do not claim completion when the build, browser, real scenario, media tools or publication facility needed by the requested evidence is unavailable. Preserve completed work and hand off the missing capability, unfinished evidence and next step.
 
@@ -26,6 +26,7 @@ Do not claim completion when the build, browser, real scenario, media tools or p
 - Keep every frame and artifact from one run. If capture fails, discard the run and start again; never splice a newer outcome into an older capture.
 - Use one demonstrated page and a short story of three to six meaningful states. Wait on semantic page state rather than fixed sleeps; a fixed wait may hold a verified frame for reading, but cannot establish readiness.
 - Preserve animations and scrolling that carry the demonstrated state, and review the complete selected interval including intermediate states.
+- When demonstrating a tool call, rejection or recovery, expose the tool identity, status or stable error code, downstream result and any transient running state that carries the behavior.
 - State whether the run used the real product path and real external services, a fixture, a mock or another substitute. Never read or expose credential values, personal data, unrelated tabs or notifications.
 
 ## Capture
@@ -36,7 +37,7 @@ When browser control is unavailable and the project declares an isolated Playwri
 
 Store raw video, screenshots, capture notes and QA frames in a project-declared ignored path. When the project declares none, use a fresh temporary directory outside the tracked tree and report its path. Do not commit evidence media to a branch.
 
-Close browser contexts, stop servers started for the run and remove transient browser profiles on both success and failure. Keep the captured evidence and report the first incomplete cleanup step.
+Close browser contexts, stop servers started for the run and remove transient browser profiles on both success and failure. Stop a server by its recorded PID or an exact command-line match; a broad `pkill -f` pattern can match and kill the shell that launched it. Keep the captured evidence and report the first incomplete cleanup step.
 
 ## Encode
 

@@ -537,6 +537,15 @@ function triggerSurfaceHash(skillName: string): string {
   return createHash('sha256').update(JSON.stringify({ name, description })).digest('hex')
 }
 
+function triggerSurfaceHash(skillName: string): string {
+  const body = readFileSync(join(REPO_ROOT, 'skills', skillName, 'SKILL.md'), 'utf8')
+  const name = /^name:\s*(.+)$/m.exec(body)?.[1]
+  const description = /^description:\s*"(.*)"$/m.exec(body)?.[1]
+  assert.ok(name, skillName + ' has no name')
+  assert.ok(description, skillName + ' has no description')
+  return createHash('sha256').update(JSON.stringify({ name, description })).digest('hex')
+}
+
 test('the capability scenario corpus covers absent and available isolated execution', () => {
   for (const required of REQUIRED) validateCorpus(readCorpus(required.skill), required)
   validateCorpus(readCorpus(FORGE_REQUIRED.skill), FORGE_REQUIRED)
@@ -1391,7 +1400,6 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
   for (const path of [
     `tests/skill-evals/${skill}/trigger-evals.json`,
     `tests/skill-evals/${skill}/trigger-fixtures/AGENTS.md`,
-    `skills/${skill}/SKILL.md`,
   ]) {
     assert.equal(
       triggerInputs.get(path),
@@ -1401,6 +1409,11 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
       'trigger input differs: ' + path,
     )
   }
+  assert.equal(
+    triggerInputs.get(`skills/${skill}/SKILL.md#name-description`),
+    triggerSurfaceHash(skill),
+    'browser GIF trigger surface differs',
+  )
 
   const triggerCorpus = JSON.parse(readFileSync(join(corpusRoot, 'trigger-evals.json'), 'utf8')) as {
     queries: Array<{ id: string; should_trigger: boolean }>

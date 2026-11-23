@@ -1,6 +1,7 @@
 # PR #115 clean-context model evidence
 
 Base: `83a507e9162439ae8fb65b1bdfef2fa732d3c2b8`.
+Evidence commit: `beda15a566ac09326006fdf05dd32bf3e2d15604`.
 Candidate skill tree: `4c7431defbb6ff5dab05fc611c84a7d5e192bac4`.
 Evaluation files tree: `2590021a52aeaf30366cc3bd25cf07a5b2047744`.
 Trigger fixture tree: `d93b94d7c9cb9c9bafa5ad43b9ae3e6536057dc3`.
