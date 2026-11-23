@@ -79,9 +79,12 @@ export interface Fixture {
  * @returns the environment for one repository's Git commands.
  */
 export function isolatedGitEnv(home: string, extra: FixtureEnvironment = {}): FixtureEnvironment {
+  const inherited = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_')))
   return mergeEnvironment(
     {
-      ...process.env,
+      ...inherited,
+      GIT_CONFIG_COUNT: '0',
+      GIT_CONFIG_GLOBAL: '/dev/null',
       GIT_CONFIG_NOSYSTEM: '1',
       HOME: home,
       XDG_CONFIG_HOME: join(home, '.config'),
