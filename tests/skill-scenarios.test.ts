@@ -502,6 +502,15 @@ function commandReadsSkill(command: string | undefined, skillName = 'dsh-spec-er
   ).test(command)
 }
 
+function triggerSurfaceHash(skillName: string): string {
+  const body = readFileSync(join(REPO_ROOT, 'skills', skillName, 'SKILL.md'), 'utf8')
+  const name = /^name:\s*(.+)$/m.exec(body)?.[1]
+  const description = /^description:\s*"(.*)"$/m.exec(body)?.[1]
+  assert.ok(name, skillName + ' has no name')
+  assert.ok(description, skillName + ' has no description')
+  return createHash('sha256').update(JSON.stringify({ name, description })).digest('hex')
+}
+
 test('the capability scenario corpus covers absent and available isolated execution', () => {
   for (const required of REQUIRED) validateCorpus(readCorpus(required.skill), required)
   validateCorpus(readCorpus(FORGE_REQUIRED.skill), FORGE_REQUIRED)
@@ -792,6 +801,7 @@ test('web UI trigger corpus keeps positive and near-miss coverage', () => {
 
 test('web UI model evidence and trigger traces stay auditable', () => {
   const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-20-pr114')
+  const evidenceReadme = readFileSync(join(evidenceRoot, 'README.md'), 'utf8')
   const behaviorRuns = [
     ['candidate-shared-widget', true, 'shared-widget-consumer-coverage', 'pass', 5],
     ['candidate-missing-render', true, 'missing-rendered-evidence-handoff', 'pass', 4],
@@ -806,9 +816,8 @@ test('web UI model evidence and trigger traces stay auditable', () => {
       }
     ).evals.map((scenario) => [scenario.id, scenario]),
   )
-  const skillHash = createHash('sha256')
-    .update(readFileSync(join(REPO_ROOT, 'skills/dsh-spec-client-ui-ux/SKILL.md')))
-    .digest('hex')
+  const skillHash = /^Skill file SHA-256: `([0-9a-f]{64})`\.$/m.exec(evidenceReadme)?.[1]
+  assert.ok(skillHash, 'Web UI evidence does not record its skill revision')
 
   for (const [runName, candidate, scenarioId, status, assertionCount] of behaviorRuns) {
     const run = join(evidenceRoot, runName)
@@ -898,7 +907,6 @@ test('web UI model evidence and trigger traces stay auditable', () => {
   for (const path of [
     'tests/skill-evals/dsh-spec-client-ui-ux/trigger-evals.json',
     'tests/skill-evals/dsh-spec-client-ui-ux/trigger-fixtures/AGENTS.md',
-    'skills/dsh-spec-client-ui-ux/SKILL.md',
   ] as const) {
     assert.equal(
       triggerInputs.get(path),
@@ -908,6 +916,11 @@ test('web UI model evidence and trigger traces stay auditable', () => {
       'trigger input differs: ' + path,
     )
   }
+  assert.equal(
+    triggerInputs.get('skills/dsh-spec-client-ui-ux/SKILL.md#name-description'),
+    triggerSurfaceHash('dsh-spec-client-ui-ux'),
+    'Web UI trigger surface differs',
+  )
   const matrix = new Map(
     readFileSync(join(evidenceRoot, 'trigger-matrix.tsv'), 'utf8')
       .trim()
@@ -1029,11 +1042,13 @@ test('the browser evidence fixture does not leak an unready server', async (t) =
 
 test('web UI evidence README pins the exact committed trees and corpus', () => {
   const readme = readFileSync(join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-20-pr114/README.md'), 'utf8')
+  const evidenceCommit = /^Evidence commit: `([0-9a-f]{40})`\.$/m.exec(readme)?.[1]
+  assert.ok(evidenceCommit, 'Web UI evidence does not record its commit')
   for (const [label, object] of [
-    ['Candidate skill tree', 'HEAD:skills/dsh-spec-client-ui-ux'],
-    ['Evaluation files tree', 'HEAD:tests/skill-evals/dsh-spec-client-ui-ux/evals/files'],
-    ['Trigger fixture tree', 'HEAD:tests/skill-evals/dsh-spec-client-ui-ux/trigger-fixtures'],
-    ['Trigger corpus blob', 'HEAD:tests/skill-evals/dsh-spec-client-ui-ux/trigger-evals.json'],
+    ['Candidate skill tree', `${evidenceCommit}:skills/dsh-spec-client-ui-ux`],
+    ['Evaluation files tree', `${evidenceCommit}:tests/skill-evals/dsh-spec-client-ui-ux/evals/files`],
+    ['Trigger fixture tree', `${evidenceCommit}:tests/skill-evals/dsh-spec-client-ui-ux/trigger-fixtures`],
+    ['Trigger corpus blob', `${evidenceCommit}:tests/skill-evals/dsh-spec-client-ui-ux/trigger-evals.json`],
   ] as const) {
     const result = spawnSync('git', ['rev-parse', object], { cwd: REPO_ROOT, encoding: 'utf8' })
     assert.equal(result.status, 0, result.stderr)

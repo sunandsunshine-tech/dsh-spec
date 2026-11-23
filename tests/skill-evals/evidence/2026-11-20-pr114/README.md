@@ -1,6 +1,7 @@
 # PR #114 clean-context model evidence
 
 Base: `01c030b` (`agent/stack-105-error-contract`).
+Evidence commit: `459952c07267847ba33d77b32ca3b135d6166a83`.
 Candidate skill tree: `41264a82968e19b37664f48bb3d982adaa08a7cf`.
 Evaluation files tree: `451936c9891ea261fb87cf9ab4ee15ac6af971f0`.
 Trigger fixture tree: `d420502b19eaca2d79dd5599d2226d7fff0f9993`.

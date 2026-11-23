@@ -34,7 +34,7 @@ Use the smallest inspection that can establish the changed behavior.
 
 | Change | Required inspection |
 |---|---|
-| Local copy, icon, color, or spacing | Inspect the actual affected page, its neighbors, and the states touched by the change. Run the owning tests. |
+| Local copy, icon, color, or spacing | Inspect the actual affected page, its neighbors, and the states touched by the change. Use the project-selected test evidence without repeating another workflow's checks. |
 | Layout, shared component, or global style | Trace affected consumers and inspect distinct assembled layouts and states that can inherit the change. |
 | Requested comprehensive review | Cover the agreed regions and relevant states. Report inspected results, defects, and uninspected scope separately. |
 
@@ -42,7 +42,7 @@ Do not require a fixed screenshot count, every width-by-theme combination, or a 
 
 ## Minimum rendered checks
 
-Open the running application and inspect the change in context.
+Inspect the running application or equally valid assembled rendered evidence in context.
 
 - **Color, opacity, or theme:** inspect affected foreground, background, and state pairs in the themes the project supports.
 - **Layout, spacing, typography, or sizing:** inspect a constrained container and long or wrapping content; check both sides of an affected breakpoint, alignment, clipping, scrolling, and access to actions. Name the aligned objects and axes, both gap endpoints including padding, borders and line boxes, and the project's spacing owner.
@@ -58,7 +58,7 @@ Open the running application and inspect the change in context.
 - **Platform chrome:** where the project supports platform-specific window or input behavior, inspect it in the affected host surface, including the combined frame clearance and page inset.
 - **State authenticity:** verify that a claimed focus, hover, pressed, selected, expanded, loading, disabled, or touch state came from the real interaction or state mechanism. A forced class, data attribute, debug overlay, or copied style that only imitates the state is not evidence of that state.
 
-Run the project's applicable tests for every reviewed change. Source inspection and passing tests establish neither the rendered result nor visual acceptance. Reuse valid evidence when the build, viewport, data, theme, and state remain equivalent.
+Use the project's required test evidence; when it has not run, select it through the project's check workflow (when available, use the `dsh-spec-pre-push-checks` skill). Source inspection and passing tests establish neither the rendered result nor visual acceptance. Reuse valid evidence when the build, viewport, data, theme, and state remain equivalent.
 
 ## Trace every affected consumer
 
@@ -68,11 +68,11 @@ One consumer does not establish the coverage of a shared change. Conversely, do 
 
 ## Record browser evidence by default
 
-A user-visible browser UI behavior change produces recorded browser evidence by default. Record one demonstration from a single isolated run of the changed build. Do not combine frames or state roots from separate runs.
+A user-visible browser UI behavior change produces truthful recorded evidence by default. The evidence must represent one coherent run of the changed build and must not combine frames or state roots from separate runs. The selected evidence mechanism owns capture, isolation, frame retention and encoding mechanics.
 
 The project may declare screenshots, video, a labeled component fixture, or another equivalent evidence form. A screenshot pair records two settled states, not a transition. A labeled component fixture records only what it renders and is controlled evidence, not an assembled-application pass when the change reaches application layout or consumers.
 
-When the required rendered scene or recording capability is unavailable, report the missing scene or capability, why it is unavailable, what evidence was completed, and a concrete resumable action naming the environment, scene, or artifact to supply next. Do not claim visual completion from source inspection, unit tests, or a fixture that does not cover the change. Capture, encoding, encoding validation and publication mechanics belong to the selected evidence mechanism; this skill asks for the evidence it must produce.
+When the required rendered scene or recording capability is unavailable, report the missing scene or capability, why it is unavailable, what evidence was completed, and a concrete resumable action naming the environment, scene, or artifact to supply next. Do not claim visual completion from source inspection, unit tests, or a fixture that does not cover the change.
 
 ## Preserve the comparison
 
