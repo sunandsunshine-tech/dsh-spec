@@ -6,6 +6,7 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  realpathSync,
   rmSync,
   symlinkSync,
   writeFileSync,
@@ -19,6 +20,7 @@ import { test } from 'node:test'
 
 const safety = (await import('./skill-evals/runner-safety.mjs' as string)) as {
   acquireFileLock(path: string): Promise<{ release(): Promise<void> }>
+  assertCredentialFreeBaseUrl(value: string, label: string): URL
   assertEvidenceRunPath(root: string, output: string, expectedSkill?: string): void
   assertInputFile(root: string, file: string, label: string): string
   assertProjectPath(project: string, path: string, label: string): string
@@ -29,9 +31,11 @@ const safety = (await import('./skill-evals/runner-safety.mjs' as string)) as {
   mediaExecutablePaths(): string[]
   modeBits(path: string): string
   parseNulSeparatedPaths(output: string): string[]
-  proxyProviderLines(lines: string[], proxyUrl: string): string[]
+  proxyProviderLines(lines: string[], proxyUrl: string, proxyToken: string): string[]
+  readSafeModelCatalog(sourceHome: string, value: string): string
   removeModelTree(path: string): void
   resolveCapability(name: string, requested: boolean | undefined, available: boolean): boolean
+  resolveExecutableFile(path: string): string | undefined
   resolveMiseMediaRoot(miseInstalls: string): string | undefined
   tomlField(lines: string[], key: string): string | undefined
   tomlStringValue(line: string): string | undefined
@@ -212,8 +216,13 @@ test('media capability resolves executables that can be mounted into the sandbox
     symlinkSync(version, join(installs, 'ffmpeg', 'latest'))
     assert.equal(safety.resolveMiseMediaRoot(installs), version)
     assert.equal(safety.executableFile(join(version, 'bin', 'ffmpeg')), true)
+    assert.equal(
+      safety.resolveExecutableFile(join(version, 'bin', 'ffmpeg')),
+      realpathSync(join(version, 'bin', 'ffmpeg')),
+    )
     symlinkSync(join(version, 'bin', 'ffmpeg'), join(root, 'ffmpeg-link'))
     assert.equal(safety.executableFile(join(root, 'ffmpeg-link')), true)
+    assert.equal(safety.resolveExecutableFile(join(root, 'ffmpeg-link')), realpathSync(join(version, 'bin', 'ffmpeg')))
     chmodSync(join(version, 'bin', 'ffprobe'), 0o644)
     assert.equal(safety.resolveMiseMediaRoot(installs), undefined)
   } finally {
@@ -225,6 +234,7 @@ test('model auth proxy keeps the upstream token outside the model configuration'
   let upstreamAuthorization = ''
   let upstreamBody = ''
   let upstreamPath = ''
+  const authToken = 'a'.repeat(64)
   let releaseStall: (() => void) | undefined
   const stallStarted = new Promise<void>((resolve) => {
     releaseStall = resolve
@@ -250,34 +260,34 @@ test('model auth proxy keeps the upstream token outside the model configuration'
   const address = upstream.address()
   assert.ok(address && typeof address !== 'string')
 
-  const proxy = spawn(
-    process.execPath,
-    [join(import.meta.dirname, 'skill-evals/model-auth-proxy.mjs'), `http://127.0.0.1:${address.port}/v1`],
-    {
-      env: { ...process.env, MODEL_AUTH_TOKEN: 'host-only-secret' },
-      stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
-    },
-  )
+  const proxy = spawn(process.execPath, [join(import.meta.dirname, 'skill-evals/model-auth-proxy.mjs')], {
+    stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
+  })
   t.after(() => proxy.kill('SIGTERM'))
+  proxy.send({
+    upstream: `http://127.0.0.1:${address.port}/api/v1?api-version=base`,
+    token: 'host-only-secret',
+    authToken,
+  })
   assert.ok(proxy.stdout)
   const [chunk] = await once(proxy.stdout, 'data')
   const { url } = JSON.parse(String(chunk)) as { url: string }
   const response = await fetch(url + '/responses', {
     method: 'POST',
-    headers: { authorization: 'Bearer local-model-proxy', 'content-type': 'application/json' },
+    headers: { authorization: `Bearer ${authToken}`, 'content-type': 'Application/JSON; charset=utf-8' },
     body: 'request body',
   })
   assert.equal(await response.text(), 'forwarded')
   assert.equal(upstreamAuthorization, 'Bearer host-only-secret')
   assert.equal(upstreamBody, 'request body')
-  assert.equal(upstreamPath, '/v1/responses')
-  const prefixed = await fetch(url + '/v1/responses', {
+  assert.equal(upstreamPath, '/api/v1/responses?api-version=base')
+  const prefixed = await fetch(url + '/v1/responses?request=1', {
     method: 'POST',
-    headers: { authorization: 'Bearer local-model-proxy', 'content-type': 'application/json' },
+    headers: { authorization: `Bearer ${authToken}`, 'content-type': 'application/json' },
     body: '{}',
   })
   assert.equal(await prefixed.text(), 'forwarded')
-  assert.equal(upstreamPath, '/v1/responses')
+  assert.equal(upstreamPath, '/api/v1/responses?api-version=base&request=1')
   const provider = safety.proxyProviderLines(
     [
       'name = "provider"',
@@ -287,23 +297,41 @@ test('model auth proxy keeps the upstream token outside the model configuration'
       'env_key = "HOST_ONLY_SECRET"',
     ],
     url,
+    authToken,
   )
   assert.equal(
     provider.some((line) => line.includes('host-only-secret') || line.includes('HOST_ONLY_SECRET')),
     false,
   )
-  assert.ok(provider.includes('experimental_bearer_token = "local-model-proxy"'))
+  assert.ok(provider.includes(`experimental_bearer_token = ${JSON.stringify(authToken)}`))
   assert.ok(provider.includes(`base_url = ${JSON.stringify(url)}`))
 
-  const forbidden = await fetch(url + '/not-a-model-endpoint', {
+  const forbiddenPath = await fetch(url + '/not-a-model-endpoint', {
+    method: 'POST',
+    headers: { authorization: `Bearer ${authToken}`, 'content-type': 'application/json' },
+    body: '{}',
+  })
+  assert.equal(forbiddenPath.status, 403)
+  const forbiddenAuth = await fetch(url + '/responses', {
     method: 'POST',
     headers: { authorization: 'Bearer local-model-proxy', 'content-type': 'application/json' },
     body: '{}',
   })
-  assert.equal(forbidden.status, 403)
+  assert.equal(forbiddenAuth.status, 403)
+  const forbiddenMethod = await fetch(url + '/responses', {
+    method: 'GET',
+    headers: { authorization: `Bearer ${authToken}`, 'content-type': 'application/json' },
+  })
+  assert.equal(forbiddenMethod.status, 403)
+  const forbiddenMediaType = await fetch(url + '/responses', {
+    method: 'POST',
+    headers: { authorization: `Bearer ${authToken}`, 'content-type': 'application/jsonp' },
+    body: '{}',
+  })
+  assert.equal(forbiddenMediaType.status, 403)
   const stalled = fetch(url + '/responses', {
     method: 'POST',
-    headers: { authorization: 'Bearer local-model-proxy', 'content-type': 'application/json', 'x-stall': '1' },
+    headers: { authorization: `Bearer ${authToken}`, 'content-type': 'application/json', 'x-stall': '1' },
     body: '{}',
   }).catch(() => undefined)
   await stallStarted
@@ -323,6 +351,31 @@ test('provider TOML parsing accepts standard spacing and quoting before proxy re
   ]
   assert.equal(safety.tomlStringValue(safety.tomlField(section, 'base_url') ?? ''), 'https://provider.example/v1')
   assert.equal(safety.tomlStringValue(safety.tomlField(section, 'experimental_bearer_token') ?? ''), 'REAL_SECRET')
+})
+
+test('model catalog and base URL validation reject credentials and path escapes', () => {
+  const root = mkdtempSync(join(tmpdir(), 'runner-catalog-safety-'))
+  try {
+    writeFileSync(join(root, 'catalog.json'), '{"models":["safe"]}\n')
+    assert.equal(safety.readSafeModelCatalog(root, 'catalog.json'), '{"models":["safe"]}\n')
+    writeFileSync(join(root, 'secret.json'), '{"models":[{"api_key":"secret"}]}\n')
+    assert.throws(() => safety.readSafeModelCatalog(root, 'secret.json'), /credential field/)
+    assert.throws(() => safety.readSafeModelCatalog(root, '../catalog.json'), /escapes/)
+    assert.equal(
+      safety.assertCredentialFreeBaseUrl('https://provider.example/api/v1?api-version=1', 'base URL').pathname,
+      '/api/v1',
+    )
+    assert.throws(
+      () => safety.assertCredentialFreeBaseUrl('https://user:secret@provider.example/v1', 'base URL'),
+      /userinfo/,
+    )
+    assert.throws(
+      () => safety.assertCredentialFreeBaseUrl('https://provider.example/v1?token=secret', 'base URL'),
+      /query/,
+    )
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
 })
 
 test('input modes are bound in the manifest format', async () => {

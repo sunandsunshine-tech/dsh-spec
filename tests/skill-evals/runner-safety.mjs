@@ -7,6 +7,7 @@ import {
   lstatSync,
   openSync,
   readdirSync,
+  readFileSync,
   readSync,
   realpathSync,
   rmdirSync,
@@ -99,6 +100,61 @@ export function assertProjectPath(project, path, label) {
   return absolute
 }
 
+export function assertCredentialFreeBaseUrl(value, label) {
+  let url
+  try {
+    url = new URL(value)
+  } catch {
+    throw new Error(`${label} is not a valid absolute URL`)
+  }
+  if (url.username || url.password) throw new Error(`${label} contains URL userinfo`)
+  for (const key of url.searchParams.keys()) {
+    if (/^(?:api[-_]?key|auth|authorization|bearer|key|password|secret|sig|signature|token)$/i.test(key)) {
+      throw new Error(`${label} contains a credential-like query parameter: ${key}`)
+    }
+  }
+  return url
+}
+
+function assertCredentialFreeJson(value, label) {
+  if (Array.isArray(value)) {
+    for (const child of value) assertCredentialFreeJson(child, label)
+    return
+  }
+  if (typeof value === 'string' && /^[a-z][a-z0-9+.-]*:\/\//i.test(value)) {
+    try {
+      assertCredentialFreeBaseUrl(value, label)
+    } catch (error) {
+      if (/credential|userinfo/i.test(String(error))) throw error
+    }
+    return
+  }
+  if (!value || typeof value !== 'object') return
+  for (const [key, child] of Object.entries(value)) {
+    if (/^(?:api[-_]?key|auth|authorization|bearer|bearer[-_]?token|password|secret|token)$/i.test(key)) {
+      throw new Error(`${label} contains a credential field: ${key}`)
+    }
+    assertCredentialFreeJson(child, label)
+  }
+}
+
+export function readSafeModelCatalog(sourceHome, value) {
+  const source = resolve(sourceHome, value)
+  assertContained(sourceHome, source, 'model catalog')
+  assertNoSymlinkComponents(sourceHome, source, 'model catalog')
+  assertRegularNonEmptyFile(source, 'model catalog')
+  if (statSync(source).size > 16 * 1024 * 1024) throw new Error('model catalog exceeds 16 MiB')
+  const text = readFileSync(source, 'utf8')
+  let parsed
+  try {
+    parsed = JSON.parse(text)
+  } catch {
+    throw new Error('model catalog is not valid JSON')
+  }
+  assertCredentialFreeJson(parsed, 'model catalog')
+  return text
+}
+
 export function assertEvidenceRunPath(evidenceRoot, output, expectedSkill) {
   const local = relative(evidenceRoot, output)
   const parts = local.split(sep)
@@ -149,6 +205,16 @@ export function executableFile(path) {
   }
 }
 
+export function resolveExecutableFile(path) {
+  try {
+    const resolved = realpathSync(path)
+    const stat = statSync(resolved)
+    return stat.isFile() && (stat.mode & 0o111) !== 0 ? resolved : undefined
+  } catch {
+    return undefined
+  }
+}
+
 export function resolveMiseMediaRoot(miseInstalls) {
   try {
     const root = realpathSync(join(miseInstalls, 'ffmpeg', 'latest'))
@@ -160,7 +226,7 @@ export function resolveMiseMediaRoot(miseInstalls) {
   }
 }
 
-export function proxyProviderLines(lines, proxyUrl) {
+export function proxyProviderLines(lines, proxyUrl, proxyToken) {
   let replacedBase = false
   const rewritten = []
   for (const line of lines) {
@@ -169,7 +235,7 @@ export function proxyProviderLines(lines, proxyUrl) {
       rewritten.push(`base_url = ${JSON.stringify(proxyUrl)}`)
       replacedBase = true
     } else if (key === 'experimental_bearer_token') {
-      rewritten.push('experimental_bearer_token = "local-model-proxy"')
+      rewritten.push(`experimental_bearer_token = ${JSON.stringify(proxyToken)}`)
     } else if (key !== 'env_key') {
       rewritten.push(line)
     }
@@ -202,28 +268,37 @@ export async function acquireFileLock(path) {
   child.stderr.on('data', (chunk) => {
     stderr += chunk
   })
-  const ready = await Promise.race([
-    new Promise((resolveReady, reject) => {
-      child.stdout.setEncoding('utf8')
-      child.stdout.once('data', (chunk) => {
-        if (String(chunk).trim() === 'ready') resolveReady(true)
-        else reject(new Error('file lock helper returned an unexpected readiness value'))
-      })
-      child.once('error', reject)
-      child.once('exit', () => reject(new Error(`output lock is held: ${path}${stderr ? `\n${stderr}` : ''}`)))
-    }),
-    delay(2_000).then(() => {
-      throw new Error(`output lock did not become ready: ${path}`)
-    }),
-  ])
-  if (ready !== true) throw new Error(`output lock did not become ready: ${path}`)
+  try {
+    await Promise.race([
+      new Promise((resolveReady, reject) => {
+        let stdout = ''
+        child.stdout.setEncoding('utf8')
+        child.stdout.on('data', (chunk) => {
+          stdout += chunk
+          const newline = stdout.indexOf('\n')
+          if (newline < 0) return
+          if (stdout.slice(0, newline).trim() === 'ready') resolveReady()
+          else reject(new Error('file lock helper returned an unexpected readiness value'))
+        })
+        child.once('error', reject)
+        child.once('exit', () => reject(new Error(`output lock is held: ${path}${stderr ? `\n${stderr}` : ''}`)))
+      }),
+      delay(2_000).then(() => {
+        throw new Error(`output lock did not become ready: ${path}`)
+      }),
+    ])
+  } catch (error) {
+    if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL')
+    await Promise.race([once(child, 'exit'), delay(1_000)])
+    throw error
+  }
   return {
     async release() {
-      if (child.exitCode !== null) return
+      if (child.exitCode !== null || child.signalCode !== null) return
       const exited = once(child, 'exit')
       child.stdin.end()
       const stopped = await Promise.race([exited.then(() => true), delay(2_000).then(() => false)])
-      if (!stopped && child.exitCode === null) {
+      if (!stopped && child.exitCode === null && child.signalCode === null) {
         child.kill('SIGKILL')
         await Promise.race([exited, delay(1_000)])
       }

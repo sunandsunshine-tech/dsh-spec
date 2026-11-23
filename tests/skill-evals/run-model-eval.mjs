@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from 'node:child_process'
-import { createHash } from 'node:crypto'
+import { createHash, randomBytes } from 'node:crypto'
 import { once } from 'node:events'
 import {
   cpSync,
@@ -19,6 +19,7 @@ import { setTimeout as delay } from 'node:timers/promises'
 import { parseArgs } from 'node:util'
 import {
   assertContained,
+  assertCredentialFreeBaseUrl,
   assertEvidenceRunPath,
   assertInputFile,
   assertNoSymlinkComponents,
@@ -34,8 +35,10 @@ import {
   modeBits,
   parseNulSeparatedPaths,
   proxyProviderLines,
+  readSafeModelCatalog,
   removeModelTree,
   resolveCapability,
+  resolveExecutableFile,
   resolveMiseMediaRoot,
   tomlField,
   tomlStringValue,
@@ -164,9 +167,11 @@ function modelEnvironment() {
 function capabilityMaskArgs(root, browserEnabled, mediaEnabled) {
   const empty = join(root, 'capability-empty')
   writeFileSync(empty, '')
-  return capabilityMaskPaths(browserEnabled, mediaEnabled)
-    .filter((candidate) => existsSync(candidate))
-    .flatMap((candidate) => ['--ro-bind', empty, candidate])
+  return capabilityMaskPaths(browserEnabled, mediaEnabled).flatMap((candidate) => {
+    const resolved = resolveExecutableFile(candidate)
+    if (!resolved) return []
+    return /^(?:\/usr|\/bin|\/etc|\/lib(?:64)?)(?:\/|$)/.test(resolved) ? ['--ro-bind', empty, resolved] : []
+  })
 }
 
 function sanitizeEvidenceText(text) {
@@ -183,8 +188,9 @@ function configuredCodexHome() {
 }
 
 async function startModelAuthProxy(upstream, token) {
-  const child = spawn(process.execPath, [join(EVAL_ROOT, 'model-auth-proxy.mjs'), upstream], {
-    env: { ...modelEnvironment(), MODEL_AUTH_TOKEN: token },
+  const authToken = randomBytes(32).toString('hex')
+  const child = spawn(process.execPath, [join(EVAL_ROOT, 'model-auth-proxy.mjs')], {
+    env: modelEnvironment(),
     stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
   })
   let stderr = ''
@@ -193,6 +199,8 @@ async function startModelAuthProxy(upstream, token) {
     stderr += chunk
   })
   try {
+    if (!child.connected) throw new Error('model auth proxy did not expose an IPC channel')
+    child.send({ upstream, token, authToken })
     const line = await Promise.race([
       new Promise((resolveLine, reject) => {
         let stdout = ''
@@ -213,19 +221,20 @@ async function startModelAuthProxy(upstream, token) {
     return {
       child,
       url,
+      token: authToken,
       async stop() {
-        if (child.exitCode !== null) return
+        if (child.exitCode !== null || child.signalCode !== null) return
         const exited = once(child, 'exit')
         child.kill('SIGTERM')
         const stopped = await Promise.race([exited.then(() => true), delay(2_000).then(() => false)])
-        if (!stopped && child.exitCode === null) {
+        if (!stopped && child.exitCode === null && child.signalCode === null) {
           child.kill('SIGKILL')
           await Promise.race([exited, delay(1_000)])
         }
       },
     }
   } catch (error) {
-    if (child.exitCode === null) {
+    if (child.exitCode === null && child.signalCode === null) {
       const exited = once(child, 'exit')
       child.kill('SIGKILL')
       await Promise.race([exited, delay(1_000)])
@@ -273,15 +282,25 @@ async function createIsolatedCodexHome(root) {
   const baseUrl = baseUrlLine ? tomlStringValue(baseUrlLine) : undefined
   if (bearerLine && !bearerToken) throw new Error('model provider has an unparseable inline bearer token')
   if (bearerToken && !baseUrl) throw new Error('model provider has an inline bearer token but no parseable base_url')
+  if (baseUrl) assertCredentialFreeBaseUrl(baseUrl, 'model provider base_url')
   const authProxy = bearerToken && baseUrl ? await startModelAuthProxy(baseUrl, bearerToken) : undefined
   try {
-    const providerSection = authProxy ? proxyProviderLines(section, authProxy.url) : section
+    const providerSection = authProxy ? proxyProviderLines(section, authProxy.url, authProxy.token) : section
     const codexHome = join(root, 'codex-home')
     mkdirSync(codexHome, { recursive: true })
+    const modelCatalogLine = tomlField(topLevel, 'model_catalog_json')
+    const modelCatalogValue = modelCatalogLine ? tomlStringValue(modelCatalogLine) : undefined
+    if (modelCatalogLine && !modelCatalogValue) throw new Error('model_catalog_json is unparseable')
+    const modelCatalog = modelCatalogValue ? readSafeModelCatalog(sourceHome, modelCatalogValue) : undefined
+    const rewrittenTopLevel = modelCatalogLine
+      ? topLevel.map((line) =>
+          line.split('=')[0]?.trim() === 'model_catalog_json' ? 'model_catalog_json = "model-catalog.json"' : line,
+        )
+      : topLevel
     writeFileSync(
       join(codexHome, 'config.toml'),
       [
-        ...topLevel,
+        ...rewrittenTopLevel,
         'sandbox_mode = "workspace-write"',
         '',
         header,
@@ -292,8 +311,7 @@ async function createIsolatedCodexHome(root) {
         '',
       ].join('\n'),
     )
-    const modelCatalog = /^model_catalog_json\s*=\s*"([^"]+)"/m.exec(sourceConfig)?.[1]
-    if (modelCatalog) copyFile(join(sourceHome, modelCatalog), join(codexHome, modelCatalog))
+    if (modelCatalog) writeFileSync(join(codexHome, 'model-catalog.json'), modelCatalog)
     return { authProxy, codexHome, credentialMode: authProxy ? 'host-proxy' : 'direct' }
   } catch (error) {
     if (authProxy) await authProxy.stop()
@@ -320,13 +338,13 @@ function isolatedCodexCommand(
   const chromiumDirectory = existsSync(playwrightRoot)
     ? readdirSync(playwrightRoot)
         .filter((entry) => /^chromium-\d+$/.test(entry))
-        .sort()
+        .sort((left, right) => Number(/\d+/.exec(left)?.[0]) - Number(/\d+/.exec(right)?.[0]))
         .at(-1)
     : undefined
   const chromiumRoot = chromiumDirectory ? join(playwrightRoot, chromiumDirectory, 'chrome-linux64') : undefined
   const browserLibs = join(tmpdir(), 'browser-libs', 'usr', 'lib', 'x86_64-linux-gnu')
   const hasPlaywrightBrowser = chromiumRoot && executableFile(join(chromiumRoot, 'chrome')) && existsSync(browserLibs)
-  const systemBrowser = browserExecutablePaths().find(executableFile)
+  const systemBrowser = browserExecutablePaths().map(resolveExecutableFile).find(Boolean)
   const hasBrowser = Boolean(hasPlaywrightBrowser) || Boolean(systemBrowser)
   const bundledMediaRoot = resolveMiseMediaRoot(miseInstalls)
   const systemMedia = mediaExecutablePaths().filter(executableFile)
@@ -335,6 +353,10 @@ function isolatedCodexCommand(
   )
   const hasMedia = Boolean(bundledMediaRoot) || hasSystemMedia
   const browserEnabled = resolveCapability('browser', capabilities?.browser ?? false, Boolean(hasBrowser))
+  const systemBrowserMount =
+    browserEnabled && systemBrowser && !/^(?:\/usr|\/bin|\/etc|\/lib(?:64)?)(?:\/|$)/.test(systemBrowser)
+      ? dirname(systemBrowser)
+      : undefined
   const mediaEnabled = resolveCapability('media', capabilities?.media ?? false, hasMedia)
   const mediaMount = mediaEnabled && bundledMediaRoot
   const sandboxMise = '/home/eval/.local/share/mise/installs'
@@ -405,6 +427,7 @@ function isolatedCodexCommand(
       join(miseInstalls, 'pnpm'),
       join(sandboxMise, 'pnpm'),
       ...(mediaMount ? ['--ro-bind', mediaMount, '/opt/ffmpeg'] : []),
+      ...(systemBrowserMount ? ['--ro-bind', systemBrowserMount, systemBrowserMount] : []),
       ...(hasPlaywrightBrowser && browserEnabled
         ? ['--ro-bind', chromiumRoot, '/opt/chrome', '--ro-bind', join(tmpdir(), 'browser-libs'), '/opt/browser-libs']
         : []),
