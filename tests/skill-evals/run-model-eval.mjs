@@ -235,7 +235,16 @@ function createIsolatedCodexHome(root) {
   return codexHome
 }
 
-function isolatedCodexCommand(codexHome, project, responseRoot, trustedGit, sandbox, capabilities, args) {
+function isolatedCodexCommand(
+  codexHome,
+  project,
+  responseRoot,
+  trustedGit,
+  sandbox,
+  capabilities,
+  allowSubagents,
+  args,
+) {
   const codexBinary = process.env.CODEX_BIN ?? 'codex'
   const codexPath = run('which', [codexBinary], {}).stdout.trim()
   if (!codexPath) throw new Error(`cannot find Codex binary: ${codexBinary}`)
@@ -299,6 +308,9 @@ function isolatedCodexCommand(codexHome, project, responseRoot, trustedGit, sand
       project,
       '/workspace',
       '--ro-bind',
+      join(project, '.agents', 'skills'),
+      '/workspace/.agents/skills',
+      '--ro-bind',
       trustedGit,
       '/workspace/.git',
       '--bind',
@@ -348,9 +360,17 @@ function isolatedCodexCommand(codexHome, project, responseRoot, trustedGit, sand
           ]
         : []),
       `/opt/codex/${basename(codexPath)}`,
+      '--disable',
+      'browser_use',
+      '--disable',
+      'browser_use_external',
+      '--disable',
+      'computer_use',
+      ...(allowSubagents ? [] : ['--disable', 'multi_agent']),
       ...args,
     ],
     cwd: project,
+    profile: { browser: browserEnabled, media: mediaEnabled, subagents: allowSubagents },
   }
 }
 
@@ -642,6 +662,7 @@ try {
     trustedGit,
     options.sandbox,
     scenario.capabilities,
+    scenario.allow_subagents ?? false,
     [
       'exec',
       '--ephemeral',
@@ -658,6 +679,7 @@ try {
       `${scenario.prompt}\n\nUse the installed skill at .agents/skills/${options.skill}/SKILL.md for this task. Work only inside the current project. ${subagentInstruction} Do not read outside this project.`,
     ],
   )
+  writeFileSync(join(stagedOutput, 'capabilities.json'), `${JSON.stringify(invocation.profile, null, 2)}\n`)
   const result = run(invocation.command, invocation.args, {
     cwd: invocation.cwd,
     env: modelEnvironment(),

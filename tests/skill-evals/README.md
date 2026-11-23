@@ -34,7 +34,9 @@ forbids them.
 
 The runner writes a normalized trace and the final response, exact input and behavior-bearing
 installed-skill hashes, the canonical scenario hash, NUL-safe changed paths, patch and changed-file
-snapshots. It clears inherited host environment variables before the model process and inspects
+snapshots. The installed skill tree is mounted read-only over the writable project, Codex browser
+and computer-use features are disabled, and subagents are disabled unless the scenario authorizes
+them. The runner clears inherited host environment variables before the model process and inspects
 the fixture through a trusted Git copy made before the model starts; model-controlled hooks,
 configuration redirects and replacement indexes cannot change that inspection. A scenario may
 list ignored build or evidence paths under `outputs`; the runner retains those files too, so a
@@ -53,8 +55,9 @@ message and artifacts. It does not identify the model provider or capture every 
 version, so retained evidence is not a byte-for-byte reproduction contract. The runner derives
 browser and media availability from the host. A scenario may explicitly require a capability, which
 fails before the model starts when unavailable, or explicitly disable it, which masks known system
-browser and media executables. The compatibility claim does not cover network or credential
-isolation.
+browser and media executables. `capabilities.json` records the resolved browser, media and subagent
+profile. The compatibility claim does not cover network or credential isolation, and a masked
+browser set is not a proof that no unknown executable exists elsewhere on the image.
 
 The official Agent Skills layout can also be checked without a model run by placing the target skill
 at `<temporary>/<skill>` and its development corpus at `<temporary>/<skill>/evals/`. A scenario's
