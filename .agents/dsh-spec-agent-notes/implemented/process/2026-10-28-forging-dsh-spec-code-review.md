@@ -21,6 +21,10 @@ The package ships `dsh-spec-code-review` as an adaptation of the upstream `dsh-c
 
 Upstream source: `deepseek-ai/deepseek-harness`, source revision `f3803c96974ad4a94195fb97e5c637e9c2a3afe3` (`dsh-v0.2.2-alpha.2`). The current extraction baseline is `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`). The one source file is `.agents/skills/dsh-code-review/SKILL.md` (62 lines); the line citations in the disposition table are upstream lines.
 
+## Review integrations
+
+The shipped skill requires the project's existing stable machine-readable failure identity to survive a machine-consumable boundary, preserves the original cause or equivalent structured detail, and rejects routing on message text. It also requires rendered evidence from the assembled browser UI across affected states and consumers; source inspection and passing tests do not establish visual acceptance. The error-handling and client UI requirements remain complete without another skill, and their concrete mechanisms appear only in availability-qualified examples. Model evidence under `tests/skill-evals/evidence/2026-11-20-pr119/` covers the capability-present and capability-absent profiles at 5/5 and 4/4 assertions; the repository scenario test binds the scenario inputs, skill hashes and retained artifacts.
+
 ## Target shape
 
 The skill is one file with the upstream section skeleton:

@@ -193,6 +193,99 @@ const GENERAL_REQUIRED: GeneralProfile[] = [
     ],
   },
   {
+    skill: 'dsh-spec-code-review',
+    scenarios: [
+      {
+        id: 'review-with-integrated-guidance',
+        signature: [
+          /discards its existing failure metadata/i,
+          /sibling guidance is installed/i,
+          /captured from this exact build/i,
+          /Settings saving state/i,
+        ],
+        expectedOutput: [
+          /existing `kind` failure identity/i,
+          /structured `detail`/i,
+          /rejects message-text routing/i,
+          /attached current-build screenshot/i,
+          /Settings state with Delete account enabled/i,
+          /saving\/disabled state/i,
+          /390-pixel narrow viewport remains unproved/i,
+          /leaves that coverage incomplete/i,
+        ],
+        assertions: [
+          /existing `kind` identity and structured `detail`/i,
+          /rejects routing on the error message/i,
+          /current-build screenshot .* Settings saving\/disabled state is not shown/i,
+          /shared-consumer test as visual acceptance of the saving state/i,
+          /sibling guidance only as an optional mechanism/i,
+        ],
+      },
+      {
+        id: 'review-without-siblings',
+        signature: [/without .*sibling guidance/i, /without a rendered screenshot/i, /Settings saving-state evidence/i],
+        expectedOutput: [
+          /still requires the project's existing `kind` identity/i,
+          /structured `detail`/i,
+          /unavailable Settings saving\/disabled rendered evidence/i,
+          /resumable next step/i,
+        ],
+        assertions: [
+          /existing `kind` identity and structured `detail`/i,
+          /rejects routing on the error message/i,
+          /Settings saving\/disabled rendered evidence as unavailable/i,
+          /resumable next step.*instead of claiming visual acceptance/i,
+        ],
+      },
+    ],
+  },
+  {
+    skill: 'dsh-spec-pre-push-checks',
+    scenarios: [
+      {
+        id: 'select-integrated-evidence',
+        signature: [
+          /message-only result/i,
+          /sibling guidance is installed/i,
+          /captured from this exact build/i,
+          /shared Button\/Settings surface/i,
+        ],
+        expectedOutput: [
+          /existing `kind` identity/i,
+          /structured `detail`/i,
+          /rejects message-text routing/i,
+          /attached current-build screenshot/i,
+          /saving\/disabled Settings state.*remain unproved/i,
+          /390-pixel narrow viewport remain unproved/i,
+          /does not present the consumer test as visual acceptance/i,
+        ],
+        assertions: [
+          /existing `kind` identity and structured `detail`/i,
+          /rejects message-text routing/i,
+          /current-build screenshot .* Settings saving\/disabled state remains unproved/i,
+          /consumer test as visual acceptance of the saving state/i,
+          /sibling guidance only as an optional mechanism/i,
+        ],
+      },
+      {
+        id: 'select-minimum-without-siblings',
+        signature: [/without .*sibling guidance/i, /without a rendered screenshot/i, /Settings saving state changes/i],
+        expectedOutput: [
+          /still requires the existing `kind` identity/i,
+          /structured `detail`/i,
+          /Settings saving\/disabled rendered evidence as unavailable/i,
+          /consumer test as visual acceptance/i,
+        ],
+        assertions: [
+          /existing `kind` identity and structured `detail`/i,
+          /rejects message-text routing/i,
+          /Settings saving\/disabled rendered evidence as unavailable/i,
+          /concrete next step before completion/i,
+        ],
+      },
+    ],
+  },
+  {
     skill: 'dsh-spec-agent-notes',
     scenarios: [
       {
@@ -1677,6 +1770,186 @@ test('historical test reliability evidence remains provenance only', () => {
     )
     assert.equal(selected, String(marker === 'SELECT: dsh-spec-test-reliability'))
     assert.equal(shouldTrigger === selected ? 'pass' : 'fail', result)
+  }
+})
+
+test('review integration evidence binds present and absent capability profiles', () => {
+  const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-20-pr119')
+  const runs = [
+    {
+      run: 'candidate-code-review-present',
+      skill: 'dsh-spec-code-review',
+      scenario: 'review-with-integrated-guidance',
+      siblingSkills: ['dsh-spec-client-ui-ux', 'dsh-spec-error-handling'],
+      assertions: 5,
+    },
+    {
+      run: 'candidate-code-review-absent',
+      skill: 'dsh-spec-code-review',
+      scenario: 'review-without-siblings',
+      siblingSkills: [],
+      assertions: 4,
+    },
+    {
+      run: 'candidate-pre-push-present',
+      skill: 'dsh-spec-pre-push-checks',
+      scenario: 'select-integrated-evidence',
+      siblingSkills: ['dsh-spec-client-ui-ux', 'dsh-spec-error-handling'],
+      assertions: 5,
+    },
+    {
+      run: 'candidate-pre-push-absent',
+      skill: 'dsh-spec-pre-push-checks',
+      scenario: 'select-minimum-without-siblings',
+      siblingSkills: [],
+      assertions: 4,
+    },
+  ] as const
+
+  for (const requirement of runs) {
+    const root = join(evidenceRoot, requirement.run)
+    const corpusRoot = join(EVAL_SOURCE_ROOT, requirement.skill)
+    const scenario = readCorpus(requirement.skill).evals.find((item) => item.id === requirement.scenario)
+    assert.ok(scenario, requirement.run + ' has no eval scenario')
+    const status = readFileSync(join(root, 'status.txt'), 'utf8')
+    assert.match(status, /^status: pass$/m)
+    assert.match(status, new RegExp(`^assertions: ${requirement.assertions}/${requirement.assertions}$`, 'm'))
+    const assertions = readFileSync(join(root, 'assertions.txt'), 'utf8').trim().split('\n')
+    assert.equal(assertions.length, requirement.assertions, requirement.run + ' assertion count')
+    assert.equal(
+      assertions.every((line) => line.startsWith('PASS ')),
+      true,
+      requirement.run + ' has a failed assertion',
+    )
+    assert.deepEqual(
+      assertions.map((line) => line.replace(/^PASS /, '')),
+      scenario.assertions,
+      requirement.run + ' assertion text differs from the scenario',
+    )
+    assert.ok(readFileSync(join(root, 'final.md'), 'utf8').trim().length > 0)
+    assert.match(readFileSync(join(root, 'time.txt'), 'utf8'), /^time_seconds: \d+(?:\.\d+)?$/m)
+    assert.equal(readFileSync(join(root, 'changed-paths.txt'), 'utf8'), '')
+    assert.equal(existsSync(join(root, 'patch.diff')), false)
+
+    const trace = readFileSync(join(root, 'trace.jsonl'), 'utf8')
+      .trim()
+      .split('\n')
+      .map(
+        (line) =>
+          JSON.parse(line) as {
+            type: string
+            item?: { type?: string; command?: string; exit_code?: number; aggregated_output?: string }
+          },
+      )
+    assert.equal(trace.at(-1)?.type, 'turn.completed', requirement.run + ' did not complete')
+    assert.equal(
+      trace.some((entry) => entry.type === 'skill'),
+      false,
+      requirement.run + ' contains a synthetic skill event',
+    )
+    for (const entry of trace) {
+      if (!entry.item?.command?.includes('find ..') || !entry.item.aggregated_output) continue
+      for (const line of entry.item.aggregated_output.split('\n')) {
+        if (line === '' || line.startsWith('find:')) continue
+        assert.match(line, /^\.\.\/project(?:\/|$)/, requirement.run + ' inspected outside its project parent')
+      }
+    }
+
+    const skills = [requirement.skill, ...requirement.siblingSkills]
+    const skillHashes = new Map(
+      readFileSync(join(root, 'skill-hashes.txt'), 'utf8')
+        .trim()
+        .split('\n')
+        .map((line) => {
+          const [hash, path] = line.split(/\s{2,}/)
+          return [path, hash] as const
+        }),
+    )
+    assert.deepEqual(
+      [...skillHashes.keys()].sort(),
+      skills.map((name) => `skills/${name}/SKILL.md`).sort(),
+      requirement.run + ' bound an unexpected skill set',
+    )
+    for (const name of skills) {
+      const hash = createHash('sha256')
+        .update(readFileSync(join(REPO_ROOT, 'skills', name, 'SKILL.md')))
+        .digest('hex')
+      assert.equal(skillHashes.get(`skills/${name}/SKILL.md`), hash, requirement.run + ' bound another ' + name)
+      assert.equal(
+        trace.some(
+          (entry) =>
+            entry.type === 'item.completed' &&
+            entry.item?.type === 'command_execution' &&
+            entry.item.exit_code === 0 &&
+            commandPrintsSkill(entry.item.command, name) &&
+            (entry.item.aggregated_output === undefined ||
+              createHash('sha256').update(entry.item.aggregated_output).digest('hex') === hash),
+        ),
+        true,
+        requirement.run + ' did not read ' + name,
+      )
+    }
+
+    const inputLines = readFileSync(join(root, 'input-manifest.sha256'), 'utf8').trim().split('\n')
+    assert.deepEqual(
+      inputLines.map((line) => line.split(/\s{2,}/)[1]),
+      scenario.files,
+      requirement.run + ' input manifest differs from the scenario',
+    )
+    for (const line of inputLines) {
+      const [hash, relative] = line.split(/\s{2,}/)
+      assert.equal(
+        createHash('sha256')
+          .update(readFileSync(join(corpusRoot, relative ?? '')))
+          .digest('hex'),
+        hash,
+        requirement.run + ' changed ' + relative,
+      )
+    }
+
+    for (const line of readFileSync(join(root, 'artifacts.sha256'), 'utf8').trim().split('\n')) {
+      const [hash, relative] = line.split(/\s{2,}/)
+      assert.equal(
+        createHash('sha256')
+          .update(readFileSync(join(root, relative ?? '')))
+          .digest('hex'),
+        hash,
+        requirement.run + ' changed artifact ' + relative,
+      )
+    }
+    const testOutput = join(root, 'test-output.txt')
+    if (existsSync(testOutput)) assert.match(readFileSync(testOutput, 'utf8'), /pass [1-9]/)
+  }
+
+  const screenshotHash = createHash('sha256')
+    .update(readFileSync(join(evidenceRoot, 'artifact', 'settings-after.png')))
+    .digest('hex')
+  assert.equal(
+    screenshotHash,
+    createHash('sha256')
+      .update(
+        readFileSync(
+          join(
+            EVAL_SOURCE_ROOT,
+            'dsh-spec-client-ui-ux',
+            'evals/files/shared-widget-project/evidence/settings-after.png',
+          ),
+        ),
+      )
+      .digest('hex'),
+    'the retained screenshot differs from the shared-widget source',
+  )
+  const evidenceReadme = readFileSync(join(evidenceRoot, 'README.md'), 'utf8')
+  assert.match(evidenceReadme, new RegExp('SHA-256 is\\n`' + screenshotHash + '`\\.'))
+  assert.doesNotMatch(evidenceReadme, /settings-idle|open-panel/i)
+  for (const run of ['candidate-code-review-present', 'candidate-pre-push-present']) {
+    assert.equal(
+      createHash('sha256')
+        .update(readFileSync(join(evidenceRoot, run, 'artifact', 'settings-after.png')))
+        .digest('hex'),
+      screenshotHash,
+      run + ' altered the attached rendered evidence',
+    )
   }
 })
 

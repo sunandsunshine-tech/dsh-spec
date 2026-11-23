@@ -1,0 +1,9 @@
+status: pass
+exit_code: 0
+parent_search_check: 0
+trace_skill_check: 0
+current_skill_stable: 0
+assertions: 5/5
+time_seconds: 67.60
+input_tokens: 359697
+output_tokens: 12702

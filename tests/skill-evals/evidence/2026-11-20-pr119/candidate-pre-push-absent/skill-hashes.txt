@@ -1,0 +1,1 @@
+45303d23dfa3957e146a1bc8c5733e43ae585cb6e5f739f3f3732b76665f7922  skills/dsh-spec-pre-push-checks/SKILL.md

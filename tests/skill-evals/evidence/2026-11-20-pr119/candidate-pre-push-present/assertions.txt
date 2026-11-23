@@ -1,0 +1,5 @@
+PASS The selection includes the existing `kind` identity and structured `detail` across the worker boundary.
+PASS The selection rejects message-text routing.
+PASS The selection inspects the attached current-build screenshot and identifies that the Settings saving/disabled state remains unproved.
+PASS The selection does not present the consumer test as visual acceptance of the saving state.
+PASS The selection uses sibling guidance only as an optional mechanism.
