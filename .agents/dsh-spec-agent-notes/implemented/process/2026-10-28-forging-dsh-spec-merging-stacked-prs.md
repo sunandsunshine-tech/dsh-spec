@@ -31,7 +31,7 @@ The mechanism is the upstream mechanism unchanged: the official GitHub stack obj
 
 ### Source and revision
 
-Upstream source: the pinned `submodules/dsh` baseline at `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`), file `.agents/skills/dsh-merging-stacked-prs/SKILL.md`. That file is the only content source for the skill.
+Upstream source revision: `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`), file `.agents/skills/dsh-merging-stacked-prs/SKILL.md`; the current extraction baseline is `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`). That file is the only content source for the skill.
 
 ### Constraint dispositions
 

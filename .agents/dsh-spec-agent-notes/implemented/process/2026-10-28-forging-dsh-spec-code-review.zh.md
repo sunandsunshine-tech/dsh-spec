@@ -19,7 +19,7 @@ Status: implemented
 
 ## 来源与修订
 
-上游来源：`deepseek-ai/deepseek-harness`，在 `submodules/dsh` 固定在 `f3803c96974ad4a94195fb97e5c637e9c2a3afe3`（`dsh-v0.2.2-alpha.2`）。唯一来源文件是上游检出中的 `.agents/skills/dsh-code-review/SKILL.md`（62 行）；处置表中的行号引用是上游行号。
+上游来源：`deepseek-ai/deepseek-harness`，来源修订为 `f3803c96974ad4a94195fb97e5c637e9c2a3afe3`（`dsh-v0.2.2-alpha.2`）；当前抽取基线是 `dsh-v0.2.2-rc.5`（`9c2670d3bce5275e0d1610272958121af87787bb`）。唯一来源文件是 `.agents/skills/dsh-code-review/SKILL.md`（62 行）；处置表中的行号引用是上游行号。
 
 ## 目标形态
 

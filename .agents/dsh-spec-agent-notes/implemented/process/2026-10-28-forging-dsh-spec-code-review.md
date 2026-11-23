@@ -19,7 +19,7 @@ The package ships `dsh-spec-code-review` as an adaptation of the upstream `dsh-c
 
 ## Source and revision
 
-Upstream source: `deepseek-ai/deepseek-harness`, pinned in `submodules/dsh` at `f3803c96974ad4a94195fb97e5c637e9c2a3afe3` (`dsh-v0.2.2-alpha.2`). The one source file is the upstream checkout's `.agents/skills/dsh-code-review/SKILL.md` (62 lines); the line citations in the disposition table are upstream lines.
+Upstream source: `deepseek-ai/deepseek-harness`, source revision `f3803c96974ad4a94195fb97e5c637e9c2a3afe3` (`dsh-v0.2.2-alpha.2`). The current extraction baseline is `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`). The one source file is `.agents/skills/dsh-code-review/SKILL.md` (62 lines); the line citations in the disposition table are upstream lines.
 
 ## Target shape
 

@@ -18,7 +18,7 @@ The package ships `dsh-spec-find-simplifications` as an adaptation of the upstre
 
 ## Source and revision
 
-Upstream source is the pinned submodule `submodules/dsh` at `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`).
+Upstream source revision is `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`); the current extraction baseline is `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`).
 
 - `.agents/skills/dsh-find-simplifications/SKILL.md` — the procedure.
 - `.agents/skills/dsh-find-simplifications/references/historical-patterns.md` — the calibration reference.

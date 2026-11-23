@@ -10,7 +10,7 @@ The package ships skills for software engineering in a general project but has n
 
 ## Decision
 
-The package ships `dsh-spec-pr-description` as an adaptation of the pinned upstream skill at `submodules/dsh/.agents/skills/dsh-pr-description/SKILL.md` (`submodules/dsh` pinned at `dsh-v0.2.2-alpha.2`, `f3803c96974ad4a94195fb97e5c637e9c2a3afe3`).
+The package ships `dsh-spec-pr-description` as an adaptation of the upstream skill at `.agents/skills/dsh-pr-description/SKILL.md` from source revision `f3803c96974ad4a94195fb97e5c637e9c2a3afe3` (`dsh-v0.2.2-alpha.2`); the current extraction baseline is `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`).
 
 The landed directory holds `SKILL.md`, `references/ai-usage.md`, `references/default-conventions.md` and `THIRD_PARTY_NOTICES`; the installed copy is mirrored to `.agents/skills/dsh-spec-pr-description/`. The root `THIRD_PARTY_NOTICES.md` adapted-skill paragraph names the skill, and the root `README.md` skill table lists it.
 

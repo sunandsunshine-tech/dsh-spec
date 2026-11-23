@@ -23,7 +23,7 @@ Status: implemented
 `.agents/skills/dsh-spec-agent-experience/` 的安装副本镜像该技能；上游命名的旧安装副本 `dsh-agent-experience` 已不存在；第一份记录冻结在归档中。来源只有英文，本记录带其中文对侧。
 
 - 交付：英文，评审语言与附加触发语为中文；声明后缀 `.zh.md` 与 `.i18n.yaml` 只在停下时写入并配对（R6、R7）。
-- 被改编文本的来源是固定 `submodules/dsh`（`dsh-v0.2.2-alpha.2`，`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`）中 `packages/preset/agent-preset/skills/agent-experience/SKILL.md` 的上游 `agent-experience` `SKILL.md`；技能根 `THIRD_PARTY_NOTICES` 为安装副本记录该来源（R8）。
+- 被改编文本的来源是上游 `agent-experience` `SKILL.md`，位于 `packages/preset/agent-preset/skills/agent-experience/SKILL.md`，来源修订为 `dsh-v0.2.2-alpha.2`（`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`）；当前抽取基线是 `dsh-v0.2.2-rc.5`（`9c2670d3bce5275e0d1610272958121af87787bb`）。技能根 `THIRD_PARTY_NOTICES` 为安装副本记录该来源（R8）。
 
 ### 意图
 

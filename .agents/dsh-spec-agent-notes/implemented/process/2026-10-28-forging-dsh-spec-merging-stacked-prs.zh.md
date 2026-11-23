@@ -31,7 +31,7 @@ Status: implemented
 
 ### 来源与修订
 
-上游来源：固定 `submodules/dsh` 基线的 `dsh-v0.2.2-alpha.2`（`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`），文件 `.agents/skills/dsh-merging-stacked-prs/SKILL.md`。该文件是技能唯一的内容来源。
+上游来源修订：`dsh-v0.2.2-alpha.2`（`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`），文件 `.agents/skills/dsh-merging-stacked-prs/SKILL.md`；当前抽取基线是 `dsh-v0.2.2-rc.5`（`9c2670d3bce5275e0d1610272958121af87787bb`）。该文件是技能唯一的内容来源。
 
 ### 约束处置
 

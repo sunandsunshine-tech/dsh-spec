@@ -23,7 +23,7 @@ The body puts two stances before the six rules: shape context, not control; make
 The installed copy at `.agents/skills/dsh-spec-agent-experience/` mirrors the skill; the upstream-named installed copy `dsh-agent-experience` is gone, and the first record is frozen in the archive. The sources are English-only, and this record carries its Chinese pair.
 
 - Delivery: English, with the review and additional trigger language Chinese; the declared review-draft suffixes `.zh.md` and `.i18n.yaml` are written and paired only at the stop (R6, R7).
-- The adapted text's source is the upstream `agent-experience` `SKILL.md` at `packages/preset/agent-preset/skills/agent-experience/SKILL.md` in the pinned `submodules/dsh` (`dsh-v0.2.2-alpha.2`, `f3803c96974ad4a94195fb97e5c637e9c2a3afe3`); the skill-root `THIRD_PARTY_NOTICES` records the provenance for installed copies (R8).
+- The adapted text's source is the upstream `agent-experience` `SKILL.md` at `packages/preset/agent-preset/skills/agent-experience/SKILL.md` in source revision `dsh-v0.2.2-alpha.2` (`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`); the current extraction baseline is `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`). The skill-root `THIRD_PARTY_NOTICES` records the provenance for installed copies (R8).
 
 ### Intent
 
