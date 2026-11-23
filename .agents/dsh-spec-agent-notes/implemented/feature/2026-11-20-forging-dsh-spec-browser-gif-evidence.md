@@ -12,7 +12,7 @@ A user-visible browser UI change needs evidence that a reviewer can inspect, but
 
 The package ships `dsh-spec-browser-gif-evidence` from `skills/dsh-spec-browser-gif-evidence/`. The skill owns capture, encoding, verification and optional publication; UI acceptance remains with the UI review workflow. A user-visible browser UI change generates GIF evidence by default from one isolated run of the adopter's real build. A project may select equivalent evidence or waive that default for a named change. A fixture exists only when the user explicitly requests it or the project evidence policy selects it; mock transports, synthetic interactions and test-only hooks require an explicit substitute policy.
 
-The evaluation application completes `/save` itself after the declared delay. Capture observes the saving state and waits for that same request; no separate completion endpoint or test-only hook drives the fixture. PR115 retains historical provenance, including a real-run trace whose media was later regenerated. PR122 now carries one coherent same-run real capture and one current capability-absent run, each with its own trace, capability profile, input manifest, artifact manifest and reviewer-certified assertions.
+The evaluation application completes `/save` itself after the declared delay. Capture observes the saving state and waits for that same request; no separate completion endpoint or test-only hook drives the fixture. PR115 retains historical provenance, including a real-run trace whose media was later regenerated. PR122 carries one coherent same-run real capture and one capability-absent run, each with its own trace, capability profile, input manifest, artifact manifest and reviewer-certified assertions.
 
 PR115's real leaf reports a different origin and GIF byte count from the retained artifact, so it records `evidence_status: historical`, `coherence: non-coherent` and `current_proof: false`.
 
@@ -97,8 +97,8 @@ Source files:
 | Capability-absent handoff and explicit fixture disclosure | Judged + Mechanical | Historical PR115 runs retain their original 12 assertions; the current capability-absent run is under `tests/skill-evals/evidence/2026-11-23-pr122/dsh-spec-browser-gif-evidence/missing-capture-capability-hands-off/` |
 | Installed copy and corpus gates | Mechanical | `skill:refresh`, `check:corpus`, repository-shape tests |
 | Existing-media branches | Dissolved | No DSH asset-branch policy is shipped |
-| Capture of a real UI with a real browser | Judged | Current PR122 evidence builds the fixture, captures three states from one headless-Chrome session, encodes with the bundled encoder, retains the same-run GIF/report/frames and visually checked representatives, then cleans up the server and browser |
-| Model behavior and discovery quality | Judged + Mechanical | Current PR122 passes 8/8 assertions across the real and capability-absent runs; historical PR115 supplies three older behavior runs and eight trigger probes for their recorded revisions |
+| Capture of a real UI with a real browser | Judged | PR122 evidence builds the fixture, captures three states from one headless-Chrome session, encodes with the bundled encoder, retains the same-run GIF/report/frames and visually checked representatives, then cleans up the server and browser |
+| Model behavior and discovery quality | Judged + Mechanical | PR122 passes 8/8 assertions across the real and capability-absent runs; historical PR115 supplies three older behavior runs and eight trigger probes for their recorded revisions |
 
 ## Alternatives considered
 

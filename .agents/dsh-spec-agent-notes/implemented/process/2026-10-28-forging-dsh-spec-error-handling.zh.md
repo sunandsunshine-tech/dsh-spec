@@ -184,7 +184,7 @@ Agent Skills 页面读取于 2026-11-20：
 | E4 | rc.5 `SKILL.md` | code 点名消费方行动，而不是调用位置。 | 保留 | `SK` § Typed, structured failures | 领域中立 |
 | E5 | rc.5 `SKILL.md` | 在拥有包中转换外部错误，并保留原始 cause。 | 改编 | `SK` § Typed, structured failures | 拥有包变成拥有该依赖的包、模块、服务或领域；没有 cause 链的运行时把原始错误保留在结构化细节或诊断信息中 |
 | E6 | rc.5 `SKILL.md` | 进程或 worker 传输 `name` 与 `code` 并重建类。 | 重绑 | `SK` § Typed, structured failures | 传输保留项目的可移植身份；接收侧拥有者重建等价的所属失败，而 `name` 与 `code` 仍是其中一种字段实现 |
-| E7 | rc.5 `references/error-codes.md` | 持久化或分析可见身份的变化是兼容事件。 | 保留 | `SK` § Compatibility and verification | 重试、UI、重放、分析与迁移已经是平台中立的消费者 |
+| E7 | rc.5 `references/error-codes.md` | 持久化或分析可见身份的变化是兼容事件。 | 保留 | `SK` § Compatibility and verification | 重试、UI、重放、分析与迁移已经是平台中立的消费方 |
 | E8 | rc.5 `references/error-codes.md` | 每个预期失败的测试断言 `name` 与 `code`。 | 改编 | `SK` § Compatibility and verification | 目标断言项目确切的机器身份、结果状态及重建后的边界身份，而不要求特定的字段路径 |
 | E9 | master `SKILL.md` | 静默 catch 只覆盖一个语句、点名预期失败、说明理由，并重抛其他失败。 | 重绑 | `SK` § Silent failure handlers | 安全结果是跨语言的一个操作、一个预期判别值、真实理由和选择性暴露 |
 | E10 | 请求与上游参考文档 | 详细的错误族、code、转换、兼容性和测试指导需要一个拥有者。 | 改编 | `references/error-contracts.md` | 详细契约属于上下文材料；放在入口外可保持按需加载和主流程的重点 |
