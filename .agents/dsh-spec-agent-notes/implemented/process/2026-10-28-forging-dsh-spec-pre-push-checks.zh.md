@@ -57,7 +57,7 @@ Status: implemented
 | U20 | L80-84 | 独立分支与 stacked 分支允许 rebase，包括评审之后；在独立分支改写历史之前，fetch 当前远程分支并记录其精确 OID，然后用 `--force-with-lease=<branch>:<observed-oid>` 发布，以便并发更新中止；`gh stack push` 与 `gh stack sync` 为受管分支提供 lease 保护；原始 `--force` 绝不允许；任何改写后的 push 之后，fetch 活动 heads 并重新审计未解决的评审线程、approval、mergeability 与检查；改写前的 hash 与 inline-comment 锚点不是当前证据 |
 | U21 | L86-95 | `gh stack sync` 把 fetch、级联 rebase 与 push 作为一个操作执行，所以本地验证无法位于改写与发布之间；在它之前，要求干净的 worktree 并记录官方 stack 顺序与精确的远程 heads；在它之后，重新查询每个分支 head 与 stack 顺序，对照每个层的活动 PR base 检查该层的范围，对每个受影响层运行选中的证据，保持每个 PR 未合并并报告验证待定，直到所有选中检查通过；失败时保留 lease 保护下的 heads，修复、验证并发布修正；命令成功不是 stack 就绪的证据 |
 | U22 | L97-106 | 普通 push 之前出现相关失败时，停下并修复或解释阻塞；不要 push 然后指望 CI 不同；对 post-sync 例外，阻止合并并遵循修复流程；通过记录精确命令、失败测试与平台不匹配来证明特定环境的失败，确认相关的非平台证据，优先跨平台修复，仅在用户明确要求或同意时才绕过本地 hook，同时报告什么失败了以及为什么预期 CI 不同 |
-| U23 | L108-137 | push 流程：运行选中的检查一次；正常 commit 并检查 pre-commit fixer 改动的文件；正常 push 或带精确的 lease push；验证远程 ref 与本地 `HEAD` 匹配；push 后检查远程 CI，并把 pending 报告为 pending；当没有报告检查且该 head 没有运行记录时，先读 mergeability 再怀疑 push，因为冲突的 PR 不产生工作流运行——解决冲突，而不是添加空 commit、toggle 或 revert-and-restore 历史，并用 `git merge-tree --write-tree HEAD origin/<base>` 确认冲突路径；对 `gh stack sync` 使用 post-sync 验证序列，而非普通顺序 |
+| U23 | L108-137 | push 流程：运行选中的检查一次；正常 commit 并检查 pre-commit fixer 改动的文件；正常 push 或带精确的 lease push；解析实际 push remote 并验证其 ref 与本地 `HEAD` 匹配；push 后检查远程 CI，并把 pending 报告为 pending；没有报告检查时，查询该精确 SHA 的工作流运行数，仅当数量为零时才读 mergeability，因为冲突的 PR 可能不产生工作流运行——解决冲突，而不是添加空 commit、toggle 或 revert-and-restore 历史，并用 `git merge-tree --write-tree HEAD <push-remote>/<base>` 确认冲突路径；对 `gh stack sync` 使用 post-sync 验证序列，而非普通顺序 |
 
 ### 处置
 
@@ -87,7 +87,7 @@ Status: implemented
 | U20 | 适配 | "Protect history-rewriting pushes"：在仓库指令允许时 rebase；fetch 并记录 OID；`--force-with-lease=<branch>:<observed-oid>`；stack 或自动化工具必须提供等价 lease 保护；原始 `--force` 绝不允许；任何改写后，重新 fetch 并重新审计 thread、approval、mergeability 与检查；改写前的 hash 与锚点不是证据 | lease 机制是通用的；工具名变为示例 |
 | U21 | 重绑 | "### Validate after an automated rewrite and publish"：工具可能把 fetch、rebase 与发布作为一个操作执行，`gh stack sync` 作为示例被点名；前后序列与修复路径被承载 | 机制（验证无法位于改写与发布之间）对任何工具代为发布的采用者都真实；deepseek-harness 工具是实例而非机制 |
 | U22 | 适配 | "Handle failures"：停下并修复或解释；不要 push 然后指望；自动发布失败后阻止合并并修复；用精确命令、失败测试与平台不匹配证明特定环境的失败，确认非平台证据，优先跨平台修复，仅在用户要求或同意时绕过 hook，并报告什么失败了 | 领域中立；只有 hook 与 CI 名词被泛化 |
-| U23 | 适配 | "Push procedure"：检查运行一次；commit，检查 fixer 改动，带 lease push，验证远程 ref；检查远程 CI 并把 pending 报告为 pending；没有报告检查时，先读 mergeability 再怀疑 push，解决冲突而不是添加空历史，并用 `git merge-tree` 确认路径；自动发布例外使用自己的序列；GitHub 命令留在显式的 "when the review platform is GitHub" 示例中，而 provider 中立的规则独立存在 | GitHub 实现是示例；约束是 provider 中立的 |
+| U23 | 适配 | "Push procedure"：检查运行一次；commit，检查 fixer 改动，带 lease push，解析实际 push remote 并验证其 ref；检查远程 CI 并把 pending 报告为 pending；没有报告检查时，区分工作流运行数为零与其他原因，解决冲突而不是添加空历史，并用 `git merge-tree` 针对实际 remote 与 base 确认路径；自动发布例外使用自己的序列；GitHub 命令留在显式的 "when the review platform is GitHub" 示例中，而 provider 中立的规则独立存在 | GitHub 实现是示例；约束是 provider 中立的 |
 
 覆盖：每个单元恰好一行、一个归宿。U11 与 U12 是两处消解；各自点名接管者。没有一行重复或与另一行冲突，也没有单元带有该行自相矛盾的标签。
 

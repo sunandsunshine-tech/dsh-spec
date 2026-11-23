@@ -94,17 +94,20 @@ For an ordinary push or a standalone rebase push:
 4. Verify the remote ref matches local `HEAD`.
 
 ```sh
-git rev-parse HEAD origin/$(git branch --show-current)
+push_ref=$(git rev-parse --symbolic-full-name '@{push}')
+git rev-parse HEAD "$push_ref"
 ```
+
+The push remote is the one selected by the branch's upstream or explicit push configuration; it need not be named `origin`.
 
 Inspect the review platform's checks after the push; when the platform is GitHub, `gh pr checks` reports them. Report pending checks as pending, and inspect failures before attributing them to the branch or the environment.
 
-When the platform reports no checks for the pushed commit, read mergeability before suspecting the push or a dropped event. On GitHub, `gh pr checks` prints "no checks reported" and no workflow runs exist for that head; a conflicting pull request creates no pull-request workflow runs, so the absent signal is the conflict, not the infrastructure. Read mergeability with:
+When the platform reports no checks for the pushed commit, distinguish a workflow that did not start from a conflict. On GitHub, query the Actions runs for the exact pushed SHA; only when the count is zero should you read mergeability before suspecting a dropped event. A conflicting pull request can create no pull-request workflow runs. Read mergeability with:
 
 ```sh
 gh pr view <number> --json mergeable,mergeStateStatus
 ```
 
-Resolving the conflict is the only fix: empty commits, `--allow-empty` pushes, draft/ready toggles and revert-and-restore bounces add history and leave the run count at zero. Confirm the conflicting paths with `git merge-tree --write-tree HEAD origin/<base>` when the branch cannot be merged locally yet.
+Resolving the conflict is the only fix: empty commits, `--allow-empty` pushes, draft/ready toggles and revert-and-restore bounces add history and leave the run count at zero. When a conflict is the cause, confirm the paths with `git merge-tree --write-tree HEAD <push-remote>/<base>` after resolving the actual push remote and base branch.
 
 For an automated rewrite and publish, use the post-publication sequence instead of pretending the ordinary order was possible.
