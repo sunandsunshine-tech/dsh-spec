@@ -206,8 +206,6 @@ try {
   )
   screenshots.push(await screenshot('01-saving.png'))
   states.saving = await currentState()
-  const completed = await fetch(`${baseUrl}/complete`, { method: 'POST' })
-  if (!completed.ok) throw new Error(`fixture save completion failed: ${completed.status}`)
   await waitFor(
     'the saved state',
     "document.querySelector('#status')?.textContent === 'Changes saved' && document.querySelector('#save')?.textContent === 'Save changes' && document.querySelector('#save')?.disabled === false",

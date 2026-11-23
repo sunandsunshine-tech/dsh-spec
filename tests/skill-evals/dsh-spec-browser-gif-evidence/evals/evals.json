@@ -5,6 +5,10 @@
       "id": "real-ui-change-uses-one-isolated-run",
       "prompt": "The project in evals/files/shared-gif-project changed a user-visible browser settings flow. Its build, start, browser-control and ignored evidence paths are declared. Record the requested GIF evidence from the real build and report what was verified.",
       "expected_output": "The run records one isolated real-build interaction, keeps all frames from that run, encodes and inspects the GIF, reports the application origin and real-versus-substituted services, and leaves the media outside tracked content.",
+      "capabilities": {
+        "browser": true,
+        "media": true
+      },
       "files": [
         "evals/files/shared-gif-project/AGENTS.md",
         "evals/files/shared-gif-project/.gitignore",
@@ -45,6 +49,10 @@
       "id": "explicit-fixture-recording-is-disclosed",
       "prompt": "The user explicitly requests a fixture-only GIF because the real external provider is unavailable. The app in evals/files/shared-gif-project is the fixture, and evals/files/fixture-origin.md records that authorization. Record and verify that fixture demonstration without claiming it proves the real provider flow.",
       "expected_output": "The run records and verifies one fixture demonstration and clearly labels the fixture, unavailable real provider and the evidence boundary.",
+      "capabilities": {
+        "browser": true,
+        "media": true
+      },
       "files": [
         "evals/files/fixture-origin.md",
         "evals/files/shared-gif-project/AGENTS.md",
