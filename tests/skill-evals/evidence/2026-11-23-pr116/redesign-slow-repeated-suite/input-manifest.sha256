@@ -1,0 +1,4 @@
+bd738ed5d85061fefd3a8b623b78d3b42bb7029853003d68cd5fddd0b78ed4e1  evals/files/slow-suite/README.md
+d1991eba58dcd873edec3bef16b1e34711afd2c7d443b75b3b0ca5a6b98eaed3  evals/files/slow-suite/package.json
+8b0678921379345abe119158683ded282150943163616ceeef69e6273f80b4c3  evals/files/slow-suite/tests/report.test.mjs
+55e2d8090fc85a2360f758dee322d80fad99ee7a06c4c869e09cf7a6d2eb2981  evals/files/slow-suite/.github/workflows/ci.yml

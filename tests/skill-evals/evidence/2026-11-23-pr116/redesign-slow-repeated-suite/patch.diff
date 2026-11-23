@@ -1,0 +1,81 @@
+diff --git a/evals/files/slow-suite/.github/workflows/ci.yml b/evals/files/slow-suite/.github/workflows/ci.yml
+index 94de77b..e26efc6 100644
+--- a/evals/files/slow-suite/.github/workflows/ci.yml
++++ b/evals/files/slow-suite/.github/workflows/ci.yml
+@@ -6,8 +6,14 @@ jobs:
+   test:
+     strategy:
+       matrix:
+-        node: [24, 26]
++        include:
++          - node: 24
++            run_expensive_fixture: '1'
++          - node: 26
++            run_expensive_fixture: '0'
+     runs-on: ubuntu-latest
++    env:
++      RUN_EXPENSIVE_FIXTURE: ${{ matrix.run_expensive_fixture }}
+     steps:
+       - uses: actions/checkout@v4
+       - uses: actions/setup-node@v4
+diff --git a/evals/files/slow-suite/tests/report.test.mjs b/evals/files/slow-suite/tests/report.test.mjs
+index b240ddf..82648d8 100644
+--- a/evals/files/slow-suite/tests/report.test.mjs
++++ b/evals/files/slow-suite/tests/report.test.mjs
+@@ -1,5 +1,5 @@
+ import assert from 'node:assert/strict'
+-import { test } from 'node:test'
++import { before, describe, test } from 'node:test'
+ import { setTimeout as delay } from 'node:timers/promises'
+ 
+ async function expensiveFixture() {
+@@ -7,14 +7,43 @@ async function expensiveFixture() {
+   return { rows: [1, 2, 3] }
+ }
+ 
+-for (const [name, expected] of [
++const reportCases = [
+   ['renders the first row', 1],
+   ['renders the second row', 2],
+   ['renders the third row', 3],
+-]) {
+-  test(name, async () => {
+-    const fixture = await expensiveFixture()
+-    assert.equal(fixture.rows.length, 3)
+-    assert.ok(fixture.rows.includes(expected))
++]
++
++const contractReport = {
++  rows: reportCases.map(([, expected]) => expected),
++}
++
++const fixtureLane = process.env.RUN_EXPENSIVE_FIXTURE?.toLowerCase()
++const fixtureSkipReason =
++  fixtureLane === '0' || fixtureLane === 'false'
++    ? 'the representative fixture runs in the Node 24 matrix lane'
++    : false
++
++function assertReportContains(report, expected) {
++  assert.equal(report.rows.length, reportCases.length)
++  assert.ok(report.rows.includes(expected))
++}
++
++for (const [name, expected] of reportCases) {
++  test(`${name} contract`, () => {
++    assertReportContains(contractReport, expected)
+   })
+ }
++
++describe('fixture-backed report', { skip: fixtureSkipReason }, () => {
++  let fixture
++
++  before(async () => {
++    fixture = await expensiveFixture()
++  })
++
++  for (const [name, expected] of reportCases) {
++    test(name, async () => {
++      assertReportContains(fixture, expected)
++    })
++  }
++})

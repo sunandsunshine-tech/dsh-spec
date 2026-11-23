@@ -41,7 +41,7 @@
     },
     {
       "id": "diagnose-without-fixing",
-      "prompt": "Tell me why evals/files/diagnosis-only/ci.log fails intermittently. Do not change code, workflows, or rerun CI; I only need the supported diagnosis and remaining limits.",
+      "prompt": "Tell me why evals/files/diagnosis-only/ci.log fails intermittently. Do not change code, workflows, or rerun CI; I only need the supported diagnosis, separation of timeout and signal evidence, the smallest relevant reproduction, and remaining limits.",
       "expected_output": "The response preserves the read-only scope, separates timeout and signal evidence, classifies the repeated host-resource signature, names the smallest relevant reproduction and its limits, and makes no code or CI change.",
       "files": [
         "evals/files/diagnosis-only/README.md",
@@ -53,6 +53,8 @@
       "assertions": [
         "The response makes no code, workflow, rerun, or configuration change.",
         "The response cites the repeated EADDRINUSE signature across unrelated jobs.",
+        "The response separates timeout expiry from signal termination.",
+        "The response names the smallest relevant reproduction.",
         "The response states that host metrics are unavailable and identifies the remaining reproduction limit."
       ]
     },

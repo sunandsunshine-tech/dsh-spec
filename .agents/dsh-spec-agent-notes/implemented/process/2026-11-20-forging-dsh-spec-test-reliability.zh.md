@@ -99,7 +99,7 @@ Status: implemented
 | A3 | 技能不把框架、CI 提供方、来源产品路径或命令写成要求。 | Judged + Mechanical | 人工评审未发现来源产品指称对象；语料的 sibling-reference 门禁通过。 |
 | A4 | 推送前关系是可选项，并且只点名机制。 | Mechanical | 语料的 sibling-reference 门禁通过。 |
 | A5 | 可运行 fixture 覆盖确定性端口失败、精确全局状态恢复、只读诊断，以及重新设计一个缓慢且重复执行昂贵 setup 的套件。 | Mechanical | 仓库测试运行 fixture 的正向与负向控制，并暂存所有声明输入；四个直接 fixture 入口合计不到一秒。 |
-| A6 | 场景上的运行时模型行为。 | 判断 + 机械 | `tests/skill-evals/evidence/2026-11-20-pr116/` 下的历史 reviewer-graded 运行通过 16/16 项断言，但暴露过答案清单；当前隔离重跑位于 PR121 证据树。 |
+| A6 | 场景上的运行时模型行为。 | 判断 + 机械 | `tests/skill-evals/evidence/2026-11-20-pr116/` 下的历史运行暴露过答案清单，只作为来源保留。`tests/skill-evals/evidence/2026-11-23-pr116/` 下当前的隔离诊断与慢套件运行通过 9/9 项断言。 |
 | A6a | description 能路由可靠性工作与测试耗时工作，同时不捕获相邻的产品性能、覆盖率、文档或视觉评审任务。 | Judged + Mechanical | 同一证据目录中的四个正例和四个近邻反例通过稳定 `SELECT:` 标记达到 8/8。 |
 | A7 | 安装副本、notices、活跃记录树和翻译配对一致。 | Mechanical | 最终功能套件用桩化语料验证编排约定；真实语料由 `pnpm run check:corpus` 步骤拥有。决策记录、配对、notices、格式、静态与 bundle 检查均通过，此处不再复制进程计数。 |
 

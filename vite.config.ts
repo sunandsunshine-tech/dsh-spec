@@ -14,12 +14,13 @@ export default defineConfig({
       '.agents/**',
       'skills/**',
       'submodules/**',
+      'tests/skill-evals/evidence/**',
     ],
   },
   lint: {
     plugins: ['typescript'],
     env: { node: true },
-    ignorePatterns: ['node_modules/**', '.agents/**', 'skills/**', 'submodules/**'],
+    ignorePatterns: ['node_modules/**', '.agents/**', 'skills/**', 'submodules/**', 'tests/skill-evals/evidence/**'],
     options: {
       typeAware: true,
       typeCheck: true,

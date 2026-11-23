@@ -368,6 +368,8 @@ const GENERAL_REQUIRED: GeneralProfile[] = [
         assertions: [
           /no code, workflow, rerun, or configuration change/i,
           /repeated EADDRINUSE signature/i,
+          /separates timeout expiry from signal termination/i,
+          /smallest relevant reproduction/i,
           /host metrics are unavailable/i,
         ],
       },
@@ -1359,14 +1361,18 @@ test('the browser evidence fixture does not leak an unready server', async (t) =
       CHROME_PATH: existsSync('/bin/true') ? '/bin/true' : process.execPath,
       SERVER_ENTRY: 'hang-server.mjs',
       SERVER_PID_FILE: pidFile,
-      SERVER_READY_TIMEOUT_MS: '100',
+      SERVER_READY_TIMEOUT_MS: '2000',
       TMPDIR: profiles,
     },
     encoding: 'utf8',
     timeout: 5_000,
   })
   assert.notEqual(result.status, 0)
-  await new Promise((resolve) => setTimeout(resolve, 100))
+  const deadline = Date.now() + 2_000
+  while (!existsSync(pidFile) && Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, 20))
+  }
+  assert.ok(existsSync(pidFile), 'the test server never recorded its PID')
   const pid = Number(readFileSync(pidFile, 'utf8'))
   assert.throws(() => process.kill(pid, 0), /ESRCH/)
   assert.deepEqual(readdirSync(profiles), [])

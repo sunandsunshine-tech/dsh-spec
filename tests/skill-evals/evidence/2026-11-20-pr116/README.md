@@ -2,7 +2,7 @@
 
 These runs exposed the model-visible `evals/evals.json`; they are answer-contaminated and retained
 only as provenance. The current source/answer-tree-isolated diagnosis and slow-suite reruns are
-under `tests/skill-evals/evidence/2026-11-23-pr121/`.
+under `tests/skill-evals/evidence/2026-11-23-pr116/`.
 
 Base: `cb2eeb2993b0c8f6061401c468b48e25f5d3b5a3`.
 Candidate skill tree: `21205d05e7f7e06c9b6b5f77affcbb7aa90d7aec`.
