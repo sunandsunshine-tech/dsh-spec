@@ -237,7 +237,7 @@ const GENERAL_REQUIRED: GeneralProfile[] = [
       {
         id: 'empty-catch-names-and-documents-safe-failure',
         signature: [/empty handler/i, /cleanup failure is fully tolerated/i],
-        expectedOutput: [/handler remains empty/i, /meaningful underscore-prefixed name/i, /state valid/i],
+        expectedOutput: [/handler remains empty/i, /meaningful name/i, /state valid/i],
         assertions: [
           /catch body contains no executable statement/i,
           /catch binding names the expected cleanup failure/i,

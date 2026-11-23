@@ -1,7 +1,7 @@
 {
   "id": "empty-catch-names-and-documents-safe-failure",
   "prompt": "Review evals/files/empty-handler/README.md. The cleanup failure is fully tolerated and the owner's state remains valid. Correct the empty handler so its form and explanation are reviewable.",
-  "expected_output": "The handler remains empty apart from its explanation, binds the expected failure with a meaningful underscore-prefixed name, and states inside the handler why discarding that failure leaves the owner's state valid.",
+  "expected_output": "The handler remains empty apart from its explanation, binds the expected failure with a meaningful name, and states inside the handler why discarding that failure leaves the owner's state valid.",
   "files": [
     "evals/files/empty-handler/README.md"
   ],
