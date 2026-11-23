@@ -14,7 +14,7 @@ Requiring every historical run to match the current body also hides the actual c
 
 Trigger evidence binds `skills/<name>/SKILL.md#name-description`, computed from the frontmatter name and description. A body edit does not invalidate trigger selection evidence. A name or description edit requires the corresponding trigger corpus to run again.
 
-Behavior evidence records the complete installed skill hash as provenance and names the scenario, and therefore the behavior, that the run exercised. The recorded hash proves which bytes the run read. It does not make the run evidence for later bytes.
+Behavior evidence records the complete installed skill hash as the bytes staged for the run and names the scenario, and therefore the behavior, that the run exercised. The trace is model-controlled reviewer context, not an execution attestation; reviewer certification makes the behavioral claim, and neither the hash nor the run applies to later bytes.
 
 An edit invalidates the scenarios whose behavior it changes. Those scenarios receive a targeted model run when model judgment is required. Unrelated scenarios remain historical evidence for their recorded behavior. Repository tests validate scenario shape, inputs, assertions, retained artifacts, trigger surfaces and internally consistent revision records without requiring historical behavior hashes to equal the current complete skill.
 

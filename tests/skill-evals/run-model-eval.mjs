@@ -1,19 +1,22 @@
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import {
+  closeSync,
   cpSync,
   existsSync,
   lstatSync,
   mkdirSync,
   mkdtempSync,
+  openSync,
   readFileSync,
   readdirSync,
   renameSync,
   rmSync,
+  unlinkSync,
   writeFileSync,
 } from 'node:fs'
 import { homedir, tmpdir } from 'node:os'
-import { basename, dirname, join, resolve, sep } from 'node:path'
+import { basename, dirname, isAbsolute, join, normalize, resolve, sep } from 'node:path'
 import { parseArgs } from 'node:util'
 import {
   assertContained,
@@ -25,7 +28,10 @@ import {
   browserExecutablePaths,
   capabilityMaskPaths,
   copyTrustedGit,
+  hashFileNoFollow,
   modeBits,
+  parseNulSeparatedPaths,
+  removeModelTree,
   resolveCapability,
   trustedGitArgs,
 } from './runner-safety.mjs'
@@ -70,7 +76,7 @@ function sha256(value) {
 }
 
 function hashFile(path) {
-  return sha256(readFileSync(path))
+  return hashFileNoFollow(path)
 }
 
 function listFiles(root, prefix = '') {
@@ -78,7 +84,9 @@ function listFiles(root, prefix = '') {
   for (const entry of readdirSync(join(root, prefix), { withFileTypes: true })) {
     const child = prefix ? join(prefix, entry.name) : entry.name
     if (entry.isDirectory()) files.push(...listFiles(root, child))
-    else if (entry.isFile() || entry.isSymbolicLink()) files.push(child.split(sep).join('/'))
+    else if (entry.isFile()) files.push(child.split(sep).join('/'))
+    else if (entry.isSymbolicLink()) throw new Error(`unexpected symbolic link: ${child}`)
+    else throw new Error(`unsupported filesystem entry: ${child}`)
   }
   return files.sort((left, right) => (left < right ? -1 : left > right ? 1 : 0))
 }
@@ -89,7 +97,7 @@ function copyFile(source, destination) {
 }
 
 function assertEvidenceOutput(output) {
-  assertEvidenceRunPath(EVIDENCE_ROOT, output)
+  assertEvidenceRunPath(EVIDENCE_ROOT, output, options.skill)
 }
 
 function assertSkillName(skill, label = 'skill') {
@@ -401,10 +409,9 @@ function skillTreeHashes(project, installedSkills) {
 }
 
 function changedPaths(project, base, environment, gitDirectory) {
-  return git(project, ['diff', '--cached', '--name-only', base], false, environment, gitDirectory)
-    .stdout.trim()
-    .split('\n')
-    .filter(Boolean)
+  return parseNulSeparatedPaths(
+    git(project, ['diff', '--cached', '--name-only', '-z', base], false, environment, gitDirectory).stdout,
+  )
 }
 
 function retainArtifacts(project, output, paths, declaredOutputs) {
@@ -425,6 +432,8 @@ function retainArtifacts(project, output, paths, declaredOutputs) {
   }
   for (const path of outputPaths) {
     if (retainedPaths.has(path)) continue
+    if (/[\r\n]/.test(path))
+      throw new Error(`the model produced an output path with a line break: ${JSON.stringify(path)}`)
     if (path.startsWith('.agents/skills/')) throw new Error(`the model changed an installed skill: ${path}`)
     const source = assertProjectPath(project, path, 'retained output')
     const stat = lstatSync(source, { throwIfNoEntry: false })
@@ -450,6 +459,8 @@ function assertStringArray(value, label) {
 
 function assertRelativeProjectPath(path, label) {
   assertNonEmptyString(path, label)
+  if (isAbsolute(path) || normalize(path) !== path)
+    throw new Error(`${label} must be a normalized relative path: ${path}`)
   assertContained('/workspace', resolve('/workspace', path), label)
 }
 
@@ -526,17 +537,58 @@ function readScenario(skill, scenarioId) {
   return validateScenario(skill, scenario)
 }
 
+function acquireOutputLock(lockPath) {
+  try {
+    const fd = openSync(lockPath, 'wx', 0o600)
+    try {
+      writeFileSync(fd, `${process.pid}\n`)
+    } finally {
+      closeSync(fd)
+    }
+    return
+  } catch (error) {
+    if (error?.code !== 'EEXIST') throw error
+    const owner = Number(readFileSync(lockPath, 'utf8').trim())
+    if (Number.isInteger(owner) && owner > 0) {
+      try {
+        process.kill(owner, 0)
+        throw new Error(`another evidence run holds ${lockPath}`)
+      } catch (ownerError) {
+        if (ownerError?.code !== 'ESRCH') throw ownerError
+      }
+    }
+    unlinkSync(lockPath)
+    acquireOutputLock(lockPath)
+  }
+}
+
+function recoverPreviousOutput(output, backup) {
+  if (!existsSync(backup)) return
+  if (existsSync(output)) {
+    removeModelTree(backup)
+  } else {
+    renameSync(backup, output)
+  }
+}
+
 const options = parseOptions()
 const scenario = readScenario(options.skill, options.scenario)
 const output = resolve(REPO_ROOT, options.output)
 assertEvidenceOutput(output)
-if (existsSync(output) && !options.replace) throw new Error(`output already exists: ${output}`)
 const outputParent = dirname(output)
 mkdirSync(outputParent, { recursive: true })
-const stagedOutput = mkdtempSync(join(outputParent, '.run-'))
+const outputLock = join(outputParent, `.${basename(output)}.lock`)
+const backupOutput = `${output}.old`
 
 let temporaryParent
+let stagedOutput
+let lockHeld = false
 try {
+  acquireOutputLock(outputLock)
+  lockHeld = true
+  recoverPreviousOutput(output, backupOutput)
+  if (existsSync(output) && !options.replace) throw new Error(`output already exists: ${output}`)
+  stagedOutput = mkdtempSync(join(outputParent, '.run-'))
   temporaryParent = mkdtempSync(join(tmpdir(), 'skill-eval-project-'))
   const project = join(temporaryParent, 'project')
   const codexHome = createIsolatedCodexHome(temporaryParent)
@@ -632,6 +684,7 @@ try {
   git(project, ['read-tree', trustedHead], false, inspectionEnvironment, trustedGit)
   git(project, ['add', '-A'], false, inspectionEnvironment, trustedGit)
   const paths = changedPaths(project, trustedHead, inspectionEnvironment, trustedGit)
+  writeFileSync(join(stagedOutput, 'changed-paths.json'), `${JSON.stringify(paths, null, 2)}\n`)
   writeFileSync(join(stagedOutput, 'changed-paths.txt'), paths.length ? `${paths.join('\n')}\n` : '')
   writeFileSync(
     join(stagedOutput, 'patch.diff'),
@@ -667,25 +720,34 @@ try {
     )
   }
 
+  removeModelTree(temporaryParent)
+  temporaryParent = undefined
+
   if (result.status !== 0) {
     console.error(result.stderr)
     process.exitCode = result.status ?? 1
   } else {
     if (existsSync(output)) {
       if (!options.replace) throw new Error(`output already exists: ${output}`)
+      renameSync(output, backupOutput)
     }
-    const backup = join(outputParent, `.old-${process.pid}-${Date.now()}`)
-    if (existsSync(output)) renameSync(output, backup)
     try {
       renameSync(stagedOutput, output)
     } catch (error) {
-      if (existsSync(backup)) renameSync(backup, output)
+      if (existsSync(backupOutput)) renameSync(backupOutput, output)
       throw error
     }
-    if (existsSync(backup)) rmSync(backup, { recursive: true, force: true })
+    if (existsSync(backupOutput)) removeModelTree(backupOutput)
     console.log(`Model run completed. Grade the retained output, then update ${join(output, 'status.txt')}.`)
   }
 } finally {
-  if (existsSync(stagedOutput)) rmSync(stagedOutput, { recursive: true, force: true })
-  if (temporaryParent) rmSync(temporaryParent, { recursive: true, force: true })
+  if (stagedOutput && existsSync(stagedOutput)) rmSync(stagedOutput, { recursive: true, force: true })
+  if (temporaryParent && existsSync(temporaryParent)) {
+    try {
+      removeModelTree(temporaryParent)
+    } catch (error) {
+      console.error(`Could not remove temporary run root ${temporaryParent}: ${String(error)}`)
+    }
+  }
+  if (lockHeld) unlinkSync(outputLock)
 }

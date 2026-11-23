@@ -33,7 +33,7 @@ scenario may set `allow_subagents: true` to permit isolated subagents; otherwise
 forbids them.
 
 The runner writes a normalized trace and the final response, exact input and behavior-bearing
-installed-skill hashes, the canonical scenario hash, changed paths, patch and changed-file
+installed-skill hashes, the canonical scenario hash, NUL-safe changed paths, patch and changed-file
 snapshots. It clears inherited host environment variables before the model process and inspects
 the fixture through a trusted Git copy made before the model starts; model-controlled hooks,
 configuration redirects and replacement indexes cannot change that inspection. A scenario may
@@ -43,7 +43,8 @@ pending until a reviewer grades the retained output. Assertion files are reviewe
 evidence, bound to a retained final response and artifact set; they are not independent automatic
 grading. `final.md` must equal the last agent message in the trace. The trace is reviewer context,
 not an adversarial execution attestation: the model process can write to its own runtime output.
-Artifacts, filesystem state and retained hashes are the authoritative checks. Host home, temporary,
+Artifacts, filesystem state and retained hashes are the authoritative checks. Skill-file hashing
+rejects links and other non-regular entries instead of following them into the host. Host home, temporary,
 Windows-user and build toolchain roots are normalized to neutral placeholders in text evidence.
 Normalization changes recorded path spellings, not execution, grader decisions or artifact hashes.
 
@@ -68,10 +69,13 @@ A review or outgoing-diff scenario may declare `change_patch` and `change_root`.
 that patch in reverse to commit the base state, then reapplies it to commit the candidate, so the
 model reviews a real `HEAD^..HEAD` diff. The patch file remains a declared input.
 
-An output path must be `evidence/<date>/<skill>/<run>`. Individual files in the input manifest carry
-their executable mode bits, so changing whether a fixture command can run invalidates the retained
-evidence. When replacing an existing run, the runner stages the replacement beside it and promotes
-it only after the complete run succeeds; a failed run leaves the previous leaf intact.
+An output path must be `evidence/<date>/<skill>/<run>` and its skill component must match
+`--skill`. Every input-manifest entry carries its executable mode bits, so changing whether a
+fixture command can run invalidates the retained evidence. When replacing an existing run, the
+runner takes an output lock, stages the replacement beside it, removes the model-writable run root
+before promotion, and keeps the previous leaf until promotion; a failed run leaves the previous
+leaf intact. `changed-paths.json` is the machine path record; the text file remains a readable
+summary.
 
 An absent-capability scenario declares `"capabilities": {"browser": false, "media": false}`. The
 runner then omits both the browser mount and the ffmpeg directory and PATH entry, masks known

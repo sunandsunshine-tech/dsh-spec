@@ -16,12 +16,15 @@ import { spawnSync } from 'node:child_process'
 import { test } from 'node:test'
 
 const safety = (await import('./skill-evals/runner-safety.mjs' as string)) as {
-  assertEvidenceRunPath(root: string, output: string): void
+  assertEvidenceRunPath(root: string, output: string, expectedSkill?: string): void
   assertInputFile(root: string, file: string, label: string): string
   assertProjectPath(project: string, path: string, label: string): string
   capabilityMaskPaths(browserEnabled: boolean, mediaEnabled: boolean): string[]
   copyTrustedGit(project: string, destination: string): void
+  hashFileNoFollow(path: string): string
   modeBits(path: string): string
+  parseNulSeparatedPaths(output: string): string[]
+  removeModelTree(path: string): void
   resolveCapability(name: string, requested: boolean | undefined, available: boolean): boolean
   trustedGitArgs(gitDirectory: string, project: string, args: string[]): string[]
 }
@@ -72,13 +75,36 @@ test('evidence output replacement requires a date, skill and run leaf', async ()
     const evidence = join(root, 'evidence')
     const valid = join(evidence, '2026-11-23-pr121', 'dsh-spec-example', 'run-1')
     mkdirSync(valid, { recursive: true })
-    assert.doesNotThrow(() => safety.assertEvidenceRunPath(evidence, valid))
+    assert.doesNotThrow(() => safety.assertEvidenceRunPath(evidence, valid, 'dsh-spec-example'))
     assert.throws(() => safety.assertEvidenceRunPath(evidence, join(evidence, '2026-11-23-pr121')), /date.*skill.*run/)
+    assert.throws(
+      () =>
+        safety.assertEvidenceRunPath(
+          evidence,
+          join(evidence, '2026-11-23-pr121', 'dsh-spec-other', 'run-1'),
+          'dsh-spec-example',
+        ),
+      /expected dsh-spec-example/,
+    )
+    assert.throws(
+      () =>
+        safety.assertEvidenceRunPath(
+          evidence,
+          join(evidence, '2026-11-23-pr121', 'dsh-spec-example', '.old-run'),
+          'dsh-spec-example',
+        ),
+      /date.*skill.*run/,
+    )
     const outside = join(root, 'outside')
     mkdirSync(outside)
     symlinkSync(outside, join(evidence, '2026-11-23-pr121', 'dsh-spec-example', 'linked'))
     assert.throws(
-      () => safety.assertEvidenceRunPath(evidence, join(evidence, '2026-11-23-pr121', 'dsh-spec-example', 'linked')),
+      () =>
+        safety.assertEvidenceRunPath(
+          evidence,
+          join(evidence, '2026-11-23-pr121', 'dsh-spec-example', 'linked'),
+          'dsh-spec-example',
+        ),
       /escapes|symbolic link/,
     )
   } finally {
@@ -156,6 +182,44 @@ test('input modes are bound in the manifest format', async () => {
     assert.equal(safety.modeBits(file), '0755')
     assert.equal(readFileSync(file, 'utf8'), '#!/bin/sh\n')
   } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('machine paths retain spaces and non-ASCII names and artifact hashing refuses links', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'runner-path-safety-'))
+  try {
+    assert.deepEqual(safety.parseNulSeparatedPaths('café.txt\0name  with  spaces.md\0'), [
+      'café.txt',
+      'name  with  spaces.md',
+    ])
+    const target = join(root, 'café.txt')
+    writeFileSync(target, 'content\n')
+    assert.match(safety.hashFileNoFollow(target), /^[0-9a-f]{64}$/)
+    symlinkSync(target, join(root, 'linked.txt'))
+    assert.throws(() => safety.hashFileNoFollow(join(root, 'linked.txt')), /ELOOP|regular file/)
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('temporary cleanup repairs model-created permissions without following links', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'runner-cleanup-safety-'))
+  try {
+    const runRoot = join(root, 'run')
+    const locked = join(runRoot, 'locked')
+    const outside = join(root, 'outside.txt')
+    mkdirSync(locked, { recursive: true })
+    writeFileSync(outside, 'outside\n')
+    writeFileSync(join(locked, 'created.txt'), 'created\n')
+    symlinkSync(outside, join(runRoot, 'outside-link'))
+    chmodSync(locked, 0o000)
+    assert.doesNotThrow(() => safety.removeModelTree(runRoot))
+    assert.equal(existsSync(runRoot), false)
+    assert.equal(readFileSync(outside, 'utf8'), 'outside\n')
+  } finally {
+    const locked = join(root, 'run', 'locked')
+    if (existsSync(locked)) chmodSync(locked, 0o700)
     rmSync(root, { recursive: true, force: true })
   }
 })

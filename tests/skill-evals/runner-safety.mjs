@@ -1,4 +1,18 @@
-import { cpSync, lstatSync, realpathSync } from 'node:fs'
+import {
+  chmodSync,
+  closeSync,
+  constants,
+  cpSync,
+  fstatSync,
+  lstatSync,
+  openSync,
+  readdirSync,
+  readSync,
+  realpathSync,
+  rmdirSync,
+  unlinkSync,
+} from 'node:fs'
+import { createHash } from 'node:crypto'
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 
 const browserCandidates = [
@@ -81,14 +95,57 @@ export function assertProjectPath(project, path, label) {
   return absolute
 }
 
-export function assertEvidenceRunPath(evidenceRoot, output) {
+export function assertEvidenceRunPath(evidenceRoot, output, expectedSkill) {
   const local = relative(evidenceRoot, output)
   const parts = local.split(sep)
-  if (parts.length !== 3 || parts.some((part) => !part || part === '..')) {
+  if (
+    parts.length !== 3 ||
+    parts.some((part) => !part || part === '..') ||
+    !/^\d{4}-\d{2}-\d{2}(?:-[a-z0-9][a-z0-9-]*)?$/.test(parts[0] ?? '') ||
+    !/^dsh-spec-[a-z0-9-]+$/.test(parts[1] ?? '') ||
+    !/^[a-z0-9][a-z0-9-]*$/.test(parts[2] ?? '')
+  )
     throw new Error(`evidence output must be evidence/<date>/<skill>/<run>: ${output}`)
-  }
+  if (expectedSkill !== undefined && parts[1] !== expectedSkill)
+    throw new Error(`evidence output names ${parts[1]}, expected ${expectedSkill}: ${output}`)
   assertRealContained(evidenceRoot, output, 'evidence output')
   assertNoSymlinkComponents(evidenceRoot, output, 'evidence output')
+}
+
+export function parseNulSeparatedPaths(output) {
+  return output.split('\0').filter(Boolean)
+}
+
+export function hashFileNoFollow(path) {
+  const fd = openSync(path, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0))
+  try {
+    const stat = fstatSync(fd)
+    if (!stat.isFile()) throw new Error(`file hash requires a regular file: ${path}`)
+    const chunks = []
+    const buffer = Buffer.allocUnsafe(64 * 1024)
+    let position = 0
+    for (;;) {
+      const bytes = readSync(fd, buffer, 0, buffer.length, position)
+      if (bytes === 0) break
+      chunks.push(Buffer.from(buffer.subarray(0, bytes)))
+      position += bytes
+    }
+    return createHash('sha256').update(Buffer.concat(chunks)).digest('hex')
+  } finally {
+    closeSync(fd)
+  }
+}
+
+export function removeModelTree(path) {
+  const stat = lstatSync(path, { throwIfNoEntry: false })
+  if (!stat) return
+  if (stat.isSymbolicLink() || !stat.isDirectory()) {
+    unlinkSync(path)
+    return
+  }
+  chmodSync(path, 0o700)
+  for (const entry of readdirSync(path)) removeModelTree(join(path, entry))
+  rmdirSync(path)
 }
 
 export function resolveCapability(name, requested, available) {
