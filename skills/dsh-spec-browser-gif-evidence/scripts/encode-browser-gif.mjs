@@ -327,7 +327,6 @@ function encode(options) {
 		if (frames < 2) throw new MediaError(`expected an animated GIF, encoded ${frames} frame`);
 		const bytes = statSync(temporary).size;
 		if (bytes > options.maxBytes) throw new MediaError(`output is ${bytes} bytes, above --max-bytes ${options.maxBytes}`);
-		replaceValidated(temporary, options.output, options.force);
 		result = {
 			output: options.output,
 			...details,
@@ -338,6 +337,9 @@ function encode(options) {
 			fps: options.fps,
 			bytes
 		};
+		const cleanupFailures = cleanupTemporary([[temporaryRoot, true]]);
+		if (cleanupFailures.length > 0) throw new MediaError(`cleanup failed before publication: ${cleanupFailures.join("; ")}`);
+		replaceValidated(temporary, options.output, options.force);
 	} catch (error) {
 		const cleanupFailures = cleanupTemporary(cleanupPaths);
 		if (cleanupFailures.length > 0) {

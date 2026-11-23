@@ -431,7 +431,6 @@ function encode(options: Options): Record<string, unknown> {
     if (bytes > options.maxBytes)
       throw new MediaError(`output is ${bytes} bytes, above --max-bytes ${options.maxBytes}`)
 
-    replaceValidated(temporary, options.output, options.force)
     result = {
       output: options.output,
       ...details,
@@ -442,6 +441,11 @@ function encode(options: Options): Record<string, unknown> {
       fps: options.fps,
       bytes,
     }
+    const cleanupFailures = cleanupTemporary([[temporaryRoot, true]] as const)
+    if (cleanupFailures.length > 0) {
+      throw new MediaError(`cleanup failed before publication: ${cleanupFailures.join('; ')}`)
+    }
+    replaceValidated(temporary, options.output, options.force)
   } catch (error) {
     const cleanupFailures = cleanupTemporary(cleanupPaths)
     if (cleanupFailures.length > 0) {
