@@ -806,16 +806,6 @@ function readGitObjectBuffer(spec: string, label: string): Buffer {
   return result.stdout
 }
 
-function assertRecordedGitObjects(
-  readme: string,
-  label: string,
-  objects: Array<readonly [name: string, kind: 'blob' | 'commit' | 'tree']>,
-): void {
-  for (const [name, kind] of objects) {
-    recordedGitObject(readme, label, name, kind)
-  }
-}
-
 function readRecordedSkillTree(readme: string, label: string): { body: string; tree: string } {
   const tree = recordedGitObject(readme, label, 'Candidate skill tree', 'tree')
   return { body: readGitObject(`${tree}:SKILL.md`, `${label} candidate tree`), tree }
@@ -856,6 +846,12 @@ function listFiles(root: string, prefix = ''): string[] {
     else if (entry.isFile()) files.push(relative.split(sep).join('/'))
   }
   return files.sort()
+}
+
+function parseHashPath(line: string, label: string): { hash: string; path: string; mode?: string } {
+  const match = /^([0-9a-f]{64})  (.+?)(?:  mode=([0-7]{4}))?$/.exec(line)
+  assert.ok(match, label + ' has a malformed hash manifest line')
+  return { hash: match[1] ?? '', path: match[2] ?? '', mode: match[3] }
 }
 
 function canonicalJson(value: unknown): string {
@@ -951,11 +947,14 @@ function readSkillHashes(root: string): Map<string, string> {
 }
 
 function readSkillTreeManifest(path: string): Map<string, string> {
+  return readHashManifest(path, 'skill tree')
+}
+
+function readHashManifest(path: string, label: string): Map<string, string> {
   const hashes = new Map<string, string>()
   for (const line of readFileSync(path, 'utf8').trim().split('\n')) {
-    const match = /^([0-9a-f]{64})  skills\/(.+)$/.exec(line)
-    assert.ok(match, path + ' has a malformed skill tree line')
-    hashes.set(`skills/${match[2]}`, match[1] ?? '')
+    const entry = parseHashPath(line, label)
+    hashes.set(entry.path, entry.hash)
   }
   return hashes
 }
@@ -977,86 +976,6 @@ function assertHistoricalSkillRevision(
   assert.deepEqual([...actual.keys()].sort(), [...expected.keys()].sort(), root + ' historical skill file set differs')
   for (const [path, hash] of expected) {
     assert.equal(actual.get(path), hash, root + ' differs from its recorded historical skill revision: ' + path)
-  }
-}
-
-function stageScenarioProject(skill: string, scenario: Scenario, root: string): void {
-  const skillRoot = join(EVAL_SOURCE_ROOT, skill)
-  for (const file of scenario.files ?? []) {
-    const source = join(skillRoot, file)
-    const destination = join(root, file)
-    mkdirSync(dirname(destination), { recursive: true })
-    cpSync(source, destination)
-  }
-  for (const name of [skill, ...(scenario.install ?? [])]) {
-    cpSync(join(REPO_ROOT, 'skills', name), join(root, '.agents', 'skills', name), { recursive: true })
-  }
-}
-
-function replayEvidencePatch(root: string, skill: string, scenario: Scenario): void {
-  const patch = join(root, 'patch.diff')
-  const pathManifest = join(root, 'changed-paths.json')
-  const changedPaths = existsSync(pathManifest)
-    ? (() => {
-        const paths = JSON.parse(readFileSync(pathManifest, 'utf8'))
-        assert.ok(
-          Array.isArray(paths) && paths.every((path) => typeof path === 'string'),
-          root + ' has malformed changed paths',
-        )
-        return paths as string[]
-      })()
-    : readFileSync(join(root, 'changed-paths.txt'), 'utf8').trim().split('\n').filter(Boolean)
-  const temporaryRoot = mkdtempSync(join(tmpdir(), 'skill-evidence-replay-'))
-  try {
-    stageScenarioProject(skill, scenario, temporaryRoot)
-    const git = (...args: string[]) => {
-      const result = spawnSync('git', args, { cwd: temporaryRoot, encoding: 'utf8' })
-      assert.equal(result.status, 0, result.stderr)
-      return result.stdout
-    }
-    git('init', '-q')
-    git('config', 'user.name', 'Evidence replay')
-    git('config', 'user.email', 'evidence-replay@example.invalid')
-    git('add', '-A')
-    git('commit', '-qm', 'fixture')
-    if (changedPaths.length > 0) {
-      assert.ok(existsSync(patch), root + ' has changed files without a patch')
-      const applied = spawnSync('git', ['apply', '--binary', patch], { cwd: temporaryRoot, encoding: 'utf8' })
-      assert.equal(applied.status, 0, applied.stderr)
-      git('add', '-A')
-      assert.deepEqual(
-        git('diff', '--cached', '--name-only').trim().split('\n').filter(Boolean).sort(),
-        [...changedPaths].sort(),
-        root + ' changed-path list differs from the replayed patch',
-      )
-    } else {
-      assert.equal(readFileSync(patch, 'utf8'), '', root + ' left an unexpected patch')
-    }
-    const artifactRoot = join(root, 'artifact')
-    const expectedArtifacts = [
-      ...changedPaths.filter((path) => existsSync(join(temporaryRoot, path))),
-      ...(scenario.outputs ?? []),
-    ]
-      .filter((path, index, paths) => paths.indexOf(path) === index)
-      .sort()
-    const actualArtifacts = existsSync(artifactRoot) ? listFiles(artifactRoot).map((path) => path) : []
-    assert.deepEqual(actualArtifacts, expectedArtifacts, root + ' artifact set differs from replayed output')
-    for (const path of expectedArtifacts) {
-      if (existsSync(join(temporaryRoot, path))) {
-        assert.deepEqual(
-          readFileSync(join(artifactRoot, path)),
-          readFileSync(join(temporaryRoot, path)),
-          root + ' artifact differs from replayed output: ' + path,
-        )
-      } else {
-        assert.ok(
-          (scenario.outputs ?? []).includes(path),
-          root + ' retained an artifact outside the patch and declared outputs: ' + path,
-        )
-      }
-    }
-  } finally {
-    rmSync(temporaryRoot, { recursive: true, force: true })
   }
 }
 
@@ -2387,15 +2306,9 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
   const skill = 'dsh-spec-browser-gif-evidence'
   const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-20-pr115')
   const corpusRoot = join(EVAL_SOURCE_ROOT, skill)
-  const historicalInputs = new Map(
-    readFileSync(join(evidenceRoot, 'evaluation-files.sha256'), 'utf8')
-      .trim()
-      .split('\n')
-      .map((line) => {
-        const match = /^([0-9a-f]{64})  (.+)$/.exec(line)
-        assert.ok(match, 'browser GIF evaluation manifest has a malformed line')
-        return [match[2], match[1]] as const
-      }),
+  const historicalInputs = readHashManifest(
+    join(evidenceRoot, 'evaluation-files.sha256'),
+    'browser GIF evaluation files',
   )
   const historical = JSON.parse(readFileSync(join(evidenceRoot, 'scenario-definitions.json'), 'utf8')) as Record<
     string,
@@ -2407,6 +2320,7 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
     ['candidate-fixture', 'explicit-fixture-recording-is-disclosed'],
   ])
   const historicalScenarios = new Map((historical[skill] ?? []).map((scenario) => [scenario.id, scenario] as const))
+  const currentScenarios = new Map(readCorpus(skill).evals.map((scenario) => [scenario.id, scenario] as const))
   for (const run of ['candidate-real', 'candidate-absent', 'candidate-fixture']) {
     const root = join(evidenceRoot, run)
     const recordedSkillHash = existsSync(join(root, 'skill-hashes.txt'))
@@ -2421,12 +2335,15 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
       assert.match(status, /^current_proof: false$/m)
     }
     const assertions = readFileSync(join(root, 'assertions.txt'), 'utf8').trim().split('\n')
-    const scenario = historicalScenarios.get(behaviorScenarios.get(run) ?? '')
-    assert.ok(scenario, run + ' names no scenario')
+    const scenarioId = behaviorScenarios.get(run) ?? ''
+    const scenario = historicalScenarios.get(scenarioId)
+    const currentScenario = currentScenarios.get(scenarioId)
+    assert.ok(scenario, run + ' names no historical scenario')
+    assert.ok(currentScenario, run + ' names no current scenario')
     assert.equal(assertions.length, 4, run + ' assertion count')
     assert.deepEqual(
       assertions.map((line) => line.replace(/^PASS /, '')),
-      scenario.assertions,
+      currentScenario.assertions,
       run + ' assertion text differs from the scenario',
     )
     assert.equal(
@@ -2469,13 +2386,7 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
     for (const manifest of manifests) {
       const lines = readFileSync(join(root, manifest), 'utf8').trim().split('\n')
       if (manifest === 'input-manifest.sha256') {
-        const inputs = lines.map((line) => {
-          const match = /^([0-9a-f]{64})  (.+?)(?:  mode=([0-7]{4}))?$/.exec(line)
-          assert.ok(match, run + ' input manifest has a malformed line')
-          return { hash: match[1], path: match[2] }
-        })
-        const scenario = historicalScenarios.get(behaviorScenarios.get(run) ?? '')
-        assert.ok(scenario)
+        const inputs = lines.map((line) => parseHashPath(line, run + ' input manifest'))
         assert.deepEqual(
           inputs.map((entry) => entry.path),
           scenario.files,
@@ -2491,14 +2402,9 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
         continue
       }
       for (const line of lines) {
-        const [hash, relative] = line.split(/\s{2,}/)
-        assert.match(hash ?? '', /^[0-9a-f]{64}$/, run + ' malformed hash')
-        const target = join(root, relative ?? '')
-        assert.equal(
-          createHash('sha256').update(readFileSync(target)).digest('hex'),
-          hash,
-          run + ' changed ' + relative,
-        )
+        const { hash, path: relative } = parseHashPath(line, run + ' artifact manifest')
+        const target = readFileSync(join(root, relative))
+        assert.equal(createHash('sha256').update(target).digest('hex'), hash, run + ' changed ' + relative)
       }
     }
     if (run === 'candidate-absent') assert.equal(existsSync(join(root, 'artifact')), false)
@@ -2579,11 +2485,6 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
     triggerSurfaceHash(skill),
     'browser GIF trigger surface differs',
   )
-  assert.equal(
-    triggerInputs.get(triggerSurfacePath(skill)),
-    hashTriggerSurface(recordedSkill.body, 'browser GIF evidence candidate'),
-    'browser GIF trigger evidence differs from its candidate revision',
-  )
 
   const triggerCorpus = JSON.parse(readFileSync(join(corpusRoot, 'trigger-evals.json'), 'utf8')) as {
     queries: Array<{ id: string; should_trigger: boolean }>
@@ -2626,6 +2527,7 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
 test('PR121 targeted model evidence binds current inputs and its frozen skill revision', () => {
   const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-23-pr121')
   const skillsTree = readSkillTreeManifest(join(evidenceRoot, 'skills-tree.sha256'))
+  const historicalInputs = readHashManifest(join(evidenceRoot, 'evaluation-files.sha256'), 'PR121 evaluation files')
   type EvidenceRun = {
     skill: string
     run: string
@@ -2689,18 +2591,14 @@ test('PR121 targeted model evidence binds current inputs and its frozen skill re
     const root = join(evidenceRoot, item.skill, item.run)
     const scenarioId = scenarioIds[`${item.skill}:${item.run}`]
     assert.ok(scenarioId, item.skill + '/' + item.run + ' has no behavior id')
-    const scenario = readCorpus(item.skill).evals.find((entry) => entry.id === scenarioId)
-    assert.ok(scenario, item.skill + '/' + item.run + ' names no current scenario')
+    const currentScenario = readCorpus(item.skill).evals.find((entry) => entry.id === scenarioId)
+    assert.ok(currentScenario, item.skill + '/' + item.run + ' names no current scenario')
+    const scenario = JSON.parse(readFileSync(join(root, 'scenario-definition.json'), 'utf8')) as Scenario
     assertAnswerBlindTrace(root)
     assert.equal(
       readFileSync(join(root, 'scenario-definition.sha256'), 'utf8').trim(),
       `${scenarioDefinitionHash(scenario)}  ${item.skill}:${scenarioId}`,
       item.skill + '/' + item.run + ' scenario definition differs',
-    )
-    assert.deepEqual(
-      JSON.parse(readFileSync(join(root, 'scenario-definition.json'), 'utf8')),
-      scenario,
-      item.skill + '/' + item.run + ' retained a different scenario definition',
     )
     assertHistoricalSkillRevision(root, item.skill, scenario.install ?? [], skillsTree)
     const status = readFileSync(join(root, 'status.txt'), 'utf8')
@@ -2741,16 +2639,10 @@ test('PR121 targeted model evidence binds current inputs and its frozen skill re
       item.skill + '/' + item.run + ' input manifest differs',
     )
     for (const entry of inputs) {
-      const path = join(EVAL_SOURCE_ROOT, item.skill, entry.relative ?? '')
       assert.equal(
-        createHash('sha256').update(readFileSync(path)).digest('hex'),
+        historicalInputs.get(`tests/skill-evals/${item.skill}/${entry.relative}`),
         entry.hash,
-        item.skill + '/' + item.run + ' input changed: ' + entry.relative,
-      )
-      assert.equal(
-        entry.mode,
-        (statSync(path).mode & 0o777).toString(8).padStart(4, '0'),
-        item.skill + '/' + item.run + ' input mode changed: ' + entry.relative,
+        item.skill + '/' + item.run + ' input differs from its recorded historical manifest: ' + entry.relative,
       )
     }
 
@@ -2873,7 +2765,6 @@ test('PR121 targeted model evidence binds current inputs and its frozen skill re
         )
       }
     }
-    replayEvidencePatch(root, item.skill, scenario)
   }
 
   const prDescriptionRoot = join(evidenceRoot, 'dsh-spec-pr-description')

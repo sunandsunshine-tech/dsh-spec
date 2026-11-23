@@ -11,14 +11,18 @@ lists under `install`, copies only the declared fixture files, and mounts an oth
 response directory into an isolated Linux namespace. The source repository, answer manifest,
 expected output and other evidence are absent from that namespace. The outer mount policy enforces
 read-only or editable-project behavior; Codex runs without a second sandbox because the mount is
-already the boundary.
+already the boundary. The host needs `bubblewrap` (`bwrap`); `flock` supplies crash-released output
+locking.
 
-The runner isolates the project and answer tree, not the network or provider credentials. Model
-calls need provider connectivity, and the temporary Codex home contains the provider configuration
-inside the same namespace. Run only repository-controlled scenarios and trusted fixtures. Traces
-that name the provider home or response mount fail closed. The compatibility claim is therefore
-source/answer-tree isolation with reviewer-certified assertions, not a credential or network
-sandbox.
+The runner isolates the project and answer tree, not the network. Model calls need provider
+connectivity, so a host-side loopback proxy holds any inline provider bearer token and injects it
+outside the model namespace. The temporary Codex home contains only a local proxy endpoint and a
+placeholder authorization value. The proxy accepts only POST JSON requests for the provider's
+Responses or Chat Completions endpoint and rejects every other path, method, and authorization
+value. Run only repository-controlled scenarios and trusted fixtures; network egress remains
+available. Traces that name the provider home or response mount fail closed.
+The compatibility claim is therefore source/answer-tree isolation with non-exposed provider
+credentials and reviewer-certified assertions, not a general network sandbox.
 
 The namespace intentionally exposes the host mise toolchain read-only under the neutral
 `/home/eval/.local/share/mise/installs` path so Node.js, pnpm and ffmpeg can run. A broad parent
@@ -33,7 +37,7 @@ scenario may set `allow_subagents: true` to permit isolated subagents; otherwise
 forbids them.
 
 The runner writes a normalized trace and the final response, exact input and behavior-bearing
-installed-skill hashes, the canonical scenario hash, NUL-safe changed paths, patch and changed-file
+installed-skill hashes and modes, the canonical scenario hash, NUL-safe changed paths, patch and changed-file
 snapshots. The installed skill tree is mounted read-only over the writable project, Codex browser
 and computer-use features are disabled, and subagents are disabled unless the scenario authorizes
 them. The runner clears inherited host environment variables before the model process and inspects
@@ -53,11 +57,12 @@ Normalization changes recorded path spellings, not execution, grader decisions o
 The runner records the scenario, declared inputs, installed behavior-bearing skill files, final
 message and artifacts. It does not identify the model provider or capture every moving toolchain
 version, so retained evidence is not a byte-for-byte reproduction contract. The runner derives
-browser and media availability from the host. A scenario may explicitly require a capability, which
-fails before the model starts when unavailable, or explicitly disable it, which masks known system
-browser and media executables. `capabilities.json` records the resolved browser, media and subagent
-profile. The compatibility claim does not cover network or credential isolation, and a masked
-browser set is not a proof that no unknown executable exists elsewhere on the image.
+browser and media availability from executables that the sandbox actually exposes. A scenario may
+explicitly require a capability, which fails before the model starts when unavailable, or explicitly
+disable it, which masks known system browser and media executables. `capabilities.json` records the
+resolved auth, browser, media, sandbox and subagent profile. The compatibility claim does not cover
+general network isolation, and a masked browser set is not proof that no unknown executable exists
+elsewhere on the image.
 
 The official Agent Skills layout can also be checked without a model run by placing the target skill
 at `<temporary>/<skill>` and its development corpus at `<temporary>/<skill>/evals/`. A scenario's

@@ -10,10 +10,14 @@ import {
   readSync,
   realpathSync,
   rmdirSync,
+  statSync,
   unlinkSync,
 } from 'node:fs'
 import { createHash } from 'node:crypto'
+import { spawn } from 'node:child_process'
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
+import { once } from 'node:events'
+import { setTimeout as delay } from 'node:timers/promises'
 
 const browserCandidates = [
   '/usr/local/bin/chromium',
@@ -136,6 +140,97 @@ export function hashFileNoFollow(path) {
   }
 }
 
+export function executableFile(path) {
+  try {
+    const stat = statSync(realpathSync(path))
+    return stat.isFile() && (stat.mode & 0o111) !== 0
+  } catch {
+    return false
+  }
+}
+
+export function resolveMiseMediaRoot(miseInstalls) {
+  try {
+    const root = realpathSync(join(miseInstalls, 'ffmpeg', 'latest'))
+    return executableFile(join(root, 'bin', 'ffmpeg')) && executableFile(join(root, 'bin', 'ffprobe'))
+      ? root
+      : undefined
+  } catch {
+    return undefined
+  }
+}
+
+export function proxyProviderLines(lines, proxyUrl) {
+  let replacedBase = false
+  const rewritten = []
+  for (const line of lines) {
+    const key = line.split('=')[0]?.trim()
+    if (key === 'base_url') {
+      rewritten.push(`base_url = ${JSON.stringify(proxyUrl)}`)
+      replacedBase = true
+    } else if (key === 'experimental_bearer_token') {
+      rewritten.push('experimental_bearer_token = "local-model-proxy"')
+    } else if (key !== 'env_key') {
+      rewritten.push(line)
+    }
+  }
+  if (!replacedBase) throw new Error('provider configuration has no base_url for the local auth proxy')
+  return rewritten
+}
+
+export function tomlStringValue(line) {
+  const match = /^\s*[^=]+?\s*=\s*(?:"((?:\\.|[^"\\])*)"|'([^']*)')\s*(?:#.*)?$/.exec(line)
+  if (!match) return undefined
+  if (match[2] !== undefined) return match[2]
+  try {
+    return JSON.parse(`"${match[1]}"`)
+  } catch {
+    return undefined
+  }
+}
+
+export function tomlField(section, key) {
+  return section.find((line) => line.split('=')[0]?.trim() === key)
+}
+
+export async function acquireFileLock(path) {
+  const child = spawn('flock', ['--nonblock', path, 'sh', '-c', "printf 'ready\\n'; exec cat >/dev/null"], {
+    stdio: ['pipe', 'pipe', 'pipe'],
+  })
+  let stderr = ''
+  child.stderr.setEncoding('utf8')
+  child.stderr.on('data', (chunk) => {
+    stderr += chunk
+  })
+  const ready = await Promise.race([
+    new Promise((resolveReady, reject) => {
+      child.stdout.setEncoding('utf8')
+      child.stdout.once('data', (chunk) => {
+        if (String(chunk).trim() === 'ready') resolveReady(true)
+        else reject(new Error('file lock helper returned an unexpected readiness value'))
+      })
+      child.once('error', reject)
+      child.once('exit', () => reject(new Error(`output lock is held: ${path}${stderr ? `\n${stderr}` : ''}`)))
+    }),
+    delay(2_000).then(() => {
+      throw new Error(`output lock did not become ready: ${path}`)
+    }),
+  ])
+  if (ready !== true) throw new Error(`output lock did not become ready: ${path}`)
+  return {
+    async release() {
+      if (child.exitCode !== null) return
+      const exited = once(child, 'exit')
+      child.stdin.end()
+      const stopped = await Promise.race([exited.then(() => true), delay(2_000).then(() => false)])
+      if (!stopped && child.exitCode === null) {
+        child.kill('SIGKILL')
+        await Promise.race([exited, delay(1_000)])
+      }
+    },
+  }
+}
+
 export function removeModelTree(path) {
   const stat = lstatSync(path, { throwIfNoEntry: false })
   if (!stat) return
@@ -162,8 +257,12 @@ export function browserExecutablePaths() {
   return [...browserCandidates]
 }
 
+export function mediaExecutablePaths() {
+  return [...mediaCandidates]
+}
+
 export function modeBits(path) {
-  return (lstatSync(path).mode & 0o777).toString(8).padStart(4, '0')
+  return lstatSync(path).mode & 0o111 ? '0755' : '0644'
 }
 
 export function copyTrustedGit(project, destination) {

@@ -12,20 +12,29 @@ import {
 } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
-import { spawnSync } from 'node:child_process'
+import { spawn, spawnSync } from 'node:child_process'
+import { once } from 'node:events'
+import http from 'node:http'
 import { test } from 'node:test'
 
 const safety = (await import('./skill-evals/runner-safety.mjs' as string)) as {
+  acquireFileLock(path: string): Promise<{ release(): Promise<void> }>
   assertEvidenceRunPath(root: string, output: string, expectedSkill?: string): void
   assertInputFile(root: string, file: string, label: string): string
   assertProjectPath(project: string, path: string, label: string): string
   capabilityMaskPaths(browserEnabled: boolean, mediaEnabled: boolean): string[]
   copyTrustedGit(project: string, destination: string): void
+  executableFile(path: string): boolean
   hashFileNoFollow(path: string): string
+  mediaExecutablePaths(): string[]
   modeBits(path: string): string
   parseNulSeparatedPaths(output: string): string[]
+  proxyProviderLines(lines: string[], proxyUrl: string): string[]
   removeModelTree(path: string): void
   resolveCapability(name: string, requested: boolean | undefined, available: boolean): boolean
+  resolveMiseMediaRoot(miseInstalls: string): string | undefined
+  tomlField(lines: string[], key: string): string | undefined
+  tomlStringValue(line: string): string | undefined
   trustedGitArgs(gitDirectory: string, project: string, args: string[]): string[]
 }
 
@@ -112,6 +121,23 @@ test('evidence output replacement requires a date, skill and run leaf', async ()
   }
 })
 
+test('evidence output locking is exclusive and released after completion', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'runner-lock-'))
+  const lock = join(root, 'evidence.lock')
+  let first: { release(): Promise<void> } | undefined
+  try {
+    first = await safety.acquireFileLock(lock)
+    await assert.rejects(() => safety.acquireFileLock(lock), /output lock is held/)
+    await first.release()
+    first = undefined
+    const second = await safety.acquireFileLock(lock)
+    await second.release()
+  } finally {
+    if (first) await first.release()
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
 test('trusted Git inspection ignores model-controlled hooks and commondir', async () => {
   const root = mkdtempSync(join(tmpdir(), 'runner-git-safety-'))
   try {
@@ -173,6 +199,132 @@ test('capability defaults follow host state and explicit requirements fail close
   assert.deepEqual(safety.capabilityMaskPaths(true, true), [])
 })
 
+test('media capability resolves executables that can be mounted into the sandbox', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'runner-media-capability-'))
+  try {
+    const installs = join(root, 'installs')
+    const version = join(installs, 'ffmpeg', '9.0.2')
+    mkdirSync(join(version, 'bin'), { recursive: true })
+    for (const name of ['ffmpeg', 'ffprobe']) {
+      writeFileSync(join(version, 'bin', name), '#!/bin/sh\n')
+      chmodSync(join(version, 'bin', name), 0o755)
+    }
+    symlinkSync(version, join(installs, 'ffmpeg', 'latest'))
+    assert.equal(safety.resolveMiseMediaRoot(installs), version)
+    assert.equal(safety.executableFile(join(version, 'bin', 'ffmpeg')), true)
+    symlinkSync(join(version, 'bin', 'ffmpeg'), join(root, 'ffmpeg-link'))
+    assert.equal(safety.executableFile(join(root, 'ffmpeg-link')), true)
+    chmodSync(join(version, 'bin', 'ffprobe'), 0o644)
+    assert.equal(safety.resolveMiseMediaRoot(installs), undefined)
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('model auth proxy keeps the upstream token outside the model configuration', async (t) => {
+  let upstreamAuthorization = ''
+  let upstreamBody = ''
+  let upstreamPath = ''
+  let releaseStall: (() => void) | undefined
+  const stallStarted = new Promise<void>((resolve) => {
+    releaseStall = resolve
+  })
+  const upstream = http.createServer((request, response) => {
+    upstreamAuthorization = String(request.headers.authorization)
+    upstreamPath = String(request.url)
+    request.setEncoding('utf8')
+    request.on('data', (chunk) => {
+      upstreamBody += chunk
+    })
+    request.on('end', () => {
+      if (request.headers['x-stall'] === '1') {
+        releaseStall?.()
+        return
+      }
+      response.writeHead(200).end('forwarded')
+    })
+  })
+  upstream.listen(0, '127.0.0.1')
+  await once(upstream, 'listening')
+  t.after(() => upstream.close())
+  const address = upstream.address()
+  assert.ok(address && typeof address !== 'string')
+
+  const proxy = spawn(
+    process.execPath,
+    [join(import.meta.dirname, 'skill-evals/model-auth-proxy.mjs'), `http://127.0.0.1:${address.port}/v1`],
+    {
+      env: { ...process.env, MODEL_AUTH_TOKEN: 'host-only-secret' },
+      stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
+    },
+  )
+  t.after(() => proxy.kill('SIGTERM'))
+  assert.ok(proxy.stdout)
+  const [chunk] = await once(proxy.stdout, 'data')
+  const { url } = JSON.parse(String(chunk)) as { url: string }
+  const response = await fetch(url + '/responses', {
+    method: 'POST',
+    headers: { authorization: 'Bearer local-model-proxy', 'content-type': 'application/json' },
+    body: 'request body',
+  })
+  assert.equal(await response.text(), 'forwarded')
+  assert.equal(upstreamAuthorization, 'Bearer host-only-secret')
+  assert.equal(upstreamBody, 'request body')
+  assert.equal(upstreamPath, '/v1/responses')
+  const prefixed = await fetch(url + '/v1/responses', {
+    method: 'POST',
+    headers: { authorization: 'Bearer local-model-proxy', 'content-type': 'application/json' },
+    body: '{}',
+  })
+  assert.equal(await prefixed.text(), 'forwarded')
+  assert.equal(upstreamPath, '/v1/responses')
+  const provider = safety.proxyProviderLines(
+    [
+      'name = "provider"',
+      'base_url = "https://provider.example"',
+      'wire_api = "responses"',
+      'experimental_bearer_token = "host-only-secret"',
+      'env_key = "HOST_ONLY_SECRET"',
+    ],
+    url,
+  )
+  assert.equal(
+    provider.some((line) => line.includes('host-only-secret') || line.includes('HOST_ONLY_SECRET')),
+    false,
+  )
+  assert.ok(provider.includes('experimental_bearer_token = "local-model-proxy"'))
+  assert.ok(provider.includes(`base_url = ${JSON.stringify(url)}`))
+
+  const forbidden = await fetch(url + '/not-a-model-endpoint', {
+    method: 'POST',
+    headers: { authorization: 'Bearer local-model-proxy', 'content-type': 'application/json' },
+    body: '{}',
+  })
+  assert.equal(forbidden.status, 403)
+  const stalled = fetch(url + '/responses', {
+    method: 'POST',
+    headers: { authorization: 'Bearer local-model-proxy', 'content-type': 'application/json', 'x-stall': '1' },
+    body: '{}',
+  }).catch(() => undefined)
+  await stallStarted
+  const exited = once(proxy, 'exit')
+  proxy.kill('SIGTERM')
+  await Promise.race([
+    exited,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('proxy did not exit')), 2_000)),
+  ])
+  await stalled
+})
+
+test('provider TOML parsing accepts standard spacing and quoting before proxy rewriting', () => {
+  const section = [
+    '  base_url = "https://provider.example/v1" # upstream',
+    "  experimental_bearer_token = 'REAL_SECRET'",
+  ]
+  assert.equal(safety.tomlStringValue(safety.tomlField(section, 'base_url') ?? ''), 'https://provider.example/v1')
+  assert.equal(safety.tomlStringValue(safety.tomlField(section, 'experimental_bearer_token') ?? ''), 'REAL_SECRET')
+})
+
 test('input modes are bound in the manifest format', async () => {
   const root = mkdtempSync(join(tmpdir(), 'runner-mode-safety-'))
   try {
@@ -180,6 +332,10 @@ test('input modes are bound in the manifest format', async () => {
     writeFileSync(file, '#!/bin/sh\n')
     chmodSync(file, 0o755)
     assert.equal(safety.modeBits(file), '0755')
+    chmodSync(file, 0o744)
+    assert.equal(safety.modeBits(file), '0755')
+    chmodSync(file, 0o664)
+    assert.equal(safety.modeBits(file), '0644')
     assert.equal(readFileSync(file, 'utf8'), '#!/bin/sh\n')
   } finally {
     rmSync(root, { recursive: true, force: true })
