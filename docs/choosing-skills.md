@@ -117,6 +117,6 @@ The requirements below supplement the global prerequisites in the project README
 | The project has no browser UI | `dsh-spec-client-ui-ux`, `dsh-spec-browser-gif-evidence` |
 | The project does not use GitHub stacked PRs | `dsh-spec-merging-stacked-prs` |
 | The project does not author Agent Skills | `dsh-spec-skill-forge` |
-| The project has no structured tool, service or process failures under review | `dsh-spec-error-handling` |
+| The project has no expected failure behavior to design or review | `dsh-spec-error-handling` |
 
 A skill remains usable when a recommended companion is absent; its instructions either complete through the project's equivalent mechanism or record the missing capability.

@@ -153,7 +153,7 @@ test('the forge accepts future defaults without project instructions', () => {
   const forge = read('dsh-spec-skill-forge')
   assert.match(
     forge,
-    /a forged skill that declares a default applies it only when neither the request nor existing project instructions choose one, while treating instructions as read-only input and never creating or modifying them merely to select a default/,
+    /a forged skill that declares a default applies it only when neither the request nor existing project instructions choose one, while treating instructions as read-only input and never asking for, creating, modifying, or copying them merely to select a default/,
   )
 })
 

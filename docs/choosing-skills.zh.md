@@ -117,6 +117,6 @@ gh skill install sunandsunshine-tech/dsh-spec "<skill>" \
 | 项目没有浏览器 UI | `dsh-spec-client-ui-ux`、`dsh-spec-browser-gif-evidence` |
 | 项目不使用 GitHub stacked PR | `dsh-spec-merging-stacked-prs` |
 | 项目不制作 Agent 技能 | `dsh-spec-skill-forge` |
-| 评审范围内没有工具、服务或进程的结构化失败 | `dsh-spec-error-handling` |
+| 项目没有需要设计或评审的预期失败行为 | `dsh-spec-error-handling` |
 
 推荐配套技能缺席时，技能仍然可用；它要么通过项目已有的等价机制完成工作，要么记录缺失的能力。

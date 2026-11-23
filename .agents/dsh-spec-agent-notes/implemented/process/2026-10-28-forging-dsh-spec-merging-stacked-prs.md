@@ -83,7 +83,7 @@ Dispositions use the forge skill's values: **Keep** carries the original wording
 
 The numbering gap between S31 and S33 is deliberate (R8): the missing row would have added an adopter authorization gate, which the source boundary excludes; it is not a dropped source constraint.
 
-PR122's `refresh-stack-with-rerere` model run passes 4/4 assertions for the default rebase path, the disabled automatic rerere staging, and the post-refresh validation order.
+PR122's `refresh-stack-with-rerere` model run passes 4/4 assertions for the default rebase path, the disabled automatic rerere staging, and the post-refresh validation order. Its `dependency-only-blocked-stack-can-land` run passes another 4/4 assertions and separates a dependency-only `BLOCKED` state from failed required checks or reviews.
 
 ### Rulings
 

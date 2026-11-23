@@ -1,26 +1,20 @@
-### Review findings
+The change is not ready as described. The current manifests add `app → core` and `app → validator`, remove `app → legacy`, add the `validator` package, and remove the `legacy` package. The description reports only the valid `app → validator` addition.
 
-The runtime edge diff is:
+| Package or runtime edge | Base | Current | Description | Assessment |
+|---|---:|---:|---|---|
+| `app → validator` | absent | present | reported | Correct. `validator` owns shared input checks, and `app` consumes them. |
+| `app → core` | absent | present | unreported | Missing edge and problematic reverse dependency. |
+| `app → legacy` | present | absent | unreported | Missing removed edge. |
+| `core → app` | present | present | reported | Consistent with `core` consuming the app-provided event sink. |
+| `validator` package | absent | present | responsibility stated | New package; owns shared input checks and needs no outgoing runtime dependency. |
+| `legacy` package | present | absent | unmentioned | Removed package; it has no current responsibility. |
 
-| Change | Edge |
-|---|---|
-| Removed | `app → legacy` |
-| Added | `app → core` |
-| Added | `app → validator` |
-| Unchanged | `core → app` |
+The blocking issue is [packages/app/package.json](/workspace/evals/files/dependency-review/packages/app/package.json:5): `app → core` reverses the existing [core → app edge](/workspace/evals/files/dependency-review/packages/core/package.json:5), creating an `app ↔ core` cycle. The description gives no app responsibility requiring `core`; it says the dependency runs the other way for the event sink. That makes this added edge unnecessary under the reported responsibility model.
 
-This follows the project rule that manifest `dependencies` are runtime edges ([AGENTS.md](/workspace/evals/files/dependency-review/AGENTS.md:4)).
+The description also violates the required responsibility-and-edge reporting rule in [AGENTS.md](/workspace/evals/files/dependency-review/AGENTS.md:5):
 
-| Package | Responsibility actually evidenced |
-|---|---|
-| `app` | Application/event-sink owner; it consumes validation and formerly consumed the legacy implementation. |
-| `core` | Core event producer/consumer logic that uses `app` as its event sink. |
-| `validator` | Shared input checks. It is correctly dependency-free. `app → validator` is the appropriate direction. |
-| `legacy` | Former legacy implementation consumed by `app`; both the package and its incoming edge were removed. |
+- It omits the added `app → core` edge at [pr-description.md](/workspace/evals/files/dependency-review/pr-description.md:3).
+- It omits the removed `app → legacy` edge from [the base manifest](/workspace/evals/files/dependency-review/base/packages/app/package.json:5).
+- It does not explicitly report the removal of `legacy`; `validator`’s responsibility is reported, while `app`’s own responsibility is only implicit as a consumer.
 
-Problems:
-
-- **Missing reported edge:** The description omits the newly added `app → core` edge in [app/package.json](/workspace/evals/files/dependency-review/packages/app/package.json:5), despite claiming to report the changes.
-- **Missing removed edge:** It omits the removed `app → legacy` edge present in the base manifest ([base/app/package.json](/workspace/evals/files/dependency-review/base/packages/app/package.json:5)).
-- **Reverse edge / unnecessary edge:** `app → core` is new while `core → app` remains. Since `core` uses `app` as its event sink, `app` is the provider and `core` the consumer. Making the provider depend on its consumer creates a cycle and has no responsibility stated in the description. This edge should be removed unless `app` genuinely owns an additional core-facing responsibility that justifies redefining the boundary.
-- **Incomplete responsibility description:** [PR description](/workspace/evals/files/dependency-review/pr-description.md:3) reports `validator`’s responsibility but does not define what `app` and `core` own. The existing statement that `core` uses `app` describes an interaction; it does not establish `core`’s owned responsibility.
+The supplied fixture contains no implementation or call sites, so deeper usage cannot be verified beyond the declared manifest edges. No responsibility claim other than the unsupported `app → core` relationship is demonstrably false.

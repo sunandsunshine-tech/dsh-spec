@@ -83,7 +83,7 @@ Status: implemented
 
 S31 与 S33 之间的编号空缺是刻意的（R8）：缺失的那一行本会加入一道采用者授权门，而来源边界排除它；这不是被丢弃的来源约束。
 
-PR122 的 `refresh-stack-with-rerere` 模型运行通过 4/4 项断言，覆盖默认 rebase 路径、关闭 rerere 自动暂存以及刷新后的验证顺序。
+PR122 的 `refresh-stack-with-rerere` 模型运行通过 4/4 项断言，覆盖默认 rebase 路径、关闭 rerere 自动暂存以及刷新后的验证顺序。`dependency-only-blocked-stack-can-land` 运行再通过 4/4 项断言，把仅依赖父层的 `BLOCKED` 与必需检查或评审失败区分开。
 
 ### 裁决
 

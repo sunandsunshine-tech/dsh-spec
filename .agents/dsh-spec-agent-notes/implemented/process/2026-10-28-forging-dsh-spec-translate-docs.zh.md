@@ -266,8 +266,9 @@ PR122 的 `locale-selected-pages-are-unpaired` 模型运行通过 4/4 项断言�
 | V35 | CLI 失败模式 | 机械 | write 不带配对或 --all 的用法错误；不完整的点名配对；畸形记录；空选择；未知选项／动词；无效 glob；裸非默认目标；在非 write 动词上使用 --source-lang；遗留旗标；--all 记录每个完整选中配对并丢弃退役目标 |
 | V37 | 按目标顺序写入 | 机械 | 源编辑后，编辑 zh 并写入 zh 使 ja 失败；编辑 ja 并写入 ja 使 zh 保持绿色且源哈希行不变；随后两个目标都检查为绿 |
 | V38 | 文风默认值的丰富度 | 机械 | style-examples.md 携带上游品质的校准点（误报／漏检、bilingual from birth、grandfathered、cookbook）以及防御／测试／长段落样例组；translation-rules 仍是唯一的优先级归属；出处只在通知中 |
-| V39 | 整篇文档、能力与目标迁移场景及可运行输入，从开发侧存储暂存 | 机械 | `tests/skill-evals/dsh-spec-translate-docs/evals/evals.json` 携带九个场景，覆盖局部完成、明确交接、隔离上下文、单路径授权、显式多目标、歧义目标、渐进新增、active 删除与范围不回填；`tests/skill-scenarios.test.ts` 验证暂存、包含关系、具体语义以及交付树中没有 `evals/`。 |
-| V40 | 场景矩阵中的真实模型行为 | 未验证 | 九个干净上下文开发场景定义所需行为，并位于 CI 之外；候选与基线结果属于 PR 交接。[能力记录](2026-11-17-delegation-is-a-capability-choice-not-a-skill-dependency.zh.md) 继续拥有能力边界。 |
+| V39 | 整篇文档、能力与目标迁移场景及可运行输入，从开发侧存储暂存 | 机械 | `tests/skill-evals/dsh-spec-translate-docs/evals/evals.json` 携带十一个场景，覆盖局部完成、明确交接、隔离上下文、单路径授权、显式多目标、歧义目标、渐进新增、active 删除、locale 选择页面、范围不回填与源重命名；`tests/skill-scenarios.test.ts` 验证暂存、包含关系、具体语义以及交付树中没有 `evals/`。 |
+| V40 | 场景矩阵中的真实模型行为 | 判断 + 机械 | 六个场景已有录制模型证据：PR121 覆盖局部完成、显式多目标、整篇交接与目标删除；PR122 覆盖源重命名与 locale 选择页面。其余五个场景在行为变化时运行，目前没有当前模型结果。[能力记录](2026-11-17-delegation-is-a-capability-choice-not-a-skill-dependency.zh.md) 继续拥有能力边界。 |
+| V41 | Locale 选择排除在发现、目标推断与链接规范化中使用同一份声明 | 机械 + 判断 | `--unpaired` 贯穿语料发现、`existingTargets` 与 `linkContext`；`locale-selected-pages-are-unpaired` 运行记录命令，维护中的指南配对仍保持一致。单元覆盖拒绝不完整发现，并保留项目自己的普通链接检查。 |
 
 ## 考虑过的替代方案
 
