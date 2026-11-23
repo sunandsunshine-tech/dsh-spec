@@ -101,7 +101,7 @@ Upstream source baseline read on 2026-11-20:
 | A5 | Runnable fixtures cover deterministic port failure, exact global restoration, read-only diagnosis and a slow repeated-suite redesign. | Mechanical | Repository tests run the fixtures' positive and negative controls and stage all declared inputs; the four direct fixture entries take under one second in aggregate. |
 | A6 | Runtime model behavior against the scenarios. | Judged + Mechanical | Clean-context runs under `tests/skill-evals/evidence/2026-11-20-pr116/` pass 16/16 assertions across the four behavior scenarios. |
 | A6a | The description routes reliability and test-duration work without capturing adjacent product-performance, coverage, documentation, or visual-review tasks. | Judged + Mechanical | Four positive and four near-miss selection probes in the same evidence directory pass 8/8 through the stable `SELECT:` marker. |
-| A7 | The installed copy, notices, active note tree and translation pairs are consistent. | Mechanical | The final full functional suite and corpus, notes, pairing, notices, format, static and bundle checks pass; the functional command is the owning evidence, without duplicating a process count here. |
+| A7 | The installed copy, notices, active note tree and translation pairs are consistent. | Mechanical | The final functional suite uses a stubbed corpus contract; the real corpus is owned by the `pnpm run check:corpus` step. Notes, pairing, notices, format, static and bundle checks pass, without duplicating process counts here. |
 
 ## Pages read
 

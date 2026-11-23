@@ -1,3 +1,3 @@
-The installed testing skill is not a clear match: it targets unstable tests and shared-resource issues, while this request is coverage-only. Per the probe instructions, I did not inspect or modify the workspace.
+The request concerns coverage-only test work, which the `dsh-spec-test-reliability` skill explicitly excludes from its scope. No other installed skill clearly applies.
 
 SELECT: none

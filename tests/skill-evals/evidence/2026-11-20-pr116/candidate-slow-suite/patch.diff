@@ -1,48 +1,144 @@
-diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
-index 94de77b..acc811a 100644
---- a/.github/workflows/ci.yml
-+++ b/.github/workflows/ci.yml
-@@ -10,0 +11,2 @@ jobs:
-+    env:
-+      RUN_REPRESENTATIVE_FIXTURE: ${{ matrix.node == 24 && 'true' || 'false' }}
-diff --git a/tests/report.test.mjs b/tests/report.test.mjs
-index b240ddf..93c2a74 100644
---- a/tests/report.test.mjs
-+++ b/tests/report.test.mjs
-@@ -10 +10,2 @@ async function expensiveFixture() {
+diff --git a/evals/files/slow-suite/.github/workflows/ci.yml b/evals/files/slow-suite/.github/workflows/ci.yml
+index 94de77b..cc37fd7 100644
+--- a/evals/files/slow-suite/.github/workflows/ci.yml
++++ b/evals/files/slow-suite/.github/workflows/ci.yml
+@@ -3,14 +3,25 @@ name: test
+ on: [push]
+ 
+ jobs:
+-  test:
++  contract:
++    name: contract (Node ${{ matrix.node }})
++    runs-on: ubuntu-latest
+     strategy:
+       matrix:
+         node: [24, 26]
+-    runs-on: ubuntu-latest
+     steps:
+       - uses: actions/checkout@v4
+       - uses: actions/setup-node@v4
+         with:
+           node-version: ${{ matrix.node }}
+-      - run: npm test
++      - run: npm run test:contract
++
++  representative:
++    name: representative scenario
++    runs-on: ubuntu-latest
++    steps:
++      - uses: actions/checkout@v4
++      - uses: actions/setup-node@v4
++        with:
++          node-version: 24
++      - run: npm run test:representative
+diff --git a/evals/files/slow-suite/README.md b/evals/files/slow-suite/README.md
+index 7a9e3e8..4b5c88b 100644
+--- a/evals/files/slow-suite/README.md
++++ b/evals/files/slow-suite/README.md
+@@ -1,8 +1,8 @@
+-# Repeated expensive fixture
++# Representative report suite
+ 
+-The CI matrix runs this suite twice, and every case rebuilds the same expensive fixture even though
+-all cases check one contract. A proposed change multiplies every group's timeout by three.
++The fast row-contract cases run on the Node compatibility matrix without external work. One
++representative integration scenario acquires the delayed report fixture once and checks the complete
++row contract.
+ 
+-Redesign the tests so fast contract cases do not repeat the expensive work and one shared
+-representative scenario owns it. Keep compatibility that can change the result; remove duplicate
+-external work that cannot.
++Run `npm test` for both parts of the suite, or use `npm run test:contract` and
++`npm run test:representative` to target either part.
+diff --git a/evals/files/slow-suite/package.json b/evals/files/slow-suite/package.json
+index 9101103..56d593d 100644
+--- a/evals/files/slow-suite/package.json
++++ b/evals/files/slow-suite/package.json
+@@ -3,6 +3,8 @@
+   "private": true,
+   "type": "module",
+   "scripts": {
+-    "test": "node --test tests/report.test.mjs"
++    "test": "node --test tests/report.test.mjs tests/report.integration.test.mjs",
++    "test:contract": "node --test tests/report.test.mjs",
++    "test:representative": "node --test tests/report.integration.test.mjs"
+   }
+ }
+diff --git a/evals/files/slow-suite/tests/report-contract.mjs b/evals/files/slow-suite/tests/report-contract.mjs
+new file mode 100644
+index 0000000..333d091
+--- /dev/null
++++ b/evals/files/slow-suite/tests/report-contract.mjs
+@@ -0,0 +1,9 @@
++export const rowCases = Object.freeze([
++  Object.freeze(['renders the first row', 1]),
++  Object.freeze(['renders the second row', 2]),
++  Object.freeze(['renders the third row', 3]),
++])
++
++export const expectedReportRows = Object.freeze(
++  rowCases.map(([, expected]) => expected),
++)
+diff --git a/evals/files/slow-suite/tests/report.integration.test.mjs b/evals/files/slow-suite/tests/report.integration.test.mjs
+new file mode 100644
+index 0000000..c3b7e77
+--- /dev/null
++++ b/evals/files/slow-suite/tests/report.integration.test.mjs
+@@ -0,0 +1,25 @@
++import assert from 'node:assert/strict'
++import { test } from 'node:test'
++import { setTimeout as delay } from 'node:timers/promises'
++
++import { expectedReportRows } from './report-contract.mjs'
++
++const representativeScenarioTimeoutMs = 5_000
++let fixtureBuilds = 0
++
++async function expensiveFixture() {
++  fixtureBuilds += 1
++  await delay(80)
++  return { rows: [1, 2, 3] }
++}
++
++test(
++  'representative report passes the shared row contract',
++  { timeout: representativeScenarioTimeoutMs },
++  async () => {
++    const fixture = await expensiveFixture()
++
++    assert.deepEqual(fixture.rows, expectedReportRows)
++    assert.equal(fixtureBuilds, 1)
++  },
++)
+diff --git a/evals/files/slow-suite/tests/report.test.mjs b/evals/files/slow-suite/tests/report.test.mjs
+index b240ddf..9f86f53 100644
+--- a/evals/files/slow-suite/tests/report.test.mjs
++++ b/evals/files/slow-suite/tests/report.test.mjs
+@@ -1,20 +1,13 @@
+ import assert from 'node:assert/strict'
+ import { test } from 'node:test'
+-import { setTimeout as delay } from 'node:timers/promises'
+ 
+-async function expensiveFixture() {
+-  await delay(80)
+-  return { rows: [1, 2, 3] }
+-}
++import { expectedReportRows, rowCases } from './report-contract.mjs'
++
++const inMemoryReport = { rows: expectedReportRows }
+ 
 -for (const [name, expected] of [
-+const expectedRows = [1, 2, 3]
-+const rowCases = [
-@@ -14,5 +15,10 @@ for (const [name, expected] of [
+-  ['renders the first row', 1],
+-  ['renders the second row', 2],
+-  ['renders the third row', 3],
 -]) {
 -  test(name, async () => {
 -    const fixture = await expensiveFixture()
 -    assert.equal(fixture.rows.length, 3)
 -    assert.ok(fixture.rows.includes(expected))
-+]
-+
-+function assertRowContract(rows, expected) {
-+  assert.equal(rows.length, expectedRows.length)
-+  assert.ok(rows.includes(expected))
-+}
-+
 +for (const [name, expected] of rowCases) {
 +  test(name, () => {
-+    assertRowContract(expectedRows, expected)
-@@ -20,0 +27,16 @@ for (const [name, expected] of [
-+
-+const runRepresentativeFixture =
-+  process.env.RUN_REPRESENTATIVE_FIXTURE !== 'false'
-+
-+test(
-+  'loads the representative report fixture',
-+  {
-+    skip: runRepresentativeFixture
-+      ? false
-+      : 'runs in one representative CI Node lane',
-+  },
-+  async () => {
-+    const fixture = await expensiveFixture()
-+    assert.deepEqual(fixture.rows, expectedRows)
-+  },
-+)
++    assert.equal(inMemoryReport.rows.length, rowCases.length)
++    assert.ok(inMemoryReport.rows.includes(expected))
+   })
+ }

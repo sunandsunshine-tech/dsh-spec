@@ -92,6 +92,11 @@ const USE_SITE_PINS = [
     file: 'SKILL.md',
     text: 'A diagnosis-only request stays read-only until the user also authorizes repair.',
   },
+  {
+    skill: 'dsh-spec-test-reliability',
+    file: 'SKILL.md',
+    text: "Do not multiply every test group's timeout because one group is slow.",
+  },
 ]
 
 const CONCRETE_VALUE_MARKERS: Record<string, string> = {

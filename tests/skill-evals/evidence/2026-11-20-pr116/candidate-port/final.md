@@ -1,10 +1,15 @@
-The race came from `findFreePort()` releasing its probe before the real server bound the same number. I removed that check-then-bind handoff. [support/server.mjs](/tmp/dsh-pr116-behavior-final.HOhv5D/port/support/server.mjs:3) now defaults `listen()` to port `0`, so the server owns an OS-assigned port continuously and exposes it only after readiness. [server.test.mjs](/tmp/dsh-pr116-behavior-final.HOhv5D/port/tests/server.test.mjs:7) now binds directly without a competitor listener. [README.md](/tmp/dsh-pr116-behavior-final.HOhv5D/port/README.md:1) reflects the new lifecycle.
+Fixed the scan-then-bind race. The original `findFreePort()` released its probe before the real server claimed the port, leaving a TOCTOU window. The pre-fix `npm test` reproduced it deterministically:
 
-The required evidence is:
+```text
+Error: listen EADDRINUSE: address already in use 127.0.0.1:44855
+```
 
-- **Negative control:** pre-fix `npm test` failed with `EADDRINUSE` on `127.0.0.1:44669`; the retained log also shows shards 2 and 5 colliding on the same `43127` port.
-- **Focused regression:** post-fix `npm test` passed all 1 tests.
-- **Concurrency topology:** 16 independent `npm test` processes ran simultaneously; all 16 passed with no failure or signal.
-- `git diff --check` passes.
+The test now calls `listen(0)` directly in [server.test.mjs](/tmp/dsh-pr116-port-trust.GTUdTx/evals/files/port-collision/tests/server.test.mjs:7). The listener waits for its callback before reading `server.address().port` in [server.mjs](/tmp/dsh-pr116-port-trust.GTUdTx/evals/files/port-collision/support/server.mjs:13), and cleanup awaits `server.close()`.
 
-No timeout increase, retry, or suite-wide serialization was used.
+Verification:
+
+- Focused `npm test`: **1 passed, 0 failed**
+- Eight independent `npm test` processes run concurrently: **all eight passed**
+- `git diff --check`: passed
+
+That concurrent-process success is the required evidence for this host-resource fix. Global serialization would hide rather than remove the collision, and a timeout increase is irrelevant because no timeout is involved. I deliberately added neither, nor any retry.

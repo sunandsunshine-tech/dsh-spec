@@ -1,3 +1,3 @@
-The task is about redesigning slow, repeatedly rebuilt browser test fixtures and test layering without masking the issue through timeouts, which directly matches the test-reliability skill’s scope.
+The installed `dsh-spec-test-reliability` skill clearly applies because the problem concerns redesigning test layers around a slow, repeatedly rebuilt browser fixture that is likely shared across cases and potentially unstable under CI conditions.
 
 SELECT: dsh-spec-test-reliability
