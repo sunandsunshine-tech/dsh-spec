@@ -14810,9 +14810,11 @@ function pairedBaseOf(targetPath, context) {
 		const suffix = counterpartSuffix(target);
 		if (targetPath.endsWith(suffix)) {
 			const source = targetPath.slice(0, -suffix.length) + ".md";
+			if (context.isUnpaired?.(targetPath) || context.isUnpaired?.(source)) return source;
 			return context.isPairSource(source) ? source : void 0;
 		}
 	}
+	if (context.isUnpaired?.(targetPath)) return targetPath;
 	if (targetPath.endsWith(".md")) return context.isPairSource(targetPath) ? targetPath : void 0;
 }
 function counterpartPathOf(source, target) {
@@ -14862,7 +14864,8 @@ function resolveTranslationLink(url, context, authoredUrl) {
 		targetPath,
 		suffix: authored.suffix,
 		expectedPath,
-		expectedUrl
+		expectedUrl,
+		unpaired: context.isUnpaired?.(targetPath) === true || context.isUnpaired?.(base) === true
 	};
 }
 function applyReplacements(markdown, replacements) {
@@ -14911,7 +14914,7 @@ function translationLinkLocaleViolations(markdown, context, tree, skippedOffsets
 	visitDocumentLinkNodes(markdown, skippedOffsets, (node, destination) => {
 		if (isExternalOrAbsoluteMarkdownUrl(node.url)) return;
 		const resolved = resolveTranslationLink(node.url, context, destination.url);
-		if (resolved === void 0 || resolved.targetPath === resolved.expectedPath) return;
+		if (resolved === void 0 || resolved.unpaired || resolved.targetPath === resolved.expectedPath) return;
 		violations.push({
 			sourcePath: context.sourcePath,
 			line: node.position?.start.line ?? 0,
@@ -15586,8 +15589,10 @@ function buildCorpus(options) {
 	const found = new Map(options.targets.map((target) => [target.code, target]));
 	const unpaired = [...options.unpaired ?? []];
 	const isUnpaired = (path) => unpaired.some((pattern) => matchesGlob(path, pattern));
+	const files = walkRepository(options.root);
+	const sourceFiles = files.filter((file) => file.endsWith(".md") && !file.endsWith(".i18n.yaml") && languageFromCounterpartFilename(file) === void 0 && !isUnpaired(file));
 	const recorded = /* @__PURE__ */ new Map();
-	for (const file of walkRepository(options.root)) {
+	for (const file of files) {
 		if (isUnpaired(file)) continue;
 		const counterpart = languageFromCounterpartFilename(file);
 		if (counterpart !== void 0 && !found.has(counterpart.code)) found.set(counterpart.code, counterpart);
@@ -15628,6 +15633,7 @@ function buildCorpus(options) {
 	const linkBase = {
 		repoRoot: options.root,
 		isPairSource: isPaired,
+		isUnpaired,
 		repositoryFileExists: fileExists
 	};
 	const generated = [...options.generated ?? []];
@@ -15635,6 +15641,7 @@ function buildCorpus(options) {
 		root: options.root,
 		declared: [...options.targets],
 		recognized,
+		sourceFiles,
 		fileExists,
 		readFile,
 		isPaired,
@@ -16781,6 +16788,7 @@ const USAGE = [
 	"",
 	"Options:",
 	"  --target <lang>[=<display>]   target language, repeatable (default: zh=中文)",
+	"  --require-target <lang>[=<display>]  require the target for selected sources (check/list)",
 	"  --source-lang <code>[=<display>]  source language for a first record",
 	"  --select <glob>               select existing pairs by source path, repeatable",
 	"  --skip <glob>                 skip source paths, repeatable",
@@ -16825,6 +16833,7 @@ function parseOptions(argv) {
 	const options = {
 		root: process.cwd(),
 		targets: [],
+		requiredTargets: [],
 		sourceLanguage: void 0,
 		pairs: [],
 		select: [],
@@ -16864,6 +16873,13 @@ function parseOptions(argv) {
 			case "--target":
 				try {
 					options.targets.push(parseTarget(value()));
+				} catch (error) {
+					throw new UsageError(error instanceof Error ? error.message : String(error));
+				}
+				break;
+			case "--require-target":
+				try {
+					options.requiredTargets.push(parseTarget(value()));
 				} catch (error) {
 					throw new UsageError(error instanceof Error ? error.message : String(error));
 				}
@@ -16932,6 +16948,8 @@ function parseOptions(argv) {
 	}
 	if (options.targets.length > 0) options.restrict = [...options.targets];
 	else options.targets = [DEFAULT_TARGET];
+	if (options.requiredTargets.length > 0 && verb !== "check" && verb !== "list") throw new UsageError("--require-target belongs to check or list");
+	if (options.requiredTargets.length > 0 && options.pairs.length > 0) throw new UsageError("--require-target takes an all-source scope, not named pairs");
 	if (verb === "region") {
 		if (options.regionSlug === void 0 || options.regionBody === void 0) throw new UsageError("region needs --slug and --body");
 		if (options.pairs.length > 0) throw new UsageError("region takes no pair arguments");
@@ -17010,12 +17028,27 @@ function passesFilters(options, source) {
 function discoveredPairs(options, corpus) {
 	return discoverPairs(corpus).map((pair) => pair.paths).filter((paths) => passesFilters(options, paths.source));
 }
+function addRequiredTargets(options, corpus, pairs) {
+	if (options.requiredTargets.length === 0) return pairs;
+	const sources = corpus.sourceFiles.filter((source) => passesFilters(options, source));
+	if (sources.length === 0) throw new UsageError("required-target check selected no source document");
+	const seen = new Set(pairs.map(pairKey));
+	const result = [...pairs];
+	for (const source of sources) for (const target of options.requiredTargets) {
+		const paths = pairPaths(source, target);
+		const key = pairKey(paths);
+		if (seen.has(key)) continue;
+		seen.add(key);
+		result.push(paths);
+	}
+	return result.sort((left, right) => left.source.localeCompare(right.source) || left.target.code.localeCompare(right.target.code));
+}
 function namedPairAbsent(options, paths) {
 	return readRepositoryFile(options.root, paths.source) === void 0 && readRepositoryFile(options.root, paths.counterpart) === void 0 && readRepositoryFile(options.root, paths.record) === void 0;
 }
 function verbList(options) {
 	const corpus = corpusOf(options);
-	const pairs = options.pairs.length > 0 ? selected(options, corpus) : discoveredPairs(options, corpus);
+	const pairs = addRequiredTargets(options, corpus, options.pairs.length > 0 ? selected(options, corpus) : discoveredPairs(options, corpus));
 	if (options.pairs.length > 0 && pairs.length === 0) console.error("translate-pair: no pair was selected for " + options.pairs.join(", ") + "; a non-default target needs --target <lang>");
 	const counts = {
 		ok: 0,
@@ -17033,7 +17066,7 @@ function verbList(options) {
 function verbCheck(options) {
 	const corpus = corpusOf(options);
 	if (options.pairs.length > 0) assertNamedSelections(options, corpus, "check");
-	const pairs = options.pairs.length > 0 ? selected(options, corpus) : discoveredPairs(options, corpus);
+	const pairs = addRequiredTargets(options, corpus, options.pairs.length > 0 ? selected(options, corpus) : discoveredPairs(options, corpus));
 	if (options.pairs.length > 0) {
 		for (const paths of pairs) if (namedPairAbsent(options, paths)) throw new UsageError(paths.source + " [" + paths.target.code + "] names no pair on disk");
 	}

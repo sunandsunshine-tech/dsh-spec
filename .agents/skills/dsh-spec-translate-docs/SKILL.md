@@ -9,7 +9,7 @@ compatibility: "Requires Node.js 24.11+ on the 24 line or 26+ and Git for the br
 
 ## Invocation boundary
 
-This skill runs when the user asks for translation or pair maintenance, when the project's standing instructions say an existing pair is maintained, when a documented change touches a side of an existing pair, or when the workflow responsible for a document scope authorizes a pair in that scope. Those same sources authorize creating or updating a pair, and the check never demands that a document be paired. Once selected, translation and pairing are required, and failure is handed off unfinished. The [pairing contract](references/pairing-contract.md) owns path scope, target-selection rules and failure details.
+This skill runs when the user asks for translation or pair maintenance, when the project's standing instructions say an existing pair is maintained, when a documented change touches a side of an existing pair, or when the workflow responsible for a document scope authorizes a pair in that scope. Those same sources authorize creating or updating a pair; an explicit `--require-target` may apply the project's declared completeness policy to a selected source set. Once selected, translation and pairing are required, and failure is handed off unfinished. The [pairing contract](references/pairing-contract.md) owns path scope, target-selection rules and failure details.
 
 ## Defaults
 
@@ -17,7 +17,7 @@ Apply this skill's use-site default only when neither the request nor existing p
 
 ## What this skill is
 
-A self-contained mechanism for a corpus of paired Markdown documents: the skill entry, three references, and one bundled script. `<skill-dir>` is the directory containing this `SKILL.md`; run the script from the project root. The script is parameter-driven; the pairing contract owns the options, their defaults and the override rules. The check verifies existing pairs only: file structure, Markdown structure, generated-region equality and the recorded hashes. It does not decide independently that a source should have a counterpart. That decision belongs to the standing instructions, the user, or the workflow responsible for the document scope.
+A self-contained mechanism for a corpus of paired Markdown documents: the skill entry, three references, and one bundled script. `<skill-dir>` is the directory containing this `SKILL.md`; run the script from the project root. The script is parameter-driven; the pairing contract owns the options, their defaults and the override rules. The check verifies existing pairs by default: file structure, Markdown structure, generated-region equality and the recorded hashes. It does not decide independently that a source should have a counterpart; that decision belongs to the standing instructions, the user, or the workflow responsible for the document scope and reaches the command as an explicit `--require-target`.
 
 ## Choose targets
 
@@ -89,7 +89,7 @@ A generated source (`--generated`) omits only its own switcher; the counterpart 
 
 ## Find the work
 
-- `list` reports the pairs that exist; use `--select <glob>` and `--skip <glob>` to narrow the set, and `--unpaired <glob>` to exclude locale-selected pages from pairing. There is no completeness report: a source without a counterpart is simply not a pair.
+- `list` reports the pairs that exist; use `--select <glob>` and `--skip <glob>` to narrow the set, and `--unpaired <glob>` to exclude locale-selected pages from pairing. `--require-target <lang>` applies a declared full-pair policy to the selected sources and reports missing targets.
 - `brief` with no pair argument reports every drifted existing pair; a pair it cannot brief is reported on stderr, the other briefs are still emitted without `--apply`, and the command exits 2. A generated-region drift is fatal for the whole run.
 - Discovery walks hidden directories and applies the [pairing contract's default prune trees](references/pairing-contract.md#discovery). Frozen or vendored trees are kept out of the work by the standing instructions and the selection filters.
 - In a change that edits a paired document, the work list is the change's diff: every changed side needs its counterpart brought along and the pair recorded in the same change.

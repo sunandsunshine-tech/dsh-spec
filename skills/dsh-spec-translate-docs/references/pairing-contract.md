@@ -1,9 +1,10 @@
 # Pairing contract
 
 The rules the skill's script enforces and the workflow follows. The check verifies **existing
-pairs**; creation and update are driven by the project's standing instructions, the user's
-instruction, or the workflow responsible for the source's document scope. Nothing here requires a
-source to be paired unless one of those authorization sources selects it.
+pairs** by default; creation and update are driven by the project's standing instructions, the
+user's instruction, or the workflow responsible for the source's document scope. A project whose
+policy requires every selected source to carry a target passes `--require-target <lang>` to turn
+that declared completeness policy into missing-pair violations.
 
 The responsible model or workflow resolves the target set and supplies it through explicit
 `--target` values. The script never infers a target from a sibling file, operating-system locale or
@@ -20,7 +21,8 @@ A pair is:
 - one **aggregate** record for the source: `foo.i18n.yaml`, holding every target language.
 
 A source may have counterparts in any subset of the declared targets; different sources may carry
-different target sets. There is no completeness rule and no "required" pair.
+different target sets. Completeness is explicit: without `--require-target`, an absent artifact
+does not create a required pair.
 
 ### Target selection and change
 
@@ -113,9 +115,9 @@ A named source selects only its own counterpart files and record entries, or the
 `--target`, never a target inferred from a sibling counterpart file; a non-default target with no
 artifact of its own needs `--target <lang>`.
 
-`--select <glob>` and `--skip <glob>` narrow a corpus-wide run to existing pairs by source path;
-they are selection only. They never demand or forbid pairing, never create an "excluded artifact"
-violation, and never change link normalization.
+`--select <glob>` and `--skip <glob>` narrow a corpus-wide run by source path; they never change
+link normalization. `--require-target <lang>` adds an explicit declared-completeness demand for
+every selected source; it belongs to `check` and `list` and cannot be combined with named pairs.
 
 Range `check`, `list`, `brief` and `write --all` never create missing targets. They inspect or
 record existing pairs, so a policy that adds a target does not turn untouched sources into failed
@@ -127,6 +129,7 @@ Empty results by verb:
 |---|---|---|
 | `list` | report zero rows | 0 |
 | `check` | "nothing to check is not a green check" | 2 |
+| `check --require-target` | one or more selected sources lack the required counterpart | 1 |
 | `write --all` | "nothing to record" | 1 |
 | `write <pair>` | a named pair whose artifacts are all absent names no pair | 2 |
 | `brief` (no pair, nothing drifted) | "nothing to brief" when pairs exist and all are consistent | 0 |
@@ -252,7 +255,8 @@ Verbs:
 | `region render --slug <slug> --body <file\|->` | print a marker-delimited region |
 | `region splice <file> --slug <slug> --body <file\|->` | replace the one existing region and validate the whole file; 0 written, 2 usage or validation |
 
-Shared options: `--target <lang>[=<display>]` (repeatable), `--source-lang <code>[=<display>]`
+Shared options: `--target <lang>[=<display>]` (repeatable), `--require-target <lang>[=<display>]`
+(`check`/`list`), `--source-lang <code>[=<display>]`
 (write only, first record; the code is stored, the display is not), `--select <glob>`,
 `--skip <glob>`, `--unpaired <glob>`, `--generated <glob>`, `--terminology <lang>=<path>`, `--root <dir>`,
 and the verb-specific `--apply` and `--all`.

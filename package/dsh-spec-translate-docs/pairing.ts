@@ -9,9 +9,9 @@
 /**
  * Structural signatures, generated-region comparison and the existing-pair check.
  *
- * The gate only checks pairs that already exist. Creation and update follow the project's
+ * The gate checks pairs that already exist by default. Creation and update follow the project's
  * standing instructions, the user's instruction, or the responsible workflow; target choices
- * arrive as explicit inputs and this module never requires a source to be paired.
+ * arrive as explicit inputs, and a declared full-pair policy adds an explicit required target.
  */
 
 import type { Nodes } from 'mdast'

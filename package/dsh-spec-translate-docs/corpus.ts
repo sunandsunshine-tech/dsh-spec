@@ -11,9 +11,10 @@
  * the existing targets of one source, pair languages, and pair discovery from counterpart files
  * and aggregate-record entries.
  *
- * The gate only checks pairs that already exist. Creation and update follow the project's
+ * The gate checks pairs that already exist by default. Creation and update follow the project's
  * standing instructions, the user's instruction, or the responsible workflow; that workflow passes
  * explicit targets, and this module infers neither a target nor a requirement from sibling files.
+ * A declared full-pair policy reaches the check as an explicit required target.
  */
 
 import { readdirSync, readFileSync, statSync } from 'node:fs'
@@ -74,6 +75,8 @@ export interface PairCorpus {
   root: string
   declared: Language[]
   recognized: Language[]
+  /** Authored Markdown sources eligible for a required-target policy. */
+  sourceFiles: string[]
   fileExists: (path: string) => boolean
   readFile: (path: string) => string | undefined
   isPaired: (path: string) => boolean
@@ -154,8 +157,16 @@ export function buildCorpus(options: CorpusOptions): PairCorpus {
   const found = new Map(options.targets.map((target) => [target.code, target]))
   const unpaired = [...(options.unpaired ?? [])]
   const isUnpaired = (path: string): boolean => unpaired.some((pattern) => matchesGlob(path, pattern))
+  const files = walkRepository(options.root)
+  const sourceFiles = files.filter(
+    (file) =>
+      file.endsWith('.md') &&
+      !file.endsWith('.i18n.yaml') &&
+      languageFromCounterpartFilename(file) === undefined &&
+      !isUnpaired(file),
+  )
   const recorded = new Map<string, Set<string>>()
-  for (const file of walkRepository(options.root)) {
+  for (const file of files) {
     if (isUnpaired(file)) continue
     const counterpart = languageFromCounterpartFilename(file)
     if (counterpart !== undefined && !found.has(counterpart.code)) found.set(counterpart.code, counterpart)
@@ -198,6 +209,7 @@ export function buildCorpus(options: CorpusOptions): PairCorpus {
   const linkBase: Omit<TranslationLinkContext, 'sourcePath' | 'side'> = {
     repoRoot: options.root,
     isPairSource: isPaired,
+    isUnpaired,
     repositoryFileExists: fileExists,
   }
   const generated = [...(options.generated ?? [])]
@@ -205,6 +217,7 @@ export function buildCorpus(options: CorpusOptions): PairCorpus {
     root: options.root,
     declared: [...options.targets],
     recognized,
+    sourceFiles,
     fileExists,
     readFile,
     isPaired,

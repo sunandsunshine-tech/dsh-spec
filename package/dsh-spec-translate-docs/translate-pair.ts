@@ -55,6 +55,7 @@ const USAGE = [
   '',
   'Options:',
   '  --target <lang>[=<display>]   target language, repeatable (default: zh=中文)',
+  '  --require-target <lang>[=<display>]  require the target for selected sources (check/list)',
   '  --source-lang <code>[=<display>]  source language for a first record',
   '  --select <glob>               select existing pairs by source path, repeatable',
   '  --skip <glob>                 skip source paths, repeatable',
@@ -83,6 +84,7 @@ interface TerminologyOverride {
 interface Options {
   root: string
   targets: Language[]
+  requiredTargets: Language[]
   restrict?: Language[]
   sourceLanguage?: Language
   pairs: string[]
@@ -127,6 +129,7 @@ function parseOptions(argv: string[]): { verb: string; options: Options } {
   const options: Options = {
     root: process.cwd(),
     targets: [],
+    requiredTargets: [],
     sourceLanguage: undefined,
     pairs: [],
     select: [],
@@ -168,6 +171,13 @@ function parseOptions(argv: string[]): { verb: string; options: Options } {
       case '--target':
         try {
           options.targets.push(parseTarget(value()))
+        } catch (error) {
+          throw new UsageError(error instanceof Error ? error.message : String(error))
+        }
+        break
+      case '--require-target':
+        try {
+          options.requiredTargets.push(parseTarget(value()))
         } catch (error) {
           throw new UsageError(error instanceof Error ? error.message : String(error))
         }
@@ -235,6 +245,10 @@ function parseOptions(argv: string[]): { verb: string; options: Options } {
   }
   if (options.targets.length > 0) options.restrict = [...options.targets]
   else options.targets = [DEFAULT_TARGET]
+  if (options.requiredTargets.length > 0 && verb !== 'check' && verb !== 'list')
+    throw new UsageError('--require-target belongs to check or list')
+  if (options.requiredTargets.length > 0 && options.pairs.length > 0)
+    throw new UsageError('--require-target takes an all-source scope, not named pairs')
   if (verb === 'region') {
     if (options.regionSlug === undefined || options.regionBody === undefined)
       throw new UsageError('region needs --slug and --body')
@@ -355,6 +369,26 @@ function discoveredPairs(options: Options, corpus: PairCorpus): PairPaths[] {
     .filter((paths) => passesFilters(options, paths.source))
 }
 
+function addRequiredTargets(options: Options, corpus: PairCorpus, pairs: PairPaths[]): PairPaths[] {
+  if (options.requiredTargets.length === 0) return pairs
+  const sources = corpus.sourceFiles.filter((source) => passesFilters(options, source))
+  if (sources.length === 0) throw new UsageError('required-target check selected no source document')
+  const seen = new Set(pairs.map(pairKey))
+  const result = [...pairs]
+  for (const source of sources) {
+    for (const target of options.requiredTargets) {
+      const paths = pairPaths(source, target)
+      const key = pairKey(paths)
+      if (seen.has(key)) continue
+      seen.add(key)
+      result.push(paths)
+    }
+  }
+  return result.sort(
+    (left, right) => left.source.localeCompare(right.source) || left.target.code.localeCompare(right.target.code),
+  )
+}
+
 function namedPairAbsent(options: Options, paths: PairPaths): boolean {
   return (
     readRepositoryFile(options.root, paths.source) === undefined &&
@@ -365,7 +399,11 @@ function namedPairAbsent(options: Options, paths: PairPaths): boolean {
 
 function verbList(options: Options): number {
   const corpus = corpusOf(options)
-  const pairs = options.pairs.length > 0 ? selected(options, corpus) : discoveredPairs(options, corpus)
+  const pairs = addRequiredTargets(
+    options,
+    corpus,
+    options.pairs.length > 0 ? selected(options, corpus) : discoveredPairs(options, corpus),
+  )
   if (options.pairs.length > 0 && pairs.length === 0) {
     console.error('translate-pair: no pair was selected for ' + options.pairs.join(', ') + '; ' + TARGET_SELECTION_HINT)
   }
@@ -390,7 +428,11 @@ function verbList(options: Options): number {
 function verbCheck(options: Options): number {
   const corpus = corpusOf(options)
   if (options.pairs.length > 0) assertNamedSelections(options, corpus, 'check')
-  const pairs = options.pairs.length > 0 ? selected(options, corpus) : discoveredPairs(options, corpus)
+  const pairs = addRequiredTargets(
+    options,
+    corpus,
+    options.pairs.length > 0 ? selected(options, corpus) : discoveredPairs(options, corpus),
+  )
   if (options.pairs.length > 0) {
     for (const paths of pairs) {
       if (namedPairAbsent(options, paths))

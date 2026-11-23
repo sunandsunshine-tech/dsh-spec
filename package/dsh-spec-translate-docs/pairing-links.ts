@@ -44,6 +44,8 @@ export interface TranslationLinkContext {
   side: PairSide
   /** Whether a base document belongs to the pair corpus. */
   isPairSource: (sourcePath: string) => boolean
+  /** Whether a page is excluded from pairing by a declared locale-selection rule. */
+  isUnpaired?: (path: string) => boolean
   /** Selected content plane; defaults to regular files in the working tree. */
   repositoryFileExists?: (repoPath: string) => boolean
 }
@@ -131,9 +133,11 @@ function pairedBaseOf(targetPath: string, context: TranslationLinkContext): stri
     const suffix = counterpartSuffix(target)
     if (targetPath.endsWith(suffix)) {
       const source = targetPath.slice(0, -suffix.length) + '.md'
+      if (context.isUnpaired?.(targetPath) || context.isUnpaired?.(source)) return source
       return context.isPairSource(source) ? source : undefined
     }
   }
+  if (context.isUnpaired?.(targetPath)) return targetPath
   if (targetPath.endsWith('.md')) return context.isPairSource(targetPath) ? targetPath : undefined
   return undefined
 }
@@ -165,6 +169,7 @@ interface ResolvedTranslationLink {
   suffix: string
   expectedPath: string
   expectedUrl: string
+  unpaired: boolean
 }
 
 function resolveTranslationLink(
@@ -181,7 +186,14 @@ function resolveTranslationLink(
   const base = pairedBaseOf(targetPath, context)
   if (base === undefined) return undefined
   const { expectedPath, expectedUrl } = expectedLocale(authored.path, base, context.side)
-  return { base, targetPath, suffix: authored.suffix, expectedPath, expectedUrl }
+  return {
+    base,
+    targetPath,
+    suffix: authored.suffix,
+    expectedPath,
+    expectedUrl,
+    unpaired: context.isUnpaired?.(targetPath) === true || context.isUnpaired?.(base) === true,
+  }
 }
 
 function applyReplacements(markdown: string, replacements: { start: number; end: number; value: string }[]): string {
@@ -247,7 +259,7 @@ export function translationLinkLocaleViolations(
     (node, destination) => {
       if (isExternalOrAbsoluteMarkdownUrl(node.url)) return
       const resolved = resolveTranslationLink(node.url, context, destination.url)
-      if (resolved === undefined || resolved.targetPath === resolved.expectedPath) return
+      if (resolved === undefined || resolved.unpaired || resolved.targetPath === resolved.expectedPath) return
       violations.push({
         sourcePath: context.sourcePath,
         line: node.position?.start.line ?? 0,
