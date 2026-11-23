@@ -78,7 +78,7 @@ const USE_SITE_PINS = [
   {
     skill: 'dsh-spec-client-ui-ux',
     file: 'SKILL.md',
-    text: 'A user-visible browser UI behavior change produces recorded browser evidence by default.',
+    text: 'A user-visible browser UI behavior change produces truthful recorded evidence by default.',
   },
 ]
 
