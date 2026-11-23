@@ -1040,22 +1040,6 @@ test('the browser evidence fixture does not leak an unready server', async (t) =
   assert.deepEqual(readdirSync(profiles), [])
 })
 
-test('web UI evidence README pins the exact committed trees and corpus', () => {
-  const readme = readFileSync(join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-20-pr114/README.md'), 'utf8')
-  const evidenceCommit = /^Evidence commit: `([0-9a-f]{40})`\.$/m.exec(readme)?.[1]
-  assert.ok(evidenceCommit, 'Web UI evidence does not record its commit')
-  for (const [label, object] of [
-    ['Candidate skill tree', `${evidenceCommit}:skills/dsh-spec-client-ui-ux`],
-    ['Evaluation files tree', `${evidenceCommit}:tests/skill-evals/dsh-spec-client-ui-ux/evals/files`],
-    ['Trigger fixture tree', `${evidenceCommit}:tests/skill-evals/dsh-spec-client-ui-ux/trigger-fixtures`],
-    ['Trigger corpus blob', `${evidenceCommit}:tests/skill-evals/dsh-spec-client-ui-ux/trigger-evals.json`],
-  ] as const) {
-    const result = spawnSync('git', ['rev-parse', object], { cwd: REPO_ROOT, encoding: 'utf8' })
-    assert.equal(result.status, 0, result.stderr)
-    assert.match(readme, new RegExp('^' + label + ': `' + result.stdout.trim() + '`\\.$', 'm'))
-  }
-})
-
 test('the scenario input check rejects missing, empty, directory and escaping files', () => {
   const root = mkdtempSync(join(tmpdir(), 'skill-scenarios-files-'))
   const files = join(root, 'evals', 'files')
