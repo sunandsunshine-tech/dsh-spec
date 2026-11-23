@@ -1,2 +1,2 @@
-f5ab26b130e01c822183549dc059f14321850cdf8309952646ca4692ca85d153  skills/dsh-spec-code-review/SKILL.md  mode=0644
+4e750f2fa16e03f377c0a8b1e504b16682916af072648a16b7f5269f272ef31d  skills/dsh-spec-code-review/SKILL.md  mode=0644
 feb374817e3acf4a7c4e45da409f76c77b59fd70669376bed1493348fa8faa29  skills/dsh-spec-code-review/THIRD_PARTY_NOTICES  mode=0644

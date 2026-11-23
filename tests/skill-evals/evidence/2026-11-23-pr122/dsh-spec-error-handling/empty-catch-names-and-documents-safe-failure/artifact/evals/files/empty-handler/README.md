@@ -7,7 +7,7 @@ continued existence, and no caller can act on a failure from that removal.
 try {
   await unlink(tempFile)
 } catch (cleanupError) {
-  // Any `unlink` failure is tolerated: removal is best effort, the owner has no
-  // state that depends on the file, and no caller can act on this failure.
+  // The temporary file is unowned and not part of this owner's state, so cleanupError
+  // is safe to discard.
 }
 ```

@@ -1,7 +1,7 @@
-### Violated rule
+**Blocking finding**
 
-- **API-2** — [src/config.ts](/workspace/evals/files/numbered-rule-review/src/config.ts:1): `parseConfig` is newly exported but has no API documentation, even though it throws when input is empty or whitespace-only at line 2. Consumers cannot discover the required error behavior from the API contract.
+- `API-2` — [src/config.ts](/workspace/evals/files/numbered-rule-review/src/config.ts:1): The newly exported `parseConfig` has no API documentation. It throws `Error('configuration is empty')` for empty or whitespace-only input, but the exported API does not name that error condition or behavior. Document the thrown error directly on the export.
 
-`API-1` is satisfied because the input is declared as `string`. `API-3` does not apply because this introduces a new signature rather than breaking an existing one. The project declares no automated quality gate.
+No violation found for `API-1`: the parameter is declared as `string`. No violation found for `API-3`: this adds a new function rather than changing an existing signature.
 
-No files or Git state were modified; the worktree remains clean.
+Reviewed `d423dffde2a3534c3561b74e0a79bd7974b7af8b..88d879ae80cfbd52e06727dd9bf0f66204128da4`. The worktree remains clean; no files or Git state were modified.

@@ -1,27 +1,23 @@
-Use a **rebase refresh**, not merge-forward:
+Use a **rebase-only refresh** through the project’s `gh stack` workflow, such as `gh stack sync`. Merge-forward is not authorized by [stack.md](/workspace/evals/files/rebase-refresh/stack.md), and [AGENTS.md](/workspace/evals/files/rebase-refresh/AGENTS.md) explicitly requires the author’s request for it.
 
-```sh
-git status --short --branch
-git config rerere.enabled true
-git config --unset-all rerere.autoUpdate  # only if currently set
-# Verify the live stack order and record all three remote-head OIDs.
-gh stack sync
-```
+The smallest post-review sequence is:
 
-`gh stack sync` rewrites and publishes in one operation, so validation follows publication. Replayed `rerere` resolutions must be inspected and staged manually.
+1. Enable `git config rerere.enabled true` and ensure `rerere.autoUpdate` is unset or `false`. Record the current three-branch order and exact remote head OIDs before running `gh stack sync`.
+2. After the automatic rebase-and-publish, re-query all three published heads and confirm their order.
+3. Inspect each layer against its live parent, bottom to top:
+   - bottom against the refreshed trunk
+   - middle against the rewritten bottom
+   - top against the rewritten middle
 
-After sync, run this sequence:
-
-1. Re-query the published stack order and all three remote heads; verify each local head matches its remote.
-2. For each layer, bottom to top, inspect only its outgoing diff against its live parent/trunk base:
+   For each, run:
 
    ```sh
    node .agents/skills/dsh-spec-pre-push-checks/scripts/change-scope.mjs \
-     --base <verified-live-base> \
-     --head <rewritten-layer-head>
+     --base <live-parent-ref> \
+     --head <rewritten-branch-ref>
    ```
 
-3. Run the narrowest owning test for each affected layer. Add adjacent tests only for shared contracts. Add typecheck, build/package smoke, documentation checks, browser evidence, or generated-output checks only when that branch’s paths reach those surfaces. Do not run the full suite merely because this is a refresh.
-4. Re-audit unresolved review threads, approvals, mergeability, and CI checks because every commit hash changed. Keep all three PRs unmerged until every selected check passes.
+4. From those three scope reports, run the narrowest owning tests for each affected behavior. Deduplicate identical checks across layers; do not run the full repository suite or unrelated typecheck/build checks merely because the branches were rebased.
+5. Keep all three PRs unmerged and report validation as pending until those checks pass. Then re-audit every rewritten PR’s review threads, approvals, mergeability, and platform checks because their commit hashes and review anchors changed.
 
-The current fixture contains only the base checkout and has no stack branches, remotes, or project test scripts, so concrete per-layer test names cannot be selected here.
+If any post-publication check fails, leave the lease-protected heads in place, repair, revalidate, and publish the correction. Do not use raw `--force`.

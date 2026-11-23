@@ -1,3 +1,6 @@
-Updated [README.md](/workspace/evals/files/empty-handler/README.md) so the handler binds `cleanupError` and documents that any `unlink` failure is safely tolerated because removal is best effort, owner state is unaffected, and callers cannot act on it.
+Updated [README.md](/workspace/evals/files/empty-handler/README.md:9) so the handler:
 
-`git diff --check` passes; this is the only modified file.
+- Binds the caught failure as `cleanupError`.
+- Explains that the unowned temporary file is not part of the owner’s state, making safe discarding explicit.
+
+`git diff --check` passes, and only this README changed.

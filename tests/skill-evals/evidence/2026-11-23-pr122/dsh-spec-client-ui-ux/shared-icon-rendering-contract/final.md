@@ -1,34 +1,26 @@
 ## Review result
 
-This is source-only review. The rendering contract is declared, but visual acceptance cannot be completed from the provided project.
+Rendered acceptance is not established. The project contains the declared contract in [AGENTS.md](/workspace/evals/files/icon-contract-project/AGENTS.md), the icon source in [Icon.js](/workspace/evals/files/icon-contract-project/src/Icon.js), and [icon.css](/workspace/evals/files/icon-contract-project/src/icon.css), but no consuming UI, runnable entry point, fixture, capture setup, or rendered artifacts. [README.md](/workspace/evals/files/icon-contract-project/README.md) confirms that no rendered evidence exists.
 
-The contract in [AGENTS.md](/workspace/evals/files/icon-contract-project/AGENTS.md) requires:
+None of the three affected consumers—Search button, Settings button, or toolbar—has rendered coverage.
 
-- Regular line icons at 1 CSS px stroke and Medium icons at 1.3 CSS px stroke as the SVG viewport changes.
-- Non-scaling strokes for shared and inline line artwork.
-- Intentional filled contours scaling as geometry.
-- Shared icon use in the Search button, Settings button, and toolbar.
+## Evidence still required
 
-The implementation in [Icon.js](/workspace/evals/files/icon-contract-project/src/Icon.js) and [icon.css](/workspace/evals/files/icon-contract-project/src/icon.css) provides candidate styles, but all three SVG factories emit a bare `<svg>` without `class="icon"`. No consumer source or application shell is included to show that `.icon` is applied. The CSS also contains no Medium or 1.3 px rule. Rendered/computed evidence must confirm both points.
-
-## Rendered evidence still required
-
-| Consumer | Checks still requiring rendered evidence |
+| Consumer | Rendered checks still needed |
 |---|---|
-| Search button | Confirm the line icon receives `.icon`; no accidental SVG fill; 1 CSS px effective stroke where Regular applies; non-scaling behavior at target SVG sizes; `currentColor` and effective opacity in supported states; clipping and alignment against the button icon slot; accessible name and touch-reachable help if it is icon-only. |
-| Settings button | Same line-art, computed-style, stroke-width, scaling, state, clipping, and icon-only affordance checks as Search. |
-| Toolbar | Confirm the exact line and filled icon composition; line strokes remain non-scaling; the filled status contour remains filled with `stroke: none` and scales as geometry; shared foreground/opacity remains stable across supported states; no clipping or overflow at the narrow layout. |
+| Search button | Render the real line icon in the assembled button at its computed CSS size. Verify the painted stroke, including the 1 CSS px Regular or 1.3 CSS px Medium contract as applicable. |
+| Settings button | Repeat the same stroke, sizing, color, and state checks in its assembled button. |
+| Toolbar | Render the filled status icon in the real toolbar. Confirm `currentColor` fill, no unintended stroke, no clipping, and that the filled contour scales as geometry. |
 
-Across these consumers, the missing evidence should include:
+Across all consumers, the missing evidence must cover:
 
-- One coherent run of the changed build containing assembled Search, Settings, and toolbar surfaces, not an isolated icon fixture.
-- Actual target CSS sizes, with the computed size recorded rather than assuming `1rem` equals 16 px.
-- Every supported device-pixel ratio. The project requires these checks but does not enumerate the supported ratios.
-- Regular and Medium stroke-width comparisons at the affected sizes and DPRs.
-- Non-scaling-stroke behavior when the SVG viewport changes.
-- Filled-geometry growth versus stroke-width stability for the status icon.
-- Default, hover, focus, pressed, selected, disabled, or overlapping states only where the real consumer exposes them; forced-state styling is not valid evidence.
-- Supported themes and widths, including the toolbar’s narrow state. Neither themes nor viewport widths are declared in the project.
-- Any composition wrappers, conditional variants, feature flags, or generated output that uses the shared component. None are present in the supplied files.
+- The project’s supported device-pixel ratios. None are declared, so the DPR matrix is currently unresolved.
+- The actual computed icon size. `1rem` is the declared CSS size, but the root font size is not declared, and consumers may override it.
+- Regular and Medium rendering. No Medium class or `1.3px` stroke rule exists in the source, and no consumer is mapped to Regular versus Medium.
+- Non-scaling line strokes as the SVG scales within each consumer.
+- `currentColor` inheritance and any applicable hover, focus, pressed, disabled, selected, or overlapping states.
+- Whether the consumer markup actually applies `.icon`. The SVGs returned by [Icon.js](/workspace/evals/files/icon-contract-project/src/Icon.js:1) do not include that class themselves.
+- Icon-only accessibility for Search and Settings: accessible names, visible or touch-reachable help where needed, and real focus behavior.
+- Supported themes, viewport widths, and input modes. The project declares none, so coverage cannot be claimed until those constraints are supplied or explicitly confirmed as absent.
 
-No rendered evidence was produced or reused. No project test or capture command is available: the project contains only [README.md](/workspace/evals/files/icon-contract-project/README.md), `AGENTS.md`, `Icon.js`, and `icon.css`. To resume, supply a runnable assembled page or a one-run browser capture of the three consumers with the sizes, DPRs, themes, widths, and states exercised.
+The next resumable artifact is a coherent run of one build mounting the actual Search button, Settings button, and toolbar at their intended computed sizes, with screenshots or video at the project’s supported DPRs. An isolated component fixture would not establish the consumer pass. No project checks or capture commands are declared, so none were run.

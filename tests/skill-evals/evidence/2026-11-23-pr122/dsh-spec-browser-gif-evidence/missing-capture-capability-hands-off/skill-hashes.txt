@@ -1,4 +1,4 @@
-5434afeacdc9ea86402eda4ac9231290e14d7b17a1fe371056172d68b70132c9  skills/dsh-spec-browser-gif-evidence/SKILL.md  mode=0644
-89a158693904616dd1b86eb5d3ba6081a5f9e36436cb5b8a72fdc190c5e75552  skills/dsh-spec-browser-gif-evidence/THIRD_PARTY_NOTICES  mode=0644
-f55530d6c7b58ec9c9dc8a6d865bb817d33d49e385466462292cc8d984a55642  skills/dsh-spec-browser-gif-evidence/references/publication.md  mode=0644
+6ab46d92b6f084b73e68efb40e5674f87149959b224082e43a249bfe2e8cd881  skills/dsh-spec-browser-gif-evidence/SKILL.md  mode=0644
+b777acefdcab633b8bf6750fccff904ed4685f2710f7e12aca69ab8a37b9c9be  skills/dsh-spec-browser-gif-evidence/THIRD_PARTY_NOTICES  mode=0644
+e4a812828ec36899926af557891d8ca0c3a596b47ab69036adfbf9e554ab2b39  skills/dsh-spec-browser-gif-evidence/references/publication.md  mode=0644
 b54cd4b536e863b6ed643ca76159fdddca6e22461ebf3491186a1d1913225417  skills/dsh-spec-browser-gif-evidence/scripts/encode-browser-gif.mjs  mode=0755

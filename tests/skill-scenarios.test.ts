@@ -1018,6 +1018,32 @@ test('recorded scenarios reject escaping files and sibling names before replay',
   )
 })
 
+test('evidence paths and replay modes reject symlinked ancestors and non-regular files', () => {
+  const root = mkdtempSync(join(tmpdir(), 'evidence-path-safety-'))
+  const outside = mkdtempSync(join(tmpdir(), 'evidence-path-outside-'))
+  try {
+    const evidenceRoot = join(root, 'evidence')
+    const run = join(evidenceRoot, '2026-11-23-pr122', 'dsh-spec-example', 'run')
+    mkdirSync(dirname(run), { recursive: true })
+    writeFileSync(join(outside, 'final.md'), 'outside\n')
+    symlinkSync(outside, run)
+    assert.throws(() => assertEvidencePath(evidenceRoot, join(run, 'final.md'), 'run output', 'file'), /symbolic link/)
+    const regularRoot = join(root, 'regular')
+    mkdirSync(regularRoot)
+    writeFileSync(join(regularRoot, 'regular.md'), 'regular\n')
+    assert.doesNotThrow(() =>
+      assertRegularReplayPaths(regularRoot, ['regular.md'], new Map([['regular.md', '100644']]), ['regular.md']),
+    )
+    assert.throws(
+      () => assertRegularReplayPaths(regularRoot, ['regular.md'], new Map([['regular.md', '120000']]), ['regular.md']),
+      /non-regular file/,
+    )
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+    rmSync(outside, { recursive: true, force: true })
+  }
+})
+
 function canonicalJson(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`
   if (value && typeof value === 'object') {
@@ -1203,6 +1229,12 @@ function stageScenarioProject(skill: string, scenario: Scenario, root: string): 
 function replayEvidencePatch(root: string, skill: string, scenario: Scenario): boolean {
   const patch = join(root, 'patch.diff')
   const pathManifest = join(root, 'changed-paths.json')
+  assertEvidencePath(
+    root,
+    existsSync(pathManifest) ? pathManifest : join(root, 'changed-paths.txt'),
+    'changed paths',
+    'file',
+  )
   const changedPaths = existsSync(pathManifest)
     ? (() => {
         const paths = JSON.parse(readFileSync(pathManifest, 'utf8'))
@@ -1213,7 +1245,9 @@ function replayEvidencePatch(root: string, skill: string, scenario: Scenario): b
         return paths as string[]
       })()
     : readFileSync(join(root, 'changed-paths.txt'), 'utf8').trim().split('\n').filter(Boolean)
+  for (const path of changedPaths) assertContainedRelativePath(path, 'replayed changed path')
   const inputManifest = join(root, 'input-manifest.sha256')
+  assertEvidencePath(root, inputManifest, 'input manifest', 'file')
   assertRegularEvidenceFile(inputManifest, root + ' input manifest')
   const recordedInputs = new Map(
     readFileSync(inputManifest, 'utf8')
@@ -1246,6 +1280,7 @@ function replayEvidencePatch(root: string, skill: string, scenario: Scenario): b
     git('commit', '-qm', 'fixture')
     if (changedPaths.length > 0) {
       assert.ok(existsSync(patch), root + ' has changed files without a patch')
+      assertEvidencePath(root, patch, 'evidence patch', 'file')
       const applied = spawnSync('git', ['apply', '--binary', patch], {
         cwd: temporaryRoot,
         encoding: 'utf8',
@@ -1253,15 +1288,24 @@ function replayEvidencePatch(root: string, skill: string, scenario: Scenario): b
       })
       assert.equal(applied.status, 0, applied.stderr)
       git('add', '-A')
-      assert.deepEqual(
-        git('diff', '--cached', '--name-only').trim().split('\n').filter(Boolean).sort(),
-        [...changedPaths].sort(),
-        root + ' changed-path list differs from the replayed patch',
+      const trackedModes = new Map(
+        git('ls-files', '--stage', '-z')
+          .split('\0')
+          .filter(Boolean)
+          .map((line) => {
+            const match = /^([0-7]{6}) [0-9a-f]+ [0-3]\t(.+)$/.exec(line)
+            assert.ok(match, root + ' has a malformed staged path')
+            return [match[2], match[1]] as const
+          }),
       )
+      const stagedPaths = git('diff', '--cached', '--name-only', '-z').split('\0').filter(Boolean)
+      assertRegularReplayPaths(temporaryRoot, stagedPaths, trackedModes, changedPaths)
     } else {
+      assertEvidencePath(root, patch, 'evidence patch', 'file')
       assert.equal(readFileSync(patch, 'utf8'), '', root + ' left an unexpected patch')
     }
     const artifactRoot = join(root, 'artifact')
+    if (existsSync(artifactRoot)) assertEvidencePath(root, artifactRoot, 'artifact root', 'directory')
     const artifactFiles = existsSync(artifactRoot) ? listFiles(artifactRoot).map((path) => path) : []
     const declaredOutputs = (scenario.outputs ?? []).flatMap((path) =>
       artifactFiles.some((file) => file === path || file.startsWith(path + '/'))
@@ -1278,6 +1322,7 @@ function replayEvidencePatch(root: string, skill: string, scenario: Scenario): b
     assert.deepEqual(actualArtifacts, expectedArtifacts, root + ' artifact set differs from replayed output')
     for (const path of expectedArtifacts) {
       if (existsSync(join(temporaryRoot, path))) {
+        assertEvidencePath(temporaryRoot, join(temporaryRoot, path), 'replayed output', 'file')
         assert.deepEqual(
           readFileSync(join(artifactRoot, path)),
           readFileSync(join(temporaryRoot, path)),
@@ -1294,6 +1339,24 @@ function replayEvidencePatch(root: string, skill: string, scenario: Scenario): b
   } finally {
     rmSync(temporaryRoot, { recursive: true, force: true })
   }
+}
+
+function assertRegularReplayPaths(
+  root: string,
+  stagedPaths: string[],
+  trackedModes: ReadonlyMap<string, string | undefined>,
+  changedPaths: string[],
+): void {
+  for (const path of stagedPaths) {
+    if (!existsSync(join(root, path))) continue
+    const mode = trackedModes.get(path)
+    assert.ok(mode === '100644' || mode === '100755', root + ' staged a non-regular file: ' + path)
+  }
+  assert.deepEqual(
+    [...stagedPaths].sort(),
+    [...changedPaths].sort(),
+    root + ' changed-path list differs from the replayed patch',
+  )
 }
 
 test('trigger evidence changes only with the name or description', () => {
@@ -1416,6 +1479,10 @@ test('stacked-PR refresh evidence covers rerere safety and the rebase default', 
   assert.match(scenario.expected_output, /rerere\.autoUpdate.*unset or false/i)
   assert.match(scenario.assertions.join('\n'), /native cascading rebase/i)
   assert.match(scenario.assertions.join('\n'), /does not require an author request/i)
+  const skill = readFileSync(join(REPO_ROOT, 'skills/dsh-spec-merging-stacked-prs/SKILL.md'), 'utf8')
+  assert.match(skill, /need not be the repository default branch/i)
+  assert.match(skill, /native stack also requires linear history/i)
+  assert.match(skill, /gh pr checks <pr> --required/i)
 })
 
 test('the companion scenario corpus fails closed when evidence is missing', () => {
@@ -1743,7 +1810,7 @@ test('web UI historical model evidence and trigger traces stay auditable', () =>
     const manifest = readFileSync(join(run, 'input-manifest.sha256'), 'utf8')
       .trim()
       .split('\n')
-      .map((line) => /^([0-9a-f]{64})  (.+)$/.exec(line))
+      .map((line) => /^([0-9a-f]{64})  (.+?)(?:  mode=[0-7]{4})?$/.exec(line))
       .filter((match): match is RegExpExecArray => match !== null)
       .map((match) => ({ hash: match[1], path: match[2] }))
     assert.equal(manifest.length, scenario.files?.length ?? 0, runName + ' input manifest')
@@ -1768,13 +1835,30 @@ test('web UI historical model evidence and trigger traces stay auditable', () =>
     const trace = traceText
       .trim()
       .split('\n')
-      .map((line) => JSON.parse(line) as { type: string; sha256?: string; path?: string })
-    assert.equal(trace.filter((entry) => entry.type === 'skill').length, candidate ? 1 : 0)
-    if (candidate) {
-      const skillEvent = trace.find((entry) => entry.type === 'skill')
-      assert.equal(skillEvent?.path, `.agents/skills/dsh-spec-client-ui-ux/SKILL.md`)
-      assert.equal(skillEvent?.sha256, recordedSkillHash)
-    }
+      .map(
+        (line) =>
+          JSON.parse(line) as {
+            type: string
+            sha256?: string
+            path?: string
+            item?: { type?: string; command?: string; exit_code?: number }
+          },
+      )
+    const skillReads = trace.filter(
+      (entry) =>
+        entry.type === 'item.completed' &&
+        entry.item?.type === 'command_execution' &&
+        entry.item.exit_code === 0 &&
+        commandReadsSkill(entry.item.command, 'dsh-spec-client-ui-ux'),
+    )
+    const skillEvents: typeof trace = trace.filter(
+      (entry) => entry.type === 'skill' && entry.sha256 === recordedSkillHash,
+    )
+    assert.equal(
+      skillReads.length > 0 || skillEvents.length > 0,
+      candidate,
+      runName + (candidate ? ' did not read its candidate skill' : ' read the skill it was testing'),
+    )
     assert.equal(trace.filter((entry) => entry.type === 'turn.completed').length, 1)
     for (const entry of trace.filter((candidate) => candidate.type === 'stderr')) {
       assert.ok(entry.path, runName + ' stderr entry lacks a path')
@@ -2965,13 +3049,16 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
   }
 
   for (const item of runs) {
-    const root = join(item.evidenceRoot ?? evidenceRoot, item.skill, item.run)
+    const runEvidenceRoot = item.evidenceRoot ?? evidenceRoot
+    const root = join(runEvidenceRoot, item.skill, item.run)
+    assertEvidencePath(runEvidenceRoot, root, item.skill + '/' + item.run + ' run', 'directory')
     const scenarioId = scenarioIds[`${item.skill}:${item.run}`]
     assert.ok(scenarioId, item.skill + '/' + item.run + ' has no behavior id')
     const scenario = readCorpus(item.skill).evals.find((entry) => entry.id === scenarioId)
     assert.ok(scenario, item.skill + '/' + item.run + ' names no current scenario')
     const current = item.evidenceRoot === pr122EvidenceRoot
     const scenarioDefinitionFile = join(root, 'scenario-definition.json')
+    assertEvidencePath(root, scenarioDefinitionFile, item.skill + '/' + item.run + ' scenario definition', 'file')
     assertRegularEvidenceFile(scenarioDefinitionFile, item.skill + '/' + item.run + ' scenario definition')
     const recordedScenario = validateRecordedScenario(
       item.skill,
@@ -2989,9 +3076,16 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
     ]) {
       const path = join(root, file)
       if (file === 'skill-hashes.txt' && existsSync(join(root, 'skill.sha256'))) continue
+      assertEvidencePath(root, path, item.skill + '/' + item.run + ' ' + file, 'file')
       assertRegularEvidenceFile(path, item.skill + '/' + item.run + ' ' + file)
     }
     assertAnswerBlindTrace(root)
+    assertEvidencePath(
+      root,
+      join(root, 'scenario-definition.sha256'),
+      item.skill + '/' + item.run + ' scenario hash',
+      'file',
+    )
     assert.equal(
       readFileSync(join(root, 'scenario-definition.sha256'), 'utf8').trim(),
       `${scenarioDefinitionHash(recordedScenario)}  ${item.skill}:${scenarioId}`,
@@ -3000,6 +3094,7 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
     if (current) assert.deepEqual(recordedScenario, scenario, item.skill + '/' + item.run + ' is not current')
     const effectiveScenario = current ? scenario : recordedScenario
     if (current) {
+      assertEvidencePath(root, join(root, 'capabilities.json'), item.skill + '/' + item.run + ' capabilities', 'file')
       assert.deepEqual(
         JSON.parse(readFileSync(join(root, 'capabilities.json'), 'utf8')),
         {
@@ -3068,6 +3163,7 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
 
     const skillHashFile = join(root, 'skill.sha256')
     if (existsSync(skillHashFile)) {
+      assertEvidencePath(root, skillHashFile, item.skill + '/' + item.run + ' skill hash', 'file')
       assertRegularEvidenceFile(skillHashFile, item.skill + '/' + item.run + ' skill hash')
     }
     const skillRevisions = new Map<string, string>()
@@ -3158,6 +3254,7 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
 
     const artifactManifest = join(root, 'artifacts.sha256')
     const artifactDir = join(root, 'artifact')
+    assertEvidencePath(root, artifactManifest, item.skill + '/' + item.run + ' artifact manifest', 'file')
     assert.ok(existsSync(artifactManifest), item.skill + '/' + item.run + ' is missing its artifact manifest')
     {
       const manifestText = readFileSync(artifactManifest, 'utf8').trim()
@@ -3174,6 +3271,7 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
           item.skill + '/' + item.run + ' escapes its evidence root',
         )
         assert.ok(existsSync(retained), item.skill + '/' + item.run + ' is missing artifact: ' + artifactPath)
+        assertEvidencePath(root, retained, item.skill + '/' + item.run + ' artifact ' + artifactPath, 'file')
         assertRegularEvidenceFile(retained, item.skill + '/' + item.run + ' artifact ' + artifactPath)
         assert.equal(
           createHash('sha256').update(readFileSync(retained)).digest('hex'),
@@ -3183,6 +3281,7 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
         return artifactPath
       })
       if (existsSync(artifactDir)) {
+        assertEvidencePath(root, artifactDir, item.skill + '/' + item.run + ' artifact root', 'directory')
         const actualArtifacts = listFiles(artifactDir).map((path) => `artifact/${path}`)
         assert.deepEqual(
           listedArtifacts.filter((path) => path.startsWith('artifact/')).sort(),
