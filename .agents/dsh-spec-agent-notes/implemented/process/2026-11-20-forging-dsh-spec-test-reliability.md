@@ -99,7 +99,7 @@ Upstream source baseline read on 2026-11-20:
 | A3 | The skill names no framework, CI provider, source product path or command as a requirement. | Judged + Mechanical | Review found no source-product referent; the corpus sibling-reference gate passed. |
 | A4 | The pre-push relationship is optional and names only the mechanism. | Mechanical | The corpus sibling-reference gate passed. |
 | A5 | Runnable fixtures cover deterministic port failure, exact global restoration, read-only diagnosis and a slow repeated-suite redesign. | Mechanical | Repository tests run the fixtures' positive and negative controls and stage all declared inputs; the four direct fixture entries take under one second in aggregate. |
-| A6 | Runtime model behavior against the scenarios. | Judged + Mechanical | Clean-context runs under `tests/skill-evals/evidence/2026-11-20-pr116/` pass 16/16 assertions across the four behavior scenarios. |
+| A6 | Runtime model behavior against the scenarios. | Judged + Mechanical | The historical reviewer-graded runs under `tests/skill-evals/evidence/2026-11-20-pr116/` pass 16/16 assertions but are answer-contaminated; current isolated reruns live under PR121 evidence. |
 | A6a | The description routes reliability and test-duration work without capturing adjacent product-performance, coverage, documentation, or visual-review tasks. | Judged + Mechanical | Four positive and four near-miss selection probes in the same evidence directory pass 8/8 through the stable `SELECT:` marker. |
 | A7 | The installed copy, notices, active note tree and translation pairs are consistent. | Mechanical | The final functional suite uses a stubbed corpus contract; the real corpus is owned by the `pnpm run check:corpus` step. Notes, pairing, notices, format, static and bundle checks pass, without duplicating process counts here. |
 
@@ -135,6 +135,6 @@ Read on 2026-11-20:
 
 - The package gains a general skill for test design, review and flaky diagnosis without a framework or CI-provider dependency.
 - The main entry carries the operating rules; the diagnosis reference loads only for an existing probabilistic failure.
-- Four runnable development scenarios cover the central behaviours, and clean-context model results are retained under `tests/skill-evals/evidence/2026-11-20-pr116/`.
+- Four runnable development scenarios cover the central behaviours. PR116 model results remain as answer-contaminated historical evidence; current isolated runs live under the PR121 evidence tree.
 - The source licence and relation travel with installed copies.
 - Rollback is a revert of the implementing commit; the extraction submodule remains untouched.
