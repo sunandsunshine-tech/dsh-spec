@@ -1,0 +1,11 @@
+b7c958f82eb515cbb576353878e67fdde5a997a608a547314ff0d741ffabe394  tests/skill-evals/dsh-spec-browser-gif-evidence/evals/files/fixture-origin.md
+8932da9c0349d34cd0c5a27027d1c9f4920e2076e14444d4eafdd1b33a725dcb  tests/skill-evals/dsh-spec-browser-gif-evidence/evals/files/no-capture-project/README.md
+1fc218c31a710b35d94020586f080d4e0cd0ffb8dea0ba8d4a2663eea28d19de  tests/skill-evals/dsh-spec-browser-gif-evidence/evals/files/no-capture-project/src/SettingsPanel.js
+62db87b60815b9ff4b5a7bde830d7a2a34ec69c35da46626a4972e93ff8814b8  tests/skill-evals/dsh-spec-browser-gif-evidence/evals/files/shared-gif-project/.gitignore
+3b8c6da2cf824227d30d116448da782a12b6804dea0fb2fc76e56e2f47b7603c  tests/skill-evals/dsh-spec-browser-gif-evidence/evals/files/shared-gif-project/AGENTS.md
+17e78ceb6790178bc374ab131e551d309012cf9c432538977facaaf0ddf4d5e7  tests/skill-evals/dsh-spec-browser-gif-evidence/evals/files/shared-gif-project/build.mjs
+6dfdad0c45c84ceebec509529a3cf4e952a86d2c582fd7ff620a5de680c6c491  tests/skill-evals/dsh-spec-browser-gif-evidence/evals/files/shared-gif-project/capture-browser.mjs
+c5652d0faa24d6c823617f7a393667e9a51fa9a6cdeadcfeb76a1af070a24a64  tests/skill-evals/dsh-spec-browser-gif-evidence/evals/files/shared-gif-project/index.html
+f50d774e324160a542bf2b3b3ac601e68dc41df3299bf5cfb4fbaaa4e6ca2399  tests/skill-evals/dsh-spec-browser-gif-evidence/evals/files/shared-gif-project/package.json
+1a58d8dfaf9e1fce8f83e9f16df77db242bb18a9a0210ed3eab3bfc5b3fcd3f1  tests/skill-evals/dsh-spec-browser-gif-evidence/evals/files/shared-gif-project/server.mjs
+ec656ac6f0cb17f6c82bec469b683c89c62c6bb13669262e7b12b3f868a902cc  tests/skill-evals/dsh-spec-browser-gif-evidence/evals/files/shared-gif-project/src/app.js

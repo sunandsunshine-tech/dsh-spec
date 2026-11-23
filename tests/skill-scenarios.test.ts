@@ -1307,6 +1307,16 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
   const skill = 'dsh-spec-browser-gif-evidence'
   const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-20-pr115')
   const corpusRoot = join(EVAL_SOURCE_ROOT, skill)
+  const historicalInputs = new Map(
+    readFileSync(join(evidenceRoot, 'evaluation-files.sha256'), 'utf8')
+      .trim()
+      .split('\n')
+      .map((line) => {
+        const match = /^([0-9a-f]{64})  (.+)$/.exec(line)
+        assert.ok(match, 'browser GIF evaluation manifest has a malformed line')
+        return [match[2], match[1]] as const
+      }),
+  )
   const behaviorScenarios = new Map([
     ['candidate-real', 'real-ui-change-uses-one-isolated-run'],
     ['candidate-absent', 'missing-capture-capability-hands-off'],
@@ -1349,19 +1359,31 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
     for (const manifest of manifests) {
       const lines = readFileSync(join(root, manifest), 'utf8').trim().split('\n')
       if (manifest === 'input-manifest.sha256') {
+        const inputs = lines.map((line) => {
+          const match = /^([0-9a-f]{64})  (.+?)(?:  mode=([0-7]{4}))?$/.exec(line)
+          assert.ok(match, run + ' input manifest has a malformed line')
+          return { hash: match[1], path: match[2] }
+        })
         const scenario = behaviorScenarios.get(run)
         assert.ok(scenario)
         assert.deepEqual(
-          lines.map((line) => line.split(/\s{2,}/)[1]),
+          inputs.map((entry) => entry.path),
           scenarioFiles.get(scenario),
           run + ' input manifest does not match the declared scenario files',
         )
+        for (const entry of inputs) {
+          assert.equal(
+            historicalInputs.get(`tests/skill-evals/${skill}/${entry.path}`),
+            entry.hash,
+            run + ' input differs from its recorded historical manifest: ' + entry.path,
+          )
+        }
+        continue
       }
       for (const line of lines) {
         const [hash, relative] = line.split(/\s{2,}/)
         assert.match(hash ?? '', /^[0-9a-f]{64}$/, run + ' malformed hash')
-        const target =
-          manifest === 'input-manifest.sha256' ? join(corpusRoot, relative ?? '') : join(root, relative ?? '')
+        const target = join(root, relative ?? '')
         assert.equal(
           createHash('sha256').update(readFileSync(target)).digest('hex'),
           hash,
