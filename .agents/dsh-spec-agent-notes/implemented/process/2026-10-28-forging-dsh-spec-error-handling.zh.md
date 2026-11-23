@@ -10,7 +10,7 @@ Status: implemented
 
 ## 决策
 
-`dsh-spec-error-handling` 从 `skills/dsh-spec-error-handling/` 交付，其在 `.agents/skills/dsh-spec-error-handling/` 的安装副本与之逐字节一致。该技能是一份 `SKILL.md` 与 `references/error-contracts.md`，面向任何类型的软件工程项目：应用、库、命令行工具、服务、嵌入式系统与批处理系统。正文承载六个单元：类型化、结构化的失败；处理、恢复或停止；静默失败处理器；本地化、可见的报告；兼容性与验证；以及基础。类型化失败单元按操作声明的结果分类，并区分封闭的本地错误族与提供方可扩展的错误族。参考文档拥有字段职责、错误族与错误码选择、结果分类、兜底要求、外部错误转换、兼容性和测试清单。
+`dsh-spec-error-handling` 从 `skills/dsh-spec-error-handling/` 交付，其在 `.agents/skills/dsh-spec-error-handling/` 的安装副本与之逐字节一致。该技能是一份 `SKILL.md` 与 `references/error-contracts.md`，面向任何类型的软件工程项目：应用、库、命令行工具、服务、嵌入式系统与批处理系统。正文承载六个单元：类型化、结构化的失败；处理、恢复或停止；静默失败处理器；本地化、可见的报告；兼容性与验证；以及基础。类型化失败单元拥有按操作声明结果分类的规则，并区分封闭的本地错误族与提供方可扩展的错误族。参考文档拥有字段职责、错误族与错误码选择、兜底要求、外部错误转换、兼容性和测试清单。
 
 该技能不交付脚本。失败是否拥有一个错误族、遏制规则、静默处理的真实理由和可操作报告，都是设计判断。它没有环境要求，因此没有 `compatibility` 字段。
 
