@@ -10,7 +10,7 @@ The set extracts DeepSeek Harness's development pattern as skills, and one part 
 
 ## Decision
 
-`dsh-spec-error-handling` ships from `skills/dsh-spec-error-handling/`, and its installed copy at `.agents/skills/dsh-spec-error-handling/` mirrors it byte for byte. The skill is a `SKILL.md` and `references/error-contracts.md` for software-engineering projects of any kind: applications, libraries, command-line tools, services, embedded systems, and batch systems. The body carries six units: typed structured failures; handling, recovery or stopping; silent failure handlers; localized visible reports; compatibility and verification; and foundations. The reference owns field roles, family and code selection, standard conditions, foreign-error conversion, compatibility, and the test checklist.
+`dsh-spec-error-handling` ships from `skills/dsh-spec-error-handling/`, and its installed copy at `.agents/skills/dsh-spec-error-handling/` mirrors it byte for byte. The skill is a `SKILL.md` and `references/error-contracts.md` for software-engineering projects of any kind: applications, libraries, command-line tools, services, embedded systems, and batch systems. The body carries six units: typed structured failures; handling, recovery or stopping; silent failure handlers; localized visible reports; compatibility and verification; and foundations. The reference owns field roles, family and code selection, fallback requirements, foreign-error conversion, compatibility, and the test checklist.
 
 The skill ships no script. Whether a failure has an owning family, a containment rule, a truthful reason for silent handling, and an actionable report are design judgments. The skill has no environment requirements and therefore no `compatibility` field.
 
@@ -214,9 +214,10 @@ Every disposition row is the anchor for the requirement it carries. N1 is mechan
 The clean-context model evaluation under `tests/skill-evals/evidence/2026-11-20-pr113/` ran
 `codex exec --ephemeral` for candidate, previous-skill and no-skill profiles. All five candidate
 scenarios loaded the skill and passed all 20 assertions. The previous-skill baseline passed 18 of
-20 because it discarded unexpected cleanup failures; the no-skill profile passed 19 of 20. One
-candidate run per scenario is evidence of the tested behavior, not a claim that every phrasing or
-host profile has equal effect.
+20 because it discarded unexpected cleanup failures; the no-skill profile also passed 20 of 20.
+The saved no-skill outputs therefore do not establish a candidate advantage for those prompts.
+One candidate run per scenario is evidence of the tested behavior, not a claim that every phrasing
+or host profile has equal effect.
 
 The ten-query trigger corpus installed the candidate in an otherwise empty project and recorded
 whether the run read `SKILL.md`. Five positive prompts triggered. Five near-miss prompts initially
@@ -234,7 +235,7 @@ as final evidence for that query.
 
 **Adapt every sentence that mentions a channel or a mechanism.** It lost because the target scope shares some of them: background work, retries, rollback and declared failure kinds are conditional or vacuous where absent, not wrong; adapting them would add words without changing the rule.
 
-**Keep the expanded error contract in the entry.** It lost because family selection, code naming, standard conditions, conversion, and compatibility now form a detailed reference used only for error-contract work; the entry remains the shorter design procedure.
+**Keep the expanded error contract in the entry.** It lost because family selection, code naming, fallback requirements, conversion, and compatibility now form a detailed reference used only for error-contract work; the entry remains the shorter design procedure.
 
 **Bundle a script that checks a design for error-handling sections.** It lost because no rule in the source is mechanically decidable: a command can grep for headings but cannot decide whether an owner, containment rule, guarantee or recovery path is correct. Such a script would invent a mechanism the source does not have.
 

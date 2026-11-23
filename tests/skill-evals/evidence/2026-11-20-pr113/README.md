@@ -46,7 +46,11 @@ requires a model run.
 | numeric status, no cause | no skill | 4/4 | 42.7 s | 261,750 | 7,458 |
 | numeric status, no cause | candidate | 4/4 | 51.0 s | 182,070 | 8,579 |
 
-Candidate total: 20/20 assertions. Previous-skill total: 18/20. No-skill total: 19/20.
+Candidate total: 20/20 assertions. Previous-skill total: 18/20. No-skill total: 20/20.
+
+The no-skill profiles satisfy the saved assertions too, so this run set does not establish a
+candidate-versus-no-skill difference for those prompts. The previous-skill comparison remains the
+revision that exposed the silent-handler regression.
 
 | Scenario | Previous skill | Assertions | Time | Input tokens | Output tokens |
 |---|---|---:|---:|---:|---:|
@@ -75,7 +79,7 @@ Evidence: `baseline-worker-boundary/`, `previous-worker-boundary/`, `candidate-w
 
 ### Silent handler
 
-The baseline split commit and notification out of the handler but still discarded every cleanup
+The previous-skill profile split commit and notification out of the handler but still discarded every cleanup
 failure, so it missed the requirement to identify only the expected missing-directory failure.
 
 - PASS — the silent scope contains one operation.
