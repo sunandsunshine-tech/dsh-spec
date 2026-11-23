@@ -438,9 +438,9 @@ function assertNonEmptyStrings(values: readonly unknown[] | undefined, label: st
 
 function commandReadsSkill(command: string | undefined): boolean {
   if (command === undefined) return false
-  if (command.includes('dsh-spec-error-handling/SKILL.md')) return true
-  if (/find\s+\.agents\b/.test(command) && /-exec\s+(cat|sed|head|tail)\b/.test(command)) return true
-  return /(?:cat|sed|head|tail)\s+[^\n]*\.agents\b/.test(command)
+  return /(?:^|[\s;&|'"])(?:cat|sed|head|tail)\s+[^\n]*\.agents\/skills\/dsh-spec-error-handling\/SKILL\.md(?:[\s'"]|$)/.test(
+    command,
+  )
 }
 
 test('the capability scenario corpus covers absent and available isolated execution', () => {
@@ -651,9 +651,12 @@ test('error handling model evidence retains candidate and baseline runs', () => 
   }
 
   const triggerRoot = join(evidenceRoot, 'trigger')
-  const skillHash = createHash('sha256')
-    .update(readFileSync(join(REPO_ROOT, 'skills/dsh-spec-error-handling/SKILL.md')))
-    .digest('hex')
+  const evidenceReadme = readFileSync(join(evidenceRoot, 'README.md'), 'utf8')
+  const candidateTree = /^Candidate skill tree: `([0-9a-f]{40})`\.$/m.exec(evidenceReadme)?.[1]
+  assert.ok(candidateTree, 'error handling evidence does not record its candidate tree')
+  const candidateSkill = spawnSync('git', ['show', `${candidateTree}:SKILL.md`], { cwd: REPO_ROOT })
+  assert.equal(candidateSkill.status, 0, candidateSkill.stderr?.toString())
+  const skillHash = createHash('sha256').update(candidateSkill.stdout).digest('hex')
   const triggerCorpus = JSON.parse(
     readFileSync(join(EVAL_SOURCE_ROOT, 'dsh-spec-error-handling', 'trigger-evals.json'), 'utf8'),
   ) as { agent_file: string; queries: Array<{ id: string; should_trigger: boolean }> }
@@ -722,5 +725,15 @@ test('the scenario input check rejects missing, empty, directory and escaping fi
     assert.throws(() => assertInputFile(root, 'evals/files/../../SKILL.md', 'traversal'), /escapes evals\/files/)
   } finally {
     rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('a path mention without reading the error skill is not trigger evidence', () => {
+  const skill = '.agents/skills/dsh-spec-error-handling/SKILL.md'
+  for (const command of [`ls ${skill}`, `stat ${skill}`, `test -f ${skill}`, `echo ${skill}`]) {
+    assert.equal(commandReadsSkill(command), false, command)
+  }
+  for (const command of [`cat ${skill}`, `sed -n '1,20p' ${skill}`, `head -n 8 ${skill}`]) {
+    assert.equal(commandReadsSkill(command), true, command)
   }
 })

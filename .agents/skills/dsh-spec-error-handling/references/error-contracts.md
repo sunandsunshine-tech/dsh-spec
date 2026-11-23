@@ -36,7 +36,9 @@ This section applies only when the owning project has no convention for a newly 
 - Choose one stable machine-readable discriminator for each condition its consumer can act on.
 - A string code, numeric status, numeric exit status, tagged variant, or documented combination of these may carry the identity.
 - Assign literal values rather than deriving identity from display text, mutable identifiers, paths, or foreign codes.
-- Record the complete supported set in the project's existing code, type, schema, or documentation mechanism.
+- A local family with a closed condition set may enumerate its values.
+- A family that providers or extensions can extend records the shared known values and requires consumers to tolerate unknown values.
+- Record the supported values in the project's existing code, type, schema, or documentation mechanism.
 
 No field name, code spelling, or declaration form is required. Use the project's domain language and split or merge conditions according to consumer action.
 
@@ -65,6 +67,7 @@ The lowest layer that understands the failure classifies it. Layers above preser
 - [ ] Every expected failure uses the owning failure family and the project's existing identity mechanism.
 - [ ] No redundant discriminant is added when the project already defines one.
 - [ ] The exact machine identity is stable and consumers do not route on display text.
+- [ ] Extensible failure families retain unknown provider values, while closed local families enumerate their conditions.
 - [ ] Foreign failures are converted at their owner with the original cause or equivalent detail retained.
 - [ ] Every transport or persistence boundary preserves the portable machine identity.
 - [ ] The message is actionable and contains no sensitive internal detail.
