@@ -32,7 +32,7 @@ Status: implemented
 | R1 | 目标领域是软件工程中的一般项目，而非 DeepSeek Harness。来源的产品名、仓库树、包词汇与受保护设计被适配或消解。 | 请求点名目标受众与领域；原样移植会把另一个项目的指涉交给采用者。 | 改写指涉并重跑处置表。 |
 | R2 | 项目文档指涉重绑到项目自身的声明及其指定文档。项目没有声明时，读其 README 与模块文档取得同样的约束；该回退是一条目标裁定并带自身风险，不是上游主张，项目有声明时以声明为准。 | 目的是读取真正约束项目的文档；等价手段是陈述这些约束的文档，而非固定路径。 | 重新点名固定文档路径，或去掉回退。 |
 | R3 | 受保护的有意设计是由项目声明、其决策记录或用户保护的设计；来源点名的两个 LLM adapter 与其持久化缝被消解。没有用户明确覆盖，不得提议删除受保护设计。 | 那些设计在一般项目中不存在；发明受保护清单会造出来源没有的机制。 | 给技能加入项目点名的受保护设计。 |
-| R4 | 兄弟技能只作括号内的示例出现；绑定规则是项目自身的约定或流程。文字引用点名 `dsh-spec-prose-standard`，决策记录引用点名 `dsh-spec-agent-notes`，检查选择引用点名 `dsh-spec-pre-push-checks`，各自以示例形式并以其可用性限定，因此只安装不同子集的采用者仍遵循自己的实践。 | 基线已发布文字、笔记与检查选择三个兄弟技能，已落地技能本就用括号示例承载泛化规则的具体实例；示例名保持与上游对齐而不构成硬依赖。 | 把某兄弟技能点名为要求，或去掉示例名。 |
+| R4 | 兄弟技能只作括号内的示例出现；绑定规则是项目自身的约定或流程。文字引用点名 `dsh-spec-prose-standard`，决策记录引用点名 `dsh-spec-agent-notes`，检查选择引用点名 `dsh-spec-pre-push-checks`，各自以示例形式并以其可用性限定，因此只安装不同子集的采用者仍遵循自己的实践。[独立技能通过工作流判断组合](../architecture/2026-11-19-independent-skills-compose-through-workflow-judgment.zh.md)拥有组合为何仍是工作流判断；[兄弟技能引用只点名机制，不搬运实现](2026-11-17-sibling-references-name-a-mechanism-not-its-implementation.zh.md)拥有引用语法。 | 基线已发布文字、笔记与检查选择三个兄弟技能，已落地技能本就用括号示例承载泛化规则的具体实例；示例名保持与上游对齐而不构成硬依赖。 | 把某兄弟技能点名为要求，或去掉示例名。 |
 | R5 | 技能不带脚本、不带 package 源、不带测试。 | 上游机制同样没有：可达性证据、权衡与归属判断无法由命令精确裁决，搜索工具属于项目环境。加脚本会造出来源没有的机制，并带来请求未要求的维护面。 | 加入脚本及其 package 源与仓库测试。 |
 | R6 | 校准参考以 `references/historical-patterns.md` 承载来源的七个模式；归档笔记链接与来源决策名消解为产品中立的原型，保留每项决策的场景、被删构件、保留义务与失败模式，冻结归档指令仍作为对项目自身记录的指导。 | 参考的功能是校准；产品中立原型保留校准证据而去掉来源产品的角色名，链接则会越出技能并被门禁拒绝。 | 恢复来源角色名，或删除示例。 |
 | R7 | 来源的仓库结构与产品词汇被适配：package/app/python/profile 清单变为通用搜索面；固定五领域划分变为通用领域示例；model-facing 变为 consumer-facing，model-written mount 变为动态解析的消费方，model-visible 变为公开或生成，product API 变为动态消费面，transcript renderer 变为展示层，JSDoc 变为 API 文档，engine floor 变为运行时下限，compiler faces 变为构建与编译器表面，per-workspace 变为按区域，draft PR 变为可见的未完成改动。 | 这些是目标领域事实，不是机制变化；句子的规则在词汇变化后仍成立。 | 若目标又成为那个产品，恢复来源词汇。 |
@@ -149,13 +149,13 @@ Status: implemented
 | A11 | 校准参考按顺序保留七个模式及其规则，且没有链接越出技能（H0–H8）。 | 判断 + 机械 | `HP` 标题与文本；`SK` § Search 引言点名文件；门禁的参考与链接检查覆盖 A11 的机械半 |
 | A12 | 描述陈述移除意图与其表面，保留来源动作清单，追加评审语言触发关键词（S2、R8）。 | 判断 | `SK` frontmatter；对描述与 `SKILL.md:3` 给出一个结论，并对追加的中文关键词给出一个结论 |
 | A13 | 技能符合 Agent Skills 规范：frontmatter 封闭集、名称匹配目录、描述不超过 500 字符、参考被点名且只深一层、链接留在内部并可解析、正文少于 500 行与 5,000 tokens。 | 机械 | `node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs skills/dsh-spec-find-simplifications --description-max 500` 裁决该项；实测：SKILL.md 66 行，约 3,583 tokens，description 414 字符，license 59 字符 |
-| A14 | 落地技能不带未解决的 DeepSeek Harness 产品指涉；兄弟技能只作括号示例出现，且没有规则依赖兄弟技能被安装。 | 判断 | § 来源；R1–R7；扫描落地文件未发现来源产品名，且每个兄弟技能名位于泛化规则之后的括号中 |
+| A14 | 落地技能不带未解决的 DeepSeek Harness 产品指涉；兄弟技能只作括号示例出现，且没有规则依赖兄弟技能被安装。组合与引用语法的当前归属由所链接决策记录承载。 | 判断 | § 来源；R1–R7；R4；[独立技能通过工作流判断组合](../architecture/2026-11-19-independent-skills-compose-through-workflow-judgment.zh.md)；[兄弟技能引用只点名机制，不搬运实现](2026-11-17-sibling-references-name-a-mechanism-not-its-implementation.zh.md)；扫描落地文件未发现来源产品名，且每个兄弟技能名位于泛化规则之后的括号中 |
 | A15 | 审查草稿是带最新 `.i18n.yaml` 记录的中文配对，落地来源只有英文。 | 判断 + 机械 | `translate-pair check` 裁决每份草稿配对；落地来源不携带切换行，也不携带草稿记录（R12）。 |
 | A16 | 记录是合法的 `implemented/process` 笔记，且 notes 检查在项目声明的伴随文件下通过。 | 机械 | `node skills/dsh-spec-agent-notes/scripts/notes.mjs check --root .agents/dsh-spec-agent-notes --companion .zh.md --companion .i18n.yaml` 裁决该项。 |
 | A17 | 发布状态已 push，且未触碰的共享文件有记录。 | 机械 | 落地提交已 push 且未创建 PR，`submodules/dsh` 留在其固定提交，`skills/` 与 `.agents/skills/` 只承载已发布技能与其镜像。 |
-| A18 | 该适配能改善一般软件项目中的 agent 简化查找。 | 未验证 | 没有现场试验、没有安装技能评估、没有联网 harness 运行；来源流程与记录下来的适配是证据，效果未测量。 |
+| A18 | 该适配能改善一般软件项目中 agent 的整体简化查找质量。 | 未验证 | 没有现场试验、安装技能评估或联网 harness 运行衡量完整的查找质量。A20 的能力路由运行不能建立这一更广泛的效果。 |
 | A19 | 依赖能力的宽泛工作场景具备两类能力 profile 的表示，并携带声明的输入夹具，从开发侧存储暂存到临时技能副本。 | 机械 | `tests/skill-evals/dsh-spec-find-simplifications/evals/evals.json` 携带无隔离完成、无隔离交接与隔离上下文场景，输入文件位于 `evals/files/vendor/project/`；`tests/skill-scenarios.test.ts` 验证暂存、输入包含关系以及交付树中没有 `evals/`。 |
-| A20 | 能力可用与能力缺失路径的真实模型行为 | 判断 | 2026-11-18 的六次干净上下文运行产生了预期的顺序调查、明确边界交接与隔离 fan-out 证据。[能力记录](2026-11-17-delegation-is-a-capability-choice-not-a-skill-dependency.zh.md) 拥有逐场景结果。 |
+| A20 | 能力可用与能力缺失 profile 中的能力路由行为 | 判断 | 2026-11-18 的三个简化调查场景产生了预期的顺序调查、明确边界交接与隔离 fan-out 证据。隔离上下文场景使用了三个干净上下文；它们是执行实例，不是另外三个场景。这些运行验证路由与分离行为，不验证 A18 的整体查找质量。[能力记录](2026-11-17-delegation-is-a-capability-choice-not-a-skill-dependency.zh.md) 拥有逐场景结果。 |
 
 ## 备选方案
 
@@ -196,7 +196,7 @@ Status: implemented
 - 集合发布 `dsh-spec-find-simplifications` 于 `skills/dsh-spec-find-simplifications/`，其安装副本于 `.agents/skills/dsh-spec-find-simplifications/`；旧的上游同名安装副本与其 manifest 条目已移除。
 - 技能只有文字：六个上游阶段与七个校准模式作为记录在案的裁定（R1–R20）承载，外加三处目标侧回退——无声明读取（R2）、无 `rg` 搜索工具（R11）与无声明检查的缺口报告（R13）。
 - 流程文件原位承载五项附加约束（R15–R19），其安装副本与之一致（R20）。
-- **成本与限制。** 无声明的项目得到更少保护（R2）；声明无检查的项目得到缺口报告而非证明（R13）；技能输出质量只有文字、无机械检查（A18 未验证）；归属比较绑定到项目实际声明的归属约定（R18）；产品中立原型以来源产品具体性换取领域适配；示例形式兄弟技能名可能被跳过括号的执行者读成要求；触发描述与其他可能安装的分析技能重叠。
+- **成本与限制。** 无声明的项目得到更少保护（R2）；声明无检查的项目得到缺口报告而非证明（R13）；技能的整体输出质量仍未测量（A18），能力路由证据只覆盖已测试的 profile（A20）；归属比较绑定到项目实际声明的归属约定（R18）；产品中立原型以来源产品具体性换取领域适配；示例形式兄弟技能名可能被跳过括号的执行者读成要求；触发描述与其他可能安装的分析技能重叠。
 - **与来源的偏离。** 来源点名它自己的文档、包、受保护设计、检查命令与兄弟技能，alpha.2 增量还点名其 Agent Notes 并链接其防御模式归属规则；落地技能以采用项目的声明与约定、产品中立原型与可用性限定的示例名替代它们（R15、R18）。
 - **能力回退取代来源的 subagent-only fan-out。** [委派是能力选择，不是技能依赖](2026-11-17-delegation-is-a-capability-choice-not-a-skill-dependency.zh.md)拥有当前边界；本记录保留领域证据与不因第一项删除而停止的规则。
 - **回滚。** 还原落地提交；压合前的锻造分支保留为本地备份分支，被移除的安装副本留在仓库历史中。`submodules/dsh` 未被触碰。
