@@ -30,16 +30,18 @@ GitHub CLI 自己也带一个 agent 技能，去[它的仓库](https://github.co
 
 ```sh
 PIN="<tag-or-commit>"
-set -e
-for skill in \
-  dsh-spec-agent-experience \
-  dsh-spec-agents-md \
-  dsh-spec-agent-notes \
-  dsh-spec-prose-standard \
-  dsh-spec-translate-docs
-do
-  gh skill install sunandsunshine-tech/dsh-spec "$skill" --pin "$PIN" --dir .agents/skills
-done
+(
+  set -e
+  for skill in \
+    dsh-spec-agent-experience \
+    dsh-spec-agents-md \
+    dsh-spec-agent-notes \
+    dsh-spec-prose-standard \
+    dsh-spec-translate-docs
+  do
+    gh skill install sunandsunshine-tech/dsh-spec "$skill" --pin "$PIN" --dir .agents/skills
+  done
+)
 ```
 
 当项目开始承担其他组对应的工作时，再增加相应技能。[技能选择指南](docs/choosing-skills.zh.md)说明每个技能增加什么、推荐配套技能为什么有帮助，以及哪些组合适合常见工作。

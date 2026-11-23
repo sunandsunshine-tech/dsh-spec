@@ -137,6 +137,7 @@ test('adopter documentation catalogs every landed skill and fails fast during gr
   for (const file of ['README.md', 'README.zh.md']) {
     const install = repoFile(file).match(/```sh\nPIN="<tag-or-commit>"\n([\s\S]*?)```/)?.[1]
     assert.ok(install, file + ' has no universal-group install block')
-    assert.match(install, /^set -e$/m, file + ' does not fail on an earlier install')
+    assert.match(install, /^\(\n  set -e$/m, file + ' does not fail on an earlier install')
+    assert.match(install, /^\)$/m, file + ' leaks fail-fast shell state')
   }
 })

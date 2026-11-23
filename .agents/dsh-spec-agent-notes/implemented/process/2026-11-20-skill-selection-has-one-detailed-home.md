@@ -31,6 +31,7 @@ The universal group installs as a unit. Its five skills cover the prompt, instru
 ## Consequences
 
 - A newcomer starts from one concise README and one universal installation command.
+- The grouped install stops at the first failed skill without enabling fail-fast mode in the caller's shell.
 - Specialized skills are selected from one detailed, bilingual guide rather than inferred from a long catalogue.
 - The universal group installs without a per-skill eligibility question, while specialized skills remain optional.
 - Adding or moving a skill requires updating the README group table and the guide's group, provenance and companion explanation.

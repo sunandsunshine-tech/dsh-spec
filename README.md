@@ -30,16 +30,18 @@ The universal collaboration group covers project instructions, decision records,
 
 ```sh
 PIN="<tag-or-commit>"
-set -e
-for skill in \
-  dsh-spec-agent-experience \
-  dsh-spec-agents-md \
-  dsh-spec-agent-notes \
-  dsh-spec-prose-standard \
-  dsh-spec-translate-docs
-do
-  gh skill install sunandsunshine-tech/dsh-spec "$skill" --pin "$PIN" --dir .agents/skills
-done
+(
+  set -e
+  for skill in \
+    dsh-spec-agent-experience \
+    dsh-spec-agents-md \
+    dsh-spec-agent-notes \
+    dsh-spec-prose-standard \
+    dsh-spec-translate-docs
+  do
+    gh skill install sunandsunshine-tech/dsh-spec "$skill" --pin "$PIN" --dir .agents/skills
+  done
+)
 ```
 
 Add skills from the other groups when their work enters the project. The [skill-selection guide](docs/choosing-skills.md) explains what each skill adds, why its recommended companions help and which combinations fit common work.
