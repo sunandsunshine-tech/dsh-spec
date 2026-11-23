@@ -1,13 +1,12 @@
-Recorded the verified GIF from the clean real build at commit `48a7c8c`:
+Recorded the GIF evidence at [settings-save-flow.gif](/workspace/evals/files/shared-gif-project/evidence-local/settings-save-flow.gif).
 
-[Open settings-save.gif](/tmp/dsh-pr115-behavior-clean.9zycuS/real/evidence-local/settings-save.gif)
+Verified from commit `ffd945e2b94dfed2c92f7414340bc5c8cf22e00d`:
 
-The single isolated Chrome run reached these states:
-
-- Initial: “Unsaved changes”; “Save changes” enabled.
-- After clicking save: “Saving changes”; “Saving…” disabled.
-- After the local save completed: “Changes saved”; “Save changes” re-enabled.
-
-The GIF is 720×480, 10 fps, 70 frames, 7 seconds, and 37,575 bytes, with SHA-256 `efdd3bf74d99dd2fa0ef30d19d570327afab8e4cbb0ab1027a0a0665211e7244`. I decoded frames across all three holds and transition boundaries, confirming the sequence is legible and contains no sensitive data. Capture details are in [capture-report.json](/tmp/dsh-pr115-behavior-clean.9zycuS/real/evidence-local/capture-report.json).
-
-This used the repository’s real local service and built application; no external provider or substitute was involved. No source files were modified, `git status --short` remains empty, all generated artifacts are ignored, and the server and isolated browser were stopped.
+- Built with `npm run build`, then captured through the declared `npm run evidence` path against the real local server at `http://127.0.0.1:45577`.
+- Used one isolated Chrome process and one page target with a fresh profile. This is fixture-based evidence, with no mock transport, external service, or test-only hook.
+- Confirmed all three visible states: “Unsaved changes,” then “Saving changes” with “Saving…” and a disabled button, then “Changes saved” with the button restored.
+- GIF metadata: 720×480, 65 frames at 10 fps, 6.5 seconds, 37,449 bytes. Holds are 1.5/1.5/3.5 seconds for initial/saving/saved.
+- Independently decoded and visually inspected representative GIF frames; text is legible and no sensitive data appears.
+- Source PNG hashes match [capture-report.json](/workspace/evals/files/shared-gif-project/evidence-local/capture-report.json).
+- `dist/` and all evidence, including QA frames, are under ignored paths. No tracked or untracked source changes remain.
+- The capture server and Chrome process were stopped; no related processes remain.

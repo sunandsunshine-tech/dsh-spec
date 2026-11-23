@@ -3,7 +3,7 @@
   "evals": [
     {
       "id": "real-ui-change-uses-one-isolated-run",
-      "prompt": "The project in evals/files/shared-gif-project changed a user-visible browser settings flow. Its build, start, browser-control and ignored evidence paths are declared. Record the requested GIF evidence from the real build and report what was verified.",
+      "prompt": "The project in evals/files/shared-gif-project changed a user-visible browser settings flow. Change into that directory before inspection and do not search its parent directories. Its build, start, browser-control and ignored evidence paths are declared. Run `npm run build`, then run `npm run evidence`; the evidence command owns the one isolated application and browser run, so do not start another server or browser. Record the requested GIF evidence from the real build and report what was verified.",
       "expected_output": "The run records one isolated real-build interaction, keeps all frames from that run, encodes and inspects the GIF, reports the application origin and real-versus-substituted services, and leaves the media outside tracked content.",
       "capabilities": {
         "browser": true,
@@ -18,6 +18,9 @@
         "evals/files/shared-gif-project/src/app.js",
         "evals/files/shared-gif-project/server.mjs",
         "evals/files/shared-gif-project/capture-browser.mjs"
+      ],
+      "outputs": [
+        "evals/files/shared-gif-project/evidence-local"
       ],
       "assertions": [
         "The evidence comes from one isolated run of the declared real build.",
@@ -63,6 +66,9 @@
         "evals/files/shared-gif-project/src/app.js",
         "evals/files/shared-gif-project/server.mjs",
         "evals/files/shared-gif-project/capture-browser.mjs"
+      ],
+      "outputs": [
+        "evals/files/shared-gif-project/evidence-local"
       ],
       "assertions": [
         "The explicit fixture request authorizes the substitute recording.",

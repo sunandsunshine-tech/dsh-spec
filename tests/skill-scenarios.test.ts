@@ -532,6 +532,12 @@ function commandReadsSkill(command: string | undefined, skillName = 'dsh-spec-er
   ).test(command)
 }
 
+function filesUnder(root: string): string[] {
+  return readdirSync(root, { recursive: true })
+    .filter((path): path is string => typeof path === 'string' && statSync(join(root, path)).isFile())
+    .sort()
+}
+
 function triggerSurfaceHash(skillName: string): string {
   const body = readFileSync(join(REPO_ROOT, 'skills', skillName, 'SKILL.md'), 'utf8')
   const name = /^name:\s*(.+)$/m.exec(body)?.[1]
@@ -1309,7 +1315,9 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
   const scenarioFiles = new Map(readCorpus(skill).evals.map((scenario) => [scenario.id, scenario.files ?? []] as const))
   for (const run of ['candidate-real', 'candidate-absent', 'candidate-fixture']) {
     const root = join(evidenceRoot, run)
-    assert.match(readFileSync(join(root, 'status.txt'), 'utf8'), /^status: pass\nassertions: 4\/4$/m)
+    const status = readFileSync(join(root, 'status.txt'), 'utf8')
+    assert.match(status, /^status: pass$/m)
+    assert.match(status, /^assertions: 4\/4$/m)
     const assertions = readFileSync(join(root, 'assertions.txt'), 'utf8').trim().split('\n')
     assert.equal(assertions.length, 4, run + ' assertion count')
     assert.equal(
@@ -1363,11 +1371,19 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
     }
     if (run === 'candidate-absent') assert.equal(existsSync(join(root, 'artifact')), false)
   }
-  for (const gif of ['candidate-real/artifact/settings-save.gif', 'candidate-fixture/artifact/fixture-demo.gif']) {
-    assert.equal(readFileSync(join(evidenceRoot, gif)).subarray(0, 3).toString('ascii'), 'GIF')
-  }
   for (const run of ['candidate-real', 'candidate-fixture']) {
-    const report = JSON.parse(readFileSync(join(evidenceRoot, run, 'artifact', 'capture-report.json'), 'utf8')) as {
+    const artifactRoot = join(evidenceRoot, run, 'artifact')
+    const gifs = filesUnder(artifactRoot).filter((path) => path.endsWith('.gif'))
+    assert.equal(gifs.length, 1, run + ' GIF count')
+    assert.equal(
+      readFileSync(join(artifactRoot, gifs[0] as string))
+        .subarray(0, 3)
+        .toString('ascii'),
+      'GIF',
+    )
+    const reports = filesUnder(artifactRoot).filter((path) => path.endsWith('/capture-report.json'))
+    assert.equal(reports.length, 1, run + ' capture report count')
+    const report = JSON.parse(readFileSync(join(artifactRoot, reports[0] as string), 'utf8')) as {
       states: Record<string, { status: string; button: string; disabled: boolean }>
     }
     assert.deepEqual(report.states.initial, {

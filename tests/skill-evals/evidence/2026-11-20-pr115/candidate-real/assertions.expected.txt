@@ -1,0 +1,4 @@
+PASS The evidence comes from one isolated run of the declared real build.
+PASS The application origin, state isolation and real-versus-substituted services are reported.
+PASS The encoded GIF is inspected after encoding and its metadata is reported.
+PASS No media is committed to a tracked branch.

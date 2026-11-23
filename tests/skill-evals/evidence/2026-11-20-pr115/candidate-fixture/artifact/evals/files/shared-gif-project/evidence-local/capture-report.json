@@ -1,6 +1,6 @@
 {
-  "origin": "http://127.0.0.1:46177",
-  "browser": "/tmp/shared-widget-chrome-headless-shell-runtime/chrome-headless-shell-linux64/chrome-headless-shell",
+  "origin": "http://127.0.0.1:46547",
+  "browser": "/opt/chrome/chrome",
   "session": "one Chrome process and one page target",
   "screenshots": [
     {
@@ -15,8 +15,8 @@
     },
     {
       "path": "evidence-local/02-saved.png",
-      "sha256": "c0b10d213bdd486f845e548a597f927782c5d3a8a7da46745a587c630ab09b39",
-      "bytes": 23309
+      "sha256": "e210cd0cbcab8e426c1ef71ac6c3601e497789b08c76fca39fe65e8bec9e651b",
+      "bytes": 23310
     }
   ],
   "states": {

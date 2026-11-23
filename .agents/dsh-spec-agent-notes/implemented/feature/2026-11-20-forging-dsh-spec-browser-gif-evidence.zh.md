@@ -12,6 +12,8 @@ Status: implemented
 
 本包交付 `dsh-spec-browser-gif-evidence`，其目录位于 `skills/dsh-spec-browser-gif-evidence/`。该技能拥有捕获、编码、验证和可选发布；UI 是否可接受仍由 UI 评审工作流判断。用户可见的浏览器 UI 变更默认从采用者真实构建的一次隔离运行生成 GIF 证据。项目可以为具名变更选择等价证据或豁免默认要求。fixture（测试前置数据）只在用户明确要求或项目证据政策选择该形式时存在；mock transport、合成交互和测试专用 hook 需要显式替代政策。
 
+评估应用会在声明的延迟之后自行完成 `/save`。捕获流程观察保存中状态，并等待同一个请求结束；没有单独的完成端点或测试专用 hook 驱动 fixture。PR115 的真实与 fixture 运行都保留一个隔离 Chrome 进程、编码后的 GIF、捕获报告、源帧与 QA 帧，以及解析后的浏览器/媒体能力档位。
+
 该技能携带一份聚焦的发布参考和生成的 Node bundle `scripts/encode-browser-gif.mjs`；其源码位于 `package/dsh-spec-browser-gif-evidence/`。编码器写入并验证临时的 GIF，只有时长、尺寸、动画和大小检查全部通过后才把它放到输出路径。仓库测试通过生成后的入口执行，留在安装副本之外，并把快速预检与一个共享的真实媒体场景分层。安装副本与落地目录逐字节一致；评估输入保留在 `tests/skill-evals/`，不会进入任一分发树。
 
 ## Source and settings
