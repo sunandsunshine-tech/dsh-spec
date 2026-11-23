@@ -15517,9 +15517,10 @@ function locateSwitchers(corpus, paths, sourceText, sourceTree, counterpartText,
 * the existing targets of one source, pair languages, and pair discovery from counterpart files
 * and aggregate-record entries.
 *
-* The gate only checks pairs that already exist. Creation and update follow the project's
+* The gate checks pairs that already exist by default. Creation and update follow the project's
 * standing instructions, the user's instruction, or the responsible workflow; that workflow passes
 * explicit targets, and this module infers neither a target nor a requirement from sibling files.
+* A declared full-pair policy reaches the check as an explicit required target.
 */
 const PRUNE_SEGMENTS = /* @__PURE__ */ new Set([
 	"node_modules",
