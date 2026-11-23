@@ -1642,9 +1642,6 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
     }
     if (run === 'candidate-absent') assert.equal(existsSync(join(root, 'artifact')), false)
   }
-  for (const gif of ['candidate-real/artifact/settings-save.gif', 'candidate-fixture/artifact/fixture-demo.gif']) {
-    assert.equal(readFileSync(join(evidenceRoot, gif)).subarray(0, 3).toString('ascii'), 'GIF')
-  }
   for (const run of ['candidate-real', 'candidate-fixture']) {
     const artifactRoot = join(evidenceRoot, run, 'artifact')
     const gifs = filesUnder(artifactRoot).filter((path) => path.endsWith('.gif'))
