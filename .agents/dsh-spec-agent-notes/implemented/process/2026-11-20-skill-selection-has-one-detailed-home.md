@@ -14,7 +14,7 @@ The root README remains the adoption entry. It names the universal starting grou
 
 That guide is the single detailed home for group roles, recommended companion explanations, common combinations, the project-scoped installation procedure, capability requirements and skip rules. It is maintained as an English and Chinese pair.
 
-The universal group installs as a unit. Its five skills cover the prompt, instruction, decision, prose and translation responsibilities that recur in ordinary agent work; `dsh-spec-translate-docs` is therefore present without a condition that the project already maintain pairs. Recommended companions remain optional additions, and every skill keeps its own trigger, boundary and completion path.
+The universal group installs as a unit. Its five skills cover the prompt, instruction, decision, prose and translation responsibilities that recur in ordinary agent work; `dsh-spec-translate-docs` is therefore present without a condition that the project already maintain pairs. This is the deliberate exception to avoiding skills a project does not yet use; the update burden is accepted for one small baseline that covers the usual collaboration documents. Recommended companions remain optional additions, and every skill keeps its own trigger, boundary and completion path.
 
 ## Alternatives considered
 

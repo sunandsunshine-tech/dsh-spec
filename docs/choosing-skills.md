@@ -17,7 +17,7 @@ gh skill install sunandsunshine-tech/dsh-spec "<skill>" \
 
 Install the universal group in full at the start. When the project takes on work from another group, install that specialized group. A specialized group is a curated set for one kind of work, not a runtime dependency bundle, so a project may narrow it to the skills its work uses when it has a specific reason.
 
-Do not begin with `--all`. An unused skill adds a selection choice and an update obligation without adding capability the project uses.
+Do not begin with `--all`. An unused skill adds a selection choice and an update obligation without adding capability the project uses. The universal group is the deliberate exception: its five responsibilities recur across project instructions, decision records, durable prose and the document pairs that often accompany notes, so the group is installed as one small common baseline.
 
 ## Universal collaboration
 
