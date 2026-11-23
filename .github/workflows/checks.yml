@@ -55,9 +55,9 @@ jobs:
 
       - name: the browser GIF media dependency
         if: matrix.node == '26'
-        uses: FedericoCarboni/setup-ffmpeg@36c6454b5a2348e7794ba2d82a21506605921e3d
-        with:
-          ffmpeg-version: 7.0.2
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
 
       - name: the browser GIF media scenario
         if: matrix.node == '26'
