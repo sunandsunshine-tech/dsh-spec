@@ -1113,6 +1113,16 @@ test('the capability scenario corpus covers absent and available isolated execut
   const missing = browser.evals.find((scenario) => scenario.id === 'missing-capture-capability-hands-off')
   assert.ok(missing)
   assert.deepEqual(missing.capabilities, { browser: false, media: false })
+  const real = browser.evals.find((scenario) => scenario.id === 'real-ui-change-uses-one-isolated-run')
+  assert.ok(real)
+  assert.deepEqual(real.capabilities, { browser: true, media: true })
+  const ui = readCorpus('dsh-spec-client-ui-ux')
+  const present = ui.evals.find((scenario) => scenario.id === 'capability-present-real-browser')
+  assert.ok(present)
+  assert.deepEqual(present.capabilities, { browser: true, media: false })
+  const absent = ui.evals.find((scenario) => scenario.id === 'missing-rendered-evidence-handoff')
+  assert.ok(absent)
+  assert.deepEqual(absent.capabilities, { browser: false, media: false })
 })
 
 test('the companion scenario corpus covers the default ladder and bounded authorization', () => {

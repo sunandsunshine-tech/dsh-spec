@@ -265,8 +265,8 @@ function isolatedCodexCommand(
   const miseFfprobe = join(miseInstalls, 'ffmpeg', 'latest', '.mise-bins', 'ffprobe')
   const hasMiseMedia = existsSync(miseFfmpeg) && existsSync(miseFfprobe)
   const hasMedia = hasMiseMedia || (hostExecutable('ffmpeg') && hostExecutable('ffprobe'))
-  const browserEnabled = resolveCapability('browser', capabilities?.browser, Boolean(hasBrowser))
-  const mediaEnabled = resolveCapability('media', capabilities?.media, hasMedia)
+  const browserEnabled = resolveCapability('browser', capabilities?.browser ?? false, Boolean(hasBrowser))
+  const mediaEnabled = resolveCapability('media', capabilities?.media ?? false, hasMedia)
   const miseMediaMount = mediaEnabled && hasMiseMedia
   const sandboxMise = '/home/eval/.local/share/mise/installs'
   const toolPath = [
