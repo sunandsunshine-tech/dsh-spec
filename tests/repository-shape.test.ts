@@ -9,8 +9,9 @@
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
-import { join } from 'node:path'
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { test } from 'node:test'
+import MarkdownIt, { type Token } from 'markdown-it'
 import { REPO_ROOT } from './helpers/fixtures.ts'
 
 /** Test/verification headings that own current evidence; Chinese headings have no \b after CJK. */
@@ -33,6 +34,174 @@ function hashTree(root: string): Map<string, string> {
 
 function repoFile(rel: string): string {
   return readFileSync(join(REPO_ROOT, rel), 'utf8')
+}
+
+interface MarkdownTable {
+  rows: string[][]
+}
+
+interface MarkdownDocument {
+  path: string
+  text: string
+  headingDepths: number[]
+  tables: MarkdownTable[]
+  fences: string[]
+  links: string[]
+}
+
+type SkillGroup = string[]
+
+const markdown = new MarkdownIt()
+const ADOPTER_DOCS = ['README.md', 'README.zh.md', 'docs/choosing-skills.md', 'docs/choosing-skills.zh.md']
+const RELATED_DOCS = [
+  ...ADOPTER_DOCS,
+  '.agents/dsh-spec-agent-notes/implemented/process/2026-11-20-skill-selection-has-one-detailed-home.md',
+  '.agents/dsh-spec-agent-notes/implemented/process/2026-11-20-skill-selection-has-one-detailed-home.zh.md',
+]
+const REQUIRED_UNIVERSAL_SKILLS = ['dsh-spec-agent-experience', 'dsh-spec-translate-docs']
+
+function appendLinks(children: Token[] | null | undefined, links: string[]): void {
+  for (const child of children ?? []) {
+    const target =
+      child.type === 'link_open' ? child.attrGet('href') : child.type === 'image' ? child.attrGet('src') : null
+    if (target) links.push(String(target))
+  }
+}
+
+function parseMarkdown(path: string): MarkdownDocument {
+  const text = repoFile(path)
+  const tokens = markdown.parse(text, {})
+  const headingDepths: number[] = []
+  const tables: MarkdownTable[] = []
+  const fences: string[] = []
+  const links: string[] = []
+
+  for (let index = 0; index < tokens.length; index += 1) {
+    const token = tokens[index]!
+    if (token.type === 'heading_open') {
+      headingDepths.push(Number(token.tag.slice(1)))
+    } else if (token.type === 'fence') {
+      fences.push(token.content)
+    } else if (token.type === 'table_open') {
+      const rows: string[][] = []
+      let row: string[] | undefined
+      let body = false
+      while (tokens[index]?.type !== 'table_close') {
+        const child = tokens[index]!
+        if (child.type === 'tbody_open') body = true
+        else if (child.type === 'tr_open' && body) row = []
+        else if (child.type === 'inline' && row) {
+          row.push(child.content)
+          appendLinks(child.children, links)
+        } else if (child.type === 'tr_close' && row) {
+          rows.push(row)
+          row = undefined
+        }
+        index += 1
+      }
+      tables.push({ rows })
+    }
+
+    if (token.type === 'inline') {
+      appendLinks(token.children, links)
+    }
+  }
+
+  return { path, text, headingDepths, tables, fences, links }
+}
+
+function skillIds(text: string, skills: ReadonlySet<string>): string[] {
+  return [...new Set([...text.matchAll(/`(dsh-spec-[a-z0-9-]+)`/g)].map((match) => match[1]!))].filter((name) =>
+    skills.has(name),
+  )
+}
+
+function readmeGroups(document: MarkdownDocument, skills: ReadonlySet<string>): SkillGroup[] {
+  const tables = document.tables.filter(
+    (table) =>
+      table.rows.length > 0 &&
+      table.rows.every(
+        (row) => row.length >= 2 && skillIds(row[0]!, skills).length === 0 && skillIds(row[1]!, skills).length > 0,
+      ),
+  )
+  assert.equal(tables.length, 1, `${document.path}: expected one five-group table`)
+  return tables[0]!.rows.map((row) => skillIds(row[1]!, skills))
+}
+
+function guideGroups(document: MarkdownDocument, skills: ReadonlySet<string>): SkillGroup[] {
+  const tables = document.tables.filter(
+    (table) =>
+      table.rows.length > 0 && table.rows.every((row) => row.length === 3 && skillIds(row[0]!, skills).length === 1),
+  )
+  assert.equal(tables.length, 5, `${document.path}: expected five group tables`)
+  return tables.map((table) => table.rows.map((row) => skillIds(row[0]!, skills)[0]!))
+}
+
+function assertPartition(groups: SkillGroup[], skills: readonly string[], label: string): string[][] {
+  assert.equal(groups.length, 5, `${label}: five groups`)
+  assert.ok(
+    groups.every((group) => group.length > 0),
+    `${label}: every group names a skill`,
+  )
+  const signature = groups.map((group) => [...group].sort())
+  const members = signature.flat()
+  assert.equal(new Set(members).size, members.length, `${label}: groups do not overlap`)
+  assert.deepEqual([...members].sort(), [...skills].sort(), `${label}: groups cover every landed skill`)
+  return signature
+}
+
+function universalInstallSkills(document: MarkdownDocument): string[] {
+  const blocks = document.fences.filter(
+    (block) => block.includes('PIN="<tag-or-commit>"') && block.includes('for skill in'),
+  )
+  assert.equal(blocks.length, 1, `${document.path}: one universal install block`)
+  const block = blocks[0]!
+  assert.match(block, /^\(\n {2}set -e$/m, `${document.path}: install stops at the first failure`)
+  assert.match(block, /^\)$/m, `${document.path}: install restores the caller's shell options`)
+  return [...block.matchAll(/^\s+(dsh-spec-[a-z0-9-]+)(?: \\)?$/gm)].map((match) => match[1]!)
+}
+
+function combinationRows(document: MarkdownDocument, skills: ReadonlySet<string>): string[][] {
+  const tables = document.tables.filter(
+    (table) =>
+      table.rows.length >= 5 &&
+      table.rows.every((row) => row.length === 3 && skillIds(row[0]!, skills).length === 0) &&
+      table.rows.some((row) => skillIds(row[2]!, skills).length > 0),
+  )
+  assert.equal(tables.length, 1, `${document.path}: expected one common-combinations table`)
+  return tables[0]!.rows
+}
+
+function recommendationRow(rows: string[][], pattern: RegExp, label: string): string[] {
+  const matches = rows.filter((row) => pattern.test(row[0]!))
+  assert.equal(matches.length, 1, `${label}: one recommendation row`)
+  return matches[0]!
+}
+
+function recommendedSkills(text: string, skills: ReadonlySet<string>): string[] {
+  const positiveSentences = text
+    .split(/(?<=[.!?])\s+|(?<=[。！？])/u)
+    .filter((sentence) => !/(?:\b(?:do not|don't|never)\b|不推荐|不要|不得)/iu.test(sentence))
+  return positiveSentences.flatMap((sentence) => skillIds(sentence, skills))
+}
+
+function assertLocalLinksResolve(document: MarkdownDocument): void {
+  let checked = 0
+  for (const rawTarget of document.links) {
+    const target = rawTarget.trim()
+    if (!target || target.startsWith('#') || /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i.test(target)) continue
+    const targetPath = decodeURIComponent(target.split(/[?#]/, 1)[0]!)
+    assert.ok(!isAbsolute(targetPath), `${document.path}: absolute local link ${target}`)
+    const resolved = resolve(dirname(join(REPO_ROOT, document.path)), targetPath)
+    const fromRoot = relative(REPO_ROOT, resolved)
+    assert.ok(
+      fromRoot === '' || (!fromRoot.startsWith(`..${sep}`) && fromRoot !== '..' && !isAbsolute(fromRoot)),
+      `${document.path}: link escapes the repository: ${target}`,
+    )
+    assert.ok(existsSync(resolved), `${document.path}: missing local link ${target}`)
+    checked += 1
+  }
+  assert.ok(checked > 0, `${document.path}: local links are checked`)
 }
 
 test('the split note modules carry their SPDX and provenance headers', () => {
@@ -120,4 +289,83 @@ test('agent-experience provenance names the revision and source path it actually
   )
   const sourcePath = 'packages/preset/agent-preset/skills/agent-experience/SKILL.md'
   assert.ok(notice.includes(`\`${sourcePath}\``), 'agent-experience does not name its adapted source path')
+})
+
+test('adopter documentation has one complete, bilingual skill-selection map', () => {
+  const skills = readdirSync(join(REPO_ROOT, 'skills'), { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && !entry.name.startsWith('.'))
+    .map((entry) => entry.name)
+    .sort()
+  assert.equal(skills.length, 15, 'the landed skill corpus contains 15 skills')
+  const known = new Set(skills)
+  const documents = new Map(RELATED_DOCS.map((path) => [path, parseMarkdown(path)]))
+
+  const readmeEnglish = documents.get(ADOPTER_DOCS[0]!)!
+  const readmeChinese = documents.get(ADOPTER_DOCS[1]!)!
+  const guideEnglish = documents.get(ADOPTER_DOCS[2]!)!
+  const guideChinese = documents.get(ADOPTER_DOCS[3]!)!
+
+  const groups = {
+    readmeEnglish: readmeGroups(readmeEnglish, known),
+    readmeChinese: readmeGroups(readmeChinese, known),
+    guideEnglish: guideGroups(guideEnglish, known),
+    guideChinese: guideGroups(guideChinese, known),
+  }
+  const canonical = assertPartition(groups.readmeEnglish, skills, 'README.md')
+  for (const [label, value] of Object.entries(groups).slice(1)) {
+    assert.deepEqual(assertPartition(value, skills, label), canonical, `${label}: same groups and members as README.md`)
+  }
+
+  const universal = groups.readmeEnglish[0]!
+  const universalChinese = groups.readmeChinese[0]!
+  assert.equal(universal.length, 5, 'the README universal group contains five skills')
+  assert.deepEqual([...universal].sort(), canonical[0])
+  assert.deepEqual([...universalChinese].sort(), canonical[0])
+  for (const required of REQUIRED_UNIVERSAL_SKILLS) {
+    assert.ok(universal.includes(required), `universal group: ${required}`)
+  }
+  assert.deepEqual(universalInstallSkills(readmeEnglish), universal, 'README.md: install block and group table agree')
+  assert.deepEqual(
+    universalInstallSkills(readmeChinese),
+    universalChinese,
+    'README.zh.md: install block and group table agree',
+  )
+
+  assert.match(
+    guideEnglish.text,
+    /Install the universal group in full at the start\. For a specialized group, install only the skills the project's work uses\./,
+  )
+  assert.match(guideChinese.text, /起步时完整安装通用组。对于专项组，只安装项目当前工作会用到的技能。/)
+  assert.deepEqual(guideChinese.headingDepths, guideEnglish.headingDepths, 'guide headings match across languages')
+  assert.deepEqual(
+    guideChinese.tables.map((table) => table.rows.map((row) => row.length)),
+    guideEnglish.tables.map((table) => table.rows.map((row) => row.length)),
+    'guide tables match across languages',
+  )
+
+  for (const [document, ordinaryPattern, officialPattern] of [
+    [guideEnglish, /ordinary/i, /official/i],
+    [guideChinese, /普通/, /官方/],
+  ] as const) {
+    const rows = combinationRows(document, known)
+    const ordinary = recommendedSkills(recommendationRow(rows, ordinaryPattern, document.path)[2]!, known)
+    const official = recommendedSkills(recommendationRow(rows, officialPattern, document.path)[2]!, known)
+    assert.ok(ordinary.includes('dsh-spec-pr-description'), `${document.path}: ordinary PR recommends pr-description`)
+    assert.ok(
+      !ordinary.includes('dsh-spec-merging-stacked-prs'),
+      `${document.path}: ordinary PR does not recommend stack landing`,
+    )
+    assert.ok(official.includes('dsh-spec-pr-description'), `${document.path}: stacked PR recommends pr-description`)
+    assert.ok(
+      official.includes('dsh-spec-merging-stacked-prs'),
+      `${document.path}: stacked PR recommends stack landing`,
+    )
+    assert.equal(
+      rows.filter((row) => recommendedSkills(row[2]!, known).includes('dsh-spec-merging-stacked-prs')).length,
+      1,
+      `${document.path}: only the official stacked-PR row recommends stack landing`,
+    )
+  }
+
+  for (const document of documents.values()) assertLocalLinksResolve(document)
 })

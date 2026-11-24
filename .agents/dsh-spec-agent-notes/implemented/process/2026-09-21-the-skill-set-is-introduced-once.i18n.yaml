@@ -2,21 +2,21 @@
 # source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
 # After editing either side, bring the other along and re-record with:
 #   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-09-21-the-skill-set-is-introduced-once.md --target <lang>
-/agent-note-the-skill-set-is-introduced-once-in-the-project-readme:
-  en: 50baa06c0ad6d860
-  zh: 9b5719f7b1fb11ff
-/agent-note-the-skill-set-is-introduced-once-in-the-project-readme/problem:
+/agent-note-the-skill-set-has-no-per-skill-readmes:
+  en: 440e70a986870e12
+  zh: b00881f92c05ede6
+/agent-note-the-skill-set-has-no-per-skill-readmes/problem:
   en: e310308961d70ab9
-  zh: 30b8dc1c7885f310
-/agent-note-the-skill-set-is-introduced-once-in-the-project-readme/decision:
-  en: f2cec08f1c5a8101
-  zh: ef57c9b1a68123ac
-/agent-note-the-skill-set-is-introduced-once-in-the-project-readme/alternatives-considered:
+  zh: 4dafe656ed78ef53
+/agent-note-the-skill-set-has-no-per-skill-readmes/decision:
+  en: c43ee0a0beca56a1
+  zh: a0302c52bfbe6f8a
+/agent-note-the-skill-set-has-no-per-skill-readmes/alternatives-considered:
   en: a8265e96dd5d5c77
-  zh: d39dea87fbd89972
-/agent-note-the-skill-set-is-introduced-once-in-the-project-readme/consequences:
-  en: 4547ac4b936b4338
-  zh: 740e0d0310b951ea
-/agent-note-the-skill-set-is-introduced-once-in-the-project-readme/related:
-  en: fa6343dcd939186f
-  zh: d65bda71eace0d94
+  zh: 98448859b4601cf3
+/agent-note-the-skill-set-has-no-per-skill-readmes/consequences:
+  en: ac81a71e897498e5
+  zh: d8fd162aab10836a
+/agent-note-the-skill-set-has-no-per-skill-readmes/related:
+  en: 1ace198fcaeba58d
+  zh: b2c9259e1d756010
