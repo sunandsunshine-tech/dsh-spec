@@ -1,0 +1,22 @@
+# Pairing consistency record for 2026-11-24-model-evidence-runner-bounds-hostile-output.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/testing/2026-11-24-model-evidence-runner-bounds-hostile-output.md --target <lang>
+/agent-note-the-model-evidence-runner-treats-model-output-as-hostile:
+  en: d1a8be7270428830
+  zh: ec1d62acfb3e45ae
+/agent-note-the-model-evidence-runner-treats-model-output-as-hostile/problem:
+  en: c3499757a34165f1
+  zh: 647930b73c4262a5
+/agent-note-the-model-evidence-runner-treats-model-output-as-hostile/decision:
+  en: 7f1df485b2a215e4
+  zh: 9cdc889bfbd0d687
+/agent-note-the-model-evidence-runner-treats-model-output-as-hostile/verification:
+  en: 80c4f5736a83b6c4
+  zh: 709103b6efd410ad
+/agent-note-the-model-evidence-runner-treats-model-output-as-hostile/alternatives-considered:
+  en: 363da1ac7d339acc
+  zh: 5cf8603b0d042e05
+/agent-note-the-model-evidence-runner-treats-model-output-as-hostile/consequences:
+  en: 3b0c1dc93467eace
+  zh: f1d1e69d65ed7c99

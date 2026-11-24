@@ -5,7 +5,7 @@ Model: host-configured Codex model; Codex CLI 0.171.0-alpha.13.
 
 ## Method
 
-The runs used `tests/skill-evals/run-model-eval.mjs`. The runner staged the current
+The runs used `tests/skill-evals/run-model-eval.mjs`. The runner staged the recorded
 `dsh-spec-test-reliability` skill and only the declared scenario files in a fresh temporary Git
 project, then exposed that project in an isolated Linux namespace. Both runs used
 `workspace-write`; the diagnosis changed no file and the slow-suite rerun used `--replace`.
@@ -52,4 +52,4 @@ and exit codes in `trace.jsonl`.
   hashes, scenario definition, input manifest, patch, changed paths, independent test output and
   changed-file artifacts.
 
-Scenario assertions live in `tests/skill-evals/dsh-spec-test-reliability/evals/evals.json`.
+The assertions for these runs live in their retained `scenario-definition.json` files.

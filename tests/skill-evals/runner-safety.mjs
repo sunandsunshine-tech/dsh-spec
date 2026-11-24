@@ -5,6 +5,8 @@ import {
   cpSync,
   fstatSync,
   lstatSync,
+  mkdirSync,
+  opendirSync,
   openSync,
   readdirSync,
   readFileSync,
@@ -13,6 +15,7 @@ import {
   rmdirSync,
   statSync,
   unlinkSync,
+  writeSync,
 } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { spawn } from 'node:child_process'
@@ -40,6 +43,60 @@ const mediaCandidates = [
   '/bin/ffmpeg',
   '/bin/ffprobe',
 ]
+
+export const MODEL_EVIDENCE_LIMITS = Object.freeze({
+  artifactBytes: 64 * 1024 * 1024,
+  artifactFiles: 256,
+  artifactFileBytes: 16 * 1024 * 1024,
+  codexHomeBytes: 64 * 1024 * 1024,
+  codexHomeEntries: 4096,
+  finalResponseBytes: 2 * 1024 * 1024,
+  homeBytes: 128 * 1024 * 1024,
+  responseBytes: 8 * 1024 * 1024,
+  responseEntries: 32,
+  stderrBytes: 128 * 1024 * 1024,
+  stdoutBytes: 128 * 1024 * 1024,
+  temporaryBytes: 512 * 1024 * 1024,
+  workspaceBytes: 512 * 1024 * 1024,
+  workspaceEntries: 8192,
+})
+
+export function sandboxTmpfsArgs(limits = MODEL_EVIDENCE_LIMITS, { includeWorkspace = true } = {}) {
+  return [
+    ...(includeWorkspace ? ['--size', String(limits.workspaceBytes), '--tmpfs', '/workspace'] : []),
+    '--size',
+    String(limits.codexHomeBytes),
+    '--tmpfs',
+    '/codex-home',
+    '--size',
+    String(limits.responseBytes),
+    '--tmpfs',
+    '/response',
+    '--size',
+    String(limits.homeBytes),
+    '--tmpfs',
+    '/home',
+    '--size',
+    String(limits.temporaryBytes),
+    '--tmpfs',
+    '/tmp',
+  ]
+}
+
+export function isolatedGitEnvironment(extra = {}, inherited = process.env) {
+  const environment = Object.fromEntries(
+    Object.entries(inherited).filter(([key, value]) => !key.startsWith('GIT_') && value !== undefined),
+  )
+  return {
+    ...environment,
+    GIT_CONFIG_COUNT: '0',
+    GIT_CONFIG_GLOBAL: '/dev/null',
+    GIT_CONFIG_NOSYSTEM: '1',
+    GIT_NO_REPLACE_OBJECTS: '1',
+    GIT_OPTIONAL_LOCKS: '0',
+    ...extra,
+  }
+}
 
 export function assertContained(root, path, label) {
   const local = relative(root, path)
@@ -75,12 +132,13 @@ export function assertRealContained(root, path, label) {
   return existingReal
 }
 
-export function assertRegularNonEmptyFile(path, label) {
+export function assertRegularNonEmptyFile(path, label, maxBytes = Number.POSITIVE_INFINITY) {
   const stat = lstatSync(path, { throwIfNoEntry: false })
   if (!stat) throw new Error(`${label} does not exist: ${path}`)
   if (stat.isSymbolicLink()) throw new Error(`${label} is a symbolic link: ${path}`)
   if (!stat.isFile()) throw new Error(`${label} is not a regular file: ${path}`)
   if (stat.size === 0) throw new Error(`${label} is empty: ${path}`)
+  if (stat.size > maxBytes) throw new Error(`${label} exceeds ${maxBytes} bytes: ${path}`)
   return stat
 }
 
@@ -114,9 +172,26 @@ const credentialNameParts = new Set([
   'token',
 ])
 
-const credentialCompoundNames = new Set(['apikey', 'accesskey', 'keyid', 'privatekey', 'secretkey', 'subscriptionkey'])
+const credentialCompoundNames = new Set([
+  'accesskey',
+  'accesskeyid',
+  'apikey',
+  'authkey',
+  'authkeyid',
+  'authorizationkey',
+  'bearerkey',
+  'credentialkey',
+  'keyid',
+  'passwordkey',
+  'privatekey',
+  'secretkey',
+  'sessionkey',
+  'subscriptionkey',
+  'tokenkey',
+])
 
 function isCredentialName(name) {
+  const compactName = name.toLowerCase().replace(/[^a-z0-9]/g, '')
   const parts = name
     .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
     .toLowerCase()
@@ -127,7 +202,9 @@ function isCredentialName(name) {
       credentialNameParts.has(part) ||
       credentialCompoundNames.has(part) ||
       /(?:token|secret|password|credential|credentials|signature)$/.test(part) ||
-      /(?:access|api|client|private|secret|signing|subscription)key(?:id)?$/.test(part),
+      /^(?:access|api|auth|authorization|bearer|client|credential|credentials|password|private|secret|session|signing|subscription|token)key(?:id)?$/.test(
+        compactName,
+      ),
   )
 }
 
@@ -153,11 +230,10 @@ function assertCredentialFreeCatalogUrls(value, label) {
     for (const child of value) assertCredentialFreeCatalogUrls(child, label)
     return
   }
-  if (typeof value === 'string' && /^[a-z][a-z0-9+.-]*:\/\//i.test(value)) {
-    try {
-      assertCredentialFreeBaseUrl(value, label)
-    } catch (error) {
-      if (/credential|userinfo/i.test(String(error))) throw error
+  if (typeof value === 'string') {
+    for (const match of value.matchAll(/[a-z][a-z0-9+.-]*:\/\/[^\s<>"'`]*/gi)) {
+      const candidate = match[0].replace(/[),.;!?}\]]+$/, '')
+      assertCredentialFreeBaseUrl(candidate, `${label} URL`)
     }
     return
   }
@@ -326,24 +402,219 @@ export function addOutputBytes(currentBytes, chunk, limitBytes, label) {
   return nextBytes
 }
 
-export function hashFileNoFollow(path) {
+export function hashFileNoFollow(path, maxBytes = Number.POSITIVE_INFINITY) {
   const fd = openSync(path, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0))
   try {
     const stat = fstatSync(fd)
     if (!stat.isFile()) throw new Error(`file hash requires a regular file: ${path}`)
-    const chunks = []
+    if (stat.size > maxBytes) throw new Error(`file hash exceeds ${maxBytes} bytes: ${path}`)
+    const hash = createHash('sha256')
     const buffer = Buffer.allocUnsafe(64 * 1024)
-    let position = 0
+    let bytesRead = 0
     for (;;) {
-      const bytes = readSync(fd, buffer, 0, buffer.length, position)
-      if (bytes === 0) break
-      chunks.push(Buffer.from(buffer.subarray(0, bytes)))
-      position += bytes
+      const bytes = readSync(fd, buffer, 0, buffer.length, null)
+      if (bytes === 0) return hash.digest('hex')
+      bytesRead += bytes
+      if (bytesRead > maxBytes) throw new Error(`file hash exceeds ${maxBytes} bytes: ${path}`)
+      hash.update(buffer.subarray(0, bytes))
     }
-    return createHash('sha256').update(Buffer.concat(chunks)).digest('hex')
   } finally {
     closeSync(fd)
   }
+}
+
+export function readFileNoFollowLimited(path, label, maxBytes) {
+  const fd = openSync(path, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0))
+  try {
+    const stat = fstatSync(fd)
+    if (!stat.isFile()) throw new Error(`${label} is not a regular file: ${path}`)
+    if (stat.size === 0) throw new Error(`${label} is empty: ${path}`)
+    if (stat.size > maxBytes) throw new Error(`${label} exceeds ${maxBytes} bytes: ${path}`)
+    const contents = Buffer.allocUnsafe(stat.size)
+    let bytesRead = 0
+    while (bytesRead < contents.length) {
+      const bytes = readSync(fd, contents, bytesRead, contents.length - bytesRead, null)
+      if (bytes === 0) throw new Error(`${label} changed while being read: ${path}`)
+      bytesRead += bytes
+    }
+    if (readSync(fd, Buffer.allocUnsafe(1), 0, 1, null) !== 0) {
+      throw new Error(`${label} changed while being read: ${path}`)
+    }
+    return contents
+  } finally {
+    closeSync(fd)
+  }
+}
+
+export function copyFileNoFollowLimited(source, destination, maxBytes) {
+  const sourceFd = openSync(source, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0))
+  let destinationFd
+  let destinationCreated = false
+  try {
+    const stat = fstatSync(sourceFd)
+    if (!stat.isFile()) throw new Error(`copy source is not a regular file: ${source}`)
+    if (stat.size > maxBytes) throw new Error(`copy source exceeds ${maxBytes} bytes: ${source}`)
+    mkdirSync(dirname(destination), { recursive: true })
+    destinationFd = openSync(
+      destination,
+      constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL | (constants.O_NOFOLLOW ?? 0),
+      stat.mode & 0o777,
+    )
+    destinationCreated = true
+    const hash = createHash('sha256')
+    const buffer = Buffer.allocUnsafe(64 * 1024)
+    let bytesCopied = 0
+    for (;;) {
+      const bytesRead = readSync(sourceFd, buffer, 0, buffer.length, null)
+      if (bytesRead === 0) break
+      bytesCopied += bytesRead
+      if (bytesCopied > maxBytes) throw new Error(`copy source exceeds ${maxBytes} bytes: ${source}`)
+      hash.update(buffer.subarray(0, bytesRead))
+      let bytesWritten = 0
+      while (bytesWritten < bytesRead) {
+        bytesWritten += writeSync(destinationFd, buffer, bytesWritten, bytesRead - bytesWritten)
+      }
+    }
+    if (bytesCopied !== stat.size) throw new Error(`copy source changed while being copied: ${source}`)
+    chmodSync(destination, stat.mode & 0o777)
+    return { bytes: bytesCopied, sha256: hash.digest('hex') }
+  } catch (error) {
+    if (destinationFd !== undefined) closeSync(destinationFd)
+    destinationFd = undefined
+    if (destinationCreated) unlinkSync(destination)
+    throw error
+  } finally {
+    closeSync(sourceFd)
+    if (destinationFd !== undefined) closeSync(destinationFd)
+  }
+}
+
+function joinRelative(prefix, name) {
+  return prefix ? `${prefix}/${name}` : name
+}
+
+function ensureDirectory(path, mode) {
+  const existing = lstatSync(path, { throwIfNoEntry: false })
+  if (existing?.isSymbolicLink() || (existing && !existing.isDirectory())) {
+    throw new Error(`bounded copy destination is not a directory: ${path}`)
+  }
+  if (!existing) mkdirSync(path, { mode })
+  chmodSync(path, mode)
+}
+
+export function copyTreeBounded(options) {
+  const { sourceRoot, destinationRoot, maxEntries, maxBytes, maxFileBytes, skip = () => false } = options
+  const sourceStat = lstatSync(sourceRoot)
+  if (sourceStat.isSymbolicLink() || !sourceStat.isDirectory()) {
+    throw new Error(`bounded copy source is not a directory: ${sourceRoot}`)
+  }
+  mkdirSync(destinationRoot, { recursive: true })
+  let entries = 0
+  let files = 0
+  let bytes = 0
+
+  const copyDirectory = (sourceDirectory, destinationDirectory, relativeDirectory) => {
+    const directory = opendirSync(sourceDirectory)
+    try {
+      for (;;) {
+        const entry = directory.readSync()
+        if (!entry) break
+        const relative = joinRelative(relativeDirectory, entry.name)
+        if (skip(relative, entry)) continue
+        entries += 1
+        if (entries > maxEntries) throw new Error(`bounded copy exceeds ${maxEntries} entries`)
+        const source = join(sourceDirectory, entry.name)
+        const destination = join(destinationDirectory, entry.name)
+        const stat = lstatSync(source)
+        if (stat.isSymbolicLink()) throw new Error(`bounded copy source contains a symbolic link: ${relative}`)
+        if (stat.isDirectory()) {
+          ensureDirectory(destination, stat.mode & 0o777)
+          copyDirectory(source, destination, relative)
+          continue
+        }
+        if (!stat.isFile()) throw new Error(`bounded copy source contains a non-file: ${relative}`)
+        files += 1
+        if (files > maxEntries) throw new Error(`bounded copy exceeds ${maxEntries} files`)
+        if (stat.size > maxFileBytes) throw new Error(`bounded copy file exceeds ${maxFileBytes} bytes: ${relative}`)
+        if (bytes + stat.size > maxBytes) throw new Error(`bounded copy exceeds ${maxBytes} bytes`)
+        const copied = copyFileNoFollowLimited(source, destination, maxFileBytes)
+        bytes += copied.bytes
+      }
+    } finally {
+      directory.closeSync()
+    }
+  }
+
+  copyDirectory(sourceRoot, destinationRoot, '')
+  return { bytes, entries, files }
+}
+
+function listFilesBounded(root, prefix, maxFiles) {
+  const files = []
+  const directory = opendirSync(root)
+  try {
+    for (;;) {
+      const entry = directory.readSync()
+      if (!entry) break
+      const relative = joinRelative(prefix, entry.name)
+      const absolute = join(root, entry.name)
+      const stat = lstatSync(absolute)
+      if (stat.isSymbolicLink()) throw new Error(`output contains a symbolic link: ${relative}`)
+      if (stat.isDirectory()) {
+        files.push(...listFilesBounded(absolute, relative, maxFiles - files.length))
+      } else if (stat.isFile()) {
+        files.push(relative)
+      } else {
+        throw new Error(`output contains a non-file: ${relative}`)
+      }
+      if (files.length > maxFiles) throw new Error(`output contains more than ${maxFiles} files`)
+    }
+  } finally {
+    directory.closeSync()
+  }
+  return files
+}
+
+export function collectArtifactSources(project, paths, declaredOutputs, limits = MODEL_EVIDENCE_LIMITS) {
+  const outputPaths = [...paths]
+  for (const declared of declaredOutputs) {
+    const absolute = assertProjectPath(project, declared, 'declared output')
+    const stat = lstatSync(absolute, { throwIfNoEntry: false })
+    if (!stat) continue
+    if (stat.isDirectory()) {
+      for (const file of listFilesBounded(absolute, '', limits.artifactFiles)) {
+        outputPaths.push(join(declared, file))
+      }
+    } else {
+      outputPaths.push(declared)
+    }
+  }
+
+  const sources = []
+  const seen = new Set()
+  let bytes = 0
+  for (const path of outputPaths) {
+    if (seen.has(path)) continue
+    seen.add(path)
+    if (/[\r\n]/.test(path))
+      throw new Error(`the model produced an output path with a line break: ${JSON.stringify(path)}`)
+    if (path.startsWith('.agents/skills/')) throw new Error(`the model changed an installed skill: ${path}`)
+    const source = assertProjectPath(project, path, 'retained output')
+    const stat = lstatSync(source, { throwIfNoEntry: false })
+    if (!stat) continue
+    if (stat.isSymbolicLink()) throw new Error(`the model produced a symbolic link: ${path}`)
+    if (!stat.isFile()) throw new Error(`the model produced a non-file output: ${path}`)
+    if (sources.length + 1 > limits.artifactFiles)
+      throw new Error(`the model produced more than ${limits.artifactFiles} artifacts`)
+    if (stat.size > limits.artifactFileBytes) {
+      throw new Error(`the model produced an artifact above ${limits.artifactFileBytes} bytes: ${path}`)
+    }
+    bytes += stat.size
+    if (bytes > limits.artifactBytes)
+      throw new Error(`the model produced more than ${limits.artifactBytes} artifact bytes`)
+    sources.push({ path, source, stat })
+  }
+  return sources
 }
 
 export function executableFile(path) {

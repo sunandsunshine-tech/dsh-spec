@@ -6,7 +6,7 @@ Model: host-configured `deepseek-flash`; Codex CLI 0.171.0-alpha.13. Run date: 2
 
 ## Method
 
-The current run used the repository runner:
+The recorded run used the repository runner:
 
 ```sh
 node tests/skill-evals/run-model-eval.mjs \
@@ -23,34 +23,34 @@ response directory as its writable mounts; the source repository and answer mani
 that namespace. It also rejects answer-bearing manifest paths in the trace and requires `final.md`
 to equal the trace's last agent message.
 
-The scenario requires the current top stack layer to replace a stale AI-role section while keeping
-the lower layer's telemetry work out of its AI Usage table.
+The scenario requires the top stack layer to replace a stale AI-role section while keeping the lower
+layer's telemetry work out of its AI Usage table.
 
 ## Results
 
 The earlier attempt tested a second mandatory AI Usage reference read that this refactor had
 invented. That requirement was removed because upstream requires one read plus a final read-back.
 
-`stack-layer-replaces-legacy-ai-section` passed all eight current scenario assertions. The body uses
+`stack-layer-replaces-legacy-ai-section` passed all eight recorded scenario assertions. The body uses
 the four default sections, removes the legacy section, contains exactly one AI Usage section and
 declaration block, records only the retry-cap layer, uses the v0.1.2 `pair` declaration whose badge
 matches the highest row, and reports the passing two-test evidence. The review row remains `n/a`
 with an empty decision-record cell, and the no-comments statement follows the table. No tracker
 metadata is invented.
 
-Routing is recorded separately and passes the current skill contract: the trace reads
+Routing is recorded separately and passed the skill contract recorded for this run: the trace reads
 `references/ai-usage.md` once before writing the body, then applies its checklist in successful
 post-write validation commands before the final response. Routing is not a ninth natural-language
-assertion; the current scenario has eight canonical assertions.
+assertion; the recorded scenario has eight canonical assertions.
 
 The retained trace records two successful `npm test` runs with 2/2 passing. The trace contains no
 answer-bearing command or web/browser item. `final.md` equals the last trace agent message, the
 patch replays exactly to the retained artifact, and the captured skill and scenario hashes match
-the current files.
+the recorded files.
 
 ## Evidence layout
 
-- `stack-layer-replaces-legacy-ai-section/`: the current successful run.
+- `stack-layer-replaces-legacy-ai-section/`: the recorded successful run.
 - `*/final.md`: the model's final response.
 - `*/trace.jsonl`: the normalized `codex exec --json` stream.
 - `*/input-manifest.sha256`: the declared scenario inputs before the run.
@@ -62,5 +62,4 @@ the current files.
 - `*/stderr.log`, `time.txt` and `usage.txt`: the runner diagnostics and execution measurements.
 
 Model runs are development evidence and do not run in routine CI. The body evidence is tied to the
-recorded skill revision; a later behavior change receives a new targeted run rather than
-invalidating unrelated scenarios.
+recorded skill revision; these runs remain historical evidence for that revision.

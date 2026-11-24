@@ -9,6 +9,7 @@ import {
   realpathSync,
   rmSync,
   symlinkSync,
+  truncateSync,
   writeFileSync,
 } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -19,6 +20,14 @@ import http from 'node:http'
 import { test } from 'node:test'
 
 const safety = (await import('./skill-evals/runner-safety.mjs' as string)) as {
+  MODEL_EVIDENCE_LIMITS: {
+    artifactBytes: number
+    artifactFiles: number
+    artifactFileBytes: number
+    finalResponseBytes: number
+    workspaceBytes: number
+    workspaceEntries: number
+  }
   acquireFileLock(path: string): Promise<{ release(): Promise<void> }>
   addOutputBytes(currentBytes: number, chunk: string, limitBytes: number, label: string): number
   assertCredentialFreeBaseUrl(value: string, label: string): URL
@@ -26,18 +35,38 @@ const safety = (await import('./skill-evals/runner-safety.mjs' as string)) as {
   assertInputFile(root: string, file: string, label: string): string
   assertProjectPath(project: string, path: string, label: string): string
   capabilityMaskPaths(browserEnabled: boolean, mediaEnabled: boolean): string[]
+  collectArtifactSources(
+    project: string,
+    paths: string[],
+    declaredOutputs: string[],
+    limits?: Record<string, number>,
+  ): Array<{ path: string; source: string }>
+  copyTreeBounded(options: {
+    sourceRoot: string
+    destinationRoot: string
+    maxEntries: number
+    maxBytes: number
+    maxFileBytes: number
+    skip?: (relative: string) => boolean
+  }): { bytes: number; entries: number; files: number }
   copyTrustedGit(project: string, destination: string): void
   executableFile(path: string): boolean
-  hashFileNoFollow(path: string): string
+  hashFileNoFollow(path: string, maxBytes?: number): string
+  isolatedGitEnvironment(
+    extra?: Record<string, string | undefined>,
+    inherited?: NodeJS.ProcessEnv,
+  ): Record<string, string>
   mediaExecutablePaths(): string[]
   modeBits(path: string): string
   parseNulSeparatedPaths(output: string): string[]
   proxyProviderLines(lines: string[], proxyUrl: string, proxyToken: string): string[]
+  readFileNoFollowLimited(path: string, label: string, maxBytes: number): Buffer
   readSafeModelCatalog(sourceHome: string, value: string): string
   removeModelTree(path: string): void
   resolveCapability(name: string, requested: boolean | undefined, available: boolean): boolean
   resolveExecutableFile(path: string): string | undefined
   resolveMiseMediaRoot(miseInstalls: string): string | undefined
+  sandboxTmpfsArgs(limits?: Record<string, number>, options?: { includeWorkspace?: boolean }): string[]
   singleTomlStringField(lines: string[], key: string, label: string): string | undefined
   tomlField(lines: string[], key: string): string | undefined
   tomlStringValue(line: string): string | undefined
@@ -48,8 +77,44 @@ function git(cwd: string, args: string[], env: Record<string, string | undefined
   return spawnSync('git', args, {
     cwd,
     encoding: 'utf8',
-    env: { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1', ...env },
+    env: safety.isolatedGitEnvironment(env),
   })
+}
+
+function bwrapAvailable(): boolean {
+  const probe = spawnSync(
+    'bwrap',
+    [
+      '--die-with-parent',
+      '--new-session',
+      '--unshare-pid',
+      '--unshare-ipc',
+      '--unshare-uts',
+      '--ro-bind',
+      '/usr',
+      '/usr',
+      '--ro-bind',
+      '/bin',
+      '/bin',
+      '--ro-bind',
+      '/lib',
+      '/lib',
+      '--ro-bind',
+      '/lib64',
+      '/lib64',
+      '--size',
+      '1048576',
+      '--tmpfs',
+      '/workspace-probe',
+      '--proc',
+      '/proc',
+      '--dev',
+      '/dev',
+      '/bin/true',
+    ],
+    { encoding: 'utf8' },
+  )
+  return !probe.error && probe.status === 0
 }
 
 test('eval staging rejects traversal and symlinked inputs', async () => {
@@ -169,12 +234,7 @@ test('trusted Git inspection ignores model-controlled hooks and commondir', asyn
     const result = spawnSync('git', safety.trustedGitArgs(trusted, project, ['read-tree', 'HEAD']), {
       cwd: project,
       encoding: 'utf8',
-      env: {
-        ...process.env,
-        GIT_CONFIG_GLOBAL: '/dev/null',
-        GIT_CONFIG_NOSYSTEM: '1',
-        GIT_INDEX_FILE: index,
-      },
+      env: safety.isolatedGitEnvironment({ GIT_INDEX_FILE: index }),
     })
     assert.equal(result.status, 0, result.stderr)
     assert.equal(existsSync(marker), false)
@@ -186,7 +246,7 @@ test('trusted Git inspection ignores model-controlled hooks and commondir', asyn
     const diff = spawnSync('git', safety.trustedGitArgs(trusted, project, ['diff', '--no-ext-diff', '--stat']), {
       cwd: project,
       encoding: 'utf8',
-      env: { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1' },
+      env: safety.isolatedGitEnvironment(),
     })
     assert.equal(diff.status, 0, diff.stderr)
     assert.equal(existsSync(marker), false)
@@ -414,12 +474,54 @@ test('model catalog and base URL validation reject credentials and path escapes'
       'clientsecret',
       'apitoken',
       'subscriptionkey',
+      'authkey',
+      'authkeyid',
+      'authorizationkey',
+      'bearerkey',
+      'credentialkey',
+      'passwordkey',
+      'sessionkey',
+      'tokenkey',
+      '%61uthkey',
     ]) {
       assert.throws(
         () => safety.assertCredentialFreeBaseUrl(`https://provider.example/v1?${key}=secret`, 'base URL'),
         /query/,
       )
     }
+    for (const key of ['api-version', 'monkey']) {
+      assert.doesNotThrow(() =>
+        safety.assertCredentialFreeBaseUrl(`https://provider.example/v1?${key}=value`, 'base URL'),
+      )
+    }
+    const unsafeCatalogValues = [
+      'See https://user:secret@provider.example/v1',
+      '[provider](https://user:secret@provider.example/v1)',
+      'ftp://user:secret@provider.example/v1',
+      'https://user:secret@[invalid',
+      'https://',
+      'https://provider.example/v1?authkey=secret',
+    ]
+    for (const [index, value] of unsafeCatalogValues.entries()) {
+      writeFileSync(
+        join(root, 'unsafe-catalog.json'),
+        JSON.stringify({
+          models: [
+            {
+              slug: 'safe',
+              description: `catalog-${index}`,
+              model_messages: { instructions_template: value },
+            },
+          ],
+        }),
+      )
+      assert.throws(() => safety.readSafeModelCatalog(root, 'unsafe-catalog.json'), /URL|userinfo|query|http|valid/)
+    }
+    const safeCatalogWithUrl = {
+      models: [{ slug: 'safe', description: 'See https://docs.example/v1?api-version=1 for details' }],
+    }
+    writeFileSync(join(root, 'safe-url-catalog.json'), JSON.stringify(safeCatalogWithUrl))
+    assert.equal(safety.readSafeModelCatalog(root, 'safe-url-catalog.json'), `${JSON.stringify(safeCatalogWithUrl)}\n`)
   } finally {
     rmSync(root, { recursive: true, force: true })
   }
@@ -445,6 +547,401 @@ test('input modes are bound in the manifest format', async () => {
 test('model process output remains inside its per-stream byte budget', () => {
   assert.equal(safety.addOutputBytes(0, 'é', 2, 'stdout'), 2)
   assert.throws(() => safety.addOutputBytes(2, 'x', 2, 'stdout'), /stdout exceeds 2 bytes/)
+})
+
+test('final responses are read through a logical byte limit', () => {
+  const root = mkdtempSync(join(tmpdir(), 'runner-final-limit-'))
+  try {
+    const final = join(root, 'final.md')
+    writeFileSync(final, '')
+    truncateSync(final, safety.MODEL_EVIDENCE_LIMITS.finalResponseBytes + 1)
+    assert.throws(
+      () =>
+        safety.readFileNoFollowLimited(final, 'Codex final response', safety.MODEL_EVIDENCE_LIMITS.finalResponseBytes),
+      new RegExp(`exceeds ${safety.MODEL_EVIDENCE_LIMITS.finalResponseBytes} bytes`),
+    )
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('artifact collection bounds files, individual bytes and total bytes before copying', () => {
+  const root = mkdtempSync(join(tmpdir(), 'runner-artifact-limit-'))
+  try {
+    const project = join(root, 'project')
+    mkdirSync(project)
+    writeFileSync(join(project, 'one.txt'), '1234')
+    writeFileSync(join(project, 'two.txt'), '5678')
+    assert.throws(
+      () =>
+        safety.collectArtifactSources(project, ['one.txt', 'two.txt'], [], {
+          artifactBytes: 100,
+          artifactFiles: 1,
+          artifactFileBytes: 100,
+        }),
+      /more than 1 artifacts/,
+    )
+    assert.throws(
+      () =>
+        safety.collectArtifactSources(project, ['one.txt'], [], {
+          artifactBytes: 100,
+          artifactFiles: 10,
+          artifactFileBytes: 3,
+        }),
+      /above 3 bytes/,
+    )
+    assert.throws(
+      () =>
+        safety.collectArtifactSources(project, ['one.txt', 'two.txt'], [], {
+          artifactBytes: 7,
+          artifactFiles: 10,
+          artifactFileBytes: 100,
+        }),
+      /more than 7 artifact bytes/,
+    )
+    const oversized = join(project, 'oversized.bin')
+    writeFileSync(oversized, '')
+    truncateSync(oversized, safety.MODEL_EVIDENCE_LIMITS.artifactFileBytes + 1)
+    assert.throws(
+      () => safety.collectArtifactSources(project, ['oversized.bin'], [], safety.MODEL_EVIDENCE_LIMITS),
+      new RegExp(`above ${safety.MODEL_EVIDENCE_LIMITS.artifactFileBytes} bytes`),
+    )
+    const aggregatePaths: string[] = []
+    for (let index = 0; index < 5; index += 1) {
+      const path = `aggregate-${index}.bin`
+      aggregatePaths.push(path)
+      writeFileSync(join(project, path), '')
+      truncateSync(join(project, path), safety.MODEL_EVIDENCE_LIMITS.artifactFileBytes)
+    }
+    assert.throws(
+      () => safety.collectArtifactSources(project, aggregatePaths, [], safety.MODEL_EVIDENCE_LIMITS),
+      new RegExp(`more than ${safety.MODEL_EVIDENCE_LIMITS.artifactBytes} artifact bytes`),
+    )
+    const countedPaths: string[] = []
+    for (let index = 0; index <= safety.MODEL_EVIDENCE_LIMITS.artifactFiles; index += 1) {
+      const path = `counted-${index}.txt`
+      countedPaths.push(path)
+      writeFileSync(join(project, path), '')
+    }
+    assert.throws(
+      () => safety.collectArtifactSources(project, countedPaths, [], safety.MODEL_EVIDENCE_LIMITS),
+      new RegExp(`more than ${safety.MODEL_EVIDENCE_LIMITS.artifactFiles} artifacts`),
+    )
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('bounded tree copies enforce entry and byte limits and never follow links', () => {
+  const root = mkdtempSync(join(tmpdir(), 'runner-tree-limit-'))
+  try {
+    const source = join(root, 'source')
+    const destination = join(root, 'destination')
+    mkdirSync(join(source, 'nested'), { recursive: true })
+    writeFileSync(join(source, 'nested', 'value.txt'), 'bounded\n')
+    assert.deepEqual(
+      safety.copyTreeBounded({
+        sourceRoot: source,
+        destinationRoot: destination,
+        maxEntries: 10,
+        maxBytes: 100,
+        maxFileBytes: 100,
+      }),
+      { bytes: 8, entries: 2, files: 1 },
+    )
+    assert.equal(readFileSync(join(destination, 'nested', 'value.txt'), 'utf8'), 'bounded\n')
+    assert.throws(
+      () =>
+        safety.copyTreeBounded({
+          sourceRoot: source,
+          destinationRoot: join(root, 'too-large'),
+          maxEntries: 10,
+          maxBytes: 7,
+          maxFileBytes: 100,
+        }),
+      /exceeds 7 bytes/,
+    )
+    symlinkSync(join(source, 'nested', 'value.txt'), join(source, 'linked.txt'))
+    assert.throws(
+      () =>
+        safety.copyTreeBounded({
+          sourceRoot: source,
+          destinationRoot: join(root, 'linked-output'),
+          maxEntries: 10,
+          maxBytes: 100,
+          maxFileBytes: 100,
+        }),
+      /symbolic link/,
+    )
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('hash streaming keeps memory independent of a sparse file size', () => {
+  const root = mkdtempSync(join(tmpdir(), 'runner-hash-memory-'))
+  try {
+    const file = join(root, 'large.bin')
+    writeFileSync(file, '')
+    truncateSync(file, 32 * 1024 * 1024)
+    const script = [
+      "import { hashFileNoFollow } from './tests/skill-evals/runner-safety.mjs'",
+      `console.log(hashFileNoFollow(${JSON.stringify(file)}))`,
+      "console.log('max-rss-kib=' + process.resourceUsage().maxRSS)",
+    ].join(';')
+    const result = spawnSync(process.execPath, ['--input-type=module', '-e', script], {
+      cwd: dirname(import.meta.dirname),
+      encoding: 'utf8',
+    })
+    assert.equal(result.status, 0, result.stderr)
+    assert.match(result.stdout, /^[0-9a-f]{64}\n/)
+    const maxRssKiB = Number(/^max-rss-kib=(\d+)$/m.exec(result.stdout)?.[1])
+    assert.ok(maxRssKiB > 0)
+    assert.ok(maxRssKiB < 96 * 1024, `hash streaming used ${maxRssKiB} KiB`)
+    assert.throws(() => safety.hashFileNoFollow(file, 1024 * 1024), /file hash exceeds 1048576 bytes/)
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('sandbox mounts put every writable model directory behind a tmpfs size', () => {
+  const args = safety.sandboxTmpfsArgs({
+    ...safety.MODEL_EVIDENCE_LIMITS,
+    workspaceBytes: 11,
+    codexHomeBytes: 12,
+    responseBytes: 13,
+    homeBytes: 14,
+    temporaryBytes: 15,
+  })
+  const mounts = new Map<string, number>()
+  for (let index = 0; index < args.length; index += 4) {
+    assert.equal(args[index], '--size')
+    assert.equal(args[index + 2], '--tmpfs')
+    mounts.set(args[index + 3] ?? '', Number(args[index + 1]))
+  }
+  assert.deepEqual(Object.fromEntries(mounts), {
+    '/workspace': 11,
+    '/codex-home': 12,
+    '/response': 13,
+    '/home': 14,
+    '/tmp': 15,
+  })
+  assert.equal(
+    safety.sandboxTmpfsArgs(safety.MODEL_EVIDENCE_LIMITS, { includeWorkspace: false }).includes('/workspace'),
+    false,
+  )
+})
+
+test('bwrap enforces the generated workspace tmpfs quota', (t) => {
+  if (!bwrapAvailable()) {
+    t.skip('bubblewrap namespaces and --size are unavailable on this host')
+    return
+  }
+  const limits = {
+    ...safety.MODEL_EVIDENCE_LIMITS,
+    workspaceBytes: 1024 * 1024,
+    codexHomeBytes: 1024 * 1024,
+    responseBytes: 1024 * 1024,
+    homeBytes: 1024 * 1024,
+    temporaryBytes: 1024 * 1024,
+  }
+  const result = spawnSync(
+    'bwrap',
+    [
+      '--die-with-parent',
+      '--new-session',
+      '--unshare-pid',
+      '--unshare-ipc',
+      '--unshare-uts',
+      '--ro-bind',
+      '/usr',
+      '/usr',
+      '--ro-bind',
+      '/bin',
+      '/bin',
+      '--ro-bind',
+      '/lib',
+      '/lib',
+      '--ro-bind',
+      '/lib64',
+      '/lib64',
+      ...safety.sandboxTmpfsArgs(limits),
+      '--proc',
+      '/proc',
+      '--dev',
+      '/dev',
+      '--chdir',
+      '/workspace',
+      '/bin/dd',
+      'if=/dev/zero',
+      'of=/workspace/too-large.bin',
+      'bs=1048576',
+      'count=2',
+    ],
+    { encoding: 'utf8' },
+  )
+  assert.notEqual(result.status, 0, 'workspace tmpfs accepted more than its quota')
+  assert.match(result.stderr, /No space left on device/)
+})
+
+test('the real model runner seeds tmpfs mounts and collects outputs after model exit', (t) => {
+  if (!bwrapAvailable()) {
+    t.skip('bubblewrap namespaces and --size are unavailable on this host')
+    return
+  }
+  const repository = dirname(import.meta.dirname)
+  const root = mkdtempSync(join(tmpdir(), 'runner-model-smoke-'))
+  const evidenceDate = '2099-12-31-runner-safety-smoke'
+  const evidenceRoot = join(repository, 'tests', 'skill-evals', 'evidence')
+  const cleanupRoot = join(evidenceRoot, evidenceDate)
+  const output = join(cleanupRoot, 'dsh-spec-error-handling', 'sandbox-report')
+  try {
+    const codexHome = join(root, 'codex-home')
+    const bin = join(root, 'bin')
+    mkdirSync(codexHome, { recursive: true })
+    mkdirSync(bin, { recursive: true })
+    writeFileSync(
+      join(codexHome, 'config.toml'),
+      [
+        'model = "gpt-5"',
+        'model_provider = "test"',
+        '',
+        '[model_providers.test]',
+        'name = "test"',
+        'base_url = "https://provider.example/v1"',
+        'wire_api = "responses"',
+        '',
+      ].join('\n'),
+    )
+    const fakeCodex = join(bin, 'fake-codex')
+    writeFileSync(
+      fakeCodex,
+      [
+        '#!/usr/bin/env node',
+        "const fs = require('node:fs')",
+        `if (fs.existsSync(${JSON.stringify(output)})) process.exit(42)`,
+        "if (!fs.existsSync('/workspace/.agents/skills/dsh-spec-error-handling/SKILL.md')) process.exit(43)",
+        "if (!fs.existsSync('/codex-home/config.toml')) process.exit(44)",
+        "fs.mkdirSync('/workspace/evidence', { recursive: true })",
+        "fs.writeFileSync('/workspace/evidence/result.txt', 'retained output\\n')",
+        "fs.writeFileSync('/response/final.md', 'sandbox smoke\\n')",
+        `process.stdout.write(JSON.stringify({ type: 'item.completed', item: { type: 'agent_message', text: 'sandbox smoke\\n' } }) + '\\n')`,
+        `process.stdout.write(JSON.stringify({ type: 'turn.completed', usage: { input_tokens: 1, output_tokens: 1 } }) + '\\n')`,
+        '',
+      ].join('\n'),
+    )
+    chmodSync(fakeCodex, 0o755)
+    const result = spawnSync(
+      process.execPath,
+      [
+        join(repository, 'tests/skill-evals/run-model-eval.mjs'),
+        '--skill',
+        'dsh-spec-error-handling',
+        '--scenario',
+        'outcome-classification-and-extensible-codes',
+        '--output',
+        output,
+        '--sandbox',
+        'workspace-write',
+      ],
+      {
+        cwd: repository,
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          CODEX_BIN: fakeCodex,
+          CODEX_HOME: codexHome,
+        },
+        maxBuffer: 8 * 1024 * 1024,
+      },
+    )
+    assert.equal(result.status, 0, result.stderr)
+    assert.equal(readFileSync(join(output, 'final.md'), 'utf8'), 'sandbox smoke\n')
+    assert.equal(readFileSync(join(output, 'artifact/evidence/result.txt'), 'utf8'), 'retained output\n')
+    assert.match(readFileSync(join(output, 'status.txt'), 'utf8'), /^status: pending$/m)
+    assert.match(readFileSync(join(output, 'changed-paths.json'), 'utf8'), /evidence\/result\.txt/)
+  } finally {
+    rmSync(cleanupRoot, { recursive: true, force: true })
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('the real model runner skips final and artifact processing after model failure', (t) => {
+  if (!bwrapAvailable()) {
+    t.skip('bubblewrap namespaces and --size are unavailable on this host')
+    return
+  }
+  const repository = dirname(import.meta.dirname)
+  const root = mkdtempSync(join(tmpdir(), 'runner-model-failure-'))
+  const evidenceDate = '2099-12-31-runner-safety-failure'
+  const evidenceRoot = join(repository, 'tests', 'skill-evals', 'evidence')
+  const cleanupRoot = join(evidenceRoot, evidenceDate)
+  const output = join(cleanupRoot, 'dsh-spec-error-handling', 'failed-sandbox-report')
+  try {
+    const codexHome = join(root, 'codex-home')
+    const bin = join(root, 'bin')
+    mkdirSync(codexHome, { recursive: true })
+    mkdirSync(bin, { recursive: true })
+    writeFileSync(
+      join(codexHome, 'config.toml'),
+      [
+        'model = "gpt-5"',
+        'model_provider = "test"',
+        '',
+        '[model_providers.test]',
+        'name = "test"',
+        'base_url = "https://provider.example/v1"',
+        'wire_api = "responses"',
+        '',
+      ].join('\n'),
+    )
+    const fakeCodex = join(bin, 'fake-codex')
+    writeFileSync(
+      fakeCodex,
+      [
+        '#!/usr/bin/env node',
+        "const fs = require('node:fs')",
+        "fs.writeFileSync('/response/final.md', '')",
+        "fs.truncateSync('/response/final.md', 3 * 1024 * 1024)",
+        "fs.mkdirSync('/workspace/evidence', { recursive: true })",
+        "fs.writeFileSync('/workspace/evidence/oversized.bin', '')",
+        "fs.truncateSync('/workspace/evidence/oversized.bin', 20 * 1024 * 1024)",
+        'process.exit(1)',
+        '',
+      ].join('\n'),
+    )
+    chmodSync(fakeCodex, 0o755)
+    const result = spawnSync(
+      process.execPath,
+      [
+        join(repository, 'tests/skill-evals/run-model-eval.mjs'),
+        '--skill',
+        'dsh-spec-error-handling',
+        '--scenario',
+        'outcome-classification-and-extensible-codes',
+        '--output',
+        output,
+        '--sandbox',
+        'workspace-write',
+      ],
+      {
+        cwd: repository,
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          CODEX_BIN: fakeCodex,
+          CODEX_HOME: codexHome,
+        },
+        maxBuffer: 8 * 1024 * 1024,
+      },
+    )
+    assert.equal(result.status, 1)
+    assert.equal(existsSync(output), false)
+    assert.doesNotMatch(result.stderr, /Codex final response|artifact above/)
+  } finally {
+    rmSync(cleanupRoot, { recursive: true, force: true })
+    rmSync(root, { recursive: true, force: true })
+  }
 })
 
 test('machine paths retain spaces and non-ASCII names and artifact hashing refuses links', async () => {

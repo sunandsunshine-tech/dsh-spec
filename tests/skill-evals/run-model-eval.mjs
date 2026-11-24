@@ -14,10 +14,12 @@ import {
   writeFileSync,
 } from 'node:fs'
 import { homedir, tmpdir } from 'node:os'
+import { createServer } from 'node:net'
 import { basename, dirname, isAbsolute, join, normalize, resolve, sep } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { parseArgs } from 'node:util'
 import {
+  MODEL_EVIDENCE_LIMITS,
   assertContained,
   assertCredentialFreeBaseUrl,
   assertEvidenceRunPath,
@@ -29,18 +31,23 @@ import {
   acquireFileLock,
   browserExecutablePaths,
   capabilityMaskPaths,
+  collectArtifactSources,
+  copyFileNoFollowLimited,
   copyTrustedGit,
+  copyTreeBounded,
   executableFile,
   hashFileNoFollow,
   mediaExecutablePaths,
   modeBits,
   parseNulSeparatedPaths,
   proxyProviderLines,
+  readFileNoFollowLimited,
   readSafeModelCatalog,
   removeModelTree,
   resolveCapability,
   resolveExecutableFile,
   resolveMiseMediaRoot,
+  sandboxTmpfsArgs,
   singleTomlStringField,
   tomlField,
   tomlStringValue,
@@ -157,12 +164,13 @@ function run(command, args, options) {
   return result
 }
 
-function runInterruptible(command, args, options) {
+function runInterruptible(command, args, options, onSpawn) {
   return new Promise((resolveRun, rejectRun) => {
     const child = spawn(command, args, {
       stdio: ['ignore', 'pipe', 'pipe'],
       ...options,
     })
+    onSpawn?.(child)
     const stdout = []
     const stderr = []
     let stdoutBytes = 0
@@ -188,7 +196,7 @@ function runInterruptible(command, args, options) {
     child.stderr.setEncoding('utf8')
     child.stdout.on('data', (chunk) => {
       try {
-        stdoutBytes = addOutputBytes(stdoutBytes, chunk, 128 * 1024 * 1024, 'model stdout')
+        stdoutBytes = addOutputBytes(stdoutBytes, chunk, MODEL_EVIDENCE_LIMITS.stdoutBytes, 'model stdout')
         stdout.push(chunk)
       } catch (error) {
         outputError ??= error
@@ -197,7 +205,7 @@ function runInterruptible(command, args, options) {
     })
     child.stderr.on('data', (chunk) => {
       try {
-        stderrBytes = addOutputBytes(stderrBytes, chunk, 128 * 1024 * 1024, 'model stderr')
+        stderrBytes = addOutputBytes(stderrBytes, chunk, MODEL_EVIDENCE_LIMITS.stderrBytes, 'model stderr')
         stderr.push(chunk)
       } catch (error) {
         outputError ??= error
@@ -217,6 +225,203 @@ function runInterruptible(command, args, options) {
       resolveRun({ status, signal, stdout: stdout.join(''), stderr: stderr.join(''), interrupted })
     })
   })
+}
+
+const CONTROL_MESSAGE_BYTES = 8 * 1024
+
+function readControlLine(socket) {
+  return new Promise((resolveLine, rejectLine) => {
+    let contents = ''
+    const onData = (chunk) => {
+      contents += chunk
+      if (Buffer.byteLength(contents) > CONTROL_MESSAGE_BYTES) {
+        cleanup()
+        rejectLine(new Error('sandbox control message exceeds its byte limit'))
+        return
+      }
+      const newline = contents.indexOf('\n')
+      if (newline < 0) return
+      cleanup()
+      resolveLine(contents.slice(0, newline))
+    }
+    const onEnd = () => {
+      cleanup()
+      rejectLine(new Error('sandbox control closed before sending model status'))
+    }
+    const onError = (error) => {
+      cleanup()
+      rejectLine(error)
+    }
+    const cleanup = () => {
+      socket.off('data', onData)
+      socket.off('end', onEnd)
+      socket.off('error', onError)
+    }
+    socket.on('data', onData)
+    socket.once('end', onEnd)
+    socket.once('error', onError)
+  })
+}
+
+function writeControlLine(socket, value) {
+  const message = `${JSON.stringify(value)}\n`
+  if (Buffer.byteLength(message) > CONTROL_MESSAGE_BYTES) {
+    throw new Error('sandbox control message exceeds its byte limit')
+  }
+  return new Promise((resolveWrite, rejectWrite) => {
+    socket.write(message, (error) => {
+      if (error) rejectWrite(error)
+      else resolveWrite()
+    })
+  })
+}
+
+async function startSandboxControl() {
+  const root = mkdtempSync(join(tmpdir(), 'skill-eval-control-'))
+  const socketPath = join(root, 'control.sock')
+  const server = createServer()
+  await new Promise((resolveListen, rejectListen) => {
+    server.once('error', rejectListen)
+    server.listen(socketPath, () => {
+      server.off('error', rejectListen)
+      resolveListen()
+    })
+  })
+  const connection = new Promise((resolveConnection, rejectConnection) => {
+    server.once('connection', (socket) => {
+      server.close()
+      if (existsSync(socketPath)) rmSync(socketPath, { force: true })
+      resolveConnection(socket)
+    })
+    server.once('error', rejectConnection)
+  })
+  return {
+    root,
+    socketPath,
+    connection,
+    async close() {
+      if (server.listening) {
+        await new Promise((resolveClose) => server.close(resolveClose))
+      }
+      if (existsSync(socketPath)) rmSync(socketPath, { force: true })
+      if (existsSync(root)) rmSync(root, { recursive: true, force: true })
+    },
+  }
+}
+
+function readBwrapChildPid(stream) {
+  return new Promise((resolvePid, rejectPid) => {
+    let contents = ''
+    const onData = (chunk) => {
+      contents += chunk
+      const lines = contents.split('\n')
+      contents = lines.pop() ?? ''
+      for (const line of lines) {
+        if (!line.trim()) continue
+        const event = JSON.parse(line)
+        if (Number.isSafeInteger(event['child-pid']) && event['child-pid'] > 0) {
+          cleanup()
+          resolvePid(event['child-pid'])
+          return
+        }
+      }
+    }
+    const onEnd = () => {
+      cleanup()
+      rejectPid(new Error('bubblewrap exited before reporting its child PID'))
+    }
+    const onError = (error) => {
+      cleanup()
+      rejectPid(error)
+    }
+    const cleanup = () => {
+      stream.off('data', onData)
+      stream.off('end', onEnd)
+      stream.off('error', onError)
+    }
+    stream.setEncoding('utf8')
+    stream.on('data', onData)
+    stream.once('end', onEnd)
+    stream.once('error', onError)
+  })
+}
+
+async function runModelSandbox(invocation, control, sandboxOutput) {
+  let socket
+  let child
+  let resolveStatusStream
+  const statusStream = new Promise((resolveStream) => {
+    resolveStatusStream = resolveStream
+  })
+  const runPromise = runInterruptible(
+    invocation.command,
+    invocation.args,
+    {
+      cwd: invocation.cwd,
+      env: modelEnvironment(),
+      stdio: ['ignore', 'pipe', 'pipe', 'pipe'],
+    },
+    (spawned) => {
+      child = spawned
+      resolveStatusStream(spawned.stdio[3])
+    },
+  )
+
+  try {
+    const [connection, childPid] = await Promise.race([
+      Promise.all([control.connection, statusStream.then(readBwrapChildPid)]),
+      runPromise.then(() => {
+        throw new Error('model sandbox exited before its control channel became ready')
+      }),
+    ])
+    socket = connection
+    const status = JSON.parse(
+      await Promise.race([
+        readControlLine(socket),
+        runPromise.then(() => {
+          throw new Error('model sandbox exited before reporting model status')
+        }),
+      ]),
+    )
+    if (status.type === 'runner-error') throw new Error(`model sandbox wrapper failed: ${status.message}`)
+    if (status.type !== 'model-exit') throw new Error('model sandbox reported an unknown event')
+
+    if (status.status === 0) {
+      const processRoot = join('/proc', String(childPid), 'root')
+      copyTreeBounded({
+        sourceRoot: join(processRoot, 'workspace'),
+        destinationRoot: join(sandboxOutput, 'workspace'),
+        maxEntries: MODEL_EVIDENCE_LIMITS.workspaceEntries,
+        maxBytes: MODEL_EVIDENCE_LIMITS.workspaceBytes,
+        maxFileBytes: MODEL_EVIDENCE_LIMITS.workspaceBytes,
+        skip: (relative) => relative === '.git',
+      })
+      copyTreeBounded({
+        sourceRoot: join(processRoot, 'response'),
+        destinationRoot: join(sandboxOutput, 'response'),
+        maxEntries: MODEL_EVIDENCE_LIMITS.responseEntries,
+        maxBytes: MODEL_EVIDENCE_LIMITS.responseBytes,
+        maxFileBytes: MODEL_EVIDENCE_LIMITS.responseBytes,
+      })
+    }
+
+    await writeControlLine(socket, { action: status.status === 0 ? 'collect' : 'abort' })
+    socket.end()
+    const result = await runPromise
+    if (result.interrupted) throw new Error(`model run interrupted by ${result.interrupted}`)
+    if (result.status !== status.status && status.status !== null) {
+      throw new Error(`model sandbox exit ${String(result.status)} differs from model exit ${status.status}`)
+    }
+    return { result, collected: status.status === 0 }
+  } catch (error) {
+    if (socket && !socket.destroyed) {
+      await writeControlLine(socket, { action: 'abort' }).catch(() => {})
+      socket.destroy()
+    }
+    if (child && child.exitCode === null && child.signalCode === null) child.kill('SIGKILL')
+    await runPromise.catch(() => {})
+    throw error
+  }
 }
 
 function modelEnvironment() {
@@ -385,10 +590,10 @@ async function createIsolatedCodexHome(root) {
 }
 
 function isolatedCodexCommand(
-  codexHome,
-  project,
-  responseRoot,
+  codexHomeSeed,
+  workspaceSeed,
   trustedGit,
+  controlRoot,
   sandbox,
   credentialMode,
   capabilities,
@@ -425,6 +630,7 @@ function isolatedCodexCommand(
   const mediaEnabled = resolveCapability('media', capabilities?.media ?? false, hasMedia)
   const mediaMount = mediaEnabled && bundledMediaRoot
   const sandboxMise = '/home/eval/.local/share/mise/installs'
+  const workspaceWritable = sandbox === 'workspace-write'
   const toolPath = [
     join(sandboxMise, 'node', 'lts', 'bin'),
     join(sandboxMise, 'pnpm', 'latest'),
@@ -441,6 +647,8 @@ function isolatedCodexCommand(
       '--unshare-pid',
       '--unshare-ipc',
       '--unshare-uts',
+      '--json-status-fd',
+      '3',
       '--ro-bind',
       '/usr',
       '/usr',
@@ -450,7 +658,7 @@ function isolatedCodexCommand(
       '--ro-bind',
       '/etc',
       '/etc',
-      ...capabilityMaskArgs(dirname(codexHome), browserEnabled, mediaEnabled),
+      ...capabilityMaskArgs(dirname(codexHomeSeed), browserEnabled, mediaEnabled),
       '--ro-bind',
       '/lib',
       '/lib',
@@ -460,23 +668,29 @@ function isolatedCodexCommand(
       '--ro-bind',
       dirname(codexPath),
       '/opt/codex',
-      sandbox === 'read-only' ? '--ro-bind' : '--bind',
-      project,
-      '/workspace',
       '--ro-bind',
-      join(project, '.agents', 'skills'),
-      '/workspace/.agents/skills',
+      workspaceSeed,
+      '/seed/workspace',
+      '--ro-bind',
+      codexHomeSeed,
+      '/seed/codex-home',
+      '--ro-bind',
+      join(EVAL_ROOT, 'model-sandbox-entrypoint.mjs'),
+      '/opt/runner/model-sandbox-entrypoint.mjs',
+      '--ro-bind',
+      join(EVAL_ROOT, 'runner-safety.mjs'),
+      '/opt/runner/runner-safety.mjs',
+      '--ro-bind',
+      controlRoot,
+      '/run/control',
+      ...sandboxTmpfsArgs(MODEL_EVIDENCE_LIMITS, { includeWorkspace: workspaceWritable }),
+      ...(workspaceWritable ? [] : ['--ro-bind', workspaceSeed, '/workspace']),
       '--ro-bind',
       trustedGit,
       '/workspace/.git',
-      '--bind',
-      codexHome,
-      '/codex-home',
-      '--bind',
-      responseRoot,
-      '/response',
-      '--tmpfs',
-      '/home',
+      ...(workspaceWritable
+        ? ['--ro-bind', join(workspaceSeed, '.agents', 'skills'), '/workspace/.agents/skills']
+        : []),
       '--dir',
       '/home/eval',
       '--dir',
@@ -496,8 +710,6 @@ function isolatedCodexCommand(
       ...(hasPlaywrightBrowser && browserEnabled
         ? ['--ro-bind', chromiumRoot, '/opt/chrome', '--ro-bind', join(tmpdir(), 'browser-libs'), '/opt/browser-libs']
         : []),
-      '--tmpfs',
-      '/tmp',
       '--proc',
       '/proc',
       '--dev',
@@ -507,6 +719,7 @@ function isolatedCodexCommand(
       'env',
       'HOME=/home/eval',
       'CODEX_HOME=/codex-home',
+      'TMPDIR=/tmp',
       `PATH=${toolPath}`,
       ...(hasPlaywrightBrowser && browserEnabled
         ? [
@@ -517,6 +730,21 @@ function isolatedCodexCommand(
         : systemBrowser && browserEnabled
           ? [`CHROME_PATH=${systemBrowser}`]
           : []),
+      'node',
+      '/opt/runner/model-sandbox-entrypoint.mjs',
+      '--workspace-mode',
+      sandbox,
+      '--control-socket',
+      '/run/control/control.sock',
+      '--workspace-bytes',
+      String(MODEL_EVIDENCE_LIMITS.workspaceBytes),
+      '--workspace-entries',
+      String(MODEL_EVIDENCE_LIMITS.workspaceEntries),
+      '--codex-home-bytes',
+      String(MODEL_EVIDENCE_LIMITS.codexHomeBytes),
+      '--codex-home-entries',
+      String(MODEL_EVIDENCE_LIMITS.codexHomeEntries),
+      '--',
       `/opt/codex/${basename(codexPath)}`,
       '--disable',
       'browser_use',
@@ -527,7 +755,7 @@ function isolatedCodexCommand(
       ...(allowSubagents ? [] : ['--disable', 'multi_agent']),
       ...args,
     ],
-    cwd: project,
+    cwd: workspaceSeed,
     profile: {
       auth: credentialMode,
       browser: browserEnabled,
@@ -600,35 +828,14 @@ function changedPaths(project, base, environment, gitDirectory) {
 }
 
 function retainArtifacts(project, output, paths, declaredOutputs) {
+  const sources = collectArtifactSources(project, paths, declaredOutputs, MODEL_EVIDENCE_LIMITS)
   const artifactRoot = join(output, 'artifact')
   const manifest = []
-  const retainedPaths = new Set()
   mkdirSync(artifactRoot, { recursive: true })
-  const outputPaths = [...paths]
-  for (const declared of declaredOutputs) {
-    const absolute = assertProjectPath(project, declared, 'declared output')
-    const stat = lstatSync(absolute, { throwIfNoEntry: false })
-    if (!stat) continue
-    if (stat.isDirectory()) {
-      outputPaths.push(...listFiles(absolute).map((file) => join(declared, file)))
-    } else {
-      outputPaths.push(declared)
-    }
-  }
-  for (const path of outputPaths) {
-    if (retainedPaths.has(path)) continue
-    if (/[\r\n]/.test(path))
-      throw new Error(`the model produced an output path with a line break: ${JSON.stringify(path)}`)
-    if (path.startsWith('.agents/skills/')) throw new Error(`the model changed an installed skill: ${path}`)
-    const source = assertProjectPath(project, path, 'retained output')
-    const stat = lstatSync(source, { throwIfNoEntry: false })
-    if (!stat) continue
-    if (stat.isSymbolicLink()) throw new Error(`the model produced a symbolic link: ${path}`)
-    if (!stat.isFile()) throw new Error(`the model produced a non-file output: ${path}`)
+  for (const { path, source } of sources) {
     const retained = assertNoSymlinkComponents(artifactRoot, join(artifactRoot, path), 'retained artifact')
-    copyFile(source, retained)
-    manifest.push(`${hashFile(retained)}  artifact/${path}`)
-    retainedPaths.add(path)
+    const copied = copyFileNoFollowLimited(source, retained, MODEL_EVIDENCE_LIMITS.artifactFileBytes)
+    manifest.push(`${copied.sha256}  artifact/${path}`)
   }
   writeFileSync(join(output, 'artifacts.sha256'), manifest.length ? `${manifest.join('\n')}\n` : '')
 }
@@ -743,6 +950,7 @@ const backupOutput = `${output}.old`
 let temporaryParent
 let stagedOutput
 let authProxy
+let sandboxControl
 let outputLockHandle
 try {
   outputLockHandle = await acquireFileLock(outputLock)
@@ -750,32 +958,34 @@ try {
   if (existsSync(output) && !options.replace) throw new Error(`output already exists: ${output}`)
   stagedOutput = mkdtempSync(join(outputParent, '.run-'))
   temporaryParent = mkdtempSync(join(tmpdir(), 'skill-eval-project-'))
-  const project = join(temporaryParent, 'project')
+  const workspaceSeed = join(temporaryParent, 'workspace-seed')
   const isolatedHome = await createIsolatedCodexHome(temporaryParent)
   authProxy = isolatedHome.authProxy
   const codexHome = isolatedHome.codexHome
-  const responseRoot = join(temporaryParent, 'response')
-  mkdirSync(project, { recursive: true })
-  mkdirSync(responseRoot, { recursive: true })
-  const installedSkills = stageScenario(options.skill, scenario, project)
-  git(project, ['init', '-q'])
-  git(project, ['config', 'user.name', 'Skill evaluation'])
-  git(project, ['config', 'user.email', 'skill-evaluation@example.invalid'])
+  const sandboxOutput = join(temporaryParent, 'sandbox-output')
+  mkdirSync(workspaceSeed, { recursive: true })
+  mkdirSync(sandboxOutput, { recursive: true })
+  const installedSkills = stageScenario(options.skill, scenario, workspaceSeed)
+  git(workspaceSeed, ['init', '-q'])
+  git(workspaceSeed, ['config', 'user.name', 'Skill evaluation'])
+  git(workspaceSeed, ['config', 'user.email', 'skill-evaluation@example.invalid'])
   const changeRoot = scenario.change_root ? ['--directory', scenario.change_root] : []
-  if (scenario.change_patch) git(project, ['apply', '--binary', '--reverse', ...changeRoot, scenario.change_patch])
-  git(project, ['add', '-A'])
-  git(project, ['commit', '-qm', 'fixture: base state'])
+  if (scenario.change_patch)
+    git(workspaceSeed, ['apply', '--binary', '--reverse', ...changeRoot, scenario.change_patch])
+  git(workspaceSeed, ['add', '-A'])
+  git(workspaceSeed, ['commit', '-qm', 'fixture: base state'])
   if (scenario.change_patch) {
-    git(project, ['apply', '--binary', ...changeRoot, scenario.change_patch])
-    git(project, ['add', '-A'])
-    git(project, ['commit', '-qm', 'fixture: candidate state'])
+    git(workspaceSeed, ['apply', '--binary', ...changeRoot, scenario.change_patch])
+    git(workspaceSeed, ['add', '-A'])
+    git(workspaceSeed, ['commit', '-qm', 'fixture: candidate state'])
   }
-  const trustedHead = git(project, ['rev-parse', 'HEAD']).stdout.trim()
+  const trustedHead = git(workspaceSeed, ['rev-parse', 'HEAD']).stdout.trim()
   const trustedGit = join(temporaryParent, 'trusted-git')
-  copyTrustedGit(project, trustedGit)
+  copyTrustedGit(workspaceSeed, trustedGit)
+  removeModelTree(join(workspaceSeed, '.git'))
 
   const inputManifest = (scenario.files ?? []).map((path) => {
-    const absolute = assertProjectPath(project, path, 'scenario input')
+    const absolute = assertProjectPath(workspaceSeed, path, 'scenario input')
     assertRegularNonEmptyFile(absolute, 'scenario input')
     return `${hashFile(absolute)}  ${path}  mode=${modeBits(absolute)}`
   })
@@ -785,7 +995,7 @@ try {
     `${sha256(canonicalJson(scenario))}  ${options.skill}:${options.scenario}\n`,
   )
   writeFileSync(join(stagedOutput, 'scenario-definition.json'), `${JSON.stringify(scenario, null, 2)}\n`)
-  const installedBefore = skillTreeHashes(project, installedSkills)
+  const installedBefore = skillTreeHashes(workspaceSeed, installedSkills)
   writeFileSync(join(stagedOutput, 'skill-hashes.txt'), `${installedBefore.join('\n')}\n`)
   writeFileSync(
     join(stagedOutput, 'assertions.expected.txt'),
@@ -797,11 +1007,12 @@ try {
     .filter((file) => /\.(?:png|jpe?g|webp)$/i.test(file))
     .flatMap((file) => ['--image', `/workspace/${file}`])
   const subagentInstruction = scenario.allow_subagents ? 'You may spawn subagents.' : 'Do not spawn subagents.'
+  sandboxControl = await startSandboxControl()
   const invocation = isolatedCodexCommand(
     codexHome,
-    project,
-    responseRoot,
+    workspaceSeed,
     trustedGit,
+    sandboxControl.root,
     options.sandbox,
     isolatedHome.credentialMode,
     scenario.capabilities,
@@ -823,76 +1034,79 @@ try {
     ],
   )
   writeFileSync(join(stagedOutput, 'capabilities.json'), `${JSON.stringify(invocation.profile, null, 2)}\n`)
-  const result = await runInterruptible(invocation.command, invocation.args, {
-    cwd: invocation.cwd,
-    env: modelEnvironment(),
-  })
+  const { collected, result } = await runModelSandbox(invocation, sandboxControl, sandboxOutput)
   const elapsed = (performance.now() - started) / 1000
-  if (result.interrupted) throw new Error(`model run interrupted by ${result.interrupted}`)
 
   const trace = sanitizeEvidenceText(result.stdout)
   writeFileSync(join(stagedOutput, 'trace.jsonl'), trace)
   writeFileSync(join(stagedOutput, 'stderr.log'), sanitizeEvidenceText(result.stderr))
   writeFileSync(join(stagedOutput, 'time.txt'), `time_seconds: ${elapsed.toFixed(2)}\n`)
   assertAnswerManifestWasNotRead(trace)
-  const finalResponse = join(responseRoot, 'final.md')
-  assertRegularNonEmptyFile(finalResponse, 'Codex final response')
-  const finalText = sanitizeEvidenceText(readFileSync(finalResponse, 'utf8'))
-  if (finalText !== finalAgentMessage(trace)) {
-    throw new Error('final response differs from the trace agent message')
-  }
-  writeFileSync(join(stagedOutput, 'final.md'), finalText)
-
-  if (git(project, ['rev-parse', 'HEAD'], false, {}, trustedGit).stdout.trim() !== trustedHead) {
-    throw new Error('the model changed Git history; refusing host-side Git inspection')
-  }
-  const inspectionEnvironment = { GIT_INDEX_FILE: join(temporaryParent, 'inspection.index') }
-  git(project, ['read-tree', trustedHead], false, inspectionEnvironment, trustedGit)
-  git(project, ['add', '-A'], false, inspectionEnvironment, trustedGit)
-  const paths = changedPaths(project, trustedHead, inspectionEnvironment, trustedGit)
-  writeFileSync(join(stagedOutput, 'changed-paths.json'), `${JSON.stringify(paths, null, 2)}\n`)
-  writeFileSync(join(stagedOutput, 'changed-paths.txt'), paths.length ? `${paths.join('\n')}\n` : '')
-  writeFileSync(
-    join(stagedOutput, 'patch.diff'),
-    git(
-      project,
-      ['diff', '--no-ext-diff', '--cached', '--binary', trustedHead],
-      false,
-      inspectionEnvironment,
-      trustedGit,
-    ).stdout,
-  )
-  if (paths.some((path) => path.startsWith('.agents/skills/'))) {
-    throw new Error('the model changed an installed skill tree')
-  }
-  retainArtifacts(project, stagedOutput, paths, scenario.outputs ?? [])
-
-  const installedAfter = skillTreeHashes(project, installedSkills)
-  if (installedBefore.join('\n') !== installedAfter.join('\n')) {
-    throw new Error('the installed skill tree changed during the run')
-  }
-  writeFileSync(
-    join(stagedOutput, 'status.txt'),
-    `status: pending\nrun_exit_code: ${result.status ?? 'unknown'}\nassertions: pending\n`,
-  )
-
-  const lastLine = result.stdout.trim().split('\n').filter(Boolean).at(-1)
-  const completion = lastLine ? JSON.parse(lastLine) : undefined
-  const usage = completion?.type === 'turn.completed' ? completion.usage : undefined
-  if (usage) {
-    writeFileSync(
-      join(stagedOutput, 'usage.txt'),
-      `input_tokens: ${usage.input_tokens ?? 'unknown'}\noutput_tokens: ${usage.output_tokens ?? 'unknown'}\n`,
-    )
-  }
-
-  removeModelTree(temporaryParent)
-  temporaryParent = undefined
-
-  if (result.status !== 0) {
+  if (!collected || result.status !== 0) {
     console.error(result.stderr)
     process.exitCode = result.status ?? 1
   } else {
+    const project = join(sandboxOutput, 'workspace')
+    const finalResponse = join(sandboxOutput, 'response', 'final.md')
+    const finalText = sanitizeEvidenceText(
+      readFileNoFollowLimited(finalResponse, 'Codex final response', MODEL_EVIDENCE_LIMITS.finalResponseBytes).toString(
+        'utf8',
+      ),
+    )
+    if (finalText !== finalAgentMessage(trace)) {
+      throw new Error('final response differs from the trace agent message')
+    }
+    writeFileSync(join(stagedOutput, 'final.md'), finalText)
+
+    if (git(project, ['rev-parse', 'HEAD'], false, {}, trustedGit).stdout.trim() !== trustedHead) {
+      throw new Error('the model changed Git history; refusing host-side Git inspection')
+    }
+    const inspectionEnvironment = { GIT_INDEX_FILE: join(temporaryParent, 'inspection.index') }
+    git(project, ['read-tree', trustedHead], false, inspectionEnvironment, trustedGit)
+    git(project, ['add', '-A'], false, inspectionEnvironment, trustedGit)
+    const paths = changedPaths(project, trustedHead, inspectionEnvironment, trustedGit)
+    if (paths.length > MODEL_EVIDENCE_LIMITS.workspaceEntries) {
+      throw new Error(`the model produced more than ${MODEL_EVIDENCE_LIMITS.workspaceEntries} changed paths`)
+    }
+    writeFileSync(join(stagedOutput, 'changed-paths.json'), `${JSON.stringify(paths, null, 2)}\n`)
+    writeFileSync(join(stagedOutput, 'changed-paths.txt'), paths.length ? `${paths.join('\n')}\n` : '')
+    writeFileSync(
+      join(stagedOutput, 'patch.diff'),
+      git(
+        project,
+        ['diff', '--no-ext-diff', '--cached', '--binary', trustedHead],
+        false,
+        inspectionEnvironment,
+        trustedGit,
+      ).stdout,
+    )
+    if (paths.some((path) => path.startsWith('.agents/skills/'))) {
+      throw new Error('the model changed an installed skill tree')
+    }
+    retainArtifacts(project, stagedOutput, paths, scenario.outputs ?? [])
+
+    const installedAfter = skillTreeHashes(project, installedSkills)
+    if (installedBefore.join('\n') !== installedAfter.join('\n')) {
+      throw new Error('the installed skill tree changed during the run')
+    }
+    writeFileSync(
+      join(stagedOutput, 'status.txt'),
+      `status: pending\nrun_exit_code: ${result.status ?? 'unknown'}\nassertions: pending\n`,
+    )
+
+    const lastLine = result.stdout.trim().split('\n').filter(Boolean).at(-1)
+    const completion = lastLine ? JSON.parse(lastLine) : undefined
+    const usage = completion?.type === 'turn.completed' ? completion.usage : undefined
+    if (usage) {
+      writeFileSync(
+        join(stagedOutput, 'usage.txt'),
+        `input_tokens: ${usage.input_tokens ?? 'unknown'}\noutput_tokens: ${usage.output_tokens ?? 'unknown'}\n`,
+      )
+    }
+
+    removeModelTree(temporaryParent)
+    temporaryParent = undefined
+
     if (existsSync(output)) {
       if (!options.replace) throw new Error(`output already exists: ${output}`)
       renameSync(output, backupOutput)
@@ -908,6 +1122,7 @@ try {
   }
 } finally {
   if (authProxy) await authProxy.stop()
+  if (sandboxControl) await sandboxControl.close()
   if (stagedOutput && existsSync(stagedOutput)) rmSync(stagedOutput, { recursive: true, force: true })
   if (temporaryParent && existsSync(temporaryParent)) {
     try {

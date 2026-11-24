@@ -1,8 +1,8 @@
 # PR #121 pre-push evidence
 
-This directory is the current evidence for the two pre-push scenarios against the final-stack skill
-tree. It supersedes the historical PR #119 review-integration runs, whose traces read the
-model-visible `evals/evals.json` and are therefore answer-contaminated.
+This directory preserves reviewer-certified historical evidence for the two pre-push scenarios
+against the recorded final-stack skill tree. It supersedes the historical PR #119 review-integration
+runs, whose traces read the model-visible `evals/evals.json` and are therefore answer-contaminated.
 
 ## Method
 
@@ -26,7 +26,7 @@ viewport. Its SHA-256 is
 
 ## Provenance
 
-The retained scenario definitions match the current corpus at:
+The retained scenario definitions record these hashes:
 
 - `select-integrated-evidence`: `fb2f0d971e37dd7f4d528a7f2d083bde09135924abe358b0eef39b3d45765cee`
 - `select-minimum-without-siblings`: `03380dd481fa520a3fb4e2f59010a04cf39f702f0bef7cde96be1fe90e970f4c`
@@ -41,4 +41,4 @@ The integrated trace reads the target and both declared siblings. The runner’s
 instruction names the target in the no-sibling run, whose trace reads
 `dsh-spec-pre-push-checks/SKILL.md`. No required skill read is missing.
 
-Scenario assertions live in `tests/skill-evals/dsh-spec-pre-push-checks/evals/evals.json`.
+The assertions for these runs live in each retained `scenario-definition.json`.

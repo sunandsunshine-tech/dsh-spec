@@ -1,8 +1,8 @@
 # PR #121 code-review evidence
 
-This directory is the current evidence for the two code-review scenarios against the
-PR #121 skill tree. It supersedes the historical PR #119 review-integration runs, whose traces
-read the model-visible `evals/evals.json` and are therefore answer-contaminated.
+This directory preserves reviewer-certified historical evidence for the two code-review scenarios
+against the recorded PR #121 skill tree. It supersedes the historical PR #119 review-integration
+runs, whose traces read the model-visible `evals/evals.json` and are therefore answer-contaminated.
 
 ## Method
 
@@ -26,7 +26,7 @@ viewport. Its SHA-256 is
 
 ## Provenance
 
-The retained scenario definitions match the current corpus at:
+The retained scenario definitions record these hashes:
 
 - `review-with-integrated-guidance`: `c4545d1406288c1d1869ff6874097b4e45a9e7ce801cd8f3cf5ff8fcb659296d`
 - `review-without-siblings`: `aaf7b55d6507c9c02eab373b76d395b992e90c0f831fcd1707b1a050297e391d`
@@ -40,4 +40,4 @@ the source worktree, the response directory, or the isolated Codex home.
 The integrated trace reads the target and both declared siblings. The no-sibling trace reads the
 target. No required skill read is missing.
 
-Scenario assertions live in `tests/skill-evals/dsh-spec-code-review/evals/evals.json`.
+The assertions for these runs live in each retained `scenario-definition.json`.

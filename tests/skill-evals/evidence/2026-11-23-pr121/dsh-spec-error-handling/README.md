@@ -5,9 +5,10 @@ Model: host-configured Codex model; Codex CLI 0.171.0-alpha.13.
 
 ## Method
 
-The run used `tests/skill-evals/run-model-eval.mjs` with `--replace`. The runner installed the current
-`dsh-spec-error-handling` tree and the scenario's declared input in a fresh temporary Git project,
-then exposed that project through an isolated Linux namespace with an editable project volume.
+The run used `tests/skill-evals/run-model-eval.mjs` with `--replace`. The runner installed the
+recorded `dsh-spec-error-handling` tree and the scenario's declared input in a fresh temporary Git
+project, then exposed that project through an isolated Linux namespace with an editable project
+volume.
 
 The retained evidence records the canonical scenario definition, complete run-time skill tree,
 declared input, normalized trace, final response, changed path, patch and artifact.
@@ -29,14 +30,15 @@ reports its original code and cause rather than rejecting the extension.
 ## Integrity
 
 The scenario-definition hash is
-`1b50c21040d751a42f983d8e3d2a1e94b5a6cbc6927de85a89327ed16959297b`. It matches the current
-definition and retained `scenario-definition.json`. The sorted complete-skill manifest matches the
-run-time three-file skill tree; the aggregate SHA-256 over those sorted manifest lines is
+`1b50c21040d751a42f983d8e3d2a1e94b5a6cbc6927de85a89327ed16959297b`. It matches the retained
+`scenario-definition.json`. The sorted complete-skill manifest matches the run-time three-file skill
+tree; the aggregate SHA-256 over those sorted manifest lines is
 `26401e991eb506f768930f6652f0991aae252f73ea78752609edbee48a6304b7` (newline-joined, without a
 trailing newline).
 
-The trace contains one completed turn. Its 11 completed command records do not read the answer manifest, source eval
-tree or `expected_output` metadata. The retained `final.md` is byte-for-byte equal to the last agent
-message in the trace, and the declared input hash matches the current scenario fixture.
+The trace contains one completed turn. Its 11 completed command records do not read the answer
+manifest, source eval tree or `expected_output` metadata. The retained `final.md` is byte-for-byte
+equal to the last agent message in the trace, and the declared input hash matches the recorded
+scenario fixture.
 
-Scenario assertions live in `tests/skill-evals/dsh-spec-error-handling/evals/evals.json`.
+The assertions for this run live in its retained `scenario-definition.json`.

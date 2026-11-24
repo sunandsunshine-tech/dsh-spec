@@ -31,6 +31,13 @@ import { test } from 'node:test'
 import { createCaptureFixture, waitForProcessGone } from './helpers/capture-browser-fixture.ts'
 import { REPO_ROOT } from './helpers/fixtures.ts'
 
+const safety = (await import('./skill-evals/runner-safety.mjs' as string)) as {
+  isolatedGitEnvironment(
+    extra?: Record<string, string | undefined>,
+    inherited?: NodeJS.ProcessEnv,
+  ): Record<string, string>
+}
+
 interface Scenario {
   id: string
   prompt: string
@@ -778,30 +785,41 @@ function triggerSurfacePath(skillName: string): string {
   return `skills/${skillName}/SKILL.md#name-description`
 }
 
+function runEvidenceGitText(args: string[], inherited?: NodeJS.ProcessEnv) {
+  return spawnSync('git', args, {
+    cwd: REPO_ROOT,
+    encoding: 'utf8',
+    env: safety.isolatedGitEnvironment({}, inherited),
+    maxBuffer: 4 * 1024 * 1024,
+  })
+}
+
+function runEvidenceGitBuffer(args: string[], maxBuffer: number, inherited?: NodeJS.ProcessEnv) {
+  return spawnSync('git', args, {
+    cwd: REPO_ROOT,
+    encoding: 'buffer',
+    env: safety.isolatedGitEnvironment({}, inherited),
+    maxBuffer,
+  })
+}
+
 function recordedGitObject(readme: string, label: string, name: string, kind: 'blob' | 'commit' | 'tree'): string {
   const object = new RegExp('^' + name + ': `([0-9a-f]{40})`\\.$', 'm').exec(readme)?.[1]
   assert.ok(object, `${label} does not record ${name}`)
-  const result = spawnSync('git', ['cat-file', '-t', object], { cwd: REPO_ROOT, encoding: 'utf8' })
+  const result = runEvidenceGitText(['cat-file', '-t', object])
   assert.equal(result.status, 0, `${label} names a missing ${name}: ${result.stderr}`)
   assert.equal(result.stdout.trim(), kind, `${label} names the wrong object type for ${name}`)
   return object
 }
 
 function readGitObject(spec: string, label: string): string {
-  const result = spawnSync('git', ['show', spec], {
-    cwd: REPO_ROOT,
-    encoding: 'utf8',
-    maxBuffer: 4 * 1024 * 1024,
-  })
+  const result = runEvidenceGitText(['show', spec])
   assert.equal(result.status, 0, `${label} cannot read ${spec}: ${result.stderr}`)
   return result.stdout
 }
 
 function readGitObjectBuffer(spec: string, label: string): Buffer {
-  const result = spawnSync('git', ['show', spec], {
-    cwd: REPO_ROOT,
-    maxBuffer: 16 * 1024 * 1024,
-  })
+  const result = runEvidenceGitBuffer(['show', spec], 16 * 1024 * 1024)
   assert.equal(result.status, 0, `${label} cannot read ${spec}: ${result.stderr?.toString()}`)
   return result.stdout
 }
@@ -978,6 +996,30 @@ function assertHistoricalSkillRevision(
     assert.equal(actual.get(path), hash, root + ' differs from its recorded historical skill revision: ' + path)
   }
 }
+
+test('historical evidence Git helpers ignore inherited redirection variables', () => {
+  const root = mkdtempSync(join(tmpdir(), 'evidence-git-environment-'))
+  try {
+    const redirectedRepository = join(root, 'redirected.git')
+    const redirectedWorktree = join(root, 'redirected-worktree')
+    mkdirSync(redirectedRepository)
+    mkdirSync(redirectedWorktree)
+    const result = runEvidenceGitText(['rev-parse', '--show-toplevel'], {
+      ...process.env,
+      GIT_DIR: redirectedRepository,
+      GIT_WORK_TREE: redirectedWorktree,
+      GIT_OBJECT_DIRECTORY: join(redirectedRepository, 'objects'),
+      GIT_INDEX_FILE: join(redirectedRepository, 'index'),
+      GIT_CONFIG_COUNT: '1',
+      GIT_CONFIG_KEY_0: 'core.bare',
+      GIT_CONFIG_VALUE_0: 'true',
+    })
+    assert.equal(result.status, 0, result.stderr.toString())
+    assert.equal(realpathSync(result.stdout.trim()), realpathSync(REPO_ROOT))
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
 
 test('trigger evidence changes only with the name or description', () => {
   const body = {
@@ -2082,7 +2124,7 @@ test('historical review integration evidence points to its answer-blind replacem
   )
   const candidateTree = recordedGitObject(evidenceReadme, 'review integration evidence', 'Candidate tree', 'tree')
   assert.equal(
-    spawnSync('git', ['rev-parse', `${candidateRevision}^{tree}`], { cwd: REPO_ROOT, encoding: 'utf8' }).stdout.trim(),
+    runEvidenceGitText(['rev-parse', `${candidateRevision}^{tree}`]).stdout.trim(),
     candidateTree,
     'review integration candidate tree differs from its commit',
   )
@@ -2188,10 +2230,7 @@ test('historical review integration evidence points to its answer-blind replacem
       [...skillHashes.keys()].sort(),
       skills
         .flatMap((name) => {
-          const listed = spawnSync('git', ['ls-tree', '-r', '--name-only', `${candidateTree}:skills/${name}`], {
-            cwd: REPO_ROOT,
-            encoding: 'utf8',
-          })
+          const listed = runEvidenceGitText(['ls-tree', '-r', '--name-only', `${candidateTree}:skills/${name}`])
           assert.equal(listed.status, 0, listed.stderr)
           return listed.stdout
             .trim()
@@ -2518,7 +2557,7 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
   }
 })
 
-test('PR121 targeted model evidence binds current inputs and its frozen skill revision', () => {
+test('PR121 historical evidence retains its reviewer-certified recorded revisions', () => {
   const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-23-pr121')
   const skillsTree = readSkillTreeManifest(join(evidenceRoot, 'skills-tree.sha256'))
   const historicalInputs = readHashManifest(join(evidenceRoot, 'evaluation-files.sha256'), 'PR121 evaluation files')
@@ -2585,9 +2624,8 @@ test('PR121 targeted model evidence binds current inputs and its frozen skill re
     const root = join(evidenceRoot, item.skill, item.run)
     const scenarioId = scenarioIds[`${item.skill}:${item.run}`]
     assert.ok(scenarioId, item.skill + '/' + item.run + ' has no behavior id')
-    const currentScenario = readCorpus(item.skill).evals.find((entry) => entry.id === scenarioId)
-    assert.ok(currentScenario, item.skill + '/' + item.run + ' names no current scenario')
     const scenario = JSON.parse(readFileSync(join(root, 'scenario-definition.json'), 'utf8')) as Scenario
+    assert.equal(scenario.id, scenarioId, item.skill + '/' + item.run + ' records the wrong behavior id')
     assertAnswerBlindTrace(root)
     assert.equal(
       readFileSync(join(root, 'scenario-definition.sha256'), 'utf8').trim(),

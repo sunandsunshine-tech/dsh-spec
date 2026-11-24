@@ -8,11 +8,13 @@ adopter.
 Use `node tests/skill-evals/run-model-eval.mjs --skill <skill> --scenario <id> --output <dir>` for
 a recorded model run. The runner installs the complete target skill and every sibling a scenario
 lists under `install`, copies only the declared fixture files, and mounts an otherwise empty
-response directory into an isolated Linux namespace. The source repository, answer manifest,
-expected output and other evidence are absent from that namespace. The outer mount policy enforces
-read-only or editable-project behavior; Codex runs without a second sandbox because the mount is
-already the boundary. The host needs `bubblewrap` (`bwrap`); `flock` supplies crash-released output
-locking.
+response directory into an isolated Linux namespace. The writable project, Codex home, response,
+home and temporary directories are separate `tmpfs` mounts with explicit `--size` limits. A private
+wrapper copies the read-only workspace and Codex-home seeds into those mounts before starting Codex.
+The source repository, answer manifest, expected output and other evidence are absent from that
+namespace. The outer mount policy enforces read-only or editable-project behavior; Codex runs
+without a second sandbox because the mount is already the boundary. The host needs `bubblewrap`
+(`bwrap`) with `--size` support; `flock` supplies crash-released output locking.
 
 The runner isolates the project and answer tree, not the network. Model calls need provider
 connectivity, so a host-side loopback proxy holds any inline provider bearer token and injects it
@@ -22,9 +24,11 @@ Responses or Chat Completions endpoint, preserves the upstream base path and que
 every other path, method, media type, and authorization value. A configured model catalog is
 validated against the supported schema, rewritten from the parsed representation, read without
 following links, and copied to a fixed non-reserved filename; unknown fields fail closed. Provider
-URLs containing userinfo or credential-like query parameters are refused. Run only
-repository-controlled scenarios and trusted fixtures; network egress remains available. Traces
-that name the provider home or response mount fail closed.
+URLs containing userinfo or credential-like query parameters are refused. Every URL candidate in
+catalog text is checked for a valid HTTP(S) form, userinfo, and credential-like query parameters;
+malformed and unsupported forms fail closed. Run only repository-controlled scenarios and trusted
+fixtures; network egress remains available. Traces that name the provider home or response mount
+fail closed.
 The compatibility claim is therefore source/answer-tree isolation with non-exposed provider
 credentials and reviewer-certified assertions, not a general network sandbox.
 
@@ -41,22 +45,34 @@ scenario may set `allow_subagents: true` to permit isolated subagents; otherwise
 forbids them.
 
 The runner writes a normalized trace and the final response, exact input and behavior-bearing
-installed-skill hashes and modes, the canonical scenario hash, NUL-safe changed paths, patch and changed-file
-snapshots. The installed skill tree is mounted read-only over the writable project, Codex browser
-and computer-use features are disabled, and subagents are disabled unless the scenario authorizes
-them. The runner clears inherited host environment variables before the model process and inspects
-the fixture through a trusted Git copy made before the model starts; model-controlled hooks,
-configuration redirects and replacement indexes cannot change that inspection. A scenario may
-list ignored build or evidence paths under `outputs`; the runner retains those files too, so a
-successful run cannot satisfy the report while losing its actual artifact. It leaves `status.txt`
-pending until a reviewer grades the retained output. Assertion files are reviewer-certified
-evidence, bound to a retained final response and artifact set; they are not independent automatic
-grading. `final.md` must equal the last agent message in the trace. The trace is reviewer context,
-not an adversarial execution attestation: the model process can write to its own runtime output.
-Artifacts, filesystem state and retained hashes are the authoritative checks. Skill-file hashing
-rejects links and other non-regular entries instead of following them into the host. Host home, temporary,
-Windows-user and build toolchain roots are normalized to neutral placeholders in text evidence.
-Normalization changes recorded path spellings, not execution, grader decisions or artifact hashes.
+installed-skill hashes and modes, the canonical scenario hash, NUL-safe changed paths, patch and
+changed-file snapshots. The private wrapper reports model exit through a one-connection control
+socket, kills remaining sandbox processes, and keeps the namespace alive while the host copies the
+bounded workspace and response trees through `/proc/<pid>/root`. No host result directory is mounted
+into the model namespace. The installed skill tree and trusted Git directory are read-only
+overlays, Codex browser and computer-use features are disabled, and subagents are disabled unless
+the scenario authorizes them. The runner clears inherited host environment variables before the
+model process and inspects the fixture through a trusted Git copy made before the model starts;
+model-controlled hooks, configuration redirects and replacement indexes cannot change that
+inspection. A scenario may list ignored build or evidence paths under `outputs`; the runner retains
+those files too, so a successful run cannot satisfy the report while losing its actual artifact. It
+leaves `status.txt` pending until a reviewer grades the retained output. Assertion files are
+reviewer-certified evidence, bound to a retained final response and artifact set; they are not
+independent automatic grading. `final.md` must equal the last agent message in the trace. The trace
+is reviewer context, not an adversarial execution attestation: the model process can write to its
+own runtime output. Artifacts, filesystem state and retained hashes are the authoritative checks.
+Skill-file hashing rejects links and other non-regular entries instead of following them into the
+host. Host home, temporary, Windows-user and build toolchain roots are normalized to neutral
+placeholders in text evidence. Normalization changes recorded path spellings, not execution, grader
+decisions or artifact hashes.
+
+Model output limits are part of the runner contract: the final response is at most 2 MiB; each
+retained artifact is at most 16 MiB, with at most 256 files and 64 MiB in total. The workspace and
+`/tmp` mounts are each at most 512 MiB, the Codex home is at most 64 MiB, the response mount is at
+most 8 MiB, and `/home` is at most 128 MiB. The runner rejects logical file sizes before reading or
+copying, streams hashes in fixed-size chunks, and does not process final responses or artifacts
+after a non-zero model exit. `tmpfs --size` limits allocated blocks; the logical-size checks also
+reject sparse files that allocate no blocks.
 
 The runner records the scenario, declared inputs, installed behavior-bearing skill files, final
 message and artifacts. It does not identify the model provider or capture every moving toolchain

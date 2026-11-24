@@ -4,7 +4,7 @@ PR121 skill file SHA-256: `5ec35a6f798b9916460c6dc6ad424765bee4fbde1dedc5966108b
 Run date: 2026-11-23.
 Model: host-configured Codex model; Codex CLI 0.171.0-alpha.13.
 
-Result: 16/16 current scenario assertions passed.
+Result: 16/16 recorded scenario assertions passed at run time.
 
 ## Method
 
@@ -32,14 +32,14 @@ scenario in the corpus:
 | `target-removal` | Active Japanese targets are removed with the bundled pair tooling while the archived fixture stays unchanged. | 4/4 | 37.26 s |
 
 All retained `status.txt` files report `status: pass`, exit code 0 and 4/4 assertions. Their
-`assertions.txt` files match the current assertion text and order. Each run retains the complete
+`assertions.txt` files match the recorded assertion text and order. Each run retains the complete
 skill tree it read, and all four manifests match the frozen PR121 skills tree. Every retained
-scenario-definition and declared-input hash matches the current corpus. Each normalized trace has
+scenario-definition and declared-input hash matches its recorded input. Each normalized trace has
 one start and one completed turn, ends in `turn.completed`, contains a successful read of the
 installed target skill, and does not access answer-bearing evidence. Each `final.md` equals the
 final trace message.
 
-The retained scenario definitions match the current corpus at:
+The retained scenario definitions record these hashes:
 
 - `local-update`: `0b9460183e0c16088b180096ecbf296eef324cb86d2513d909fe81f689c0914c`
 - `whole-document-handoff`: `5fbd0cabca84d88c7a281de62ccaf239b6abd3a476c408406278937a9e19aa49`
@@ -66,6 +66,6 @@ bundled `write --all --select 'docs/active/**'` refreshed `first.i18n.yaml` and 
 `check --select 'docs/active/**'` then exited 0 with `translate-pair: 1 pair(s) consistent.` No
 zero-target record remains, and all files under `docs/archived/` retain their initial hashes.
 
-The remaining deterministic corpus scenarios continue to be checked by
-`tests/skill-scenarios.test.ts` and `tests/translation-docs.test.ts`; this directory is targeted
-model evidence for the changed completion paths.
+The remaining deterministic corpus scenarios are checked by `tests/skill-scenarios.test.ts` and
+`tests/translation-docs.test.ts`; this directory preserves targeted model evidence for the
+completion paths recorded in these runs.
