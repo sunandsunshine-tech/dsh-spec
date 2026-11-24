@@ -731,11 +731,7 @@ async function capture(options) {
 }
 
 function findChrome() {
-  const chromeCandidates = [
-    process.env.CHROME_PATH,
-    '/usr/bin/google-chrome',
-    '/usr/bin/chromium',
-  ].filter(Boolean)
+  const chromeCandidates = [process.env.CHROME_PATH, '/usr/bin/google-chrome', '/usr/bin/chromium'].filter(Boolean)
   const chrome = chromeCandidates.find((candidate) => existsSync(candidate))
   if (!chrome) throw new CaptureError('CHROME_UNAVAILABLE', 'set CHROME_PATH to a Chrome or Edge executable')
   return chrome

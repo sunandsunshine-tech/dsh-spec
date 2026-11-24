@@ -837,33 +837,6 @@ function readRecordedSkillTree(readme: string, label: string): { body: string; t
   return { body: readGitObject(`${tree}:SKILL.md`, `${label} candidate tree`), tree }
 }
 
-function assertRecordedSkillRevision(
-  readme: string,
-  label: string,
-  traceText: string,
-): { body: string; hash: string; tree: string } {
-  const { body, tree } = readRecordedSkillTree(readme, label)
-  const recorded = /^Skill file SHA-256: `([0-9a-f]{64})`\.$/m.exec(readme)?.[1]
-  assert.ok(recorded, `${label} does not record its skill revision`)
-  const actual = createHash('sha256').update(body).digest('hex')
-  assert.equal(recorded, actual, `${label} records a hash that differs from its candidate tree`)
-  const hashes = traceText
-    .trim()
-    .split('\n')
-    .flatMap((line) => {
-      if (/^[0-9a-f]{64}$/.test(line)) return [line]
-      try {
-        const entry = JSON.parse(line) as { type?: string; sha256?: string }
-        return entry.type === 'skill' && entry.sha256 ? [entry.sha256] : []
-      } catch {
-        return []
-      }
-    })
-  assert.ok(hashes.length > 0, `${label} has no recorded skill event`)
-  assert.deepEqual(new Set(hashes), new Set([recorded]), `${label} disagrees with its recorded skill revision`)
-  return { body, hash: actual, tree }
-}
-
 function listFiles(root: string, prefix = ''): string[] {
   const files: string[] = []
   for (const entry of readdirSync(join(root, prefix), { withFileTypes: true })) {
