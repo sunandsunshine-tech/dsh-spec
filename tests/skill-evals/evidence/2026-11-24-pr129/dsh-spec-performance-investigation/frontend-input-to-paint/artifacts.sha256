@@ -1,0 +1,8 @@
+8014bb55aecf45865729953980ba8649e3e7e54e07ebf818b2c459c48a986bf8  artifact/evals/files/frontend-input-to-paint/README.md
+b18ecd1a625965f8ba289201f1f07d546f537d2fb01e3a70285c990269ebf413  artifact/evals/files/frontend-input-to-paint/measure.mjs
+bf6c2dc6d03385b7daf5f9ac83565c339c1666338afd5314a5791352315ba2a8  artifact/evals/files/frontend-input-to-paint/src/app.js
+dad9b6ab45871988b57c4fcd8154e47c8af15c12af9913a6ca998c3c0256be8f  artifact/evals/files/frontend-input-to-paint/src/filter.mjs
+ffcc5b68e9f175a7670aa0769b61d7fa363a8235c4f275715cd47c208b132834  artifact/evals/files/frontend-input-to-paint/tests/input-behavior.test.mjs
+dad9b6ab45871988b57c4fcd8154e47c8af15c12af9913a6ca998c3c0256be8f  artifact/evals/files/frontend-input-to-paint/dist/filter.mjs
+8148c905779d4fe505a0fe51efd1c67318f4c6001ac3bdd2d4fedc4bba0ee5a5  artifact/evals/files/frontend-input-to-paint/dist/index.html
+bf6c2dc6d03385b7daf5f9ac83565c339c1666338afd5314a5791352315ba2a8  artifact/evals/files/frontend-input-to-paint/dist/app.js

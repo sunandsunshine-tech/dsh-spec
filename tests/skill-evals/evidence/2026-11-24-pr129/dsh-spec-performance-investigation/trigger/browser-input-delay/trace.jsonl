@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a20d7c-5a53-7b22-a3fa-b3e827c153f8"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The performance investigation skill clearly applies because the request is to measure a production user-path latency signal and identify its cause.\n\nSELECT: dsh-spec-performance-investigation"}}
+{"type":"turn.completed","usage":{"input_tokens":17354,"cached_input_tokens":12928,"cache_write_input_tokens":0,"output_tokens":159,"reasoning_output_tokens":125}}

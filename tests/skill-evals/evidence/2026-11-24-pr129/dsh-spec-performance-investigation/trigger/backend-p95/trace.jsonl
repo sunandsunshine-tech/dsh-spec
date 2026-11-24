@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a20d7c-4a4b-7b81-916e-06ca7f2906cb"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The request is a production latency investigation with a measurable p95 target and an explicit requirement to preserve behavior, which clearly matches the performance-investigation skill.\n\nSELECT: dsh-spec-performance-investigation"}}
+{"type":"turn.completed","usage":{"input_tokens":17366,"cached_input_tokens":12928,"cache_write_input_tokens":0,"output_tokens":295,"reasoning_output_tokens":253}}

@@ -1,0 +1,9 @@
+{
+  "name": "performance-end-to-end-boundary",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "diagnose": "node diagnose.mjs",
+    "test": "node --test tests/path.test.mjs"
+  }
+}

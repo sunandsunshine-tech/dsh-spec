@@ -1,0 +1,10 @@
+{
+  "name": "performance-frontend-input-to-paint",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "measure": "node build.mjs && node measure.mjs",
+    "test": "node --test tests/input-behavior.test.mjs"
+  }
+}

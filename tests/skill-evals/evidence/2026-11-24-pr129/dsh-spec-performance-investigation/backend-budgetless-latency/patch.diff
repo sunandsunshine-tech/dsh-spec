@@ -1,0 +1,21 @@
+diff --git a/evals/files/backend-budgetless/src/report.mjs b/evals/files/backend-budgetless/src/report.mjs
+index d51bdb7..59debf0 100644
+--- a/evals/files/backend-budgetless/src/report.mjs
++++ b/evals/files/backend-budgetless/src/report.mjs
+@@ -11,13 +11,13 @@ export function createInventory(count = 5_000) {
+ }
+ 
+ export function buildReport(items) {
+-  const seen = []
++  const seen = new Set()
+   const report = []
+ 
+   for (const item of items) {
+     const key = `${item.productId}:${item.region}`
+-    if (seen.includes(key)) continue
+-    seen.push(key)
++    if (seen.has(key)) continue
++    seen.add(key)
+ 
+     const regionalItems = items.filter((candidate) => candidate.region === item.region)
+     const regionalUnits = regionalItems.reduce((sum, candidate) => sum + candidate.units, 0)

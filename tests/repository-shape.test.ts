@@ -300,7 +300,7 @@ test('adopter documentation has one complete, bilingual skill-selection map', ()
     .filter((entry) => entry.isDirectory() && !entry.name.startsWith('.'))
     .map((entry) => entry.name)
     .sort()
-  assert.equal(skills.length, 15, 'the landed skill corpus contains 15 skills')
+  assert.equal(skills.length, 16, 'the landed skill corpus contains 16 skills')
   const known = new Set(skills)
   const documents = new Map(RELATED_DOCS.map((path) => [path, parseMarkdown(path)]))
 

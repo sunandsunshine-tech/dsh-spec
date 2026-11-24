@@ -1,0 +1,10 @@
+6840a9fa0b4fd0d76d6eddbe8accf729fde11231f6812573453eadcad851b42e  evals/files/frontend-input-to-paint/README.md  mode=0644
+ed19d3c9c8a5e34d0179e0b1a9c2907d2e657738733e4a432a8cf81c76ce56f1  evals/files/frontend-input-to-paint/.gitignore  mode=0644
+ba0aeb018ba9013eeacf787173bf44dd2278b60e70703859179e182d7cedb332  evals/files/frontend-input-to-paint/package.json  mode=0644
+ed32f07eda6470f369ed389624c36001bcc5e3f11549e55bb361f0e149a7306b  evals/files/frontend-input-to-paint/build.mjs  mode=0644
+d2c3adb1ea18768f9c32e5be652ccdfc4d6e0a6b80da398954ee76427c504003  evals/files/frontend-input-to-paint/server.mjs  mode=0644
+1acc89aedcd9adf878b939c1ab8e163418f776177c07962be79795e253fdb860  evals/files/frontend-input-to-paint/measure.mjs  mode=0644
+8148c905779d4fe505a0fe51efd1c67318f4c6001ac3bdd2d4fedc4bba0ee5a5  evals/files/frontend-input-to-paint/src/index.html  mode=0644
+27ff25c12d786c409543f7fd0c2da5932f69b2a439879a687363b53569756fdf  evals/files/frontend-input-to-paint/src/app.js  mode=0644
+effe2b6918cf04e5fe258daa7220925508e2f6faa490c64273d2d58ef1f76e99  evals/files/frontend-input-to-paint/src/filter.mjs  mode=0644
+8a27121f6ef11cbc3d5bbae5d75c4160a6bfca7fb108d534851e566c436f161f  evals/files/frontend-input-to-paint/tests/input-behavior.test.mjs  mode=0644

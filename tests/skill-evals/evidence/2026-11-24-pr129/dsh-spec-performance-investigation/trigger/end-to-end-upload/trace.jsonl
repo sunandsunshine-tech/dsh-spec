@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a20d7c-723e-7870-9466-6ea0df21cf52"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The request is to break down an end-to-end upload’s ten-second latency across local and external phases, which clearly matches performance investigation and phase attribution.\n\nSELECT: dsh-spec-performance-investigation"}}
+{"type":"turn.completed","usage":{"input_tokens":17362,"cached_input_tokens":12928,"cache_write_input_tokens":0,"output_tokens":116,"reasoning_output_tokens":74}}

@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a20d7c-b631-75d3-aaf0-2d621be6c8ac"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The request concerns unit-test coverage rather than measuring or improving production latency, throughput, CPU, memory, or responsiveness. The performance-investigation skill explicitly excludes coverage work, so no installed skill clearly applies.\n\nSELECT: none"}}
+{"type":"turn.completed","usage":{"input_tokens":17350,"cached_input_tokens":12928,"cache_write_input_tokens":0,"output_tokens":149,"reasoning_output_tokens":104}}

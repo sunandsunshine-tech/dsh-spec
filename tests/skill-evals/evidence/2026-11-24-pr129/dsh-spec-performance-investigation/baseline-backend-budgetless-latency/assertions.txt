@@ -1,0 +1,5 @@
+PASS The baseline measures the production HTTP endpoint rather than a copied benchmark algorithm.
+PASS The response identifies repeated all-item scanning as the dominant cost.
+PASS The candidate preserves duplicate removal, report fields and ordering.
+PASS The response reports raw before/after samples, an aggregate and the ratio.
+PASS The edited project's focused test passes.
