@@ -56,7 +56,7 @@ Status: implemented
 
 本仓库旧的 `scripts/dsh-spec-manager/` 翻译引擎**不是**来源。实现只读取上游，且技能文本、脚本或测试都不点名它。
 
-当前 alpha.2 pin 于 2026-11-23 完成检查。其中的 `docs/i18n/README.md` 把按 locale 选择的 bundle 详情页排除在项目的配对语料之外，即使这些页面没有文内切换器或一致性记录。目标以采用者声明的 `--unpaired <glob>` 承载该目的：匹配的本地化页面不参与发现、既有目标推断与链接规范化，项目自己的链接、行文与评审检查仍保持两侧同步。
+当前 alpha.2 pin 于 2026-11-23 完成检查。其中的 `docs/i18n/README.md` 把按 locale 选择的 bundle 详情页排除在项目的配对语料之外，即使这些页面没有文内切换器或一致性记录。目标以采用者声明的 `--unpaired <glob>` 承载该目的：匹配的本地化页面不参与发现与既有目标推断；指向不同本地化版本的链接仍归一化为同一语义目标，其 locale 差异不算违规；项目自己的链接、行文与评审检查仍保持两侧同步。
 
 PR122 的 `locale-selected-pages-are-unpaired` 模型运行通过 4/4 项断言：维护中的指南配对仍被检查，两个详情路径通过 `--unpaired` 排除，且不会为它们创建配对产物。
 
@@ -267,7 +267,7 @@ PR122 的 `locale-selected-pages-are-unpaired` 模型运行通过 4/4 项断言�
 | V38 | 文风默认值的丰富度 | 机械 | style-examples.md 携带上游品质的校准点（误报／漏检、bilingual from birth、grandfathered、cookbook）以及防御／测试／长段落样例组；translation-rules 仍是唯一的优先级归属；出处只在通知中 |
 | V39 | 整篇文档、能力与目标迁移场景及可运行输入，从开发侧存储暂存 | 机械 | `tests/skill-evals/dsh-spec-translate-docs/evals/evals.json` 携带十一个场景，覆盖局部完成、明确交接、隔离上下文、单路径授权、显式多目标、歧义目标、渐进新增、active 删除、locale 选择页面、范围不回填与源重命名；`tests/skill-scenarios.test.ts` 验证暂存、包含关系、具体语义以及交付树中没有 `evals/`。 |
 | V40 | 场景矩阵中的真实模型行为 | 判断 + 机械 | 六个场景已有录制模型证据：PR121 覆盖局部完成、显式多目标、整篇交接与目标删除；PR122 覆盖源重命名与 locale 选择页面。其余五个场景在行为变化时运行，目前没有当前模型结果。[能力记录](2026-11-17-delegation-is-a-capability-choice-not-a-skill-dependency.zh.md) 继续拥有能力边界。 |
-| V41 | Locale 选择排除在发现、目标推断与链接规范化中使用同一份声明 | 机械 + 判断 | `--unpaired` 贯穿语料发现、`existingTargets` 与 `linkContext`；`locale-selected-pages-are-unpaired` 运行记录命令，维护中的指南配对仍保持一致。单元覆盖拒绝不完整发现，并保留项目自己的普通链接检查。 |
+| V41 | Locale 选择路径留在发现之外，但指向它们的链接保持同一语义目标 | 机械 + 判断 | `--unpaired` 贯穿语料发现、`existingTargets` 与 `linkContext`；`locale-selected-pages-are-unpaired` 运行记录命令，维护中的指南配对仍保持一致。单元覆盖拒绝不完整发现、把不同本地化目标视为同一语义目标，并抑制其 locale 违规。 |
 | V42 | 必需目标完整性是显式的 | 机械 | `check --require-target` 与 `list --require-target` 为选中的源补充缺失行；省略旗标时保持既有配对行为，命名配对也不能与该政策旗标组合。 |
 
 ## 考虑过的替代方案

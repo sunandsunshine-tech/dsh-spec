@@ -1414,6 +1414,39 @@ test('pr-description eval covers stack-local AI Usage migration', () => {
   stageSkillWithEvals('dsh-spec-pr-description')
 })
 
+test('pr-description trigger corpus covers dependency-edge and near misses', () => {
+  const skill = 'dsh-spec-pr-description'
+  const skillText = readFileSync(join(REPO_ROOT, 'skills', skill, 'SKILL.md'), 'utf8')
+  assert.match(skillText, /^description: ".*dependency-edge.*"$/m)
+  const corpus = JSON.parse(readFileSync(join(EVAL_SOURCE_ROOT, skill, 'trigger-evals.json'), 'utf8')) as {
+    skill_name: string
+    agent_file: string
+    queries: Array<{ id: string; query: string; should_trigger: boolean; files?: string[] }>
+  }
+  assert.equal(corpus.skill_name, skill)
+  assertNonEmptyString(corpus.agent_file, 'pr-description trigger agent file')
+  assert.ok(corpus.agent_file.startsWith('trigger-fixtures/'))
+  assert.ok(existsSync(join(EVAL_SOURCE_ROOT, skill, corpus.agent_file)))
+  assert.deepEqual(
+    corpus.queries.map((entry) => [entry.id, entry.should_trigger]),
+    [
+      ['dependency-edge-report', true],
+      ['release-note-near-miss', false],
+      ['commit-message-near-miss', false],
+      ['ordinary-docs-near-miss', false],
+    ],
+  )
+  assert.match(corpus.queries[0]?.query ?? '', /dependency-edge/i)
+  for (const entry of corpus.queries) {
+    assertNonEmptyString(entry.id, 'pr-description trigger eval id')
+    assertNonEmptyString(entry.query, entry.id + ' trigger query')
+    for (const file of entry.files ?? []) {
+      assert.ok(file.startsWith('trigger-fixtures/'), entry.id + ' fixture escapes trigger-fixtures')
+      assert.ok(existsSync(join(EVAL_SOURCE_ROOT, skill, file)), entry.id + ' fixture is missing: ' + file)
+    }
+  }
+})
+
 test('Agent Notes audit commands load the declared companion contract', () => {
   const body = readFileSync(join(REPO_ROOT, 'skills/dsh-spec-agent-notes/SKILL.md'), 'utf8')
   assert.match(body, /before auditing/i)

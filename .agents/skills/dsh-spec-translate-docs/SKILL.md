@@ -48,7 +48,7 @@ A pair is a source `foo.md`, one counterpart per target `foo.zh.md` or `foo.<lan
 - **Deleted or renamed document**: follow § Finish the pair; a named `write --target` never drops a target, and an entry without a counterpart is an incomplete pair.
 - **Generated region**: the generator updates both sides; never edit a region by hand.
 - **Frozen or excluded document**: the standing instructions say it is not maintained; do not create, update or repair its pairs.
-- **Locale-selected detail page**: when the project selects the page by locale metadata and publishes no in-document switcher or record, declare its localized paths with `--unpaired <glob>` so discovery and link normalization leave them outside the pair contract; the project's link, prose and review checks keep both localized versions in step.
+- **Locale-selected detail page**: when the project selects the page by locale metadata and publishes no in-document switcher or record, declare its localized paths with `--unpaired <glob>`; the paths stay outside pair discovery and existing-target inference, links to different localized versions still normalize to one semantic target, and their locale differences are not violations. The project's link, prose and review checks keep both localized versions in step.
 
 Every successful update path continues with § Finish the pair.
 

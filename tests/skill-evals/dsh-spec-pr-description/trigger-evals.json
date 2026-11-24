@@ -1,0 +1,26 @@
+{
+  "skill_name": "dsh-spec-pr-description",
+  "agent_file": "trigger-fixtures/AGENTS.md",
+  "queries": [
+    {
+      "id": "dependency-edge-report",
+      "query": "Prepare a pull-request Changes section for this workspace split. Compare the base and head manifests and report every added or removed runtime dependency-edge, including any reverse edge.",
+      "should_trigger": true
+    },
+    {
+      "id": "release-note-near-miss",
+      "query": "Write the user-facing release note for the new export command. Do not prepare or update a pull-request description.",
+      "should_trigger": false
+    },
+    {
+      "id": "commit-message-near-miss",
+      "query": "Draft a commit message for the dependency manifest change. Do not write a pull-request description or test design.",
+      "should_trigger": false
+    },
+    {
+      "id": "ordinary-docs-near-miss",
+      "query": "Update the developer guide to explain how workspace packages declare runtime dependencies. This is ordinary documentation, not a change-request description.",
+      "should_trigger": false
+    }
+  ]
+}

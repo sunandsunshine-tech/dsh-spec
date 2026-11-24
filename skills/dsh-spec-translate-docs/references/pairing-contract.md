@@ -168,10 +168,12 @@ bytes, table row and column counts, list kinds, ordered-list starts and item cou
 link targets. Paragraph order, inline emphasis and prose wording are review's domain.
 
 Paired-document links normalize to one semantic target. Resolve a destination to its base source
-path; that document is a paired document when it has at least one counterpart file or any aggregate
-record entry and is not selected by `--unpaired`. `--select`/`--skip` do not affect this predicate.
-Adding or removing a pair changes normalization for links that point at it, so affected existing
-pairs must be re-recorded in the same change.
+path. A destination selected by `--unpaired` still normalizes to that base, so different localized
+versions compare as one semantic target, but its locale difference is not a violation and it stays
+outside pair discovery and existing-target inference. Every other destination enters normalization
+when its base has at least one counterpart file or any aggregate record entry. `--select`/`--skip`
+do not affect this predicate. Adding or removing a pair changes normalization for links that point
+at it, so affected existing pairs must be re-recorded in the same change.
 
 ## Generated regions
 
@@ -228,8 +230,9 @@ work by the standing instructions and `--skip`; it is not a corpus exclusion sta
 Some products publish locale-selected detail pages outside the paired-document corpus. When the
 project maps such a document by locale metadata and its pages carry no in-document switcher or
 consistency record, pass every localized path through `--unpaired <glob>`. Those paths are excluded
-from pair discovery, existing targets and link normalization. The project's link, prose and review
-checks still keep the localized versions in step.
+from pair discovery and existing-target inference, while links to their different localized
+versions still normalize to one semantic target and their locale differences are not violations.
+The project's link, prose and review checks still keep the localized versions in step.
 
 ## Project data
 

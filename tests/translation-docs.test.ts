@@ -419,7 +419,7 @@ test('select and skip filter existing pairs; empty selection and malformed globs
   }
 })
 
-test('unpaired locale pages are excluded from discovery and corpus checks', () => {
+test('unpaired locale pages stay outside discovery while localized links share one semantic target', () => {
   const fixture = makeFixture()
   try {
     pair(fixture, 'docs/foo.md', 'English', 'Guide', 'Intro.', [zh()])
@@ -435,7 +435,12 @@ test('unpaired locale pages are excluded from discovery and corpus checks', () =
     assert.match(withoutDeclaration.output, /docs\/detail\.md \[zh\].*incomplete pair/)
 
     const written = run(fixture.root, 'write', 'docs/index.md', '--target', 'zh=中文', '--unpaired', 'docs/detail*.md')
-    assert.equal(written.status, 0, written.output)
+    assert.equal(
+      written.status,
+      0,
+      'source and counterpart links to different localized unpaired pages must share one semantic target:\n' +
+        written.output,
+    )
     const stillUndeclared = run(fixture.root, 'check', 'docs/index.md', '--target', 'zh=中文')
     assert.equal(stillUndeclared.status, 1, stillUndeclared.output)
     assert.match(stillUndeclared.output, /wrong locale/)

@@ -1,7 +1,7 @@
 ---
 name: dsh-spec-pr-description
 license: "MIT; upstream and repository notices in THIRD_PARTY_NOTICES"
-description: "Use for creating or updating a change-request description in any project — pull request, merge request, patch set, or change list — or after review. Covers four content blocks, module responsibilities and dependency edges, AI Usage, test evidence and disclosures. Not for commit messages, release notes, code-review findings, or the code itself. 用于创建或更新任何项目中的变更请求描述（pull request、merge request、patch set 或 change list），或在评审之后使用。涵盖四块内容、模块职责与依赖边、AI Usage、测试证据与披露义务。不用于提交信息、发布说明、代码审查发现或代码改动本身。"
+description: "Use for creating or updating a change-request description in any project — pull request, merge request, patch set, or change list — or after review. Covers four blocks, module responsibilities and dependency-edge reporting, AI Usage, test evidence and disclosures. Not for commit messages, release notes, code-review findings, or code itself. 用于创建或更新变更请求描述（pull request、merge request、patch set 或 change list），或在评审之后使用。涵盖四块内容、模块职责与 dependency-edge（依赖边）报告、AI Usage、测试证据与披露义务。不用于提交信息、发布说明、代码审查发现或代码改动。"
 ---
 
 # Writing change-request descriptions
