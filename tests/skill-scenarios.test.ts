@@ -887,7 +887,7 @@ function scenarioDefinitionHash(scenario: Scenario): string {
   return createHash('sha256').update(canonicalJson(scenario)).digest('hex')
 }
 
-function readHashManifest(path: string): Array<{ hash: string; path: string }> {
+function readOrderedHashManifest(path: string): Array<{ hash: string; path: string }> {
   const body = readFileSync(path, 'utf8').trim()
   if (body.length === 0) return []
   return body.split('\n').map((line) => {
@@ -1938,7 +1938,7 @@ test('test reliability recorded model evidence binds scenarios, scores and input
     const scenario = scenarios.get(scenarioId)
     assert.ok(scenario, 'missing test-reliability scenario ' + scenarioId)
     assert.equal(scenario.assertions.length, expectedAssertionCount)
-    const skillManifest = readHashManifest(join(root, 'skill-hashes.txt'))
+    const skillManifest = readOrderedHashManifest(join(root, 'skill-hashes.txt'))
     assert.deepEqual(
       skillManifest.map((entry) => entry.path),
       recordedSkillFiles,
@@ -1966,7 +1966,7 @@ test('test reliability recorded model evidence binds scenarios, scores and input
     assert.match(readFileSync(join(root, 'usage.txt'), 'utf8'), /^input_tokens: \d+$/m, run)
     assert.match(readFileSync(join(root, 'usage.txt'), 'utf8'), /^output_tokens: \d+$/m, run)
 
-    const inputs = readHashManifest(join(root, 'input-manifest.sha256'))
+    const inputs = readOrderedHashManifest(join(root, 'input-manifest.sha256'))
     assert.deepEqual(
       inputs.map((entry) => entry.path),
       scenario.files,
@@ -2012,7 +2012,7 @@ test('test reliability recorded model evidence binds scenarios, scores and input
 
     const changedPaths = readFileSync(join(root, 'changed-paths.txt'), 'utf8').trim()
     const patch = readFileSync(join(root, 'patch.diff'), 'utf8').trim()
-    const artifacts = readHashManifest(join(root, 'artifacts.sha256'))
+    const artifacts = readOrderedHashManifest(join(root, 'artifacts.sha256'))
     if (!changes) {
       assert.equal(changedPaths, '', run + ' changed project files')
       assert.equal(patch, '', run + ' retained a patch')
@@ -2065,7 +2065,7 @@ test('historical test reliability evidence remains provenance only', () => {
     assert.ok(readFileSync(join(root, 'final.md'), 'utf8').trim().length > 0, run + ' final message')
     const trace = readEvidenceTrace(join(root, 'trace.jsonl'))
     assert.equal(trace.at(-1)?.type, 'turn.completed', run + ' historical trace did not complete')
-    const inputs = readHashManifest(join(root, 'input-manifest.sha256'))
+    const inputs = readOrderedHashManifest(join(root, 'input-manifest.sha256'))
     assert.ok(inputs.length > 0, run + ' historical input manifest')
     assert.equal(
       inputs.every((entry) => entry.path.startsWith('evals/files/')),
@@ -2082,7 +2082,7 @@ test('historical test reliability evidence remains provenance only', () => {
         assert.ok(readFileSync(changedPathFile, 'utf8').trim().length > 0, run + ' historical changed paths')
       }
       assert.ok(readFileSync(join(root, 'patch.diff'), 'utf8').trim().length > 0, run + ' historical patch')
-      const artifacts = readHashManifest(join(root, 'artifacts.sha256'))
+      const artifacts = readOrderedHashManifest(join(root, 'artifacts.sha256'))
       assert.ok(artifacts.length > 0, run + ' historical artifacts')
       for (const artifact of artifacts) {
         assert.equal(fileHash(join(root, artifact.path)), artifact.hash, run + ' historical artifact differs')
