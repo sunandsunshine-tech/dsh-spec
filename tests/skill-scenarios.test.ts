@@ -14,6 +14,7 @@ import { createHash } from 'node:crypto'
 import {
   cpSync,
   existsSync,
+  lstatSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -744,6 +745,13 @@ function filesUnder(root: string): string[] {
   return readdirSync(root, { recursive: true })
     .filter((path): path is string => typeof path === 'string' && statSync(join(root, path)).isFile())
     .sort()
+}
+
+function assertRegularEvidenceFile(path: string, label: string): void {
+  const stat = lstatSync(path, { throwIfNoEntry: false })
+  assert.ok(stat, label + ' is missing')
+  assert.equal(stat.isSymbolicLink(), false, label + ' is a symbolic link')
+  assert.equal(stat.isFile(), true, label + ' is not a regular file')
 }
 
 function commandPrintsFile(command: string | undefined, relativePath: string): boolean {
