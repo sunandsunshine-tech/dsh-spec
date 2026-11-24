@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a20d4d-9ca2-7b50-9572-f57a695dd77a"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The request is specifically for browser-interaction GIF evidence of a user-visible UI change and verified attachment to a pull request, which clearly matches the recording-and-verification skill. This selection probe authorizes deciding applicability only, so no recording, repository inspection, or attachment actions are performed.\n\nSELECT: dsh-spec-record-browser-gif"}}
+{"type":"turn.completed","usage":{"input_tokens":17336,"cached_input_tokens":12928,"cache_write_input_tokens":0,"output_tokens":206,"reasoning_output_tokens":136}}

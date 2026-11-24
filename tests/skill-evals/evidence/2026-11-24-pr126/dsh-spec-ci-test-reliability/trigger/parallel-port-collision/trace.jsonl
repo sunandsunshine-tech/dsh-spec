@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a20d4d-0c1d-7222-978f-77dc908d1eae"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The intermittent `EADDRINUSE` under parallel CI test processes points to shared-host port or network-listener contention, which is squarely within the CI test-reliability skill’s scope.\n\nSELECT: dsh-spec-ci-test-reliability"}}
+{"type":"turn.completed","usage":{"input_tokens":17347,"cached_input_tokens":12928,"cache_write_input_tokens":0,"output_tokens":169,"reasoning_output_tokens":117}}

@@ -45,11 +45,11 @@ gh skill install sunandsunshine-tech/dsh-spec "<skill>" \
 |---|---|---|
 | `dsh-spec-find-simplifications` | 在代码、API、测试、文字和维护机制中寻找有证据支撑的简化 | `dsh-spec-code-review`、`dsh-spec-agent-notes` |
 | `dsh-spec-code-review` | 按项目声明的标准和仅看代码无法获得的证据评审一个改动 | `dsh-spec-pre-push-checks`、`dsh-spec-agent-notes` |
-| `dsh-spec-pre-push-checks` | 在推送或评审前，为待推送 diff 选出最小充分的检查 | `dsh-spec-code-review`、`dsh-spec-test-reliability` |
-| `dsh-spec-error-handling` | 为跨越机器边界的失败、恢复、重试、后台任务和用户可见报告设计错误处理 | `dsh-spec-test-reliability`、`dsh-spec-code-review` |
-| `dsh-spec-test-reliability` | 围绕隔离、共享资源、进程和清理，设计、评审、诊断并重新设计过慢、范围过大或不稳定的测试 | `dsh-spec-pre-push-checks`、`dsh-spec-error-handling` |
+| `dsh-spec-pre-push-checks` | 在推送或评审前，为待推送 diff 选出最小充分的检查 | `dsh-spec-code-review`、`dsh-spec-ci-test-reliability` |
+| `dsh-spec-error-handling` | 为跨越机器边界的失败、恢复、重试、后台任务和用户可见报告设计错误处理 | `dsh-spec-ci-test-reliability`、`dsh-spec-code-review` |
+| `dsh-spec-ci-test-reliability` | 围绕隔离、共享资源、进程和清理，设计、评审、诊断并重新设计过慢、范围过大或不稳定的测试 | `dsh-spec-pre-push-checks`、`dsh-spec-error-handling` |
 
-`dsh-spec-code-review` 判断改动；`dsh-spec-pre-push-checks` 证明本地检查能够证明的范围；`dsh-spec-test-reliability` 负责过慢或不稳定测试背后的执行拓扑。`dsh-spec-error-handling` 覆盖这些检查所经过的失败路径。`dsh-spec-find-simplifications` 提出简化方案，`dsh-spec-agent-notes` 保存需要超出 diff 范围的决定。
+`dsh-spec-code-review` 判断改动；`dsh-spec-pre-push-checks` 证明本地检查能够证明的范围；`dsh-spec-ci-test-reliability` 负责过慢或不稳定测试背后的执行拓扑。`dsh-spec-error-handling` 覆盖这些检查所经过的失败路径。`dsh-spec-find-simplifications` 提出简化方案，`dsh-spec-agent-notes` 保存需要超出 diff 范围的决定。
 
 这五个技能都移植自 dsh。
 
@@ -72,10 +72,10 @@ gh skill install sunandsunshine-tech/dsh-spec "<skill>" \
 
 | 技能 | 增加什么 | 推荐配套 |
 |---|---|---|
-| `dsh-spec-client-ui-ux` | 界定受影响的消费方和状态，检查真实渲染结果并报告证据缺口 | `dsh-spec-browser-gif-evidence`、`dsh-spec-code-review`、`dsh-spec-pre-push-checks` |
-| `dsh-spec-browser-gif-evidence` | 从一次隔离运行的真实构建中捕获、编码、校验并按需发布 GIF 证据 | `dsh-spec-client-ui-ux` |
+| `dsh-spec-client-ui-ux` | 界定受影响的消费方和状态，检查真实渲染结果并报告证据缺口 | `dsh-spec-record-browser-gif`、`dsh-spec-code-review`、`dsh-spec-pre-push-checks` |
+| `dsh-spec-record-browser-gif` | 从一次隔离运行的真实构建中捕获、编码、校验并按需发布 GIF 证据 | `dsh-spec-client-ui-ux` |
 
-`dsh-spec-client-ui-ux` 判断渲染后的改动必须证明什么；`dsh-spec-browser-gif-evidence` 把用户可见的浏览器交互转化为经过校验的证据。`dsh-spec-code-review` 和 `dsh-spec-pre-push-checks` 仍分别负责实现评审与本地证据层。每个技能只报告阻碍自己产出证据的能力，不声称视觉验证已经完成；编码 GIF 所需的媒体工具不会妨碍项目已声明的截图评审。
+`dsh-spec-client-ui-ux` 判断渲染后的改动必须证明什么；`dsh-spec-record-browser-gif` 把用户可见的浏览器交互转化为经过校验的证据。`dsh-spec-code-review` 和 `dsh-spec-pre-push-checks` 仍分别负责实现评审与本地证据层。每个技能只报告阻碍自己产出证据的能力，不声称视觉验证已经完成；编码 GIF 所需的媒体工具不会妨碍项目已声明的截图评审。
 
 这两个技能都移植自 dsh。
 
@@ -107,14 +107,14 @@ gh skill install sunandsunshine-tech/dsh-spec "<skill>" \
 
 - `dsh-spec-merging-stacked-prs` 需要 GitHub 官方 stacked PR 能力、`gh stack`，并且 head 分支位于同一个仓库。用 `gh extension install github/gh-stack` 安装扩展。
 - `dsh-spec-client-ui-ux` 需要能够运行并检查受影响的 UI，或者明确交接缺失的场景或能力。
-- `dsh-spec-browser-gif-evidence` 需要 Node.js 24.11+（24 系列）或 26+、Git、`ffmpeg`、`ffprobe`、可运行构建，以及浏览器控制能力或项目声明的 Playwright 设置。在 GitHub 上附带证据还需要 `gh` 能在 `github.com` 上写入。
+- `dsh-spec-record-browser-gif` 需要 Node.js 24.11+（24 系列）或 26+、Git、`ffmpeg`、`ffprobe`、可运行构建，以及浏览器控制能力或项目声明的 Playwright 设置。在 GitHub 上附带证据还需要 `gh` 能在 `github.com` 上写入。
 - `dsh-spec-translate-docs` 使用随附的 Node 脚本执行配对检查。安装它不要求每份文档都有对侧文件。
 
 ## 跳过规则
 
 | 情况 | 不要安装 |
 |---|---|
-| 项目没有浏览器 UI | `dsh-spec-client-ui-ux`、`dsh-spec-browser-gif-evidence` |
+| 项目没有浏览器 UI | `dsh-spec-client-ui-ux`、`dsh-spec-record-browser-gif` |
 | 项目不使用 GitHub stacked PR | `dsh-spec-merging-stacked-prs` |
 | 项目不制作 Agent 技能 | `dsh-spec-skill-forge` |
 | 项目没有需要设计或评审的预期失败行为 | `dsh-spec-error-handling` |

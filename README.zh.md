@@ -65,10 +65,12 @@ PIN="<tag-or-commit>"
 | 采用者需求 | 技能 | 来源 |
 |---|---|---|
 | **通用协作——从这里开始** | `dsh-spec-agent-experience`、`dsh-spec-agents-md`、`dsh-spec-agent-notes`、`dsh-spec-prose-standard`、`dsh-spec-translate-docs` | DeepSeek Harness；`dsh-spec-agents-md` 在本包锻造 |
-| **软件变更与质量** | `dsh-spec-find-simplifications`、`dsh-spec-code-review`、`dsh-spec-pre-push-checks`、`dsh-spec-error-handling`、`dsh-spec-test-reliability` | DeepSeek Harness |
+| **软件变更与质量** | `dsh-spec-find-simplifications`、`dsh-spec-code-review`、`dsh-spec-pre-push-checks`、`dsh-spec-error-handling`、`dsh-spec-ci-test-reliability` | DeepSeek Harness |
 | **变更说明与落地** | `dsh-spec-pr-description`、`dsh-spec-merging-stacked-prs` | DeepSeek Harness |
-| **浏览器 UI 证据** | `dsh-spec-client-ui-ux`、`dsh-spec-browser-gif-evidence` | DeepSeek Harness |
+| **浏览器 UI 证据** | `dsh-spec-client-ui-ux`、`dsh-spec-record-browser-gif` | DeepSeek Harness |
 | **Agent 技能制作** | `dsh-spec-skill-forge` | 在本包锻造 |
+
+`dsh-spec-agent-notes`、`dsh-spec-client-ui-ux` 和 `dsh-spec-prose-standard` 保留复合名称，分别合并上游的 notes 与归档流程、`dsh-responsive-ui` 以及 `dsh-trim-cot-leakage`。
 
 增加专项组之前，先读[选择 dsh-spec 技能](docs/choosing-skills.zh.md)。分组细节、推荐配套技能说明、常用组合与能力要求由该指南维护。
 

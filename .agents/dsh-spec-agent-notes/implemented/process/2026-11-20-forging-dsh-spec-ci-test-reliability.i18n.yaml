@@ -1,0 +1,37 @@
+# Pairing consistency record for 2026-11-20-forging-dsh-spec-ci-test-reliability.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-11-20-forging-dsh-spec-ci-test-reliability.md --target <lang>
+/agent-note-forging-dsh-spec-ci-test-reliability-from-the-upstream-ci-test-reliability-skill:
+  en: 5257da6e03a5e8da
+  zh: 81cc445821a5b1ab
+/agent-note-forging-dsh-spec-ci-test-reliability-from-the-upstream-ci-test-reliability-skill/problem:
+  en: 682c3d6dd677f180
+  zh: 1328a117ef91b301
+/agent-note-forging-dsh-spec-ci-test-reliability-from-the-upstream-ci-test-reliability-skill/decision:
+  en: 442657ed11d49bc2
+  zh: d66fcb8517fcd7cc
+/agent-note-forging-dsh-spec-ci-test-reliability-from-the-upstream-ci-test-reliability-skill/source-and-revision:
+  en: 184c86094ad1fbd8
+  zh: 55c84170b204a64c
+/agent-note-forging-dsh-spec-ci-test-reliability-from-the-upstream-ci-test-reliability-skill/settings:
+  en: 0e3e8ede69157d4a
+  zh: d43adc723ea97cdb
+/agent-note-forging-dsh-spec-ci-test-reliability-from-the-upstream-ci-test-reliability-skill/target-rulings:
+  en: 9c20ef57acb83e5b
+  zh: c6f7a7a623a93f27
+/agent-note-forging-dsh-spec-ci-test-reliability-from-the-upstream-ci-test-reliability-skill/constraint-dispositions:
+  en: ed90f4aa17fa2843
+  zh: b3713c2e2b88fc9b
+/agent-note-forging-dsh-spec-ci-test-reliability-from-the-upstream-ci-test-reliability-skill/verification-anchors:
+  en: 733f2a1a60464e43
+  zh: 206583bc8cb3f2f7
+/agent-note-forging-dsh-spec-ci-test-reliability-from-the-upstream-ci-test-reliability-skill/pages-read:
+  en: d7322cc00d76bdd2
+  zh: b2be51ca91a39efd
+/agent-note-forging-dsh-spec-ci-test-reliability-from-the-upstream-ci-test-reliability-skill/alternatives-considered:
+  en: af09f31a626d7602
+  zh: b9e9b3b610ea17f6
+/agent-note-forging-dsh-spec-ci-test-reliability-from-the-upstream-ci-test-reliability-skill/consequences:
+  en: 04bef31016dbceb0
+  zh: e7b15813fa497a02

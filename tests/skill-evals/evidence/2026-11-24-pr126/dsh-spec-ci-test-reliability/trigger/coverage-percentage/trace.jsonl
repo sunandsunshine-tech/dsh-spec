@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a20d4d-624b-7c91-acfb-03f4af755fbb"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The request is coverage-only test work, which the `dsh-spec-ci-test-reliability` skill explicitly excludes; no installed skill clearly applies.\n\nSELECT: none"}}
+{"type":"turn.completed","usage":{"input_tokens":17347,"cached_input_tokens":12928,"cache_write_input_tokens":0,"output_tokens":142,"reasoning_output_tokens":107}}

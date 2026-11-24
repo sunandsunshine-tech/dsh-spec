@@ -411,3 +411,19 @@ test('independently installed DeepSeek Harness skills name the current repositor
     }
   }
 })
+
+test('directly ported skills keep their upstream-aligned names', () => {
+  for (const [delivered, upstream] of [
+    ['dsh-spec-ci-test-reliability', 'dsh-ci-test-reliability'],
+    ['dsh-spec-record-browser-gif', 'record-browser-gif'],
+  ] as const) {
+    const entry = readFileSync(join(REPO_ROOT, 'skills', delivered, 'SKILL.md'), 'utf8')
+    assert.match(entry, new RegExp(`^name: ${delivered}$`, 'm'))
+    const notice = readFileSync(join(REPO_ROOT, 'skills', delivered, 'THIRD_PARTY_NOTICES'), 'utf8')
+    assert.match(
+      notice,
+      new RegExp(`DeepSeek Harness skill \`${upstream}\``),
+      delivered + ' names another upstream skill',
+    )
+  }
+})

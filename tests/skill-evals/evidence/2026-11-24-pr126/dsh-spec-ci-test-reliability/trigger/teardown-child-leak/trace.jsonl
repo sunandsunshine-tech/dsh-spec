@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a20d4d-30dd-7250-8da3-f7a3ec17afc8"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The scenario clearly matches the CI test-reliability skill because it involves subprocesses that outlive asynchronous teardown and mutate shared state across tests, a documented source of unstable fixtures.\n\nSELECT: dsh-spec-ci-test-reliability"}}
+{"type":"turn.completed","usage":{"input_tokens":17336,"cached_input_tokens":12928,"cache_write_input_tokens":0,"output_tokens":151,"reasoning_output_tokens":101}}

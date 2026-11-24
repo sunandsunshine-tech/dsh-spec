@@ -45,11 +45,11 @@ Add this group when the project changes code and needs repeatable review, eviden
 |---|---|---|
 | `dsh-spec-find-simplifications` | Finds evidence-backed reductions in code, APIs, tests, prose and maintenance machinery | `dsh-spec-code-review`, `dsh-spec-agent-notes` |
 | `dsh-spec-code-review` | Reviews a change against the project's declared standards and the evidence code alone cannot show | `dsh-spec-pre-push-checks`, `dsh-spec-agent-notes` |
-| `dsh-spec-pre-push-checks` | Selects the smallest sufficient checks for the outgoing diff before push or review | `dsh-spec-code-review`, `dsh-spec-test-reliability` |
-| `dsh-spec-error-handling` | Designs error handling for failures, recovery, retries, background work and user-visible reports across machine boundaries | `dsh-spec-test-reliability`, `dsh-spec-code-review` |
-| `dsh-spec-test-reliability` | Designs, reviews, diagnoses and redesigns slow, over-broad or unstable tests around isolation, shared resources, processes and cleanup | `dsh-spec-pre-push-checks`, `dsh-spec-error-handling` |
+| `dsh-spec-pre-push-checks` | Selects the smallest sufficient checks for the outgoing diff before push or review | `dsh-spec-code-review`, `dsh-spec-ci-test-reliability` |
+| `dsh-spec-error-handling` | Designs error handling for failures, recovery, retries, background work and user-visible reports across machine boundaries | `dsh-spec-ci-test-reliability`, `dsh-spec-code-review` |
+| `dsh-spec-ci-test-reliability` | Designs, reviews, diagnoses and redesigns slow, over-broad or unstable tests around isolation, shared resources, processes and cleanup | `dsh-spec-pre-push-checks`, `dsh-spec-error-handling` |
 
-`dsh-spec-code-review` judges the change; `dsh-spec-pre-push-checks` proves the parts a local check can prove; `dsh-spec-test-reliability` owns the topology behind a slow or unstable test. `dsh-spec-error-handling` covers the failure paths those checks exercise. `dsh-spec-find-simplifications` proposes a reduction, and `dsh-spec-agent-notes` preserves a decision that needs more than the diff.
+`dsh-spec-code-review` judges the change; `dsh-spec-pre-push-checks` proves the parts a local check can prove; `dsh-spec-ci-test-reliability` owns the topology behind a slow or unstable test. `dsh-spec-error-handling` covers the failure paths those checks exercise. `dsh-spec-find-simplifications` proposes a reduction, and `dsh-spec-agent-notes` preserves a decision that needs more than the diff.
 
 All five skills are ported from dsh.
 
@@ -72,10 +72,10 @@ Add this group to projects that render a browser UI and accept user-visible chan
 
 | Skill | What it adds | Recommended companions |
 |---|---|---|
-| `dsh-spec-client-ui-ux` | Scopes affected consumers and states, inspects the real rendered result and reports evidence gaps | `dsh-spec-browser-gif-evidence`, `dsh-spec-code-review`, `dsh-spec-pre-push-checks` |
-| `dsh-spec-browser-gif-evidence` | Captures, encodes, verifies and optionally publishes GIF evidence from one isolated run of the real build | `dsh-spec-client-ui-ux` |
+| `dsh-spec-client-ui-ux` | Scopes affected consumers and states, inspects the real rendered result and reports evidence gaps | `dsh-spec-record-browser-gif`, `dsh-spec-code-review`, `dsh-spec-pre-push-checks` |
+| `dsh-spec-record-browser-gif` | Captures, encodes, verifies and optionally publishes GIF evidence from one isolated run of the real build | `dsh-spec-client-ui-ux` |
 
-`dsh-spec-client-ui-ux` decides what the rendered change must demonstrate; `dsh-spec-browser-gif-evidence` turns a user-visible browser interaction into verified evidence. `dsh-spec-code-review` and `dsh-spec-pre-push-checks` remain the implementation-review and local-evidence layers. Each skill reports the capability that prevents its own evidence instead of claiming visual completion; the media tools needed to encode a GIF do not prevent a project-declared screenshot review.
+`dsh-spec-client-ui-ux` decides what the rendered change must demonstrate; `dsh-spec-record-browser-gif` turns a user-visible browser interaction into verified evidence. `dsh-spec-code-review` and `dsh-spec-pre-push-checks` remain the implementation-review and local-evidence layers. Each skill reports the capability that prevents its own evidence instead of claiming visual completion; the media tools needed to encode a GIF do not prevent a project-declared screenshot review.
 
 Both skills are ported from dsh.
 
@@ -107,14 +107,14 @@ The requirements below supplement the global prerequisites in the project README
 
 - `dsh-spec-merging-stacked-prs` requires GitHub's official stacked-PR feature, `gh stack`, and head branches in the same repository. Install the extension with `gh extension install github/gh-stack`.
 - `dsh-spec-client-ui-ux` requires a way to run and inspect the affected UI, or an explicit handoff naming the missing scene or capability.
-- `dsh-spec-browser-gif-evidence` requires Node.js 24.11+ on the 24 line or 26+, Git, `ffmpeg`, `ffprobe`, a runnable build and browser control or a project-declared Playwright setup. GitHub attachment also requires `gh` on `github.com` with write access.
+- `dsh-spec-record-browser-gif` requires Node.js 24.11+ on the 24 line or 26+, Git, `ffmpeg`, `ffprobe`, a runnable build and browser control or a project-declared Playwright setup. GitHub attachment also requires `gh` on `github.com` with write access.
 - `dsh-spec-translate-docs` uses its bundled Node script for pairing checks. Installing it does not require every document to have a counterpart.
 
 ## Skip rules
 
 | Situation | Do not install |
 |---|---|
-| The project has no browser UI | `dsh-spec-client-ui-ux`, `dsh-spec-browser-gif-evidence` |
+| The project has no browser UI | `dsh-spec-client-ui-ux`, `dsh-spec-record-browser-gif` |
 | The project does not use GitHub stacked PRs | `dsh-spec-merging-stacked-prs` |
 | The project does not author Agent Skills | `dsh-spec-skill-forge` |
 | The project has no expected failure behavior to design or review | `dsh-spec-error-handling` |

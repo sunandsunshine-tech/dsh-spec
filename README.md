@@ -65,10 +65,12 @@ Each skill is self-contained and installed on its own. Recommended companions ar
 | Adopter need | Skills | Provenance |
 |---|---|---|
 | **Universal collaboration — start here** | `dsh-spec-agent-experience`, `dsh-spec-agents-md`, `dsh-spec-agent-notes`, `dsh-spec-prose-standard`, `dsh-spec-translate-docs` | DeepSeek Harness; `dsh-spec-agents-md` is forged here |
-| **Software change and quality** | `dsh-spec-find-simplifications`, `dsh-spec-code-review`, `dsh-spec-pre-push-checks`, `dsh-spec-error-handling`, `dsh-spec-test-reliability` | DeepSeek Harness |
+| **Software change and quality** | `dsh-spec-find-simplifications`, `dsh-spec-code-review`, `dsh-spec-pre-push-checks`, `dsh-spec-error-handling`, `dsh-spec-ci-test-reliability` | DeepSeek Harness |
 | **Change descriptions and landing** | `dsh-spec-pr-description`, `dsh-spec-merging-stacked-prs` | DeepSeek Harness |
-| **Browser UI evidence** | `dsh-spec-client-ui-ux`, `dsh-spec-browser-gif-evidence` | DeepSeek Harness |
+| **Browser UI evidence** | `dsh-spec-client-ui-ux`, `dsh-spec-record-browser-gif` | DeepSeek Harness |
 | **Agent skill authoring** | `dsh-spec-skill-forge` | forged here |
+
+`dsh-spec-agent-notes`, `dsh-spec-client-ui-ux` and `dsh-spec-prose-standard` keep composite names: they incorporate the upstream notes and archive workflows, `dsh-responsive-ui`, and `dsh-trim-cot-leakage`, respectively.
 
 Read [Choosing dsh-spec skills](docs/choosing-skills.md) before adding a specialized group. It owns the group detail, companion explanations, common combinations and capability requirements.
 

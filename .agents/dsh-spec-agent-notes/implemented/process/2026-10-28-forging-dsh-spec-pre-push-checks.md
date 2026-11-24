@@ -111,7 +111,7 @@ The proof selection includes a boundary test proving that the project's existing
 ### Rulings
 
 - **U11 and U12 are dissolved, not re-bound.** A fixed expected-output or profile placement has no equivalent means in an unspecified software-engineering repository: inventing a tree would be a new mechanism. The adopter's conventions and the owning test lane's command take over.
-- **U6 is re-bound to the shipped test-reliability mechanism.** The generic evidence kinds stay authoritative and the independently installed `dsh-spec-test-reliability` skill is an availability-qualified example, not a hard dependency.
+- **U6 is re-bound to the shipped test-reliability mechanism.** The generic evidence kinds stay authoritative and the independently installed `dsh-spec-ci-test-reliability` skill is an availability-qualified example, not a hard dependency.
 - **U21 is re-bound rather than dissolved.** Automated rewrite-and-publish tooling is a real mechanism for software-engineering adopters, and the ordering exception is part of the upstream execution mechanism the forging must keep; the tool name becomes an example.
 - **The report is bundled rather than called from the adopter.** The package's architecture bundles the scripts a skill needs; the legacy engine's copy is not a deliverable and is gone with the engine.
 - **The report's rendering is carried from the upstream script's verbatim port; its CLI surface is adapted.** The port is the same MIT-licensed upstream file, so the proven report contract and its provenance are kept; the `--help` and exit-code adaptation follows the script-interface guidance and is stated and tested.

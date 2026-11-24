@@ -1,0 +1,46 @@
+{
+  "skill_name": "dsh-spec-record-browser-gif",
+  "agent_file": "trigger-fixtures/AGENTS.md",
+  "queries": [
+    {
+      "id": "settings-save-gif",
+      "query": "The settings dialog save transition changed in our browser app. Record a GIF from the real build and verify it.",
+      "should_trigger": true
+    },
+    {
+      "id": "attach-pr-gif",
+      "query": "Make an interaction GIF for this user-visible UI change and attach the verified evidence to the pull request.",
+      "should_trigger": true
+    },
+    {
+      "id": "three-state-browser-demo",
+      "query": "Capture a three-state browser workflow GIF, inspect the encoded frames, and report what the evidence proves.",
+      "should_trigger": true
+    },
+    {
+      "id": "promotional-image-gif",
+      "query": "Turn these three product PNG images into a looping promotional GIF; there is no browser workflow.",
+      "should_trigger": false
+    },
+    {
+      "id": "ui-screenshot-review",
+      "query": "Review the supplied light and dark screenshots of the settings page for hierarchy and visual consistency.",
+      "should_trigger": false
+    },
+    {
+      "id": "backend-handler-test",
+      "query": "Fix the save API handler and add a unit test for the database rollback path.",
+      "should_trigger": false
+    },
+    {
+      "id": "image-format-conversion",
+      "query": "Convert this existing screenshot from WebP to JPEG without recording an interface.",
+      "should_trigger": false
+    },
+    {
+      "id": "prompt-design",
+      "query": "Rewrite this agent prompt so its tool-selection instructions are easier to discover.",
+      "should_trigger": false
+    }
+  ]
+}
