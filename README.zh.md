@@ -22,16 +22,15 @@ GitHub CLI 自己也带一个 agent 技能，去[它的仓库](https://github.co
 
 把技能装进项目里，不要装到家目录，然后提交结果。装在项目级的那份副本，让每个协作者、每个发现同一技能目录的 agent 和每次 CI 运行都落在你安装时选定的修订上；装在用户级的那份每台机器各一份，只在运行 `gh skill update` 时变化。项目范围内，若干 agent 共用 `.agents/skills/`；其他宿主可能使用不同目录。首次安装后请提交实际安装的项目目录。
 
-每个技能使用各自的 `gh skill install` 调用安装。传入 `--pin <tag-or-commit>` 就能把它 pin 住；不指定 pin 时，CLI 取最新的带 tag 的 release，仓库没有带 tag 的 release 时则取默认分支。把下一条命令里的占位符替换成项目将要共用的 tag 或 commit。
+每个技能使用各自的 `gh skill install` 调用安装。默认省略 `--pin`：CLI 会安装最新的 tagged release；仓库没有 tagged release 时，则使用默认分支。只有项目需要为 CI、审计、可重复构建或其他固定版本场景锁定修订时，才传入 `--pin <tag-or-commit>`。
 
-以下命令使用 `--dir .agents/skills` 安装共享目录。若宿主有自己的项目级目录，使用 `--agent <host>` 安装同一组已 pin 技能，并省略 `--dir`。
+以下命令使用 `--dir .agents/skills` 安装共享目录。若宿主有自己的项目级目录，使用 `--agent <host>` 安装同一组技能，并省略 `--dir`。
 
 ### 从通用组开始
 
 通用协作组覆盖项目指令、决策记录、持久性文字以及文档翻译与配对：
 
 ```sh
-PIN="<tag-or-commit>"
 (
   set -e
   for skill in \
@@ -41,7 +40,7 @@ PIN="<tag-or-commit>"
     dsh-spec-prose-standard \
     dsh-spec-translate-docs
   do
-    gh skill install sunandsunshine-tech/dsh-spec "$skill" --pin "$PIN" --dir .agents/skills
+    gh skill install sunandsunshine-tech/dsh-spec "$skill" --dir .agents/skills
   done
 )
 ```
@@ -50,13 +49,13 @@ PIN="<tag-or-commit>"
 
 `--all` 仍然可用，但不是默认采用路径。无关技能会增加选择成本和更新义务，却不增加项目实际使用的能力。
 
-`gh skill update` 刷新未 pin 的安装；已 pin 的技能会被跳过，直到解除 pin。
+`gh skill update --all` 刷新未 pin 的安装。已 pin 的技能会停留在原修订，直到运行 `gh skill update --unpin` 解除 pin。
 
 ### 让 agent 安装
 
 把下面这段交给你的 agent：
 
-> 用 GitHub CLI 把 `dsh-spec-agent-experience`、`dsh-spec-agents-md`、`dsh-spec-agent-notes`、`dsh-spec-prose-standard` 和 `dsh-spec-translate-docs` 从 `sunandsunshine-tech/dsh-spec` 装进 `.agents/skills/`。每个技能运行一条 `gh skill install` 命令，并在每条命令中把同一个 tag 或 commit 传给 `--pin`。如果我未提供该 tag 或 commit，请先询问我，不要自行选择。动手前先核对上面的先决条件，缺了哪一样就来问我。
+> 用 GitHub CLI 把 `dsh-spec-agent-experience`、`dsh-spec-agents-md`、`dsh-spec-agent-notes`、`dsh-spec-prose-standard` 和 `dsh-spec-translate-docs` 从 `sunandsunshine-tech/dsh-spec` 装进 `.agents/skills/`。每个技能运行一条 `gh skill install` 命令，省略 `--pin`，让它安装最新的 tagged release。如果我要求为 CI、审计、可重复构建或其他固定版本场景锁定修订，就把准确的 tag 或 commit 传给 `--pin`；不要使用 `--pin latest`。动手前先核对上面的先决条件，缺了哪一样就来问我。
 
 ## 选择技能
 

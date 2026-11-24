@@ -8,14 +8,23 @@
 
 在项目范围安装并提交结果。若干 agent 宿主共用 `.agents/skills/`，其他宿主可能使用不同的项目目录。这样协作者、发现该目录的 agent 与 CI 共用一份经过评审的修订。
 
-每个技能使用一次 `gh skill install` 调用。把同一个 tag 或 commit 传给一次安装中每个技能的 `--pin`，让它们共用一份修订。`gh skill update` 只刷新未 pin 的技能。
+每个技能使用一次 `gh skill install` 调用。通常省略 `--pin`，让 CLI 安装最新的 tagged release；仓库没有 tagged release 时，则使用默认分支。一次安装需要为 CI、审计或可重复构建固定在同一个修订时，才把同一个 tag 或 commit 传给每个技能的 `--pin`。`gh skill update` 会刷新未 pin 的技能，并跳过已 pin 的技能，直到 `--unpin` 解除 pin。
 
 示例使用 `--dir .agents/skills` 安装共享目录。若宿主有自己的项目级目录，使用 `--agent <host>` 并省略 `--dir`。
 
 ```sh
 gh skill install sunandsunshine-tech/dsh-spec "<skill>" \
+  --dir .agents/skills
+```
+
+需要固定修订时：
+
+```sh
+gh skill install sunandsunshine-tech/dsh-spec "<skill>" \
   --pin "<tag-or-commit>" --dir .agents/skills
 ```
+
+`latest` 不是特殊的 pin 值。省略 `--pin` 才是选择最新 release 的方式。
 
 起步时完整安装通用组。对于专项组，只安装项目当前工作会用到的技能。专项组是面向某类工作的精选技能集合，不是项目必须完整安装的运行时依赖包。
 

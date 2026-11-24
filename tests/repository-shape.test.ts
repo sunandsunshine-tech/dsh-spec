@@ -153,12 +153,15 @@ function assertPartition(groups: SkillGroup[], skills: readonly string[], label:
 
 function universalInstallSkills(document: MarkdownDocument): string[] {
   const blocks = document.fences.filter(
-    (block) => block.includes('PIN="<tag-or-commit>"') && block.includes('for skill in'),
+    (block) =>
+      block.includes('for skill in') &&
+      block.includes('gh skill install sunandsunshine-tech/dsh-spec "$skill" --dir .agents/skills'),
   )
   assert.equal(blocks.length, 1, `${document.path}: one universal install block`)
   const block = blocks[0]!
   assert.match(block, /^\(\n {2}set -e$/m, `${document.path}: install stops at the first failure`)
   assert.match(block, /^\)$/m, `${document.path}: install restores the caller's shell options`)
+  assert.doesNotMatch(block, /--pin/, `${document.path}: the default install is not pinned`)
   return [...block.matchAll(/^\s+(dsh-spec-[a-z0-9-]+)(?: \\)?$/gm)].map((match) => match[1]!)
 }
 
@@ -331,6 +334,35 @@ test('adopter documentation has one complete, bilingual skill-selection map', ()
     universalChinese,
     'README.zh.md: install block and group table agree',
   )
+  for (const guide of [guideEnglish, guideChinese]) {
+    const installs = guide.fences.filter((block) =>
+      block.includes('gh skill install sunandsunshine-tech/dsh-spec "<skill>"'),
+    )
+    assert.equal(installs.length, 2, `${guide.path}: default and pinned install examples`)
+    assert.ok(
+      installs.some((block) => block.includes('--dir .agents/skills') && !block.includes('--pin')),
+      `${guide.path}: default install tracks the latest release`,
+    )
+    assert.ok(
+      installs.some((block) => block.includes('--pin "<tag-or-commit>"') && block.includes('--dir .agents/skills')),
+      `${guide.path}: fixed-revision install example`,
+    )
+  }
+  for (const document of documents.values()) {
+    for (const block of document.fences) {
+      assert.doesNotMatch(block, /--pin latest/, `${document.path}: latest install example is not pinned`)
+    }
+  }
+  assert.match(
+    readmeEnglish.text,
+    /Run one `gh skill install` command per skill and leave out `--pin`, so each installs the latest tagged release\./,
+  )
+  assert.match(readmeEnglish.text, /pass that exact tag or commit with `--pin`; never use `--pin latest`/)
+  assert.match(
+    readmeChinese.text,
+    /每个技能运行一条 `gh skill install` 命令，省略 `--pin`，让它安装最新的 tagged release。/,
+  )
+  assert.match(readmeChinese.text, /把准确的 tag 或 commit 传给 `--pin`；不要使用 `--pin latest`/)
 
   assert.match(
     guideEnglish.text,

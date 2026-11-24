@@ -8,14 +8,23 @@ This guide turns the groups in the project README into an installation choice. `
 
 Install at project scope and commit the result. Several agent hosts share `.agents/skills/`, while another host may use a different project directory. The project then shares one reviewed revision with collaborators, agents that discover that directory and CI.
 
-Use one `gh skill install` invocation per skill. Pass the same tag or commit to `--pin` for every skill in an installation so they share one revision. `gh skill update` refreshes unpinned skills only.
+Use one `gh skill install` invocation per skill. Leave out `--pin` for the normal path; the CLI then installs the latest tagged release, or the default branch when no tagged release exists. When an installation must stay on one revision for CI, audit or reproducible builds, pass the same tag or commit to `--pin` for every skill. `gh skill update` refreshes unpinned skills and skips pinned ones until `--unpin` clears the pin.
 
 The example uses `--dir .agents/skills` for the shared tree. For a host with its own project-scoped directory, use `--agent <host>` and omit `--dir`.
 
 ```sh
 gh skill install sunandsunshine-tech/dsh-spec "<skill>" \
+  --dir .agents/skills
+```
+
+For a fixed revision:
+
+```sh
+gh skill install sunandsunshine-tech/dsh-spec "<skill>" \
   --pin "<tag-or-commit>" --dir .agents/skills
 ```
+
+`latest` has no special meaning as a pin value. Leaving out `--pin` is how the command selects the latest release.
 
 Install the universal group in full at the start. For a specialized group, install only the skills the project's work uses. A specialized group is a curated set for one kind of work, not a runtime dependency bundle that a project must install in full.
 
