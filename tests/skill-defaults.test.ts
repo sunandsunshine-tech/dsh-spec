@@ -20,6 +20,7 @@ const DEFAULT_CONTRACT =
 
 const DEFAULT_BEARING = [
   'dsh-spec-agent-notes',
+  'dsh-spec-client-ui-ux',
   'dsh-spec-error-handling',
   'dsh-spec-merging-stacked-prs',
   'dsh-spec-pr-description',
@@ -74,6 +75,11 @@ const USE_SITE_PINS = [
     file: 'SKILL.md',
     text: "The additional trigger language defaults to the adopter's review language",
   },
+  {
+    skill: 'dsh-spec-client-ui-ux',
+    file: 'SKILL.md',
+    text: 'A user-visible browser UI behavior change produces truthful recorded evidence by default.',
+  },
 ]
 
 const CONCRETE_VALUE_MARKERS: Record<string, string> = {
@@ -84,6 +90,7 @@ const CONCRETE_VALUE_MARKERS: Record<string, string> = {
   'dsh-spec-prose-standard': '`automatic`',
   'dsh-spec-skill-forge': 'additional trigger language',
   'dsh-spec-translate-docs': '`zh`',
+  'dsh-spec-client-ui-ux': 'recorded browser evidence',
 }
 
 function read(skill: string, file = 'SKILL.md'): string {

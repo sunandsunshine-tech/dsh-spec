@@ -71,6 +71,7 @@ Each skill is self-contained and installed on its own; a skill names another onl
 | `dsh-spec-merging-stacked-prs` | Landing dependent GitHub pull requests as one stacked-PR chain | dsh |
 | `dsh-spec-pr-description` | Writing a change-request description: why it exists, what it changes, what proves it, and the AI Usage declaration | dsh |
 | `dsh-spec-pre-push-checks` | Selecting the smallest tests and checks that cover an outgoing diff before pushing or claiming checks pass | dsh |
+| `dsh-spec-client-ui-ux` | Reviewing project-local browser-rendered UI changes against affected consumers, responsive and input states, rendered evidence, and disclosed gaps | dsh |
 
 ### Building a skill set
 

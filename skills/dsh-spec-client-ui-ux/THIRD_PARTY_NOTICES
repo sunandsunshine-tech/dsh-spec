@@ -1,0 +1,63 @@
+# Third-party notices
+
+The text of this skill is adapted from the DeepSeek Harness UI review skills and generalised to browser-rendered UI changes in any software project.
+
+- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`).
+- Upstream paths:
+  - `.agents/skills/dsh-client-ui-ux/SKILL.md` — the impact-scaled review workflow, minimum rendered checks, interaction and feedback rules, and evidence handoff.
+  - `.agents/skills/dsh-client-ui-ux/references/alignment.md` — the distinction between layout boxes, targets, and painted results, and the requirement to name the aligned objects and axes.
+  - `.agents/skills/dsh-client-ui-ux/references/spacing.md` — grouping by object or action, rendered-gap comparison, and reuse of project spacing.
+  - `.agents/skills/dsh-client-ui-ux/references/icons.md` — consumer-local icon reuse and the distinction between control geometry and artwork.
+  - `.agents/skills/dsh-responsive-ui/SKILL.md` — the supported narrow viewport, access to primary actions, text wrapping and truncation, focus preservation, input capability, and hover-versus-touch principles.
+  - `.agents/skills/record-browser-gif/SKILL.md` — truthful browser evidence from the changed build, with capture and publication kept separate.
+- Relation: adapted. The project-level rendered-evidence workflow, impact-scaled inspection, consumer tracing, minimum state checks, accessibility-sensitive interaction checks, before-and-after preservation, and honest scope reporting are carried. DeepSeek Harness tokens, component paths, platform clearance, product pages, designer roster, approval policy, source-specific viewport values, and mandatory GUI-PR policy are replaced by the adopting project's declared system, supported surfaces and evidence policy. The browser recording is a default evidence requirement rather than a dependency; a project may declare an equivalent form.
+
+This skill is distributed under the MIT licence. The upstream and repository notices follow so that an installed copy carries them. This file is not part of the skill's instructions.
+
+## Upstream notice
+
+MIT License
+
+Copyright (c) 2026 DeepSeek
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+## Repository notice
+
+MIT License
+
+Copyright (c) 2026 北京三与叁山餐饮服务有限公司 (SunAndSunshine)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

@@ -1,0 +1,1 @@
+No installed skill applies. This is static SVG/vector work, outside browser UI review and raster image generation. Under the probe constraints, I cannot inspect the existing glyph or create the standalone file. The export should preserve the source `viewBox` and document that exact value alongside the icon.

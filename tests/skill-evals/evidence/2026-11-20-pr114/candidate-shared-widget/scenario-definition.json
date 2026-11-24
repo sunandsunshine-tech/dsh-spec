@@ -1,0 +1,33 @@
+{
+  "id": "shared-widget-consumer-coverage",
+  "prompt": "Review the shared button change in evals/files/shared-widget-project. The application is runnable, and one continuous recording plus a render report are available under its `evidence/` directory. Inspect the source and every recorded frame without launching another browser; trace every current consumer, state the actual ordered transition, identify which interactive states remain unverified, and distinguish the controlled before variant from historical provenance.",
+  "expected_output": "The review traces both current consumers, inspects the assembled search and settings pages in the frames that exist, reports the actual ordered transition, preserves the controlled comparison without claiming it is historical provenance, and does not infer consumer or interactive-state coverage from the shared component fixture alone.",
+  "capabilities": {
+    "browser": false,
+    "media": false
+  },
+  "files": [
+    "evals/files/shared-widget-project/AGENTS.md",
+    "evals/files/shared-widget-project/index.html",
+    "evals/files/shared-widget-project/package.json",
+    "evals/files/shared-widget-project/server.mjs",
+    "evals/files/shared-widget-project/src/app.js",
+    "evals/files/shared-widget-project/src/Button.js",
+    "evals/files/shared-widget-project/src/button.module.css",
+    "evals/files/shared-widget-project/src/SearchPage.js",
+    "evals/files/shared-widget-project/src/SettingsPage.js",
+    "evals/files/shared-widget-project/src/styles.css",
+    "evals/files/shared-widget-project/tests/button-consumers.test.mjs",
+    "evals/files/shared-widget-project/capture-browser.mjs",
+    "evals/files/shared-widget-project/evidence/README.md",
+    "evals/files/shared-widget-project/evidence/render-report.md",
+    "evals/files/shared-widget-project/evidence/shared-button.gif"
+  ],
+  "assertions": [
+    "Both SearchPage and SettingsPage are identified as current consumers of the shared button.",
+    "The review inspects the assembled consumers and identifies which affected interactive states remain unverified rather than inferring them from Button.js.",
+    "The report distinguishes rendered evidence from tests or source inspection.",
+    "Any consumer or state not inspected is named as a gap.",
+    "The review labels the before capture as a controlled comparison rather than historical provenance."
+  ]
+}

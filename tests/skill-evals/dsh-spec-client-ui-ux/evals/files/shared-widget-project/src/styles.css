@@ -1,0 +1,103 @@
+@import './button.module.css';
+
+:root {
+  color-scheme: light;
+  font-family: 'Segoe UI', sans-serif;
+  color: #17201c;
+  background: #eef2ec;
+  --color-accent: #1e6a4a;
+  --color-on-accent: #ffffff;
+  --color-surface: #ffffff;
+  --color-ink: #17201c;
+  --color-danger: #9f2d25;
+  --color-on-danger: #ffffff;
+  --color-focus: #1b73d3;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+}
+
+#app {
+  width: min(100% - 2rem, 980px);
+  margin: 0 auto;
+  padding: 2rem 0 3rem;
+}
+
+.page-header {
+  max-width: 42rem;
+}
+
+.page-header p,
+.panel p {
+  overflow-wrap: anywhere;
+}
+
+.eyebrow {
+  margin: 0 0 0.5rem;
+  color: #53635b;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.page-header h1,
+.panel h2 {
+  margin: 0;
+}
+
+.page-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.panel {
+  min-width: 0;
+  padding: 1.25rem;
+  border: 1px solid #d4ddd6;
+  border-radius: 1rem;
+  background: var(--color-surface);
+  box-shadow: 0 12px 30px rgb(31 53 40 / 8%);
+}
+
+.field {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  font-weight: 600;
+}
+
+.field input {
+  width: 100%;
+  min-width: 0;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid #8d9d93;
+  border-radius: 0.6rem;
+  font: inherit;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 700px) {
+  #app {
+    width: min(100% - 1.25rem, 540px);
+    padding-top: 1.25rem;
+  }
+
+  .page-grid {
+    grid-template-columns: 1fr;
+  }
+}
