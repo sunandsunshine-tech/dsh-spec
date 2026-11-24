@@ -1,0 +1,73 @@
+{
+  "skill_name": "dsh-spec-error-handling",
+  "agent_file": "trigger-fixtures/AGENTS.md",
+  "queries": [
+    {
+      "id": "worker-loses-variant",
+      "query": "A worker serializes our result variant as text, so the parent retries the wrong failures. What failure contract should we preserve across that boundary?",
+      "should_trigger": true
+    },
+    {
+      "id": "cleanup-catch-scope",
+      "query": "We ignore every failure from temporary-file cleanup and then commit a batch. Review whether that catch scope can hide a real failure.",
+      "should_trigger": true
+    },
+    {
+      "id": "provider-status-mapping",
+      "query": "Our provider returns HTTP 409 and 503, and the service must map them into its existing numeric status without losing retry behavior. Design the failure contract.",
+      "should_trigger": true
+    },
+    {
+      "id": "cli-exit-handling",
+      "query": "This CLI exits 11 for invalid configuration and 23 when the checker is unavailable. Callers must not parse stdout, so how should the command and test contract represent those failures?",
+      "should_trigger": true
+    },
+    {
+      "id": "visible-unknown-outcome",
+      "query": "A write request can fail after the server commits, the UI reports success, and the caller retries blindly. Without inspecting any files, define one failure contract covering the unknown state, visible report, machine identity, and safe next action.",
+      "should_trigger": true
+    },
+    {
+      "id": "readme-prose-only",
+      "query": "Review `trigger-fixtures/readme-prose-only/README.md` for a heading typo and incorrect capitalization.",
+      "should_trigger": false,
+      "files": [
+        "trigger-fixtures/readme-prose-only/README.md"
+      ]
+    },
+    {
+      "id": "unit-assertion-diff",
+      "query": "Explain why `trigger-fixtures/unit-assertion-diff/test.mjs` prints expected 3 but actual 4.",
+      "should_trigger": false,
+      "files": [
+        "trigger-fixtures/unit-assertion-diff/test.mjs"
+      ]
+    },
+    {
+      "id": "add-pagination",
+      "query": "Add cursor pagination to `trigger-fixtures/add-pagination/src/server.ts` and update its OpenAPI description.",
+      "should_trigger": false,
+      "files": [
+        "trigger-fixtures/add-pagination/src/server.ts",
+        "trigger-fixtures/add-pagination/openapi.yaml"
+      ]
+    },
+    {
+      "id": "build-performance",
+      "query": "Profile why the TypeScript build in `trigger-fixtures/build-performance` takes forty seconds and recommend a faster incremental setup.",
+      "should_trigger": false,
+      "files": [
+        "trigger-fixtures/build-performance/package.json",
+        "trigger-fixtures/build-performance/tsconfig.json"
+      ]
+    },
+    {
+      "id": "rename-variable",
+      "query": "Rename the local variable `res` to `response` in `trigger-fixtures/rename-variable/src/example.ts` and leave behavior unchanged.",
+      "should_trigger": false,
+      "files": [
+        "trigger-fixtures/rename-variable/src/example.ts"
+      ]
+    }
+  ]
+}

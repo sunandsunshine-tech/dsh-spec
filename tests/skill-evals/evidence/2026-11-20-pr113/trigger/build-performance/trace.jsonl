@@ -1,0 +1,15 @@
+{"type":"skill","path":".agents/skills/dsh-spec-error-handling/SKILL.md","sha256":"99db04621b3294d91c3f46373279296d78b179ba042b81ff3416f1fead3ab731"}
+{"type":"command","command":"/bin/bash -c 'find trigger-fixtures/build-performance -maxdepth 3 -type f -print | sort'","exit_code":0,"status":"completed"}
+{"type":"command","command":"/bin/bash -c 'find .. -name AGENTS.md -print'","exit_code":0,"status":"completed"}
+{"type":"command","command":"/bin/bash -c 'du -ah trigger-fixtures/build-performance 2>/dev/null | sort -h | tail -30'","exit_code":0,"status":"completed"}
+{"type":"command","command":"/bin/bash -c \"sed -n '1,240p' trigger-fixtures/build-performance/package.json\"","exit_code":0,"status":"completed"}
+{"type":"command","command":"/bin/bash -c \"sed -n '1,260p' trigger-fixtures/build-performance/tsconfig.json\"","exit_code":0,"status":"completed"}
+{"type":"command","command":"/bin/bash -c 'stat trigger-fixtures/build-performance/package.json trigger-fixtures/build-performance/tsconfig.json'","exit_code":0,"status":"completed"}
+{"type":"command","command":"/bin/bash -c 'ls -laR trigger-fixtures/build-performance'","exit_code":0,"status":"completed"}
+{"type":"command","command":"/bin/bash -c 'for p in trigger-fixtures/build-performance/packages/app trigger-fixtures/build-performance/packages/tools; do if [ -e \"$p\" ]; then realpath \"$p\"; else printf '\"'%s: missing\\\\n' \\\"\"'$p\"; fi; done'","exit_code":0,"status":"completed"}
+{"type":"command","command":"/bin/bash -c \"find trigger-fixtures/build-performance -maxdepth 5 -printf '%y %p -> %l\\\\n' | sort\"","exit_code":0,"status":"completed"}
+{"type":"command","command":"/bin/bash -c \"sed -n '1,240p' AGENTS.md\"","exit_code":0,"status":"completed"}
+{"type":"command","command":"/bin/bash -c 'command -v tsc || true; tsc --version 2>/dev/null || true; node --version 2>/dev/null || true; npm --version 2>/dev/null || true'","exit_code":0,"status":"completed"}
+{"type":"command","command":"/bin/bash -c \"find trigger-fixtures/build-performance -maxdepth 2 -type f \\\\( -name 'package-lock.json' -o -name 'pnpm-lock.yaml' -o -name 'yarn.lock' -o -name '*.tsbuildinfo' -o -name 'vite.config.*' -o -name 'webpack.config.*' \\\\) -print\"","exit_code":0,"status":"completed"}
+{"type":"command","command":"/bin/bash -c 'git status --short -- trigger-fixtures/build-performance 2>/dev/null || true; git log -5 --oneline -- trigger-fixtures/build-performance 2>/dev/null || true'","exit_code":0,"status":"completed"}
+{"type":"turn.completed","usage":{"input_tokens":304109,"cached_input_tokens":288512,"cache_write_input_tokens":0,"output_tokens":11476,"reasoning_output_tokens":6680}}

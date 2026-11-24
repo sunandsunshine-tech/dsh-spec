@@ -1,0 +1,3 @@
+- `# Release notes` should use title case: **`# Release Notes`**
+- “This Guide” should be **“This guide”**.
+- The sentence also has a typo: “how deploy” should be **“how to deploy”**.

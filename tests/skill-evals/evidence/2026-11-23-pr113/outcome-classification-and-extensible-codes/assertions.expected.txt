@@ -1,0 +1,4 @@
+PASS The no-match exit status remains a successful empty-search result under the command's declared outcome.
+PASS The plugin failure family keeps an open code type for provider extensions.
+PASS Known plugin codes are exported for shared handling.
+PASS Consumers tolerate unknown plugin codes instead of rejecting compatible additions.

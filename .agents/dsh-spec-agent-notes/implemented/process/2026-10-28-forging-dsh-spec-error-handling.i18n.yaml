@@ -6,35 +6,44 @@
   en: a0d1683edc68e6bc
   zh: 42a84bcab2862a44
 /agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/problem:
-  en: e24c6eef1eb7ee6e
-  zh: 6154ecb98bb65793
+  en: 688a7980a4897b44
+  zh: 1801dcffc66c76ce
 /agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/decision:
-  en: ba2cb586cb184df8
-  zh: 997a99ce15dd6cee
+  en: e3a1e2da7f202106
+  zh: 361ef3e20a66af06
 /agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/decision/source-and-revision:
-  en: 21a48f94fd94ea7e
-  zh: 940befc4d125a6bc
+  en: a8cbb0b0e619145f
+  zh: 09d82ef49cd5459b
 /agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/decision/adapted-target-text:
   en: 6361ad3422988002
   zh: ecff722eebc6e0ac
+/agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/decision/expanded-source-additions:
+  en: 5beb757454d16a48
+  zh: 50ddc45a89c605a6
 /agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/decision/presupposition-audit:
-  en: 25c3c8e82be614c3
-  zh: 11aa55cf1141fa81
+  en: afea94e37e8f075d
+  zh: 76b423b0087af20e
+/agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/decision/expanded-presupposition-audit:
+  en: d36b34c380e65531
+  zh: 5a1f02538f6be343
 /agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/decision/description:
-  en: 9c50fa4d743f894c
-  zh: 81742e19e824a118
+  en: e1fd41e385963b66
+  zh: d6195f080fc083f9
 /agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/decision/constraint-dispositions:
   en: 0682595e97f2265e
   zh: 221d36d4346e09e9
+/agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/decision/expanded-source-dispositions:
+  en: cd224f7e86df1ac4
+  zh: e6f14ce35637fdbb
 /agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/decision/target-rulings:
-  en: 1dfce93d10abf58a
-  zh: 51216775f980c1fa
+  en: 3441f1ab7e34703b
+  zh: 4d9c0ef390b324e5
 /agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/decision/requirement-anchors:
-  en: d8abfe771765831a
-  zh: 11e3c51c51743760
+  en: cc3e4009d4197d5a
+  zh: 371e74e5b8971fff
 /agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/alternatives-considered:
-  en: 135d47f8ddbf6ecb
-  zh: cfb538e6994a013b
+  en: 195d38733d57ef36
+  zh: c56f329266615b8f
 /agent-note-forging-dsh-spec-error-handling-from-the-upstream-error-handling-skill/consequences:
-  en: e388888ddb8c0e12
-  zh: 31b12e9528a7796b
+  en: 1affc26d823a31b3
+  zh: fc470d2b8d09f323
