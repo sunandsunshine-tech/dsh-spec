@@ -1,0 +1,30 @@
+diff --git a/src/report.mjs b/src/report.mjs
+index d51bdb7..cdf4d01 100644
+--- a/src/report.mjs
++++ b/src/report.mjs
+@@ -11,16 +11,20 @@ export function createInventory(count = 5_000) {
+ }
+ 
+ export function buildReport(items) {
+-  const seen = []
++  const seen = new Set()
++  const unitsByRegion = new Map()
+   const report = []
+ 
++  for (const item of items) {
++    unitsByRegion.set(item.region, (unitsByRegion.get(item.region) ?? 0) + item.units)
++  }
++
+   for (const item of items) {
+     const key = `${item.productId}:${item.region}`
+-    if (seen.includes(key)) continue
+-    seen.push(key)
++    if (seen.has(key)) continue
++    seen.add(key)
+ 
+-    const regionalItems = items.filter((candidate) => candidate.region === item.region)
+-    const regionalUnits = regionalItems.reduce((sum, candidate) => sum + candidate.units, 0)
++    const regionalUnits = unitsByRegion.get(item.region)
+     report.push({
+       productId: item.productId,
+       region: item.region,

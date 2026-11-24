@@ -167,7 +167,7 @@ void test('browser GIF capture enforces one complete deadline and still cleans u
   assert.notEqual(result.status, 0)
   assert.match(
     result.stderr ?? '',
-    /capture deadline exceeded while waiting for (?:a page target|the CDP WebSocket handshake|Page\.enable)/,
+    /capture deadline exceeded while waiting for (?:the Chrome DevTools endpoint|a page target|the CDP WebSocket handshake|Page\.enable)/,
   )
   assert.ok(elapsedMs < 3_000, `deadline took ${elapsedMs}ms`)
   assert.equal(existsSync(join(fixture.root, 'evidence-local')), false)

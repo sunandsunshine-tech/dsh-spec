@@ -1,0 +1,43 @@
+# Pairing consistency record for 2026-11-24-forging-dsh-spec-performance-investigation.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/feature/2026-11-24-forging-dsh-spec-performance-investigation.md --target <lang>
+/agent-note-forging-a-generic-performance-investigation-skill:
+  en: 5cc35e28ef42ed99
+  zh: cec27e254d2153de
+/agent-note-forging-a-generic-performance-investigation-skill/problem:
+  en: f9787cea53cfddbf
+  zh: 13f6f4643f56f704
+/agent-note-forging-a-generic-performance-investigation-skill/decision:
+  en: 68f3fddfcd97d2eb
+  zh: 05be5a5eb6aca37f
+/agent-note-forging-a-generic-performance-investigation-skill/decision/intent-and-boundaries:
+  en: 2c52cbf583e2d072
+  zh: bc1e24eef3745098
+/agent-note-forging-a-generic-performance-investigation-skill/decision/source-constraints:
+  en: 562f0deff87272ea
+  zh: bec795a742bcf00b
+/agent-note-forging-a-generic-performance-investigation-skill/decision/dispositions:
+  en: 8e289e4821ddaa7c
+  zh: bb82042475f8958a
+/agent-note-forging-a-generic-performance-investigation-skill/decision/rulings:
+  en: 8869617f09134be0
+  zh: 10f90c744f14d217
+/agent-note-forging-a-generic-performance-investigation-skill/decision/verification-anchors:
+  en: 58fb4831468f8926
+  zh: d8997e82db9ab6b5
+/agent-note-forging-a-generic-performance-investigation-skill/decision/pages-read:
+  en: 24a3296843e7ef77
+  zh: 5baad3e46e12b08f
+/agent-note-forging-a-generic-performance-investigation-skill/decision/risks-and-rollback:
+  en: 8e11af75dafce9b9
+  zh: 6876a3f9439cdb4a
+/agent-note-forging-a-generic-performance-investigation-skill/alternatives-considered:
+  en: d0494804a1c4dfe0
+  zh: f23cc2b56713551d
+/agent-note-forging-a-generic-performance-investigation-skill/consequences:
+  en: 5ef6d70f1f0ff28e
+  zh: 51ff492dc3b2fb17
+/agent-note-forging-a-generic-performance-investigation-skill/consequences/publish-state:
+  en: 03532fc8af4cd568
+  zh: 04ff52119d629535

@@ -1,0 +1,2 @@
+b7225116c50ea0dea54d68e6a6c2353bf5f2257d15ca9df5b45cc749ae3ac428  skills/dsh-spec-performance-investigation/SKILL.md  mode=0644
+58fe67e848c4ddde08320e5bfd2f23600319ddf2882daba69520fac53bcb9fb9  skills/dsh-spec-performance-investigation/THIRD_PARTY_NOTICES  mode=0644

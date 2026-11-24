@@ -1,0 +1,156 @@
+diff --git a/evals/files/frontend-input-to-paint/measure.mjs b/evals/files/frontend-input-to-paint/measure.mjs
+index f7dbcab..43b45ce 100644
+--- a/evals/files/frontend-input-to-paint/measure.mjs
++++ b/evals/files/frontend-input-to-paint/measure.mjs
+@@ -82,6 +82,73 @@ async function waitForMeasurement(connection) {
+   throw new Error('visible search update did not complete')
+ }
+ 
++async function readPerformanceMetrics(connection) {
++  const { metrics } = await connection.call('Performance.getMetrics')
++  return Object.fromEntries(metrics.map(({ name, value }) => [name, value]))
++}
++
++function counterDelta(before, after, name) {
++  return Number((((after[name] ?? 0) - (before[name] ?? 0)) * 1_000).toFixed(3))
++}
++
++async function measureSearch(connection, collectPhases) {
++  await evaluate(
++    connection,
++    `(() => {
++      const query = document.querySelector('#query')
++      query.value = ''
++      query.focus()
++      window.__lastMeasurement = null
++      window.__inputObservedAt = null
++      window.__domUpdatedAt = null
++      window.__resourceCountBefore = performance.getEntriesByType('resource').length
++      document.addEventListener(
++        'input',
++        (event) => {
++          window.__inputObservedAt = event.timeStamp
++        },
++        { capture: true, once: true },
++      )
++      const observer = new MutationObserver(() => {
++        window.__domUpdatedAt = performance.now()
++        observer.disconnect()
++      })
++      observer.observe(document.querySelector('#results'), { childList: true })
++    })()`,
++  )
++
++  const before = collectPhases ? await readPerformanceMetrics(connection) : null
++  await connection.call('Input.insertText', { text: 'light' })
++  const measurement = await waitForMeasurement(connection)
++  const after = collectPhases ? await readPerformanceMetrics(connection) : null
++  const timing = await evaluate(
++    connection,
++    `({
++      observedAt: window.__inputObservedAt,
++      domUpdatedAt: window.__domUpdatedAt,
++      resourceCountAfter: performance.getEntriesByType('resource').length,
++      resourceCountBefore: window.__resourceCountBefore,
++    })`,
++  )
++
++  return {
++    endToEndMs: Number((measurement.finish - timing.observedAt).toFixed(3)),
++    domUpdatedMs: Number((timing.domUpdatedAt - timing.observedAt).toFixed(3)),
++    frameWaitMs: Number((measurement.finish - timing.domUpdatedAt).toFixed(3)),
++    handlerMs: Number((measurement.finish - measurement.start).toFixed(3)),
++    networkRequests: timing.resourceCountAfter - timing.resourceCountBefore,
++    scriptMs: after ? counterDelta(before, after, 'ScriptDuration') : null,
++    styleMs: after ? counterDelta(before, after, 'RecalcStyleDuration') : null,
++    layoutMs: after ? counterDelta(before, after, 'LayoutDuration') : null,
++    taskMs: after ? counterDelta(before, after, 'TaskDuration') : null,
++  }
++}
++
++function median(samples, key) {
++  const values = samples.map((sample) => sample[key]).sort((left, right) => left - right)
++  return values[Math.floor(values.length / 2)]
++}
++
+ const chrome = findChrome()
+ if (!chrome) {
+   console.error('MISSING_BROWSER: set CHROME_PATH to a Chrome or Chromium executable')
+@@ -116,6 +183,7 @@ try {
+   await connection.open()
+   await connection.call('Runtime.enable')
+   await connection.call('Page.enable')
++  await connection.call('Performance.enable')
+   await connection.call('Page.navigate', { url: `${url}/` })
+   let ready = false
+   for (let attempt = 0; attempt < 100; attempt += 1) {
+@@ -128,19 +196,28 @@ try {
+   }
+   if (!ready) throw new Error('search page did not load')
+ 
++  await measureSearch(connection, false)
+   const samples = []
+   for (let index = 0; index < 5; index += 1) {
+-    await evaluate(
+-      connection,
+-      "document.querySelector('#query').value = ''; document.querySelector('#query').focus(); window.__lastMeasurement = null",
+-    )
+-    await connection.call('Input.insertText', { text: 'light' })
+-    const measurement = await waitForMeasurement(connection)
+-    samples.push(Number((measurement.finish - measurement.start).toFixed(3)))
++    samples.push(await measureSearch(connection, true))
+   }
+ 
+-  const ordered = [...samples].sort((left, right) => left - right)
+-  console.log(JSON.stringify({ samplesMs: samples, medianMs: ordered[Math.floor(ordered.length / 2)] }))
++  console.log(
++    JSON.stringify({
++      samples,
++      medians: {
++        endToEndMs: median(samples, 'endToEndMs'),
++        domUpdatedMs: median(samples, 'domUpdatedMs'),
++        frameWaitMs: median(samples, 'frameWaitMs'),
++        handlerMs: median(samples, 'handlerMs'),
++        scriptMs: median(samples, 'scriptMs'),
++        styleMs: median(samples, 'styleMs'),
++        layoutMs: median(samples, 'layoutMs'),
++        taskMs: median(samples, 'taskMs'),
++        networkRequests: median(samples, 'networkRequests'),
++      },
++    }),
++  )
+ } finally {
+   connection?.close()
+   browser?.kill('SIGKILL')
+diff --git a/evals/files/frontend-input-to-paint/src/filter.mjs b/evals/files/frontend-input-to-paint/src/filter.mjs
+index 54cafe0..3235a3a 100644
+--- a/evals/files/frontend-input-to-paint/src/filter.mjs
++++ b/evals/files/frontend-input-to-paint/src/filter.mjs
+@@ -16,19 +16,19 @@ export function filterProducts(items, rawQuery) {
+   if (!query) return []
+   const tokens = query.split(/\s+/)
+   const matches = []
++  const scoreBonus = tokens.reduce((total, token) => {
++    for (const item of items) {
++      if (item.category === token) total += 1
++      if (item.color === token) total += 1
++    }
++    return total
++  }, 0)
+ 
+   for (const item of items) {
+     const search = `${item.name} ${item.category} ${item.color}`.toLowerCase()
+     if (!tokens.every((token) => search.includes(token))) continue
+ 
+-    let score = item.rank
+-    for (const token of tokens) {
+-      for (const candidate of items) {
+-        if (candidate.category === token) score += 1
+-        if (candidate.color === token) score += 1
+-      }
+-    }
+-    matches.push({ ...item, score })
++    matches.push({ ...item, score: item.rank + scoreBonus })
+   }
+ 
+   return matches.sort((left, right) => right.score - left.score || left.id.localeCompare(right.id)).slice(0, 200)

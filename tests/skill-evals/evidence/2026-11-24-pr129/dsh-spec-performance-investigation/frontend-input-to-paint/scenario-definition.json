@@ -1,0 +1,31 @@
+{
+  "id": "frontend-input-to-paint",
+  "prompt": "The browser project in evals/files/frontend-input-to-paint has a visible search field that feels slow after input. Build it, measure real browser input through the visible result update, diagnose the dominant phase and make the smallest behavior-preserving optimization. Report the browser measurement and the remaining network or rendering boundary.",
+  "expected_output": "The response uses the built application and real browser input, measures input through at least the next visible update, identifies work repeated on each input, preserves the filtered result, and reports raw samples with the browser boundary.",
+  "capabilities": {
+    "browser": true,
+    "media": false
+  },
+  "files": [
+    "evals/files/frontend-input-to-paint/README.md",
+    "evals/files/frontend-input-to-paint/.gitignore",
+    "evals/files/frontend-input-to-paint/package.json",
+    "evals/files/frontend-input-to-paint/build.mjs",
+    "evals/files/frontend-input-to-paint/server.mjs",
+    "evals/files/frontend-input-to-paint/measure.mjs",
+    "evals/files/frontend-input-to-paint/src/index.html",
+    "evals/files/frontend-input-to-paint/src/app.js",
+    "evals/files/frontend-input-to-paint/src/filter.mjs",
+    "evals/files/frontend-input-to-paint/tests/input-behavior.test.mjs"
+  ],
+  "outputs": [
+    "evals/files/frontend-input-to-paint/dist"
+  ],
+  "assertions": [
+    "The response uses the built application and real browser input.",
+    "The response measures through the visible filtered result rather than a function benchmark alone.",
+    "The response identifies work repeated on each input as the dominant browser-side cost.",
+    "The candidate preserves the matching products and ordering.",
+    "The report keeps the browser boundary and raw sample values visible."
+  ]
+}

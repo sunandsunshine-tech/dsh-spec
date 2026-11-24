@@ -589,6 +589,62 @@ const GENERAL_REQUIRED: GeneralProfile[] = [
     ],
   },
   {
+    skill: 'dsh-spec-performance-investigation',
+    scenarios: [
+      {
+        id: 'backend-budgetless-latency',
+        signature: [/inventory HTTP endpoint/i, /no benchmark framework or p95 budget/i, /raw before\/after samples/i],
+        expectedOutput: [
+          /real HTTP path/i,
+          /preserves duplicate removal.*ordering/i,
+          /raw samples.*aggregates.*behavior check/i,
+        ],
+        assertions: [
+          /production HTTP endpoint/i,
+          /repeated all-item scanning/i,
+          /duplicate removal.*ordering/i,
+          /raw before\/after samples.*ratio/i,
+          /focused test passes/i,
+        ],
+      },
+      {
+        id: 'frontend-input-to-paint',
+        signature: [/visible search field/i, /real browser input/i, /visible result update/i],
+        expectedOutput: [/built application and real browser input/i, /repeated on each input/i, /browser boundary/i],
+        assertions: [
+          /built application and real browser input/i,
+          /visible filtered result/i,
+          /work repeated on each input/i,
+          /matching products and ordering/i,
+          /browser boundary.*raw sample/i,
+        ],
+      },
+      {
+        id: 'browser-measurement-unavailable',
+        signature: [/input-to-paint latency/i, /final optimization decision today/i],
+        expectedOutput: [/browser measurement is unavailable/i, /resumable browser run/i, /instead of claiming/i],
+        assertions: [
+          /missing browser measurement capability/i,
+          /does not present source inspection as measured/i,
+          /completed diagnosis or measurement plan/i,
+          /browser run and evidence.*resume/i,
+        ],
+      },
+      {
+        id: 'end-to-end-external-boundary',
+        signature: [/checkout route/i, /without changing code/i, /external shipping-quote service/i],
+        expectedOutput: [/complete checkout path/i, /controlled external delay/i, /complete product latency/i],
+        assertions: [
+          /no production code change/i,
+          /complete checkout path.*local server work.*separately/i,
+          /external shipping-quote delay.*dominant/i,
+          /zero-delay run distinguishes/i,
+          /remaining external-service and environment limits/i,
+        ],
+      },
+    ],
+  },
+  {
     skill: 'dsh-spec-record-browser-gif',
     scenarios: [
       {
@@ -654,6 +710,7 @@ function assertCurrentTriggerEvidence(skill: string, evidenceRoot: string): void
   const expected = {
     'dsh-spec-ci-test-reliability': { positive: 4, negative: 4 },
     'dsh-spec-record-browser-gif': { positive: 3, negative: 5 },
+    'dsh-spec-performance-investigation': { positive: 5, negative: 6 },
   }[skill]
   assert.ok(expected, skill + ' has no expected trigger distribution')
   assert.equal(
@@ -1520,6 +1577,13 @@ test('renamed skills bind current trigger evidence to the delivered name and des
   }
 })
 
+test('performance investigation binds current trigger evidence', () => {
+  assertCurrentTriggerEvidence(
+    'dsh-spec-performance-investigation',
+    join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-24-pr129/dsh-spec-performance-investigation'),
+  )
+})
+
 test('pr-description eval covers stack-local AI Usage migration', () => {
   const corpus = readCorpus('dsh-spec-pr-description')
   assert.equal(corpus.evals.length, 2)
@@ -1804,6 +1868,32 @@ test('error handling trigger corpus keeps positive and near-miss coverage', () =
       assert.ok(statSync(absolute).size > 0, entry.id + ' fixture is empty: ' + file)
     }
   }
+})
+
+test('performance trigger corpus routes runtime paths and excludes adjacent work', () => {
+  const skill = 'dsh-spec-performance-investigation'
+  assertTriggerCorpusIdentity(skill)
+  const corpus = JSON.parse(readFileSync(join(EVAL_SOURCE_ROOT, skill, 'trigger-evals.json'), 'utf8')) as {
+    queries: Array<{ id: string; should_trigger: boolean }>
+  }
+  assert.deepEqual(
+    corpus.queries.map((query) => query.id),
+    [
+      'backend-p95',
+      'browser-input-delay',
+      'cli-startup',
+      'end-to-end-upload',
+      'memory-growth',
+      'ci-port-flake',
+      'slow-test-fixtures',
+      'coverage-only',
+      'pre-push-selection',
+      'visual-review',
+      'general-code-review',
+    ],
+  )
+  assert.equal(corpus.queries.filter((query) => query.should_trigger).length, 5)
+  assert.equal(corpus.queries.filter((query) => !query.should_trigger).length, 6)
 })
 
 test('error handling model evidence retains candidate and baseline runs', () => {
@@ -2403,6 +2493,131 @@ test('test reliability fixtures run with the intended positive and negative cont
   assert.match(globalPositive, /Object\.hasOwn\(process\.env, 'FEATURE_FLAG'\)/)
   assert.match(globalPositive, /delete process\.env\.FEATURE_FLAG/)
   assert.match(globalPositive, /assert\.deepEqual\(captureGlobals\(\), snapshot\)/)
+})
+
+test('performance fixtures expose runnable production paths and boundaries', () => {
+  const root = join(EVAL_SOURCE_ROOT, 'dsh-spec-performance-investigation', 'evals', 'files')
+  for (const [project, testFile] of [
+    ['backend-budgetless', 'tests/report.test.mjs'],
+    ['frontend-input-to-paint', 'tests/input-behavior.test.mjs'],
+    ['end-to-end-boundary', 'tests/path.test.mjs'],
+  ] as const) {
+    const result = spawnSync(process.execPath, ['--test', testFile], {
+      cwd: join(root, project),
+      encoding: 'utf8',
+      timeout: 10_000,
+    })
+    assert.equal(result.status, 0, project + ': ' + (result.stdout ?? '') + (result.stderr ?? ''))
+  }
+
+  const backend = spawnSync(process.execPath, ['bench.mjs'], {
+    cwd: join(root, 'backend-budgetless'),
+    encoding: 'utf8',
+    timeout: 10_000,
+  })
+  assert.equal(backend.status, 0, (backend.stdout ?? '') + (backend.stderr ?? ''))
+  const backendResult = JSON.parse(backend.stdout) as { samplesMs: number[]; medianMs: number }
+  assert.equal(backendResult.samplesMs.length, 7)
+  assert.ok(backendResult.samplesMs.every((sample) => Number.isFinite(sample) && sample > 0))
+  assert.ok(Number.isFinite(backendResult.medianMs) && backendResult.medianMs > 0)
+
+  const frontend = join(root, 'frontend-input-to-paint')
+  const build = spawnSync(process.execPath, ['build.mjs'], { cwd: frontend, encoding: 'utf8' })
+  assert.equal(build.status, 0, (build.stdout ?? '') + (build.stderr ?? ''))
+  for (const file of ['dist/index.html', 'dist/app.js', 'dist/filter.mjs']) {
+    assert.ok(existsSync(join(frontend, file)), 'frontend build did not produce ' + file)
+  }
+  for (const file of ['measure.mjs', 'server.mjs']) {
+    const syntax = spawnSync(process.execPath, ['--check', file], { cwd: frontend, encoding: 'utf8' })
+    assert.equal(syntax.status, 0, (syntax.stdout ?? '') + (syntax.stderr ?? ''))
+  }
+
+  const boundary = join(root, 'end-to-end-boundary')
+  const controlled = spawnSync(process.execPath, ['diagnose.mjs'], {
+    cwd: boundary,
+    encoding: 'utf8',
+    env: { ...process.env, EXTERNAL_DELAY_MS: '0' },
+  })
+  assert.equal(controlled.status, 0, (controlled.stdout ?? '') + (controlled.stderr ?? ''))
+  const boundaryResult = JSON.parse(controlled.stdout) as {
+    samples: Array<{ totalMs: number; externalMs: number; localMs: number; itemCount: number }>
+  }
+  assert.equal(boundaryResult.samples.length, 3)
+  for (const sample of boundaryResult.samples) {
+    assert.ok(sample.totalMs > 0)
+    assert.ok(sample.externalMs < 10)
+    assert.ok(sample.localMs > 0)
+    assert.ok(sample.itemCount > 0)
+  }
+})
+
+test('performance investigation model evidence binds scenarios, capabilities and revisions', () => {
+  const skill = 'dsh-spec-performance-investigation'
+  const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-24-pr129', skill)
+  for (const scenario of readCorpus(skill).evals) {
+    const root = join(evidenceRoot, scenario.id)
+    assertEvidencePath(evidenceRoot, root, scenario.id, 'directory')
+    const status = readFileSync(join(root, 'status.txt'), 'utf8')
+    assert.match(status, /^status: pass$/m, scenario.id)
+    assert.match(status, /^run_exit_code: 0$/m, scenario.id)
+    assert.match(
+      status,
+      new RegExp(`^assertions: ${scenario.assertions.length}/${scenario.assertions.length}$`, 'm'),
+      scenario.id,
+    )
+    assert.deepEqual(
+      readFileSync(join(root, 'assertions.txt'), 'utf8')
+        .trim()
+        .split('\n')
+        .map((line) => line.replace(/^PASS /, '')),
+      scenario.assertions,
+      scenario.id + ' assertion text differs',
+    )
+    const recorded = validateRecordedScenario(
+      skill,
+      JSON.parse(readFileSync(join(root, 'scenario-definition.json'), 'utf8')),
+      scenario.id,
+    )
+    assert.deepEqual(recorded, scenario, scenario.id + ' scenario definition differs')
+    assert.equal(
+      readFileSync(join(root, 'scenario-definition.sha256'), 'utf8').trim(),
+      `${scenarioDefinitionHash(recorded)}  ${skill}:${scenario.id}`,
+      scenario.id + ' scenario hash differs',
+    )
+    assert.deepEqual(
+      JSON.parse(readFileSync(join(root, 'capabilities.json'), 'utf8')),
+      {
+        auth: 'host-proxy',
+        browser: scenario.capabilities?.browser ?? false,
+        media: scenario.capabilities?.media ?? false,
+        sandbox: 'workspace-write',
+        subagents: scenario.allow_subagents ?? false,
+      },
+      scenario.id + ' capability profile differs',
+    )
+    assertBehaviorSkillRevision(root, skill, scenario.install ?? [])
+    assertAnswerBlindTrace(root)
+    assert.ok(
+      traceCommandsFor(root).some((command) => commandPrintsSkill(command, skill)),
+      scenario.id + ' did not read the installed skill',
+    )
+    const trace = readEvidenceTrace(join(root, 'trace.jsonl'))
+    assert.equal(trace.at(-1)?.type, 'turn.completed', scenario.id + ' did not complete')
+    assert.ok(readFileSync(join(root, 'final.md'), 'utf8').trim().length > 0, scenario.id + ' final answer')
+  }
+
+  const baseline = join(evidenceRoot, 'baseline-backend-budgetless-latency')
+  const baselineStatus = readFileSync(join(baseline, 'status.txt'), 'utf8')
+  assert.match(baselineStatus, /^role: no-skill baseline$/m)
+  assert.match(baselineStatus, /^status: pass$/m)
+  assert.match(baselineStatus, /^assertions: 5\/5$/m)
+  assert.match(baselineStatus, /^answer_blind: false$/m)
+  assert.doesNotMatch(
+    readFileSync(join(baseline, 'trace.jsonl'), 'utf8'),
+    /dsh-spec-performance-investigation/,
+    'the baseline used the target skill',
+  )
+  assert.match(readFileSync(join(baseline, 'patch.diff'), 'utf8'), /unitsByRegion/)
 })
 
 test('the browser evidence fixture does not leak an unready server', async (t) => {

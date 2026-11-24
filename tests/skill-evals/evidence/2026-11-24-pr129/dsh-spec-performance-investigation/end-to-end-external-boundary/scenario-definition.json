@@ -1,0 +1,22 @@
+{
+  "id": "end-to-end-external-boundary",
+  "prompt": "The checkout route in evals/files/end-to-end-boundary is slow. Diagnose it without changing code. Separate the complete client result from local processing and the external shipping-quote service, and show what can be controlled or excluded. Run the fixture and report the evidence and remaining limits.",
+  "expected_output": "The response keeps the task read-only, measures the complete checkout path, separates local processing from the external quote delay, uses a controlled external delay as a negative check, and does not call the local transform the complete product latency.",
+  "files": [
+    "evals/files/end-to-end-boundary/README.md",
+    "evals/files/end-to-end-boundary/package.json",
+    "evals/files/end-to-end-boundary/src/order.mjs",
+    "evals/files/end-to-end-boundary/src/external.mjs",
+    "evals/files/end-to-end-boundary/server.mjs",
+    "evals/files/end-to-end-boundary/client.mjs",
+    "evals/files/end-to-end-boundary/diagnose.mjs",
+    "evals/files/end-to-end-boundary/tests/path.test.mjs"
+  ],
+  "assertions": [
+    "The response makes no production code change.",
+    "The complete checkout path and local server work are measured separately.",
+    "The external shipping-quote delay is identified as the dominant boundary.",
+    "The controlled zero-delay run distinguishes the external cost from local processing.",
+    "The report labels the remaining external-service and environment limits."
+  ]
+}

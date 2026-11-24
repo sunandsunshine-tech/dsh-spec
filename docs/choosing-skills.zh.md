@@ -57,10 +57,11 @@ gh skill install sunandsunshine-tech/dsh-spec "<skill>" \
 | `dsh-spec-pre-push-checks` | 在推送或评审前，为待推送 diff 选出最小充分的检查 | `dsh-spec-code-review`、`dsh-spec-ci-test-reliability` |
 | `dsh-spec-error-handling` | 为跨越机器边界的失败、恢复、重试、后台任务和用户可见报告设计错误处理 | `dsh-spec-ci-test-reliability`、`dsh-spec-code-review` |
 | `dsh-spec-ci-test-reliability` | 围绕隔离、共享资源、进程和清理，设计、评审、诊断并重新设计过慢、范围过大或不稳定的测试 | `dsh-spec-pre-push-checks`、`dsh-spec-error-handling` |
+| `dsh-spec-performance-investigation` | 把生产用户路径上的性能问题转化为可比测量、已定位的瓶颈、保持行为的改动和负控制 | `dsh-spec-pre-push-checks`、`dsh-spec-code-review` |
 
-`dsh-spec-code-review` 判断改动；`dsh-spec-pre-push-checks` 证明本地检查能够证明的范围；`dsh-spec-ci-test-reliability` 负责过慢或不稳定测试背后的执行拓扑。`dsh-spec-error-handling` 覆盖这些检查所经过的失败路径。`dsh-spec-find-simplifications` 提出简化方案，`dsh-spec-agent-notes` 保存需要超出 diff 范围的决定。
+`dsh-spec-code-review` 判断改动；`dsh-spec-pre-push-checks` 证明本地检查能够证明的范围；`dsh-spec-ci-test-reliability` 负责过慢或不稳定测试背后的执行拓扑。`dsh-spec-performance-investigation` 负责生产用户路径上经测量的延迟、吞吐、内存和响应性；单纯的测试套件变慢仍归测试可靠性。`dsh-spec-error-handling` 覆盖这些检查所经过的失败路径。`dsh-spec-find-simplifications` 提出简化方案，`dsh-spec-agent-notes` 保存需要超出 diff 范围的决定。
 
-这五个技能都移植自 dsh。
+这六个技能都移植自 dsh；`dsh-spec-performance-investigation` 由 `dsh-speed-up-perf` 通用化而来。
 
 ## 变更说明与落地
 
@@ -108,6 +109,7 @@ gh skill install sunandsunshine-tech/dsh-spec "<skill>" \
 | 带 PR 的普通软件变更 | 通用协作 | `dsh-spec-pr-description`，并为实现增加软件变更与质量。除非工作使用 GitHub 官方 stacked PR 工作流，否则不要增加 `dsh-spec-merging-stacked-prs` |
 | 官方 stacked PR 链 | 通用协作 | `dsh-spec-pr-description` 和 `dsh-spec-merging-stacked-prs`，并为每一层的证据增加软件变更与质量 |
 | 浏览器 UI 变更 | 通用协作 | 浏览器 UI 证据，并为实现评审增加软件变更与质量 |
+| 性能调查 | 通用协作 | `dsh-spec-performance-investigation`，并为实现和待推送检查增加软件变更与质量 |
 | Agent 技能制作 | 通用协作 | Agent 技能制作 |
 
 ## 能力要求
@@ -117,6 +119,7 @@ gh skill install sunandsunshine-tech/dsh-spec "<skill>" \
 - `dsh-spec-merging-stacked-prs` 需要 GitHub 官方 stacked PR 能力、`gh stack`，并且 head 分支位于同一个仓库。用 `gh extension install github/gh-stack` 安装扩展。
 - `dsh-spec-client-ui-ux` 需要能够运行并检查受影响的 UI，或者明确交接缺失的场景或能力。
 - `dsh-spec-record-browser-gif` 需要 Node.js 24.11+（24 系列）或 26+、Git、`ffmpeg`、`ffprobe`、可运行构建，以及浏览器控制能力或项目声明的 Playwright 设置。在 GitHub 上附带证据还需要 `gh` 能在 `github.com` 上写入。
+- `dsh-spec-performance-investigation` 需要可观察的操作，以及可运行的测量路径或可用的生产测量。缺少这些条件时，它给出测量计划和缺失能力，不作出性能结论。
 - `dsh-spec-translate-docs` 使用随附的 Node 脚本执行配对检查。安装它不要求每份文档都有对侧文件。
 
 ## 跳过规则
@@ -127,5 +130,6 @@ gh skill install sunandsunshine-tech/dsh-spec "<skill>" \
 | 项目不使用 GitHub stacked PR | `dsh-spec-merging-stacked-prs` |
 | 项目不制作 Agent 技能 | `dsh-spec-skill-forge` |
 | 项目没有需要设计或评审的预期失败行为 | `dsh-spec-error-handling` |
+| 没有运行时性能问题，只是测试套件耗时或不稳定 | `dsh-spec-performance-investigation` |
 
 推荐配套技能缺席时，技能仍然可用；它要么通过项目已有的等价机制完成工作，要么记录缺失的能力。

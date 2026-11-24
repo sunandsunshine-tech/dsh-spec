@@ -1,0 +1,8 @@
+4db4f00b7b5a445b68b342ef95fb87901296175ecc08685aa6288cfa85f6ba7f  evals/files/end-to-end-boundary/README.md  mode=0644
+edc39d3645a29808796329e49fda258bd964e413aa66f979d2756857a9c18aeb  evals/files/end-to-end-boundary/package.json  mode=0644
+e417bbc5f206b91c75fa9711536698a40d97b1a1b3cd6a610e2a6ff8311bd2c0  evals/files/end-to-end-boundary/src/order.mjs  mode=0644
+0167b70db90503ab0c89765391537610037ddc26c3b59d7ddb564cb04bb3179d  evals/files/end-to-end-boundary/src/external.mjs  mode=0644
+12a3e7d22cb02721eb99ab520c44858fdcc13835a9e39ccfec345fac81072841  evals/files/end-to-end-boundary/server.mjs  mode=0644
+ea244e7450b16fd8d4bab42b1119a5ebb64832400c531cad2891d61f52af9540  evals/files/end-to-end-boundary/client.mjs  mode=0644
+b3ea996de4a12ffebf393f879bc1c74150918e78b970d185114e4d22fecbd621  evals/files/end-to-end-boundary/diagnose.mjs  mode=0644
+5286ddc376f9c8a133070a0b85ce04ea91d08db4387b14ac4c218df88bd16407  evals/files/end-to-end-boundary/tests/path.test.mjs  mode=0644

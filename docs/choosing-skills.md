@@ -57,10 +57,11 @@ Add this group when the project changes code and needs repeatable review, eviden
 | `dsh-spec-pre-push-checks` | Selects the smallest sufficient checks for the outgoing diff before push or review | `dsh-spec-code-review`, `dsh-spec-ci-test-reliability` |
 | `dsh-spec-error-handling` | Designs error handling for failures, recovery, retries, background work and user-visible reports across machine boundaries | `dsh-spec-ci-test-reliability`, `dsh-spec-code-review` |
 | `dsh-spec-ci-test-reliability` | Designs, reviews, diagnoses and redesigns slow, over-broad or unstable tests around isolation, shared resources, processes and cleanup | `dsh-spec-pre-push-checks`, `dsh-spec-error-handling` |
+| `dsh-spec-performance-investigation` | Turns a production user-path performance concern into comparable measurements, a located bottleneck, a behavior-preserving change and a negative control | `dsh-spec-pre-push-checks`, `dsh-spec-code-review` |
 
-`dsh-spec-code-review` judges the change; `dsh-spec-pre-push-checks` proves the parts a local check can prove; `dsh-spec-ci-test-reliability` owns the topology behind a slow or unstable test. `dsh-spec-error-handling` covers the failure paths those checks exercise. `dsh-spec-find-simplifications` proposes a reduction, and `dsh-spec-agent-notes` preserves a decision that needs more than the diff.
+`dsh-spec-code-review` judges the change; `dsh-spec-pre-push-checks` proves the parts a local check can prove; `dsh-spec-ci-test-reliability` owns the topology behind a slow or unstable test. `dsh-spec-performance-investigation` owns measured latency, throughput, memory and responsiveness on a production user path; a slow test suite alone stays with test reliability. `dsh-spec-error-handling` covers the failure paths those checks exercise. `dsh-spec-find-simplifications` proposes a reduction, and `dsh-spec-agent-notes` preserves a decision that needs more than the diff.
 
-All five skills are ported from dsh.
+All six skills are ported from dsh. `dsh-spec-performance-investigation` is generalized from `dsh-speed-up-perf`.
 
 ## Change descriptions and landing
 
@@ -108,6 +109,7 @@ Install this skill when the project creates, rewrites, migrates or checks Agent 
 | Ordinary software change with a PR | Universal collaboration | `dsh-spec-pr-description`, plus software change and quality for the implementation. Do not add `dsh-spec-merging-stacked-prs` unless the work uses GitHub's official stacked-PR workflow |
 | Official stacked PR chain | Universal collaboration | `dsh-spec-pr-description` and `dsh-spec-merging-stacked-prs`, plus software change and quality for each layer's evidence |
 | Browser UI change | Universal collaboration | Browser UI evidence, plus software change and quality for implementation review |
+| Performance investigation | Universal collaboration | `dsh-spec-performance-investigation`, plus software change and quality for the implementation and outgoing checks |
 | Agent skill authoring | Universal collaboration | Agent skill authoring |
 
 ## Capability requirements
@@ -117,6 +119,7 @@ The requirements below supplement the global prerequisites in the project README
 - `dsh-spec-merging-stacked-prs` requires GitHub's official stacked-PR feature, `gh stack`, and head branches in the same repository. Install the extension with `gh extension install github/gh-stack`.
 - `dsh-spec-client-ui-ux` requires a way to run and inspect the affected UI, or an explicit handoff naming the missing scene or capability.
 - `dsh-spec-record-browser-gif` requires Node.js 24.11+ on the 24 line or 26+, Git, `ffmpeg`, `ffprobe`, a runnable build and browser control or a project-declared Playwright setup. GitHub attachment also requires `gh` on `github.com` with write access.
+- `dsh-spec-performance-investigation` requires an observable operation and a runnable measurement path or usable production measurements. Without one, it returns the measurement plan and the missing capability instead of a performance claim.
 - `dsh-spec-translate-docs` uses its bundled Node script for pairing checks. Installing it does not require every document to have a counterpart.
 
 ## Skip rules
@@ -127,5 +130,6 @@ The requirements below supplement the global prerequisites in the project README
 | The project does not use GitHub stacked PRs | `dsh-spec-merging-stacked-prs` |
 | The project does not author Agent Skills | `dsh-spec-skill-forge` |
 | The project has no expected failure behavior to design or review | `dsh-spec-error-handling` |
+| There is no runtime performance question, only test-suite duration or flakiness | `dsh-spec-performance-investigation` |
 
 A skill remains usable when a recommended companion is absent; its instructions either complete through the project's equivalent mechanism or record the missing capability.

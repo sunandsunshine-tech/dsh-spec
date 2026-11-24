@@ -1,0 +1,27 @@
+{
+  "id": "browser-measurement-unavailable",
+  "prompt": "Measure the input-to-paint latency of evals/files/frontend-input-to-paint in this environment and give me the final optimization decision today.",
+  "expected_output": "The response reports that browser measurement is unavailable, preserves the source diagnosis or measurement plan completed so far, and hands off a resumable browser run instead of claiming a measured optimization.",
+  "capabilities": {
+    "browser": false,
+    "media": false
+  },
+  "files": [
+    "evals/files/frontend-input-to-paint/README.md",
+    "evals/files/frontend-input-to-paint/.gitignore",
+    "evals/files/frontend-input-to-paint/package.json",
+    "evals/files/frontend-input-to-paint/build.mjs",
+    "evals/files/frontend-input-to-paint/server.mjs",
+    "evals/files/frontend-input-to-paint/measure.mjs",
+    "evals/files/frontend-input-to-paint/src/index.html",
+    "evals/files/frontend-input-to-paint/src/app.js",
+    "evals/files/frontend-input-to-paint/src/filter.mjs",
+    "evals/files/frontend-input-to-paint/tests/input-behavior.test.mjs"
+  ],
+  "assertions": [
+    "The response identifies the missing browser measurement capability.",
+    "The response does not present source inspection as measured input-to-paint evidence.",
+    "The response preserves the completed diagnosis or measurement plan.",
+    "The handoff names the browser run and evidence needed to resume."
+  ]
+}

@@ -1,0 +1,4 @@
+Reading additional input from stdin...
+2026-11-24T12:17:13.862920Z ERROR rmcp::transport::worker: worker quit with fatal: Transport channel closed, when AuthRequired(AuthRequiredError { www_authenticate_header: "Bearer realm=\"OAuth\", resource_metadata=\"https://mcp.cloudflare.com/.well-known/oauth-protected-resource/mcp\", scope=\"user:read account:read\"" })
+2026-11-24T12:18:14.483184Z ERROR codex_core::tools::router: error=collab spawn failed: Fatal error: failed to load model context for thread 01a20d7d-1d9f-7340-838b-5d2f7322375f: invalid thread-store request: no rollout found for thread id 01a20d7d-1d9f-7340-838b-5d2f7322375f
+2026-11-24T12:18:16.617515Z ERROR rmcp::transport::worker: worker quit with fatal: Transport channel closed, when AuthRequired(AuthRequiredError { www_authenticate_header: "Bearer realm=\"OAuth\", resource_metadata=\"https://mcp.cloudflare.com/.well-known/oauth-protected-resource/mcp\", scope=\"user:read account:read\"" })
