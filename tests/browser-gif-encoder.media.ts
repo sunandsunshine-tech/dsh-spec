@@ -49,6 +49,26 @@ function decodePixels(path: string, cwd: string): number[][] {
   return pixels
 }
 
+function frameDurations(path: string, cwd: string): number[] {
+  const result = JSON.parse(
+    run(
+      'ffprobe',
+      ['-v', 'error', '-select_streams', 'v:0', '-show_entries', 'frame=duration_time', '-of', 'json', path],
+      cwd,
+    ).toString('utf8'),
+  ) as { frames?: Array<{ duration_time?: string }> }
+  return (result.frames ?? []).map((frame) => Number(frame.duration_time))
+}
+
+function gifLoopCount(path: string): number {
+  const bytes = readFileSync(path)
+  const marker = bytes.indexOf(Buffer.from('NETSCAPE2.0'))
+  assert.notEqual(marker, -1, 'GIF is missing the looping application extension')
+  const block = marker + 'NETSCAPE2.0'.length
+  assert.deepEqual([...bytes.subarray(block, block + 2)], [3, 1], 'GIF loop extension has an invalid shape')
+  return bytes.readUInt16LE(block + 2)
+}
+
 function assertDominant(pixel: number[], channel: number, label: string): void {
   assert.ok(pixel, label + ' frame exists')
   assert.ok((pixel[channel] as number) > 150, `${label}: expected channel ${channel}, got ${pixel.join(',')}`)
@@ -137,8 +157,22 @@ void test('browser GIF encoder verifies video, screenshots and safe replacement 
   assert.equal(screenshotResult.status, 0, screenshotResult.output)
   assert.equal(parseSummary(screenshotResult.stdout).sourceFrames, 2)
   const screenshotPixels = decodePixels(screenshotGif, root)
-  assertDominant(screenshotPixels[0] as number[], 0, 'screenshot first')
-  assertDominant(screenshotPixels.at(-1) as number[], 2, 'screenshot final')
+  assert.equal(screenshotPixels.length, 5, 'screenshot GIF frame count')
+  for (const [index, channel] of [
+    [0, 0],
+    [1, 0],
+    [2, 2],
+    [3, 2],
+    [4, 2],
+  ] as const) {
+    assertDominant(screenshotPixels[index] as number[], channel, `screenshot frame ${index}`)
+  }
+  const screenshotDurations = frameDurations(screenshotGif, root)
+  assert.equal(screenshotDurations.length, 5)
+  for (const [index, duration] of screenshotDurations.entries()) {
+    assert.ok(Math.abs(duration - 0.2) <= 0.01, `screenshot frame ${index} lasts ${duration}s`)
+  }
+  assert.equal(gifLoopCount(screenshotGif), 0, 'GIF loop count')
 
   const replaceable = join(root, 'replaceable.gif')
   writeFileSync(replaceable, 'keep this evidence\n')

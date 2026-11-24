@@ -1,2 +1,3 @@
 dist/
 evidence-local/
+.evidence-local-run-*/

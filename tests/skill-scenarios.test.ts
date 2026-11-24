@@ -1328,6 +1328,11 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
     const status = readFileSync(join(root, 'status.txt'), 'utf8')
     assert.match(status, /^status: pass$/m)
     assert.match(status, /^assertions: 4\/4$/m)
+    if (run === 'candidate-real') {
+      assert.match(status, /^evidence_status: historical$/m)
+      assert.match(status, /^coherence: non-coherent$/m)
+      assert.match(status, /^current_proof: false$/m)
+    }
     const assertions = readFileSync(join(root, 'assertions.txt'), 'utf8').trim().split('\n')
     assert.equal(assertions.length, 4, run + ' assertion count')
     assert.equal(
@@ -1406,6 +1411,7 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
     const reports = filesUnder(artifactRoot).filter((path) => path.endsWith('/capture-report.json'))
     assert.equal(reports.length, 1, run + ' capture report count')
     const report = JSON.parse(readFileSync(join(artifactRoot, reports[0] as string), 'utf8')) as {
+      origin: string
       states: Record<string, { status: string; button: string; disabled: boolean }>
     }
     assert.deepEqual(report.states.initial, {
@@ -1423,6 +1429,23 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
       button: 'Save changes',
       disabled: false,
     })
+    if (run === 'candidate-real') {
+      const final = readFileSync(join(evidenceRoot, run, 'final.md'), 'utf8')
+      const finalOrigin = /http:\/\/127\.0\.0\.1:\d+/.exec(final)?.[0]
+      const finalBytesText = /([\d,]+) bytes/.exec(final)?.[1]
+      const gifBytes = statSync(join(artifactRoot, gifs[0] as string)).size
+      assert.ok(finalOrigin)
+      assert.ok(finalBytesText)
+      const finalBytes = Number(finalBytesText.replaceAll(',', ''))
+      assert.ok(Number.isSafeInteger(finalBytes))
+      assert.notEqual(finalOrigin, report.origin, 'historical real final must not be treated as coherent')
+      assert.notEqual(finalBytes, gifBytes, 'historical real final must not be treated as current media proof')
+      assert.match(
+        readFileSync(join(evidenceRoot, 'README.md'), 'utf8'),
+        /Historical, non-coherent evidence/,
+        'historical real evidence is not visibly downgraded',
+      )
+    }
   }
 
   const triggerInputs = new Map(

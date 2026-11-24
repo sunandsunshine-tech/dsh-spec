@@ -1,3 +1,6 @@
 status: pass
 run_exit_code: 0
 assertions: 4/4
+evidence_status: historical
+coherence: non-coherent
+current_proof: false

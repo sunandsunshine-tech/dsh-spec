@@ -12,7 +12,9 @@ A user-visible browser UI change needs evidence that a reviewer can inspect, but
 
 The package ships `dsh-spec-browser-gif-evidence` from `skills/dsh-spec-browser-gif-evidence/`. The skill owns capture, encoding, verification and optional publication; UI acceptance remains with the UI review workflow. A user-visible browser UI change generates GIF evidence by default from one isolated run of the adopter's real build. A project may select equivalent evidence or waive that default for a named change. A fixture exists only when the user explicitly requests it or the project evidence policy selects it; mock transports, synthetic interactions and test-only hooks require an explicit substitute policy.
 
-The evaluation application completes `/save` itself after the declared delay. Capture observes the saving state and waits for that same request; no separate completion endpoint or test-only hook drives the fixture. PR115's real and fixture runs retain one isolated Chrome process, the encoded GIF, capture report, source and QA frames, and the resolved browser/media capability profile.
+The evaluation application completes `/save` itself after the declared delay. Capture observes the saving state and waits for that same request; no separate completion endpoint or test-only hook drives the fixture. PR115's fixture run retains one isolated Chrome process, the encoded GIF, capture report, source and QA frames, and the resolved browser/media capability profile. Its retained report does not record explicit fresh-profile provenance.
+
+PR115's real leaf is historical, non-coherent evidence. Its final reports a different origin and GIF byte count from the retained artifact, and its media was regenerated after the model run. The leaf therefore records `evidence_status: historical`, `coherence: non-coherent` and `current_proof: false`; its historical assertion review does not establish behavior at the current head.
 
 The skill carries one focused publication reference and the generated Node bundle `scripts/encode-browser-gif.mjs`; its source lives under `package/dsh-spec-browser-gif-evidence/`. The encoder writes and verifies a temporary GIF, then publishes it only after timing, dimensions, animation and size checks pass. Repository tests exercise the generated entry, stay outside the installed copy, and split fast preflight checks from one shared real-media scenario. The installed copy mirrors the landed directory byte for byte; evaluation inputs remain under `tests/skill-evals/` and never enter either distribution tree.
 
@@ -81,7 +83,7 @@ Source files:
 - **The DSH real-model policy is generalized to real product behavior.** A recording identifies whether the run used the real integrated path, a fixture or another substitute. A substitute requires an explicit user or project-policy choice.
 - **UI acceptance is not this skill's decision.** The separate UI review workflow decides coverage and acceptability; this skill produces and verifies the requested artifact.
 - **The encoder is shipped rather than reimplemented at runtime.** A deterministic command gives stable validation and avoids repeating the same frame-manipulation logic in an agent's context.
-- **Encoder development tests stay in the repository.** Fast command and preflight cases run in the normal suite; one shared real-media scenario checks video timing, screenshots, representative-frame order and safe replacement on Node 26. Installed skills carry no maintenance tests.
+- **Encoder development tests stay in the repository.** Fast command and preflight cases run in the normal suite; one shared real-media scenario checks video timing, screenshot frame order, per-frame duration, loop metadata and safe replacement on Node 26. Installed skills carry no maintenance tests.
 - **A skipped media test is not evidence.** The dedicated media entry fails with a clear diagnostic when `ffmpeg` or `ffprobe` is absent instead of treating the absence as a pass.
 - **Split output is still one evidence run.** Completion accepts one verified GIF or its ordered, verified parts from the same run, with the media context beside the published embed.
 
@@ -92,11 +94,12 @@ Source files:
 | Agent Skills structure, links and description budget | Mechanical | `verify-skill-spec.mjs` |
 | Encoder timing, trim, speed, screenshots, atomic overwrite and size rejection | Mechanical | `tests/browser-gif-encoder.media.ts`: one shared real WebM/PPM scenario runs on Node 26 under real `ffmpeg` and `ffprobe` |
 | Command contract and preflight failures without media execution | Mechanical | `tests/cli-contract.test.ts` and `tests/browser-gif-encoder.test.ts` |
-| Capability-absent handoff and explicit fixture disclosure | Judged + Mechanical | Clean-context runs under `tests/skill-evals/evidence/2026-11-20-pr115/`; candidate, capability-absent and fixture runs pass all 12 assertions |
+| Capture success, disconnect, deadline, atomic publication and cleanup | Mechanical | `tests/browser-gif-capture.test.ts`: a fake CDP browser proves complete publication, prompt rejection after disconnect, a full-run deadline, no partial evidence and no process or profile residue |
+| Capability-absent handoff and explicit fixture disclosure | Judged + Mechanical | Clean-context runs under `tests/skill-evals/evidence/2026-11-20-pr115/`; the capability-absent and fixture runs pass 8/8 assertions |
 | Installed copy and corpus gates | Mechanical | `skill:refresh`, `check:corpus`, repository-shape tests |
 | Existing-media branches | Dissolved | No DSH asset-branch policy is shipped |
-| Capture of a real UI with a real browser | Judged | The candidate run built the fixture, captured three states from one headless-Chrome session, encoded and visually inspected a GIF, and cleaned up the server and browser |
-| Model behavior and discovery quality | Judged + Mechanical | The three behavior runs pass 12/12 assertions; eight short trigger probes pass their expected positive or near-miss result |
+| Historical capture of a real UI with a real browser | Judged | The historical real leaf records a review of a three-state headless-Chrome capture, but its final and retained artifact are non-coherent and the leaf is excluded from current proof |
+| Model behavior and discovery quality | Judged + Mechanical | The absent and fixture runs pass 8/8 assertions; the historical real run's 4/4 review is non-coherent; eight short trigger probes pass their expected positive or near-miss result |
 
 ## Alternatives considered
 
