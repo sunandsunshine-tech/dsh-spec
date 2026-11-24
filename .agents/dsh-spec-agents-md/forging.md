@@ -13,17 +13,13 @@ Keep the parenthetical to the availability and name. Do not use the surrounding 
 
 The requirement must remain complete without the name; the name is not a link, path, or dependency.
 
-Each default remains at its use site. A forged skill with a default applies it when the current request and existing project instructions leave that choice open. Missing project instructions are valid, and selecting a default never requires asking the user or creating or modifying an instruction file.
+Default selection follows the loaded forge skill; this repository adds no override.
 
 ## Capability-dependent requirements
 
-A forged skill states the result it needs and distinguishes a required capability from a preferred execution mechanism. A subagent, parallel execution, or isolated context is an optional mechanism unless the task cannot preserve its required quality without it. When the mechanism is absent, the skill must either complete through an equivalent verifiable route or stop with an explicit handoff naming the unfinished work and missing capability. Silent lower-quality completion is a failure.
-
-For a capability-dependent skill, the review must cover both profiles when both are possible in the adopter's environment: capability present and capability absent. The absent-capability evidence is a completed observable result with its owning validation or an explicit handoff. A static keyword check does not establish this behavior.
+Capability profiles and model-evidence obligations follow the loaded forge skill. This repository owns only where development evaluation assets live:
 
 Evaluation scenarios are development assets. When `skills/` is the distribution tree or is mirrored into an installed skill tree, keep eval manifests and fixture inputs outside it. For an eval run, stage them at the official `evals/` path inside a temporary skill copy. A delivered skill carries only resources its users need at runtime.
-
-A central natural-language behavior that realistic prompts can falsify carries a development eval scenario unless a deterministic command or test decides it. Capability-dependent behavior adds both capability profiles. Model evals run when the owned behavior changes, not in routine CI, and the delivered skill never carries them.
 
 ## Model-facing description budget
 

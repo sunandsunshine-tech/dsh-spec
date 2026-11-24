@@ -1,4 +1,4 @@
-The current contract in [README.md](/tmp/pr113-eval.FHwx6T/message-only-previous/project/README.md:3) exposes only a human-readable `message`. That gives the expected rejection no stable machine identity and makes it indistinguishable from other `{ message }` failures.
+The current contract in [README.md](/workspace/message-only-previous/project/README.md:3) exposes only a human-readable `message`. That gives the expected rejection no stable machine identity and makes it indistinguishable from other `{ message }` failures.
 
 The smallest change is to add a stable failure discriminator:
 

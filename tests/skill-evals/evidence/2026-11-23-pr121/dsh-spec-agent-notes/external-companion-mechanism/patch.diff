@@ -1,0 +1,114 @@
+diff --git a/.agents/dsh-spec-agent-notes/archived/architecture/.gitkeep b/.agents/dsh-spec-agent-notes/archived/architecture/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/.agents/dsh-spec-agent-notes/archived/bug-fix/.gitkeep b/.agents/dsh-spec-agent-notes/archived/bug-fix/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/.agents/dsh-spec-agent-notes/archived/feature/.gitkeep b/.agents/dsh-spec-agent-notes/archived/feature/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/.agents/dsh-spec-agent-notes/archived/process/.gitkeep b/.agents/dsh-spec-agent-notes/archived/process/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/.agents/dsh-spec-agent-notes/archived/simplification/.gitkeep b/.agents/dsh-spec-agent-notes/archived/simplification/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/.agents/dsh-spec-agent-notes/archived/testing/.gitkeep b/.agents/dsh-spec-agent-notes/archived/testing/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/.agents/dsh-spec-agent-notes/implemented/architecture/.gitkeep b/.agents/dsh-spec-agent-notes/implemented/architecture/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/.agents/dsh-spec-agent-notes/implemented/bug-fix/.gitkeep b/.agents/dsh-spec-agent-notes/implemented/bug-fix/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/.agents/dsh-spec-agent-notes/implemented/feature/.gitkeep b/.agents/dsh-spec-agent-notes/implemented/feature/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/.agents/dsh-spec-agent-notes/implemented/process/.gitkeep b/.agents/dsh-spec-agent-notes/implemented/process/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/.agents/dsh-spec-agent-notes/implemented/process/2026-11-23-release-windows-run-in-utc.md b/.agents/dsh-spec-agent-notes/implemented/process/2026-11-23-release-windows-run-in-utc.md
+new file mode 100644
+index 0000000..817705a
+--- /dev/null
++++ b/.agents/dsh-spec-agent-notes/implemented/process/2026-11-23-release-windows-run-in-utc.md
+@@ -0,0 +1,21 @@
++# Agent Note: Release windows run in UTC
++
++Status: implemented
++
++## Problem
++
++Release windows need one shared clock reference. If a window is interpreted in each participant's local timezone, the same announcement identifies different instants, and daylight-saving changes can make its boundaries ambiguous.
++
++## Decision
++
++Release windows are defined, scheduled, and communicated in UTC. The canonical start and end of a release window are UTC instants; local-time renderings are supplemental and do not replace those values.
++
++## Alternatives considered
++
++**Use each participant's local time.** This loses because one release window would have several unlabelled representations and daylight-saving transitions could move its apparent boundary.
++
++**Use a regional timezone other than UTC.** This loses because it still requires a global offset conversion and its offset can change seasonally.
++
++## Consequences
++
++Release schedules now share one unambiguous reference point. Participants convert the canonical window to their local time when needed, and release documentation and tooling must mark UTC explicitly so a bare clock time cannot be mistaken for local time. UTC also means a window may fall outside a participant's normal business hours; the scheduling decision remains anchored to the UTC instants rather than local working hours.
+diff --git a/.agents/dsh-spec-agent-notes/implemented/process/reviews/release-windows-run-in-utc-review.json b/.agents/dsh-spec-agent-notes/implemented/process/reviews/release-windows-run-in-utc-review.json
+new file mode 100644
+index 0000000..7e58030
+--- /dev/null
++++ b/.agents/dsh-spec-agent-notes/implemented/process/reviews/release-windows-run-in-utc-review.json
+@@ -0,0 +1,9 @@
++{
++  "version": 1,
++  "review_type": "external-companion",
++  "source": "../2026-11-23-release-windows-run-in-utc.md",
++  "source_sha256": "4ee98f7edc14581b3136202c6b4bec98c563e9a96e8e76991d5329f114500ec5",
++  "reviewed_at": "2026-11-23",
++  "status": "approved",
++  "summary": "The implemented process decision defines release-window start and end times in UTC."
++}
+diff --git a/.agents/dsh-spec-agent-notes/implemented/simplification/.gitkeep b/.agents/dsh-spec-agent-notes/implemented/simplification/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/.agents/dsh-spec-agent-notes/implemented/testing/.gitkeep b/.agents/dsh-spec-agent-notes/implemented/testing/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/.agents/dsh-spec-agent-notes/proposed/architecture/.gitkeep b/.agents/dsh-spec-agent-notes/proposed/architecture/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/.agents/dsh-spec-agent-notes/proposed/bug-fix/.gitkeep b/.agents/dsh-spec-agent-notes/proposed/bug-fix/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/.agents/dsh-spec-agent-notes/proposed/feature/.gitkeep b/.agents/dsh-spec-agent-notes/proposed/feature/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/.agents/dsh-spec-agent-notes/proposed/process/.gitkeep b/.agents/dsh-spec-agent-notes/proposed/process/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/.agents/dsh-spec-agent-notes/proposed/simplification/.gitkeep b/.agents/dsh-spec-agent-notes/proposed/simplification/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/.agents/dsh-spec-agent-notes/proposed/testing/.gitkeep b/.agents/dsh-spec-agent-notes/proposed/testing/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/.agents/dsh-spec-agent-notes/rejected/architecture/.gitkeep b/.agents/dsh-spec-agent-notes/rejected/architecture/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/.agents/dsh-spec-agent-notes/rejected/bug-fix/.gitkeep b/.agents/dsh-spec-agent-notes/rejected/bug-fix/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/.agents/dsh-spec-agent-notes/rejected/feature/.gitkeep b/.agents/dsh-spec-agent-notes/rejected/feature/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/.agents/dsh-spec-agent-notes/rejected/process/.gitkeep b/.agents/dsh-spec-agent-notes/rejected/process/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/.agents/dsh-spec-agent-notes/rejected/simplification/.gitkeep b/.agents/dsh-spec-agent-notes/rejected/simplification/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/.agents/dsh-spec-agent-notes/rejected/testing/.gitkeep b/.agents/dsh-spec-agent-notes/rejected/testing/.gitkeep
+new file mode 100644
+index 0000000..e69de29

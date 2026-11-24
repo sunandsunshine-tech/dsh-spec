@@ -31,8 +31,6 @@ Process isolation does not isolate host ports, predictable filesystem paths, ext
 
 Do not serialize an entire suite because one fixture lacks isolation. Narrow the exclusive scope or change the allocation first.
 
-By default, split a mixed test into fast contract cases and one shared real-resource scenario, and run expensive evidence only in a lane where the result can differ. A diagnosis-only request stays read-only until the user also authorizes repair.
-
 ## Allocate resources atomically
 
 Use the resource owner's allocator instead of checking availability and claiming it later.
@@ -71,6 +69,8 @@ Prefer an observation that holds on every supported platform.
 
 ## Design the smallest sufficient test
 
+By default, split a mixed test into fast contract cases and one shared real-resource scenario, and run expensive evidence only in a lane where the result can differ.
+
 For a deterministic test, elapsed time is first a property of test design, not a budget to raise. Before changing a timeout, remove repeated work or move evidence to the narrowest sufficient layer:
 
 - keep fast contract and preflight cases independent of expensive browsers, media, containers, or real services;
@@ -79,7 +79,7 @@ For a deterministic test, elapsed time is first a property of test design, not a
 - run an expensive integration or evidence scenario once on a representative CI lane unless portability requires another run;
 - split a test that repeats the same slow assertion across many tiny variations, or collapse the variations into one table-driven contract with one external execution.
 
-A timeout may bound named awaited work; it does not make duplicate setup or a suite-wide integration matrix affordable. Do not multiply every test group's timeout because one group is slow.
+Do not multiply every test group's timeout because one group is slow.
 
 ## Budget timeouts against the lane
 
@@ -132,7 +132,7 @@ Restoring a budget is not masking when it returns what the lane already granted 
 
 ## Diagnose existing flakes
 
-For an existing probabilistic test or CI failure, read [the CI flake diagnosis workflow](references/ci-flake-diagnosis.md). A diagnosis-only request remains read-only: report the cause and evidence unless the user also asks for a fix.
+For an existing probabilistic test or CI failure, read [the CI flake diagnosis workflow](references/ci-flake-diagnosis.md). A diagnosis-only request stays read-only until the user also authorizes repair. Report the cause and evidence unless the user also asks for a fix.
 
 ## Validate and report
 

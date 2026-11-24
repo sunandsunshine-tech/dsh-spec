@@ -1,4 +1,4 @@
-The smallest safe change is to narrow the `try` to cleanup only in [README.md](/tmp/pr113-eval.FHwx6T/silent-handler-previous/project/README.md:5):
+The smallest safe change is to narrow the `try` to cleanup only in [README.md](/workspace/silent-handler-previous/project/README.md:5):
 
 ```js
 try {

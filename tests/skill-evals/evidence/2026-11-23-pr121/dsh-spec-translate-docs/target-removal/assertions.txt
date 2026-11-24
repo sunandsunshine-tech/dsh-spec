@@ -1,0 +1,4 @@
+PASS All eligible active documents lose Japanese.
+PASS Their switchers and aggregate records are cleaned consistently.
+PASS The archived Japanese document remains unchanged.
+PASS The report distinguishes complete active cleanup from excluded frozen content.

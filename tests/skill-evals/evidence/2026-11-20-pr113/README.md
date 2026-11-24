@@ -1,4 +1,9 @@
-# PR #113 clean-context model evidence
+# PR #113 reviewer-graded historical model evidence
+
+> This directory retains final responses and reviewer-assigned scores, but not behavioral traces,
+> command logs, input manifests or complete runtime skill hashes. It does not establish
+> answer-blind loading. Changed behavior after this layer is covered by the targeted evidence under
+> `../2026-11-23-pr121/` and `../2026-11-23-pr122/`.
 
 Candidate implementation commit: `1b40307d92fb24714717ae5086df84f3640cf55b`.
 Candidate skill tree: `45cbc1bb02db3bc97ae070e5b4ec1034c6ac3b91`.
@@ -129,7 +134,7 @@ Each `trigger/<query>/` directory retains the final response, stderr, and a deri
 containing command records and the final token usage. The commands are copied from the ephemeral
 `codex exec --json` stream; the large command outputs are omitted. This keeps the trigger decision
 auditable without committing the full host trace. Every trace begins with the SHA-256 of the
-installed `SKILL.md`, and the evidence test checks it against the current source.
+installed `SKILL.md`; `trigger-input.sha256` binds the trigger corpus, fixture instructions and name and description that selected it.
 
 All runs use `trigger-fixtures/AGENTS.md`, which marks `.agents/skills/` as evaluator infrastructure
 and forbids reading it for task context. Five near-miss prompts name minimal files under

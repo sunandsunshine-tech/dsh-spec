@@ -22,7 +22,6 @@ const chrome = [
   '/usr/bin/google-chrome',
   '/usr/bin/chromium',
   '/usr/bin/chromium-browser',
-  '/mnt/c/Program Files/Google/Chrome/Application/chrome.exe',
 ].find((candidate) => candidate && existsSync(candidate))
 if (!chrome) throw new Error('set CHROME_PATH to a Chrome or Edge executable')
 
@@ -195,6 +194,7 @@ async function startBrowser() {
       '--no-first-run',
       '--no-default-browser-check',
       '--disable-gpu',
+      ...(process.env.EVAL_CHROME_NO_SANDBOX === '1' ? ['--no-sandbox'] : []),
       'about:blank',
     ],
     {

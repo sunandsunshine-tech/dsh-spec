@@ -1,3 +1,7 @@
-3df9d3e5be95cb084b0e2ac3440334b1aae23fffbb716ce1e64ca333ec5381f6  skills/dsh-spec-code-review/SKILL.md
-99db04621b3294d91c3f46373279296d78b179ba042b81ff3416f1fead3ab731  skills/dsh-spec-error-handling/SKILL.md
 6131f5f18451a5b89782afc0989428ec3d594d5be0b29fab9e9c335b81b6c612  skills/dsh-spec-client-ui-ux/SKILL.md
+acecc0af3e0bb031e9976f7d073e0127bcd7bb5f0b72610f95439134bef88e8d  skills/dsh-spec-client-ui-ux/THIRD_PARTY_NOTICES
+3df9d3e5be95cb084b0e2ac3440334b1aae23fffbb716ce1e64ca333ec5381f6  skills/dsh-spec-code-review/SKILL.md
+4e5aecffece48756d55668a8220110b39a3dbfba22bcc30871a1621b0b61333f  skills/dsh-spec-code-review/THIRD_PARTY_NOTICES
+99db04621b3294d91c3f46373279296d78b179ba042b81ff3416f1fead3ab731  skills/dsh-spec-error-handling/SKILL.md
+134def8b2ef7592d000f9ceba4da58153ad2a2bf98365fb671ce0632f5eeef14  skills/dsh-spec-error-handling/THIRD_PARTY_NOTICES
+7d59394c67be434d3d6421fcc1160dc5e4a7cd5e3fbefb48f5ec8a9cb5ef658e  skills/dsh-spec-error-handling/references/error-contracts.md

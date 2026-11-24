@@ -1,8 +1,8 @@
-# PR #116 current model evidence
+# PR #116 recorded model evidence
 
-These runs isolate the source and answer tree from the staged project and execute the current
-test-reliability skill. This tree has no bundled model-evaluation runner, so each run was staged and
-invoked directly.
+These runs isolate the source and answer tree from the staged project and record the exact
+test-reliability skill revision used by PR #116. This tree has no bundled model-evaluation runner,
+so each run was staged and invoked directly.
 
 ```bash
 run_dir="$(mktemp -d)"
@@ -52,7 +52,7 @@ and `assertions.txt` carry one `PASS` line per assertion; a failed assertion is 
 and `status.txt` records `status: pass`, `run_exit_code: 0` and the exact count only when every
 assertion passed.
 
-The complete current skill manifest is:
+The complete skill manifest used by these runs is:
 
 ```text
 3441d8d58e80a5850c3ba1a01f0870d8ede7f6835725b69a8a2a38246aaf806a  skills/dsh-spec-test-reliability/SKILL.md
@@ -68,10 +68,10 @@ are `b01994f5dfdea9031a3f0650017cd554a9ce603d4915f765ff0b9aae66f8ac48` and
 
 `scenario-definition.sha256` hashes the scenario's recursively key-sorted JSON with no insignificant
 whitespace and no trailing newline. The repository gate recomputes that hash, the exact 5/5 and 4/4
-assertion sets, the current input and skill manifests, artifact hashes, final-message equality, and
+assertion sets, the recorded inputs and skill manifest, artifact hashes, final-message equality, and
 absence of the known answer locations `evals/evals.json`, `tests/skill-evals` and `expected_output`
 from each trace:
 
 ```sh
-node --test --test-name-pattern="test reliability current model evidence" tests/skill-scenarios.test.ts
+node --test --test-name-pattern="test reliability recorded model evidence" tests/skill-scenarios.test.ts
 ```

@@ -1,1 +1,2 @@
 3df9d3e5be95cb084b0e2ac3440334b1aae23fffbb716ce1e64ca333ec5381f6  skills/dsh-spec-code-review/SKILL.md
+4e5aecffece48756d55668a8220110b39a3dbfba22bcc30871a1621b0b61333f  skills/dsh-spec-code-review/THIRD_PARTY_NOTICES

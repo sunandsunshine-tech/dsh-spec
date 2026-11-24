@@ -1,0 +1,16 @@
+{
+  "id": "explicit-multiple-targets-handoff",
+  "prompt": "A workflow explicitly selects Chinese and Japanese for evals/files/multiple-targets/docs/new-note.md. The host provides no subagent, isolated context, staged independent review, or other working-separation mechanism. Resolve the target set and hand off before translating in the working context.",
+  "expected_output": "The explicit Chinese and Japanese target set is accepted. No counterpart or aggregate record is created in the working context; the handoff names both targets, the missing separation and a resumable next step.",
+  "files": [
+    "evals/files/multiple-targets/docs/new-note.md",
+    "evals/files/multiple-targets/.agents/dsh-spec-translate-docs/terminology.md",
+    "evals/files/multiple-targets/.agents/dsh-spec-translate-docs/terminology.ja.md"
+  ],
+  "assertions": [
+    "The explicit Chinese and Japanese target set is accepted.",
+    "The working context is not used to translate new pairs without working separation.",
+    "No counterpart or aggregate record is created.",
+    "The handoff names both targets, missing separation and a resumable next step."
+  ]
+}

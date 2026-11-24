@@ -5,16 +5,110 @@ evaluated to contain `evals/evals.json`, but `skills/` is this repository's dist
 `.agents/skills/` is its installed mirror. Keeping the corpus there would ship test inputs to every
 adopter.
 
-For an eval run, create a temporary parent directory containing a child named `<skill>`, copy
-`skills/<skill>/` into that child, then copy `tests/skill-evals/<skill>/evals/` into the child as
-`evals/`. When a scenario names `.agents/skills/<sibling>/`, install the complete
-`skills/<sibling>/` tree at that fixture path; a copied `SKILL.md` alone is not an installation.
-The skill directory's name must match its `SKILL.md` name. Run the official eval workflow against
-the temporary skill. Delete the temporary parent afterwards.
+Use `node tests/skill-evals/run-model-eval.mjs --skill <skill> --scenario <id> --output <dir>` for
+a recorded model run. The runner installs the complete target skill and every sibling a scenario
+lists under `install`, copies only the declared fixture files, and mounts an otherwise empty
+response directory into an isolated Linux namespace. The writable project, Codex home, response,
+home and temporary directories are separate `tmpfs` mounts with explicit `--size` limits. A private
+wrapper copies the read-only workspace and Codex-home seeds into those mounts before starting Codex.
+The source repository, answer manifest, expected output and other evidence are absent from that
+namespace. The outer mount policy enforces read-only or editable-project behavior; Codex runs
+without a second sandbox because the mount is already the boundary. The host needs `bubblewrap`
+(`bwrap`) with `--size` support; `flock` supplies crash-released output locking.
+
+The runner isolates the project and answer tree, not the network. Model calls need provider
+connectivity, so a host-side loopback proxy holds any inline provider bearer token and injects it
+outside the model namespace. The temporary Codex home contains only a local proxy endpoint and a
+random per-run authorization value. The proxy accepts only POST JSON requests for the provider's
+Responses or Chat Completions endpoint, preserves the upstream base path and query, and rejects
+every other path, method, media type, and authorization value. A configured model catalog is
+validated against the supported schema, rewritten from the parsed representation, read without
+following links, and copied to a fixed non-reserved filename; unknown fields fail closed. Provider
+URLs containing userinfo or credential-like query parameters are refused. Every URL candidate in
+catalog text is checked for a valid HTTP(S) form, userinfo, and credential-like query parameters;
+malformed and unsupported forms fail closed. Run only repository-controlled scenarios and trusted
+fixtures; network egress remains available. Traces that name the provider home or response mount
+fail closed.
+The compatibility claim is therefore source/answer-tree isolation with non-exposed provider
+credentials and reviewer-certified assertions, not a general network sandbox.
+
+The namespace intentionally exposes the host mise toolchain read-only under the neutral
+`/home/eval/.local/share/mise/installs` path so Node.js, pnpm and ffmpeg can run. A broad parent
+search can therefore list tooling files; those files are not evaluation inputs. Traces must not
+access answer or evidence files. The runner fails a command that names `evals/evals.json`,
+`tests/skill-evals` or `expected_output`, and reviewers reject any other access to answer-bearing
+material.
+
+The runner also appends an instruction naming the installed target
+`.agents/skills/<skill>/SKILL.md` and requiring the model to work only inside the project. A
+scenario may set `allow_subagents: true` to permit isolated subagents; otherwise the wrapper
+forbids them.
+
+The runner writes a normalized trace and the final response, exact input and behavior-bearing
+installed-skill hashes and modes, the canonical scenario hash, NUL-safe changed paths, patch and
+changed-file snapshots. The private wrapper reports model exit through a one-connection control
+socket, kills remaining sandbox processes, and keeps the namespace alive while the host copies the
+bounded workspace and response trees through `/proc/<pid>/root`. No host result directory is mounted
+into the model namespace. The installed skill tree and trusted Git directory are read-only
+overlays, Codex browser and computer-use features are disabled, and subagents are disabled unless
+the scenario authorizes them. The runner clears inherited host environment variables before the
+model process and inspects the fixture through a trusted Git copy made before the model starts;
+model-controlled hooks, configuration redirects and replacement indexes cannot change that
+inspection. A scenario may list ignored build or evidence paths under `outputs`; the runner retains
+those files too, so a successful run cannot satisfy the report while losing its actual artifact. It
+leaves `status.txt` pending until a reviewer grades the retained output. Assertion files are
+reviewer-certified evidence, bound to a retained final response and artifact set; they are not
+independent automatic grading. `final.md` must equal the last agent message in the trace. The trace
+is reviewer context, not an adversarial execution attestation: the model process can write to its
+own runtime output. Artifacts, filesystem state and retained hashes are the authoritative checks.
+Skill-file hashing rejects links and other non-regular entries instead of following them into the
+host. Host home, temporary, Windows-user and build toolchain roots are normalized to neutral
+placeholders in text evidence. Normalization changes recorded path spellings, not execution, grader
+decisions or artifact hashes.
+
+Model output limits are part of the runner contract: the final response is at most 2 MiB; each
+retained artifact is at most 16 MiB, with at most 256 files and 64 MiB in total. The workspace and
+`/tmp` mounts are each at most 512 MiB, the Codex home is at most 64 MiB, the response mount is at
+most 8 MiB, and `/home` is at most 128 MiB. The runner rejects logical file sizes before reading or
+copying, streams hashes in fixed-size chunks, and does not process final responses or artifacts
+after a non-zero model exit. `tmpfs --size` limits allocated blocks; the logical-size checks also
+reject sparse files that allocate no blocks.
+
+The runner records the scenario, declared inputs, installed behavior-bearing skill files, final
+message and artifacts. It does not identify the model provider or capture every moving toolchain
+version, so retained evidence is not a byte-for-byte reproduction contract. The runner derives
+browser and media availability from executables that the sandbox actually exposes. A scenario may
+explicitly require a capability, which fails before the model starts when unavailable, or explicitly
+disable it, which masks known system browser and media executables. `capabilities.json` records the
+resolved auth, browser, media, sandbox and subagent profile. The compatibility claim does not cover
+general network isolation, and a masked browser set is not proof that no unknown executable exists
+elsewhere on the image.
+
+The official Agent Skills layout can also be checked without a model run by placing the target skill
+at `<temporary>/<skill>` and its development corpus at `<temporary>/<skill>/evals/`. A scenario's
+`install` list, not the spelling of a fixture path, declares sibling capabilities. The skill
+directory's name must match its `SKILL.md` name.
 
 Archive scenarios that exercise sealing also need a Git checkout and the six committed archive
 class directories. The scenario files provide the baseline; the runner initializes and commits it
 before invoking the model.
+
+A review or outgoing-diff scenario may declare `change_patch` and `change_root`. The runner applies
+that patch in reverse to commit the base state, then reapplies it to commit the candidate, so the
+model reviews a real `HEAD^..HEAD` diff. The patch file remains a declared input.
+
+An output path must be `evidence/<date>/<skill>/<run>` and its skill component must match
+`--skill`. Every input-manifest entry carries its executable mode bits, so changing whether a
+fixture command can run invalidates the retained evidence. When replacing an existing run, the
+runner takes an output lock, stages the replacement beside it, removes the model-writable run root
+before promotion, and keeps the previous leaf until promotion; a failed run leaves the previous
+leaf intact. `changed-paths.json` is the machine path record; the text file remains a readable
+summary.
+
+An absent-capability scenario declares `"capabilities": {"browser": false, "media": false}`. The
+runner then omits both the browser mount and the ffmpeg directory and PATH entry, masks known
+system locations, and fails before the model starts if an explicitly required capability is
+unavailable.
 
 `tests/skill-scenarios.test.ts` performs the same staging for its corpus checks. A repository-shape
 test rejects an `evals/` directory under `skills/`, so the development corpus cannot silently return
@@ -30,3 +124,13 @@ checks and do not need a parallel model eval.
 Model evals run when the owning behavior, defaults, stop conditions, capability branches, fixed
 output, or triggering description change. They do not run routinely in CI. A change without a model
 run must say which deterministic evidence decides the behavior or why an eval is not warranted.
+
+Each behavior run records the behavior-bearing installed skill files as provenance, the declared
+fixture set, and the scenario definition that was current when it ran. A later scenario change
+invalidates that run as current evidence. A later edit to a behavior-bearing skill file does not
+make every earlier scenario current again. Notice-only provenance changes remain explicit historical
+drift rather than forcing an unrelated behavioral rerun.
+
+Trigger evidence binds `skills/<name>/SKILL.md#name-description`. The body may change without
+invalidating trigger selection; a name or description change requires the trigger corpus to be
+rerun.

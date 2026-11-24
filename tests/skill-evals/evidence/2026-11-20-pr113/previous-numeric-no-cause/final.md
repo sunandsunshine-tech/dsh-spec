@@ -1,4 +1,4 @@
-Review result: [README.md](/tmp/pr113-eval.FHwx6T/numeric-no-cause-previous/project/README.md:3) correctly notes the missing cause chain, but its remaining text documents the lossy behavior rather than the required contract. It should make `exitStatus` the stable numeric failure identity, preserve `stderr` for diagnostics, avoid fabricating a cause, and never route behavior by parsing messages.
+Review result: [README.md](/workspace/numeric-no-cause-previous/project/README.md:3) correctly notes the missing cause chain, but its remaining text documents the lossy behavior rather than the required contract. It should make `exitStatus` the stable numeric failure identity, preserve `stderr` for diagnostics, avoid fabricating a cause, and never route behavior by parsing messages.
 
 ```markdown
 # Configuration checker bridge

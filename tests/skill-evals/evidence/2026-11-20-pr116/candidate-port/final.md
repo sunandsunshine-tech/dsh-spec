@@ -4,7 +4,7 @@ Fixed the scan-then-bind race. The original `findFreePort()` released its probe 
 Error: listen EADDRINUSE: address already in use 127.0.0.1:44855
 ```
 
-The test now calls `listen(0)` directly in [server.test.mjs](/tmp/dsh-pr116-port-trust.GTUdTx/evals/files/port-collision/tests/server.test.mjs:7). The listener waits for its callback before reading `server.address().port` in [server.mjs](/tmp/dsh-pr116-port-trust.GTUdTx/evals/files/port-collision/support/server.mjs:13), and cleanup awaits `server.close()`.
+The test now calls `listen(0)` directly in [server.test.mjs](/workspace/evals/files/port-collision/tests/server.test.mjs:7). The listener waits for its callback before reading `server.address().port` in [server.mjs](/workspace/evals/files/port-collision/support/server.mjs:13), and cleanup awaits `server.close()`.
 
 Verification:
 

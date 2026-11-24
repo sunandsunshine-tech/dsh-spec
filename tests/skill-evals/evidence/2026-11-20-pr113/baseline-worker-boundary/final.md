@@ -1,4 +1,4 @@
-[README.md](/tmp/pr113-eval.FHwx6T/worker-boundary-baseline/project/README.md:3) currently specifies only `{ "message": string }`. That contract cannot preserve machine-readable identity or the cause described as lost on line 11.
+[README.md](/workspace/worker-boundary-baseline/project/README.md:3) currently specifies only `{ "message": string }`. That contract cannot preserve machine-readable identity or the cause described as lost on line 11.
 
 The minimum wire contract should be:
 

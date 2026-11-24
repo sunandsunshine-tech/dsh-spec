@@ -1,5 +1,9 @@
 # PR #114 clean-context model evidence
 
+> **Historical status:** these runs predate the evidence-layer removal of host-specific browser
+> paths. Their candidate outputs and per-run input manifests remain as recorded; later current
+> client-UI behavior is bound by the PR121 and PR122 evidence sets.
+
 Base: `aefd0143` (`agent/stack-105-error-contract`).
 Final candidate evidence revision: `b5977d09`.
 Trigger fixture tree: `d420502b19eaca2d79dd5599d2226d7fff0f9993`.
@@ -67,5 +71,6 @@ Evidence: `trigger-matrix.tsv`, `trigger-input.sha256`, and `trigger/<query>/`.
   one-session headless-Chrome run; `artifacts.sha256` binds every artifact.
 
 Model runs are development evidence and do not run in routine CI. Repository tests verify that
-the recorded inputs, scores, skill hash, trigger reads and artifact hashes are internally
-consistent; a skill or fixture change invalidates them.
+the recorded inputs, scores, skill revision, trigger reads and artifact hashes are internally
+consistent. The skill hash identifies the bytes used by these runs; a later edit invalidates the
+behavior it changes, not every unrelated scenario.

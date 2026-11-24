@@ -1,0 +1,93 @@
+Independent replay of patch.diff against the declared scenario inputs.
+The replayed project was created in a temporary directory and removed after the commands completed.
+
+$ <Node 24>/bin/node --version
+v24.22.2
+
+$ <Node 26>/bin/node --version
+v26.13.1
+
+$ PATH=<Node 24>/bin:$PATH npm run test:contract
+
+> test:contract
+> node --test tests/report.contract.test.mjs
+
+✔ renders the first row (0.658148ms)
+✔ renders the second row (0.097154ms)
+✔ renders the third row (0.076058ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 46.590985
+
+$ PATH=<Node 26>/bin:$PATH npm run test:contract
+
+> test:contract
+> node --test tests/report.contract.test.mjs
+
+✔ renders the first row (0.654889ms)
+✔ renders the second row (0.097656ms)
+✔ renders the third row (0.07035ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 45.289706
+
+$ PATH=<Node 24>/bin:$PATH npm run test:integration
+
+> test:integration
+> node --test tests/report.integration.test.mjs
+
+✔ renders report rows through the delayed fixture (82.613755ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 128.62857
+
+$ PATH=<Node 24>/bin:$PATH npm test
+
+> test
+> npm run test:contract && npm run test:integration
+
+
+> test:contract
+> node --test tests/report.contract.test.mjs
+
+✔ renders the first row (1.131761ms)
+✔ renders the second row (0.141429ms)
+✔ renders the third row (0.09731ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 50.92021
+
+> test:integration
+> node --test tests/report.integration.test.mjs
+
+✔ renders report rows through the delayed fixture (82.270874ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 126.255251
+
+$ git -C <replayed-project> diff --check

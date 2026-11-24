@@ -34,3 +34,6 @@ build/
 
 ### Vite+ build cache (never committed) ###
 node_modules/
+
+### Model-eval output locks ###
+tests/skill-evals/evidence/**/.*.lock

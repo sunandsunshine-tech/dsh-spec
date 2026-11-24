@@ -1,4 +1,4 @@
-The fixture cannot support a causal profile as provided. It contains only [package.json](/tmp/pr113-trigger-eval/build-performance/project/trigger-fixtures/build-performance/package.json:1) and [tsconfig.json](/tmp/pr113-trigger-eval/build-performance/project/trigger-fixtures/build-performance/tsconfig.json:1); the referenced `packages/app` and `packages/tools` projects are absent. There is also no lockfile or installed TypeScript compiler, so the reported build cannot be reproduced or timed here.
+The fixture cannot support a causal profile as provided. It contains only [package.json](/workspace/build-performance/project/trigger-fixtures/build-performance/package.json:1) and [tsconfig.json](/workspace/build-performance/project/trigger-fixtures/build-performance/tsconfig.json:1); the referenced `packages/app` and `packages/tools` projects are absent. There is also no lockfile or installed TypeScript compiler, so the reported build cannot be reproduced or timed here.
 
 One important finding is that `build` already uses `tsc -b`, and the root config is a correct solution-style file. The root command is therefore not the common mistake of running non-incremental `tsc`. Incrementality depends on the missing leaf configurations.
 
@@ -33,7 +33,7 @@ Repeat for `packages/tools`. `--extendedDiagnostics` separates parse, bind, chec
 
 ### Recommended incremental setup
 
-Keep the root [solution config](/tmp/pr113-trigger-eval/build-performance/project/trigger-fixtures/build-performance/tsconfig.json:4). In each referenced project, use a tightly scoped configuration similar to:
+Keep the root [solution config](/workspace/build-performance/project/trigger-fixtures/build-performance/tsconfig.json:4). In each referenced project, use a tightly scoped configuration similar to:
 
 ```json
 {

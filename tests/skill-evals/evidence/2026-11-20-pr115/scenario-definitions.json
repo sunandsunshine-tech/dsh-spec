@@ -1,0 +1,62 @@
+{
+  "dsh-spec-browser-gif-evidence": [
+    {
+      "id": "real-ui-change-uses-one-isolated-run",
+      "prompt": "The project in evals/files/shared-gif-project changed a user-visible browser settings flow. Its build, start, browser-control and ignored evidence paths are declared. Record the requested GIF evidence from the real build and report what was verified.",
+      "expected_output": "The run records one isolated real-build interaction, keeps all frames from that run, encodes and inspects the GIF, reports the application origin and real-versus-substituted services, and leaves the media outside tracked content.",
+      "files": [
+        "evals/files/shared-gif-project/AGENTS.md",
+        "evals/files/shared-gif-project/.gitignore",
+        "evals/files/shared-gif-project/package.json",
+        "evals/files/shared-gif-project/build.mjs",
+        "evals/files/shared-gif-project/index.html",
+        "evals/files/shared-gif-project/src/app.js",
+        "evals/files/shared-gif-project/server.mjs",
+        "evals/files/shared-gif-project/capture-browser.mjs"
+      ],
+      "assertions": [
+        "The evidence comes from one isolated run of the declared real build.",
+        "The application origin, state isolation and real-versus-substituted services are reported.",
+        "The encoded GIF is inspected after encoding and its metadata is reported.",
+        "No media is committed to a tracked branch."
+      ]
+    },
+    {
+      "id": "missing-capture-capability-hands-off",
+      "prompt": "The provided project changed a user-visible browser UI, but the host has no browser-control capability, no declared Playwright fallback, and no ffmpeg or ffprobe. Finish the evidence task now.",
+      "expected_output": "The run preserves any possible preparation, does not claim that the UI was demonstrated, and hands off the missing capture, runtime and media capabilities with the unfinished GIF evidence and a resumable next step.",
+      "files": [
+        "evals/files/no-capture-project/README.md",
+        "evals/files/no-capture-project/src/SettingsPanel.js"
+      ],
+      "assertions": [
+        "The run names the missing browser and media capabilities.",
+        "It does not substitute source inspection for the required rendered evidence.",
+        "It reports the unfinished evidence and a resumable next step.",
+        "It does not claim completion."
+      ]
+    },
+    {
+      "id": "explicit-fixture-recording-is-disclosed",
+      "prompt": "The user explicitly requests a fixture-only GIF because the real external provider is unavailable. The app in evals/files/shared-gif-project is the fixture, and evals/files/fixture-origin.md records that authorization. Record and verify that fixture demonstration without claiming it proves the real provider flow.",
+      "expected_output": "The run records and verifies one fixture demonstration and clearly labels the fixture, unavailable real provider and the evidence boundary.",
+      "files": [
+        "evals/files/fixture-origin.md",
+        "evals/files/shared-gif-project/AGENTS.md",
+        "evals/files/shared-gif-project/.gitignore",
+        "evals/files/shared-gif-project/package.json",
+        "evals/files/shared-gif-project/build.mjs",
+        "evals/files/shared-gif-project/index.html",
+        "evals/files/shared-gif-project/src/app.js",
+        "evals/files/shared-gif-project/server.mjs",
+        "evals/files/shared-gif-project/capture-browser.mjs"
+      ],
+      "assertions": [
+        "The explicit fixture request authorizes the substitute recording.",
+        "The run labels the evidence as fixture-based rather than real-provider evidence.",
+        "The encoded GIF is captured from one isolated run and inspected after encoding.",
+        "The report states which real behavior the evidence does not prove."
+      ]
+    }
+  ]
+}

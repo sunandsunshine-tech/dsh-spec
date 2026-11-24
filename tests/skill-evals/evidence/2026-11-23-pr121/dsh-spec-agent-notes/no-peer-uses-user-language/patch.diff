@@ -1,0 +1,97 @@
+diff --git a/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/archived/architecture/.gitkeep b/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/archived/architecture/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/archived/bug-fix/.gitkeep b/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/archived/bug-fix/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/archived/feature/.gitkeep b/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/archived/feature/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/archived/process/.gitkeep b/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/archived/process/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/archived/simplification/.gitkeep b/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/archived/simplification/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/archived/testing/.gitkeep b/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/archived/testing/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/implemented/architecture/.gitkeep b/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/implemented/architecture/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/implemented/bug-fix/.gitkeep b/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/implemented/bug-fix/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/implemented/feature/.gitkeep b/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/implemented/feature/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/implemented/process/.gitkeep b/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/implemented/process/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/implemented/process/2026-11-23-release-windows-run-in-utc.md b/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/implemented/process/2026-11-23-release-windows-run-in-utc.md
+new file mode 100644
+index 0000000..9e7ab89
+--- /dev/null
++++ b/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/implemented/process/2026-11-23-release-windows-run-in-utc.md
+@@ -0,0 +1,19 @@
++# Agent Note: Release windows run in UTC
++
++Status: implemented
++
++## Problem
++
++Release windows affect distributed operators and automation that need one unambiguous interpretation of start and end times. A local-time basis can make a schedule ambiguous when it crosses time zones or daylight-saving changes.
++
++## Decision
++
++Release windows run in UTC. UTC is the authoritative time basis for release-window boundaries, and every release-window reference states its time basis explicitly.
++
++## Alternatives considered
++
++No alternative or rejection rationale was supplied with this decision, so this record does not infer one.
++
++## Consequences
++
++Teams and systems share one stable basis for scheduling and interpreting release windows. Participants must convert UTC to local time when coordinating local working hours, and operational communications must retain UTC as the authoritative value.
+diff --git a/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/implemented/simplification/.gitkeep b/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/implemented/simplification/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/implemented/testing/.gitkeep b/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/implemented/testing/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/proposed/architecture/.gitkeep b/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/proposed/architecture/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/proposed/bug-fix/.gitkeep b/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/proposed/bug-fix/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/proposed/feature/.gitkeep b/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/proposed/feature/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/proposed/process/.gitkeep b/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/proposed/process/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/proposed/simplification/.gitkeep b/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/proposed/simplification/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/proposed/testing/.gitkeep b/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/proposed/testing/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/rejected/architecture/.gitkeep b/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/rejected/architecture/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/rejected/bug-fix/.gitkeep b/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/rejected/bug-fix/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/rejected/feature/.gitkeep b/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/rejected/feature/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/rejected/process/.gitkeep b/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/rejected/process/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/rejected/simplification/.gitkeep b/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/rejected/simplification/.gitkeep
+new file mode 100644
+index 0000000..e69de29
+diff --git a/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/rejected/testing/.gitkeep b/evals/files/multiple-targets/.agents/dsh-spec-agent-notes/rejected/testing/.gitkeep
+new file mode 100644
+index 0000000..e69de29

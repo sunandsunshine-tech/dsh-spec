@@ -1,0 +1,8 @@
+30e36d8816e4e1843191f767ad6bf0f674ebf53a31968b662775a62fdbfe24d8  skills/dsh-spec-client-ui-ux/SKILL.md
+acecc0af3e0bb031e9976f7d073e0127bcd7bb5f0b72610f95439134bef88e8d  skills/dsh-spec-client-ui-ux/THIRD_PARTY_NOTICES
+5fe38c6a9d3b13c2988c087d0d75d634dd6ea9ad59d30f2f1186c7c3d8fbe330  skills/dsh-spec-error-handling/SKILL.md
+134def8b2ef7592d000f9ceba4da58153ad2a2bf98365fb671ce0632f5eeef14  skills/dsh-spec-error-handling/THIRD_PARTY_NOTICES
+b33e83b46d544140a30b7d53f524787b8c4b8e6ab159f16821dc5f220d341afc  skills/dsh-spec-error-handling/references/error-contracts.md
+45303d23dfa3957e146a1bc8c5733e43ae585cb6e5f739f3f3732b76665f7922  skills/dsh-spec-pre-push-checks/SKILL.md
+ee95883c54ca5b7cc2e5ec13094ae23c0fe4bb247b56377ca68d5f82d9327e0e  skills/dsh-spec-pre-push-checks/THIRD_PARTY_NOTICES
+8b8026652922a9f182cc2df2d3c92b9bb319c0830107e6342fed43c882663d4f  skills/dsh-spec-pre-push-checks/scripts/change-scope.mjs

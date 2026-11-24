@@ -1,0 +1,24 @@
+{
+  "id": "target-removal-active-scope",
+  "prompt": "Treat evals/files/target-removal as the project root. Remove Japanese from the eligible active docs under docs/active, and leave the frozen archive fixture outside the active scope unchanged. Use the bundled `write --all` operation to update or remove aggregate records and run the bundled check; do not hand-edit a record.",
+  "expected_output": "Every eligible active document loses its Japanese counterpart and record entry, while the sealed Japanese fixture remains unchanged.",
+  "files": [
+    "evals/files/target-removal/docs/active/first.md",
+    "evals/files/target-removal/docs/active/first.zh.md",
+    "evals/files/target-removal/docs/active/first.ja.md",
+    "evals/files/target-removal/docs/active/first.i18n.yaml",
+    "evals/files/target-removal/docs/active/second.md",
+    "evals/files/target-removal/docs/active/second.ja.md",
+    "evals/files/target-removal/docs/active/second.i18n.yaml",
+    "evals/files/target-removal/docs/archived/sealed.md",
+    "evals/files/target-removal/docs/archived/sealed.ja.md",
+    "evals/files/target-removal/docs/archived/sealed.i18n.yaml",
+    "evals/files/target-removal/.agents/dsh-spec-translate-docs/terminology.md"
+  ],
+  "assertions": [
+    "All eligible active documents lose Japanese.",
+    "Their switchers and aggregate records are cleaned consistently.",
+    "The archived Japanese document remains unchanged.",
+    "The report distinguishes complete active cleanup from excluded frozen content."
+  ]
+}

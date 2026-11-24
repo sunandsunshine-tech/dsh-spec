@@ -75,10 +75,6 @@ One row per unit: source location, disposition, target location and basis (a tar
 
 Turn an unclear example into a ruling. For example: a fixed path becomes Adapt; a tool the target lacks becomes Re-bind when an equivalent exists, otherwise Dissolve; a rule whose referent is gone becomes Dissolve with the check that replaces it.
 
-### Script conversion
-
-A requirement a command can decide exactly becomes a script. A requirement only judgment can decide stays prose with its authority named and one recorded conclusion; when neither exists, record the item unverified.
-
 ### Review
 
 A review starts when the adopter declares review-draft suffixes with repeated `--companion <suffix>`; a review draft is a regular file beside its `.md` source whose name ends with a declared suffix. With no declaration there are no declared review drafts. Declaring a suffix does not require every source to carry a draft: a source may carry no draft, one draft or several, and overlapping suffixes resolve to the longest declaration. A declared suffix cannot be `.md`; it may name a translation or the project's consistency record. A consistency record associated with a review draft is declared as a companion (when available, consider using the `dsh-spec-translate-docs` skill). With no declaration, `pair` lists possible review drafts: a regular file whose shortest dotted suffix resolves to an existing `.md` source. A file is a review draft only when its suffix is declared; undeclared candidates are reported and `publish` copies them as ordinary content.

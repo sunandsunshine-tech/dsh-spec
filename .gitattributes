@@ -1,1 +1,2 @@
 tests/skill-evals/evidence/**/*.diff -whitespace
+tests/skill-evals/**/*.patch -whitespace

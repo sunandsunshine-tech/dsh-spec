@@ -1,4 +1,4 @@
-Reviewed [AGENTS.md](/tmp/pr113-eval.FHwx6T/existing-identity-baseline/project/AGENTS.md) and [README.md](/tmp/pr113-eval.FHwx6T/existing-identity-baseline/project/README.md). The existing identity is already correct: `kind` with only `ACCOUNT_INELIGIBLE` and `PAYMENT_DECLINED`. It should not become `name`, `code`, or an additional alias.
+Reviewed [AGENTS.md](/workspace/existing-identity-baseline/project/AGENTS.md) and [README.md](/workspace/existing-identity-baseline/project/README.md). The existing identity is already correct: `kind` with only `ACCOUNT_INELIGIBLE` and `PAYMENT_DECLINED`. It should not become `name`, `code`, or an additional alias.
 
 The README needs to clarify that `kind` is contractual and message text is not, then strengthen the test expectations:
 

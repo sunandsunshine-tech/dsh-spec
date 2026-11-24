@@ -3,7 +3,7 @@
   "evals": [
     {
       "id": "no-isolation-local-update-completes",
-      "prompt": "The host provides no subagents, isolated contexts, or parallel execution. In the existing English-to-Chinese pair evals/files/vendor/docs/guide.md, change the final sentence to \"The gate checks both paired documents and their consistency record.\" Bring the Chinese counterpart and pairing record into sync, keep the terminology and structure intact, and leave the pair consistent.",
+      "prompt": "The host provides no subagents, isolated contexts, or parallel execution. Treat evals/files/vendor as the project root, including its nested `.agents` terminology. In the existing English-to-Chinese pair docs/guide.md, change the final sentence to \"The gate checks both paired documents and their consistency record.\" Bring the Chinese counterpart and pairing record into sync, keep the terminology and structure intact, and leave the pair consistent.",
       "expected_output": "The counterpart is updated directly and the pair's consistency record and check are current; the run reports the exact validation it ran.",
       "files": [
         "evals/files/vendor/docs/guide.md",
@@ -20,7 +20,7 @@
     },
     {
       "id": "no-isolation-whole-document-handoff",
-      "prompt": "The host provides no subagents, isolated or clean contexts, parallel execution, staged independent review, or another independent verification mechanism. Translate the new multi-section document evals/files/vendor/docs/new-guide.md into Chinese, but you cannot preserve the required production and review separation.",
+      "prompt": "Treat evals/files/vendor as the application root for the source, terminology and pair artifacts; the installed skill remains at /workspace/.agents/skills/dsh-spec-translate-docs/SKILL.md. The host provides no subagents, isolated or clean contexts, parallel execution, staged independent review, or another independent verification mechanism. Translate the new multi-section document docs/new-guide.md into Chinese, but you cannot preserve the required production and review separation. Do not create, edit, or draft any translation in this run.",
       "expected_output": "The run stops before claiming completion and hands off the source, target language, pending translation, completed work, missing mechanism, and next verification command.",
       "files": [
         "evals/files/vendor/docs/new-guide.md",
@@ -37,6 +37,7 @@
       "id": "isolated-context-whole-document",
       "prompt": "The host provides an isolated subagent. Translate the new document evals/files/vendor/docs/architecture.md into Chinese and verify the resulting pair.",
       "expected_output": "The whole-document translation is produced in the isolated context and the final pair passes the project's terminology, structure, and consistency checks.",
+      "allow_subagents": true,
       "files": [
         "evals/files/vendor/docs/architecture.md",
         "evals/files/vendor/.agents/dsh-spec-translate-docs/terminology.md"
@@ -80,9 +81,9 @@
       ]
     },
     {
-      "id": "explicit-multiple-targets-create-pairs",
-      "prompt": "A workflow explicitly selects Chinese and Japanese for evals/files/multiple-targets/docs/new-note.md. Create both pairs and their aggregate record.",
-      "expected_output": "The source has Chinese and Japanese counterparts and one aggregate consistency record containing both target signatures.",
+      "id": "explicit-multiple-targets-handoff",
+      "prompt": "A workflow explicitly selects Chinese and Japanese for evals/files/multiple-targets/docs/new-note.md. The host provides no subagent, isolated context, staged independent review, or other working-separation mechanism. Resolve the target set and hand off before translating in the working context.",
+      "expected_output": "The explicit Chinese and Japanese target set is accepted. No counterpart or aggregate record is created in the working context; the handoff names both targets, the missing separation and a resumable next step.",
       "files": [
         "evals/files/multiple-targets/docs/new-note.md",
         "evals/files/multiple-targets/.agents/dsh-spec-translate-docs/terminology.md",
@@ -90,9 +91,9 @@
       ],
       "assertions": [
         "The explicit Chinese and Japanese target set is accepted.",
-        "Each target receives its counterpart.",
-        "One aggregate record contains both targets.",
-        "The completed pairs pass the target-specific checks."
+        "The working context is not used to translate new pairs without working separation.",
+        "No counterpart or aggregate record is created.",
+        "The handoff names both targets, missing separation and a resumable next step."
       ]
     },
     {
@@ -118,7 +119,7 @@
     },
     {
       "id": "target-removal-active-scope",
-      "prompt": "Remove Japanese from the eligible active docs in evals/files/target-removal/docs/active. Leave the frozen archive fixture outside the active scope unchanged.",
+      "prompt": "Treat evals/files/target-removal as the project root. Remove Japanese from the eligible active docs under docs/active, and leave the frozen archive fixture outside the active scope unchanged. Use the bundled `write --all` operation to update or remove aggregate records and run the bundled check; do not hand-edit a record.",
       "expected_output": "Every eligible active document loses its Japanese counterpart and record entry, while the sealed Japanese fixture remains unchanged.",
       "files": [
         "evals/files/target-removal/docs/active/first.md",

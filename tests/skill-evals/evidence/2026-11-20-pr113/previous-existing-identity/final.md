@@ -1,4 +1,4 @@
-I reviewed [AGENTS.md](/tmp/pr113-eval.FHwx6T/existing-identity-previous/project/AGENTS.md) and [README.md](/tmp/pr113-eval.FHwx6T/existing-identity-previous/project/README.md).
+I reviewed [AGENTS.md](/workspace/existing-identity-previous/project/AGENTS.md) and [README.md](/workspace/existing-identity-previous/project/README.md).
 
 The improvement should preserve `kind` as the sole machine-readable identity and clarify that:
 

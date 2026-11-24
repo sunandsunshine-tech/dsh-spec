@@ -14,6 +14,8 @@ Status: implemented
 
 本包交付 `dsh-spec-test-reliability`，作为面向通用软件工程的技能。它拥有测试隔离、执行拓扑建模、资源分配、进程全局状态约束、平台语义、确定性测试耗时的设计、timeout 预算、状态同步、静止清理、回归证明、不稳定掩盖拒绝规则和只读 flaky 诊断。
 
+快速契约／共享真实资源场景的默认规则位于 `Design the smallest sufficient test`。仅诊断请求只读的规则位于 `Diagnose existing flakes`。执行拓扑章节不再点名任一默认规则，因此每条规则只有一个使用点。
+
 该技能把测试设计与命令选择分开。它先陈述使用项目检查选择实践的通用要求，再点名 `dsh-spec-pre-push-checks`：
 
 `(when available, use the dsh-spec-pre-push-checks skill)`
@@ -93,14 +95,14 @@ Status: implemented
 
 | # | 要求 | 锚点 | 证据 |
 |---|---|---|---|
-| A0 | 技能符合 Agent Skills 格式，引用只深一层，description 符合包的目录预算。 | Mechanical | skill-spec gate 通过 14 项检查；`SKILL.md` 为 146 行，description 为 434 字符，正文估计 2,824 tokens。 |
+| A0 | 技能符合 Agent Skills 格式，引用只深一层，description 符合包的目录预算。 | Mechanical | skill-spec gate 通过 14 项检查；`SKILL.md` 为 146 行，description 为 434 字符，正文估计 2,781 tokens。 |
 | A1 | 来源的拓扑、资源、全局状态、平台、timeout、同步、清理、回归和掩盖规则都在。 | Judged | 对照 S0–S12 检查 `SKILL.md` |
 | A2 | 诊断保留证据、分类、拓扑限制、所有权和只读权限。 | Judged | 对照 F0–F4 检查 `references/ci-flake-diagnosis.md` |
 | A3 | 技能不把框架、CI 提供方、来源产品路径或命令写成要求。 | Judged + Mechanical | 人工评审未发现来源产品指称对象；语料的 sibling-reference 门禁通过。 |
 | A4 | 推送前关系是可选项，并且只点名机制。 | Mechanical | 语料的 sibling-reference 门禁通过。 |
 | A5 | 可运行 fixture 覆盖确定性端口失败、精确全局状态恢复、只读诊断，以及重新设计一个缓慢且重复执行昂贵 setup 的套件。 | Mechanical | 仓库测试运行 fixture 的正向与负向控制，并暂存所有声明输入；四个直接 fixture 入口合计不到一秒。 |
-| A6 | 场景上的运行时模型行为。 | 判断 + 机械 | `tests/skill-evals/evidence/2026-11-20-pr116/` 下的历史运行暴露过答案清单，只作为来源保留。`tests/skill-evals/evidence/2026-11-23-pr116/` 下当前的隔离诊断与慢套件运行通过 9/9 项断言。 |
-| A6a | description 能路由可靠性工作与测试耗时工作，同时不捕获相邻的产品性能、覆盖率、文档或视觉评审任务。 | Judged + Mechanical | 同一证据目录中的四个正例和四个近邻反例通过稳定 `SELECT:` 标记达到 8/8。 |
+| A6 | 场景上的运行时模型行为。 | 判断 + 机械 | `tests/skill-evals/evidence/2026-11-20-pr116/` 与 `2026-11-23-pr116/` 下的运行均为历史来源。`tests/skill-evals/evidence/2026-11-23-pr121/` 下当前的隔离诊断与慢套件运行针对当前技能修订通过 10/10 项断言。 |
+| A6a | description 能路由可靠性工作与测试耗时工作，同时不捕获相邻的产品性能、覆盖率、文档或视觉评审任务。 | 判断 + 机械 | 四个正例和四个近邻反例通过稳定 `SELECT:` 标记达到 8/8；触发输入绑定 frontmatter 名称与描述。 |
 | A7 | 安装副本、notices、活跃记录树和翻译配对一致。 | Mechanical | 最终功能套件用桩化语料验证编排约定；真实语料由 `pnpm run check:corpus` 步骤拥有。决策记录、配对、notices、格式、静态与 bundle 检查均通过，此处不再复制进程计数。 |
 
 ## Pages read

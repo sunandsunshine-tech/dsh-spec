@@ -1,0 +1,39 @@
+{
+  "origin": "http://127.0.0.1:44901",
+  "browser": "/opt/chrome/chrome",
+  "session": "one Chrome process and one page target",
+  "screenshots": [
+    {
+      "path": "evidence-local/00-initial.png",
+      "sha256": "04429c8050290a530f50dd11ce0a44f2264c91b0556002ffe757ea3a4c5ab658",
+      "bytes": 23373
+    },
+    {
+      "path": "evidence-local/01-saving.png",
+      "sha256": "60faa4b138c9bdf844cd18410c18afb4991f0239b956a1192a649e2662ed110b",
+      "bytes": 22093
+    },
+    {
+      "path": "evidence-local/02-saved.png",
+      "sha256": "e210cd0cbcab8e426c1ef71ac6c3601e497789b08c76fca39fe65e8bec9e651b",
+      "bytes": 23310
+    }
+  ],
+  "states": {
+    "initial": {
+      "status": "Unsaved changes",
+      "button": "Save changes",
+      "disabled": false
+    },
+    "saving": {
+      "status": "Saving changes",
+      "button": "Saving…",
+      "disabled": true
+    },
+    "final": {
+      "status": "Changes saved",
+      "button": "Save changes",
+      "disabled": false
+    }
+  }
+}

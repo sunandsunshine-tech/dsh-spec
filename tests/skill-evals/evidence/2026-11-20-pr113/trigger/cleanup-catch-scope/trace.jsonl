@@ -1,4 +1,4 @@
 {"type":"skill","path":".agents/skills/dsh-spec-error-handling/SKILL.md","sha256":"99db04621b3294d91c3f46373279296d78b179ba042b81ff3416f1fead3ab731"}
-{"type":"command","command":"/bin/bash -c 'cat /tmp/pr113-trigger-eval/cleanup-catch-scope/project/.agents/skills/dsh-spec-error-handling/SKILL.md'","exit_code":0,"status":"completed"}
+{"type":"command","command":"/bin/bash -c 'cat /workspace/cleanup-catch-scope/project/.agents/skills/dsh-spec-error-handling/SKILL.md'","exit_code":0,"status":"completed"}
 {"type":"command","command":"/bin/bash -c 'rg --files trigger-fixtures'","exit_code":2,"status":"failed"}
 {"type":"turn.completed","usage":{"input_tokens":52896,"cached_input_tokens":49664,"cache_write_input_tokens":0,"output_tokens":3241,"reasoning_output_tokens":2457}}

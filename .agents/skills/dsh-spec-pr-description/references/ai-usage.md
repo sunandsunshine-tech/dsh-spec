@@ -116,14 +116,29 @@ The stage and level identifiers stay English in every language. When the descrip
 
 ## Decision records
 
-The decision-record rules are stated in the entry (§AI Usage). The example at the end of this file shows the shape a record takes.
+Each decision record states who made which decisions in one or two sentences, at most 80 CJK characters or 40 words, as settled fact and without hedges such as "not seen in the session" or "pending author confirmation": name one or two representative decisions and give only a count for the rest; refer to people as the author or a reviewer, never by username; leave out judgments, session times, session ids, direct quotes, and the running or handling of checks and CI (local skips, hooks, reruns, unrelated failures).
+
+The example at the end of this file shows the shape a record takes.
 
 ## Update timing
 
-- When creating the change request, the review row reads `| review | n/a | — | `, with the rendering in the description's language beside each identifier when the description is not English, followed by a statement, in the description's language, that no review comments have been handled yet.
+- When creating the change request, leave the review row's decision-record cell empty: `| review | n/a | — | `, with the rendering in the description's language beside each identifier when the description is not English. Put the statement that no review comments have been handled yet in the description's language immediately after the table, not inside the row.
 - When the description is updated after the change request exists, rewrite the affected rows so that they cover all work so far, including earlier stages whose decisions or human share the later work changed; do not append a history of changes.
 - The review row records only handled review comments; it omits approvals, merge timing, and unhandled comments.
-- A handled review round ends as the entry defines it; comments that arrive after merge do not trigger an update.
+- A handled review round ends when its fixes are published and its comments are answered; comments that arrive after merge do not trigger an update.
+- Replace an existing AI-DECLARATION block in place between its `ai-declaration:start` and `ai-declaration:end` markers, update every affected stage row, and keep exactly one AI Usage section. Replace any earlier AI Usage section or AI-role section rather than keeping both.
+
+## Read-back validation
+
+Before the description is considered written, read it back and confirm:
+
+- exactly one AI Usage section exists;
+- the `ai-declaration:start` and `ai-declaration:end` marker pair is present;
+- the table has one row per stage in the fixed order, keyed by the English stage identifiers;
+- every level is one of `hint`, `assist`, `pair`, `copilot`, `auto`, `n/a`;
+- the badge level equals the highest stage level, ignoring `n/a`;
+- the AI-DECLARATION block matches §Section format: the badge URL matches its level, the declaration line's level equals the badge, the version is 0.1.2, and a non-English description keeps the stage and level identifiers in English with a rendering in the description's language;
+- the rows match the current code and review state, and no superseded section or row remains.
 
 ## Example
 

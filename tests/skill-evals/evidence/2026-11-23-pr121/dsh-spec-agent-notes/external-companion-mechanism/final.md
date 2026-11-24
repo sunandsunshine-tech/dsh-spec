@@ -1,0 +1,3 @@
+Recorded the implemented process decision in [2026-11-23-release-windows-run-in-utc.md](/workspace/.agents/dsh-spec-agent-notes/implemented/process/2026-11-23-release-windows-run-in-utc.md:1). It defines UTC as the canonical timezone for release-window start and end times and documents the rationale, alternatives, and consequences.
+
+Added the required external review companion at [release-windows-run-in-utc-review.json](/workspace/.agents/dsh-spec-agent-notes/implemented/process/reviews/release-windows-run-in-utc-review.json:1), including a matching source hash. Agent Notes validation passed with the explicit `--member` pairing: `1 note(s) and 1 companion(s) checked`. No Translate Docs skill or translation companion was used.

@@ -3,7 +3,7 @@
   "evals": [
     {
       "id": "review-with-integrated-guidance",
-      "prompt": "Review the change in evals/files/review-integration. The worker now discards its existing failure metadata and the caller routes on message text. The shared Button/Settings change has a passing consumer test. The relevant sibling guidance is installed, and the attached screenshot was captured from this exact build. Inspect the source and image, report whether the affected Search and Settings consumers plus the Settings saving state are proved, and do not copy sibling implementation details.",
+      "prompt": "Review the outgoing change at HEAD against HEAD^ in evals/files/review-integration. Read and apply the installed dsh-spec-code-review, dsh-spec-error-handling, and dsh-spec-client-ui-ux skills. Do not modify files or Git state. The project declaration supplies the evidence policy, including the attached current-build screenshot. Inspect the actual diff, source and image, report blockers and proved or unproved consumer and state coverage, and do not copy sibling implementation details.",
       "expected_output": "The review requires the project's existing `kind` failure identity and structured `detail` to survive the worker boundary, rejects message-text routing, inspects the attached current-build screenshot, identifies that it shows the settled Settings state with Delete account enabled rather than the saving/disabled state, notices that the 390-pixel narrow viewport remains unproved, and leaves that coverage incomplete instead of treating the consumer test as visual acceptance.",
       "capabilities": {
         "browser": false,
@@ -22,7 +22,16 @@
         "evals/files/review-integration/src/styles.css",
         "evals/files/review-integration/src/worker-client.js",
         "evals/files/review-integration/tests/button-consumers.test.mjs",
-        "evals/files/review-integration/evidence/settings-after.png"
+        "evals/files/review-integration/tests/worker-boundary.test.mjs",
+        "evals/files/review-integration/evidence/settings-after.png",
+        "evals/files/review-integration/change-evidence.md",
+        "evals/files/review-integration/change.patch"
+      ],
+      "change_patch": "evals/files/review-integration/change.patch",
+      "change_root": "evals/files/review-integration",
+      "install": [
+        "dsh-spec-client-ui-ux",
+        "dsh-spec-error-handling"
       ],
       "install": [
         "dsh-spec-client-ui-ux",
@@ -33,12 +42,13 @@
         "The review rejects routing on the error message.",
         "The review inspects the attached current-build screenshot and identifies that Settings saving/disabled state is not shown.",
         "The review does not treat the shared-consumer test as visual acceptance of the saving state.",
+        "The review reports the supported 390-pixel narrow viewport as unproved.",
         "The review uses sibling guidance only as an optional mechanism."
       ]
     },
     {
       "id": "review-without-siblings",
-      "prompt": "Review the change in evals/files/review-integration without error-handling or client-UI sibling guidance and without a rendered screenshot or browser-control capability. The worker drops existing failure metadata and routes on message text; the shared Button/Settings consumer test passes. Report the minimum review findings and leave the Settings saving-state evidence explicitly incomplete.",
+      "prompt": "Review the outgoing change at HEAD against HEAD^ in evals/files/review-integration using the installed dsh-spec-code-review skill. Do not modify files or Git state. Error-handling and client-UI sibling guidance, a rendered screenshot and browser-control capability are unavailable. Report the minimum findings from the actual diff and source, leave rendered Settings saving-state evidence explicitly incomplete, and name the smallest resumable capture step at the supported 390-pixel viewport.",
       "expected_output": "The review still requires the project's existing `kind` identity and structured `detail`, rejects message-text routing, and reports the unavailable Settings saving/disabled rendered evidence as an unresolved review gap with a resumable next step.",
       "capabilities": {
         "browser": false,
@@ -56,8 +66,12 @@
         "evals/files/review-integration/src/button.module.css",
         "evals/files/review-integration/src/styles.css",
         "evals/files/review-integration/src/worker-client.js",
-        "evals/files/review-integration/tests/button-consumers.test.mjs"
+        "evals/files/review-integration/tests/button-consumers.test.mjs",
+        "evals/files/review-integration/tests/worker-boundary.test.mjs",
+        "evals/files/review-integration/change.patch"
       ],
+      "change_patch": "evals/files/review-integration/change.patch",
+      "change_root": "evals/files/review-integration",
       "assertions": [
         "The review still requires the existing `kind` identity and structured `detail`.",
         "The review rejects routing on the error message.",

@@ -1,4 +1,4 @@
-The broad catch is unsafe even for cleanup: a tolerated “directory already absent” failure currently skips both `commitBatch()` and `notifyOwner()`, while commit and notification failures are silently reported as success ([README.md](/tmp/pr113-eval.FHwx6T/silent-handler-candidate/project/README.md:3)).
+The broad catch is unsafe even for cleanup: a tolerated “directory already absent” failure currently skips both `commitBatch()` and `notifyOwner()`, while commit and notification failures are silently reported as success ([README.md](/workspace/silent-handler-candidate/project/README.md:3)).
 
 The smallest safe change is to isolate the expected cleanup failure and let everything else propagate:
 

@@ -1,0 +1,24 @@
+{
+  "id": "archive-readiness-required",
+  "prompt": "Prepare the seal for the provided archive candidate, then run its required external readiness check. The readiness check fails because the grouped companion metadata is inconsistent. Report the result.",
+  "expected_output": "Preparation produces a seal plan but writes no manifest. The failed readiness check leaves the archive unsealed and reports the failed step and recovery command.",
+  "files": [
+    "evals/files/archive-readiness/README.md",
+    "evals/files/archive-readiness/AGENTS.md",
+    "evals/files/archive-readiness/.agents/dsh-spec-agent-notes/archived/process/2026-10-01-candidate.md",
+    "evals/files/archive-readiness/.agents/dsh-spec-agent-notes/archived/process/2026-10-01-candidate.meta.json",
+    "evals/files/archive-readiness/.agents/dsh-spec-agent-notes/archived/architecture/.gitkeep",
+    "evals/files/archive-readiness/.agents/dsh-spec-agent-notes/archived/bug-fix/.gitkeep",
+    "evals/files/archive-readiness/.agents/dsh-spec-agent-notes/archived/feature/.gitkeep",
+    "evals/files/archive-readiness/.agents/dsh-spec-agent-notes/archived/simplification/.gitkeep",
+    "evals/files/archive-readiness/.agents/dsh-spec-agent-notes/archived/testing/.gitkeep",
+    "evals/files/archive-readiness/.agents/dsh-spec-agent-notes/archived/manifest.json",
+    "evals/files/archive-readiness/failing-readiness.sh"
+  ],
+  "assertions": [
+    "Preparation does not write or update the manifest.",
+    "The failing external check does not seal the unit.",
+    "The manifest remains unchanged.",
+    "The handoff names the failed step and a safe recovery action."
+  ]
+}

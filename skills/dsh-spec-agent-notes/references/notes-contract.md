@@ -138,6 +138,8 @@ For a new note or a first seal unit, choose its translated target set in this or
 
 Matching siblings, comparable classes and user language are model judgments, not CLI inference. A target set may contain several languages; every selected target becomes a unit member. Missing evidence, conflicting sibling target sets, an unavailable mechanism or an unknown user language selects no translated target without asking for a default. Installing a mechanism does not by itself enable translation for a project.
 
+An existing translation workflow may require separate production and review. If that separation is unavailable, do not translate in the working context: keep the source note, report the selected targets as pending unit members, and hand over the missing mechanism with a resumable next step.
+
 Target migration is asymmetric by cost. Adding a target is progressive: a new note receives the current target set, an edited existing note adds its missing targets, and an untouched note remains unchanged. Removing a target is consistent across every eligible active and unsealed unit. A sealed unit is historical evidence and never gains or loses a member. Range operations that inspect or record existing units do not create missing targets.
 
 Companions form one unit with their note: they are moved, sealed and deleted together. The format gate reports a suffix-classified companion without a source and validates every path-scoped member source and companion as regular, contained files. The owning mechanism checks internal consistency. Seal preparation records the exact members expected for each new unit; seal-time completeness applies that unit's expected set, not a global target union. Verification does not replay the expectation over frozen history.

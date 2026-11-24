@@ -122,6 +122,23 @@
         "The review inspects the generated artifacts and reports their source and provenance.",
         "The review does not claim formal visual approval when the project declares no approval policy."
       ]
+    },
+    {
+      "id": "responsive-draft-and-touch-input",
+      "prompt": "Review the responsive form change in evals/files/responsive-draft-project. The layout switches by replacing the form markup, the input currently holds an in-progress draft, and the project declares no minimum input-size rule. Report the user-visible risks and the smallest source-level corrections to preserve.",
+      "expected_output": "The review preserves the in-progress draft across the wide/narrow layout change instead of allowing the input remount to discard it. Because the project declares no input-size rule, it keeps the coarse-pointer text input at least 16 CSS pixels so focusing the field does not trigger automatic zoom. It also identifies the rendered states that still need verification.",
+      "files": [
+        "evals/files/responsive-draft-project/AGENTS.md",
+        "evals/files/responsive-draft-project/README.md",
+        "evals/files/responsive-draft-project/src/FormPage.js",
+        "evals/files/responsive-draft-project/src/styles.css"
+      ],
+      "assertions": [
+        "The wide/narrow layout change preserves the in-progress draft rather than discarding it with the remounted input.",
+        "With no project rule, the coarse-pointer text input remains at least 16 CSS pixels to avoid focus zoom.",
+        "The review identifies the affected rendered draft and focused-input states that still need verification.",
+        "The review does not treat the source correction as rendered acceptance."
+      ]
     }
   ]
 }

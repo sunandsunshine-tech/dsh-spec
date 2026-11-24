@@ -1,0 +1,2 @@
+30e36d8816e4e1843191f767ad6bf0f674ebf53a31968b662775a62fdbfe24d8  skills/dsh-spec-client-ui-ux/SKILL.md
+acecc0af3e0bb031e9976f7d073e0127bcd7bb5f0b72610f95439134bef88e8d  skills/dsh-spec-client-ui-ux/THIRD_PARTY_NOTICES

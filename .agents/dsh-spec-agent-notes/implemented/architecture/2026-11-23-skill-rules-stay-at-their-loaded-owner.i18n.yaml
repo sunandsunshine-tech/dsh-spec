@@ -1,0 +1,19 @@
+# Pairing consistency record for 2026-11-23-skill-rules-stay-at-their-loaded-owner.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/architecture/2026-11-23-skill-rules-stay-at-their-loaded-owner.md --target <lang>
+/agent-note-skill-rules-stay-with-their-loaded-owner:
+  en: 33a0e6fdf1f8f03d
+  zh: 51fad468788e9639
+/agent-note-skill-rules-stay-with-their-loaded-owner/problem:
+  en: d8777ddbc5d6613b
+  zh: 72541aad76dc4335
+/agent-note-skill-rules-stay-with-their-loaded-owner/decision:
+  en: 8e09c6f53e202266
+  zh: 8aea0dfc5b1d9417
+/agent-note-skill-rules-stay-with-their-loaded-owner/alternatives-considered:
+  en: 35ccb6c81da98d3c
+  zh: 872494a8fba9916c
+/agent-note-skill-rules-stay-with-their-loaded-owner/consequences:
+  en: d41a1b536fb2f8a6
+  zh: 309254a791bc0128

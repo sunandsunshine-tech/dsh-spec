@@ -65,7 +65,7 @@ node "$SKILL_DIR/scripts/encode-browser-gif.mjs" \
   --durations 1.5,1.5,1.5,3.5
 ```
 
-Read the JSON summary. Shrink `--max-width` first, then `--colors` or `--fps`, when the artifact exceeds the default 5 MiB limit. Disclose any trimming, speed change or final hold beside the published evidence. The encoder writes and verifies a temporary GIF before moving it into place. `--force` replaces an existing output only after encoding and validation succeed; a failed run leaves the previous output unchanged.
+Read the JSON summary. Shrink `--max-width` first, then `--colors` or `--fps`, when the artifact exceeds the default 5 MiB limit. Disclose any trimming, speed change or final hold beside the published evidence. Resolve the output path before overwriting; pass `--force` only when replacing that existing evidence is intentional. An existing output is replaced only after a complete GIF has encoded and passed validation. An encoding or validation failure leaves the previous output unchanged.
 
 ## Verify
 
@@ -79,7 +79,7 @@ Read the JSON summary. Shrink `--max-width` first, then `--colors` or `--fps`, w
 
 Publication occurs only when the task includes creating or updating a pull request. Read [the publication contract](references/publication.md) before attaching evidence.
 
-Immediately before publication, re-read the demonstrated pull request's live head and compare it with the commit recorded for the evidence. Re-record when the head moved.
+The contract owns the live-head check and attachment procedure. Publish only evidence that still corresponds to the demonstrated pull request's current head; re-record when it does not.
 
 ## Completion
 

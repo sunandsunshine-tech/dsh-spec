@@ -1,4 +1,4 @@
-The contract in [README.md](/tmp/pr113-eval.FHwx6T/message-only-baseline/project/README.md:3) needs a stable machine-readable discriminator. The smallest safe change is to retain `message` for display but add a domain-specific `code`:
+The contract in [README.md](/workspace/message-only-baseline/project/README.md:3) needs a stable machine-readable discriminator. The smallest safe change is to retain `message` for display but add a domain-specific `code`:
 
 ```json
 {

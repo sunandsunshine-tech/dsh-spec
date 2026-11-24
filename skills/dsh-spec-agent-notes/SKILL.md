@@ -19,55 +19,24 @@ A default is the value or strategy this skill declares at its use site. It appli
 
 1. **Check supersession before writing.** Search the active tree for notes that own or constrain the same decision. Use the project's current code, configuration, package documentation, generated catalogs, newer notes and inbound links to establish whether an older rationale still owns or constrains anything. Plan one change for every match: update the owner, consolidate a full supersession, archive a qualifying implemented note, or reject or delete a stale proposal. A new note never competes with an existing owner.
 2. **Initialize the tree once.** In a project that has none, run `node <skill-dir>/scripts/notes.mjs init` before the first note. It creates the lifecycle and class folders and the six archived class folders with ignored `.gitkeep` placeholders only in empty folders, and never overwrites an existing file.
-3. **Write the note** in the path for its lifecycle and class after loading [the notes contract](references/notes-contract.md#the-file-format). Substantial future work starts in `proposed/`; a decision already made starts in `implemented/`; a declined proposal goes to `rejected/` with the reason on its status line.
+3. **Choose the lifecycle, then load the owning contract.** Substantial future work starts in `proposed/`; a decision already made starts in `implemented/`; a declined proposal goes to `rejected/` with the reason on its status line. Load [the notes contract](references/notes-contract.md) before creating, updating, reviewing, auditing, moving, consolidating or pruning a note. Its path, format, classification, companion and pruning rules are authoritative.
 4. **Keep an implemented note true.** Update paths, names, keys and defaults in the same change that alters them, and rewrite stale facts in place; do not append a change history. That tracks realization, not the decision: a reversed decision needs a new note that supersedes the old one.
-5. **Move a note** when its status changes: change `Status:` and re-satisfy the target lifecycle's skeleton in the same change.
-6. **Prune as part of the change**, not as a separate sweep: delete implemented notes that only describe small presentation or mechanical changes; keep notes whose rationale, alternatives, negative guarantees, durable semantics, ownership boundary or reintroduction condition still guides work; archive completed notes with historical decision value; reject obsolete proposals; delete rejections that no longer prevent a plausible mistake.
-7. **Archive a qualifying implemented note** through the archive procedure, then seal it with the script.
-8. **Run the checks.** `node <skill-dir>/scripts/notes.mjs check` covers the active tree and `node <skill-dir>/scripts/notes.mjs archive` covers the frozen archive. A change that leaves a failing check is unfinished. `<skill-dir>` stands for this skill directory; the project's own suite may wrap the commands, and this skill ships no tests.
+5. **Prune as part of the change**, never as a separate word-count or age sweep. The keep, archive, reject or delete decision is semantic and follows the notes contract.
+6. **Run the checks.** Load [the notes contract](references/notes-contract.md#companions) before auditing so the project's companion mechanism is known. Run `node <skill-dir>/scripts/notes.mjs check` with every declared companion option; for example, a project whose units use `.zh.md` translations and `.i18n.yaml` records runs `check --companion .zh.md --companion .i18n.yaml`. A bare check is valid only when the project declares no companions. Run `node <skill-dir>/scripts/notes.mjs archive` for the frozen archive. A change that leaves a failing check is unfinished. `<skill-dir>` stands for this skill directory; the project's own suite may wrap the commands.
 
 ## Where notes live
 
-- The root defaults to `.agents/dsh-spec-agent-notes/` directly under the project root, the Git checkout root of the working directory. The project's standing instructions (`AGENTS.md` or the file it cites) may name another root inside the project; every command accepts `--root <dir>`, resolved against the project root. The archive root is always `<notes root>/archived`.
-- Path: `{lifecycle}/{class}/yyyy-mm-dd-topic-title.md`.
-- Lifecycle folders are closed: `proposed/` holds proposals reviewed before implementation and not yet built (or only partly); `implemented/` holds the shipped decision, kept current with what shipped; `rejected/` holds a declined proposal, kept only while its rationale prevents a tempting, meaningful mistake.
-- Classes are closed: `feature`, `bug-fix`, `simplification`, `architecture`, `process`, `testing`; their definitions are in [the notes contract](references/notes-contract.md#classification). The bundled gate rejects other folders that hold Markdown; an empty directory is not a class folder. Adding a class is a deliberate change to the contract and the gate together.
-- The filename date is when the topic was first proposed.
-- Cross-references are relative Markdown links, never bare prose or numbers, so they are checkable and survive moves.
-- There is no `INDEX.md`: the lifecycle and class folders are the inventory.
-- Completed implemented notes with historical decision value but little future guidance move to `archived/{class}/`; the archive is not part of the active inventory and is not authority for current behavior.
+The root defaults to `.agents/dsh-spec-agent-notes/` directly under the project root, the Git checkout root of the working directory. The project's standing instructions (`AGENTS.md` or the file it cites) may name another root inside the project. The archive root is always `<notes root>/archived`. The notes contract owns the closed lifecycle and class trees, filenames and links.
 
 ## Writing the note
 
-The first four lines are fixed — `# Agent Note: <title>`, a blank line, `Status: <status>`, then a blank line — and `Status:` agrees with the lifecycle folder:
-
-```markdown
-# Agent Note: <title>
-
-Status: <status>
-```
-
-- `proposed/`: `Status: proposed`
-- `implemented/`: `Status: implemented`
-- `rejected/`: `Status: rejected — <why, in one line>`
-
-The status carries no date and no parenthetical: the filename holds the first-proposed date, the project's history holds everything else, and an "accepted in amended form" note states the amendment in its body. The body opens with `## Problem`, written to stand without the solution. The sections below are required under these canonical names; genuinely bespoke technical sections may sit between them.
-
-| Lifecycle | Required sections |
-|---|---|
-| `proposed/` | `## Problem`, `## Proposal`, `## Alternatives considered`, `## Acceptance criteria`, `## Risks` |
-| `implemented/` | `## Problem`, `## Decision`, `## Alternatives considered`, `## Consequences` |
-| `rejected/` | `## Problem`, `## Proposal`, `## Alternatives considered` |
-
-Every note carries `## Alternatives considered`: each genuine alternative and why it lost. Alternatives are recorded, never invented; a project adopting this format over an older corpus passes `--format-adopted <yyyy-mm-dd>`, and a note dated before that date may carry the exact pre-format alternatives comment instead of the section. Proposal-era headings (`## Proposal`, `## Plan`, `## Migration plan`, `## Acceptance criteria`) are banned in `implemented/`; that lifecycle states what is.
-
 Write a note only for lasting decision rationale that code, tests and existing documentation do not explain. Update the note that owns the decision instead of creating a duplicate. Mechanical or local edits, including local UI presentation and interaction changes, are exempt. A note is never edited into a different decision: supersede it with a new one and keep both cross-linked unless the old note is later consolidated into its owner.
+
+The notes contract owns the header, status lines, required sections and alternatives rule. A note that changes lifecycle moves to that lifecycle's path and satisfies its format in the same change.
 
 ## Companions
 
 A unit is a note plus every companion the project assigns to it. Companions may be translations, records, diagrams or other support. An external mechanism owns names, formats and checks and determines the companion set; Agent Notes owns the declared unit's grouping, movement and sealing. Installing a mechanism alone neither enables nor makes it available.
-
-Repeated `--companion <suffix>` classifies same-stem companions. When a mechanism uses another stem or a nested path, repeated `--member <source>=<companion>` declares the exact relationship. Paths are notes-root-relative for `check` and archive-root-relative for `archive`; the companion stays under the source class.
 
 When translation is available, choose this note's target set in this order:
 
@@ -79,27 +48,13 @@ When translation is available, choose this note's target set in this order:
 
 The model judges comparable files and project evidence; scripts receive resolved companion facts. A target set may contain several languages. Translation requires project evidence and availability; missing or conflicting evidence selects none without asking.
 
-Adding a target is progressive: new notes use the current set, edited notes gain missing targets, and untouched notes do not change. Removing a target clears every eligible active and unsealed unit; sealed units stay frozen. Failure leaves the unit unfinished with source, target, failed step and next step; it never becomes English-only. The [notes contract](references/notes-contract.md#companions) owns full rules. Use the project's translation mechanism (when available, use the dsh-spec-translate-docs skill).
-
-## Pruning and consolidation
-
-The keep, archive, reject or delete decision is semantic, never a matter of word count, age or a target quota. [The notes contract](references/notes-contract.md#when-to-write-one) owns the criteria; the short version:
-
-- **Full supersession** — consolidate every unique rationale, alternative, consequence, required verification and named coverage gap into the owner, repair inbound links, and delete the old note together with its companions in the same change.
-- **Partial supersession** — keep both notes active and cross-linked, and update every fact that remains current.
-- **Feature removal** — a feature-addition note may be consolidated into a later removal note only under [the notes contract's removal conditions](references/notes-contract.md#when-to-write-one); the removal owner preserves the original motivation, why it no longer justified the feature, alternatives to full removal, the capability given up, reintroduction conditions, and verification of complete absence.
-- **Never archive a proposal** — reject an obsolete proposal instead. Delete a rejection whose temptation no longer exists, and repair or delete the inbound links to it.
-- **Consolidation is not a rewrite** — it must not turn the old decision into its opposite or leave the project history as the only copy of its rationale.
+Adding a target is progressive: new notes use the current set, edited notes gain missing targets, and untouched notes do not change. Removing a target clears every eligible active and unsealed unit; sealed units stay frozen. Before producing any translation companion, apply the translation mechanism's working-separation rule. When no isolated or otherwise verifiable separation is available, finish the source note and hand off the selected target without translating in the working context. Failure leaves the unit unfinished with source, target, failed step and next step; it never becomes English-only. The [notes contract](references/notes-contract.md#companions) owns full rules. Use the project's translation mechanism (when available, use the dsh-spec-translate-docs skill).
 
 ## Archiving
 
 Only an `implemented/` note may enter. Load [the archive contract](references/archive-contract.md) before archiving; it owns the archive path, units, six class directories and seal rules.
 
-1. Finish selected companions and owner checks while the note is active; failure leaves it active and unfinished.
-2. Move the complete unit to `archived/{class}/`.
-3. Add an identical `Archived: YYYY-MM-DD` below the sole `Status: implemented` line on every Markdown side, preserving existing layout and switcher wording. After the move, do not translate or edit facts, formatting or note links.
-4. Re-record existing companions through their owner and repair or remove inbound links.
-5. Prepare the seal with final membership, hashes and required owner checks; run them, then write if the prepared unit is unchanged and every check passed. Stage and verify.
+Finish selected companions and owner checks while the note is active; failure leaves it active and unfinished. Move the complete unit, add the archive metadata and re-record companions through the archive contract. Before sealing, prepare the final membership, hashes and required owner checks; run `archive --write` with the matching plan only when the prepared unit is unchanged and every readiness check passed, then stage and verify. A successful manifest write is the freeze boundary. When readiness fails, report the failing command and output, keep the unit unsealed and the manifest unchanged, then tell the operator to repair the named condition and rerun `archive --prepare` before using a new plan with `archive --write`.
 
 Once sealed, a unit is permanently frozen: never edit, update, move, translate, reformat or delete it, and never add or remove a companion. It is not authority for current behavior; new decisions and facts belong in an active note or current documentation, and documentation gates skip archived sources, including their outbound links. The archive's structure and hashes live in `<root>/archived/manifest.json`, append-only against the baseline at the manifest's project-relative path. [The archive contract](references/archive-contract.md#the-frozen-guarantee) owns the full guarantee.
 
@@ -107,17 +62,7 @@ The archive contract owns the prepare, readiness and guarded-write commands and 
 
 ## Checks
 
-Run the commands from inside the project's Git checkout; `<skill-dir>` is this skill directory. `init`, `check` and `archive` resolve the notes root through symlinks: the notes root and archive root must resolve inside the project root, outside its Git directory, and the archive root must belong to the same absolute Git directory. Verification requires a non-empty manifest to be tracked by Git. Git layouts are not enumerated — a linked worktree, submodule checkout or separate Git directory is ordinary when those invariants hold, while a bare repository or non-checkout is a handover. A local actor who fabricates `.git` layouts, plants an uncommitted manifest or rewrites history is outside the guarantee; a manifest committed through review and CI is the trusted baseline. [The archive contract](references/archive-contract.md) owns the full boundary; `--help` lists every option and exit code, and the gate decides only what a command can decide.
-
-| Command | Decides | Exit |
-|---|---|---|
-| `node <skill-dir>/scripts/notes.mjs init [--root <dir>] [--json]` | Creates the notes skeleton: lifecycle and class folders, the six archived class folders, and ignored `.gitkeep` placeholders in empty folders; idempotent and never overwrites. | 0 created · 1 violations · 2 usage |
-| `node <skill-dir>/scripts/notes.mjs check [--root <dir>] [--companion <suffix>]... [--format-adopted <date>] [--json]` | The active tree: closed lifecycle and class folders, dated filenames, the header block, the per-lifecycle skeleton, the mandatory alternatives section, and companion pairing. | 0 pass · 1 violations · 2 usage |
-| `node <skill-dir>/scripts/notes.mjs archive [--root <dir>] [--base-ref <ref>] [--json]` | The frozen archive: six required class directories, manifest required, manifest schema, sealed artifacts unchanged and present, no unsealed additions, append-only against the baseline, and the tracked-manifest rule. Verification compares the manifest; it does not re-validate archive metadata or companion declarations over frozen history. | 0 pass · 1 violations · 2 usage |
-| `node <skill-dir>/scripts/notes.mjs archive --prepare ...` | Validates the same archive and metadata rules, prints the exact new unit membership, hashes and owner readiness requirements, and writes nothing. | 0 prepared · 1 violations · 2 usage |
-| `node <skill-dir>/scripts/notes.mjs archive --write --expect-plan <plan> ...` | Rechecks the prepared state, refuses a changed plan, runs required readiness checks, and appends the verified unit hashes to `archived/manifest.json`; new artifacts require the plan, a no-op write may omit it, and any failure writes no manifest. | 0 sealed · 1 violations · 2 usage |
-
-Whether a note should be kept, archived, rejected or deleted is judgment guided by this skill's criteria; the script never picks for you.
+Run `init`, `check` and `archive` from inside the project's Git checkout. Before `check`, load the notes contract's companion section and pass the project's declared suffixes and format options. Before `archive`, load the archive contract. The gate checks the active tree or frozen archive, and a failing state is unfinished work. `--help` lists each command's options and exit codes. The model judges whether a note should exist and whether its rationale still guides work; the script decides the mechanical facts owned by the loaded contract.
 
 ## Stop and hand over
 
@@ -128,7 +73,7 @@ Stop and report rather than guess when:
 - the note's class, lifecycle or owning decision is unclear;
 - a change would reverse a decision or repair frozen history.
 
-These decide the project's own policy or cannot be undone. A reversed decision becomes a new note; restoring a sealed unit or repairing a damaged archive is a handover, not a rewrite.
+Every handover names the failed step, completed work, pending work and a resumable recovery action. A failed archive readiness check leaves the unit unsealed and the manifest unchanged; name the failing check and the project's next command, such as repairing the named condition and rerunning `archive --prepare` before `archive --write`. A reversed decision becomes a new note; restoring a sealed unit or repairing a damaged archive is a handover, not a rewrite.
 
 ## References
 

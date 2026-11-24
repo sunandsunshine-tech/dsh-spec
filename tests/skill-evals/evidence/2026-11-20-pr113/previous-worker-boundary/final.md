@@ -1,4 +1,4 @@
-The README currently describes the defect but not the required wire contract: [README.md](/tmp/pr113-eval.FHwx6T/worker-boundary-previous/project/README.md:3) sends only `message`, so the receiver has no stable machine identity and cannot safely classify retries. The workspace contains no implementation or tests, so the following are contract and test changes rather than patches to existing files.
+The README currently describes the defect but not the required wire contract: [README.md](/workspace/worker-boundary-previous/project/README.md:3) sends only `message`, so the receiver has no stable machine identity and cannot safely classify retries. The workspace contains no implementation or tests, so the following are contract and test changes rather than patches to existing files.
 
 ## Boundary contract
 

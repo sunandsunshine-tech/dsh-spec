@@ -1,0 +1,5 @@
+ai_usage_reads: 1
+required_reads: 1
+read_before_write: pass
+final_read_back_after_write: pass
+result: pass

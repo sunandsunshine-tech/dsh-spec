@@ -23,6 +23,7 @@ The forge uses declared companions instead of its own pair record:
 - Cross-skill guidance: the forge names the optional notes, translation, prose and prompt skills only as availability-qualified examples; the Agent Skills best practices outrank the prose and prompt requirements.
 - **Default completion.** A forged skill that declares a default applies it when the current request and existing project instructions leave that choice open. Missing project instructions are valid, so the skill neither asks the user to choose the default nor creates or modifies an instruction file merely to select it. [The default record](2026-11-17-skill-defaults-complete-without-project-instructions.md) owns this acceptance.
 - **Evaluation coverage.** A central natural-language behavior that realistic prompts can falsify gets a development eval when a deterministic check cannot decide it. Capability branches cover both profiles. Eval assets are staged outside the delivered skill, and model evals run on behavior changes rather than in routine CI.
+- **Anchor classification.** The Verification anchor table is the only owner of Mechanical, Judged and Unverified. A requirement a command decides exactly becomes a Mechanical anchor; judgment remains prose with a named authority and one recorded conclusion; when neither decides it, the record states the item unverified.
 - Delivery language is English; the review language is Chinese, paired only at the stop; the additional trigger language is Chinese, present in the description.
 
 ## Design
@@ -51,7 +52,7 @@ The review drafts and their pairing records are ordinary work-directory content 
 | An existing decision record | Re-bind | `SKILL.md § Source` | Only the request, the current contract and the declaration decide; the record supplies a requirement only where one of them keeps that requirement in force |
 | Adopter declaration: forging record location | Keep | `.agents/dsh-spec-agent-notes/implemented/process/2026-10-27-forging-dsh-spec-skill-forge.md` | The notes mechanism's default root and the repository's `forging-<skill-name>` record convention |
 
-Unchanged: the guiding principle, tool names, Stop/Intent/Source/Disposition/Script conversion sections, the verification anchor table, the gate mechanics, and the description/trigger. The Verification section's Complete condition adds the default-completion acceptance above. The Record and Review sections carry the optional sibling references.
+Unchanged: the guiding principle, tool names, Stop/Intent/Source/Disposition sections, the verification anchor table, the gate mechanics, and the description/trigger. The Verification section's Complete condition adds the default-completion acceptance above. The Record and Review sections carry the optional sibling references.
 
 ## Alternatives considered
 
@@ -71,5 +72,6 @@ Unchanged: the guiding principle, tool names, Stop/Intent/Source/Disposition/Scr
 - The `pair` command is read-only. Its no-declaration report lists candidate companions by suffix relation; the shortest-suffix rule and proximity to a `.md` source make it a heuristic, and it never deletes.
 - The [2026-10-26 record](2026-10-26-forging-dsh-spec-skill-forge.md) owns the forge's anchor design; this record partially supersedes that record's review-command and pair-record design.
 - The description-reversal rule and the current-source rule for earlier decision records are in the skill body; both are judged in review rather than mechanically checked.
+- The Verification table alone classifies a requirement as Mechanical, Judged or Unverified; no separate Script conversion section maintains a second copy of that taxonomy.
 - A forged skill with a default must complete without project instructions; [the default record](2026-11-17-skill-defaults-complete-without-project-instructions.md) partially constrains this record.
 - Costs and open risks: the forge cannot detect stale translations; manual source cleanup is unverified; `publish` is not transactional and removes declared drafts before copying; the candidate heuristic can report false positives. The VCS is the rollback.
