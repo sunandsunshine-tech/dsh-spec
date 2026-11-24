@@ -1,0 +1,69 @@
+{
+  "skill_name": "dsh-spec-code-review",
+  "evals": [
+    {
+      "id": "review-with-integrated-guidance",
+      "prompt": "Review the change in evals/files/review-integration. The worker now discards its existing failure metadata and the caller routes on message text. The shared Button/Settings change has a passing consumer test. The relevant sibling guidance is installed, and the attached screenshot was captured from this exact build. Inspect the source and image, report whether the affected Search and Settings consumers plus the Settings saving state are proved, and do not copy sibling implementation details.",
+      "expected_output": "The review requires the project's existing `kind` failure identity and structured `detail` to survive the worker boundary, rejects message-text routing, inspects the attached current-build screenshot, identifies that it shows the settled Settings state with Delete account enabled rather than the saving/disabled state, notices that the 390-pixel narrow viewport remains unproved, and leaves that coverage incomplete instead of treating the consumer test as visual acceptance.",
+      "capabilities": {
+        "browser": false,
+        "media": false
+      },
+      "files": [
+        "evals/files/review-integration/AGENTS.md",
+        "evals/files/review-integration/package.json",
+        "evals/files/review-integration/index.html",
+        "evals/files/review-integration/server.mjs",
+        "evals/files/review-integration/src/app.js",
+        "evals/files/review-integration/src/Button.js",
+        "evals/files/review-integration/src/SearchPage.js",
+        "evals/files/review-integration/src/SettingsPage.js",
+        "evals/files/review-integration/src/button.module.css",
+        "evals/files/review-integration/src/styles.css",
+        "evals/files/review-integration/src/worker-client.js",
+        "evals/files/review-integration/tests/button-consumers.test.mjs",
+        "evals/files/review-integration/evidence/settings-after.png"
+      ],
+      "install": [
+        "dsh-spec-client-ui-ux",
+        "dsh-spec-error-handling"
+      ],
+      "assertions": [
+        "The review requires the existing `kind` identity and structured `detail` to survive the worker boundary.",
+        "The review rejects routing on the error message.",
+        "The review inspects the attached current-build screenshot and identifies that Settings saving/disabled state is not shown.",
+        "The review does not treat the shared-consumer test as visual acceptance of the saving state.",
+        "The review uses sibling guidance only as an optional mechanism."
+      ]
+    },
+    {
+      "id": "review-without-siblings",
+      "prompt": "Review the change in evals/files/review-integration without error-handling or client-UI sibling guidance and without a rendered screenshot or browser-control capability. The worker drops existing failure metadata and routes on message text; the shared Button/Settings consumer test passes. Report the minimum review findings and leave the Settings saving-state evidence explicitly incomplete.",
+      "expected_output": "The review still requires the project's existing `kind` identity and structured `detail`, rejects message-text routing, and reports the unavailable Settings saving/disabled rendered evidence as an unresolved review gap with a resumable next step.",
+      "capabilities": {
+        "browser": false,
+        "media": false
+      },
+      "files": [
+        "evals/files/review-integration/AGENTS.md",
+        "evals/files/review-integration/package.json",
+        "evals/files/review-integration/index.html",
+        "evals/files/review-integration/server.mjs",
+        "evals/files/review-integration/src/app.js",
+        "evals/files/review-integration/src/Button.js",
+        "evals/files/review-integration/src/SearchPage.js",
+        "evals/files/review-integration/src/SettingsPage.js",
+        "evals/files/review-integration/src/button.module.css",
+        "evals/files/review-integration/src/styles.css",
+        "evals/files/review-integration/src/worker-client.js",
+        "evals/files/review-integration/tests/button-consumers.test.mjs"
+      ],
+      "assertions": [
+        "The review still requires the existing `kind` identity and structured `detail`.",
+        "The review rejects routing on the error message.",
+        "The review reports Settings saving/disabled rendered evidence as unavailable.",
+        "The review gives a resumable next step instead of claiming visual acceptance."
+      ]
+    }
+  ]
+}

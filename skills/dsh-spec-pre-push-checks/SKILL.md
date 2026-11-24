@@ -31,7 +31,9 @@ node <skill-dir>/scripts/change-scope.mjs --base <verified-base-ref>
 There is no universal local baseline beyond the repository's hooks. Every behavior change needs the narrowest available test or purpose-built check that would fail for its regression; add broader checks only for the surfaces the diff actually reaches. Use the repository's own scripts and workflow files as the inventory of what can be run.
 
 - **Tested behavior:** run the test file or focused test name that owns the changed behavior. Add adjacent tests when a shared contract changes, and leave repository-wide coverage to CI unless the change is genuinely cross-cutting or the user asks for it.
+- **Machine-consumable expected failures:** run the boundary test that proves the project's existing stable machine-readable failure identity survives, the original cause or equivalent structured detail remains available, and consumers do not route on message text. When the project declares an error-handling standard, apply it (when available, use the `dsh-spec-error-handling` skill).
 - **Asynchronous or resource-owning tests:** when the change adds or changes an asynchronous, resource-owning or subprocess test, fixture, helper or CI execution path, decide whether restoration, negative-control, quiescent-teardown or concurrent-process evidence applies to the failure it could cause. This skill still selects the commands and does not repeat evidence that already passed.
+- **Browser-rendered UI:** inspect the actual assembled page across affected states and consumers, and produce or reuse the project's required rendered evidence. A passing test suite or source inspection does not establish visual acceptance; report any missing scene or capability as an unfinished check (when available, use the dsh-spec-client-ui-ux skill).
 - **Observable output:** when the change is visible to a model, an editor, a CLI or a terminal, run the focused snapshot or the real runnable-example scenario that owns that output.
 - **Documentation and decision records:** run the repository's documentation check — the link check, documentation build or sync its workflow names — and the full lint when the documentation workflow requires it.
 - **Type checking and generated types:** a typed change runs the repository's typecheck before it is handed off. An unbuilt or stale generated declaration is not strict evidence: rebuild missing, stale or partial generated declarations before diagnosing remaining errors, and keep a local typing exception in test support, never in production types or ambient flags. Before claiming completion of a change whose types or build inputs moved, run the check that consumes the current build output after the build that produces it; stale output is not evidence.
@@ -92,17 +94,20 @@ For an ordinary push or a standalone rebase push:
 4. Verify the remote ref matches local `HEAD`.
 
 ```sh
-git rev-parse HEAD origin/$(git branch --show-current)
+push_ref=$(git rev-parse --symbolic-full-name '@{push}')
+git rev-parse HEAD "$push_ref"
 ```
+
+The push remote is the one selected by the branch's upstream or explicit push configuration; it need not be named `origin`.
 
 Inspect the review platform's checks after the push; when the platform is GitHub, `gh pr checks` reports them. Report pending checks as pending, and inspect failures before attributing them to the branch or the environment.
 
-When the platform reports no checks for the pushed commit, read mergeability before suspecting the push or a dropped event. On GitHub, `gh pr checks` prints "no checks reported" and no workflow runs exist for that head; a conflicting pull request creates no pull-request workflow runs, so the absent signal is the conflict, not the infrastructure. Read mergeability with:
+When the platform reports no checks for the pushed commit, distinguish a workflow that did not start from a conflict. On GitHub, query the Actions runs for the exact pushed SHA; only when the count is zero should you read mergeability before suspecting a dropped event. A conflicting pull request can create no pull-request workflow runs. Read mergeability with:
 
 ```sh
 gh pr view <number> --json mergeable,mergeStateStatus
 ```
 
-Resolving the conflict is the only fix: empty commits, `--allow-empty` pushes, draft/ready toggles and revert-and-restore bounces add history and leave the run count at zero. Confirm the conflicting paths with `git merge-tree --write-tree HEAD origin/<base>` when the branch cannot be merged locally yet.
+Resolving the conflict is the only fix: empty commits, `--allow-empty` pushes, draft/ready toggles and revert-and-restore bounces add history and leave the run count at zero. When a conflict is the cause, confirm the paths with `git merge-tree --write-tree HEAD <push-remote>/<base>` after resolving the actual push remote and base branch.
 
 For an automated rewrite and publish, use the post-publication sequence instead of pretending the ordinary order was possible.

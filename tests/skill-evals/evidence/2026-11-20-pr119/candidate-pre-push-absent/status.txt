@@ -1,0 +1,5 @@
+status: pass
+assertions: 4/4
+exit_code: 0
+input_tokens: 242568
+output_tokens: 12230

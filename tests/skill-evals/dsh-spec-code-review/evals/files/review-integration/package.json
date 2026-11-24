@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "evidence": "node capture-browser.mjs",
+    "start": "node server.mjs",
+    "test": "node --test tests/*.test.mjs"
+  }
+}
