@@ -13,7 +13,7 @@ import { test } from 'node:test'
 import { skillBundle } from './helpers/bundles.ts'
 import { runScript } from './helpers/cli.ts'
 
-const ENCODER = skillBundle('dsh-spec-browser-gif-evidence', 'encode-browser-gif.mjs')
+const ENCODER = skillBundle('dsh-spec-record-browser-gif', 'encode-browser-gif.mjs')
 
 test('browser GIF preflight rejects invalid output and input relationships before media execution', (t) => {
   const root = mkdtempSync(join(tmpdir(), 'browser-gif-preflight-'))

@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a20d4d-a8ad-7233-97cd-cc18691f17ca"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The request is explicitly for browser-interaction GIF evidence covering a three-state workflow, including verification of the encoded frames and an evidence report. That matches the browser GIF recording skill directly.\n\nSELECT: dsh-spec-record-browser-gif"}}
+{"type":"turn.completed","usage":{"input_tokens":17355,"cached_input_tokens":12928,"cache_write_input_tokens":0,"output_tokens":199,"reasoning_output_tokens":151}}

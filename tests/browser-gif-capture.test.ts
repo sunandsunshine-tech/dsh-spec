@@ -18,7 +18,7 @@ import { setTimeout as delay } from 'node:timers/promises'
 import { test, type TestContext } from 'node:test'
 import { REPO_ROOT } from './helpers/fixtures.ts'
 
-const FIXTURE = join(REPO_ROOT, 'tests/skill-evals/dsh-spec-browser-gif-evidence/evals/files/shared-gif-project')
+const FIXTURE = join(REPO_ROOT, 'tests/skill-evals/dsh-spec-record-browser-gif/evals/files/shared-gif-project')
 const FAKE_CHROME = join(REPO_ROOT, 'tests/helpers/fake-cdp-chrome.mjs')
 
 function shellQuote(value: string): string {

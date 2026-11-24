@@ -14,7 +14,7 @@ import { test } from 'node:test'
 import { skillBundle } from './helpers/bundles.ts'
 import { runScript } from './helpers/cli.ts'
 
-const ENCODER = skillBundle('dsh-spec-browser-gif-evidence', 'encode-browser-gif.mjs')
+const ENCODER = skillBundle('dsh-spec-record-browser-gif', 'encode-browser-gif.mjs')
 
 function requireMediaTools(): void {
   for (const tool of ['ffmpeg', 'ffprobe']) {

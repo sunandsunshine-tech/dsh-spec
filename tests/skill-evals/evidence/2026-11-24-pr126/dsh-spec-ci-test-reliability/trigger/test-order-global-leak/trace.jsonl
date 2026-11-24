@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a20d4d-23b8-7e93-a8bd-4b065b83f54f"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The installed CI test reliability skill clearly applies because the failure is order-dependent and caused by leaked process-global state: environment variables and fake timers persisting between tests.\n\nSELECT: dsh-spec-ci-test-reliability"}}
+{"type":"turn.completed","usage":{"input_tokens":17346,"cached_input_tokens":12928,"cache_write_input_tokens":0,"output_tokens":239,"reasoning_output_tokens":193}}

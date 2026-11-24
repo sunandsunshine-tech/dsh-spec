@@ -542,7 +542,7 @@ const GENERAL_REQUIRED: GeneralProfile[] = [
     ],
   },
   {
-    skill: 'dsh-spec-test-reliability',
+    skill: 'dsh-spec-ci-test-reliability',
     scenarios: [
       {
         id: 'reserve-port-at-listener',
@@ -589,7 +589,7 @@ const GENERAL_REQUIRED: GeneralProfile[] = [
     ],
   },
   {
-    skill: 'dsh-spec-browser-gif-evidence',
+    skill: 'dsh-spec-record-browser-gif',
     scenarios: [
       {
         id: 'real-ui-change-uses-one-isolated-run',
@@ -625,6 +625,107 @@ function scenarioPath(skill: string): string {
 
 function readCorpus(skill: string): ScenarioCorpus {
   return JSON.parse(readFileSync(scenarioPath(skill), 'utf8')) as ScenarioCorpus
+}
+
+function assertTriggerCorpusIdentity(skill: string): void {
+  const corpusRoot = join(EVAL_SOURCE_ROOT, skill)
+  const trigger = JSON.parse(readFileSync(join(corpusRoot, 'trigger-evals.json'), 'utf8')) as {
+    skill_name?: string
+    agent_file?: string
+    queries?: unknown[]
+  }
+  assert.equal(trigger.skill_name, skill)
+  assert.equal(trigger.agent_file, 'trigger-fixtures/AGENTS.md')
+  assert.ok(Array.isArray(trigger.queries) && trigger.queries.length > 0, skill + ' trigger corpus is empty')
+  assert.match(
+    readFileSync(join(corpusRoot, trigger.agent_file), 'utf8'),
+    new RegExp(`SELECT: ${skill}`),
+    skill + ' trigger fixture names another skill',
+  )
+}
+
+function assertCurrentTriggerEvidence(skill: string, evidenceRoot: string): void {
+  const corpusRoot = join(EVAL_SOURCE_ROOT, skill)
+  const corpus = JSON.parse(readFileSync(join(corpusRoot, 'trigger-evals.json'), 'utf8')) as {
+    agent_file: string
+    queries: Array<{ id: string; should_trigger: boolean }>
+  }
+  assertTriggerCorpusIdentity(skill)
+  const expected = {
+    'dsh-spec-ci-test-reliability': { positive: 4, negative: 4 },
+    'dsh-spec-record-browser-gif': { positive: 3, negative: 5 },
+  }[skill]
+  assert.ok(expected, skill + ' has no expected trigger distribution')
+  assert.equal(
+    corpus.queries.filter((query) => query.should_trigger).length,
+    expected.positive,
+    skill + ' positive triggers',
+  )
+  assert.equal(
+    corpus.queries.filter((query) => !query.should_trigger).length,
+    expected.negative,
+    skill + ' near misses',
+  )
+  const actualInputs = readHashManifest(join(evidenceRoot, 'trigger-input.sha256'), skill + ' trigger inputs')
+  const expectedInputs = new Map([
+    [
+      `tests/skill-evals/${skill}/trigger-evals.json`,
+      createHash('sha256')
+        .update(readFileSync(join(REPO_ROOT, `tests/skill-evals/${skill}/trigger-evals.json`)))
+        .digest('hex'),
+    ],
+    [
+      `tests/skill-evals/${skill}/${corpus.agent_file}`,
+      createHash('sha256')
+        .update(readFileSync(join(REPO_ROOT, `tests/skill-evals/${skill}/${corpus.agent_file}`)))
+        .digest('hex'),
+    ],
+    [triggerSurfacePath(skill), triggerSurfaceHash(skill)],
+  ])
+  assert.deepEqual(
+    [...actualInputs].sort(([left], [right]) => left.localeCompare(right)),
+    [...expectedInputs].sort(([left], [right]) => left.localeCompare(right)),
+    skill + ' current trigger inputs differ',
+  )
+
+  const matrixLines = readFileSync(join(evidenceRoot, 'trigger-matrix.tsv'), 'utf8').trim().split('\n')
+  assert.equal(matrixLines[0], 'id\tshould_trigger\tselected\tresult')
+  const matrix = new Map(
+    matrixLines.slice(1).map((line) => {
+      const [id, shouldTrigger, selected, result] = line.split('\t')
+      assert.ok(id && shouldTrigger && selected && result, skill + ' trigger matrix row is malformed')
+      return [id, { shouldTrigger, selected, result }] as const
+    }),
+  )
+  assert.equal(matrix.size, corpus.queries.length, skill + ' trigger matrix size differs')
+
+  for (const query of corpus.queries) {
+    const row = matrix.get(query.id)
+    assert.ok(row, skill + ' trigger matrix is missing ' + query.id)
+    const runRoot = join(evidenceRoot, 'trigger', query.id)
+    const final = readFileSync(join(runRoot, 'final.md'), 'utf8')
+    const marker = final.trim().split('\n').at(-1)
+    assert.ok(
+      marker === `SELECT: ${skill}` || marker === 'SELECT: none',
+      skill + '/' + query.id + ' is missing a stable selection marker',
+    )
+    const selected = marker === `SELECT: ${skill}`
+    assert.equal(row.shouldTrigger, String(query.should_trigger))
+    assert.equal(row.selected, String(selected))
+    assert.equal(row.result, 'pass')
+    assert.equal(selected, query.should_trigger, skill + '/' + query.id + ' selected the wrong skill')
+    const traceText = readFileSync(join(runRoot, 'trace.jsonl'), 'utf8')
+    assert.doesNotMatch(traceText, /evals[/\\]evals\.json|tests[/\\]skill-evals|expected_output/)
+    const trace = readEvidenceTrace(join(runRoot, 'trace.jsonl'))
+    assert.equal(trace.filter((entry) => entry.type === 'turn.completed').length, 1)
+    assert.equal(trace.at(-1)?.type, 'turn.completed')
+    assert.equal(
+      finalEvidenceMessage(trace)?.trim(),
+      final.trim(),
+      skill + '/' + query.id + ' final differs from trace',
+    )
+    assert.ok(readFileSync(join(runRoot, 'stderr.log'), 'utf8').trim().length > 0)
+  }
 }
 
 function stageSkillWithEvals(skill: string): StagedSkill {
@@ -1163,6 +1264,30 @@ function assertBehaviorSkillRevision(root: string, skill: string, installed: str
   }
 }
 
+function assertBrowserNameOnlySkillRevision(root: string, skill: string, formerSkill: string): void {
+  const actual = readSkillHashEntries(root)
+  const files = ['SKILL.md', 'THIRD_PARTY_NOTICES', 'references/publication.md', 'scripts/encode-browser-gif.mjs']
+  const expected = new Map<string, { hash: string; mode: string }>()
+  for (const file of files) {
+    const currentPath = `skills/${skill}/${file}`
+    let contents: string | Buffer = readFileSync(join(REPO_ROOT, currentPath))
+    if (file === 'SKILL.md') {
+      contents = contents.toString().replace(`name: ${skill}`, `name: ${formerSkill}`)
+    } else if (file === 'scripts/encode-browser-gif.mjs') {
+      contents = contents.toString().replaceAll(`package/${skill}/`, `package/${formerSkill}/`)
+    }
+    expected.set(`skills/${formerSkill}/${file}`, {
+      hash: createHash('sha256').update(contents).digest('hex'),
+      mode: fileMode(join(REPO_ROOT, currentPath)),
+    })
+  }
+  assert.deepEqual([...actual.keys()].sort(), [...expected.keys()].sort(), root + ' renamed skill file set differs')
+  for (const [path, revision] of expected) {
+    assert.equal(actual.get(path)?.hash, revision.hash, root + ' is not a name-only revision of ' + path)
+    assert.equal(actual.get(path)?.mode, revision.mode, root + ' changed the mode of ' + path)
+  }
+}
+
 function readSkillTreeManifest(path: string): Map<string, string> {
   return readHashManifest(path, 'skill tree')
 }
@@ -1388,6 +1513,13 @@ test('trigger evidence changes only with the name or description', () => {
   )
 })
 
+test('renamed skills bind current trigger evidence to the delivered name and description', () => {
+  const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-24-pr126')
+  for (const skill of ['dsh-spec-ci-test-reliability', 'dsh-spec-record-browser-gif']) {
+    assertCurrentTriggerEvidence(skill, join(evidenceRoot, skill))
+  }
+})
+
 test('pr-description eval covers stack-local AI Usage migration', () => {
   const corpus = readCorpus('dsh-spec-pr-description')
   assert.equal(corpus.evals.length, 2)
@@ -1457,7 +1589,7 @@ test('Agent Notes audit commands load the declared companion contract', () => {
 test('the capability scenario corpus covers absent and available isolated execution', () => {
   for (const required of REQUIRED) validateCorpus(readCorpus(required.skill), required)
   validateCorpus(readCorpus(FORGE_REQUIRED.skill), FORGE_REQUIRED)
-  const browser = readCorpus('dsh-spec-browser-gif-evidence')
+  const browser = readCorpus('dsh-spec-record-browser-gif')
   const missing = browser.evals.find((scenario) => scenario.id === 'missing-capture-capability-hands-off')
   assert.ok(missing)
   assert.deepEqual(missing.capabilities, { browser: false, media: false })
@@ -2182,7 +2314,7 @@ test('client UI capture discards prior evidence and its partial run after failur
 test('browser GIF fixtures build and their capture entries parse', (t) => {
   const root = mkdtempSync(join(tmpdir(), 'browser-gif-fixture-'))
   t.after(() => rmSync(root, { recursive: true, force: true }))
-  const scenario = readCorpus('dsh-spec-browser-gif-evidence').evals.find(
+  const scenario = readCorpus('dsh-spec-record-browser-gif').evals.find(
     (entry) => entry.id === 'real-ui-change-uses-one-isolated-run',
   )
   assert.ok(scenario)
@@ -2191,7 +2323,7 @@ test('browser GIF fixtures build and their capture entries parse', (t) => {
     assert.ok(file.startsWith(prefix), 'unexpected browser GIF fixture input: ' + file)
     const destination = join(root, file.slice(prefix.length))
     mkdirSync(dirname(destination), { recursive: true })
-    cpSync(join(EVAL_SOURCE_ROOT, 'dsh-spec-browser-gif-evidence', file), destination)
+    cpSync(join(EVAL_SOURCE_ROOT, 'dsh-spec-record-browser-gif', file), destination)
   }
 
   const build = spawnSync(process.execPath, ['build.mjs'], { cwd: root, encoding: 'utf8' })
@@ -2206,8 +2338,8 @@ test('browser GIF fixtures build and their capture entries parse', (t) => {
 })
 
 test('test reliability fixtures run with the intended positive and negative controls', () => {
-  const root = join(EVAL_SOURCE_ROOT, 'dsh-spec-test-reliability', 'evals', 'files')
-  const positiveRoot = join(EVAL_SOURCE_ROOT, 'dsh-spec-test-reliability', 'positive-controls')
+  const root = join(EVAL_SOURCE_ROOT, 'dsh-spec-ci-test-reliability', 'evals', 'files')
+  const positiveRoot = join(EVAL_SOURCE_ROOT, 'dsh-spec-ci-test-reliability', 'positive-controls')
   const env = { ...process.env }
   delete env.NODE_TEST_CONTEXT
   const collidingPort = spawnSync(process.execPath, ['--test', 'tests/server.test.mjs'], {
@@ -2282,7 +2414,7 @@ test('the browser evidence fixture does not leak an unready server', async (t) =
   t.after(() => rmSync(root, { recursive: true, force: true }))
   for (const [fixture, serverEntry] of [
     ['dsh-spec-client-ui-ux/evals/files/shared-widget-project', 'hang-server.mjs'],
-    ['dsh-spec-browser-gif-evidence/evals/files/shared-gif-project', 'server.mjs'],
+    ['dsh-spec-record-browser-gif/evals/files/shared-gif-project', 'server.mjs'],
   ] as const) {
     const fixtureRoot = join(root, fixture.split('/')[0])
     const profiles = join(fixtureRoot, 'profiles')
@@ -2321,8 +2453,29 @@ test('the browser evidence fixture does not leak an unready server', async (t) =
 })
 
 test('test reliability recorded model evidence binds scenarios, inputs and outputs', () => {
-  const skill = 'dsh-spec-test-reliability'
+  const skill = 'dsh-spec-ci-test-reliability'
+  const evidenceSkill = 'dsh-spec-test-reliability'
   const corpusRoot = join(EVAL_SOURCE_ROOT, skill)
+  assertTriggerCorpusIdentity(skill)
+  const historicalTriggerInputs = readHashManifest(
+    join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-20-pr116/trigger-input.sha256'),
+    'historical test reliability trigger inputs',
+  )
+  assert.deepEqual(
+    [...historicalTriggerInputs].sort(([left], [right]) => left.localeCompare(right)),
+    [
+      [
+        `tests/skill-evals/${evidenceSkill}/trigger-evals.json`,
+        '66b1ee5bed802d8c4ad6bc04c25082a69681a01f2fafe79014d03653a688233c',
+      ],
+      [
+        `tests/skill-evals/${evidenceSkill}/trigger-fixtures/AGENTS.md`,
+        'bfa0eda9a2a85e47d18789d4c5bd3ad02fa389ddbf5adb3f952b3d74010a7327',
+      ],
+      [triggerSurfacePath(evidenceSkill), '60c37dabfea6125882694cddb7d78b071b71505d36b072a4017e1332e57e5c13'],
+    ].sort(([left], [right]) => left.localeCompare(right)),
+    'historical test reliability trigger inputs changed',
+  )
   const corpusScenarios = new Map(readCorpus(skill).evals.map((scenario) => [scenario.id, scenario] as const))
   const evidenceSets = [
     {
@@ -2367,14 +2520,15 @@ test('test reliability recorded model evidence binds scenarios, inputs and outpu
     )
     const skillTreePath = join(evidence.root, 'skills-tree.sha256')
     const recordedSkillTree = existsSync(skillTreePath)
-      ? readSkillTreeManifest(skillTreePath).get(`skills/${skill}/SKILL.md`)
+      ? readSkillTreeManifest(skillTreePath).get(`skills/${evidenceSkill}/SKILL.md`)
       : undefined
     let recordedSkillHash: string | undefined
     const recordedInputs = new Map<string, string>()
 
     for (const [run, scenarioId, assertionCount] of evidence.runs) {
       const root = join(evidence.root, run)
-      const scenario = definitions?.[skill]?.find((entry) => entry.id === scenarioId) ?? corpusScenarios.get(scenarioId)
+      const scenario =
+        definitions?.[evidenceSkill]?.find((entry) => entry.id === scenarioId) ?? corpusScenarios.get(scenarioId)
       assert.ok(scenario, run + ' names no scenario')
 
       const status = readFileSync(join(root, 'status.txt'), 'utf8')
@@ -2395,7 +2549,7 @@ test('test reliability recorded model evidence binds scenarios, inputs and outpu
       if (existsSync(scenarioDefinitionFile)) {
         assert.equal(
           readFileSync(join(root, 'scenario-definition.sha256'), 'utf8').trim(),
-          `${scenarioDefinitionHash(recordedScenario)}  ${skill}:${scenarioId}`,
+          `${scenarioDefinitionHash(recordedScenario)}  ${evidenceSkill}:${scenarioId}`,
           run + ' scenario hash differs',
         )
       }
@@ -2407,7 +2561,7 @@ test('test reliability recorded model evidence binds scenarios, inputs and outpu
         run + ' input manifest differs from its scenario',
       )
       for (const entry of inputs) {
-        const frozenHash = historicalFiles.get(`tests/skill-evals/${skill}/${entry.path}`)
+        const frozenHash = historicalFiles.get(`tests/skill-evals/${evidenceSkill}/${entry.path}`)
         if (frozenHash !== undefined) {
           assert.equal(entry.hash, frozenHash, run + ' differs from its frozen input: ' + entry.path)
           continue
@@ -2422,7 +2576,7 @@ test('test reliability recorded model evidence binds scenarios, inputs and outpu
       const runSkillHashesFile = join(root, 'skill-hashes.txt')
       const runSkillHash = existsSync(runSkillHashFile)
         ? readFileSync(runSkillHashFile, 'utf8').trim()
-        : readHashManifest(runSkillHashesFile, run + ' skill hashes').get(`skills/${skill}/SKILL.md`)
+        : readHashManifest(runSkillHashesFile, run + ' skill hashes').get(`skills/${evidenceSkill}/SKILL.md`)
       assert.match(runSkillHash ?? '', /^[0-9a-f]{64}$/, run + ' records no skill revision')
       if (recordedSkillHash === undefined) recordedSkillHash = runSkillHash
       else assert.equal(runSkillHash, recordedSkillHash, run + ' records a different skill revision')
@@ -2440,7 +2594,7 @@ test('test reliability recorded model evidence binds scenarios, inputs and outpu
             entry.type === 'item.completed' &&
             entry.item?.type === 'command_execution' &&
             entry.item.exit_code === 0 &&
-            commandPrintsSkill(entry.item.command, skill),
+            commandPrintsSkill(entry.item.command, evidenceSkill),
         ),
         true,
         run + ' did not read the installed skill',
@@ -2489,7 +2643,8 @@ test('historical review integration evidence points to its answer-blind replacem
 })
 
 test('browser GIF model evidence binds inputs, scores, artifacts and trigger decisions', () => {
-  const skill = 'dsh-spec-browser-gif-evidence'
+  const skill = 'dsh-spec-record-browser-gif'
+  const historicalSkill = 'dsh-spec-browser-gif-evidence'
   const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-20-pr115')
   const evidenceReadme = readFileSync(join(evidenceRoot, 'README.md'), 'utf8')
   assert.match(evidenceReadme, /^> \*\*Historical status:\*\* these runs predate the final fixture/m)
@@ -2508,11 +2663,13 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
     ['candidate-absent', 'missing-capture-capability-hands-off'],
     ['candidate-fixture', 'explicit-fixture-recording-is-disclosed'],
   ])
-  const historicalScenarios = new Map((historical[skill] ?? []).map((scenario) => [scenario.id, scenario] as const))
+  const historicalScenarios = new Map(
+    (historical[historicalSkill] ?? []).map((scenario) => [scenario.id, scenario] as const),
+  )
   for (const run of ['candidate-absent', 'candidate-fixture']) {
     const root = join(evidenceRoot, run)
     const recordedSkillHash = existsSync(join(root, 'skill-hashes.txt'))
-      ? readSkillHashes(root).get(`skills/${skill}/SKILL.md`)
+      ? readSkillHashes(root).get(`skills/${historicalSkill}/SKILL.md`)
       : undefined
     const status = readFileSync(join(root, 'status.txt'), 'utf8')
     assert.match(status, /^status: pass$/m)
@@ -2553,7 +2710,7 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
     assert.equal(trace.at(-1)?.type, 'turn.completed', run + ' did not complete')
     const skillEvents = trace.filter((entry) => entry.type === 'skill')
     for (const event of skillEvents) {
-      assert.equal(event.path, `.agents/skills/${skill}/SKILL.md`)
+      assert.equal(event.path, `.agents/skills/${historicalSkill}/SKILL.md`)
       if (recordedSkillHash !== undefined) assert.equal(event.sha256, recordedSkillHash)
     }
     assert.equal(
@@ -2562,7 +2719,7 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
           entry.type === 'item.completed' &&
           entry.item?.type === 'command_execution' &&
           entry.item.exit_code === 0 &&
-          commandReadsSkill(entry.item.command, skill),
+          commandReadsSkill(entry.item.command, historicalSkill),
       ),
       true,
       run + ' trace context did not record a read of the candidate skill',
@@ -2585,7 +2742,7 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
         const { hash, path: relative } = parseHashPath(line, run + ' evidence manifest')
         if (manifest === 'input-manifest.sha256') {
           assert.equal(
-            historicalInputs.get(`tests/skill-evals/${skill}/${relative}`),
+            historicalInputs.get(`tests/skill-evals/${historicalSkill}/${relative}`),
             hash,
             run + ' input differs from its recorded historical manifest: ' + relative,
           )
@@ -2658,35 +2815,28 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
         return [entry.path, entry.hash] as const
       }),
   )
-  for (const path of [
-    `tests/skill-evals/${skill}/trigger-evals.json`,
-    `tests/skill-evals/${skill}/trigger-fixtures/AGENTS.md`,
-  ]) {
-    assert.equal(
-      triggerInputs.get(path),
-      createHash('sha256')
-        .update(readFileSync(join(REPO_ROOT, path)))
-        .digest('hex'),
-      'trigger input differs: ' + path,
-    )
-  }
-  assert.equal(
-    triggerInputs.get(triggerSurfacePath(skill)),
-    triggerSurfaceHash(skill),
-    'browser GIF trigger surface differs',
-  )
-  assert.equal(
-    triggerInputs.get(triggerSurfacePath(skill)),
-    hashTriggerSurface(
-      readFileSync(join(REPO_ROOT, 'skills', skill, 'SKILL.md'), 'utf8'),
-      'browser GIF evidence candidate',
-    ),
-    'browser GIF trigger evidence differs from its candidate revision',
+  assert.equal(triggerInputs.size, 3, 'historical browser GIF trigger input count differs')
+  assert.deepEqual(
+    [...triggerInputs].sort(([left], [right]) => left.localeCompare(right)),
+    [
+      [
+        `tests/skill-evals/${historicalSkill}/trigger-evals.json`,
+        '7bd1beef19f88046487800b8840c12f780d9287b8e61535e90450ed275927a6d',
+      ],
+      [
+        `tests/skill-evals/${historicalSkill}/trigger-fixtures/AGENTS.md`,
+        'e025241e4677dbe3dbf648628fc1424f351405be0779f09de350ef776e1cf972',
+      ],
+      [triggerSurfacePath(historicalSkill), '7180bb31efc276354b3ffac5f84c061e02e0db66078b6a472d75ee66c3f212fd'],
+    ].sort(([left], [right]) => left.localeCompare(right)),
+    'historical browser GIF trigger inputs changed',
   )
 
   const triggerCorpus = JSON.parse(readFileSync(join(corpusRoot, 'trigger-evals.json'), 'utf8')) as {
+    skill_name: string
     queries: Array<{ id: string; should_trigger: boolean }>
   }
+  assertTriggerCorpusIdentity(skill)
   const matrix = new Map(
     readFileSync(join(evidenceRoot, 'trigger-matrix.tsv'), 'utf8')
       .trim()
@@ -2739,6 +2889,7 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
   type EvidenceRun = {
     skill: string
     run: string
+    evidenceSkill?: string
     evidenceRoot?: string
   }
   const runs: EvidenceRun[] = [
@@ -2752,14 +2903,26 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
     { skill: 'dsh-spec-translate-docs', run: 'target-removal' },
     { skill: 'dsh-spec-client-ui-ux', run: 'shared-widget-consumer-coverage' },
     { skill: 'dsh-spec-client-ui-ux', run: 'responsive-draft-and-touch-input' },
-    { skill: 'dsh-spec-browser-gif-evidence', run: 'candidate-real' },
+    {
+      skill: 'dsh-spec-record-browser-gif',
+      run: 'candidate-real',
+      evidenceSkill: 'dsh-spec-browser-gif-evidence',
+    },
     { skill: 'dsh-spec-code-review', run: 'review-with-integrated-guidance' },
     { skill: 'dsh-spec-code-review', run: 'review-without-siblings' },
     { skill: 'dsh-spec-error-handling', run: 'outcome-classification-and-extensible-codes' },
     { skill: 'dsh-spec-pre-push-checks', run: 'select-integrated-evidence' },
     { skill: 'dsh-spec-pre-push-checks', run: 'select-minimum-without-siblings' },
-    { skill: 'dsh-spec-test-reliability', run: 'diagnose-without-fixing' },
-    { skill: 'dsh-spec-test-reliability', run: 'redesign-slow-repeated-suite' },
+    {
+      skill: 'dsh-spec-ci-test-reliability',
+      run: 'diagnose-without-fixing',
+      evidenceSkill: 'dsh-spec-test-reliability',
+    },
+    {
+      skill: 'dsh-spec-ci-test-reliability',
+      run: 'redesign-slow-repeated-suite',
+      evidenceSkill: 'dsh-spec-test-reliability',
+    },
     {
       skill: 'dsh-spec-pr-description',
       run: 'workspace-boundaries-expose-reverse-edge',
@@ -2801,13 +2964,15 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
       evidenceRoot: pr122EvidenceRoot,
     },
     {
-      skill: 'dsh-spec-browser-gif-evidence',
+      skill: 'dsh-spec-record-browser-gif',
       run: 'missing-capture-capability-hands-off',
+      evidenceSkill: 'dsh-spec-browser-gif-evidence',
       evidenceRoot: pr122EvidenceRoot,
     },
     {
-      skill: 'dsh-spec-browser-gif-evidence',
+      skill: 'dsh-spec-record-browser-gif',
       run: 'real-ui-change-uses-one-isolated-run',
+      evidenceSkill: 'dsh-spec-browser-gif-evidence',
       evidenceRoot: pr122EvidenceRoot,
     },
     {
@@ -2842,7 +3007,7 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
     'dsh-spec-translate-docs:target-removal': 'target-removal-active-scope',
     'dsh-spec-client-ui-ux:shared-widget-consumer-coverage': 'shared-widget-consumer-coverage',
     'dsh-spec-client-ui-ux:responsive-draft-and-touch-input': 'responsive-draft-and-touch-input',
-    'dsh-spec-browser-gif-evidence:candidate-real': 'real-ui-change-uses-one-isolated-run',
+    'dsh-spec-record-browser-gif:candidate-real': 'real-ui-change-uses-one-isolated-run',
     'dsh-spec-code-review:review-with-integrated-guidance': 'review-with-integrated-guidance',
     'dsh-spec-code-review:review-without-siblings': 'review-without-siblings',
     'dsh-spec-error-handling:outcome-classification-and-extensible-codes':
@@ -2850,8 +3015,8 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
     'dsh-spec-pre-push-checks:select-integrated-evidence': 'select-integrated-evidence',
     'dsh-spec-pre-push-checks:select-minimum-without-siblings': 'select-minimum-without-siblings',
     'dsh-spec-pre-push-checks:select-rebase-refresh-with-rerere': 'select-rebase-refresh-with-rerere',
-    'dsh-spec-test-reliability:diagnose-without-fixing': 'diagnose-without-fixing',
-    'dsh-spec-test-reliability:redesign-slow-repeated-suite': 'redesign-slow-repeated-suite',
+    'dsh-spec-ci-test-reliability:diagnose-without-fixing': 'diagnose-without-fixing',
+    'dsh-spec-ci-test-reliability:redesign-slow-repeated-suite': 'redesign-slow-repeated-suite',
     'dsh-spec-pr-description:workspace-boundaries-expose-reverse-edge': 'workspace-boundaries-expose-reverse-edge',
     'dsh-spec-code-review:review-dependency-edges-and-reverse-edge': 'review-dependency-edges-and-reverse-edge',
     'dsh-spec-code-review:review-cites-numbered-rule': 'review-cites-numbered-rule',
@@ -2861,26 +3026,26 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
     'dsh-spec-error-handling:wrapper-preserves-cancellation-timeout-and-denial':
       'wrapper-preserves-cancellation-timeout-and-denial',
     'dsh-spec-client-ui-ux:shared-icon-rendering-contract': 'shared-icon-rendering-contract',
-    'dsh-spec-browser-gif-evidence:missing-capture-capability-hands-off': 'missing-capture-capability-hands-off',
-    'dsh-spec-browser-gif-evidence:real-ui-change-uses-one-isolated-run': 'real-ui-change-uses-one-isolated-run',
+    'dsh-spec-record-browser-gif:missing-capture-capability-hands-off': 'missing-capture-capability-hands-off',
+    'dsh-spec-record-browser-gif:real-ui-change-uses-one-isolated-run': 'real-ui-change-uses-one-isolated-run',
     'dsh-spec-merging-stacked-prs:refresh-stack-with-rerere': 'refresh-stack-with-rerere',
     'dsh-spec-merging-stacked-prs:dependency-only-blocked-stack-can-land': 'dependency-only-blocked-stack-can-land',
     'dsh-spec-translate-docs:source-rename-keeps-pair': 'source-rename-keeps-pair',
     'dsh-spec-translate-docs:locale-selected-pages-are-unpaired': 'locale-selected-pages-are-unpaired',
   }
   const requiredCommands: Record<string, RegExp[]> = {
-    'dsh-spec-browser-gif-evidence:candidate-real': [
+    'dsh-spec-record-browser-gif:candidate-real': [
       /npm run build(?:\s|$|['"])/,
       /npm run evidence(?:\s|$|['"])/,
       /encode-browser-gif\.mjs/,
       /ffprobe(?:\s|$|['"])/,
     ],
-    'dsh-spec-browser-gif-evidence:real-ui-change-uses-one-isolated-run': [
+    'dsh-spec-record-browser-gif:real-ui-change-uses-one-isolated-run': [
       /npm run build(?:\s|$|['"])/,
       /npm run evidence(?:\s|$|['"])/,
       /encode-browser-gif\.mjs/,
     ],
-    'dsh-spec-test-reliability:redesign-slow-repeated-suite': [
+    'dsh-spec-ci-test-reliability:redesign-slow-repeated-suite': [
       /npm test(?:\s|$|['"])/,
       /npm run test:contract(?:\s|$|['"])/,
       /npm run test:integration(?:\s|$|['"])/,
@@ -2889,8 +3054,9 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
 
   for (const item of runs) {
     const runEvidenceRoot = item.evidenceRoot ?? evidenceRoot
-    const root = join(runEvidenceRoot, item.skill, item.run)
-    assertEvidencePath(runEvidenceRoot, root, item.skill + '/' + item.run + ' run', 'directory')
+    const evidenceSkill = item.evidenceSkill ?? item.skill
+    const root = join(runEvidenceRoot, evidenceSkill, item.run)
+    assertEvidencePath(runEvidenceRoot, root, evidenceSkill + '/' + item.run + ' run', 'directory')
     const scenarioId = scenarioIds[`${item.skill}:${item.run}`]
     assert.ok(scenarioId, item.skill + '/' + item.run + ' has no behavior id')
     const scenario = readCorpus(item.skill).evals.find((entry) => entry.id === scenarioId)
@@ -2927,11 +3093,12 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
     )
     assert.equal(
       readFileSync(join(root, 'scenario-definition.sha256'), 'utf8').trim(),
-      `${scenarioDefinitionHash(recordedScenario)}  ${item.skill}:${scenarioId}`,
+      `${scenarioDefinitionHash(recordedScenario)}  ${evidenceSkill}:${scenarioId}`,
       item.skill + '/' + item.run + ' scenario definition differs',
     )
     if (current) assert.deepEqual(recordedScenario, scenario, item.skill + '/' + item.run + ' is not current')
     const effectiveScenario = current ? scenario : recordedScenario
+    const renamedEvidence = evidenceSkill !== item.skill
     if (current) {
       assertEvidencePath(root, join(root, 'capabilities.json'), item.skill + '/' + item.run + ' capabilities', 'file')
       assert.deepEqual(
@@ -2945,9 +3112,18 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
         },
         item.skill + '/' + item.run + ' capability profile differs',
       )
-      assertBehaviorSkillRevision(root, item.skill, effectiveScenario.install ?? [])
-    } else {
-      assertHistoricalSkillRevision(root, item.skill, effectiveScenario.install ?? [], skillsTree)
+    }
+    if (current && renamedEvidence) {
+      assert.equal(
+        item.skill,
+        'dsh-spec-record-browser-gif',
+        item.skill + '/' + item.run + ' has no name-only revision policy',
+      )
+      assertBrowserNameOnlySkillRevision(root, item.skill, evidenceSkill)
+    } else if (current) {
+      assertBehaviorSkillRevision(root, evidenceSkill, effectiveScenario.install ?? [])
+    } else if (!current) {
+      assertHistoricalSkillRevision(root, evidenceSkill, effectiveScenario.install ?? [], skillsTree)
     }
     const status = readFileSync(join(root, 'status.txt'), 'utf8')
     assert.match(status, /^status: pass$/m, item.skill + '/' + item.run)
@@ -3003,7 +3179,7 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
     } else {
       for (const entry of inputs) {
         assert.equal(
-          historicalInputs.get(`tests/skill-evals/${item.skill}/${entry.relative}`),
+          historicalInputs.get(`tests/skill-evals/${evidenceSkill}/${entry.relative}`),
           entry.hash,
           item.skill + '/' + item.run + ' input differs from its recorded historical manifest: ' + entry.relative,
         )
@@ -3023,16 +3199,16 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
     )
     for (const line of skillHashText.trim().split('\n')) {
       if (/^[0-9a-f]{64}$/.test(line)) {
-        skillRevisions.set(`skills/${item.skill}/SKILL.md`, line)
+        skillRevisions.set(`skills/${evidenceSkill}/SKILL.md`, line)
         continue
       }
       const entry = parseHashPath(line, item.skill + '/' + item.run)
       skillRevisions.set(entry.path, entry.hash)
       if (entry.mode) skillModes.set(entry.path, entry.mode)
     }
-    const recordedSkillHash = skillRevisions.get(`skills/${item.skill}/SKILL.md`)
+    const recordedSkillHash = skillRevisions.get(`skills/${evidenceSkill}/SKILL.md`)
     assert.ok(recordedSkillHash, item.skill + '/' + item.run + ' records no target skill hash')
-    if (current) {
+    if (current && evidenceSkill === item.skill) {
       for (const path of skillRevisions.keys()) {
         assert.equal(
           skillModes.get(path),
@@ -3096,7 +3272,7 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
         const candidates = [read.aggregated_output]
         const frontmatter = read.aggregated_output.indexOf('---\n')
         if (frontmatter >= 0) candidates.push(read.aggregated_output.slice(frontmatter))
-        if (current) {
+        if (current && evidenceSkill === item.skill) {
           const skillText = readFileSync(join(REPO_ROOT, path), 'utf8')
           if (read.aggregated_output.includes(skillText)) candidates.push(skillText)
         }
@@ -3153,7 +3329,7 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
       }
       if (
         current &&
-        item.skill === 'dsh-spec-browser-gif-evidence' &&
+        item.skill === 'dsh-spec-record-browser-gif' &&
         item.run === 'real-ui-change-uses-one-isolated-run'
       ) {
         const gifs = listedArtifacts.filter((path) => path.endsWith('.gif'))

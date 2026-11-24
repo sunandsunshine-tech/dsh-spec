@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a20d4d-6cae-7863-8af3-99d9dff5145d"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"This is a general release test plan focused on manual product QA, not a design, review, or diagnosis of unstable automated tests, CI concurrency, shared resources, or fixtures. Therefore, the specialized CI test-reliability skill does not clearly apply.\n\nSELECT: none"}}
+{"type":"turn.completed","usage":{"input_tokens":17330,"cached_input_tokens":12928,"cache_write_input_tokens":0,"output_tokens":176,"reasoning_output_tokens":121}}
