@@ -20,6 +20,7 @@ const DEFAULT_CONTRACT =
 
 const DEFAULT_BEARING = [
   'dsh-spec-agent-notes',
+  'dsh-spec-browser-gif-evidence',
   'dsh-spec-client-ui-ux',
   'dsh-spec-error-handling',
   'dsh-spec-merging-stacked-prs',

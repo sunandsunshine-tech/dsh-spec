@@ -196,6 +196,8 @@ importers:
 
   package/dsh-spec-agent-notes: {}
 
+  package/dsh-spec-browser-gif-evidence: {}
+
   package/dsh-spec-pre-push-checks: {}
 
   package/dsh-spec-skill-forge:

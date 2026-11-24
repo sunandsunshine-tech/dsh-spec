@@ -1,0 +1,29 @@
+{
+  "id": "explicit-fixture-recording-is-disclosed",
+  "prompt": "The user explicitly requests a fixture-only GIF because the real external provider is unavailable. The app in evals/files/shared-gif-project is the fixture, and evals/files/fixture-origin.md records that authorization. Record and verify that fixture demonstration without claiming it proves the real provider flow.",
+  "expected_output": "The run records and verifies one fixture demonstration and clearly labels the fixture, unavailable real provider and the evidence boundary.",
+  "capabilities": {
+    "browser": true,
+    "media": true
+  },
+  "files": [
+    "evals/files/fixture-origin.md",
+    "evals/files/shared-gif-project/AGENTS.md",
+    "evals/files/shared-gif-project/.gitignore",
+    "evals/files/shared-gif-project/package.json",
+    "evals/files/shared-gif-project/build.mjs",
+    "evals/files/shared-gif-project/index.html",
+    "evals/files/shared-gif-project/src/app.js",
+    "evals/files/shared-gif-project/server.mjs",
+    "evals/files/shared-gif-project/capture-browser.mjs"
+  ],
+  "outputs": [
+    "evals/files/shared-gif-project/evidence-local"
+  ],
+  "assertions": [
+    "The explicit fixture request authorizes the substitute recording.",
+    "The run labels the evidence as fixture-based rather than real-provider evidence.",
+    "The encoded GIF is still captured from one isolated run and inspected after encoding.",
+    "The report states which real behavior the evidence does not prove."
+  ]
+}

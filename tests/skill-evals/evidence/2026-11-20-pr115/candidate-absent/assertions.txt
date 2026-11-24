@@ -1,0 +1,4 @@
+PASS The run names the missing browser and media capabilities.
+PASS It does not substitute source inspection for the required rendered evidence.
+PASS It reports the unfinished evidence and a resumable next step.
+PASS It does not claim completion.

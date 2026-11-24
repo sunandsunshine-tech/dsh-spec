@@ -32,6 +32,8 @@ pnpm run check:corpus
 pnpm test
   # the functional suite: the DCO and Agent Note gates, the vendored-notices submission, the skill
   # spec gate, the change-scope report, the forge lifecycle, the pairing mechanism and the installed copies
+pnpm run test:browser-gif
+  # one shared real-media encoder scenario; requires ffmpeg and ffprobe, and runs once in CI
 pnpm run test:watch
   # the suite in watch mode
 

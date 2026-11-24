@@ -1,0 +1,10 @@
+{
+  "name": "browser-gif-evidence-fixture",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "start": "node server.mjs",
+    "evidence": "node capture-browser.mjs"
+  }
+}

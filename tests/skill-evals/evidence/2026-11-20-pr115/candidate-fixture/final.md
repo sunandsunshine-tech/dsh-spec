@@ -1,0 +1,5 @@
+Fixture GIF recorded and verified: [fixture-save-flow.gif](/workspace/evals/files/shared-gif-project/evidence-local/fixture-save-flow.gif).
+
+It shows the three states—Unsaved changes, Saving changes with disabled control, and Changes saved—at 720×480, 60 frames, 6.0 seconds, and 37,307 bytes. Decoded frames from the GIF were visually checked for sequence and legibility.
+
+This is explicitly **fixture-only evidence** from the real local fixture build. It does **not** prove the production provider flow, which remains unavailable. Provenance and verification details are recorded in [verification.json](/workspace/evals/files/shared-gif-project/evidence-local/verification.json) and [capture-report.json](/workspace/evals/files/shared-gif-project/evidence-local/capture-report.json). The tracked worktree remains clean, and all raw frames, QA frames, reports, and the GIF are under the ignored `evidence-local/` directory.

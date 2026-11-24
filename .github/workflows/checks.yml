@@ -53,6 +53,16 @@ jobs:
       - name: the functional suite
         run: pnpm test
 
+      - name: the browser GIF media dependency
+        if: matrix.node == '26'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ffmpeg
+
+      - name: the browser GIF media scenario
+        if: matrix.node == '26'
+        run: pnpm run test:browser-gif
+
       # `github.sha` on a pull_request is the merge commit GitHub creates, whose author is whoever
       # pushed and which carries no sign-off, so the range would name a commit the change never
       # wrote. The branch's own tip is the thing a contributor signed.

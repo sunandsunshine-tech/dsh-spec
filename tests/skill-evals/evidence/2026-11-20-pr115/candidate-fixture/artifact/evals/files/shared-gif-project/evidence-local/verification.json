@@ -1,0 +1,61 @@
+{
+  "evidence_kind": "fixture-only browser demonstration",
+  "project": "evals/files/shared-gif-project",
+  "authorization": "evals/files/fixture-origin.md",
+  "commit": "7b5a85f0792817ab627753e7e78ba01372452d55",
+  "provider_flow_proven": false,
+  "limitation": "This recording exercises the real local fixture build only. It does not exercise or prove the production provider flow.",
+  "capture": {
+    "origin": "http://127.0.0.1:46547",
+    "browser": "/opt/chrome/chrome",
+    "session": "one headless Chrome process and one page target",
+    "report": "evidence-local/capture-report.json",
+    "states": {
+      "initial": "Unsaved changes; Save changes enabled",
+      "saving": "Saving changes; Saving… shown and disabled",
+      "final": "Changes saved; Save changes enabled"
+    }
+  },
+  "inputs": [
+    {
+      "path": "evidence-local/00-initial.png",
+      "sha256": "04429c8050290a530f50dd11ce0a44f2264c91b0556002ffe757ea3a4c5ab658"
+    },
+    {
+      "path": "evidence-local/01-saving.png",
+      "sha256": "60faa4b138c9bdf844cd18410c18afb4991f0239b956a1192a649e2662ed110b"
+    },
+    {
+      "path": "evidence-local/02-saved.png",
+      "sha256": "e210cd0cbcab8e426c1ef71ac6c3601e497789b08c76fca39fe65e8bec9e651b"
+    }
+  ],
+  "gif": {
+    "path": "evidence-local/fixture-save-flow.gif",
+    "sha256": "238cd0e74c3a9845573cd96fbfc36eb13372b384278c8b851043bc49ef81ed9c",
+    "source_frames": 3,
+    "encoded_frames": 60,
+    "width": 720,
+    "height": 480,
+    "duration_seconds": 6,
+    "fps": 10,
+    "bytes": 37307,
+    "durations_seconds": [
+      1.5,
+      1.5,
+      3
+    ]
+  },
+  "verification": {
+    "method": "Decoded the GIF at 0.5, 2.0, and 4.0 seconds and visually inspected each frame against the capture report.",
+    "states_visible": true,
+    "text_legible": true,
+    "animated": true,
+    "unexpected_sensitive_data": false,
+    "qa_frames": [
+      "evidence-local/qa/gif-00-initial.png",
+      "evidence-local/qa/gif-01-saving.png",
+      "evidence-local/qa/gif-02-saved.png"
+    ]
+  }
+}
