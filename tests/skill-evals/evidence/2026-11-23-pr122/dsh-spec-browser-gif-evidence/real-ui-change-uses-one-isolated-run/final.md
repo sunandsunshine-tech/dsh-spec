@@ -1,12 +1,13 @@
-Evidence is complete and verified.
+Recorded and verified the GIF evidence from the real build at commit `937fc01`.
 
-- GIF: [settings-save-flow.gif](/workspace/evals/files/shared-gif-project/evidence-local/settings-save-flow.gif)
-- Capture report: [capture-report.json](/workspace/evals/files/shared-gif-project/evidence-local/capture-report.json)
-- Application origin: `http://127.0.0.1:45371`
-- Build/commit: successful build at `bdf0bd46d230ad35981e7b41d5e7116ec8ca75a2`
-- Browser isolation: a newly created temporary Chrome profile with one Chrome process and one page target, removed after capture
-- Services: real local Node application and real local `POST /save` endpoint; real installed Chrome at `/opt/chrome/chrome`. No external providers, mocked transport, or substituted services.
+[Open the GIF evidence](/workspace/evals/files/shared-gif-project/evidence-local/workspace-settings-flow.gif) · [Capture report](/workspace/evals/files/shared-gif-project/evidence-local/capture-report.json)
 
-The GIF uses three verified frames from the single run—unsaved, saving, and saved—with durations `1.5s / 1.5s / 3.5s`. It is 720×480, 65 encoded frames, 6.5 seconds, 37,449 bytes, SHA-256 `28192f147ec650ff1a053ebad8e2d6d57d15f0c175c4f539d3d1a4753caee87b`.
-
-The temporary server and browser processes were cleaned up. No tracked or untracked source changes remain; generated output exists only under ignored `dist/` and `evidence-local/` paths.
+- Application origin: `http://127.0.0.1:45531`
+- Isolation: one freshly built app process, one headless Chrome process, one page target, and a fresh temporary browser profile which was removed after capture
+- Real/local services: the built application server, local `POST /save` endpoint, and Chrome/CDP browser path
+- Substituted services: none; no external provider or mock transport was used
+- Evidence method: three project-declared screenshots from the same run, encoded with the skill’s bundled encoder
+- GIF: 720×480, 65 frames, 6.5 seconds at 10 FPS, 37,449 bytes; timings are 1.5 s initial, 1.5 s saving, and a 3.5 s final hold
+- Verification: decoded frames show “Unsaved changes” → disabled “Saving…” → enabled “Changes saved”
+- Cleanup: capture server, browser, staging directory, and profile were removed
+- Git: no tracked or untracked source changes; only ignored `dist/` and `evidence-local/` exist

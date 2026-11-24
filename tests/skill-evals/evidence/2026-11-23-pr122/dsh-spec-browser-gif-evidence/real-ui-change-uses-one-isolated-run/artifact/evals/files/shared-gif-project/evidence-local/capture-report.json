@@ -1,7 +1,10 @@
 {
-  "origin": "http://127.0.0.1:45371",
+  "origin": "http://127.0.0.1:45531",
   "browser": "/opt/chrome/chrome",
   "session": "one Chrome process and one page target",
+  "freshProfile": true,
+  "deadlineMs": 60000,
+  "runId": ".evidence-local-run-zlwASs",
   "screenshots": [
     {
       "path": "evidence-local/00-initial.png",
