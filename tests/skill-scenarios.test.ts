@@ -579,6 +579,12 @@ function commandReadsSkill(command: string | undefined, skillName = 'dsh-spec-er
   ).test(command)
 }
 
+function filesUnder(root: string): string[] {
+  return readdirSync(root, { recursive: true })
+    .filter((path): path is string => typeof path === 'string' && statSync(join(root, path)).isFile())
+    .sort()
+}
+
 function triggerSurfaceHash(skillName: string): string {
   const body = readFileSync(join(REPO_ROOT, 'skills', skillName, 'SKILL.md'), 'utf8')
   const name = /^name:\s*(.+)$/m.exec(body)?.[1]
