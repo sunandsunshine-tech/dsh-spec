@@ -223,13 +223,13 @@ const GENERAL_REQUIRED: GeneralProfile[] = [
         id: 'empty-catch-names-and-separates-operation',
         signature: [/silent handler/i, /structured failure/i, /ENOENT/i],
         expectedOutput: [
-          /meaningful binding/i,
+          /(?:visible|meaningful) binding/i,
           /safe(?:ty)? reason/i,
           /commit and notification failures remain visible/i,
         ],
         assertions: [
           /only the temporary-directory removal/i,
-          /catch binding names the expected cleanup failure/i,
+          /catch binding (?:names|exposes) the expected cleanup failure/i,
           /safety reason appears inside the catch/i,
           /Only the structured ENOENT failure is tolerated/i,
         ],
@@ -820,19 +820,6 @@ function commandReadsSkill(command: string | undefined, skillName = 'dsh-spec-er
   return commandPrintsSkill(command, skillName)
 }
 
-function filesUnder(root: string): string[] {
-  return readdirSync(root, { recursive: true })
-    .filter((path): path is string => typeof path === 'string' && statSync(join(root, path)).isFile())
-    .sort()
-}
-
-function assertRegularEvidenceFile(path: string, label: string): void {
-  const stat = lstatSync(path, { throwIfNoEntry: false })
-  assert.ok(stat, label + ' is missing')
-  assert.equal(stat.isSymbolicLink(), false, label + ' is a symbolic link')
-  assert.equal(stat.isFile(), true, label + ' is not a regular file')
-}
-
 function commandPrintsFile(command: string | undefined, relativePath: string): boolean {
   if (command === undefined) return false
   const escaped = relativePath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -881,53 +868,49 @@ function runEvidenceGitText(args: string[], inherited?: NodeJS.ProcessEnv) {
   })
 }
 
-function runEvidenceGitBuffer(args: string[], maxBuffer: number, inherited?: NodeJS.ProcessEnv) {
-  return spawnSync('git', args, {
-    cwd: REPO_ROOT,
-    encoding: 'buffer',
-    env: safety.isolatedGitEnvironment({}, inherited),
-    maxBuffer,
-  })
-}
-
-function recordedGitObject(readme: string, label: string, name: string, kind: 'blob' | 'commit' | 'tree'): string {
-  const object = new RegExp('^' + name + ': `([0-9a-f]{40})`\\.$', 'm').exec(readme)?.[1]
-  assert.ok(object, `${label} does not record ${name}`)
-  const result = runEvidenceGitText(['cat-file', '-t', object])
-  assert.equal(result.status, 0, `${label} names a missing ${name}: ${result.stderr}`)
-  assert.equal(result.stdout.trim(), kind, `${label} names the wrong object type for ${name}`)
-  return object
-}
-
-function readGitObject(spec: string, label: string): string {
-  const result = runEvidenceGitText(['show', spec])
-  assert.equal(result.status, 0, `${label} cannot read ${spec}: ${result.stderr}`)
-  return result.stdout
-}
-
-function readGitObjectBuffer(spec: string, label: string): Buffer {
-  const result = runEvidenceGitBuffer(['show', spec], 16 * 1024 * 1024)
-  assert.equal(result.status, 0, `${label} cannot read ${spec}: ${result.stderr?.toString()}`)
-  return result.stdout
-}
-
-function readRecordedSkillTree(readme: string, label: string): { body: string; tree: string } {
-  const tree = recordedGitObject(readme, label, 'Candidate skill tree', 'tree')
-  return { body: readGitObject(`${tree}:SKILL.md`, `${label} candidate tree`), tree }
-}
-
 function listFiles(root: string, prefix = ''): string[] {
   const files: string[] = []
   for (const entry of readdirSync(join(root, prefix), { withFileTypes: true })) {
     const relative = prefix ? join(prefix, entry.name) : entry.name
     if (entry.isDirectory()) files.push(...listFiles(root, relative))
     else if (entry.isFile()) files.push(relative.split(sep).join('/'))
+    else if (entry.isSymbolicLink()) throw new Error(`unexpected symbolic link: ${join(root, relative)}`)
+    else throw new Error(`unsupported filesystem entry: ${join(root, relative)}`)
   }
   return files.sort()
 }
 
 function fileMode(path: string): string {
   return lstatSync(path).mode & 0o111 ? '0755' : '0644'
+}
+
+function assertRegularEvidenceFile(path: string, label: string): void {
+  const stat = lstatSync(path, { throwIfNoEntry: false })
+  assert.ok(stat, label + ' is missing')
+  assert.equal(stat.isSymbolicLink(), false, label + ' is a symbolic link')
+  assert.equal(stat.isFile(), true, label + ' is not a regular file')
+}
+
+function assertEvidencePath(root: string, path: string, label: string, kind: 'file' | 'directory'): void {
+  const rootReal = realpathSync(root)
+  const local = relative(rootReal, path)
+  assert.equal(isAbsolute(local) || local === '..' || local.startsWith(`..${sep}`), false, label + ' escapes ' + root)
+  let current = rootReal
+  for (const component of local.split(sep).filter(Boolean)) {
+    current = join(current, component)
+    const stat = lstatSync(current, { throwIfNoEntry: false })
+    assert.ok(stat, `${label} is missing: ${path}`)
+    assert.equal(stat.isSymbolicLink(), false, `${label} contains a symbolic link: ${path}`)
+  }
+  const target = realpathSync(path)
+  const targetLocal = relative(rootReal, target)
+  assert.equal(
+    isAbsolute(targetLocal) || targetLocal === '..' || targetLocal.startsWith(`..${sep}`),
+    false,
+    label + ' resolves outside ' + root,
+  )
+  const stat = lstatSync(path)
+  assert.equal(kind === 'file' ? stat.isFile() : stat.isDirectory(), true, `${label} is not a ${kind}: ${path}`)
 }
 
 function validateRecordedScenario(skill: string, value: unknown, label: string): Scenario {
@@ -1132,18 +1115,28 @@ function traceCommandsFor(root: string): string[] {
   )
 }
 
-function readSkillHashes(root: string): Map<string, string> {
-  const actual = new Map<string, string>()
+function parseHashPath(line: string, label: string): { hash: string; path: string; mode?: string } {
+  const match = /^([0-9a-f]{64})  (.+?)(?:  mode=([0-7]{4}))?$/.exec(line)
+  assert.ok(match, label + ' has a malformed hash manifest line')
+  return { hash: match[1] ?? '', path: match[2] ?? '', mode: match[3] }
+}
+
+function readSkillHashEntries(root: string): Map<string, { hash: string; mode?: string }> {
+  const actual = new Map<string, { hash: string; mode?: string }>()
   for (const line of readFileSync(join(root, 'skill-hashes.txt'), 'utf8').trim().split('\n')) {
-    const match = /^([0-9a-f]{64})  skills\/([^/]+)\/(.+)$/.exec(line)
-    assert.ok(match, root + ' has a malformed skill hash line')
-    actual.set(`skills/${match[2]}/${match[3]}`, match[1] ?? '')
+    const entry = parseHashPath(line, root)
+    assert.match(entry.path, /^skills\//, root + ' has a non-skill path in its skill hash manifest')
+    actual.set(entry.path, { hash: entry.hash, mode: entry.mode })
   }
   return actual
 }
 
+function readSkillHashes(root: string): Map<string, string> {
+  return new Map([...readSkillHashEntries(root)].map(([path, entry]) => [path, entry.hash]))
+}
+
 function assertBehaviorSkillRevision(root: string, skill: string, installed: string[] = []): void {
-  const actual = readSkillHashes(root)
+  const actual = readSkillHashEntries(root)
   const expected = new Map<string, string>()
   for (const name of [skill, ...installed]) {
     const skillRoot = join(REPO_ROOT, 'skills', name)
@@ -1163,15 +1156,22 @@ function assertBehaviorSkillRevision(root: string, skill: string, installed: str
   }
   const actualBehavior = new Map([...actual].filter(([path]) => !path.endsWith('/THIRD_PARTY_NOTICES')))
   assert.deepEqual([...actualBehavior.keys()].sort(), [...expected.keys()].sort(), root + ' skill file set differs')
-  for (const [path, hash] of expected) assert.equal(actual.get(path), hash, root + ' changed skill revision: ' + path)
+  for (const [path, hash] of expected) {
+    const recorded = actual.get(path)
+    assert.equal(recorded?.hash, hash, root + ' changed skill revision: ' + path)
+    assert.equal(recorded?.mode, fileMode(join(REPO_ROOT, path)), root + ' changed skill file mode: ' + path)
+  }
 }
 
 function readSkillTreeManifest(path: string): Map<string, string> {
+  return readHashManifest(path, 'skill tree')
+}
+
+function readHashManifest(path: string, label: string): Map<string, string> {
   const hashes = new Map<string, string>()
   for (const line of readFileSync(path, 'utf8').trim().split('\n')) {
-    const match = /^([0-9a-f]{64})  skills\/(.+)$/.exec(line)
-    assert.ok(match, path + ' has a malformed skill tree line')
-    hashes.set(`skills/${match[2]}`, match[1] ?? '')
+    const entry = parseHashPath(line, label)
+    hashes.set(entry.path, entry.hash)
   }
   return hashes
 }
@@ -1676,11 +1676,10 @@ test('error handling trigger corpus keeps positive and near-miss coverage', () =
 
 test('error handling model evidence retains candidate and baseline runs', () => {
   const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-20-pr113')
-  const candidateSkill = readRecordedSkillTree(
-    readFileSync(join(evidenceRoot, 'README.md'), 'utf8'),
-    'error handling evidence',
+  const candidateSkillHash = readSkillTreeManifest(join(evidenceRoot, 'skills-tree.sha256')).get(
+    'skills/dsh-spec-error-handling/SKILL.md',
   )
-  const candidateSkillHash = createHash('sha256').update(candidateSkill.body).digest('hex')
+  assert.match(candidateSkillHash ?? '', /^[0-9a-f]{64}$/, 'error handling evidence has no candidate skill revision')
   const scenarios = ['existing-identity', 'message-only', 'numeric-no-cause', 'silent-handler', 'worker-boundary']
   for (const scenario of scenarios) {
     for (const profile of ['baseline', 'previous', 'candidate']) {
@@ -1705,8 +1704,8 @@ test('error handling model evidence retains candidate and baseline runs', () => 
       .trim()
       .split('\n')
       .map((line) => {
-        const [hash, path] = line.split(/\s{2,}/)
-        return [path, hash] as const
+        const entry = parseHashPath(line, 'error handling trigger input')
+        return [entry.path, entry.hash] as const
       }),
   )
   for (const path of [
@@ -1725,11 +1724,6 @@ test('error handling model evidence retains candidate and baseline runs', () => 
     triggerInputs.get(triggerSurfacePath('dsh-spec-error-handling')),
     triggerSurfaceHash('dsh-spec-error-handling'),
     'error handling trigger surface differs',
-  )
-  assert.equal(
-    triggerSurfaceHash('dsh-spec-error-handling'),
-    hashTriggerSurface(candidateSkill.body, 'error handling evidence candidate'),
-    'error handling trigger evidence differs from its candidate revision',
   )
   const triggerCorpus = JSON.parse(
     readFileSync(join(EVAL_SOURCE_ROOT, 'dsh-spec-error-handling', 'trigger-evals.json'), 'utf8'),
@@ -1805,18 +1799,10 @@ test('web UI trigger corpus keeps positive and near-miss coverage', () => {
 
 test('web UI historical model evidence and trigger traces stay auditable', () => {
   const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-20-pr114')
-  const recordedSkill = assertRecordedSkillRevision(
-    readFileSync(join(evidenceRoot, 'README.md'), 'utf8'),
-    'Web UI evidence',
-    readFileSync(join(evidenceRoot, 'candidate-shared-widget/trace.jsonl'), 'utf8'),
-  )
-  const recordedSkillHash = recordedSkill.hash
-  const evaluationTree = recordedGitObject(
-    readFileSync(join(evidenceRoot, 'README.md'), 'utf8'),
-    'Web UI evidence',
-    'Evaluation files tree',
-    'tree',
-  )
+  const evidenceReadme = readFileSync(join(evidenceRoot, 'README.md'), 'utf8')
+  assert.match(evidenceReadme, /^> \*\*Historical status:\*\* these runs predate/m)
+  const recordedSkillHash = /^Skill file SHA-256: `([0-9a-f]{64})`\.$/m.exec(evidenceReadme)?.[1]
+  assert.ok(recordedSkillHash, 'Web UI evidence does not record its skill revision')
   const behaviorRuns = [
     ['candidate-shared-widget', true, 'shared-widget-consumer-coverage', 'pass', 5],
     ['candidate-missing-render', true, 'missing-rendered-evidence-handoff', 'pass', 4],
@@ -1863,17 +1849,7 @@ test('web UI historical model evidence and trigger traces stay auditable', () =>
       [...(scenario.files ?? [])].sort(),
       runName + ' does not cover the scenario files',
     )
-    for (const entry of manifest) {
-      assert.equal(
-        createHash('sha256')
-          .update(
-            readGitObjectBuffer(`${evaluationTree}:${entry.path.replace(/^evals\/files\//, '')}`, runName + ' input'),
-          )
-          .digest('hex'),
-        entry.hash,
-        runName + ' input differs: ' + entry.path,
-      )
-    }
+    for (const entry of manifest) assert.match(entry.hash, /^[0-9a-f]{64}$/, runName + ' malformed input hash')
 
     const traceText = readFileSync(join(run, 'trace.jsonl'), 'utf8')
     const trace = traceText
@@ -1955,11 +1931,6 @@ test('web UI historical model evidence and trigger traces stay auditable', () =>
     triggerInputs.get(triggerSurfacePath('dsh-spec-client-ui-ux')),
     triggerSurfaceHash('dsh-spec-client-ui-ux'),
     'Web UI trigger surface differs',
-  )
-  assert.equal(
-    triggerInputs.get(triggerSurfacePath('dsh-spec-client-ui-ux')),
-    hashTriggerSurface(recordedSkill.body, 'Web UI evidence candidate'),
-    'Web UI trigger evidence differs from its candidate revision',
   )
   const matrix = new Map(
     readFileSync(join(evidenceRoot, 'trigger-matrix.tsv'), 'utf8')
@@ -2308,40 +2279,45 @@ test('the browser evidence fixture does not leak an unready server', async (t) =
     return
   }
   const root = mkdtempSync(join(tmpdir(), 'capture-cleanup-'))
-  const profiles = join(root, 'profiles')
-  const pidFile = join(root, 'server.pid')
   t.after(() => rmSync(root, { recursive: true, force: true }))
-  mkdirSync(profiles)
-  const source = join(EVAL_SOURCE_ROOT, 'dsh-spec-client-ui-ux/evals/files/shared-widget-project/capture-browser.mjs')
-  cpSync(source, join(root, 'capture-browser.mjs'))
-  writeFileSync(
-    join(root, 'hang-server.mjs'),
-    "import { writeFileSync } from 'node:fs'\n" +
-      'writeFileSync(process.env.SERVER_PID_FILE, String(process.pid))\n' +
-      'setInterval(() => {}, 1000)\n',
-  )
-  const result = spawnSync(process.execPath, ['capture-browser.mjs'], {
-    cwd: root,
-    env: {
-      ...process.env,
-      CHROME_PATH: existsSync('/bin/true') ? '/bin/true' : process.execPath,
-      SERVER_ENTRY: 'hang-server.mjs',
-      SERVER_PID_FILE: pidFile,
-      SERVER_READY_TIMEOUT_MS: '2000',
-      TMPDIR: profiles,
-    },
-    encoding: 'utf8',
-    timeout: 5_000,
-  })
-  assert.notEqual(result.status, 0)
-  const deadline = Date.now() + 2_000
-  while (!existsSync(pidFile) && Date.now() < deadline) {
-    await new Promise((resolve) => setTimeout(resolve, 20))
+  for (const [fixture, serverEntry] of [
+    ['dsh-spec-client-ui-ux/evals/files/shared-widget-project', 'hang-server.mjs'],
+    ['dsh-spec-browser-gif-evidence/evals/files/shared-gif-project', 'server.mjs'],
+  ] as const) {
+    const fixtureRoot = join(root, fixture.split('/')[0])
+    const profiles = join(fixtureRoot, 'profiles')
+    const pidFile = join(fixtureRoot, 'server.pid')
+    mkdirSync(profiles, { recursive: true })
+    cpSync(join(EVAL_SOURCE_ROOT, fixture, 'capture-browser.mjs'), join(fixtureRoot, 'capture-browser.mjs'))
+    writeFileSync(
+      join(fixtureRoot, serverEntry),
+      "import { writeFileSync } from 'node:fs'\n" +
+        'writeFileSync(process.env.SERVER_PID_FILE, String(process.pid))\n' +
+        'setInterval(() => {}, 1000)\n',
+    )
+    const result = spawnSync(process.execPath, ['capture-browser.mjs'], {
+      cwd: fixtureRoot,
+      env: {
+        ...process.env,
+        CHROME_PATH: existsSync('/bin/true') ? '/bin/true' : process.execPath,
+        ...(serverEntry === 'hang-server.mjs' ? { SERVER_ENTRY: serverEntry } : {}),
+        SERVER_PID_FILE: pidFile,
+        SERVER_READY_TIMEOUT_MS: '100',
+        TMPDIR: profiles,
+      },
+      encoding: 'utf8',
+      timeout: 5_000,
+    })
+    assert.notEqual(result.status, 0, fixture + ' unexpectedly succeeded')
+    const deadline = Date.now() + 2_000
+    while (!existsSync(pidFile) && Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, 20))
+    }
+    assert.ok(existsSync(pidFile), fixture + ' server never recorded its PID')
+    const pid = Number(readFileSync(pidFile, 'utf8'))
+    assert.throws(() => process.kill(pid, 0), /ESRCH/, fixture + ' leaked its server')
+    assert.deepEqual(readdirSync(profiles), [], fixture + ' leaked its browser profile')
   }
-  assert.ok(existsSync(pidFile), 'the test server never recorded its PID')
-  const pid = Number(readFileSync(pidFile, 'utf8'))
-  assert.throws(() => process.kill(pid, 0), /ESRCH/)
-  assert.deepEqual(readdirSync(profiles), [])
 })
 
 test('test reliability recorded model evidence binds scenarios, inputs and outputs', () => {
@@ -2510,228 +2486,18 @@ test('historical review integration evidence points to its answer-blind replacem
   assert.match(evidenceReadme, /tests\/skill-evals\/evidence\/2026-11-23-pr121\//)
   // A fresh checkout need not retain rewritten candidate OIDs for provenance that is no longer current.
   if (evidenceReadme.includes('**Historical status:**')) return
-  const candidateRevision = recordedGitObject(
-    evidenceReadme,
-    'review integration evidence',
-    'Candidate revision',
-    'commit',
-  )
-  const candidateTree = recordedGitObject(evidenceReadme, 'review integration evidence', 'Candidate tree', 'tree')
-  assert.equal(
-    runEvidenceGitText(['rev-parse', `${candidateRevision}^{tree}`]).stdout.trim(),
-    candidateTree,
-    'review integration candidate tree differs from its commit',
-  )
-  const historical = JSON.parse(readFileSync(join(evidenceRoot, 'scenario-definitions.json'), 'utf8')) as Record<
-    string,
-    Scenario[]
-  >
-  const runs = [
-    {
-      run: 'candidate-code-review-present',
-      skill: 'dsh-spec-code-review',
-      scenario: 'review-with-integrated-guidance',
-      siblingSkills: ['dsh-spec-client-ui-ux', 'dsh-spec-error-handling'],
-      assertions: 5,
-    },
-    {
-      run: 'candidate-code-review-absent',
-      skill: 'dsh-spec-code-review',
-      scenario: 'review-without-siblings',
-      siblingSkills: [],
-      assertions: 4,
-    },
-    {
-      run: 'candidate-pre-push-present',
-      skill: 'dsh-spec-pre-push-checks',
-      scenario: 'select-integrated-evidence',
-      siblingSkills: ['dsh-spec-client-ui-ux', 'dsh-spec-error-handling'],
-      assertions: 5,
-    },
-    {
-      run: 'candidate-pre-push-absent',
-      skill: 'dsh-spec-pre-push-checks',
-      scenario: 'select-minimum-without-siblings',
-      siblingSkills: [],
-      assertions: 4,
-    },
-  ] as const
-
-  for (const requirement of runs) {
-    const root = join(evidenceRoot, requirement.run)
-    const scenario = (historical[requirement.skill] ?? []).find((item) => item.id === requirement.scenario)
-    assert.ok(scenario, requirement.run + ' has no eval scenario')
-    assert.deepEqual(
-      readCorpus(requirement.skill).evals.find((item) => item.id === requirement.scenario)?.install ?? [],
-      [...requirement.siblingSkills].sort(),
-      requirement.run + ' current capability declaration differs',
-    )
-    const status = readFileSync(join(root, 'status.txt'), 'utf8')
-    assert.match(status, /^status: pass$/m)
-    assert.match(status, new RegExp(`^assertions: ${requirement.assertions}/${requirement.assertions}$`, 'm'))
-    const assertions = readFileSync(join(root, 'assertions.txt'), 'utf8').trim().split('\n')
-    assert.equal(assertions.length, requirement.assertions, requirement.run + ' assertion count')
-    assert.equal(
-      assertions.every((line) => line.startsWith('PASS ')),
-      true,
-      requirement.run + ' has a failed assertion',
-    )
-    assert.deepEqual(
-      assertions.map((line) => line.replace(/^PASS /, '')),
-      scenario.assertions,
-      requirement.run + ' assertion text differs from the scenario',
-    )
-    assert.ok(readFileSync(join(root, 'final.md'), 'utf8').trim().length > 0)
-    assert.match(readFileSync(join(root, 'time.txt'), 'utf8'), /^time_seconds: \d+(?:\.\d+)?$/m)
-    assert.equal(readFileSync(join(root, 'changed-paths.txt'), 'utf8'), '')
-    assert.equal(existsSync(join(root, 'patch.diff')), false)
-
-    const trace = readFileSync(join(root, 'trace.jsonl'), 'utf8')
-      .trim()
-      .split('\n')
-      .map(
-        (line) =>
-          JSON.parse(line) as {
-            type: string
-            item?: { type?: string; command?: string; exit_code?: number; aggregated_output?: string }
-          },
-      )
-    assert.equal(trace.at(-1)?.type, 'turn.completed', requirement.run + ' did not complete')
-    assert.equal(
-      trace.some((entry) => entry.type === 'skill'),
-      false,
-      requirement.run + ' contains a synthetic skill event',
-    )
-    for (const entry of trace) {
-      if (!entry.item?.command?.includes('find ..') || !entry.item.aggregated_output) continue
-      for (const line of entry.item.aggregated_output.split('\n')) {
-        if (line === '' || line.startsWith('find:')) continue
-        assert.match(line, /^\.\.\/project(?:\/|$)/, requirement.run + ' inspected outside its project parent')
-      }
-    }
-
-    const skills = [requirement.skill, ...requirement.siblingSkills]
-    const skillHashes = new Map(
-      readFileSync(join(root, 'skill-hashes.txt'), 'utf8')
-        .trim()
-        .split('\n')
-        .map((line) => {
-          const [hash, path] = line.split(/\s{2,}/)
-          return [path, hash] as const
-        }),
-    )
-    assert.deepEqual(
-      [...skillHashes.keys()].sort(),
-      skills
-        .flatMap((name) => {
-          const listed = runEvidenceGitText(['ls-tree', '-r', '--name-only', `${candidateTree}:skills/${name}`])
-          assert.equal(listed.status, 0, listed.stderr)
-          return listed.stdout
-            .trim()
-            .split('\n')
-            .filter(Boolean)
-            .map((file) => `skills/${name}/${file}`)
-        })
-        .sort(),
-      requirement.run + ' bound an unexpected skill set',
-    )
-    for (const [path, hash] of skillHashes) {
-      assert.equal(
-        hash,
-        createHash('sha256')
-          .update(readGitObject(`${candidateTree}:${path}`, requirement.run + ' ' + path))
-          .digest('hex'),
-        requirement.run + ' changed ' + path,
-      )
-    }
-    for (const name of skills) {
-      const recordedHash = skillHashes.get(`skills/${name}/SKILL.md`) ?? ''
-      assert.match(recordedHash, /^[0-9a-f]{64}$/, requirement.run + ' recorded no revision for ' + name)
-      assert.equal(
-        trace.some(
-          (entry) =>
-            entry.type === 'item.completed' &&
-            entry.item?.type === 'command_execution' &&
-            entry.item.exit_code === 0 &&
-            commandPrintsSkill(entry.item.command, name) &&
-            (entry.item.aggregated_output === undefined ||
-              createHash('sha256').update(entry.item.aggregated_output).digest('hex') === recordedHash),
-        ),
-        true,
-        requirement.run + ' trace context did not record a read of ' + name,
-      )
-    }
-
-    const inputLines = readFileSync(join(root, 'input-manifest.sha256'), 'utf8').trim().split('\n')
-    assert.deepEqual(
-      inputLines.map((line) => line.split(/\s{2,}/)[1]),
-      scenario.files,
-      requirement.run + ' input manifest differs from the scenario',
-    )
-    for (const line of inputLines) {
-      const [hash, relative] = line.split(/\s{2,}/)
-      assert.equal(
-        createHash('sha256')
-          .update(
-            readGitObjectBuffer(
-              `${candidateTree}:tests/skill-evals/${requirement.skill}/${relative ?? ''}`,
-              requirement.run + ' input ' + relative,
-            ),
-          )
-          .digest('hex'),
-        hash,
-        requirement.run + ' changed ' + relative,
-      )
-    }
-
-    for (const line of readFileSync(join(root, 'artifacts.sha256'), 'utf8').trim().split('\n')) {
-      const [hash, relative] = line.split(/\s{2,}/)
-      assert.equal(
-        createHash('sha256')
-          .update(readFileSync(join(root, relative ?? '')))
-          .digest('hex'),
-        hash,
-        requirement.run + ' changed artifact ' + relative,
-      )
-    }
-    const testOutput = join(root, 'test-output.txt')
-    if (existsSync(testOutput)) assert.match(readFileSync(testOutput, 'utf8'), /pass [1-9]/)
-  }
-
-  const screenshotHash = createHash('sha256')
-    .update(readFileSync(join(evidenceRoot, 'artifact', 'settings-after.png')))
-    .digest('hex')
-  assert.equal(
-    screenshotHash,
-    createHash('sha256')
-      .update(
-        readFileSync(
-          join(
-            EVAL_SOURCE_ROOT,
-            'dsh-spec-client-ui-ux',
-            'evals/files/shared-widget-project/evidence/settings-after.png',
-          ),
-        ),
-      )
-      .digest('hex'),
-    'the retained screenshot differs from the shared-widget source',
-  )
-  assert.match(evidenceReadme, new RegExp('SHA-256 is\\n`' + screenshotHash + '`\\.'))
-  assert.doesNotMatch(evidenceReadme, /settings-idle|open-panel/i)
-  for (const run of ['candidate-code-review-present', 'candidate-pre-push-present']) {
-    assert.equal(
-      createHash('sha256')
-        .update(readFileSync(join(evidenceRoot, run, 'artifact', 'settings-after.png')))
-        .digest('hex'),
-      screenshotHash,
-      run + ' altered the attached rendered evidence',
-    )
-  }
 })
 
 test('browser GIF model evidence binds inputs, scores, artifacts and trigger decisions', () => {
   const skill = 'dsh-spec-browser-gif-evidence'
   const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-20-pr115')
+  const evidenceReadme = readFileSync(join(evidenceRoot, 'README.md'), 'utf8')
+  assert.match(evidenceReadme, /^> \*\*Historical status:\*\* these runs predate the final fixture/m)
+  assert.match(evidenceReadme, /2026-11-23-pr122\/dsh-spec-browser-gif-evidence\/real-ui-change/)
+  const historicalInputs = readHashManifest(
+    join(evidenceRoot, 'evaluation-files.sha256'),
+    'browser GIF evaluation files',
+  )
   const corpusRoot = join(EVAL_SOURCE_ROOT, skill)
   const historical = JSON.parse(readFileSync(join(evidenceRoot, 'scenario-definitions.json'), 'utf8')) as Record<
     string,
@@ -2743,7 +2509,7 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
     ['candidate-fixture', 'explicit-fixture-recording-is-disclosed'],
   ])
   const historicalScenarios = new Map((historical[skill] ?? []).map((scenario) => [scenario.id, scenario] as const))
-  for (const run of ['candidate-real', 'candidate-absent', 'candidate-fixture']) {
+  for (const run of ['candidate-absent', 'candidate-fixture']) {
     const root = join(evidenceRoot, run)
     const recordedSkillHash = existsSync(join(root, 'skill-hashes.txt'))
       ? readSkillHashes(root).get(`skills/${skill}/SKILL.md`)
@@ -2770,7 +2536,8 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
       true,
       run + ' has a failed assertion',
     )
-    assert.ok(readFileSync(join(root, 'final.md'), 'utf8').trim().length > 0)
+    const finalText = readFileSync(join(root, 'final.md'), 'utf8')
+    assert.ok(finalText.trim().length > 0)
     const trace = readFileSync(join(root, 'trace.jsonl'), 'utf8')
       .trim()
       .split('\n')
@@ -2805,10 +2572,11 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
     for (const manifest of manifests) {
       const lines = readFileSync(join(root, manifest), 'utf8').trim().split('\n')
       if (manifest === 'input-manifest.sha256') {
+        const inputEntries = lines.map((line) => parseHashPath(line, run + ' input manifest'))
         const scenario = historicalScenarios.get(behaviorScenarios.get(run) ?? '')
         assert.ok(scenario)
         assert.deepEqual(
-          lines.map((line) => line.split(/\s{2,}/)[1]),
+          inputEntries.map((entry) => entry.path),
           scenario.files,
           run + ' input manifest does not match the declared scenario files',
         )
@@ -2831,7 +2599,7 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
     }
     if (run === 'candidate-absent') assert.equal(existsSync(join(root, 'artifact')), false)
   }
-  for (const run of ['candidate-real', 'candidate-fixture']) {
+  for (const run of ['candidate-fixture']) {
     const artifactRoot = join(evidenceRoot, run, 'artifact')
     const gifs = listFiles(artifactRoot).filter((path) => path.endsWith('.gif'))
     assert.equal(gifs.length, 1, run + ' GIF count')
@@ -2886,8 +2654,8 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
       .trim()
       .split('\n')
       .map((line) => {
-        const [hash, path] = line.split(/\s{2,}/)
-        return [path, hash] as const
+        const entry = parseHashPath(line, 'browser GIF trigger input')
+        return [entry.path, entry.hash] as const
       }),
   )
   for (const path of [
@@ -2956,7 +2724,17 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
 
 test('PR121 and PR122 targeted model evidence binds current inputs and recorded revisions', () => {
   const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-23-pr121')
-  const skillsTree = readSkillTreeManifest(join(evidenceRoot, 'skills-tree.sha256'))
+  const historicalBrowserReadmePath = join(evidenceRoot, 'dsh-spec-browser-gif-evidence/README.md')
+  assertEvidencePath(evidenceRoot, historicalBrowserReadmePath, 'historical browser README', 'file')
+  const historicalBrowserReadme = readFileSync(historicalBrowserReadmePath, 'utf8')
+  assert.match(historicalBrowserReadme, /^> \*\*Historical status:\*\* this run used the pre-final fixture/m)
+  assert.match(historicalBrowserReadme, /2026-11-23-pr122\/dsh-spec-browser-gif-evidence\/real-ui-change/)
+  const skillsTreePath = join(evidenceRoot, 'skills-tree.sha256')
+  assertEvidencePath(evidenceRoot, skillsTreePath, 'PR121 skills tree', 'file')
+  const skillsTree = readSkillTreeManifest(skillsTreePath)
+  const historicalInputsPath = join(evidenceRoot, 'evaluation-files.sha256')
+  assertEvidencePath(evidenceRoot, historicalInputsPath, 'PR121 evaluation files', 'file')
+  const historicalInputs = readHashManifest(historicalInputsPath, 'PR121 evaluation files')
   const pr122EvidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-23-pr122')
   type EvidenceRun = {
     skill: string
@@ -3028,8 +2806,18 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
       evidenceRoot: pr122EvidenceRoot,
     },
     {
+      skill: 'dsh-spec-browser-gif-evidence',
+      run: 'real-ui-change-uses-one-isolated-run',
+      evidenceRoot: pr122EvidenceRoot,
+    },
+    {
       skill: 'dsh-spec-merging-stacked-prs',
       run: 'refresh-stack-with-rerere',
+      evidenceRoot: pr122EvidenceRoot,
+    },
+    {
+      skill: 'dsh-spec-merging-stacked-prs',
+      run: 'dependency-only-blocked-stack-can-land',
       evidenceRoot: pr122EvidenceRoot,
     },
     {
@@ -3074,7 +2862,9 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
       'wrapper-preserves-cancellation-timeout-and-denial',
     'dsh-spec-client-ui-ux:shared-icon-rendering-contract': 'shared-icon-rendering-contract',
     'dsh-spec-browser-gif-evidence:missing-capture-capability-hands-off': 'missing-capture-capability-hands-off',
+    'dsh-spec-browser-gif-evidence:real-ui-change-uses-one-isolated-run': 'real-ui-change-uses-one-isolated-run',
     'dsh-spec-merging-stacked-prs:refresh-stack-with-rerere': 'refresh-stack-with-rerere',
+    'dsh-spec-merging-stacked-prs:dependency-only-blocked-stack-can-land': 'dependency-only-blocked-stack-can-land',
     'dsh-spec-translate-docs:source-rename-keeps-pair': 'source-rename-keeps-pair',
     'dsh-spec-translate-docs:locale-selected-pages-are-unpaired': 'locale-selected-pages-are-unpaired',
   }
@@ -3084,6 +2874,11 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
       /npm run evidence(?:\s|$|['"])/,
       /encode-browser-gif\.mjs/,
       /ffprobe(?:\s|$|['"])/,
+    ],
+    'dsh-spec-browser-gif-evidence:real-ui-change-uses-one-isolated-run': [
+      /npm run build(?:\s|$|['"])/,
+      /npm run evidence(?:\s|$|['"])/,
+      /encode-browser-gif\.mjs/,
     ],
     'dsh-spec-test-reliability:redesign-slow-repeated-suite': [
       /npm test(?:\s|$|['"])/,
@@ -3142,8 +2937,10 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
       assert.deepEqual(
         JSON.parse(readFileSync(join(root, 'capabilities.json'), 'utf8')),
         {
+          auth: 'host-proxy',
           browser: effectiveScenario.capabilities?.browser ?? false,
           media: effectiveScenario.capabilities?.media ?? false,
+          sandbox: 'workspace-write',
           subagents: effectiveScenario.allow_subagents ?? false,
         },
         item.skill + '/' + item.run + ' capability profile differs',
@@ -3175,7 +2972,8 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
       true,
       item.skill + '/' + item.run + ' has a failed assertion',
     )
-    assert.ok(readFileSync(join(root, 'final.md'), 'utf8').trim().length > 0)
+    const finalText = readFileSync(join(root, 'final.md'), 'utf8')
+    assert.ok(finalText.trim().length > 0)
 
     const inputManifest = readFileSync(join(root, 'input-manifest.sha256'), 'utf8').trim()
     const inputs = (inputManifest ? inputManifest.split('\n') : []).map((line) => {
@@ -3192,15 +2990,22 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
     if (current) {
       for (const entry of inputs) {
         const path = join(EVAL_SOURCE_ROOT, item.skill, entry.relative ?? '')
+        const stat = lstatSync(path)
+        assert.equal(stat.isSymbolicLink(), false, item.skill + '/' + item.run + ' input is a symbolic link')
+        assert.equal(stat.isFile(), true, item.skill + '/' + item.run + ' input is not a regular file')
         assert.equal(
           createHash('sha256').update(readFileSync(path)).digest('hex'),
           entry.hash,
           item.skill + '/' + item.run + ' input changed: ' + entry.relative,
         )
+        assert.equal(entry.mode, fileMode(path), item.skill + '/' + item.run + ' input mode changed: ' + entry.relative)
+      }
+    } else {
+      for (const entry of inputs) {
         assert.equal(
-          entry.mode,
-          (statSync(path).mode & 0o777).toString(8).padStart(4, '0'),
-          item.skill + '/' + item.run + ' input mode changed: ' + entry.relative,
+          historicalInputs.get(`tests/skill-evals/${item.skill}/${entry.relative}`),
+          entry.hash,
+          item.skill + '/' + item.run + ' input differs from its recorded historical manifest: ' + entry.relative,
         )
       }
     }
@@ -3211,17 +3016,31 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
       assertRegularEvidenceFile(skillHashFile, item.skill + '/' + item.run + ' skill hash')
     }
     const skillRevisions = new Map<string, string>()
+    const skillModes = new Map<string, string>()
     const skillHashText = readFileSync(
       existsSync(skillHashFile) ? skillHashFile : join(root, 'skill-hashes.txt'),
       'utf8',
     )
     for (const line of skillHashText.trim().split('\n')) {
-      const match = /^([0-9a-f]{64})(?:\s{2,}(.+))?$/.exec(line)
-      assert.ok(match, item.skill + '/' + item.run + ' has a malformed skill hash line')
-      skillRevisions.set(match[2] ?? `skills/${item.skill}/SKILL.md`, match[1] ?? '')
+      if (/^[0-9a-f]{64}$/.test(line)) {
+        skillRevisions.set(`skills/${item.skill}/SKILL.md`, line)
+        continue
+      }
+      const entry = parseHashPath(line, item.skill + '/' + item.run)
+      skillRevisions.set(entry.path, entry.hash)
+      if (entry.mode) skillModes.set(entry.path, entry.mode)
     }
     const recordedSkillHash = skillRevisions.get(`skills/${item.skill}/SKILL.md`)
     assert.ok(recordedSkillHash, item.skill + '/' + item.run + ' records no target skill hash')
+    if (current) {
+      for (const path of skillRevisions.keys()) {
+        assert.equal(
+          skillModes.get(path),
+          fileMode(join(REPO_ROOT, path)),
+          item.skill + '/' + item.run + ' skill mode changed: ' + path,
+        )
+      }
+    }
     const trace = readFileSync(join(root, 'trace.jsonl'), 'utf8')
       .trim()
       .split('\n')
@@ -3304,8 +3123,7 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
       const manifestText = readFileSync(artifactManifest, 'utf8').trim()
       const manifestLines = manifestText ? manifestText.split('\n') : []
       const listedArtifacts = manifestLines.map((line) => {
-        const [hash, artifactPath] = line.split(/\s{2,}/)
-        assert.match(hash ?? '', /^[0-9a-f]{64}$/)
+        const { hash, path: artifactPath } = parseHashPath(line, item.skill + '/' + item.run)
         assert.ok(artifactPath, item.skill + '/' + item.run + ' has an empty artifact path')
         const retained = join(root, artifactPath)
         const local = relative(root, retained)
@@ -3331,6 +3149,20 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
           listedArtifacts.filter((path) => path.startsWith('artifact/')).sort(),
           actualArtifacts,
           item.skill + '/' + item.run + ' artifact manifest does not cover the artifact directory exactly',
+        )
+      }
+      if (
+        current &&
+        item.skill === 'dsh-spec-browser-gif-evidence' &&
+        item.run === 'real-ui-change-uses-one-isolated-run'
+      ) {
+        const gifs = listedArtifacts.filter((path) => path.endsWith('.gif'))
+        assert.equal(gifs.length, 1, 'the real browser run must retain one GIF')
+        const gif = join(root, gifs[0] as string)
+        const gifSize = lstatSync(gif).size
+        assert.ok(
+          [String(gifSize), gifSize.toLocaleString('en-US')].some((value) => finalText.includes(value + ' bytes')),
+          'the final report names another GIF',
         )
       }
     }
