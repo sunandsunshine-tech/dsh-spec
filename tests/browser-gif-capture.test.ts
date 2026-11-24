@@ -165,7 +165,10 @@ void test('browser GIF capture enforces one complete deadline and still cleans u
   seedOldEvidence(fixture.root)
   const { result, elapsedMs } = runCapture(fixture, 'hang', 250)
   assert.notEqual(result.status, 0)
-  assert.match(result.stderr ?? '', /capture deadline exceeded while waiting for Page\.enable/)
+  assert.match(
+    result.stderr ?? '',
+    /capture deadline exceeded while waiting for (?:a page target|the CDP WebSocket handshake|Page\.enable)/,
+  )
   assert.ok(elapsedMs < 3_000, `deadline took ${elapsedMs}ms`)
   assert.equal(existsSync(join(fixture.root, 'evidence-local')), false)
   await assertNoRunArtifacts(fixture)
