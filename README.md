@@ -22,16 +22,15 @@ The GitHub CLI ships an agent skill of its own; browse [its repository](https://
 
 Install into the project, not into your home directory, and commit the result. A project-scoped copy puts every collaborator, every agent that discovers the same skills directory and CI on the revision you installed at; a user-scoped copy is per machine and changes only when `gh skill update` runs. At project scope, several agents share `.agents/skills/`; another host may use a different directory. Commit the installed project tree after the first install.
 
-Install each skill with its own `gh skill install` invocation. Pass `--pin <tag-or-commit>` to pin it; with no pin the CLI takes the latest tagged release, or the default branch when the repository has no tagged release. Replace the placeholder in the command below with the tag or commit the project will share.
+Install each skill with its own `gh skill install` invocation. By default, leave out `--pin`: the CLI installs the latest tagged release, or the default branch when the repository has no tagged release. Pass `--pin <tag-or-commit>` only when the project needs a fixed revision for CI, audit, reproducible builds or another fixed-version requirement.
 
-The commands below use `--dir .agents/skills` for the shared tree. For a host with its own project-scoped directory, install the same pinned skills with `--agent <host>` and omit `--dir`.
+The commands below use `--dir .agents/skills` for the shared tree. For a host with its own project-scoped directory, install the same skills with `--agent <host>` and omit `--dir`.
 
 ### Start with the universal group
 
 The universal collaboration group covers project instructions, decision records, durable prose and document translation and pairing:
 
 ```sh
-PIN="<tag-or-commit>"
 (
   set -e
   for skill in \
@@ -41,7 +40,7 @@ PIN="<tag-or-commit>"
     dsh-spec-prose-standard \
     dsh-spec-translate-docs
   do
-    gh skill install sunandsunshine-tech/dsh-spec "$skill" --pin "$PIN" --dir .agents/skills
+    gh skill install sunandsunshine-tech/dsh-spec "$skill" --dir .agents/skills
   done
 )
 ```
@@ -50,13 +49,13 @@ Add individual skills from the other groups when their work enters the project. 
 
 `--all` is available, but it is not the default adoption path. Unrelated skills add selection choices and update obligations without adding capability the project uses.
 
-`gh skill update` refreshes an unpinned install; a pinned skill is skipped until it is unpinned.
+`gh skill update --all` refreshes unpinned installations. A pinned skill stays at its revision until `gh skill update --unpin` clears the pin.
 
 ### Install with an agent
 
 Give your agent these instructions:
 
-> Install `dsh-spec-agent-experience`, `dsh-spec-agents-md`, `dsh-spec-agent-notes`, `dsh-spec-prose-standard` and `dsh-spec-translate-docs` from `sunandsunshine-tech/dsh-spec` with the GitHub CLI into `.agents/skills/`. Run one `gh skill install` command per skill and pass the same tag or commit to `--pin` in every command. If I have not supplied that tag or commit, ask me instead of choosing one. Check the prerequisites above first, and ask me if any of them is missing.
+> Install `dsh-spec-agent-experience`, `dsh-spec-agents-md`, `dsh-spec-agent-notes`, `dsh-spec-prose-standard` and `dsh-spec-translate-docs` from `sunandsunshine-tech/dsh-spec` with the GitHub CLI into `.agents/skills/`. Run one `gh skill install` command per skill and leave out `--pin`, so each installs the latest tagged release. If I ask for a fixed revision for CI, audit, reproducible builds or another fixed-version requirement, pass that exact tag or commit with `--pin`; never use `--pin latest`. Check the prerequisites above first, and ask me if any of them is missing.
 
 ## Choose skills
 
