@@ -1,38 +1,47 @@
 ## Diagnosis
 
-The checkout route is dominated by the external shipping-quote wait. At the fixture’s default 80 ms setting, the complete client call had a median of **82.779 ms**, while local order assembly took **0.129 ms**. Setting the documented external delay control to 0 ms reduced complete client latency to **3.314 ms**.
+The checkout route is slow because it waits for the shipping-quote phase, not because of local order processing. In warm runs, the complete client result had a median of **83.026 ms**: **80.302 ms** in the quote phase, **0.173 ms** in local processing, and about **2.682 ms** in the combined client/HTTP/JSON residual.
 
-The complete result is measured by [client.mjs](/workspace/evals/files/end-to-end-boundary/client.mjs:3) from immediately before `fetch()` until the full response JSON has been parsed. The server’s phase boundaries are in [server.mjs](/workspace/evals/files/end-to-end-boundary/server.mjs:15): `externalMs` covers `quoteShipping`, and `localMs` covers only `buildOrder`. The quote simulation is in [external.mjs](/workspace/evals/files/end-to-end-boundary/src/external.mjs:3), and local assembly is in [order.mjs](/workspace/evals/files/end-to-end-boundary/src/order.mjs:9).
+Setting the simulated quote delay to zero reduced the median to **4.034 ms**, nearly 21× lower. Reintroducing 80 ms restored approximately 79 ms, confirming that dependency delay as the dominant causal factor.
 
-### Controlled measurement
+The fixture uses a 2,000-line order. The client timer starts before `fetch()` and ends after JSON parsing; server timing begins immediately before `quoteShipping()` and separately times `buildOrder()` afterward ([client.mjs](/workspace/evals/files/end-to-end-boundary/client.mjs:5), [server.mjs](/workspace/evals/files/end-to-end-boundary/server.mjs:12)).
 
-One warm-up per condition was excluded, followed by seven measured, interleaved calls per condition. Values are milliseconds.
+### Warm interleaved measurements
 
-| Condition | Complete client median (range) | External quote median (range) | Local order median (range) | Client/HTTP/serialization remainder median (range) |
+One warm-up call preceded seven measured calls per mode. Values are milliseconds.
+
+| Mode | Complete client median (range) | Quote phase median (range) | Local processing median (range) | Untraced client/HTTP/JSON median (range) |
 |---|---:|---:|---:|---:|
-| 80 ms baseline | 82.779 (82.101–83.527) | 80.150 (79.414–80.390) | 0.129 (0.111–0.234) | 2.551 (2.354–3.369) |
-| 0 ms control | 3.314 (3.065–4.320) | 1.168 (1.119–1.331) | 0.126 (0.106–0.287) | 2.038 (1.833–2.724) |
+| 80 ms quote delay | **83.026** (82.445–84.995) | **80.302** (79.645–80.621) | **0.173** (0.116–0.299) | **2.682** (2.120–4.444) |
+| 0 ms quote delay | **4.034** (3.265–4.624) | **1.203** (1.100–1.349) | **0.114** (0.106–0.301) | **2.725** (2.051–3.227) |
 
-The 80 ms delay accounts for essentially all route latency. The control reduced median completion by **79.465 ms**, about **25×** in this synthetic comparison—not a production speedup prediction.
+The quote phase remains around 1.2 ms at zero delay because it still creates 2,000 quote objects. Its mapping work is therefore small; the configured 80 ms wait dominates.
 
-The fixture’s own `node diagnose.mjs` run produced:
+The direct `node diagnose.mjs` fixture run also showed first-request warm-up:
 
-- Default totals: 103.266, 85.828, 84.846 ms; external phases: 81.083, 80.289, 80.929 ms; local phases: 1.093, 0.334, 0.307 ms.
-- `EXTERNAL_DELAY_MS=0` totals: 21.187, 4.514, 5.142 ms; external phases: 1.768, 0.163, 1.249 ms; local phases: 0.928, 0.257, 0.194 ms.
-- The first sample in each fresh process is cold and materially slower.
+```text
+80 ms fixture, total/quote/local:
+101.793 / 80.993 / 1.113
+ 85.728 / 80.340 / 0.368
+ 85.651 / 80.864 / 0.298
 
-## Control and exclusions
+0 ms fixture, total/quote/local:
+ 20.254 / 0.620 / 1.022
+  5.710 / 1.206 / 0.266
+  4.718 / 1.194 / 0.200
+```
 
-- The external delay can be controlled without code changes through `EXTERNAL_DELAY_MS`.
-- Process startup and server creation/listening are excluded because timing begins after the server is ready.
-- The external phase and local application phase are separately exposed, but response serialization, loopback HTTP transport, fetch handling, and JSON parsing are only derivable as the remainder `client total - external - local`.
-- The external service cannot be fully excluded with the current path: the route unconditionally calls `quoteShipping`, and the 0 ms control still performs its 2,000-item mapping. That residual computation measured about 1.17 ms.
-- Local `buildOrder` is not the bottleneck at this workload.
+The first request carried roughly 16–20 ms of connection/runtime warm-up. It affects the complete result but is separate from the steady external-service contribution.
 
-## Remaining limits
+## Controls and exclusions
 
-This is a single-host, sequential loopback observation using Node `v26.13.1`, revision `a907d4940ffbffc3fa7afd9c399fbbd0ae9a96bb`, with 2,000 order lines and 700 unique SKUs. It does not model real remote-service DNS, TLS, connection reuse, upstream load, retries, queueing, or latency percentiles. The “external” implementation is an in-process simulated delay rather than a network service.
+- **Controlled:** `EXTERNAL_DELAY_MS` changes only the simulated shipping quote wait ([external.mjs](/workspace/evals/files/end-to-end-boundary/src/external.mjs:3)). Running with it set to zero excludes the 80 ms wait and drops the route to roughly 4 ms.
+- **Excluded:** local `buildOrder()` processing is not the bottleneck. It stayed below 0.31 ms in every measured call, including with 2,000 result items ([order.mjs](/workspace/evals/files/end-to-end-boundary/src/order.mjs:11)).
+- **Measured but not separately decomposed:** the 2.1–4.4 ms residual combines client fetch overhead, loopback HTTP, response serialization/transfer, and JSON parsing. It remained stable across both quote-delay modes.
+- **Not excludable from this fixture:** the “external” service is an in-process timer, not a remote vendor or network path. It cannot establish real DNS, TLS, connection-pool, retry, congestion, or vendor-tail behavior.
 
-Functional behavior was retained: every run returned all 2,000 items. `npm test` passed 1/1, and the repository remains clean with no code changes.
+## Evidence and limits
 
-**Decision:** the next meaningful investigation should target real shipping-quote service and transport latency. Reconsider quote-mapping or response serialization costs only after that delay is reduced; optimizing local `buildOrder` has negligible current impact.
+All 14 interleaved calls and all six fixture calls returned 2,000 items. The owning path test passed `1/1`. Measurements used Node v26.13.1 on Linux x64 at revision `38ffd3a06ed6e4eab57c59a4ea84b45cebeeed3b`. No files were changed and the worktree remains clean.
+
+Remaining limits are the synthetic in-process external delay, single-machine loopback transport, small sample count, and absence of concurrent-load, percentile-tail, browser, and production telemetry measurements. In particular, these results justify investigating or controlling the real shipping-quote dependency next; they do not quantify a real vendor’s production latency.

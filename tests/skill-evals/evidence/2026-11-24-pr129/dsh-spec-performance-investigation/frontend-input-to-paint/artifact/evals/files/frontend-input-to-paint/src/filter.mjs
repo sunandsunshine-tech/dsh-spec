@@ -16,19 +16,20 @@ export function filterProducts(items, rawQuery) {
   if (!query) return []
   const tokens = query.split(/\s+/)
   const matches = []
-  const scoreBonus = tokens.reduce((total, token) => {
-    for (const item of items) {
-      if (item.category === token) total += 1
-      if (item.color === token) total += 1
+  let scoreAdjustment = 0
+
+  for (const token of tokens) {
+    for (const candidate of items) {
+      if (candidate.category === token) scoreAdjustment += 1
+      if (candidate.color === token) scoreAdjustment += 1
     }
-    return total
-  }, 0)
+  }
 
   for (const item of items) {
     const search = `${item.name} ${item.category} ${item.color}`.toLowerCase()
     if (!tokens.every((token) => search.includes(token))) continue
 
-    matches.push({ ...item, score: item.rank + scoreBonus })
+    matches.push({ ...item, score: item.rank + scoreAdjustment })
   }
 
   return matches.sort((left, right) => right.score - left.score || left.id.localeCompare(right.id)).slice(0, 200)

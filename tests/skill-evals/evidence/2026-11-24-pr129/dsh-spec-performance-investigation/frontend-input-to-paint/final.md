@@ -1,20 +1,30 @@
-Reduced median input-to-visible-result latency from **30.0 ms to 22.0 ms** and DOM availability from **25.8 ms to 1.1 ms**. The remaining time is browser frame scheduling/rendering, not network or application scripting.
+Optimized and verified. The bottleneck was the scoring loop in [filter.mjs](/workspace/evals/files/frontend-input-to-paint/src/filter.mjs:14): it scanned all 3,600 products for each of 900 matches, about 3.24 million candidate visits, even though the resulting score adjustment was identical for every match. The fix computes that invariant once, reducing it to 3,600 visits without changing filtering, scores, ordering, the 200-result limit, or rendering.
 
-Built and measured with `npm run measure`, using Chrome for Testing 159 via CDP `Input.insertText` against the built static app. Workload: type `light`, then wait through the visible-result update. One warm-up plus five measured samples per side.
+## Browser measurements
 
-| Phase | Baseline | Optimized |
+Workload: real CDP `Input.insertText("light")` into `#query`; 3,600 products; 200 rendered rows. Chrome 159 headless, Node 26.13.1, starting revision `ebffcfa`, local static server. Each side used one warm-up and five samples.
+
+| Measurement | Before | After |
 |---|---:|---:|
-| Input to visible result | 30.0 ms | **22.0 ms** |
-| Event to updated DOM | 25.8 ms | **1.1 ms** |
-| Script CPU | 25.7 ms | **1.0 ms** |
-| Style CPU | 0.47 ms | 0.44 ms |
-| Layout CPU | 1.58 ms | 1.49 ms |
-| Resource requests | 0 | 0 |
+| Filter phase, median | 25.5 ms | 0.7 ms |
+| Browser script time, median | 25.919 ms | 1.033 ms |
+| Browser task time, median | 30.261 ms | 5.669 ms |
+| Input → first Paint event start | 23.275 ms | 4.628 ms |
+| Input → first Paint completion | 24.638 ms | 6.057 ms |
+| Input → first Commit | 24.943 ms | 6.384 ms |
+| Double-rAF boundary samples | 29.8, 29.2, 31.3, 29.1, 29.6 ms | 25.2, 27.7, 19.9, 22.4, 24.2 ms |
+| Double-rAF median | 29.6 ms | 24.2 ms |
 
-Baseline visible samples were `[30.9, 31.7, 30.0, 29.0, 29.2] ms`; optimized samples were `[20.3, 22.0, 24.6, 27.0, 19.7] ms`.
+The five traced Paint-completion samples were 24.291–25.481 ms before and 4.866–11.012 ms after; one optimized sample missed a rendering opportunity. Layout remained effectively unchanged at 1.591 ms versus 1.597 ms, and style recalculation at 0.476 ms versus 0.465 ms.
 
-The dominant phase was scripting. For `light`, the old scoring loop scanned all 3,600 products again for each of 900 matches—about 3.24 million iterations—even though the token bonus was identical for every match. [filter.mjs](/workspace/evals/files/frontend-input-to-paint/src/filter.mjs:19) now computes that token contribution once, preserving the original displayed scores, repeated-token behavior, filtering, ordering, and 200-row limit.
+The double-rAF marker is deliberately conservative and frame-quantized; it can add a complete frame after the first paint. Browser tracing was therefore used for the actual Paint and Commit boundaries.
 
-A controlled reintroduction of the old loop restored scripting to `25.7 ms` and total latency to `30.0 ms`. The owning test passes, syntax checks pass, and seven query fingerprints exactly match their pre-change outputs.
+## Remaining boundary
 
-The remaining **20.9 ms median** (`18.7–26.1 ms`) occurs after the DOM is updated while [measure.mjs](/workspace/evals/files/frontend-input-to-paint/measure.mjs) waits through its nested `requestAnimationFrame` completion boundary. Every sample recorded zero resource requests during input, so there is no steady-state network boundary here. Results are from headless Linux Chrome with GPU disabled and loopback serving, so this is not a hardware-specific device latency claim. Further optimization would target the 200-row render path, but current evidence does not justify broadening this change.
+No network request occurred during any measured input (`0/5` before and after). All assets were loaded before the warm-up. The remaining latency is browser frame scheduling plus roughly 2 ms of style/layout work; compositor presentation after Commit and physical display latency are outside this trace.
+
+The measurement harness in [measure.mjs](/workspace/evals/files/frontend-input-to-paint/measure.mjs:272) now checks the visible input value, row count, summary, network activity, browser metrics, CPU profiles, and five direct browser traces. Phase timing starts from the browser event timestamp in [app.js](/workspace/evals/files/frontend-input-to-paint/src/app.js:8).
+
+## Verification
+
+`npm test` passes. The optimized implementation matched the original reference output across 60 item-count/query combinations, including case and whitespace normalization, repeated tokens, non-matches, and the production corpus. The browser confirmed exactly 200 visible rows and `200 visible results`. `git diff --check` and syntax checks pass. The decision is to keep the hoist; further row virtualization or search-string precomputation is not justified for this workload.

@@ -22,6 +22,8 @@ Use the production entry, built artifact and validation that users actually exer
 
 If no reproducible operation or measurement path exists, give the smallest measurement plan and name the missing capability or input. Do not turn source intuition into a measured result. When the host masks a browser, profiler, service or other required measurement capability, use only tooling already available under the request or project policy; do not download, install or start a substitute to bypass that constraint, and hand off the missing measurement instead.
 
+When an authorized local corpus or production telemetry is inspected, extract only the aggregate characteristics needed to define workload dimensions. Never copy prompts, outputs, paths, identities, credentials, recordings or recognizable snippets into fixtures, logs, screenshots, pull requests or artifacts; generate fixed inputs from reviewed constants.
+
 ## Choose the measurement surface
 
 | Path | Default evidence |

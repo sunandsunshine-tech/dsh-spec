@@ -29,6 +29,7 @@ class CdpConnection {
   constructor(url) {
     this.nextId = 1
     this.pending = new Map()
+    this.listeners = new Map()
     this.socket = new WebSocket(url)
   }
 
@@ -39,6 +40,12 @@ class CdpConnection {
     })
     this.socket.addEventListener('message', (event) => {
       const message = JSON.parse(event.data)
+      if (message.method) {
+        for (const listener of this.listeners.get(message.method) ?? []) {
+          listener(message.params)
+        }
+        return
+      }
       if (!message.id) return
       const pending = this.pending.get(message.id)
       if (!pending) return
@@ -55,6 +62,12 @@ class CdpConnection {
       this.pending.set(id, { resolve, reject })
       this.socket.send(JSON.stringify({ id, method, params }))
     })
+  }
+
+  on(method, listener) {
+    const listeners = this.listeners.get(method) ?? []
+    listeners.push(listener)
+    this.listeners.set(method, listeners)
   }
 
   close() {
@@ -82,71 +95,126 @@ async function waitForMeasurement(connection) {
   throw new Error('visible search update did not complete')
 }
 
+function median(values) {
+  const ordered = [...values].sort((left, right) => left - right)
+  return ordered[Math.floor(ordered.length / 2)]
+}
+
+function rounded(value) {
+  return Number(value.toFixed(3))
+}
+
 async function readPerformanceMetrics(connection) {
   const { metrics } = await connection.call('Performance.getMetrics')
-  return Object.fromEntries(metrics.map(({ name, value }) => [name, value]))
+  return new Map(metrics.map((metric) => [metric.name, metric.value]))
 }
 
-function counterDelta(before, after, name) {
-  return Number((((after[name] ?? 0) - (before[name] ?? 0)) * 1_000).toFixed(3))
+const measuredPerformanceMetrics = [
+  'TaskDuration',
+  'ScriptDuration',
+  'LayoutDuration',
+  'RecalcStyleDuration',
+]
+
+function metricDeltas(before, after) {
+  return Object.fromEntries(
+    measuredPerformanceMetrics.map((name) => [
+      name,
+      rounded(((after.get(name) ?? 0) - (before.get(name) ?? 0)) * 1_000),
+    ]),
+  )
 }
 
-async function measureSearch(connection, collectPhases) {
-  await evaluate(
-    connection,
-    `(() => {
-      const query = document.querySelector('#query')
-      query.value = ''
-      query.focus()
-      window.__lastMeasurement = null
-      window.__inputObservedAt = null
-      window.__domUpdatedAt = null
-      window.__resourceCountBefore = performance.getEntriesByType('resource').length
-      document.addEventListener(
-        'input',
-        (event) => {
-          window.__inputObservedAt = event.timeStamp
-        },
-        { capture: true, once: true },
-      )
-      const observer = new MutationObserver(() => {
-        window.__domUpdatedAt = performance.now()
-        observer.disconnect()
-      })
-      observer.observe(document.querySelector('#results'), { childList: true })
-    })()`,
-  )
+function summarizeProfile(profile) {
+  const nodesById = new Map(profile.nodes.map((node) => [node.id, node]))
+  const selfTimeByNode = new Map()
 
-  const before = collectPhases ? await readPerformanceMetrics(connection) : null
-  await connection.call('Input.insertText', { text: 'light' })
-  const measurement = await waitForMeasurement(connection)
-  const after = collectPhases ? await readPerformanceMetrics(connection) : null
-  const timing = await evaluate(
-    connection,
-    `({
-      observedAt: window.__inputObservedAt,
-      domUpdatedAt: window.__domUpdatedAt,
-      resourceCountAfter: performance.getEntriesByType('resource').length,
-      resourceCountBefore: window.__resourceCountBefore,
-    })`,
-  )
-
-  return {
-    endToEndMs: Number((measurement.finish - timing.observedAt).toFixed(3)),
-    domUpdatedMs: Number((timing.domUpdatedAt - timing.observedAt).toFixed(3)),
-    frameWaitMs: Number((measurement.finish - timing.domUpdatedAt).toFixed(3)),
-    handlerMs: Number((measurement.finish - measurement.start).toFixed(3)),
-    networkRequests: timing.resourceCountAfter - timing.resourceCountBefore,
-    scriptMs: after ? counterDelta(before, after, 'ScriptDuration') : null,
-    styleMs: after ? counterDelta(before, after, 'RecalcStyleDuration') : null,
-    layoutMs: after ? counterDelta(before, after, 'LayoutDuration') : null,
-    taskMs: after ? counterDelta(before, after, 'TaskDuration') : null,
+  for (let index = 0; index < profile.samples.length; index += 1) {
+    const nodeId = profile.samples[index]
+    const durationUs = profile.timeDeltas[index] ?? 0
+    selfTimeByNode.set(nodeId, (selfTimeByNode.get(nodeId) ?? 0) + durationUs)
   }
+
+  return [...selfTimeByNode]
+    .map(([nodeId, durationUs]) => {
+      const frame = nodesById.get(nodeId)?.callFrame
+      return {
+        functionName: frame?.functionName || '(anonymous)',
+        url: frame?.url || '',
+        lineNumber: (frame?.lineNumber ?? -1) + 1,
+        selfMs: rounded(durationUs / 1_000),
+      }
+    })
+    .sort((left, right) => right.selfMs - left.selfMs)
+    .slice(0, 12)
 }
 
-function median(samples, key) {
-  const values = samples.map((sample) => sample[key]).sort((left, right) => left - right)
-  return values[Math.floor(values.length / 2)]
+function summarizeTrace(events) {
+  const renderEvents = events.filter((event) =>
+    ['EventDispatch', 'FunctionCall', 'UpdateLayoutTree', 'Layout', 'PrePaint', 'Paint', 'Commit', 'CompositeLayers'].includes(
+      event.name,
+    ),
+  )
+  const firstEventTime = Math.min(...renderEvents.map((event) => event.ts))
+
+  return renderEvents
+    .map((event) => ({
+      name: event.name,
+      type: event.args?.data?.type,
+      thread: event.args?.data?.thread,
+      durationMs: rounded((event.dur ?? 0) / 1_000),
+      atMs: rounded((event.ts - firstEventTime) / 1_000),
+    }))
+    .slice(-40)
+}
+
+function summarizePaintLatencies(events) {
+  const inputEvents = events
+    .filter((event) => event.name === 'EventDispatch' && event.args?.data?.type === 'input')
+    .sort((left, right) => left.ts - right.ts)
+
+  return inputEvents.map((inputEvent, index) => {
+    const nextInputTime = inputEvents[index + 1]?.ts ?? Number.POSITIVE_INFINITY
+    const paintEvents = events
+      .filter(
+        (event) =>
+          event.name === 'Paint' && event.ts >= inputEvent.ts && event.ts < nextInputTime,
+      )
+      .sort((left, right) => left.ts - right.ts)
+    if (paintEvents.length === 0) throw new Error('trace contained no paint after input')
+
+    const firstPaintStart = paintEvents[0].ts
+    const firstPaintCycle = paintEvents.filter((event) => event.ts <= firstPaintStart + 1_000)
+    const firstPaintEnd = Math.max(
+      ...firstPaintCycle.map((event) => event.ts + (event.dur ?? 0)),
+    )
+    const commit = events
+      .filter(
+        (event) =>
+          event.name === 'Commit' &&
+          event.ts >= firstPaintStart &&
+          event.ts < nextInputTime,
+      )
+      .sort((left, right) => left.ts - right.ts)[0]
+
+    return {
+      inputDispatchMs: rounded(inputEvent.dur / 1_000),
+      inputToPaintStartMs: rounded((firstPaintStart - inputEvent.ts) / 1_000),
+      inputToPaintEndMs: rounded((firstPaintEnd - inputEvent.ts) / 1_000),
+      ...(commit
+        ? { inputToCommitMs: rounded((commit.ts - inputEvent.ts) / 1_000) }
+        : {}),
+    }
+  })
+}
+
+function summarizeLatencyMedians(latencies) {
+  return {
+    inputDispatchMs: median(latencies.map((sample) => sample.inputDispatchMs)),
+    inputToPaintStartMs: median(latencies.map((sample) => sample.inputToPaintStartMs)),
+    inputToPaintEndMs: median(latencies.map((sample) => sample.inputToPaintEndMs)),
+    inputToCommitMs: median(latencies.map((sample) => sample.inputToCommitMs)),
+  }
 }
 
 const chrome = findChrome()
@@ -184,6 +252,11 @@ try {
   await connection.call('Runtime.enable')
   await connection.call('Page.enable')
   await connection.call('Performance.enable')
+  await connection.call('Network.enable')
+  const inputRequests = []
+  connection.on('Network.requestWillBeSent', ({ request }) => {
+    inputRequests.push(request.url)
+  })
   await connection.call('Page.navigate', { url: `${url}/` })
   let ready = false
   for (let attempt = 0; attempt < 100; attempt += 1) {
@@ -196,26 +269,121 @@ try {
   }
   if (!ready) throw new Error('search page did not load')
 
-  await measureSearch(connection, false)
+  async function runSample() {
+    await evaluate(
+      connection,
+      "document.querySelector('#query').value = ''; document.querySelector('#query').focus(); window.__lastMeasurement = null",
+    )
+    inputRequests.length = 0
+    const metricsBefore = await readPerformanceMetrics(connection)
+    await connection.call('Input.insertText', { text: 'light' })
+    const measurement = await waitForMeasurement(connection)
+    const metricsAfter = await readPerformanceMetrics(connection)
+    const visible = await evaluate(
+      connection,
+      `(() => {
+        const rows = document.querySelector('#results').children
+        return {
+          inputValue: document.querySelector('#query').value,
+          rowCount: rows.length,
+          summary: document.querySelector('#summary').textContent,
+          firstRow: rows[0]?.textContent ?? '',
+        }
+      })()`,
+    )
+    if (
+      visible.inputValue !== 'light' ||
+      visible.rowCount !== measurement.count ||
+      visible.summary !== `${measurement.count} visible results`
+    ) {
+      throw new Error(`visible result did not match measurement: ${JSON.stringify(visible)}`)
+    }
+
+    return {
+      ...measurement,
+      metrics: metricDeltas(metricsBefore, metricsAfter),
+      networkRequestCount: inputRequests.length,
+      visible,
+    }
+  }
+
+  await runSample()
+
   const samples = []
   for (let index = 0; index < 5; index += 1) {
-    samples.push(await measureSearch(connection, true))
+    const measurement = await runSample()
+    samples.push({
+      inputToRafBoundaryMs: rounded(measurement.finish - measurement.start),
+      filterMs: rounded(measurement.filterFinish - measurement.start),
+      domUpdateMs: rounded(measurement.domFinish - measurement.filterFinish),
+      postDomToRafBoundaryMs: rounded(measurement.finish - measurement.domFinish),
+      count: measurement.count,
+      metricsMs: measurement.metrics,
+      networkRequestCount: measurement.networkRequestCount,
+      visible: measurement.visible,
+    })
+  }
+
+  const summary = {
+    completionBoundary: 'double requestAnimationFrame',
+    samplesMs: samples.map((sample) => sample.inputToRafBoundaryMs),
+    medianMs: rounded(median(samples.map((sample) => sample.inputToRafBoundaryMs))),
+    phaseMediansMs: {
+      filter: rounded(median(samples.map((sample) => sample.filterMs))),
+      domUpdate: rounded(median(samples.map((sample) => sample.domUpdateMs))),
+      rafBoundaryWait: rounded(
+        median(samples.map((sample) => sample.postDomToRafBoundaryMs)),
+      ),
+    },
+    browserMetricMediansMs: Object.fromEntries(
+      measuredPerformanceMetrics.map((name) => [
+        name,
+        rounded(median(samples.map((sample) => sample.metricsMs[name]))),
+      ]),
+    ),
+    resultCount: samples[0].count,
+    networkRequestCounts: samples.map((sample) => sample.networkRequestCount),
+    visibleResult: samples[0].visible,
+  }
+  let profileSummary
+  if (process.env.PROFILE) {
+    await connection.call('Profiler.enable')
+    await connection.call('Profiler.setSamplingInterval', { interval: 100 })
+    await connection.call('Profiler.start')
+    await runSample()
+    const result = await connection.call('Profiler.stop')
+    profileSummary = summarizeProfile(result.profile)
+  }
+
+  let traceSummary
+  let tracePaintLatencies
+  let tracePaintMedians
+  if (process.env.TRACE) {
+    const traceEvents = []
+    connection.on('Tracing.dataCollected', ({ value }) => traceEvents.push(...value))
+    const tracingComplete = new Promise((resolve) => {
+      connection.on('Tracing.tracingComplete', resolve)
+    })
+    await connection.call('Tracing.start', {
+      categories: 'devtools.timeline,v8,blink,cc,loading',
+      transferMode: 'ReportEvents',
+    })
+    for (let index = 0; index < 5; index += 1) await runSample()
+    await connection.call('Tracing.end')
+    await tracingComplete
+    traceSummary = summarizeTrace(traceEvents)
+    tracePaintLatencies = summarizePaintLatencies(traceEvents)
+    tracePaintMedians = summarizeLatencyMedians(tracePaintLatencies)
   }
 
   console.log(
     JSON.stringify({
+      ...summary,
       samples,
-      medians: {
-        endToEndMs: median(samples, 'endToEndMs'),
-        domUpdatedMs: median(samples, 'domUpdatedMs'),
-        frameWaitMs: median(samples, 'frameWaitMs'),
-        handlerMs: median(samples, 'handlerMs'),
-        scriptMs: median(samples, 'scriptMs'),
-        styleMs: median(samples, 'styleMs'),
-        layoutMs: median(samples, 'layoutMs'),
-        taskMs: median(samples, 'taskMs'),
-        networkRequests: median(samples, 'networkRequests'),
-      },
+      ...(profileSummary ? { profile: profileSummary } : {}),
+      ...(tracePaintMedians ? { tracePaintMediansMs: tracePaintMedians } : {}),
+      ...(tracePaintLatencies ? { tracePaintLatencies } : {}),
+      ...(traceSummary ? { trace: traceSummary } : {}),
     }),
   )
 } finally {

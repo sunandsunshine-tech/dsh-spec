@@ -11,14 +11,6 @@ export function createInventory(count = 5_000) {
 }
 
 export function buildReport(items) {
-  const regionalUnits = new Map()
-  for (const item of items) {
-    regionalUnits.set(
-      item.region,
-      (regionalUnits.get(item.region) ?? 0) + item.units,
-    )
-  }
-
   const seen = new Set()
   const report = []
 
@@ -27,12 +19,13 @@ export function buildReport(items) {
     if (seen.has(key)) continue
     seen.add(key)
 
-    const regionUnits = regionalUnits.get(item.region)
+    const regionalItems = items.filter((candidate) => candidate.region === item.region)
+    const regionalUnits = regionalItems.reduce((sum, candidate) => sum + candidate.units, 0)
     report.push({
       productId: item.productId,
       region: item.region,
       units: item.units,
-      share: regionUnits === 0 ? 0 : item.units / regionUnits,
+      share: regionalUnits === 0 ? 0 : item.units / regionalUnits,
     })
   }
 

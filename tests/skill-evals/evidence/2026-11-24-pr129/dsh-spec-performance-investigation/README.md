@@ -1,6 +1,6 @@
 # Performance investigation model evidence
 
-The four candidate scenarios run through `tests/skill-evals/run-model-eval.mjs` with the current
+The five candidate scenarios run through `tests/skill-evals/run-model-eval.mjs` with the current
 `dsh-spec-performance-investigation` skill installed in an otherwise minimal project.
 
 - `backend-budgetless-latency`: real HTTP benchmark, profiling, a behavior-preserving optimization,
@@ -11,6 +11,9 @@ The four candidate scenarios run through `tests/skill-evals/run-model-eval.mjs` 
   separate from measurement and hands off a resumable browser run.
 - `end-to-end-external-boundary`: a read-only checkout diagnosis that separates the complete client
   path, local transform and controlled external delay.
+- `private-corpus-remains-aggregate`: an authorized telemetry inspection that reports only aggregate
+  workload dimensions and verifies that raw prompts, outputs, paths, identities and credentials do
+  not enter the response, fixture or artifacts.
 
 The no-skill baseline under `baseline-backend-budgetless-latency/` uses the same backend fixture and
 prompt without the skill. It proves the model can already optimize this small fixture; the skill's

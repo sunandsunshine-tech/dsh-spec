@@ -35,6 +35,7 @@ Status: implemented
 | S3 | Establish scope and current authority | 确定用户可见的终点、工作负载、约束、允许的细微差异和停止规则，并确切说明当前权威来源 |
 | S4 | Survey user paths, then rank candidates | 调查真实操作，并按用户延迟、CPU 与分配开销、内存、出现频率和置信度对经过测量的候选排序 |
 | S5 | Build realistic synthetic benchmarks first | 使用生产入口、固定且贴近现实的工作负载、可比的时钟与状态、原始样本、行为检查，以及项目自有的测量设施 |
+| S5a | Build realistic synthetic benchmarks first | 获准检查本地语料或遥测时，只提取聚合 workload 特征，绝不把 prompt、输出、路径、身份、凭据、录制或可识别片段写入 fixture、日志或产物 |
 | S6 | Prove the regression, then remove work | 捕获基线证据、比较可证伪的原因、选择最大的安全确认收益、一次只改变一个因果因素、重新运行父路径，并要求提供负控制 |
 | S7 | Preserve behavior and resource ownership | 在改变性能时保持输出、顺序、持久性、取消、并发、保留与释放不变 |
 | S8 | Deliver a bounded, reviewable result | 报告工作负载、改动前后值、终点语义、行为证据、负控制、检查和排除项；对证据薄弱的结果不予采纳或列入后续跟进 |
@@ -49,6 +50,7 @@ Status: implemented
 | S3 | 适配 | Frame one operation | 采用方指令和当前生产入口取代本仓库的文档与权威列表 |
 | S4 | 适配 | Locate the cost | 候选维度保留；产品 Session／Web 路径消解 |
 | S5 | 重新绑定 | Establish a comparable baseline | 项目的测量路径或生产遥测取代 DSH 基准通道；不要求使用 DSH 风格的 harness |
+| S5a | 保留 | Frame one operation | 数据最小化约束与领域无关，在通用化后继续成立 |
 | S6 | 适配 | Change and prove one cause | 测量顺序保留；具名的 DSH 优化模式成为对候选方案的检查项，而不是预设处方 |
 | S7 | 保留 | Preserve behavior and resources | 输出、生命周期、归属和资源约束仍是权威 |
 | S8 | 适配 | Report the result | 报告保留工作负载、数值、终点、行为、负控制、检查和排除项 |
@@ -60,6 +62,7 @@ Status: implemented
 - **默认先测量，再改动。** 项目未声明采样策略时，默认每侧执行一次预热、采集至少五份测量样本，并尽可能交错进行。噪声较大或针对尾部的任务需要更多样本。
 - **不存在通用的性能阈值。** 没有项目预算时，结果报告绝对值及其比值；若请求设置门禁，必须根据测得的工作负载与噪声推导。
 - **测试可靠性的边界由语义划定。** 用户路径的延迟、吞吐、响应性和保留内存属于本技能。测试执行缓慢、不稳定或发生资源争用时，仍由 `dsh-spec-ci-test-reliability` 负责。
+- **私有语料内容不进入证据。** 获准检查只产出聚合维度；原始 prompt、输出、路径、身份、凭据、录制和可识别片段不得进入 fixture、日志、截图、Pull Request 或产物。
 - **技能名称反映工作流。** 技能并不是以上游 DSH 产品或某个固定基准机制命名的，并且支持诊断，但不授权实施优化。
 - **该技能提供一致性，不保证每次都能得到更好的优化。** 一个 no-skill 后端基线也已经完成测量、优化并保持输出不变。额外价值在于强制执行候选比较、负控制、浏览器与端到端边界，以及能力缺失时的交接，避免有能力的模型在复杂工作中跳过其中一项。
 
@@ -67,9 +70,9 @@ Status: implemented
 
 | 要求 | 锚点 | 证据 |
 |---|---|---|
-| Agent Skills 格式、链接和 description 预算 | 机械 | `verify-skill-spec.mjs` 报告 13 项检查通过；`SKILL.md` 为 85 行、约 2,149 个估算 token，description 为 460 个字符 |
+| Agent Skills 格式、链接和 description 预算 | 机械 | `verify-skill-spec.mjs` 报告 13 项检查通过；`SKILL.md` 为 87 行、约 2,257 个估算 token，description 为 460 个字符 |
 | 生产操作、可比基线和报告默认值 | 判断 | 对照 S2-S8 检查 `SKILL.md` |
-| 后端、浏览器和端到端行为 | 判断 + 机械 | 三个候选场景各通过 5/5：后端 HTTP、浏览器输入端到帧、端到端边界 |
+| 后端、浏览器和端到端行为 | 判断 + 机械 | 四个候选场景各通过 5/5：后端 HTTP、浏览器输入端到帧、端到端边界、私有语料聚合 |
 | 缺少能力时的浏览器行为 | 判断 + 机械 | 禁用浏览器的场景通过 4/4，并交接缺失的测量路径 |
 | 无技能对照 | 判断 + 机械 | 后端基线也通过 5/5；保留它是为了限定 ROI 说法，而非声称具备独特的基础优化能力 |
 | 触发精度 | 判断 + 机械 | 当前触发语料下五个正例和六个近邻反例通过 11/11 |
@@ -111,4 +114,4 @@ Status: implemented
 
 ### 发布状态
 
-技能已发布到 `skills/dsh-spec-performance-investigation/` 及其安装副本。采用者文档、通知文件、评估语料、候选证据和翻译配对属于同一改动。Pull Request 发布在本记录通过验收后进行。
+技能已发布到 `skills/dsh-spec-performance-investigation/` 及其安装副本。采用者文档、通知文件、评估语料、候选证据和翻译配对由 PR #129 跟踪。

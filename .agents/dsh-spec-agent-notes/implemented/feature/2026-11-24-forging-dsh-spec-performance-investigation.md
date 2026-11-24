@@ -35,6 +35,7 @@ The skill is a single `SKILL.md` plus its skill-root notice. It has no script, r
 | S3 | Establish scope and current authority | Establish the user-visible endpoint, workload, constraints, allowed minor differences, stopping rule and exact current source authority |
 | S4 | Survey user paths, then rank candidates | Survey the real operation and rank measured candidates by user latency, CPU/allocation, memory, occurrence and confidence |
 | S5 | Build realistic synthetic benchmarks first | Use production entries, fixed realistic workloads, comparable clocks and state, raw samples, behavior checks and project-owned measurement facilities |
+| S5a | Build realistic synthetic benchmarks first | When authorized local corpora or telemetry are inspected, extract only aggregate workload characteristics and never copy prompts, outputs, paths, identities, credentials, recordings or recognizable snippets into fixtures, logs or artifacts |
 | S6 | Prove the regression, then remove work | Capture baseline evidence, compare falsifiable causes, choose the largest confirmed safe contribution, change one causal factor, rerun the parent path and require a negative control |
 | S7 | Preserve behavior and resource ownership | Keep output, ordering, durability, cancellation, concurrency, retention and disposal while changing performance |
 | S8 | Deliver a bounded, reviewable result | Report workload, before/after values, endpoint semantics, behavior evidence, negative control, checks and exclusions; reject or follow up weak results |
@@ -49,6 +50,7 @@ The skill is a single `SKILL.md` plus its skill-root notice. It has no script, r
 | S3 | adapt | Frame one operation | Adopter instructions and current production entry replace this repository's documents and authority list |
 | S4 | adapt | Locate the cost | Candidate dimensions remain; product Session/Web paths dissolve |
 | S5 | re-bind | Establish a comparable baseline | The project's measurement path or production telemetry replaces the DSH benchmark lane; a DSH-style harness is not required |
+| S5a | keep | Frame one operation | The data-minimization constraint is domain-neutral and survives generalization |
 | S6 | adapt | Change and prove one cause | The measurement sequence survives; named DSH optimization patterns become checks on a candidate rather than prescriptions |
 | S7 | keep | Preserve behavior and resources | Output, lifecycle, ownership and resource constraints remain authoritative |
 | S8 | adapt | Report the result | The report keeps workload, values, endpoint, behavior, negative control, checks and exclusions |
@@ -60,6 +62,7 @@ The skill is a single `SKILL.md` plus its skill-root notice. It has no script, r
 - **The default is measurement before change.** One warm-up and at least five measured samples per side, preferably interleaved, are the default when the project declares no sampling policy. Noisy or tail work requires more samples.
 - **No performance threshold is universal.** Without a project budget, the result reports absolute values and ratio; a requested gate must derive from the measured workload and noise.
 - **The test-reliability boundary is semantic.** User-path latency, throughput, responsiveness and retained memory belong here. Slow, flaky or resource-contended test execution stays with `dsh-spec-ci-test-reliability`.
+- **Private corpus content does not enter evidence.** Authorized inspection yields aggregate dimensions only; raw prompts, outputs, paths, identities, credentials, recordings and recognizable snippets stay out of fixtures, logs, screenshots, pull requests and artifacts.
 - **The skill name reflects the workflow.** It is not named after the upstream DSH product or a fixed benchmark mechanism, and it supports diagnosis without authorizing an optimization.
 - **The skill is for consistency, not a guarantee of better optimization.** A no-skill backend baseline already measured, optimized and preserved its output. The additional value is the enforced comparison, negative control, browser and end-to-end boundaries, and capability-absent handoff on work where a capable model can otherwise skip one of them.
 
@@ -67,9 +70,9 @@ The skill is a single `SKILL.md` plus its skill-root notice. It has no script, r
 
 | Requirement | Anchor | Evidence |
 |---|---|---|
-| Agent Skills format, links and description budget | Mechanical | `verify-skill-spec.mjs` reports 13 checks passed; `SKILL.md` is 85 lines, ~2,149 estimated tokens and the description is 460 characters |
+| Agent Skills format, links and description budget | Mechanical | `verify-skill-spec.mjs` reports 13 checks passed; `SKILL.md` is 87 lines, ~2,257 estimated tokens and the description is 460 characters |
 | Production operation, comparable baseline and report defaults | Judged | `SKILL.md` against S2-S8 |
-| Backend, browser and end-to-end behavior | Judged + Mechanical | Three candidate scenarios pass 5/5 each: backend HTTP, browser input-to-frame and end-to-end boundary |
+| Backend, browser and end-to-end behavior | Judged + Mechanical | Four candidate scenarios pass 5/5 each: backend HTTP, browser input-to-frame, end-to-end boundary and private-corpus aggregation |
 | Capability-absent browser behavior | Judged + Mechanical | The browser-disabled scenario passes 4/4 and hands off the missing measurement path |
 | No-skill comparison | Judged + Mechanical | The backend baseline also passes 5/5; it is retained to bound the ROI claim rather than claim unique basic optimization ability |
 | Trigger precision | Judged + Mechanical | Five positive and six near-miss probes pass 11/11 under the current trigger corpus |
@@ -112,5 +115,5 @@ Read on 2026-11-24:
 ### Publish state
 
 The skill is published to `skills/dsh-spec-performance-investigation/` and its installed mirror. The
-adopter documentation, notice, eval corpus, candidate evidence and translation pair are part of the
-same change. Pull-request publication follows this record's acceptance.
+adopter documentation, notice, eval corpus, candidate evidence and translation pair are tracked in
+PR #129.
