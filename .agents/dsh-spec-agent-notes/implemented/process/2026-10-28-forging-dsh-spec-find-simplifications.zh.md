@@ -18,7 +18,7 @@ Status: implemented
 
 ## 来源与修订
 
-上游来源是固定子模块 `submodules/dsh`，位于 `dsh-v0.2.2-alpha.2`（`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`）。
+上游来源修订为 `dsh-v0.2.2-alpha.2`（`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`）；当前抽取基线是 `dsh-v0.2.2-rc.5`（`9c2670d3bce5275e0d1610272958121af87787bb`）。
 
 - `.agents/skills/dsh-find-simplifications/SKILL.md` —— 流程。
 - `.agents/skills/dsh-find-simplifications/references/historical-patterns.md` —— 校准参考。

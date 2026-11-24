@@ -110,3 +110,14 @@ test('every landed skill has an identical installed copy', () => {
     }
   }
 })
+
+test('agent-experience provenance names the revision and source path it actually adapted', () => {
+  const notice = repoFile('skills/dsh-spec-agent-experience/THIRD_PARTY_NOTICES')
+  assert.match(
+    notice,
+    /^- Historical adapted revision: `dsh-v[^`]+` \(`[0-9a-f]{40}`\)\.$/m,
+    'agent-experience does not declare its historical adapted revision',
+  )
+  const sourcePath = 'packages/preset/agent-preset/skills/agent-experience/SKILL.md'
+  assert.ok(notice.includes(`\`${sourcePath}\``), 'agent-experience does not name its adapted source path')
+})

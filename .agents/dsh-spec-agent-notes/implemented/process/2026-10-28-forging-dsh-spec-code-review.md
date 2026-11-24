@@ -19,7 +19,7 @@ The package ships `dsh-spec-code-review` as an adaptation of the upstream `dsh-c
 
 ## Source and revision
 
-Upstream source: `deepseek-ai/deepseek-harness`, pinned in `submodules/dsh` at `f3803c96974ad4a94195fb97e5c637e9c2a3afe3` (`dsh-v0.2.2-alpha.2`). The one source file is the upstream checkout's `.agents/skills/dsh-code-review/SKILL.md` (62 lines); the line citations in the disposition table are upstream lines.
+Upstream source: `deepseek-ai/deepseek-harness`, source revision `f3803c96974ad4a94195fb97e5c637e9c2a3afe3` (`dsh-v0.2.2-alpha.2`). The current extraction baseline is `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`). The one source file is `.agents/skills/dsh-code-review/SKILL.md` (62 lines); the line citations in the disposition table are upstream lines.
 
 ## Target shape
 
@@ -189,7 +189,7 @@ Dispositions use the forge skill's values: **Keep** carries the original wording
 
 - The set ships `dsh-spec-code-review` at `skills/dsh-spec-code-review/` and its installed copy at `.agents/skills/dsh-spec-code-review/`; the superseded upstream-named installed copy and its manifest entry are gone, and `AGENTS.md` and the root `THIRD_PARTY_NOTICES.md` name the skill.
 - The skill is prose-only: the upstream mechanism and its concrete checks are carried as the disposition table records, with the declaration-based re-binding, the natural-language scope requirement, the M9 essence and the conditional asymmetry as the deliberate deviations, and the alpha.2 scope, capability and configuration expansions adopted while the added session-projection reference is dissolved.
-- The skill tracks upstream `dsh-v0.2.2-rc.1`: the required-behavior and relocation tests in scope, ownership and necessity, the producer-extension-point preference in capability and consumer fit, and the authoritative-read and precedence test in configuration are carried, and the added `dsh-session-projection` reference is not.
+- The skill is maintained against the repository baseline `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`): the required-behavior and relocation tests in scope, ownership and necessity, the producer-extension-point preference in capability and consumer fit, and the authoritative-read and precedence test in configuration are carried, and the added `dsh-session-projection` reference is not.
 - The landing is one commit on `refactor/dsh-skills`; the forge branch before it is the local backup.
 - **Costs and limits.** A project that declares fewer standards gets the core duties and a recorded gap rather than a source-repository policy; the related-skill examples are guidance rather than dependencies; the adapted text is close to the source by design, so provenance rests on comparison with the source; the Chinese pair's fidelity is a review judgement; a change that introduces projections gets no projection-specific review standard from this skill, and the retained-and-derived-state check is the only cover.
 - **Rollback.** Revert the landing commit; the forge branch before it and the repository history keep the removed installed copy and the earlier candidate.

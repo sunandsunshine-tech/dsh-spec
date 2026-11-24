@@ -10,7 +10,7 @@ Status: implemented
 
 ## 决策
 
-本包发布 `dsh-spec-pre-push-checks`，作为位于 `submodules/dsh/.agents/skills/dsh-pre-push-checks/SKILL.md` 的上游技能的 create-mode 适配版本（`submodules/dsh` 固定在 `dsh-v0.2.2-alpha.2`，`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`）。它保留上游机制：确认 checkout 与分支；在检查范围之前验证 base；产出一份完整的出站范围报告；选择其回归会使本次改动失败的最窄证据；不重复 hook 或 CI 已经裁决的内容；仅在点名的情形下完整排练；保护改写历史的 push；在自动改写并发布之后立即验证；对特定环境的失败做证明，而不是重新解释它们。措辞是仓库中立的：采用者自己的命令、hook、工作流与布局约定从其声明中发现；上游点名 deepseek-harness 的文件、profile、snapshot 树或兄弟技能之处，本技能泛化该规则，或把它留给那些约定。
+本包发布 `dsh-spec-pre-push-checks`，作为位于 `.agents/skills/dsh-pre-push-checks/SKILL.md` 的上游技能的 create-mode 适配版本，来源修订为 `f3803c96974ad4a94195fb97e5c637e9c2a3afe3`（`dsh-v0.2.2-alpha.2`）；当前抽取基线是 `dsh-v0.2.2-rc.5`（`9c2670d3bce5275e0d1610272958121af87787bb`）。它保留上游机制：确认 checkout 与分支；在检查范围之前验证 base；产出一份完整的出站范围报告；选择其回归会使本次改动失败的最窄证据；不重复 hook 或 CI 已经裁决的内容；仅在点名的情形下完整排练；保护改写历史的 push；在自动改写并发布之后立即验证；对特定环境的失败做证明，而不是重新解释它们。措辞是仓库中立的：采用者自己的命令、hook、工作流与布局约定从其声明中发现；上游点名 deepseek-harness 的文件、profile、snapshot 树或兄弟技能之处，本技能泛化该规则，或把它留给那些约定。
 
 落地目录包含 `SKILL.md`、`scripts/change-scope.mjs` 与 `THIRD_PARTY_NOTICES`，并镜像到 `.agents/skills/dsh-spec-pre-push-checks/`；脚本的源码与构建接线留在 `package/dsh-spec-pre-push-checks/`，其测试在 `tests/change-scope.test.ts`，套件的清单行在 `tests/AGENTS.md`。被取代的上游同名安装副本 `.agents/skills/dsh-pre-push-checks/` 被移除；根 `README.md` 的技能表与根 `THIRD_PARTY_NOTICES.md` 中的适配技能枚举点名该技能。
 
@@ -98,8 +98,8 @@ Status: implemented
 - 用法：`node <skill-dir>/scripts/change-scope.mjs --base <ref> [--head <ref>]`；它在项目的 Git checkout 内运行，并向 stdout 打印一份 JSON 报告。
 - 输出：`formatVersion`（1）、`repositoryRoot`、`input`（`base`、`head`）、`resolved`（`baseSha`、`headSha`、`mergeBaseSha`）与 `paths`（`committed`、`staged`、`unstaged`、`untracked`），每个路径列表都排序并去重；已提交路径相对于已解析的 merge base。
 - 行为：它从不 fetch，从不猜测 base；无法解析的 ref、有歧义的 ref、没有 merge base 的 base 与 head、以及位于 Git worktree 之外的目录，各自在 stderr 上以一条消息失败；报告退出 0，失败退出 1，用法错误（缺少或未知选项）退出 2；`--help` 打印用法并退出 0。
-- 实现基础与适配：报告渲染从仓库已有的上游脚本逐字移植承载而来；CLI 表面被适配，因为 `using-scripts` 页面要求有文档的 `--help` 与有文档且彼此不同的退出码。该移植的文件头记录其取自的上游 commit（`ddefc45fbc7f8e46dd73185e68295696d1297887`）；固定基线 `dsh-v0.2.2-alpha.2`（`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`）携带相同的文件内容，所以来源文件头与 notices 同时点名这两个事实。报告字段未变；两份副本只在命令行接口上不同，且该适配有测试。
-- 归属：归属在加载文字之外陈述。frontmatter 的 `license` 字段点名技能根的 `THIRD_PARTY_NOTICES`，其中携带上游与本仓库的 MIT notices、适配技能文字的上游路径与固定基线，以及 `change-scope` 的起源（移植的 taken-at commit，以及固定基线上相同的内容）。包源码文件头也陈述来源；bundle 的注释保留不参与。
+- 实现基础与适配：报告渲染从仓库已有的上游脚本逐字移植承载而来；CLI 表面被适配，因为 `using-scripts` 页面要求有文档的 `--help` 与有文档且彼此不同的退出码。该移植的文件头记录其取自的上游 commit（`ddefc45fbc7f8e46dd73185e68295696d1297887`）；当前抽取基线是 `dsh-v0.2.2-rc.5`（`9c2670d3bce5275e0d1610272958121af87787bb`），来源修订另行记录。报告字段未变；两份副本只在命令行接口上不同，且该适配有测试。
+- 归属：归属在加载文字之外陈述。frontmatter 的 `license` 字段点名技能根的 `THIRD_PARTY_NOTICES`，其中携带上游与本仓库的 MIT notices、适配技能文字的上游路径与来源修订、当前抽取基线，以及 `change-scope` 在移植 taken-at commit 的起源。包源码文件头也陈述来源；bundle 的注释保留不参与。
 - 测试：`tests/change-scope.test.ts` 定位已落地的 bundle，存在工作草稿时优先使用它，正如套件定位 forge 的 bundle（`tests/skill-spec.test.ts` 以该方式解析门禁）。
 
 ### 裁定

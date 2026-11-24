@@ -10,7 +10,7 @@ Status: implemented
 
 ## 决策
 
-本包交付 `dsh-spec-pr-description`，作为对固定版本的上游技能的改编，该技能位于 `submodules/dsh/.agents/skills/dsh-pr-description/SKILL.md`（`submodules/dsh` 固定于 `dsh-v0.2.2-alpha.2`，`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`）。
+本包交付 `dsh-spec-pr-description`，作为对上游技能的改编，该技能位于 `.agents/skills/dsh-pr-description/SKILL.md`，来源修订为 `f3803c96974ad4a94195fb97e5c637e9c2a3afe3`（`dsh-v0.2.2-alpha.2`）；当前抽取基线是 `dsh-v0.2.2-rc.5`（`9c2670d3bce5275e0d1610272958121af87787bb`）。
 
 落地目录包含 `SKILL.md`、`references/ai-usage.md`、`references/default-conventions.md` 与 `THIRD_PARTY_NOTICES`；安装副本镜像到 `.agents/skills/dsh-spec-pr-description/`。根 `THIRD_PARTY_NOTICES.md` 的改编技能段落点名该技能，根 `README.md` 的技能表列出它。
 
