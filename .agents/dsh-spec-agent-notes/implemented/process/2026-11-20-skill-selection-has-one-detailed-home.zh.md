@@ -36,4 +36,5 @@ Status: implemented
 - 通用组安装时不需要逐个判断技能是否适用，专项技能仍可选用。
 - 普通评审请求安装 `dsh-spec-pr-description`；只有项目使用 GitHub 官方 stacked PR 工作流时，才加入 `dsh-spec-merging-stacked-prs`。
 - 新增或移动技能时，需要同步更新 README 的分组表以及指南中的分组、来源和配套技能说明。
+- 采用方文档门禁会检查五组技能划分、README 安装代码块与通用组的一致性、固定的通用组成员、专项组按需安装、普通 PR 与 GitHub 官方 stacked PR 的推荐边界、本地链接以及中英指南结构。
 - [整套技能不在每个技能旁放 README](2026-09-21-the-skill-set-is-introduced-once.zh.md)继续维护这条决定，并在此链接当前的总览与细节分工。

@@ -44,7 +44,7 @@ PIN="<tag-or-commit>"
 )
 ```
 
-Add skills from the other groups when their work enters the project. The [skill-selection guide](docs/choosing-skills.md) explains what each skill adds, why its recommended companions help and which combinations fit common work.
+Add individual skills from the other groups when their work enters the project. The [skill-selection guide](docs/choosing-skills.md) explains what each skill adds, why its recommended companions help and which combinations fit common work.
 
 `--all` is available, but it is not the default adoption path. Unrelated skills add selection choices and update obligations without adding capability the project uses.
 

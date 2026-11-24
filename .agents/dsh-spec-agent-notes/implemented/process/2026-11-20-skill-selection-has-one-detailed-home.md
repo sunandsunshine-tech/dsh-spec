@@ -36,4 +36,5 @@ The universal group installs as a unit. Its five skills cover the prompt, instru
 - The universal group installs without a per-skill eligibility question, while specialized skills remain optional.
 - An ordinary review request installs `dsh-spec-pr-description`; `dsh-spec-merging-stacked-prs` joins only when the project uses GitHub's official stacked-PR workflow.
 - Adding or moving a skill requires updating the README group table and the guide's group, provenance and companion explanation.
+- The adopter-documentation gate checks the five-way skill partition, agreement between the README installation block and universal group, the fixed universal members, on-demand specialized-group installation, the ordinary versus official-stacked-PR recommendation split, local links and the English-Chinese guide structure.
 - [The skill set has no per-skill READMEs](2026-09-21-the-skill-set-is-introduced-once.md) remains the owner of that rule and links here for the current overview/detail boundary.

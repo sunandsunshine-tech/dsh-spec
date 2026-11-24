@@ -15,7 +15,7 @@ gh skill install sunandsunshine-tech/dsh-spec "<skill>" \
   --pin "<tag-or-commit>" --dir .agents/skills
 ```
 
-起始安装完整的通用组。项目开始承担另一组对应的工作时，安装该专项组。专项组是面向某类工作的精选技能集合，不是运行时依赖包；如果项目有明确理由，可以将其缩窄到实际工作会用到的技能。
+起步时完整安装通用组。对于专项组，只安装项目当前工作会用到的技能。专项组是面向某类工作的精选技能集合，不是项目必须完整安装的运行时依赖包。
 
 不要从 `--all` 开始。未使用的技能会增加选择成本和更新义务，却不增加项目实际使用的能力。通用组是有意保留的例外：它承载的五项职责会反复出现在项目指令、决策记录、持久性文字以及通常伴随笔记的文档配对中，因此作为一个较小的共同基线整体安装。
 
@@ -94,8 +94,8 @@ gh skill install sunandsunshine-tech/dsh-spec "<skill>" \
 | 工作 | 基线 | 工作专属组 |
 |---|---|---|
 | Agent 辅助的项目工作 | 通用协作 | 工作改动代码时增加软件变更与质量 |
-| 普通软件变更 | 通用协作 | 软件变更与质量；工作需要一个 PR 时增加变更说明。只有使用 GitHub 官方 stacked PR 工作流时才增加落地 |
-| 官方 stacked PR 链 | 通用协作 | 变更说明与落地，并为每一层的证据增加软件变更与质量 |
+| 带 PR 的普通软件变更 | 通用协作 | `dsh-spec-pr-description`，并为实现增加软件变更与质量。除非工作使用 GitHub 官方 stacked PR 工作流，否则不要增加 `dsh-spec-merging-stacked-prs` |
+| 官方 stacked PR 链 | 通用协作 | `dsh-spec-pr-description` 和 `dsh-spec-merging-stacked-prs`，并为每一层的证据增加软件变更与质量 |
 | 浏览器 UI 变更 | 通用协作 | 浏览器 UI 证据，并为实现评审增加软件变更与质量 |
 | Agent 技能制作 | 通用协作 | Agent 技能制作 |
 

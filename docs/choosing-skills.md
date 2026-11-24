@@ -15,7 +15,7 @@ gh skill install sunandsunshine-tech/dsh-spec "<skill>" \
   --pin "<tag-or-commit>" --dir .agents/skills
 ```
 
-Install the universal group in full at the start. When the project takes on work from another group, install that specialized group. A specialized group is a curated set for one kind of work, not a runtime dependency bundle, so a project may narrow it to the skills its work uses when it has a specific reason.
+Install the universal group in full at the start. For a specialized group, install only the skills the project's work uses. A specialized group is a curated set for one kind of work, not a runtime dependency bundle that a project must install in full.
 
 Do not begin with `--all`. An unused skill adds a selection choice and an update obligation without adding capability the project uses. The universal group is the deliberate exception: its five responsibilities recur across project instructions, decision records, durable prose and the document pairs that often accompany notes, so the group is installed as one small common baseline.
 
@@ -94,8 +94,8 @@ Install this skill when the project creates, rewrites, migrates or checks Agent 
 | Work | Baseline | Work-specific group |
 |---|---|---|
 | Agent-assisted project work | Universal collaboration | Software change and quality when the work changes code |
-| Ordinary software change | Universal collaboration | Software change and quality; add change descriptions when the work needs a PR. Add landing only for GitHub's official stacked-PR workflow |
-| Official stacked PR chain | Universal collaboration | Change descriptions and landing, plus software change and quality for each layer's evidence |
+| Ordinary software change with a PR | Universal collaboration | `dsh-spec-pr-description`, plus software change and quality for the implementation. Do not add `dsh-spec-merging-stacked-prs` unless the work uses GitHub's official stacked-PR workflow |
+| Official stacked PR chain | Universal collaboration | `dsh-spec-pr-description` and `dsh-spec-merging-stacked-prs`, plus software change and quality for each layer's evidence |
 | Browser UI change | Universal collaboration | Browser UI evidence, plus software change and quality for implementation review |
 | Agent skill authoring | Universal collaboration | Agent skill authoring |
 
