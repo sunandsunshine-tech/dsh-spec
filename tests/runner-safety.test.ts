@@ -82,6 +82,10 @@ function git(cwd: string, args: string[], env: Record<string, string | undefined
 }
 
 function bwrapAvailable(): boolean {
+  const pnpmPath = spawnSync('which', ['pnpm'], { encoding: 'utf8' })
+  if (pnpmPath.status !== 0 || !pnpmPath.stdout.trim()) return false
+  const nodeRuntimeRoot = dirname(dirname(realpathSync(process.execPath)))
+  const pnpmRuntimeRoot = dirname(realpathSync(pnpmPath.stdout.trim()))
   const probe = spawnSync(
     'bwrap',
     [
@@ -102,6 +106,12 @@ function bwrapAvailable(): boolean {
       '--ro-bind',
       '/lib64',
       '/lib64',
+      '--ro-bind',
+      nodeRuntimeRoot,
+      '/probe-runtime/node',
+      '--ro-bind',
+      pnpmRuntimeRoot,
+      '/probe-runtime/pnpm',
       '--size',
       '1048576',
       '--tmpfs',
@@ -110,7 +120,8 @@ function bwrapAvailable(): boolean {
       '/proc',
       '--dev',
       '/dev',
-      '/bin/true',
+      '/probe-runtime/node/bin/node',
+      '--version',
     ],
     { encoding: 'utf8' },
   )

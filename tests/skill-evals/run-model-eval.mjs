@@ -9,6 +9,7 @@ import {
   mkdtempSync,
   readFileSync,
   readdirSync,
+  realpathSync,
   renameSync,
   rmSync,
   writeFileSync,
@@ -370,16 +371,24 @@ async function runModelSandbox(invocation, control, sandboxOutput) {
   try {
     const [connection, childPid] = await Promise.race([
       Promise.all([control.connection, statusStream.then(readBwrapChildPid)]),
-      runPromise.then(() => {
-        throw new Error('model sandbox exited before its control channel became ready')
+      runPromise.then((result) => {
+        const detail = result.stderr.trim().slice(0, 8192)
+        throw new Error(
+          `model sandbox exited before its control channel became ready (exit ${String(result.status)})` +
+            (detail ? `\n${detail}` : ''),
+        )
       }),
     ])
     socket = connection
     const status = JSON.parse(
       await Promise.race([
         readControlLine(socket),
-        runPromise.then(() => {
-          throw new Error('model sandbox exited before reporting model status')
+        runPromise.then((result) => {
+          const detail = result.stderr.trim().slice(0, 8192)
+          throw new Error(
+            `model sandbox exited before reporting model status (exit ${String(result.status)})` +
+              (detail ? `\n${detail}` : ''),
+          )
         }),
       ]),
     )
@@ -603,6 +612,10 @@ function isolatedCodexCommand(
   const codexBinary = process.env.CODEX_BIN ?? 'codex'
   const codexPath = run('which', [codexBinary], {}).stdout.trim()
   if (!codexPath) throw new Error(`cannot find Codex binary: ${codexBinary}`)
+  const pnpmPath = run('which', ['pnpm'], {}).stdout.trim()
+  if (!pnpmPath) throw new Error('cannot find pnpm')
+  const nodeRuntimeRoot = dirname(dirname(realpathSync(process.execPath)))
+  const pnpmRuntimeRoot = dirname(realpathSync(pnpmPath))
   const miseInstalls = join(homedir(), '.local', 'share', 'mise', 'installs')
   const playwrightRoot = join(tmpdir(), 'playwright-browsers')
   const chromiumDirectory = existsSync(playwrightRoot)
@@ -629,11 +642,12 @@ function isolatedCodexCommand(
       : undefined
   const mediaEnabled = resolveCapability('media', capabilities?.media ?? false, hasMedia)
   const mediaMount = mediaEnabled && bundledMediaRoot
-  const sandboxMise = '/home/eval/.local/share/mise/installs'
+  const sandboxNode = '/opt/runtime/node'
+  const sandboxPnpm = '/opt/runtime/pnpm'
   const workspaceWritable = sandbox === 'workspace-write'
   const toolPath = [
-    join(sandboxMise, 'node', 'lts', 'bin'),
-    join(sandboxMise, 'pnpm', 'latest'),
+    join(sandboxNode, 'bin'),
+    sandboxPnpm,
     ...(mediaMount ? ['/opt/ffmpeg/bin'] : []),
     '/usr/local/bin',
     '/usr/bin',
@@ -694,17 +708,17 @@ function isolatedCodexCommand(
       '--dir',
       '/home/eval',
       '--dir',
-      sandboxMise,
+      '/opt/runtime',
       '--dir',
-      join(sandboxMise, 'node'),
+      sandboxNode,
       '--dir',
-      join(sandboxMise, 'pnpm'),
+      sandboxPnpm,
       '--ro-bind',
-      join(miseInstalls, 'node'),
-      join(sandboxMise, 'node'),
+      nodeRuntimeRoot,
+      sandboxNode,
       '--ro-bind',
-      join(miseInstalls, 'pnpm'),
-      join(sandboxMise, 'pnpm'),
+      pnpmRuntimeRoot,
+      sandboxPnpm,
       ...(mediaMount ? ['--ro-bind', mediaMount, '/opt/ffmpeg'] : []),
       ...(systemBrowserMount ? ['--ro-bind', systemBrowserMount, systemBrowserMount] : []),
       ...(hasPlaywrightBrowser && browserEnabled
