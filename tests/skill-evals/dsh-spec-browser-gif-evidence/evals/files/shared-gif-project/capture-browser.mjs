@@ -12,6 +12,7 @@ function positiveInteger(name, fallback) {
 }
 
 const captureDeadlineMs = positiveInteger('CAPTURE_DEADLINE_MS', 60_000)
+const serverReadyTimeoutMs = positiveInteger('SERVER_READY_TIMEOUT_MS', 10_000)
 const root = import.meta.dirname
 const evidence = join(root, 'evidence-local')
 rmSync(evidence, { recursive: true, force: true })
@@ -36,6 +37,7 @@ const server = spawn(process.execPath, [join(root, 'server.mjs')], {
 let browser
 let socket
 let published = false
+let closeSocket = () => socket?.close()
 
 function deadlineError(operation) {
   return new Error(`capture deadline exceeded while waiting for ${operation}`)
@@ -146,7 +148,7 @@ process.once('exit', emergencyCleanup)
 async function cleanup() {
   const failures = []
   try {
-    socket?.close()
+    closeSocket()
   } catch (error) {
     failures.push(`close CDP socket: ${error instanceof Error ? error.message : String(error)}`)
   }
@@ -176,7 +178,7 @@ async function waitForServer() {
       server.stdout.once('data', (chunk) => resolve(chunk.toString().trim()))
     }),
     'the capture server URL',
-    Math.min(10_000, remaining('the capture server URL')),
+    Math.min(serverReadyTimeoutMs, remaining('the capture server URL')),
   )
 }
 
@@ -241,12 +243,15 @@ async function connectToPage(pageTarget) {
   const listeners = new Map()
   let nextId = 0
   let socketFailure
+  let rejectOpen
 
   socket = new WebSocket(pageTarget.webSocketDebuggerUrl)
 
   function rejectSocket(error) {
     if (socketFailure) return socketFailure
     socketFailure = error
+    rejectOpen?.(error)
+    rejectOpen = undefined
     for (const request of pending.values()) {
       clearTimeout(request.timer)
       request.reject(error)
@@ -262,17 +267,17 @@ async function connectToPage(pageTarget) {
     return socketFailure
   }
 
-  socket.addEventListener('close', (event) => {
+  const onClose = (event) => {
     rejectSocket(
       new Error(
         `CDP WebSocket closed after the browser run started (${event.code}${event.reason ? `: ${event.reason}` : ''})`,
       ),
     )
-  })
-  socket.addEventListener('error', () => {
+  }
+  const onError = () => {
     rejectSocket(new Error('CDP WebSocket errored after the browser run started'))
-  })
-  socket.addEventListener('message', (event) => {
+  }
+  const onMessage = (event) => {
     let message
     try {
       message = JSON.parse(event.data)
@@ -292,18 +297,35 @@ async function connectToPage(pageTarget) {
       return
     }
     for (const listener of [...(listeners.get(message.method) ?? [])]) listener.resolve(message.params)
-  })
+  }
+  socket.addEventListener('close', onClose)
+  socket.addEventListener('error', onError)
+  socket.addEventListener('message', onMessage)
+
+  closeSocket = () => {
+    socket?.removeEventListener('close', onClose)
+    socket?.removeEventListener('error', onError)
+    socket?.removeEventListener('message', onMessage)
+    for (const request of pending.values()) clearTimeout(request.timer)
+    pending.clear()
+    for (const methodListeners of listeners.values()) {
+      for (const listener of methodListeners) clearTimeout(listener.timer)
+    }
+    listeners.clear()
+    rejectOpen = undefined
+    socket?.addEventListener('error', () => {})
+    socket?.close()
+  }
 
   await withinDeadline(
     new Promise((resolve, reject) => {
+      rejectOpen = reject
       socket.addEventListener('open', resolve, { once: true })
-      socket.addEventListener('error', reject, { once: true })
-      socket.addEventListener('close', () => reject(new Error('CDP WebSocket closed during the handshake')), {
-        once: true,
-      })
+      if (socketFailure) rejectOpen(socketFailure)
     }),
     'the CDP WebSocket handshake',
   )
+  rejectOpen = undefined
 
   function command(method, params = {}) {
     if (socketFailure) return Promise.reject(socketFailure)
