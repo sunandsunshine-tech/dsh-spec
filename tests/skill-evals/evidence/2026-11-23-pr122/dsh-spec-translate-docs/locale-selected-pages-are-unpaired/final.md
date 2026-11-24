@@ -1,13 +1,15 @@
-Checked successfully with the `dsh-spec-translate-docs` checker:
+The documentation corpus passes.
+
+Exact command run from `/workspace`:
 
 ```bash
-node .agents/skills/dsh-spec-translate-docs/scripts/translate-pair.mjs check --root evals/files/locale-pages --select 'docs/*.md' --require-target zh --unpaired 'docs/detail.md' --unpaired 'docs/detail.zh.md'
+node .agents/skills/dsh-spec-translate-docs/scripts/translate-pair.mjs check --root evals/files/locale-pages --target zh --unpaired docs/detail.md --unpaired docs/detail.zh.md
 ```
 
-Result: exit 0
+Result: exit `0`
 
 ```text
 translate-pair: 1 pair(s) consistent.
 ```
 
-`docs/guide.md` and `docs/guide.zh.md` are consistent. Both detail pages were excluded as unpaired locale-selected pages; no detail-page switchers or consistency records were created, and the worktree remains clean.
+The maintained [guide.md](/workspace/evals/files/locale-pages/docs/guide.md) / [guide.zh.md](/workspace/evals/files/locale-pages/docs/guide.zh.md) pair is consistent. The locale-selected detail pages remain unpaired with no switcher and no consistency-record artifacts created.
