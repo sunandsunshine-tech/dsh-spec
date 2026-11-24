@@ -28,6 +28,7 @@ import { tmpdir } from 'node:os'
 import { join, sep } from 'node:path'
 import { test } from 'node:test'
 
+import { createCaptureFixture, waitForProcessGone } from './helpers/capture-browser-fixture.ts'
 import { REPO_ROOT } from './helpers/fixtures.ts'
 
 interface Scenario {
@@ -799,9 +800,11 @@ test('web UI trigger corpus keeps positive and near-miss coverage', () => {
   }
 })
 
-test('web UI model evidence and trigger traces stay auditable', () => {
+test('web UI historical model evidence and trigger traces stay auditable', () => {
   const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-20-pr114')
   const evidenceReadme = readFileSync(join(evidenceRoot, 'README.md'), 'utf8')
+  const historicalCapturePath = 'evals/files/shared-widget-project/capture-browser.mjs'
+  const historicalCaptureHash = 'a76a0b15807b9786ee468705836865ba057400c05a20e2b6ad13b855d3ae346e'
   const behaviorRuns = [
     ['candidate-shared-widget', true, 'shared-widget-consumer-coverage', 'pass', 5],
     ['candidate-missing-render', true, 'missing-rendered-evidence-handoff', 'pass', 4],
@@ -852,6 +855,14 @@ test('web UI model evidence and trigger traces stay auditable', () => {
     )
     if (candidate) {
       for (const entry of manifest) {
+        if (entry.path === historicalCapturePath) {
+          assert.equal(
+            entry.hash,
+            historicalCaptureHash,
+            runName + ' does not retain the historical capture fixture input',
+          )
+          continue
+        }
         const actual = join(EVAL_SOURCE_ROOT, 'dsh-spec-client-ui-ux', entry.path)
         assert.equal(
           createHash('sha256').update(readFileSync(actual)).digest('hex'),
@@ -1021,42 +1032,172 @@ test('web UI fixtures are runnable and retain real media signatures', () => {
   )
 })
 
-test('the browser evidence fixture does not leak an unready server', async (t) => {
+function assertCaptureDidNotTimeOut(result: ReturnType<typeof spawnSync>): void {
+  assert.equal(result.error, undefined)
+  assert.equal(result.signal, null)
+}
+
+async function assertCaptureProcessesGone(fixture: ReturnType<typeof createCaptureFixture>): Promise<void> {
+  for (const path of [fixture.serverPidFile, fixture.chromePidFile, fixture.descendantPidFile]) {
+    const pid = fixture.pid(path)
+    assert.equal(await waitForProcessGone(pid), true, 'capture left process ' + pid)
+  }
+  assert.deepEqual(fixture.captureRunDirectories(), [])
+}
+
+test('client UI capture rejects an unready server before Chrome and clears old evidence', async (t) => {
+  const fixture = createCaptureFixture(t, 'capture-server-unready-')
+  fixture.seedOldEvidence()
+  const result = fixture.run('success', {
+    FAKE_SERVER_MODE: 'unready',
+    SERVER_READY_TIMEOUT_MS: '100',
+  })
+
+  assertCaptureDidNotTimeOut(result)
+  assert.equal(result.status, 1)
+  assert.match(result.stderr, /SERVER_UNREADY: server did not report a URL/)
+  assert.equal(fixture.pid(fixture.chromePidFile), undefined)
+  assert.equal(existsSync(fixture.evidence), false)
+  await assertCaptureProcessesGone(fixture)
+})
+
+test('client UI capture cleans up Chrome startup failure and stale evidence', async (t) => {
   if (process.platform === 'win32') {
-    t.skip('the failure path uses POSIX process liveness checks')
+    t.skip('the deterministic fake Chrome executable uses POSIX launch semantics')
     return
   }
-  const root = mkdtempSync(join(tmpdir(), 'capture-cleanup-'))
-  const profiles = join(root, 'profiles')
-  const pidFile = join(root, 'server.pid')
-  t.after(() => rmSync(root, { recursive: true, force: true }))
-  mkdirSync(profiles)
-  const source = join(EVAL_SOURCE_ROOT, 'dsh-spec-client-ui-ux/evals/files/shared-widget-project/capture-browser.mjs')
-  cpSync(source, join(root, 'capture-browser.mjs'))
-  writeFileSync(
-    join(root, 'hang-server.mjs'),
-    "import { writeFileSync } from 'node:fs'\n" +
-      'writeFileSync(process.env.SERVER_PID_FILE, String(process.pid))\n' +
-      'setInterval(() => {}, 1000)\n',
-  )
-  const result = spawnSync(process.execPath, ['capture-browser.mjs'], {
-    cwd: root,
-    env: {
-      ...process.env,
-      CHROME_PATH: existsSync('/bin/true') ? '/bin/true' : process.execPath,
-      SERVER_ENTRY: 'hang-server.mjs',
-      SERVER_PID_FILE: pidFile,
-      SERVER_READY_TIMEOUT_MS: '100',
-      TMPDIR: profiles,
-    },
-    encoding: 'utf8',
-    timeout: 5_000,
+  const fixture = createCaptureFixture(t, 'capture-chrome-exit-')
+  fixture.seedOldEvidence()
+  const result = fixture.run('exit-before-ready')
+
+  assertCaptureDidNotTimeOut(result)
+  assert.equal(result.status, 1)
+  assert.match(result.stderr, /CHROME_START_FAILED: Chrome exited before readiness: 7/)
+  assert.ok(fixture.events(fixture.chromeEvents).some((entry) => entry.event === 'start'))
+  assert.equal(existsSync(fixture.evidence), false)
+  await assertCaptureProcessesGone(fixture)
+})
+
+test('client UI capture rejects a command pending when DevTools disconnects', async (t) => {
+  if (process.platform === 'win32') {
+    t.skip('the deterministic fake Chrome executable uses POSIX launch semantics')
+    return
+  }
+  const fixture = createCaptureFixture(t, 'capture-disconnect-')
+  fixture.seedOldEvidence()
+  const result = fixture.run('disconnect-pending', {
+    CDP_COMMAND_TIMEOUT_MS: '2000',
+    CAPTURE_TIMEOUT_MS: '3000',
   })
-  assert.notEqual(result.status, 0)
-  await new Promise((resolve) => setTimeout(resolve, 100))
-  const pid = Number(readFileSync(pidFile, 'utf8'))
-  assert.throws(() => process.kill(pid, 0), /ESRCH/)
-  assert.deepEqual(readdirSync(profiles), [])
+
+  assertCaptureDidNotTimeOut(result)
+  assert.equal(result.status, 1)
+  assert.match(result.stderr, /CDP_DISCONNECTED: Chrome DevTools connection (?:closed|failed)/)
+  assert.ok(fixture.events(fixture.chromeEvents).some((entry) => entry.event === 'websocket-open'))
+  assert.ok(fixture.events(fixture.chromeEvents).some((entry) => entry.event === 'command'))
+  assert.equal(existsSync(fixture.evidence), false)
+  await assertCaptureProcessesGone(fixture)
+})
+
+test('client UI capture bounds an unresponsive CDP command and removes its run', async (t) => {
+  if (process.platform === 'win32') {
+    t.skip('the deterministic fake Chrome executable uses POSIX launch semantics')
+    return
+  }
+  const fixture = createCaptureFixture(t, 'capture-command-timeout-')
+  fixture.seedOldEvidence()
+  const result = fixture.run('command-timeout', {
+    CDP_COMMAND_TIMEOUT_MS: '100',
+    CAPTURE_TIMEOUT_MS: '2000',
+  })
+
+  assertCaptureDidNotTimeOut(result)
+  assert.equal(result.status, 1)
+  assert.match(result.stderr, /CDP_COMMAND_TIMEOUT: Page\.enable did not finish within 100 ms/)
+  assert.equal(existsSync(fixture.evidence), false)
+  await assertCaptureProcessesGone(fixture)
+})
+
+test('client UI capture bounds the whole run when target discovery hangs', async (t) => {
+  if (process.platform === 'win32') {
+    t.skip('the deterministic fake Chrome executable uses POSIX launch semantics')
+    return
+  }
+  const fixture = createCaptureFixture(t, 'capture-overall-timeout-')
+  fixture.seedOldEvidence()
+  const result = fixture.run('overall-timeout', {
+    CDP_COMMAND_TIMEOUT_MS: '2000',
+    CHROME_READY_TIMEOUT_MS: '2000',
+    CAPTURE_TIMEOUT_MS: '200',
+  })
+
+  assertCaptureDidNotTimeOut(result)
+  assert.equal(result.status, 1)
+  assert.match(result.stderr, /CAPTURE_TIMEOUT: capture did not finish within 200 ms/)
+  assert.equal(existsSync(fixture.evidence), false)
+  await assertCaptureProcessesGone(fixture)
+})
+
+test('client UI capture publishes one complete run and removes its process tree', async (t) => {
+  if (process.platform === 'win32') {
+    t.skip('the deterministic fake Chrome executable uses POSIX launch semantics')
+    return
+  }
+  const fixture = createCaptureFixture(t, 'capture-success-')
+  fixture.seedOldEvidence()
+  const result = fixture.run('success')
+
+  assertCaptureDidNotTimeOut(result)
+  assert.equal(result.status, 0, result.stderr)
+  assert.deepEqual(
+    readdirSync(fixture.evidence).sort(),
+    [
+      'delete-disabled.png',
+      'narrow-after-idle.png',
+      'review-state.json',
+      'search-hover.png',
+      'search-keyboard-focus.png',
+      'search-pressed.png',
+      'wide-after-idle.png',
+    ].sort(),
+  )
+  assert.equal(existsSync(join(fixture.evidence, 'stale.png')), false)
+  const report = JSON.parse(readFileSync(join(fixture.evidence, 'review-state.json'), 'utf8')) as {
+    screenshots: Record<string, { path: string; sha256: string; bytes: number }>
+  }
+  assert.deepEqual(JSON.parse(result.stdout), report)
+  for (const screenshot of Object.values(report.screenshots)) {
+    const bytes = readFileSync(join(fixture.root, screenshot.path))
+    assert.equal(bytes.subarray(1, 4).toString('ascii'), 'PNG')
+    assert.equal(bytes.length, screenshot.bytes)
+    assert.equal(createHash('sha256').update(bytes).digest('hex'), screenshot.sha256)
+  }
+  assert.ok(fixture.events(fixture.serverEvents).some((entry) => entry.event === 'ready'))
+  const chromeEvents = fixture.events(fixture.chromeEvents)
+  assert.equal(chromeEvents.filter((entry) => entry.event === 'screenshot').length, 6)
+  assert.ok(
+    chromeEvents.some((entry) => entry.event === 'command' && entry.method === 'Browser.close'),
+    'capture did not ask Chrome to close before process-tree cleanup',
+  )
+  assert.notEqual(fixture.pid(fixture.descendantPidFile), undefined)
+  await assertCaptureProcessesGone(fixture)
+})
+
+test('client UI capture discards prior evidence and its partial run after failure', async (t) => {
+  if (process.platform === 'win32') {
+    t.skip('the deterministic fake Chrome executable uses POSIX launch semantics')
+    return
+  }
+  const fixture = createCaptureFixture(t, 'capture-partial-failure-')
+  fixture.seedOldEvidence()
+  const result = fixture.run('fail-after-first-screenshot')
+
+  assertCaptureDidNotTimeOut(result)
+  assert.equal(result.status, 1)
+  assert.match(result.stderr, /CDP_COMMAND_FAILED: injected CDP failure/)
+  assert.ok(fixture.events(fixture.chromeEvents).some((entry) => entry.event === 'screenshot'))
+  assert.equal(existsSync(fixture.evidence), false)
+  await assertCaptureProcessesGone(fixture)
 })
 
 test('the scenario input check rejects missing, empty, directory and escaping files', () => {

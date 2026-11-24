@@ -31,6 +31,12 @@ application and a dependency-free headless-Chrome storyboard. It performs a focu
 evidence-default check rather than repeating the full design checklist. BrowserSkill and `bsk` are
 explicitly excluded from the run; the evidence path uses headless Chrome only.
 
+The behavior runs predate the capture fixture's disconnect, deadline, staging and process-tree
+repair, so every behavior manifest retains that file's historical SHA-256
+`a76a0b15807b9786ee468705836865ba057400c05a20e2b6ad13b855d3ae346e` rather than binding the
+current fixture. The current replacement is covered by deterministic tests in
+`tests/skill-scenarios.test.ts`; these model results do not prove the replacement ran.
+
 ## Behavior results
 
 | Scenario | No skill | Candidate |
