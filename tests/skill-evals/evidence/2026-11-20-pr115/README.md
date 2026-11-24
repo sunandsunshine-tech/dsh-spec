@@ -1,10 +1,10 @@
 # PR #115 browser GIF evidence
 
-> **Historical, non-coherent evidence:** `candidate-real` is not current proof. Its retained
-> `final.md` reports a different application origin and GIF byte count from the artifact in the
-> same leaf, and the retained media was regenerated after the model run. The model response is left
-> unchanged for review history; its execution status is not a statement that the retained trace and
-> media came from one run. Current same-run evidence is under
+> **Historical status:** these runs predate the final fixture and runner. `candidate-real` is not
+> current proof: its `final.md` reports a different application origin and GIF byte count from the
+> artifact in the same leaf, and the retained media was regenerated after the model run. The model
+> response is left unchanged for review history; its execution status is not a statement that the
+> retained trace and media came from one run. Current same-run evidence is under
 > `tests/skill-evals/evidence/2026-11-23-pr122/dsh-spec-browser-gif-evidence/real-ui-change-uses-one-isolated-run/`.
 
 These runs exercise `dsh-spec-browser-gif-evidence` against the declared local build.

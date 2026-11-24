@@ -1417,7 +1417,7 @@ test('pr-description eval covers stack-local AI Usage migration', () => {
 test('pr-description trigger corpus covers dependency-edge and near misses', () => {
   const skill = 'dsh-spec-pr-description'
   const skillText = readFileSync(join(REPO_ROOT, 'skills', skill, 'SKILL.md'), 'utf8')
-  assert.match(skillText, /^description: ".*dependency-edge.*"$/m)
+  assert.match(skillText, /^description: ".*module responsibilities and dependency edges.*模块职责与依赖边.*"$/m)
   const corpus = JSON.parse(readFileSync(join(EVAL_SOURCE_ROOT, skill, 'trigger-evals.json'), 'utf8')) as {
     skill_name: string
     agent_file: string
