@@ -8,7 +8,7 @@ English | [中文](2026-11-17-skill-defaults-complete-without-project-instructio
 
 Declaring a default at its point of use keeps the value beside the behavior that consumes it. A skill that also reads the project's standing instructions could still leave the no-instruction state ambiguous: an executor might treat silence as missing configuration, ask the user to choose, add `AGENTS.md` to record the default, or create a second defaults table. Those responses make a temporary project depend on configuration it does not need and reintroduce the drift that local declaration avoids.
 
-Eight skills select a behavior from a concrete default when a valid invocation leaves that default unspecified and existing project instructions are silent. They are `dsh-spec-agent-notes`, `dsh-spec-translate-docs`, `dsh-spec-pr-description`, `dsh-spec-prose-standard`, `dsh-spec-merging-stacked-prs`, `dsh-spec-skill-forge`, `dsh-spec-error-handling` and `dsh-spec-client-ui-ux`. Their concrete values already live at their use sites, but their shared execution rule did not.
+Nine skills select a behavior from a concrete default when a valid invocation leaves that default unspecified and existing project instructions are silent. They are `dsh-spec-agent-notes`, `dsh-spec-translate-docs`, `dsh-spec-pr-description`, `dsh-spec-prose-standard`, `dsh-spec-merging-stacked-prs`, `dsh-spec-skill-forge`, `dsh-spec-error-handling`, `dsh-spec-client-ui-ux` and `dsh-spec-test-reliability`. Their concrete values already live at their use sites, but their shared execution rule did not.
 
 ## Decision
 

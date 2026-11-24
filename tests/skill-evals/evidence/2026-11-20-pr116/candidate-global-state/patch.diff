@@ -1,0 +1,166 @@
+diff --git a/evals/files/global-state/README.md b/evals/files/global-state/README.md
+index f6b59cf..f05e9f1 100644
+--- a/evals/files/global-state/README.md
++++ b/evals/files/global-state/README.md
+@@ -3,5 +3,9 @@
+ The suite mutates an optional environment entry, the process working directory, and a process-wide
+ clock before checking configuration.
+ 
+-Run `npm test`. The second test preserves the state observed before the first test and fails until
+-the first test restores every global through immediate and fallback cleanup.
++Run `npm test`. Each mutating case captures the exact starting state, registers local teardown before
++changing globals, and restores that snapshot in `finally`. A per-test fallback covers failures before
++local teardown is registered. Absence and empty-string environment values are preserved separately.
++
++Test files run in parallel in separate processes, so the process-global mutations are isolated while
++the project no longer forces the whole runner to one worker.
+diff --git a/evals/files/global-state/package.json b/evals/files/global-state/package.json
+index 6878b1a..531880a 100644
+--- a/evals/files/global-state/package.json
++++ b/evals/files/global-state/package.json
+@@ -3,6 +3,6 @@
+   "private": true,
+   "type": "module",
+   "scripts": {
+-    "test": "node --test --test-concurrency=1 tests/config.test.mjs"
++    "test": "node --test tests/config.test.mjs"
+   }
+ }
+diff --git a/evals/files/global-state/tests/config.test.mjs b/evals/files/global-state/tests/config.test.mjs
+index c64aaa6..adf5810 100644
+--- a/evals/files/global-state/tests/config.test.mjs
++++ b/evals/files/global-state/tests/config.test.mjs
+@@ -1,33 +1,112 @@
+ import assert from 'node:assert/strict'
++import { fileURLToPath } from 'node:url'
+ import { chdir, cwd } from 'node:process'
+-import { test } from 'node:test'
++import { afterEach, test } from 'node:test'
+ import { loadConfig } from '../src/config.mjs'
+ import { now, useFakeTimers, useRealTimers } from '../support/clock.mjs'
+ 
+-const original = {
+-  featurePresent: Object.hasOwn(process.env, 'FEATURE_FLAG'),
+-  feature: process.env.FEATURE_FLAG,
+-  cwd: cwd(),
+-  clock: now(),
++const projectFixture = fileURLToPath(new URL('../fixtures/project', import.meta.url))
++
++function captureGlobals() {
++  return {
++    feature: Object.hasOwn(process.env, 'FEATURE_FLAG')
++      ? { present: true, value: process.env.FEATURE_FLAG }
++      : { present: false },
++    cwd: cwd(),
++    clock: now(),
++  }
++}
++
++function restoreGlobals(snapshot) {
++  try {
++    if (snapshot.feature.present) {
++      process.env.FEATURE_FLAG = snapshot.feature.value
++    } else {
++      delete process.env.FEATURE_FLAG
++    }
++  } finally {
++    try {
++      chdir(snapshot.cwd)
++    } finally {
++      if (snapshot.clock === 'real') {
++        useRealTimers()
++      } else {
++        useFakeTimers(snapshot.clock)
++      }
++    }
++  }
+ }
+ 
+-test('loads the optional feature flag', async () => {
+-  process.env.FEATURE_FLAG = 'on'
+-  chdir('fixtures/project')
+-  useFakeTimers(1_700_000_000_000)
++const suiteStart = captureGlobals()
++let fallbackRestore
++
++afterEach(() => {
++  const restore = fallbackRestore
++  fallbackRestore = undefined
++  restore?.()
++})
++
++function prepareGlobalState(t) {
++  const snapshot = captureGlobals()
++  let restored = false
++
++  const restore = () => {
++    if (restored) {
++      return
++    }
++
++    restoreGlobals(snapshot)
++    restored = true
++  }
+ 
+-  const config = await loadConfig()
+-  assert.deepEqual(config, {
+-    feature: 'on',
+-    workspace: 'project',
+-    now: 1_700_000_000_000,
++  fallbackRestore = restore
++  t.after(() => {
++    restore()
++    if (fallbackRestore === restore) {
++      fallbackRestore = undefined
++    }
+   })
++
++  return { snapshot, restore }
++}
++
++test('loads the optional feature flag and restores global state', async (t) => {
++  const { snapshot, restore } = prepareGlobalState(t)
++
++  try {
++    process.env.FEATURE_FLAG = 'on'
++    chdir(projectFixture)
++    useFakeTimers(1_700_000_000_000)
++
++    const config = await loadConfig()
++    assert.deepEqual(config, {
++      feature: 'on',
++      workspace: 'project',
++      now: 1_700_000_000_000,
++    })
++  } finally {
++    restore()
++  }
++
++  assert.deepEqual(captureGlobals(), snapshot)
++})
++
++test('distinguishes an absent feature flag from an empty value', (t) => {
++  const { snapshot, restore } = prepareGlobalState(t)
++
++  try {
++    delete process.env.FEATURE_FLAG
++    assert.deepEqual(captureGlobals().feature, { present: false })
++
++    process.env.FEATURE_FLAG = ''
++    assert.deepEqual(captureGlobals().feature, { present: true, value: '' })
++  } finally {
++    restore()
++  }
++
++  assert.deepEqual(captureGlobals(), snapshot)
+ })
+ 
+-test('restores the pre-test global state', () => {
+-  assert.equal(Object.hasOwn(process.env, 'FEATURE_FLAG'), original.featurePresent)
+-  assert.equal(process.env.FEATURE_FLAG, original.feature)
+-  assert.equal(cwd(), original.cwd)
+-  assert.equal(now(), original.clock)
+-  useRealTimers()
++test('starts each case from the suite state', () => {
++  assert.deepEqual(captureGlobals(), suiteStart)
+ })

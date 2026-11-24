@@ -1,0 +1,5 @@
+PASS The response identifies the scan-then-bind race as the cause.
+PASS The pre-fix fixture fails deterministically with EADDRINUSE.
+PASS The fix uses the listener's atomic port allocation and waits for readiness.
+PASS The response rejects global serialization and an unexplained timeout increase.
+PASS The edited project's focused test passes.

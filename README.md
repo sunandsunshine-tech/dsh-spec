@@ -69,6 +69,7 @@ Each skill is self-contained and installed on its own; a skill names another onl
 | `dsh-spec-browser-gif-evidence` | Recording and verifying browser-interaction GIF evidence from one isolated real-build run, with explicit substitute policy and optional attachment | dsh |
 | `dsh-spec-error-handling` | Error handling: failures, recovery, retries, background tasks and user-visible error reports | dsh |
 | `dsh-spec-find-simplifications` | Finding evidence-backed simplifications, and writing or consolidating the proposals for them | dsh |
+| `dsh-spec-test-reliability` | Designing stable tests and fixing slow, flaky, or resource-bound fixtures | dsh |
 | `dsh-spec-merging-stacked-prs` | Landing dependent GitHub pull requests as one stacked-PR chain | dsh |
 | `dsh-spec-pr-description` | Writing a change-request description: why it exists, what it changes, what proves it, and the AI Usage declaration | dsh |
 | `dsh-spec-pre-push-checks` | Selecting the smallest tests and checks that cover an outgoing diff before pushing or claiming checks pass | dsh |

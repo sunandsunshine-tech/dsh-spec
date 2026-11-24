@@ -1,0 +1,22 @@
+name: test
+
+on: [push]
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        include:
+          - node: 24
+            run_expensive_fixture: '1'
+          - node: 26
+            run_expensive_fixture: '0'
+    runs-on: ubuntu-latest
+    env:
+      RUN_EXPENSIVE_FIXTURE: ${{ matrix.run_expensive_fixture }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm test

@@ -1,0 +1,15 @@
+
+> test
+> node --test tests/config.test.mjs
+
+✔ loads the optional feature flag and restores global state (1.342976ms)
+✔ distinguishes an absent feature flag from an empty value (0.324685ms)
+✔ starts each case from the suite state (0.165172ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 43.81124

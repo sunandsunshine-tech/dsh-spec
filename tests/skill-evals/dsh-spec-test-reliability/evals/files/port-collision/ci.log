@@ -1,0 +1,10 @@
+job=test-shard-2 revision=abc123 runner=shared-linux-7
+FAIL tests/server.test.ts
+Error: listen EADDRINUSE: address already in use 127.0.0.1:43127
+  at Server.setupListenHandle (node:net)
+  at async listen (tests/support/server.ts)
+  at async tests/server.test.ts
+
+job=test-shard-5 revision=abc123 runner=shared-linux-7
+FAIL tests/server.test.ts
+Error: listen EADDRINUSE: address already in use 127.0.0.1:43127
