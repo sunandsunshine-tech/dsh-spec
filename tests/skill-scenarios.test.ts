@@ -591,6 +591,61 @@ function triggerSurfaceHash(skillName: string): string {
 function commandPrintsSkill(command: string | undefined, skillName: string): boolean {
   return commandReadsSkill(command, skillName)
 }
+
+interface EvidenceTraceItem {
+  type?: string
+  command?: string
+  exit_code?: number
+  aggregated_output?: string
+  text?: string
+}
+
+interface EvidenceTraceEntry {
+  type: string
+  item?: EvidenceTraceItem
+}
+
+function canonicalJson(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`
+  if (value !== null && typeof value === 'object') {
+    const fields = Object.entries(value)
+      .sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0))
+      .map(([key, field]) => `${JSON.stringify(key)}:${canonicalJson(field)}`)
+    return `{${fields.join(',')}}`
+  }
+  return JSON.stringify(value)
+}
+
+function scenarioDefinitionHash(scenario: Scenario): string {
+  return createHash('sha256').update(canonicalJson(scenario)).digest('hex')
+}
+
+function readHashManifest(path: string): Array<{ hash: string; path: string }> {
+  const body = readFileSync(path, 'utf8').trim()
+  if (body.length === 0) return []
+  return body.split('\n').map((line) => {
+    const match = /^([0-9a-f]{64})  (.+)$/.exec(line)
+    assert.ok(match, path + ' has a malformed hash line')
+    return { hash: match[1] as string, path: match[2] as string }
+  })
+}
+
+function readEvidenceTrace(path: string): EvidenceTraceEntry[] {
+  return readFileSync(path, 'utf8')
+    .trim()
+    .split('\n')
+    .map((line) => JSON.parse(line) as EvidenceTraceEntry)
+}
+
+function finalEvidenceMessage(trace: EvidenceTraceEntry[]): string | undefined {
+  return [...trace].reverse().find((entry) => entry.type === 'item.completed' && entry.item?.type === 'agent_message')
+    ?.item?.text
+}
+
+function fileHash(path: string): string {
+  return createHash('sha256').update(readFileSync(path)).digest('hex')
+}
+
 test('the capability scenario corpus covers absent and available isolated execution', () => {
   for (const required of REQUIRED) validateCorpus(readCorpus(required.skill), required)
   validateCorpus(readCorpus(FORGE_REQUIRED.skill), FORGE_REQUIRED)
@@ -1311,6 +1366,7 @@ test('browser GIF fixtures build and their capture entries parse', (t) => {
 
 test('test reliability fixtures run with the intended positive and negative controls', () => {
   const root = join(EVAL_SOURCE_ROOT, 'dsh-spec-test-reliability', 'evals', 'files')
+  const positiveRoot = join(EVAL_SOURCE_ROOT, 'dsh-spec-test-reliability', 'positive-controls')
   const env = { ...process.env }
   delete env.NODE_TEST_CONTEXT
   const collidingPort = spawnSync(process.execPath, ['--test', 'tests/server.test.mjs'], {
@@ -1320,6 +1376,16 @@ test('test reliability fixtures run with the intended positive and negative cont
   })
   assert.notEqual(collidingPort.status, 0)
   assert.match((collidingPort.stdout ?? '') + (collidingPort.stderr ?? ''), /EADDRINUSE/)
+  const atomicPort = spawnSync(process.execPath, ['--test', 'tests/server.test.mjs'], {
+    cwd: join(positiveRoot, 'port-collision'),
+    encoding: 'utf8',
+    env,
+    timeout: 10_000,
+  })
+  assert.equal(atomicPort.status, 0, (atomicPort.stdout ?? '') + (atomicPort.stderr ?? ''))
+  assert.doesNotMatch((atomicPort.stdout ?? '') + (atomicPort.stderr ?? ''), /EADDRINUSE/)
+  assert.match(atomicPort.stdout ?? '', /pass 1/)
+  assert.match(atomicPort.stdout ?? '', /fail 0/)
   for (const [project, args] of [
     ['diagnosis-only', ['--test', 'tests/server.test.mjs']],
     ['slow-suite', ['--test', 'tests/report.test.mjs']],
@@ -1334,6 +1400,36 @@ test('test reliability fixtures run with the intended positive and negative cont
   })
   assert.notEqual(leakingGlobals.status, 0)
   assert.match((leakingGlobals.stdout ?? '') + (leakingGlobals.stderr ?? ''), /restores the pre-test global state/)
+  for (const featureFlag of ['absent', 'empty'] as const) {
+    const positiveEnv = { ...env }
+    if (featureFlag === 'absent') {
+      delete positiveEnv.FEATURE_FLAG
+    } else {
+      positiveEnv.FEATURE_FLAG = ''
+    }
+    const restoredGlobals = spawnSync(process.execPath, ['--test', '--test-concurrency=1', 'tests/config.test.mjs'], {
+      cwd: join(positiveRoot, 'global-state'),
+      encoding: 'utf8',
+      env: positiveEnv,
+      timeout: 10_000,
+    })
+    assert.equal(
+      restoredGlobals.status,
+      0,
+      featureFlag + ': ' + (restoredGlobals.stdout ?? '') + (restoredGlobals.stderr ?? ''),
+    )
+    assert.match(restoredGlobals.stdout ?? '', /pass 3/)
+    assert.match(restoredGlobals.stdout ?? '', /fail 0/)
+  }
+  const portPositive = readFileSync(join(positiveRoot, 'port-collision/tests/server.test.mjs'), 'utf8')
+  assert.match(portPositive, /competitor/)
+  assert.doesNotMatch(portPositive, /findFreePort/)
+  const portPositiveServer = readFileSync(join(positiveRoot, 'port-collision/support/server.mjs'), 'utf8')
+  assert.match(portPositiveServer, /server\.listen\(0, '127\.0\.0\.1'/)
+  const globalPositive = readFileSync(join(positiveRoot, 'global-state/tests/config.test.mjs'), 'utf8')
+  assert.match(globalPositive, /Object\.hasOwn\(process\.env, 'FEATURE_FLAG'\)/)
+  assert.match(globalPositive, /delete process\.env\.FEATURE_FLAG/)
+  assert.match(globalPositive, /assert\.deepEqual\(captureGlobals\(\), snapshot\)/)
 })
 
 test('the browser evidence fixture does not leak an unready server', async (t) => {
@@ -1378,47 +1474,88 @@ test('the browser evidence fixture does not leak an unready server', async (t) =
   assert.deepEqual(readdirSync(profiles), [])
 })
 
-test('test reliability model evidence binds inputs, patches, scores and trigger decisions', () => {
+test('test reliability current model evidence binds current scenarios, scores and inputs', () => {
   const skill = 'dsh-spec-test-reliability'
-  const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-20-pr116')
+  const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-23-pr116')
   const corpusRoot = join(EVAL_SOURCE_ROOT, skill)
-  const behaviorScenarios = new Map([
-    ['candidate-port', 'reserve-port-at-listener'],
-    ['candidate-global-state', 'restore-exact-global-state'],
-    ['candidate-diagnosis', 'diagnose-without-fixing'],
-    ['candidate-slow-suite', 'redesign-slow-repeated-suite'],
-  ])
   const scenarios = new Map(readCorpus(skill).evals.map((scenario) => [scenario.id, scenario] as const))
-  for (const [run, scenarioId] of behaviorScenarios) {
+  const evidenceReadme = readFileSync(join(evidenceRoot, 'README.md'), 'utf8')
+  assert.doesNotMatch(evidenceReadme, /run-model-eval\.mjs/)
+  assert.match(evidenceReadme, /codex exec --ephemeral/)
+  assert.match(evidenceReadme, /test reliability current model evidence/)
+  const currentSkill = readFileSync(join(REPO_ROOT, 'skills', skill, 'SKILL.md'), 'utf8')
+  const runs = [
+    { run: 'diagnose-without-fixing', scenario: 'diagnose-without-fixing', assertions: 5, changes: false },
+    { run: 'redesign-slow-repeated-suite', scenario: 'redesign-slow-repeated-suite', assertions: 4, changes: true },
+  ] as const
+  const currentSkillFiles = [
+    `skills/${skill}/SKILL.md`,
+    `skills/${skill}/THIRD_PARTY_NOTICES`,
+    `skills/${skill}/references/ci-flake-diagnosis.md`,
+  ]
+  for (const { run, scenario: scenarioId, assertions: expectedAssertionCount, changes } of runs) {
     const root = join(evidenceRoot, run)
     const scenario = scenarios.get(scenarioId)
     assert.ok(scenario, 'missing test-reliability scenario ' + scenarioId)
-    const status = readFileSync(join(root, 'status.txt'), 'utf8')
-    assert.match(status, /^status: pass$/m)
-    const assertionCount = Number(/^assertions: (\d+)\/\1$/m.exec(status)?.[1])
-    assert.ok(Number.isInteger(assertionCount) && assertionCount > 0, run + ' assertion count')
-    const passed = readFileSync(join(root, 'assertions.txt'), 'utf8').trim().split('\n')
-    assert.equal(passed.length, assertionCount, run + ' assertion lines')
-    assert.equal(
-      passed.every((line) => line.startsWith('PASS ')),
-      true,
-      run + ' has a failed assertion',
+    assert.equal(scenario.assertions.length, expectedAssertionCount)
+    const skillManifest = readHashManifest(join(root, 'skill-hashes.txt'))
+    assert.deepEqual(
+      skillManifest.map((entry) => entry.path),
+      currentSkillFiles,
+      run + ' skill manifest',
     )
-    assert.ok(readFileSync(join(root, 'final.md'), 'utf8').trim().length > 0)
-    const trace = readFileSync(join(root, 'trace.jsonl'), 'utf8')
-      .trim()
-      .split('\n')
-      .map(
-        (line) =>
-          JSON.parse(line) as {
-            type: string
-            item?: { type?: string; command?: string; exit_code?: number; aggregated_output?: string }
-          },
+    for (const entry of skillManifest) {
+      assert.equal(
+        fileHash(join(REPO_ROOT, entry.path)),
+        entry.hash,
+        run + ' current skill file differs: ' + entry.path,
       )
+    }
+    assert.deepEqual(
+      JSON.parse(readFileSync(join(root, 'scenario-definition.json'), 'utf8')),
+      scenario,
+      run + ' retained a different scenario definition',
+    )
+    assert.equal(
+      readFileSync(join(root, 'scenario-definition.sha256'), 'utf8').trim(),
+      `${scenarioDefinitionHash(scenario)}  ${skill}:${scenarioId}`,
+      run + ' scenario definition hash differs',
+    )
+
+    const status = readFileSync(join(root, 'status.txt'), 'utf8')
+    assert.match(status, /^status: pass$/m, run)
+    assert.match(status, /^run_exit_code: 0$/m, run)
+    assert.match(status, new RegExp(`^assertions: ${expectedAssertionCount}/${expectedAssertionCount}$`, 'm'), run)
+    const expectedAssertions = scenario.assertions.map((entry) => `PASS ${entry}`).join('\n')
+    assert.equal(readFileSync(join(root, 'assertions.expected.txt'), 'utf8').trim(), expectedAssertions, run)
+    assert.equal(readFileSync(join(root, 'assertions.txt'), 'utf8').trim(), expectedAssertions, run)
+    assert.match(readFileSync(join(root, 'time.txt'), 'utf8'), /^time_seconds: \d+\.\d+$/m, run)
+    assert.match(readFileSync(join(root, 'usage.txt'), 'utf8'), /^input_tokens: \d+$/m, run)
+    assert.match(readFileSync(join(root, 'usage.txt'), 'utf8'), /^output_tokens: \d+$/m, run)
+
+    const inputs = readHashManifest(join(root, 'input-manifest.sha256'))
+    assert.deepEqual(
+      inputs.map((entry) => entry.path),
+      scenario.files,
+      run + ' input manifest does not match the declared scenario files',
+    )
+    for (const entry of inputs) {
+      assert.equal(
+        fileHash(join(corpusRoot, entry.path)),
+        entry.hash,
+        run + ' input differs from its retained manifest: ' + entry.path,
+      )
+    }
+
+    const traceText = readFileSync(join(root, 'trace.jsonl'), 'utf8')
+    assert.doesNotMatch(
+      traceText,
+      /evals\/evals\.json|tests\/skill-evals|expected_output/,
+      run + ' trace mentions a known answer path',
+    )
+    const trace = readEvidenceTrace(join(root, 'trace.jsonl'))
+    assert.equal(trace.filter((entry) => entry.type === 'turn.completed').length, 1, run + ' completion count')
     assert.equal(trace.at(-1)?.type, 'turn.completed', run + ' did not complete')
-    const skillHash = createHash('sha256')
-      .update(readFileSync(join(REPO_ROOT, 'skills', skill, 'SKILL.md')))
-      .digest('hex')
     assert.equal(
       trace.some(
         (entry) =>
@@ -1426,124 +1563,114 @@ test('test reliability model evidence binds inputs, patches, scores and trigger 
           entry.item?.type === 'command_execution' &&
           entry.item.exit_code === 0 &&
           commandPrintsSkill(entry.item.command, skill) &&
-          (entry.item.aggregated_output === undefined ||
-            createHash('sha256').update(entry.item.aggregated_output).digest('hex') === skillHash),
+          entry.item.aggregated_output?.includes(currentSkill) === true,
       ),
       true,
-      run + ' did not read the candidate skill',
+      run + ' did not retain the current installed skill content',
     )
-    assert.equal(readFileSync(join(root, 'skill.sha256'), 'utf8').trim(), skillHash, run + ' bound another skill')
+    const finalMessage = finalEvidenceMessage(trace)
+    assert.ok(finalMessage)
+    assert.equal(
+      readFileSync(join(root, 'final.md'), 'utf8').trim(),
+      finalMessage.trim(),
+      run + ' final message differs',
+    )
 
-    const inputLines = readFileSync(join(root, 'input-manifest.sha256'), 'utf8').trim().split('\n')
-    assert.deepEqual(
-      inputLines.map((line) => line.split(/\s{2,}/)[1]),
-      scenario.files,
-      run + ' input manifest does not match the declared scenario files',
-    )
-    for (const line of inputLines) {
-      const [hash, relative] = line.split(/\s{2,}/)
-      assert.equal(
-        createHash('sha256')
-          .update(readFileSync(join(corpusRoot, relative ?? '')))
-          .digest('hex'),
-        hash,
-        run + ' changed ' + relative,
+    const changedPaths = readFileSync(join(root, 'changed-paths.txt'), 'utf8').trim()
+    const patch = readFileSync(join(root, 'patch.diff'), 'utf8').trim()
+    const artifacts = readHashManifest(join(root, 'artifacts.sha256'))
+    if (!changes) {
+      assert.equal(changedPaths, '', run + ' changed project files')
+      assert.equal(patch, '', run + ' retained a patch')
+      assert.deepEqual(artifacts, [], run + ' retained artifacts')
+    } else {
+      const changed = changedPaths.split('\n').sort()
+      assert.ok(changed.length > 0, run + ' retained no changed paths')
+      assert.notEqual(patch, '', run + ' retained no patch')
+      assert.deepEqual(
+        artifacts.map((entry) => entry.path.replace(/^artifact\//, '')).sort(),
+        changed,
+        run + ' artifacts do not cover the changed paths',
       )
+      for (const artifact of artifacts) {
+        assert.equal(fileHash(join(root, artifact.path)), artifact.hash, run + ' artifact differs: ' + artifact.path)
+      }
     }
-    if (run === 'candidate-diagnosis') {
+  }
+})
+
+test('historical test reliability evidence remains provenance only', () => {
+  const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-20-pr116')
+  const readme = readFileSync(join(evidenceRoot, 'README.md'), 'utf8')
+  assert.match(readme, /^# PR #116 historical reviewer-graded model evidence$/m)
+  assert.match(readme, /answer-contaminated/)
+  assert.match(readme, /only as provenance/)
+  assert.match(readme, /2026-11-23-pr116/)
+  assert.doesNotMatch(readme, /clean-context model evidence/)
+  const recordedSkillHash = /^Skill file SHA-256: `([0-9a-f]{64})`\.$/m.exec(readme)?.[1]
+  assert.ok(recordedSkillHash, 'historical evidence does not record its skill revision')
+
+  for (const [run, assertionCount, repairs] of [
+    ['candidate-port', 5, true],
+    ['candidate-global-state', 4, true],
+    ['candidate-diagnosis', 3, false],
+    ['candidate-slow-suite', 4, true],
+  ] as const) {
+    const root = join(evidenceRoot, run)
+    const status = readFileSync(join(root, 'status.txt'), 'utf8')
+    assert.match(status, /^status: pass$/m, run)
+    assert.match(status, new RegExp(`^assertions: ${assertionCount}/${assertionCount}$`, 'm'), run)
+    assert.equal(readFileSync(join(root, 'skill.sha256'), 'utf8').trim(), recordedSkillHash, run)
+    const assertions = readFileSync(join(root, 'assertions.txt'), 'utf8').trim().split('\n')
+    assert.equal(assertions.length, assertionCount, run + ' historical assertion count')
+    assert.equal(
+      assertions.every((line) => line.startsWith('PASS ')),
+      true,
+      run,
+    )
+    assert.ok(readFileSync(join(root, 'final.md'), 'utf8').trim().length > 0, run + ' final message')
+    const trace = readEvidenceTrace(join(root, 'trace.jsonl'))
+    assert.equal(trace.at(-1)?.type, 'turn.completed', run + ' historical trace did not complete')
+    const inputs = readHashManifest(join(root, 'input-manifest.sha256'))
+    assert.ok(inputs.length > 0, run + ' historical input manifest')
+    assert.equal(
+      inputs.every((entry) => entry.path.startsWith('evals/files/')),
+      true,
+      run,
+    )
+
+    const changedPathFile = join(root, 'changed-paths.txt')
+    if (!repairs) {
       assert.equal(readFileSync(join(root, 'changed-paths.txt'), 'utf8'), '')
       assert.equal(existsSync(join(root, 'patch.diff')), false)
     } else {
-      for (const line of readFileSync(join(root, 'artifacts.sha256'), 'utf8').trim().split('\n')) {
-        const [hash, relative] = line.split(/\s{2,}/)
-        assert.equal(
-          createHash('sha256')
-            .update(readFileSync(join(root, relative ?? '')))
-            .digest('hex'),
-          hash,
-          run + ' changed ' + relative,
-        )
+      if (existsSync(changedPathFile)) {
+        assert.ok(readFileSync(changedPathFile, 'utf8').trim().length > 0, run + ' historical changed paths')
+      }
+      assert.ok(readFileSync(join(root, 'patch.diff'), 'utf8').trim().length > 0, run + ' historical patch')
+      const artifacts = readHashManifest(join(root, 'artifacts.sha256'))
+      assert.ok(artifacts.length > 0, run + ' historical artifacts')
+      for (const artifact of artifacts) {
+        assert.equal(fileHash(join(root, artifact.path)), artifact.hash, run + ' historical artifact differs')
       }
       assert.match(readFileSync(join(root, 'test-output.txt'), 'utf8'), /pass [1-9]/)
     }
   }
-  const portPatch = readFileSync(join(evidenceRoot, 'candidate-port', 'patch.diff'), 'utf8')
-  assert.match(portPatch, /listen\((?:port\s*=\s*)?0\)/)
-  assert.doesNotMatch(portPatch, /^\+.*findFreePort/m)
-  const globalPatch = readFileSync(join(evidenceRoot, 'candidate-global-state', 'patch.diff'), 'utf8')
-  assert.match(globalPatch, /finally/)
-  assert.match(globalPatch, /(?:t\.after|afterEach)/)
-  const slowPatch = readFileSync(join(evidenceRoot, 'candidate-slow-suite', 'patch.diff'), 'utf8')
-  assert.match(slowPatch, /report\.test\.mjs|report\.contract\.test\.mjs/)
-  assert.match(slowPatch, /RUN_REPRESENTATIVE_FIXTURE|test:contract/)
-  assert.match(slowPatch, /node-version:\s*24/)
-  assert.match(slowPatch, /npm run test:representative/)
 
-  const triggerInputs = new Map(
-    readFileSync(join(evidenceRoot, 'trigger-input.sha256'), 'utf8')
-      .trim()
-      .split('\n')
-      .map((line) => {
-        const [hash, path] = line.split(/\s{2,}/)
-        return [path, hash] as const
-      }),
-  )
-  for (const path of [
-    `tests/skill-evals/${skill}/trigger-evals.json`,
-    `tests/skill-evals/${skill}/trigger-fixtures/AGENTS.md`,
-  ]) {
-    assert.equal(
-      triggerInputs.get(path),
-      createHash('sha256')
-        .update(readFileSync(join(REPO_ROOT, path)))
-        .digest('hex'),
-      'trigger input differs: ' + path,
-    )
-  }
-  assert.equal(
-    triggerInputs.get(`skills/${skill}/SKILL.md#name-description`),
-    triggerSurfaceHash(skill),
-    'trigger description differs',
-  )
-
-  const triggerCorpus = JSON.parse(readFileSync(join(corpusRoot, 'trigger-evals.json'), 'utf8')) as {
-    queries: Array<{ id: string; should_trigger: boolean }>
-  }
-  const matrix = new Map(
-    readFileSync(join(evidenceRoot, 'trigger-matrix.tsv'), 'utf8')
-      .trim()
-      .split('\n')
-      .slice(1)
-      .map((line) => {
-        const [id, shouldTrigger, selected, result] = line.split('\t')
-        assert.ok(id && shouldTrigger && selected && result, 'malformed test-reliability trigger row')
-        return [id, { shouldTrigger, selected, result }] as const
-      }),
-  )
-  assert.ok(triggerCorpus.queries.length > 0, 'test-reliability trigger corpus must not be empty')
-  assert.equal(
-    triggerCorpus.queries.some((query) => query.should_trigger),
-    true,
-  )
-  assert.equal(
-    triggerCorpus.queries.some((query) => !query.should_trigger),
-    true,
-  )
-  assert.equal(matrix.size, triggerCorpus.queries.length)
-  for (const query of triggerCorpus.queries) {
-    const row = matrix.get(query.id)
-    assert.ok(row, 'missing test-reliability trigger row ' + query.id)
-    const final = readFileSync(join(evidenceRoot, 'trigger', query.id, 'final.md'), 'utf8')
+  const triggerRows = readFileSync(join(evidenceRoot, 'trigger-matrix.tsv'), 'utf8').trim().split('\n').slice(1)
+  assert.ok(triggerRows.length > 0, 'historical trigger matrix must not be empty')
+  for (const line of triggerRows) {
+    const [id, shouldTrigger, selected, result] = line.split('\t')
+    assert.ok(id && shouldTrigger && selected && result, 'malformed historical test-reliability trigger row')
+    assert.equal(result, 'pass', id + ' historical trigger row')
+    const final = readFileSync(join(evidenceRoot, 'trigger', id, 'final.md'), 'utf8')
     const marker = final.trim().split('\n').at(-1)
     assert.ok(
       marker === 'SELECT: dsh-spec-test-reliability' || marker === 'SELECT: none',
-      query.id + ' is missing a stable selection marker',
+      id + ' is missing a stable selection marker',
     )
-    const selected = marker === 'SELECT: dsh-spec-test-reliability'
-    assert.equal(row.shouldTrigger, String(query.should_trigger))
-    assert.equal(row.selected, String(selected))
-    assert.equal(row.result, query.should_trigger === selected ? 'pass' : 'fail')
-    assert.equal(row.result, 'pass')
+    assert.equal(selected, String(marker === 'SELECT: dsh-spec-test-reliability'))
+    assert.equal(shouldTrigger === selected ? 'pass' : 'fail', result)
   }
 })
 

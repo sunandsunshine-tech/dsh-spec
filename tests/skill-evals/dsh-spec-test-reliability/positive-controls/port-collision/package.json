@@ -1,0 +1,8 @@
+{
+  "name": "port-collision-positive-control",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/server.test.mjs"
+  }
+}

@@ -4,6 +4,9 @@ These runs exposed the model-visible `evals/evals.json`; they are answer-contami
 only as provenance. The current source/answer-tree-isolated diagnosis and slow-suite reruns are
 under `tests/skill-evals/evidence/2026-11-23-pr116/`.
 
+Repository checks retain these files as historical provenance only. They do not bind the historical
+scenarios, inputs, scores, or trigger decisions to current behavior.
+
 Base: `cb2eeb2993b0c8f6061401c468b48e25f5d3b5a3`.
 Candidate skill tree: `21205d05e7f7e06c9b6b5f77affcbb7aa90d7aec`.
 Evaluation files tree: `72c08ca5bafa1b3560c3fd8a3023fc6d6847da80`.

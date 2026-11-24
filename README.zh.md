@@ -69,6 +69,7 @@ gh skill install sunandsunshine-tech/dsh-spec --all --dir .agents/skills
 | `dsh-spec-browser-gif-evidence` | 从一次隔离的真实构建运行录制并验证浏览器交互 GIF 证据，明确替代策略并支持可选附件发布 | dsh |
 | `dsh-spec-error-handling` | 错误处理：失败、恢复、重试、后台任务与用户可见的错误报告 | dsh |
 | `dsh-spec-find-simplifications` | 找出有证据支撑的简化，并撰写或合并相应的提案 | dsh |
+| `dsh-spec-test-reliability` | 设计稳定的测试，修复缓慢、不稳定或受共享资源约束的 fixture | dsh |
 | `dsh-spec-merging-stacked-prs` | 把相互依赖的 GitHub PR（Pull Request）作为一条堆叠 PR 链落地 | dsh |
 | `dsh-spec-pr-description` | 撰写变更请求描述：改动为何存在、改了什么、由什么证明，以及 AI Usage 声明 | dsh |
 | `dsh-spec-pre-push-checks` | 推送或声称检查通过之前，选出覆盖待推送 diff 的最小测试与检查 | dsh |
