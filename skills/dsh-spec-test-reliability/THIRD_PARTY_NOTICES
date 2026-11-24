@@ -2,7 +2,7 @@
 
 The text of this skill is adapted from the DeepSeek Harness skill `dsh-ci-test-reliability` and generalized to reliable tests in a software project.
 
-- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`).
+- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.3-alpha.2` (`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`).
 - Upstream paths:
   - `.agents/skills/dsh-ci-test-reliability/SKILL.md` — the reliability procedure.
   - `.agents/skills/dsh-ci-test-reliability/references/ci-flake-diagnosis.md` — the diagnosis workflow.

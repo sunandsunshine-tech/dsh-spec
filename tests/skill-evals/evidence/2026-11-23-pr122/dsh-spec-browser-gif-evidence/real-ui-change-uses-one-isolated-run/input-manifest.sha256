@@ -1,0 +1,8 @@
+3b8c6da2cf824227d30d116448da782a12b6804dea0fb2fc76e56e2f47b7603c  evals/files/shared-gif-project/AGENTS.md  mode=0644
+62db87b60815b9ff4b5a7bde830d7a2a34ec69c35da46626a4972e93ff8814b8  evals/files/shared-gif-project/.gitignore  mode=0644
+f50d774e324160a542bf2b3b3ac601e68dc41df3299bf5cfb4fbaaa4e6ca2399  evals/files/shared-gif-project/package.json  mode=0644
+17e78ceb6790178bc374ab131e551d309012cf9c432538977facaaf0ddf4d5e7  evals/files/shared-gif-project/build.mjs  mode=0644
+c5652d0faa24d6c823617f7a393667e9a51fa9a6cdeadcfeb76a1af070a24a64  evals/files/shared-gif-project/index.html  mode=0644
+ec656ac6f0cb17f6c82bec469b683c89c62c6bb13669262e7b12b3f868a902cc  evals/files/shared-gif-project/src/app.js  mode=0644
+1a58d8dfaf9e1fce8f83e9f16df77db242bb18a9a0210ed3eab3bfc5b3fcd3f1  evals/files/shared-gif-project/server.mjs  mode=0644
+3bb20129b88b306d8757306903b8ecde2a51eb3d925251138d710d37f2699158  evals/files/shared-gif-project/capture-browser.mjs  mode=0644

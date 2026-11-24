@@ -17,7 +17,7 @@ Forge one Agent Skill from the request, a source, or an existing skill, and keep
 
 ## Defaults
 
-A default is the value or strategy this skill declares at its use site. It applies when the current request and existing project instructions leave that choice open. A user turn or explicit parameter supplies a one-off value. Existing project instructions supply a persistent override and are read without being modified or copied. Missing project instructions are valid, so do not ask the user to choose a default or create or modify an instruction file merely to select one.
+Apply this skill's use-site default only when neither the request nor existing project instructions choose one. Treat existing instructions as authoritative read-only input; do not ask for, create, modify, or copy instructions merely to select a default.
 
 ## Tools
 
@@ -97,7 +97,7 @@ Run the gate as a separate read-only check; `publish` does not run it. When revi
 
 A natural-language requirement central to the forged skill carries a development eval scenario when realistic prompts can falsify it and no deterministic check decides it. Capability-dependent behavior covers both capability profiles. Model evals run when the owned behavior changes and remain outside the delivered skill.
 
-**Complete**: every source constraint has one disposition row with its home; every requirement of the forged skill carries one anchor; for every capability-dependent requirement, the record states a conclusion for the capability-present and capability-absent profiles; absent-capability evidence is either a completed observable result with its owning validation or an explicit handoff; the gate passed with the parameters used; every judged item has a conclusion; every unverified item carries its reason; the declared review drafts are translated and the project's translation consistency gate has been run when review was needed; a forged skill that declares a default applies it when the current request and existing project instructions leave that choice open, without asking for or creating or modifying project instructions merely to select it; the record states the evidence, the pages read and their dates, and the rulings as current facts; no round or review narrative remains.
+**Complete**: every source constraint has one disposition row with its home; every requirement of the forged skill carries one anchor; for every capability-dependent requirement, the record states a conclusion for the capability-present and capability-absent profiles; absent-capability evidence is either a completed observable result with its owning validation or an explicit handoff; the gate passed with the parameters used; every judged item has a conclusion; every unverified item carries its reason; the declared review drafts are translated and the project's translation consistency gate has been run when review was needed; a forged skill that declares a default applies it only when neither the request nor existing project instructions choose one, while treating instructions as read-only input and never asking for, creating, modifying, or copying them merely to select a default; the record states the evidence, the pages read and their dates, and the rulings as current facts; no round or review narrative remains.
 
 **Failure**: fix and rerun; never claim a failed or unrun check as passed. An unresolved gap: record a ruling.
 

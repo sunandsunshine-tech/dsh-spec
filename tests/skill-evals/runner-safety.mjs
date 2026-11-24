@@ -225,6 +225,8 @@ export function assertCredentialFreeBaseUrl(value, label) {
   return url
 }
 
+const nonNetworkCatalogSchemes = new Set(['app:', 'file:', 'plugin:', 'skill:', 'vscode:'])
+
 function assertCredentialFreeCatalogUrls(value, label) {
   if (Array.isArray(value)) {
     for (const child of value) assertCredentialFreeCatalogUrls(child, label)
@@ -233,7 +235,23 @@ function assertCredentialFreeCatalogUrls(value, label) {
   if (typeof value === 'string') {
     for (const match of value.matchAll(/[a-z][a-z0-9+.-]*:\/\/[^\s<>"'`]*/gi)) {
       const candidate = match[0].replace(/[),.;!?}\]]+$/, '')
-      assertCredentialFreeBaseUrl(candidate, `${label} URL`)
+      if (/^[a-z][a-z0-9+.-]*:\/\/$/i.test(candidate)) continue
+      let url
+      try {
+        url = new URL(candidate)
+      } catch {
+        throw new Error(`${label} URL is not a valid absolute URL`)
+      }
+      if (url.protocol !== 'http:' && url.protocol !== 'https:' && !nonNetworkCatalogSchemes.has(url.protocol)) {
+        throw new Error(`${label} URL must use http or https`)
+      }
+      if (url.username || url.password) throw new Error(`${label} URL contains URL userinfo`)
+      if (url.protocol !== 'http:' && url.protocol !== 'https:') continue
+      for (const key of url.searchParams.keys()) {
+        if (isCredentialName(key)) {
+          throw new Error(`${label} URL contains a credential-like query parameter: ${key}`)
+        }
+      }
     }
     return
   }

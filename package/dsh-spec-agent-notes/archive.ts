@@ -2,7 +2,7 @@
  * SPDX-License-Identifier: MIT
  *
  * Adapted from the DeepSeek Harness note-gate scripts at the pinned
- * `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`); the skill-root
+ * `dsh-v0.2.3-alpha.2` (`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`); the skill-root
  * THIRD_PARTY_NOTICES names the upstream paths and the relation.
  */
 // The frozen archive: class folders, sealed artifacts, the manifest and the Git baseline that

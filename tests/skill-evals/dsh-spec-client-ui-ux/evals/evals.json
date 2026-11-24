@@ -127,6 +127,10 @@
       "id": "responsive-draft-and-touch-input",
       "prompt": "Review the responsive form change in evals/files/responsive-draft-project. The layout switches by replacing the form markup, the input currently holds an in-progress draft, and the project declares no minimum input-size rule. Report the user-visible risks and the smallest source-level corrections to preserve.",
       "expected_output": "The review preserves the in-progress draft across the wide/narrow layout change instead of allowing the input remount to discard it. Because the project declares no input-size rule, it keeps the coarse-pointer text input at least 16 CSS pixels so focusing the field does not trigger automatic zoom. It also identifies the rendered states that still need verification.",
+      "capabilities": {
+        "browser": true,
+        "media": false
+      },
       "files": [
         "evals/files/responsive-draft-project/AGENTS.md",
         "evals/files/responsive-draft-project/README.md",
@@ -138,6 +142,24 @@
         "With no project rule, the coarse-pointer text input remains at least 16 CSS pixels to avoid focus zoom.",
         "The review identifies the affected rendered draft and focused-input states that still need verification.",
         "The review does not treat the source correction as rendered acceptance."
+      ]
+    },
+    {
+      "id": "shared-icon-rendering-contract",
+      "prompt": "Review the shared icon rendering change in evals/files/icon-contract-project. The project declares its stroke and fill rendering contract and lists the affected consumers. Report the rendering and consumer checks that still need rendered evidence.",
+      "expected_output": "The review preserves non-scaling stroke behavior and the intentional filled contour's geometry, checks the declared sizes and device-pixel ratios across the shared consumers, and leaves the missing rendered evidence as an explicit gap rather than changing the rendering contract from source inspection alone.",
+      "files": [
+        "evals/files/icon-contract-project/AGENTS.md",
+        "evals/files/icon-contract-project/README.md",
+        "evals/files/icon-contract-project/src/Icon.js",
+        "evals/files/icon-contract-project/src/icon.css"
+      ],
+      "assertions": [
+        "The review preserves the declared non-scaling stroke behavior and intentional fill geometry.",
+        "The review identifies the intentional filled contour and leaves its rendered geometry unproved.",
+        "The review checks the target CSS sizes and device-pixel ratios across the shared consumers.",
+        "The review treats the missing rendered evidence as a gap.",
+        "The review does not replace the shared rendering contract with an ordinary placement fix."
       ]
     }
   ]

@@ -5,6 +5,10 @@
 > answer-blind loading. Changed behavior after this layer is covered by the targeted evidence under
 > `../2026-11-23-pr121/` and `../2026-11-23-pr122/`.
 
+The checked-in `skills-tree.sha256` and `evaluation-files.sha256` freeze the source and fixture
+hashes recorded by the original Git trees, so historical verification does not require branch-only
+objects.
+
 Candidate implementation commit: `1b40307d92fb24714717ae5086df84f3640cf55b`.
 Candidate skill tree: `45cbc1bb02db3bc97ae070e5b4ec1034c6ac3b91`.
 Evaluation corpus tree: `46f81662cef85fbe8f0053db8c65c1884f3ebf8d`.

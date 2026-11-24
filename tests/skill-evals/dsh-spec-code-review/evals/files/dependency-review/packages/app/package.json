@@ -1,0 +1,8 @@
+{
+  "name": "@review/app",
+  "private": true,
+  "dependencies": {
+    "@review/core": "workspace:*",
+    "@review/validator": "workspace:*"
+  }
+}

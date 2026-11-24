@@ -1,5 +1,9 @@
 # Browser GIF evidence: PR 121
 
+> **Historical status:** this run used the pre-final fixture and is retained as provenance only.
+> Current same-run evidence is under
+> `tests/skill-evals/evidence/2026-11-23-pr122/dsh-spec-browser-gif-evidence/real-ui-change-uses-one-isolated-run/`.
+
 This run executes `real-ui-change-uses-one-isolated-run` through the isolated runner with
 `--sandbox workspace-write --replace`. The target `SKILL.md` SHA-256 is
 `ddbc40b91ce7f5d8dfab90ffd1e26e59105cdcf69b4bdaef8fc2b2fc24f7a4c2`; the canonical scenario

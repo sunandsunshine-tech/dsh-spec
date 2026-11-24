@@ -19,6 +19,7 @@ The source layout mirrors the first level of `skills/`:
 | Source | Work draft artifact |
 |---|---|
 | `package/dsh-spec-agent-notes/notes.ts` | `.agents/dsh-spec-skill-forge/dsh-spec-agent-notes/scripts/notes.mjs` |
+| `package/dsh-spec-browser-gif-evidence/encode-browser-gif.ts` | `.agents/dsh-spec-skill-forge/dsh-spec-browser-gif-evidence/scripts/encode-browser-gif.mjs` |
 | `package/dsh-spec-pre-push-checks/change-scope.ts` | `.agents/dsh-spec-skill-forge/dsh-spec-pre-push-checks/scripts/change-scope.mjs` |
 | `package/dsh-spec-skill-forge/verify-skill-spec.ts` | `.agents/dsh-spec-skill-forge/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs` |
 | `package/dsh-spec-skill-forge/forge.ts` | `.agents/dsh-spec-skill-forge/dsh-spec-skill-forge/scripts/forge.mjs` |

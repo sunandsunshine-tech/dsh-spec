@@ -6,9 +6,11 @@
 
 ## 安装模式
 
-把技能安装到项目级的 `.agents/skills/`，并提交结果。这样协作者、agent 和 CI 共用一份经过评审的修订。
+在项目范围安装并提交结果。若干 agent 宿主共用 `.agents/skills/`，其他宿主可能使用不同的项目目录。这样协作者、发现该目录的 agent 与 CI 共用一份经过评审的修订。
 
 每个技能使用一次 `gh skill install` 调用。把同一个 tag 或 commit 传给一次安装中每个技能的 `--pin`，让它们共用一份修订。`gh skill update` 只刷新未 pin 的技能。
+
+示例使用 `--dir .agents/skills` 安装共享目录。若宿主有自己的项目级目录，使用 `--agent <host>` 并省略 `--dir`。
 
 ```sh
 gh skill install sunandsunshine-tech/dsh-spec "<skill>" \
@@ -103,7 +105,7 @@ gh skill install sunandsunshine-tech/dsh-spec "<skill>" \
 
 以下要求补充项目 README 中的全局先决条件。
 
-- `dsh-spec-merging-stacked-prs` 需要 GitHub 官方 stacked PR 能力、`gh stack`，并且 head 分支位于同一个仓库。
+- `dsh-spec-merging-stacked-prs` 需要 GitHub 官方 stacked PR 能力、`gh stack`，并且 head 分支位于同一个仓库。用 `gh extension install github/gh-stack` 安装扩展。
 - `dsh-spec-client-ui-ux` 需要能够运行并检查受影响的 UI，或者明确交接缺失的场景或能力。
 - `dsh-spec-browser-gif-evidence` 需要 Node.js 24.11+（24 系列）或 26+、Git、`ffmpeg`、`ffprobe`、可运行构建，以及浏览器控制能力或项目声明的 Playwright 设置。在 GitHub 上附带证据还需要 `gh` 能在 `github.com` 上写入。
 - `dsh-spec-translate-docs` 使用随附的 Node 脚本执行配对检查。安装它不要求每份文档都有对侧文件。
@@ -115,6 +117,6 @@ gh skill install sunandsunshine-tech/dsh-spec "<skill>" \
 | 项目没有浏览器 UI | `dsh-spec-client-ui-ux`、`dsh-spec-browser-gif-evidence` |
 | 项目不使用 GitHub stacked PR | `dsh-spec-merging-stacked-prs` |
 | 项目不制作 Agent 技能 | `dsh-spec-skill-forge` |
-| 评审范围内没有工具、服务或进程的结构化失败 | `dsh-spec-error-handling` |
+| 项目没有需要设计或评审的预期失败行为 | `dsh-spec-error-handling` |
 
 推荐配套技能缺席时，技能仍然可用；它要么通过项目已有的等价机制完成工作，要么记录缺失的能力。

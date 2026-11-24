@@ -21,11 +21,11 @@ Status: implemented
 
 每个事实只有一个所属资源。其他资源可以陈述路由所需的局部后果，但不重复完整规则。
 
-`pr-description` 在入口路由 AI Usage，把模型、声明块、评分与回读清单留给 `references/ai-usage.md`。`translate-docs` 的三条路径负责准入与产生内容，由一个完成段拥有写入、退役、检查与汇报。`agent-notes` 在入口保留生命周期判断、companion ladder、归档 readiness 与冻结安全，由两个约定拥有活跃与归档格式细节。`client-ui-ux` 把详细消费者追踪留给一个章节。`browser-gif-evidence` 陈述输出保留结果，由编码器与 publication reference 拥有各自机制。其余结构调整遵循同一所有权判据。
+`pr-description` 在入口路由 AI Usage，把模型、声明块、评分与回读清单留给 `references/ai-usage.md`。`translate-docs` 的三条路径负责准入与产生内容，由一个完成段拥有写入、退役、检查与汇报。`agent-notes` 在入口保留生命周期判断、companion ladder、归档 readiness 与冻结安全，由两个约定拥有活跃与归档格式细节。`client-ui-ux` 把详细消费方追踪留给一个章节。`browser-gif-evidence` 陈述输出保留结果，由编码器与 publication reference 拥有各自机制。其余结构调整遵循同一所有权判据。
 
 15 个技能保持独立。技能只能以带 availability 限定的可选示例提到另一技能。共享工具、不同产物、不同触发或不同运行前提都不构成合并技能的理由。
 
-模型证据跟随[模型证据只证明它实际检验的行为](2026-11-23-model-evidence-binds-changed-behavior.zh.md)所描述的变化行为。纯结构变化使用受影响的行为场景，而不是所有历史场景。
+模型证据跟随[模型证据只证明它实际检验的行为](../testing/2026-11-23-model-evidence-binds-changed-behavior.zh.md)所描述的变化行为。纯结构变化使用受影响的行为场景，而不是所有历史场景。
 
 ## Alternatives considered
 

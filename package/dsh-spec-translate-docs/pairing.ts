@@ -1,16 +1,17 @@
 /**
  * SPDX-License-Identifier: MIT
  *
- * Extracted from the DeepSeek Harness bilingual-document mechanism at the pinned
- * `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`); the skill-root
- * THIRD_PARTY_NOTICES names the upstream paths and the relation.
+ * Extracted from the DeepSeek Harness bilingual-document mechanism at source revision
+ * `dsh-v0.2.1-rc.3` (`1f81c047fc48fa190a683e469daa699857e9afe8`) and reviewed against the
+ * current `dsh-v0.2.3-alpha.2` pin; the skill-root THIRD_PARTY_NOTICES names the upstream paths
+ * and the relation.
  */
 /**
  * Structural signatures, generated-region comparison and the existing-pair check.
  *
- * The gate only checks pairs that already exist. Creation and update follow the project's
+ * The gate checks pairs that already exist by default. Creation and update follow the project's
  * standing instructions, the user's instruction, or the responsible workflow; target choices
- * arrive as explicit inputs and this module never requires a source to be paired.
+ * arrive as explicit inputs, and a declared full-pair policy adds an explicit required target.
  */
 
 import type { Nodes } from 'mdast'

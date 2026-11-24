@@ -54,7 +54,7 @@
       "assertions": [
         "The explicit fixture request authorizes the substitute recording.",
         "The run labels the evidence as fixture-based rather than real-provider evidence.",
-        "The encoded GIF is captured from one isolated run and inspected after encoding.",
+        "The encoded GIF is still captured from one isolated run and inspected after encoding.",
         "The report states which real behavior the evidence does not prove."
       ]
     }

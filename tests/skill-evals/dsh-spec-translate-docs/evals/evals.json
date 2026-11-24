@@ -142,6 +142,30 @@
       ]
     },
     {
+      "id": "locale-selected-pages-are-unpaired",
+      "prompt": "Check the documentation corpus in evals/files/locale-pages, passing `--root evals/files/locale-pages` to the checker. The project standing instructions declare a maintained English-Chinese guide pair and locale-selected detail pages that carry no switcher or consistency record. Use the installed dsh-spec-translate-docs skill, report the exact check command, and do not create pair artifacts for the detail pages.",
+      "expected_output": "The run checks the guide pair using the default Chinese target and excludes the locale-selected detail paths from pairing with `--unpaired`; it creates no switcher or consistency record for those detail pages.",
+      "capabilities": {
+        "browser": false,
+        "media": false
+      },
+      "files": [
+        "evals/files/locale-pages/AGENTS.md",
+        "evals/files/locale-pages/.agents/dsh-spec-translate-docs/terminology.md",
+        "evals/files/locale-pages/docs/guide.md",
+        "evals/files/locale-pages/docs/guide.zh.md",
+        "evals/files/locale-pages/docs/guide.i18n.yaml",
+        "evals/files/locale-pages/docs/detail.md",
+        "evals/files/locale-pages/docs/detail.zh.md"
+      ],
+      "assertions": [
+        "The run reads the project declaration for maintained and locale-selected documents.",
+        "The run passes `--unpaired` with selection covering both detail pages when checking existing pairs.",
+        "The run checks the maintained guide pair with the default Chinese target.",
+        "The run creates no switcher or consistency record for the detail pages."
+      ]
+    },
+    {
       "id": "range-operation-does-not-create-missing-target",
       "prompt": "Run the ordinary range check and record commands over evals/files/progressive-targets. The current project policy supports Chinese and Japanese. Report what the range commands establish or change.",
       "expected_output": "The range operation verifies and re-records existing pairs only. It does not create a Japanese counterpart for the untouched Chinese-only source or otherwise backfill missing targets.",
@@ -160,6 +184,25 @@
         "No missing Japanese counterpart is created.",
         "The untouched source remains unchanged.",
         "The report does not describe the policy target set as a corpus completeness requirement."
+      ]
+    },
+    {
+      "id": "source-rename-keeps-pair",
+      "prompt": "In evals/files/source-rename, rename docs/old-guide.md to docs/new-guide.md. Keep the Chinese counterpart, switchers, aggregate record and inbound links coherent, then run the pair check. Do not retranslate unchanged content.",
+      "expected_output": "The source, Chinese counterpart and aggregate record move to the new stem; switchers and inbound links name the new paths; the pair check passes.",
+      "files": [
+        "evals/files/source-rename/AGENTS.md",
+        "evals/files/source-rename/docs/index.md",
+        "evals/files/source-rename/docs/old-guide.md",
+        "evals/files/source-rename/docs/old-guide.zh.md",
+        "evals/files/source-rename/docs/old-guide.i18n.yaml",
+        "evals/files/source-rename/.agents/dsh-spec-translate-docs/terminology.md"
+      ],
+      "assertions": [
+        "The source and Chinese counterpart use the new stem.",
+        "Both switchers name the new paths.",
+        "The aggregate record follows the renamed source.",
+        "Inbound links and the pair check use the new path successfully."
       ]
     }
   ]

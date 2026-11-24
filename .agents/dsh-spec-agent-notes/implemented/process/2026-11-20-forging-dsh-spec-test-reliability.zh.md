@@ -30,15 +30,16 @@ Status: implemented
 
 ## Source and revision
 
-上游来源基线于 2026-11-20 读取：
+上游来源基线于 2026-11-23 读取：
 
 - 仓库：`https://github.com/deepseek-ai/deepseek-harness`
-- 基线：`dsh-v0.2.2-rc.5`（`9c2670d3bce5275e0d1610272958121af87787bb`）
+- 基线：`dsh-v0.2.3-alpha.2`（`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`），读取于 2026-11-23
 - `.agents/skills/dsh-ci-test-reliability/SKILL.md`
 - `.agents/skills/dsh-ci-test-reliability/references/ci-flake-diagnosis.md`
 
 ## Settings
 
+- 发布授权：维护者已授权把该技能发布到本包，并创建对应子议题与 pull request。
 - 交付语言：英文。
 - 触发语言：description 追加中文术语。
 - 记录语言：英文，附带中文对侧和配对记录。
@@ -137,6 +138,6 @@ Status: implemented
 
 - 本包新增一个通用测试设计、评审和 flaky 诊断技能，不依赖测试框架或 CI 提供方。
 - 主入口携带运行规则；诊断参考只在已有概率性失败时加载。
-- 四个可运行开发场景覆盖核心行为。PR116 模型结果作为暴露过答案清单的历史证据保留；当前隔离运行位于 PR121 证据树。
+- 四个可运行开发场景覆盖核心行为。PR116 保留历史模型 provenance；当前定向模型重跑位于 `tests/skill-evals/evidence/2026-11-23-pr121/`。
 - 来源许可证和关系随安装副本一起交付。
 - 回退方式是反转实现提交；抽取 submodule 保持不变。

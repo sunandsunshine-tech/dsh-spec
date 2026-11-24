@@ -1,0 +1,5 @@
+I could not truthfully produce the required GIF. The installed skill requires a runnable real build, isolated browser control or a project-declared Playwright setup, and `ffmpeg`/`ffprobe`. This project explicitly provides none of those capabilities, as documented in [README.md](/workspace/evals/files/no-capture-project/README.md) and confirmed by `command -v`.
+
+The fixture is clean at commit `5e90729b18c412ed3e4ae43a17e9ae721b504d55` and contains only the described [SettingsPanel.js](/workspace/evals/files/no-capture-project/src/SettingsPanel.js) change. No browser run, server, raw recording, or partial evidence was created; manufacturing a synthetic GIF would violate the skill’s real-product-path requirement.
+
+To resume, provide a runnable application, browser control or a declared Playwright fallback, an evidence directory, and `ffmpeg`/`ffprobe`. The recording should show `Save changes` → `Saving…` → restored save state in one isolated run, then encode and verify that recording.

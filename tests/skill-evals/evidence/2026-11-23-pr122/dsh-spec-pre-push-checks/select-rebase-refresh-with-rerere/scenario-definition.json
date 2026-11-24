@@ -1,0 +1,15 @@
+{
+  "id": "select-rebase-refresh-with-rerere",
+  "prompt": "Use evals/files/rebase-refresh/AGENTS.md and stack.md. Select the refresh history and the smallest validation sequence after review for this three-layer stack. No author has requested merge-forward.",
+  "expected_output": "The selection enables rerere, leaves `rerere.autoUpdate` unset or false so replayed resolutions stay unstaged, inspects every replayed resolution, uses the native cascading rebase path for the stack, validates every affected layer, and does not choose merge-forward without an author request.",
+  "files": [
+    "evals/files/rebase-refresh/AGENTS.md",
+    "evals/files/rebase-refresh/stack.md"
+  ],
+  "assertions": [
+    "The selection enables rerere and leaves rerere.autoUpdate unset or false before rebasing.",
+    "The selection uses the native cascading rebase flow rather than merge-forward.",
+    "The selection does not require an author request that does not exist.",
+    "The selection revalidates every replayed layer after publication."
+  ]
+}

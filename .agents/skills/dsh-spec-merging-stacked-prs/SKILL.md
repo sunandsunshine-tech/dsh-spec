@@ -7,11 +7,11 @@ license: "MIT; upstream and repository notices in THIRD_PARTY_NOTICES"
 
 # Landing an official GitHub PR stack
 
-Land dependent PRs through GitHub's native stack object and `gh stack merge`. Do not reproduce stack semantics by merging and retargeting individual PRs with `gh pr merge` and `gh pr edit`. The landing repository's own instructions (its `AGENTS.md` or equivalent) own the merge-forward and rebase histories it allows. Review-fix propagation is outside this skill: after any push that rewrites heads, re-audit unresolved threads, approvals, mergeability and checks before merging, as § Refresh only when needed requires.
+Land dependent PRs through GitHub's native stack object and `gh stack merge`. Do not reproduce stack semantics by merging and retargeting individual PRs with `gh pr merge` and `gh pr edit`. Rebase with rerere is the default branch refresh; merge-forward requires the PR author's explicit request and a policy that allows it. The landing repository's instructions remain authoritative. Review-fix propagation is outside this skill: after any push that rewrites heads, re-audit unresolved threads, approvals, mergeability and checks before merging, as § Refresh only when needed requires.
 
 ## Defaults
 
-A default is the value or strategy this skill declares at its use site. It applies when the current request and existing project instructions leave that choice open. A user turn or explicit parameter supplies a one-off value. Existing project instructions supply a persistent override and are read without being modified or copied. Missing project instructions are valid, so do not ask the user to choose a default or create or modify an instruction file merely to select one.
+Apply this skill's use-site default only when neither the request nor existing project instructions choose one. Treat existing instructions as authoritative read-only input; do not ask for, create, modify, or copy instructions merely to select a default.
 
 ## Require native stack support
 
@@ -54,7 +54,7 @@ query($owner: String!, $name: String!, $number: Int!) {
 }'
 ```
 
-Follow `pageInfo.hasNextPage` with an `after` argument when the stack is larger than the page. Establish the expected bottom-to-top order from the live PR bases: the bottom targets the trunk, and each higher PR targets the head branch immediately below it. The trunk is the repository's default branch (`gh repo view --json defaultBranchRef`).
+Follow `pageInfo.hasNextPage` with an `after` argument when the stack is larger than the page. Establish the expected bottom-to-top order from the live PR bases: the bottom targets the trunk, and each higher PR targets the head branch immediately below it. The trunk is the stack's `baseRefName`, or the bottom PR's `baseRefName` when linking a chain; it need not be the repository default branch.
 
 ## Link missing stack members
 
@@ -75,16 +75,16 @@ Never dissolve, reorder or rebuild an existing stack automatically; `gh stack li
 
 ## Refresh only when needed
 
-Do not rewrite branches merely because a refresh mechanism exists. When the live merge state or the repository's rules require the branch to be updated onto the trunk, choose one of the histories below that the landing repository's instructions allow.
+Do not rewrite branches merely because a refresh mechanism exists. When the live merge state or the repository's rules require the branch to be updated onto the trunk, enable rerere with `git config rerere.enabled true`, ensure `rerere.autoUpdate` is unset or false so replayed resolutions stay unstaged, then rebase. Inspect every replayed resolution before staging it. Use merge-forward only when the PR author explicitly requests it and the landing repository allows that history.
 
-- **Native cascading rebase.** Check out the remote stack with `gh stack checkout <pr-or-stack>` when it is not tracked locally, then run `gh stack sync`. The command may rebase and lease-protected force-push every active layer before local validation, so immediately inspect the rewritten scope, run the relevant checks for every affected layer, and do not merge or claim readiness until they pass. If sync detects a rebase conflict, use `gh stack rebase`, resolve and validate it, then publish with `gh stack push`. If checkout or sync reports divergent local and remote stack compositions, cancel and ask rather than deleting or recreating the remote stack automatically.
-- **Incremental merge-forward.** Merge the trunk into the bottom affected branch, then propagate each updated parent into its child in bottom-to-top order and push normally. If the base advances during an in-progress merge, preserve that checkpoint before merging the newer tip.
+- **Native cascading rebase (default).** Check out the remote stack with `gh stack checkout <pr-or-stack>` when it is not tracked locally, then run `gh stack sync`. The command may rebase and lease-protected force-push every active layer before local validation, so immediately inspect the rewritten scope, run the relevant checks for every affected layer, and do not merge or claim readiness until they pass. If sync detects a rebase conflict, use `gh stack rebase`, resolve and validate it, then publish with `gh stack push`. If checkout or sync reports divergent local and remote stack compositions, cancel and ask rather than deleting or recreating the remote stack automatically.
+- **Incremental merge-forward (author-requested exception).** Merge the trunk into the bottom affected branch, then propagate each updated parent into its child in bottom-to-top order and push normally. If the base advances during an in-progress merge, preserve that checkpoint before merging the newer tip. Do not choose this history merely because it avoids force-pushing.
 
-A history rewrite is allowed after review where the landing repository's instructions allow it, but it invalidates commit-OID assumptions. Re-fetch exact heads and re-audit unresolved review threads, approvals, mergeability and checks after the push. Never use raw `--force`, and never overwrite a concurrently advanced remote head. Read the landing repository's instructions before choosing a history; when they name no allowed history, ask the user or stop rather than choosing one on the repository's behalf.
+A history rewrite is allowed after review where the landing repository's instructions allow it, but it invalidates commit-OID assumptions. Re-fetch exact heads and re-audit unresolved review threads, approvals, mergeability and checks after the push. Never use raw `--force`, and never overwrite a concurrently advanced remote head. When repository policy forbids rebase, require its allowed alternative or stop; when policy is silent, the native cascading rebase default above applies.
 
 ## Preflight the merge range
 
-Re-query the official stack immediately before merging. Require every selected PR to be open, non-draft, in the expected order, and compliant with the repository's review and check requirements. Read that compliance from the same metadata: a `mergeStateStatus` other than `CLEAN` (a still-computing `UNKNOWN` included) or a `reviewDecision` of `CHANGES_REQUESTED` is a blocker.
+Re-query the official stack immediately before merging. Require every selected PR to be open, non-draft, in the expected order, and compliant with the full base-branch protections for the stack trunk and each dependent base. Use `gh pr checks <pr> --required` for required checks; a raw `statusCheckRollup` can retain superseded failures and does not identify required checks. A `CHANGES_REQUESTED` review, a failed required check, a conflict, a still-computing `UNKNOWN`, or any `BEHIND` state is a blocker. The native stack also requires linear history: the trunk head must be an ancestor of the bottom PR head, and each lower head must be an ancestor of the next higher head. Refresh the stack when either condition fails. `BLOCKED` can describe the unmerged parent of a dependent layer and is a blocker only when its required reviews, checks, conflicts, or missing base requirements establish one. `UNSTABLE` is a blocker only when a required check failed.
 
 "Land the stack" selects the whole stack; a partial landing requires an explicit boundary PR and includes every layer from the bottom through that boundary. Treat each PR's state independently: a ready top layer does not prove its dependencies are ready.
 
@@ -127,8 +127,9 @@ Anything other than `0` blocks deletion.
 
 - [ ] Native `gh stack` support is available, every PR branch is in the same repository, and the worktree is clean with live head OIDs fetched.
 - [ ] Live PR bases establish one bottom-to-top chain; the official stack object reports one stack with the expected trunk, entries and order; an eligible same-author unstacked chain was linked, or user direction was asked for.
+- [ ] The declared stack base, full base-branch protections, required checks, and linear trunk-to-tip ancestry pass; no selected layer is `BEHIND`.
 - [ ] Any rewritten layer passed the relevant checks, and review threads, approvals, mergeability and checks were re-audited after the push.
-- [ ] Re-querying the official stack before the merge finds every selected PR open, non-draft, in order, with `mergeStateStatus: CLEAN` and no changes-requested review.
+- [ ] Re-querying the official stack before the merge finds every selected PR open, non-draft, in order, with no changes-requested review or failed required check; dependency-only `BLOCKED` is not treated as a failure.
 - [ ] The whole stack, or the explicitly bounded prefix, was merged through `gh stack merge` with the landing repository's method; no per-PR merge command was used.
 - [ ] Every selected PR reports `MERGED`; after a partial landing, the remaining layers form the expected official stack.
 - [ ] Branch deletion happened only in the final pass, after merged-state and zero-dependent verification.

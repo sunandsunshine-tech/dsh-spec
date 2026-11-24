@@ -2,10 +2,10 @@
 
 The text of this skill is adapted from the DeepSeek Harness skill `dsh-pr-description`.
 
-- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`).
+- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.3-alpha.2` (`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`).
 - Upstream path: `.agents/skills/dsh-pr-description/SKILL.md`.
-- Relation: adapted for software projects of any kind. The title, description and language rule are rewritten; the repository-specific tracker, label, template, tooling, documentation-budget, interface-recording and terminology rules are re-bound to the adopting project's conventions or dissolved; the four section requirements, the tracked-issue association, the test-design forms, the disclosure duties and the AI Usage model are carried as obligations, with the AI Usage detail in `references/ai-usage.md` and an adoptable working-default reference in `references/default-conventions.md`.
-- Deviation: the upstream frontmatter field `user-invocable: false` is not carried. This package's Agent Skills gate closes the frontmatter set to `name`, `description`, `license`, `compatibility`, `metadata` and `allowed-tools`, so the field cannot be expressed; the host's invocation policy replaces it. The forging record records the deviation as ruling R17.
+- Relation: adapted for software projects of any kind. The title, description and language rule are rewritten; the repository-specific tracker, label, template, tooling, documentation-budget, interface-recording and terminology rules are re-bound to the adopting project's conventions or dissolved; the four section requirements, the tracked-issue association, module responsibilities and dependency-edge reporting, the test-design forms, the disclosure duties and the AI Usage model are carried as obligations, with the AI Usage detail in `references/ai-usage.md` and an adoptable working-default reference in `references/default-conventions.md`.
+- Deviation: the upstream frontmatter field `user-invocable: false` is not carried. This package's Agent Skills gate closes the frontmatter set to `name`, `description`, `license`, `compatibility`, `metadata` and `allowed-tools`, so the field cannot be expressed; the host's invocation policy replaces it. The forging record records the deviation in its Decision and Consequences sections.
 
 This skill is distributed under the MIT licence. The upstream and repository notices follow so that an installed copy carries them. This file is not part of the skill's instructions.
 

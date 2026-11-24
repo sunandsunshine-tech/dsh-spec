@@ -12,9 +12,9 @@ Status: implemented
 
 本包交付 `dsh-spec-browser-gif-evidence`，其目录位于 `skills/dsh-spec-browser-gif-evidence/`。该技能拥有捕获、编码、验证和可选发布；UI 是否可接受仍由 UI 评审工作流判断。用户可见的浏览器 UI 变更默认从采用者真实构建的一次隔离运行生成 GIF 证据。项目可以为具名变更选择等价证据或豁免默认要求。fixture（测试前置数据）只在用户明确要求或项目证据政策选择该形式时存在；mock transport、合成交互和测试专用 hook 需要显式替代政策。
 
-评估应用会在声明的延迟之后自行完成 `/save`。捕获流程观察保存中状态，并等待同一个请求结束；没有单独的完成端点或测试专用 hook 驱动 fixture。PR115 的 fixture 运行保留一个隔离 Chrome 进程、编码后的 GIF、捕获报告、源帧与 QA 帧，以及解析后的浏览器/媒体能力档位。其保留报告未记录明确的 fresh-profile 来源。
+评估应用会在声明的延迟之后自行完成 `/save`。捕获流程观察保存中状态，并等待同一个请求结束；没有单独的完成端点或测试专用 hook 驱动 fixture。PR115 保留历史来源，其中真实运行的媒体后来被重新生成。PR122 携带一次自洽的同轮真实捕获和一次能力缺失运行，各自带 trace、能力档位、输入清单、产物清单与评审者认证的断言。
 
-PR115 的 candidate-real 真实叶节点（real leaf）是历史性、不同源的证据。其 final 报告给出的 origin 和 GIF 字节数与保留的产物不同，而且媒体在模型运行之后被重新生成。因此，该叶节点记录 `evidence_status: historical`、`coherence: non-coherent` 与 `current_proof: false`；其历史断言评审不能证明当前 head 上的行为。
+PR115 的真实运行叶节点所报告的 origin 和 GIF 字节数与保留的产物不同，因此记录 `evidence_status: historical`、`coherence: non-coherent` 与 `current_proof: false`。
 
 该技能携带一份聚焦的发布参考和生成的 Node bundle `scripts/encode-browser-gif.mjs`；其源码位于 `package/dsh-spec-browser-gif-evidence/`。编码器写入并验证临时的 GIF，只有时长、尺寸、动画和大小检查全部通过后才把它放到输出路径。仓库测试通过生成后的入口执行，留在安装副本之外，并把快速预检与一个共享的真实媒体场景分层。安装副本与落地目录逐字节一致；评估输入保留在 `tests/skill-evals/`，不会进入任一分发树。
 
@@ -22,7 +22,7 @@ PR115 的 candidate-real 真实叶节点（real leaf）是历史性、不同源�
 
 来源仓库：`deepseek-ai/deepseek-harness`。
 
-来源基线：`dsh-v0.2.2-rc.5`（`9c2670d3bce5275e0d1610272958121af87787bb`），读取日期为 2026-11-20。
+历史改编来源：`dsh-v0.2.2-rc.5`（`9c2670d3bce5275e0d1610272958121af87787bb`），读取日期为 2026-11-20。当前检查基线：`dsh-v0.2.3-alpha.2`（`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`），检查日期为 2026-11-23。
 
 来源文件：
 
@@ -94,12 +94,11 @@ PR115 的 candidate-real 真实叶节点（real leaf）是历史性、不同源�
 | Agent Skills 结构、链接与描述预算 | Mechanical | `verify-skill-spec.mjs` |
 | 编码器的时序、trim、速度、截图、原子覆盖与大小拒绝 | Mechanical | `tests/browser-gif-encoder.media.ts`：一个共享的真实 WebM/PPM 场景在 Node 26 上使用真实 `ffmpeg` 与 `ffprobe` 运行 |
 | 不执行媒体编码时的命令约定与预检失败 | Mechanical | `tests/cli-contract.test.ts` 与 `tests/browser-gif-encoder.test.ts` |
-| 捕获成功、断开连接、截止时限、原子发布与清理 | Mechanical | `tests/browser-gif-capture.test.ts`：一个模拟 CDP 浏览器验证了发布内容完整、断开连接后立即拒绝、整次运行遵守截止时限、不产生部分证据，且没有进程或 profile 残留 |
-| 能力缺失交接与明确 fixture 披露 | Judged + Mechanical | `tests/skill-evals/evidence/2026-11-20-pr115/` 下的干净上下文运行；能力缺失和 fixture 运行通过 8/8 项断言 |
+| 能力缺失交接与明确 fixture 披露 | Judged + Mechanical | PR115 的历史运行保留其原有 12 项断言；当前能力缺失运行位于 `tests/skill-evals/evidence/2026-11-23-pr122/dsh-spec-browser-gif-evidence/missing-capture-capability-hands-off/` |
 | 安装副本与语料门禁 | Mechanical | `skill:refresh`、`check:corpus`、repository-shape tests |
 | 既有媒体分支 | Dissolved | 不分发 DSH 资产分支政策 |
-| 在真实浏览器中捕获真实 UI 的历史记录 | Judged | 历史真实叶节点记录了对一次三状态 headless Chrome 捕获的评审，但其 final 报告与保留产物不同源，且该叶节点不计入当前证明 |
-| 模型行为与发现质量 | Judged + Mechanical | 能力缺失和 fixture 运行通过 8/8 项断言；历史真实运行的 4/4 项评审结果不同源；八条简短触发探针都符合预期的正例或近邻反例结果 |
+| 在真实浏览器中捕获真实 UI | Judged | PR122 证据构建 fixture，通过一个 headless Chrome 会话捕获三个状态，使用随附编码器编码，保留同轮 GIF、报告与帧并目视检查代表帧，然后清理服务器与浏览器 |
+| 模型行为与发现质量 | Judged + Mechanical | PR122 在真实与能力缺失运行中共通过 8/8 项断言；历史 PR115 提供三次较早的行为运行与八条触发探针，仅证明其记录修订 |
 
 ## Alternatives considered
 

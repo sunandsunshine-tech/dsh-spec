@@ -1,0 +1,35 @@
+{
+  "skill_name": "dsh-spec-merging-stacked-prs",
+  "evals": [
+    {
+      "id": "refresh-stack-with-rerere",
+      "prompt": "Use evals/files/stack-policy/AGENTS.md and stack.md. Select the refresh and validation sequence after review for this three-layer stack. No author has requested merge-forward.",
+      "expected_output": "The selection enables rerere, leaves rerere.autoUpdate unset or false so replayed resolutions stay unstaged, inspects every replayed resolution, uses the native cascading rebase path, validates every affected layer, and does not choose merge-forward without an author request.",
+      "files": [
+        "evals/files/stack-policy/AGENTS.md",
+        "evals/files/stack-policy/stack.md"
+      ],
+      "assertions": [
+        "The selection enables rerere and leaves rerere.autoUpdate unset or false before rebasing.",
+        "The selection uses the native cascading rebase flow rather than merge-forward.",
+        "The selection does not require an author request that does not exist.",
+        "The selection revalidates every replayed layer after publication."
+      ]
+    },
+    {
+      "id": "dependency-only-blocked-stack-can-land",
+      "prompt": "Use evals/files/preflight-policy/AGENTS.md and stack.md. Decide whether the official stack is ready to merge and select the next action.",
+      "expected_output": "The selection distinguishes dependency-only BLOCKED states from real merge blockers, treats the stack as ready, and proceeds through gh stack merge without merging or retargeting individual PRs.",
+      "files": [
+        "evals/files/preflight-policy/AGENTS.md",
+        "evals/files/preflight-policy/stack.md"
+      ],
+      "assertions": [
+        "The selection recognizes that BLOCKED can be caused by an unmerged parent in a dependent stack.",
+        "The selection verifies required checks and review decisions rather than treating BLOCKED as an automatic failure.",
+        "The selection proceeds through the official stack merge command.",
+        "The selection does not merge or retarget individual PRs."
+      ]
+    }
+  ]
+}

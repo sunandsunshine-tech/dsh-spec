@@ -1,0 +1,3 @@
+The official stack is ready to merge. All three PRs are open and non-draft, the order is correct, required checks are green, approvals are present, and there are no requested changes or conflicts. `#202` and `#203` are `BLOCKED` only by their open parents, which the landing policy explicitly permits.
+
+Next action: land the entire stack through `gh stack merge <stack-number> --yes --squash`. Do not refresh layers merely for dependency-only `BLOCKED` status, merge `#201` individually, or fall back to per-PR commands.

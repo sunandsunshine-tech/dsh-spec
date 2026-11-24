@@ -1,0 +1,4 @@
+PASS The silent handler covers only the temporary-directory removal.
+PASS The catch binding exposes the expected cleanup failure rather than discarding it with a bare underscore.
+PASS The safety reason appears inside the catch handler.
+PASS Only the structured ENOENT failure is tolerated; commit and notification failures surface.

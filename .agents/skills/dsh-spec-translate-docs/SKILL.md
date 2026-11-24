@@ -9,15 +9,15 @@ compatibility: "Requires Node.js 24.11+ on the 24 line or 26+ and Git for the br
 
 ## Invocation boundary
 
-This skill runs when the user asks for translation or pair maintenance, when the project's standing instructions say an existing pair is maintained, when a documented change touches a side of an existing pair, or when the workflow responsible for a document scope authorizes a pair in that scope. Those same sources authorize creating or updating a pair, and the check never demands that a document be paired. Once selected, translation and pairing are required, and failure is handed off unfinished. The [pairing contract](references/pairing-contract.md) owns path scope, target-selection rules and failure details.
+This skill runs when the user asks for translation or pair maintenance, when the project's standing instructions say an existing pair is maintained, when a documented change touches a side of an existing pair, or when the workflow responsible for a document scope authorizes a pair in that scope. Those same sources authorize creating or updating a pair; an explicit `--require-target` may apply the project's declared completeness policy to a selected source set. Once selected, translation and pairing are required, and failure is handed off unfinished. The [pairing contract](references/pairing-contract.md) owns path scope, target-selection rules and failure details.
 
 ## Defaults
 
-A default is the value or strategy this skill declares at its use site. It applies when the current request and existing project instructions leave that choice open. A user turn or explicit parameter supplies a one-off value. Existing project instructions supply a persistent override and are read without being modified or copied. Missing project instructions are valid, so do not ask the user to choose a default or create or modify an instruction file merely to select one.
+Apply this skill's use-site default only when neither the request nor existing project instructions choose one. Treat existing instructions as authoritative read-only input; do not ask for, create, modify, or copy instructions merely to select a default.
 
 ## What this skill is
 
-A self-contained mechanism for a corpus of paired Markdown documents: the skill entry, three references, and one bundled script. `<skill-dir>` is the directory containing this `SKILL.md`; run the script from the project root. The script is parameter-driven; the pairing contract owns the options, their defaults and the override rules. The check verifies existing pairs only: file structure, Markdown structure, generated-region equality and the recorded hashes. It does not decide independently that a source should have a counterpart. That decision belongs to the standing instructions, the user, or the workflow responsible for the document scope.
+A self-contained mechanism for a corpus of paired Markdown documents: the skill entry, three references, and one bundled script. `<skill-dir>` is the directory containing this `SKILL.md`; run the script from the project root. The script is parameter-driven; the pairing contract owns the options, their defaults and the override rules. The check verifies existing pairs by default: file structure, Markdown structure, generated-region equality and the recorded hashes. It does not decide independently that a source should have a counterpart; that decision belongs to the standing instructions, the user, or the workflow responsible for the document scope and reaches the command as an explicit `--require-target`.
 
 ## Choose targets
 
@@ -48,6 +48,7 @@ A pair is a source `foo.md`, one counterpart per target `foo.zh.md` or `foo.<lan
 - **Deleted or renamed document**: follow § Finish the pair; a named `write --target` never drops a target, and an entry without a counterpart is an incomplete pair.
 - **Generated region**: the generator updates both sides; never edit a region by hand.
 - **Frozen or excluded document**: the standing instructions say it is not maintained; do not create, update or repair its pairs.
+- **Locale-selected detail page**: when the project selects the page by locale metadata and publishes no in-document switcher or record, declare its localized paths with `--unpaired <glob>`; the paths stay outside pair discovery and existing-target inference, links to different localized versions still normalize to one semantic target, and their locale differences are not violations. The project's link, prose and review checks keep both localized versions in step.
 
 Every successful update path continues with § Finish the pair.
 
@@ -88,7 +89,7 @@ A generated source (`--generated`) omits only its own switcher; the counterpart 
 
 ## Find the work
 
-- `list` reports the pairs that exist; use `--select <glob>` and `--skip <glob>` to narrow the set. There is no completeness report: a source without a counterpart is simply not a pair.
+- `list` reports the pairs that exist; use `--select <glob>` and `--skip <glob>` to narrow the set, and `--unpaired <glob>` to exclude locale-selected pages from pairing. `--require-target <lang>` applies a declared full-pair policy to the selected sources and reports missing targets.
 - `brief` with no pair argument reports every drifted existing pair; a pair it cannot brief is reported on stderr, the other briefs are still emitted without `--apply`, and the command exits 2. A generated-region drift is fatal for the whole run.
 - Discovery walks hidden directories and applies the [pairing contract's default prune trees](references/pairing-contract.md#discovery). Frozen or vendored trees are kept out of the work by the standing instructions and the selection filters.
 - In a change that edits a paired document, the work list is the change's diff: every changed side needs its counterpart brought along and the pair recorded in the same change.
@@ -98,7 +99,7 @@ A generated source (`--generated`) omits only its own switcher; the counterpart 
 
 1. A new pair or whole-document translation carries the source and counterpart switcher lines; a generated source omits only its own switcher. Regenerate generated regions on both sides; they are not translated.
 2. Edit a target, then run `write --target`; never write before editing. When several targets change, edit and write each target sequentially, then run `write --all` once after all targets are updated so the aggregate record is refreshed in one render. Never hand-edit the aggregate record; the script writes it. The record diff is the reviewable statement that the sides match.
-3. For a deleted or renamed document, remove the counterpart and its source-switcher link, then run `write --all` for the source; a recorded target with no counterpart is dropped. When the last target is removed, `write --all` removes the empty aggregate record. A named `write --target` never retires a target.
+3. When a source and its pairs are deleted, delete them together: the source, every counterpart, the aggregate record and inbound links. When a source is renamed, move the source, its counterparts and record to the new stem, repair their switchers and inbound links, then run `write --all` for the renamed source. When only a target is retired, leave the source in place, remove that counterpart and its switcher entry, and run `write --all` for the source; when the last target is removed, that command removes the empty aggregate record. A named `write --target` never retires a target.
 4. Do not widen the work beyond the documents selected by the project instructions, the user or the responsible workflow.
 5. Before handing over, the touched pairs are green under `check`, and a range-wide run checks every existing pair the change touched (when available, use the `dsh-spec-pre-push-checks` skill). Report the exact `write` and `check` commands and their observed results.
 6. Keep the handover reviewable: say which pairs are new, which were minimally updated, and list pending terms and terminology decisions prominently.

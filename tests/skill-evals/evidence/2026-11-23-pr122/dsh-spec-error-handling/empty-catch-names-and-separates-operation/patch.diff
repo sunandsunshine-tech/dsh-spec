@@ -1,0 +1,25 @@
+diff --git a/evals/files/empty-catch/README.md b/evals/files/empty-catch/README.md
+index 6d7a031..c19963f 100644
+--- a/evals/files/empty-catch/README.md
++++ b/evals/files/empty-catch/README.md
+@@ -6,11 +6,16 @@ A missing temporary directory is the only safe cleanup failure.
+ ```js
+ try {
+   await removeTemporaryDirectory()
+-  await commitBatch()
+-  await notifyOwner()
+-} catch (_) {
+-  // ignore
++} catch (error) {
++  if (error?.code !== 'ENOENT') {
++    throw error
++  }
++
++  // The temporary directory is already absent, so cleanup is complete.
+ }
++
++await commitBatch()
++await notifyOwner()
+ ```
+ 
+ The project represents a missing path with the existing `ENOENT` code on its structured failure.

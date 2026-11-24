@@ -33,10 +33,6 @@
         "dsh-spec-client-ui-ux",
         "dsh-spec-error-handling"
       ],
-      "install": [
-        "dsh-spec-client-ui-ux",
-        "dsh-spec-error-handling"
-      ],
       "assertions": [
         "The review requires the existing `kind` identity and structured `detail` to survive the worker boundary.",
         "The review rejects routing on the error message.",
@@ -77,6 +73,46 @@
         "The review rejects routing on the error message.",
         "The review reports Settings saving/disabled rendered evidence as unavailable.",
         "The review gives a resumable next step instead of claiming visual acceptance."
+      ]
+    },
+    {
+      "id": "review-cites-numbered-rule",
+      "prompt": "Review the outgoing change at HEAD against HEAD^ in evals/files/numbered-rule-review using the installed dsh-spec-code-review skill. Read the numbered project rules, inspect the actual diff, and cite every violated rule by its ID. Do not modify files or Git state.",
+      "expected_output": "The review reports that the new exported `parseConfig` function violates `API-2` because it has no API documentation naming its error behavior.",
+      "files": [
+        "evals/files/numbered-rule-review/AGENTS.md",
+        "evals/files/numbered-rule-review/src/config.ts",
+        "evals/files/numbered-rule-review/change.patch"
+      ],
+      "change_patch": "evals/files/numbered-rule-review/change.patch",
+      "change_root": "evals/files/numbered-rule-review",
+      "assertions": [
+        "The review cites `API-2` as the violated numbered rule.",
+        "The review identifies the new exported function without API documentation.",
+        "The review does not invent a different rule ID."
+      ]
+    },
+    {
+      "id": "review-dependency-edges-and-reverse-edge",
+      "prompt": "Review the dependency description and manifests in evals/files/dependency-review. Compare the base manifests with the current workspace manifests, then compare the reported responsibilities and runtime edges with that diff. State the responsibility each affected package actually owns, including `validator`. Report any missing added or removed edge, unnecessary edge, wrong responsibility, or reverse-edge problem.",
+      "expected_output": "The review reports the added app → validator and app → core edges, the removed app → legacy edge, and the existing core → app reverse dependency. It recognizes the description's validator responsibility but rejects its edge list as incomplete.",
+      "files": [
+        "evals/files/dependency-review/AGENTS.md",
+        "evals/files/dependency-review/base/packages/app/package.json",
+        "evals/files/dependency-review/base/packages/core/package.json",
+        "evals/files/dependency-review/base/packages/legacy/package.json",
+        "evals/files/dependency-review/packages/app/package.json",
+        "evals/files/dependency-review/packages/core/package.json",
+        "evals/files/dependency-review/packages/validator/package.json",
+        "evals/files/dependency-review/pr-description.md"
+      ],
+      "assertions": [
+        "The review verifies runtime edges from the workspace manifests.",
+        "The review reports the app → validator edge and the validator responsibility.",
+        "The review reports the app → core runtime edge.",
+        "The review reports the removed app → legacy runtime edge.",
+        "The review flags the existing core → app reverse dependency.",
+        "The review does not accept the description's reported edge list as complete."
       ]
     }
   ]

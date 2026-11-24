@@ -1,0 +1,4 @@
+PASS The downstream result keeps cancellation, timeout, and denial as distinct machine-readable outcomes.
+PASS The wrapper does not reduce the failures to display text or an indistinguishable success-shaped result.
+PASS Available cause or structured detail remains preserved.
+PASS The three outcomes lead to their distinct downstream recovery actions.

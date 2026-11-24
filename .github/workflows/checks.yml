@@ -27,6 +27,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          submodules: recursive
 
       # One step provides pnpm and Node. `version` stays explicit because CONTRIBUTING records the
       # pinned pnpm version in three places; `require-lockfile` keeps the workspace install frozen.

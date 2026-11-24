@@ -1,0 +1,7 @@
+092a12e1db6ce742ca781a0b6c06f26a159d0d4f8b93b7ee3ded1db8e887df90  tests/skill-evals/dsh-spec-error-handling/evals/files/evals.json
+c1e536dff60849cb3f2fd561c0142d8bb6e2a7c37afc4be4c4503964a1c06383  tests/skill-evals/dsh-spec-error-handling/evals/files/files/existing-identity/AGENTS.md
+5f670a1ecd8ddef1befa6b4bc30e205b823ac74f434f5a3b3d632255e7a62a11  tests/skill-evals/dsh-spec-error-handling/evals/files/files/existing-identity/README.md
+e4c8600b61e94a4372e85f78c242934f45ec1566a985345cbe86cc9718889fed  tests/skill-evals/dsh-spec-error-handling/evals/files/files/message-only/README.md
+25248977bccd271656ad7cc5b13f7c57a14b229c0096e11767dfb482ee00ee40  tests/skill-evals/dsh-spec-error-handling/evals/files/files/numeric-no-cause/README.md
+c13a7d39abd982406174157c118f4cfe31aa61b0bb7b9ca47112784853425a25  tests/skill-evals/dsh-spec-error-handling/evals/files/files/silent-handler/README.md
+cc4a4036e3e7b07f8cae772f59195d2ad0f2fcd404985a58a5e3df30c59e11ad  tests/skill-evals/dsh-spec-error-handling/evals/files/files/worker-boundary/README.md

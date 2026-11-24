@@ -510,7 +510,6 @@ test('model catalog and base URL validation reject credentials and path escapes'
       '[provider](https://user:secret@provider.example/v1)',
       'ftp://user:secret@provider.example/v1',
       'https://user:secret@[invalid',
-      'https://',
       'https://provider.example/v1?authkey=secret',
     ]
     for (const [index, value] of unsafeCatalogValues.entries()) {
@@ -533,6 +532,20 @@ test('model catalog and base URL validation reject credentials and path escapes'
     }
     writeFileSync(join(root, 'safe-url-catalog.json'), JSON.stringify(safeCatalogWithUrl))
     assert.equal(safety.readSafeModelCatalog(root, 'safe-url-catalog.json'), `${JSON.stringify(safeCatalogWithUrl)}\n`)
+    const safeCatalogWithReferenceSchemes = {
+      models: [
+        {
+          slug: 'safe',
+          description:
+            'Do not use URI markers such as file://, vscode:// or https://. Open skill://, plugin://{{plugin_id}} or app://{{connector_id}}.',
+        },
+      ],
+    }
+    writeFileSync(join(root, 'safe-reference-catalog.json'), JSON.stringify(safeCatalogWithReferenceSchemes))
+    assert.equal(
+      safety.readSafeModelCatalog(root, 'safe-reference-catalog.json'),
+      `${JSON.stringify(safeCatalogWithReferenceSchemes)}\n`,
+    )
   } finally {
     rmSync(root, { recursive: true, force: true })
   }

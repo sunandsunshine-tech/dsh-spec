@@ -1,0 +1,4 @@
+PASS The selection recognizes that BLOCKED can be caused by an unmerged parent in a dependent stack.
+PASS The selection verifies required checks and review decisions rather than treating BLOCKED as an automatic failure.
+PASS The selection proceeds through the official stack merge command.
+PASS The selection does not merge or retarget individual PRs.

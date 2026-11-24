@@ -2,7 +2,11 @@
 
 These runs exposed the model-visible `evals/evals.json`; they are answer-contaminated and retained
 only as provenance. The current source/answer-tree-isolated diagnosis and slow-suite reruns are
-under `tests/skill-evals/evidence/2026-11-23-pr116/`.
+under `tests/skill-evals/evidence/2026-11-23-pr121/`.
+
+The checked-in `skills-tree.sha256` and `evaluation-files.sha256` freeze the source and fixture
+hashes recorded by the original Git trees, so historical verification does not require branch-only
+objects.
 
 Repository checks retain these files as historical provenance only. They do not bind the historical
 scenarios, inputs, scores, or trigger decisions to current behavior.

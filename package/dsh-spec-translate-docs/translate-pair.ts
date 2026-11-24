@@ -2,9 +2,10 @@
 /**
  * SPDX-License-Identifier: MIT
  *
- * Extracted from the DeepSeek Harness bilingual-document mechanism at the pinned
- * `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`); the skill-root
- * THIRD_PARTY_NOTICES names the upstream paths and the relation.
+ * Extracted from the DeepSeek Harness bilingual-document mechanism at source revision
+ * `dsh-v0.2.1-rc.3` (`1f81c047fc48fa190a683e469daa699857e9afe8`) and reviewed against the
+ * current `dsh-v0.2.3-alpha.2` pin; the skill-root THIRD_PARTY_NOTICES names the upstream paths
+ * and the relation.
  */
 /**
  * The pairing CLI: list/check/write existing pairs, brief minimal updates, initialise
@@ -54,9 +55,11 @@ const USAGE = [
   '',
   'Options:',
   '  --target <lang>[=<display>]   target language, repeatable (default: zh=中文)',
+  '  --require-target <lang>[=<display>]  require the target for selected sources (check/list)',
   '  --source-lang <code>[=<display>]  source language for a first record',
   '  --select <glob>               select existing pairs by source path, repeatable',
   '  --skip <glob>                 skip source paths, repeatable',
+  '  --unpaired <glob>             exclude locale-selected pages from pairing, repeatable',
   '  --generated <glob>            generator-owned source glob, repeatable (corpus verbs)',
   '  --terminology <lang>=<path>   terminology file override, repeatable',
   '  --root <dir>                  project root (default: working directory)',
@@ -81,11 +84,13 @@ interface TerminologyOverride {
 interface Options {
   root: string
   targets: Language[]
+  requiredTargets: Language[]
   restrict?: Language[]
   sourceLanguage?: Language
   pairs: string[]
   select: string[]
   skip: string[]
+  unpaired: string[]
   generated: string[]
   terminology: TerminologyOverride[]
   apply: boolean
@@ -124,10 +129,12 @@ function parseOptions(argv: string[]): { verb: string; options: Options } {
   const options: Options = {
     root: process.cwd(),
     targets: [],
+    requiredTargets: [],
     sourceLanguage: undefined,
     pairs: [],
     select: [],
     skip: [],
+    unpaired: [],
     generated: [],
     terminology: [],
     apply: false,
@@ -168,6 +175,13 @@ function parseOptions(argv: string[]): { verb: string; options: Options } {
           throw new UsageError(error instanceof Error ? error.message : String(error))
         }
         break
+      case '--require-target':
+        try {
+          options.requiredTargets.push(parseTarget(value()))
+        } catch (error) {
+          throw new UsageError(error instanceof Error ? error.message : String(error))
+        }
+        break
       case '--source-lang':
         try {
           options.sourceLanguage = parseSourceLanguage(value())
@@ -185,6 +199,12 @@ function parseOptions(argv: string[]): { verb: string; options: Options } {
         const pattern = value()
         assertGlob(flag, pattern)
         options.skip.push(pattern)
+        break
+      }
+      case '--unpaired': {
+        const pattern = value()
+        assertGlob(flag, pattern)
+        options.unpaired.push(pattern)
         break
       }
       case '--generated': {
@@ -225,6 +245,10 @@ function parseOptions(argv: string[]): { verb: string; options: Options } {
   }
   if (options.targets.length > 0) options.restrict = [...options.targets]
   else options.targets = [DEFAULT_TARGET]
+  if (options.requiredTargets.length > 0 && verb !== 'check' && verb !== 'list')
+    throw new UsageError('--require-target belongs to check or list')
+  if (options.requiredTargets.length > 0 && options.pairs.length > 0)
+    throw new UsageError('--require-target takes an all-source scope, not named pairs')
   if (verb === 'region') {
     if (options.regionSlug === undefined || options.regionBody === undefined)
       throw new UsageError('region needs --slug and --body')
@@ -241,6 +265,7 @@ function parseOptions(argv: string[]): { verb: string; options: Options } {
       options.generated.length > 0 ||
       options.select.length > 0 ||
       options.skip.length > 0 ||
+      options.unpaired.length > 0 ||
       options.sourceLanguage !== undefined
     )
       throw new UsageError('init accepts only --target, --root and --terminology')
@@ -266,6 +291,7 @@ function corpusOf(options: Options): PairCorpus {
     generated: options.generated,
     select: options.select,
     skip: options.skip,
+    unpaired: options.unpaired,
     terminology: options.terminology,
     repositoryFileExists: (path) => readRepositoryFile(options.root, path) !== undefined,
     repositoryReadFile: (path) => readRepositoryFile(options.root, path),
@@ -343,6 +369,26 @@ function discoveredPairs(options: Options, corpus: PairCorpus): PairPaths[] {
     .filter((paths) => passesFilters(options, paths.source))
 }
 
+function addRequiredTargets(options: Options, corpus: PairCorpus, pairs: PairPaths[]): PairPaths[] {
+  if (options.requiredTargets.length === 0) return pairs
+  const sources = corpus.sourceFiles.filter((source) => passesFilters(options, source))
+  if (sources.length === 0) throw new UsageError('required-target check selected no source document')
+  const seen = new Set(pairs.map(pairKey))
+  const result = [...pairs]
+  for (const source of sources) {
+    for (const target of options.requiredTargets) {
+      const paths = pairPaths(source, target)
+      const key = pairKey(paths)
+      if (seen.has(key)) continue
+      seen.add(key)
+      result.push(paths)
+    }
+  }
+  return result.sort(
+    (left, right) => left.source.localeCompare(right.source) || left.target.code.localeCompare(right.target.code),
+  )
+}
+
 function namedPairAbsent(options: Options, paths: PairPaths): boolean {
   return (
     readRepositoryFile(options.root, paths.source) === undefined &&
@@ -353,7 +399,11 @@ function namedPairAbsent(options: Options, paths: PairPaths): boolean {
 
 function verbList(options: Options): number {
   const corpus = corpusOf(options)
-  const pairs = options.pairs.length > 0 ? selected(options, corpus) : discoveredPairs(options, corpus)
+  const pairs = addRequiredTargets(
+    options,
+    corpus,
+    options.pairs.length > 0 ? selected(options, corpus) : discoveredPairs(options, corpus),
+  )
   if (options.pairs.length > 0 && pairs.length === 0) {
     console.error('translate-pair: no pair was selected for ' + options.pairs.join(', ') + '; ' + TARGET_SELECTION_HINT)
   }
@@ -378,7 +428,11 @@ function verbList(options: Options): number {
 function verbCheck(options: Options): number {
   const corpus = corpusOf(options)
   if (options.pairs.length > 0) assertNamedSelections(options, corpus, 'check')
-  const pairs = options.pairs.length > 0 ? selected(options, corpus) : discoveredPairs(options, corpus)
+  const pairs = addRequiredTargets(
+    options,
+    corpus,
+    options.pairs.length > 0 ? selected(options, corpus) : discoveredPairs(options, corpus),
+  )
   if (options.pairs.length > 0) {
     for (const paths of pairs) {
       if (namedPairAbsent(options, paths))

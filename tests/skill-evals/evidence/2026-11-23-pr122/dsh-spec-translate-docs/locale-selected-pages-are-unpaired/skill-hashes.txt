@@ -1,0 +1,6 @@
+2e98675cbe19dbf92d011b04c2a27b1416f4dc382bc5bc4e360274ce8eaf27d0  skills/dsh-spec-translate-docs/SKILL.md  mode=0644
+dcc7d8c61e8e4de2ed3ebd7810acf5ac1c215b5b6ceab4defacf867b153c4be1  skills/dsh-spec-translate-docs/THIRD_PARTY_NOTICES  mode=0644
+558dc73cf2c700ade0882e5f36f1b50d740f35330797a20e37fd77658ba58a94  skills/dsh-spec-translate-docs/references/pairing-contract.md  mode=0644
+1fedc09be6c2758aacb590e992dff2b6a90c28eaafa957656d315176ee03f486  skills/dsh-spec-translate-docs/references/style-examples.md  mode=0644
+b9c24c46d36fb3aa7cd17de9932d1e4a06ed1955f7ea1744a1b22f76ff87c5c2  skills/dsh-spec-translate-docs/references/translation-rules.md  mode=0644
+f0f3979100826bc0d13721008dc37c8e78d869db7a7aefbce17bd56af2fa3497  skills/dsh-spec-translate-docs/scripts/translate-pair.mjs  mode=0755

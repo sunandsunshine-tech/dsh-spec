@@ -10,15 +10,15 @@ Status: implemented
 
 ## 决策
 
-本包交付 `dsh-spec-pr-description`，作为对上游技能的改编，该技能位于 `.agents/skills/dsh-pr-description/SKILL.md`，来源修订为 `f3803c96974ad4a94195fb97e5c637e9c2a3afe3`（`dsh-v0.2.2-alpha.2`）；当前抽取基线是 `dsh-v0.2.2-rc.5`（`9c2670d3bce5275e0d1610272958121af87787bb`）。
+本包交付 `dsh-spec-pr-description`，作为对上游 `.agents/skills/dsh-pr-description/SKILL.md` 的改编；来源版本为 `dsh-v0.2.3-alpha.2`（`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`），读取于 2026-11-23。
 
 落地目录包含 `SKILL.md`、`references/ai-usage.md`、`references/default-conventions.md` 与 `THIRD_PARTY_NOTICES`；安装副本镜像到 `.agents/skills/dsh-spec-pr-description/`。根 `THIRD_PARTY_NOTICES.md` 的改编技能段落点名该技能，根 `README.md` 的技能表列出它。
 
-技能把上游机制作为义务保留：描述陈述改动为何存在（带同项目受跟踪 Issue 引用，若有）、改了什么、由什么证明，以及 AI 参与程度。入口拥有四块内容、测试设计形式、测试条目与 proof 块纪律、以四类为典型示例的一般披露义务、可替换的默认小节结构、创建与更新触发条件以及最终回读门禁。`references/ai-usage.md` 是 AI Usage 模型的唯一所有者：五个级别、五个阶段、5% 倍数评级、决策记录限制、固定于 AI-DECLARATION 0.1.2 的徽章与声明块、更新时机、语言适配、替换与结构校验。入口要求在写入该小节前加载这份 reference，并在最终回读时应用其清单；每个 stack 层只记录本层相对其 base 的工作。项目约定提供取值、形式、位置与示例；它们绝不取消义务。
+技能把上游机制作为义务保留：描述陈述改动为何存在（带同项目受跟踪 Issue 引用，若有）、改了什么、由什么证明，以及 AI 参与程度。入口拥有四块内容、测试设计形式、测试条目与 proof 块纪律、以四类为典型示例的一般披露义务、可替换的默认小节结构、创建与更新触发条件以及最终回读门禁。依赖小节以采用项目的 manifest 和调用点为权威，报告模块职责、运行时依赖边与反向边，并保留可选边与仅组合关系。`references/ai-usage.md` 是 AI Usage 模型的唯一所有者：五个级别、五个阶段、5% 倍数评级、决策记录限制、固定于 AI-DECLARATION 0.1.2 的徽章与声明块、更新时机、语言适配、替换与结构校验。入口在写入小节前加载这份 reference，并在最终回读时应用其清单。每个 stack 层只记录本层相对其 base 的工作。项目约定提供取值、形式、位置与示例；它们绝不取消义务。
 
 尚未处理任何评审意见时，review 行保持 `n/a`，决策记录单元格留空；未处理评审意见的说明写在表格之后。
 
-技能消解或重绑仓库专有的指涉：声明路由、标签与 Priority 校验、Project Priority 与 Start Date 机制、文档预算取值、GUI GIF 强制要求、具体工具与产物路径。`references/default-conventions.md` 把描述默认值（Issue 引用、结构、起草命令与披露指针）和可选的跟踪器生命周期示例（标签、Project 字段、状态与日期）分开；后者是项目可以采用的示例，不是本技能义务。`user-invocable: false` 无法由本包封闭的 frontmatter 集合承载，并作为偏离记录在技能根 `THIRD_PARTY_NOTICES` 中。
+技能消解或重绑仓库专有的指涉：声明路由、标签与 Priority 校验、Project Priority 与 Start Date 机制、文档预算取值、GUI GIF 强制要求、具体工具与产物路径。`references/default-conventions.md` 把描述默认值（Issue 引用、结构、起草命令与披露指针）和可选的跟踪器生命周期示例（标签、Project 字段、状态与日期）分开；后者是项目可以采用的示例，不授权任何跟踪器写入，也不是本技能义务。`user-invocable: false` 无法由本包封闭的 frontmatter 集合承载，并作为偏离记录在技能根 `THIRD_PARTY_NOTICES` 中。
 
 - 该技能不用于提交信息、发布说明、代码审查发现或改动本身；它只陈述变更请求描述的义务，并把项目的跟踪器、模板、工具与语言留给项目自己的声明。
 - 交付语言为英文，描述追加中文附加触发语言；记录为英文并配中文配对。
@@ -26,7 +26,7 @@ Status: implemented
 
 ### 处置摘要
 
-处置摘要以一处位置、一种处置与一个归属覆盖每个来源单元，锚点为每项要求点名一项检查。承载：四块内容及其内容要求、固定英文标签的默认词汇、测试设计形式与测试条目纪律、以四类为示例的一般披露义务、创建与更新状态，以及回读义务。AI Usage 模型及其精确校验现在只在 `references/ai-usage.md` 有一个归属；入口拥有写入前加载、回读前加载和 stack 局部记录这三项选择该归属的规则。重绑：小节结构（默认且可替换）、描述语言（现有描述 → 文档 → 请求）、Issue 引用（声明语法、跟踪器惯例形式或具名链接）、正文路径与工具（项目默认值、GitHub 示例），以及披露的形式、取值、位置与示例（项目约定）。消解：声明表与缺失路由、标签、Priority、Project 与生命周期的校验要求、文档预算取值、GUI GIF 强制要求、仓库工具与产物路径，以及显式的仓库级 AI 声明规则。新增：把描述默认值与可选跟踪器示例分开的 `default-conventions` reference、保留的 GitHub 示例、唯一的 AI Usage reference，以及许可证与通知。
+处置摘要按承载、重绑定与消解对来源义务分组，并为每组命名归宿；交付的 `SKILL.md`、两个参考与 notices 是验证锚点。承载：四块内容及其内容要求、固定英文标签的默认词汇、测试设计形式与测试条目纪律、以四类为示例的一般披露义务、模块职责与依赖边报告、跨 package 调用变化时的有界调用流、创建与更新状态，以及回读义务。AI Usage 模型及其精确校验现在只在 `references/ai-usage.md` 有一个归属；入口拥有写入前加载、回读前加载和 stack 局部记录这三项选择该归属的规则。重绑：小节结构（默认且可替换）、描述语言（现有描述 → 文档 → 请求）、Issue 引用（声明语法、跟踪器惯例形式或具名链接）、正文路径与工具（项目默认值、GitHub 示例），以及披露的形式、取值、位置与示例（项目约定）。消解：声明表与缺失路由、标签、Priority、Project 与生命周期的校验要求、文档预算取值、GUI GIF 强制要求、仓库工具与产物路径，以及显式的仓库级 AI 声明规则。新增：把描述默认值与可选跟踪器示例分开的 `default-conventions` reference、保留的 GitHub 示例、模块职责与依赖边报告、跨 package 调用的有界调用流、唯一的 AI Usage reference，以及许可证与通知。
 
 ## 备选方案
 
@@ -48,4 +48,4 @@ Status: implemented
 
 ## 后果
 
-描述是一项已落地的技能，带安装副本、两个 reference、一份技能根通知文件与一条根通知条目；中文记录配对为下一位维护者保留这项决策。默认结构可替换，因此两个采用者可以以不同方式呈现四块内容；AI Usage 小节携带固定的 AI-DECLARATION 块与表格。入口拥有路由与完成条件，`references/ai-usage.md` 拥有模型与回读清单。`user-invocable: false` 未被承载，可选跟踪器生命周期示例不会改变描述约定。触发质量靠判断，而非测量：description 的关键词集合没有针对真实用户提示词运行过。本记录的中文配对与记录一致。
+描述是一项已落地的技能，带安装副本、两个 reference、一份技能根通知文件与一条根通知条目；中文记录配对为下一位维护者保留这项决策。默认结构可替换，因此两个采用者可以以不同方式呈现四块内容；AI Usage 小节携带固定的 AI-DECLARATION 块与表格。入口拥有路由与完成条件，`references/ai-usage.md` 拥有模型与回读清单。`user-invocable: false` 未被承载，可选跟踪器生命周期示例不会改变描述约定。依赖报告行为有 PR122 模型证据；触发选择靠判断，而非测量。本记录的中文配对与记录一致。

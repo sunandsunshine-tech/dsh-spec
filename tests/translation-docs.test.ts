@@ -359,6 +359,25 @@ test('per-file target sets need no completeness and no missing rows appear', () 
   }
 })
 
+test('an explicit required target reports missing counterparts without changing the default', () => {
+  const fixture = makeFixture()
+  try {
+    pair(fixture, 'docs/foo.md', 'English', 'Guide', 'Intro.', [zh()])
+    assert.equal(writeRecord(fixture, 'docs/foo.md').status, 0)
+    fixture.write('docs/bar.md', '# Bar\n\nA source with no pair yet.\n')
+
+    const checked = run(fixture.root, 'check', '--select', 'docs/**', '--require-target', 'zh=中文')
+    assert.equal(checked.status, 1, checked.output)
+    assert.match(checked.output, /docs\/bar\.md \[zh\].*incomplete pair/)
+    const listed = run(fixture.root, 'list', '--select', 'docs/**', '--require-target', 'zh=中文')
+    assert.equal(listed.status, 0, listed.output)
+    assert.match(listed.stdout, /missing +docs\/bar\.md \[zh\]/)
+    assert.equal(run(fixture.root, 'check', 'docs/foo.md', '--require-target', 'zh=中文').status, 2)
+  } finally {
+    fixture.dispose()
+  }
+})
+
 test('a known pair with a missing counterpart is reported as missing', () => {
   const fixture = makeFixture()
   try {
@@ -395,6 +414,41 @@ test('select and skip filter existing pairs; empty selection and malformed globs
     assert.doesNotMatch(list.stdout, /docs\/bar\.md/)
     assert.equal(run(fixture.root, 'check', '--select', '[').status, 2)
     assert.equal(run(fixture.root, 'list', '--skip', '{').status, 2)
+  } finally {
+    fixture.dispose()
+  }
+})
+
+test('unpaired locale pages stay outside discovery while localized links share one semantic target', () => {
+  const fixture = makeFixture()
+  try {
+    pair(fixture, 'docs/foo.md', 'English', 'Guide', 'Intro.', [zh()])
+    assert.equal(writeRecord(fixture, 'docs/foo.md').status, 0)
+    fixture.write('docs/detail.md', '# Detail\n\nEnglish detail.\n')
+    fixture.write('docs/detail.zh.md', '# 详情\n\n中文详情。\n')
+    pair(fixture, 'docs/index.md', 'English', 'Docs', 'Read [Detail](detail.zh.md).', [
+      target('zh', '中文', '文档', '阅读[详情](detail.md)。'),
+    ])
+
+    const withoutDeclaration = run(fixture.root, 'check')
+    assert.equal(withoutDeclaration.status, 1, withoutDeclaration.output)
+    assert.match(withoutDeclaration.output, /docs\/detail\.md \[zh\].*incomplete pair/)
+
+    const written = run(fixture.root, 'write', 'docs/index.md', '--target', 'zh=中文', '--unpaired', 'docs/detail*.md')
+    assert.equal(
+      written.status,
+      0,
+      'source and counterpart links to different localized unpaired pages must share one semantic target:\n' +
+        written.output,
+    )
+    const stillUndeclared = run(fixture.root, 'check', 'docs/index.md', '--target', 'zh=中文')
+    assert.equal(stillUndeclared.status, 1, stillUndeclared.output)
+    assert.match(stillUndeclared.output, /wrong locale/)
+    const checked = run(fixture.root, 'check', 'docs/index.md', '--target', 'zh=中文', '--unpaired', 'docs/detail*.md')
+    assert.equal(checked.status, 0, checked.output)
+    const listed = run(fixture.root, 'list', '--unpaired', 'docs/detail*.md')
+    assert.equal(listed.status, 0, listed.output)
+    assert.doesNotMatch(listed.stdout, /docs\/detail/)
   } finally {
     fixture.dispose()
   }

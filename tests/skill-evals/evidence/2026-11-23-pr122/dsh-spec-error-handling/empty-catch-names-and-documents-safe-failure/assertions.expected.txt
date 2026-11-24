@@ -1,0 +1,4 @@
+PASS The catch body contains no executable statement.
+PASS The catch binding names the expected cleanup failure instead of using `catch {}` or `catch (_)`.
+PASS The safety reason is inside the catch handler.
+PASS The reason states the failure identity and why discarding it leaves the state valid.

@@ -1,0 +1,15 @@
+{
+  "id": "dependency-only-blocked-stack-can-land",
+  "prompt": "Use evals/files/preflight-policy/AGENTS.md and stack.md. Decide whether the official stack is ready to merge and select the next action.",
+  "expected_output": "The selection distinguishes dependency-only BLOCKED states from real merge blockers, treats the stack as ready, and proceeds through gh stack merge without merging or retargeting individual PRs.",
+  "files": [
+    "evals/files/preflight-policy/AGENTS.md",
+    "evals/files/preflight-policy/stack.md"
+  ],
+  "assertions": [
+    "The selection recognizes that BLOCKED can be caused by an unmerged parent in a dependent stack.",
+    "The selection verifies required checks and review decisions rather than treating BLOCKED as an automatic failure.",
+    "The selection proceeds through the official stack merge command.",
+    "The selection does not merge or retarget individual PRs."
+  ]
+}

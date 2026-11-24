@@ -1,7 +1,7 @@
 ---
 name: dsh-spec-pr-description
 license: "MIT; upstream and repository notices in THIRD_PARTY_NOTICES"
-description: "Use when creating or updating a change-request description in any project — pull request, merge request, patch set, or change list — or after a handled review round. Covers the four content blocks, AI Usage, test evidence and disclosures. Not for commit messages, release notes, code-review findings, or the code itself. 用于创建或更新任何项目中的变更请求描述（pull request、merge request、patch set 或 change list），或在处理完评审之后。涵盖四块内容、AI Usage、测试证据与披露义务，遵循项目约定。不用于提交信息、发布说明、代码审查发现或代码改动本身。"
+description: "Use for creating or updating a change-request description in any project — pull request, merge request, patch set, or change list — or after review. Covers four content blocks, module responsibilities and dependency edges, AI Usage, test evidence and disclosures. Not for commit messages, release notes, code-review findings, or the code itself. 用于创建或更新任何项目中的变更请求描述（pull request、merge request、patch set 或 change list），或在评审之后使用。涵盖四块内容、模块职责与依赖边、AI Usage、测试证据与披露义务。不用于提交信息、发布说明、代码审查发现或代码改动本身。"
 ---
 
 # Writing change-request descriptions
@@ -10,11 +10,11 @@ A change request's description states why the change exists, what it changes, wh
 
 ## Defaults
 
-A default is the value or strategy this skill declares at its use site. It applies when the current request and existing project instructions leave that choice open. A user turn or explicit parameter supplies a one-off value. Existing project instructions supply a persistent override and are read without being modified or copied. Missing project instructions are valid, so do not ask the user to choose a default or create or modify an instruction file merely to select one.
+Apply this skill's use-site default only when neither the request nor existing project instructions choose one. Treat existing instructions as authoritative read-only input; do not ask for, create, modify, or copy instructions merely to select a default.
 
 ## Description structure
 
-The default structure uses four second-level headings in this order — `## Motivation`, `## Changes`, `## Testing`, `## AI Usage` — with the default labels `Interface changes`, `Behavior changes`, `Test design`, `Test entries`, the disclosure labels and `Proof`, written in English. A project's template or conventions may replace, rename or regroup the headings and labels; the description still states the four content blocks and one AI Usage section under the project's structure. With no declared structure, the default applies. The AI Usage section keeps its AI-DECLARATION block and its table under any structure.
+The default structure uses four second-level headings in this order — `## Motivation`, `## Changes`, `## Testing`, `## AI Usage` — with the default labels `Interface changes`, `Behavior changes`, `Module responsibilities and dependencies`, `Test design`, `Test entries`, the disclosure labels and `Proof`, written in English. A project's template or conventions may replace, rename or regroup the headings and labels; the description still states the four content blocks and one AI Usage section under the project's structure. With no declared structure, the default applies. The AI Usage section keeps its AI-DECLARATION block and its table under any structure.
 
 The prose and table headers are written in the description's language: the language the project's existing change descriptions use; when none exist, the project's documentation language; otherwise the language of the request that asked for the description. The prose follows the project's declared prose standard (when available, consider using the `dsh-spec-prose-standard` skill).
 
@@ -30,7 +30,14 @@ Each change request in a stack has its own description, covering only its layer 
 
 - **Interface changes**: summarize changes to commands, flags, configuration keys, environment variables, public APIs and exports, extension or plugin registration values, protocols, and persisted formats; write `None` when there are none.
 - **Behavior changes**: summarize results that users, models, developers, or the system can observe, including defaults, performance, timing, and output; write `None` when there are none. Changes to documentation and agent instructions are behavior changes for the readers they guide.
+- **Module responsibilities and dependencies**: when the change adds or removes a package, module, workspace boundary, runtime dependency, or unit responsibility, apply [Module responsibilities and dependencies](#module-responsibilities-and-dependencies); write `None` when none moves.
 - State only behavior that the diff guarantees and the tests cover.
+
+#### Module responsibilities and dependencies
+
+Derive the edge set from the base-to-head manifest diff, never from memory. Read the adopting project's declared runtime-dependency manifests and optional or peer-like edge declarations; when conventions declare no equivalent, use the files that build or launch each unit. Name every added or removed runtime dependency as `A → B` for “A depends on B”; keep development-only, test-fixture, template, and third-party edges out, and keep composition roots in a separate item because mounting a unit is not a runtime call. For each added edge `A → B`, verify that B's runtime dependencies do not name A, then state that no reverse edge exists or list each one.
+
+A responsibility table uses one row per changed or depended-on unit: the unit, its responsibility in one sentence, and whether this change adds, removes, changes, or leaves it in place. A reviewer uses the table to judge that each affected unit has one coherent responsibility and that each added edge is required by that responsibility. A package that only supplies a dependency needs a row only when its responsibility explains why the edge is necessary. Call flow is a short bounded path, not an implementation walkthrough; include it only when the change adds or changes a cross-package call.
 
 ### Testing
 
@@ -79,6 +86,7 @@ Write the complete description when the change request is created, even when it 
 Before the description is considered written, read it back and verify:
 
 - the description states the four content blocks — why (with its issue reference when one exists), what, the test design and entries, and the AI Usage section — under the default headings in order or under the project's structure;
+- every reported package responsibility and dependency edge matches the current manifests and call sites;
 - exactly one AI Usage section exists and no superseded section remains;
 - the AI Usage section satisfies [references/ai-usage.md](references/ai-usage.md) §Read-back validation and reflects the current code and review state;
 

@@ -26,7 +26,7 @@ The skill is one `SKILL.md` with a skill-root `THIRD_PARTY_NOTICES`. It ships no
 
 ## Source and revision
 
-Upstream source is `deepseek-ai/deepseek-harness` at `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`), read on 2026-11-20:
+Upstream source is `deepseek-ai/deepseek-harness` at `dsh-v0.2.3-alpha.2` (`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`), read on 2026-11-23:
 
 - `.agents/skills/dsh-client-ui-ux/SKILL.md`
 - `.agents/skills/dsh-client-ui-ux/references/alignment.md`
@@ -73,18 +73,19 @@ Publish authorization: the maintainer authorized landing this skill in the packa
 | D16 | `dsh-client-ui-ux/SKILL.md:117-120` | A perceivable UI change can require designer or product approval; the source's named roster is product data. | Dissolve | The skill reports a missing project approval policy when sign-off is part of claimed acceptance and never invents reviewers. |
 | D17 | `record-browser-gif/SKILL.md:12-22` | A user-visible GUI change carries truthful browser evidence from the changed build; capture and publication are separate. | Re-bind | Recorded browser evidence is the default, with project override and capability handoff; the selected mechanism owns capture and publication. |
 | D18 | Repository `AGENTS.md` and `dsh-spec-skill-forge/SKILL.md` | Each skill installs independently and still completes or hands off when a preferred capability is absent. | Adapt | The skill names no sibling dependency and includes a capability-absent handoff. |
+| D19 | alpha.2 `references/icons.md` | Shared and inline line artwork keeps its declared stroke behavior as the viewport changes; fills remain geometry; ordinary placement or reuse fixes do not alter that rendering contract, and artwork, stroke or rendering changes validate the declared sizes and device-pixel ratios across every consumer. | Adapt | Icon/touch-help and affected states cover ordinary placement without a fixed size/DPR matrix; a rendering change inspects the project's declared stroke contract at target CSS size and supported device-pixel ratios. No upstream widths or component names are copied. |
 
 ## Verification anchors
 
 | # | Requirement | Anchor | Evidence |
 |---|---|---|---|
 | A0 | The skill obeys the Agent Skills format, closes frontmatter and external links, and stays within the catalogue description budget. | Mechanical | `node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs skills/dsh-spec-client-ui-ux --description-max 500` decides it. |
-| A1 | Every source constraint D1-D18 has one disposition and one home in the shipped instructions. | Judged | One conclusion per row against `SKILL.md` and the named reference. |
+| A1 | Every source constraint D1-D19 has one disposition and one home in the shipped instructions. | Judged | One conclusion per row against `SKILL.md` and the named reference. |
 | A2 | Instruction files contain no DSH product path, token, roster, source repository name, fixed viewport, or hard sibling dependency. | Mechanical + Judged | Source scan over `SKILL.md` and shipped references, excluding the required `THIRD_PARTY_NOTICES`; the sibling-reference gate decides the naming form. |
 | A3 | A user-visible browser UI change defaults to truthful rendered evidence; equivalent project evidence is accepted; unavailable evidence produces an explicit resumable handoff. | Judged | One conclusion against `## Record browser evidence by default`; capability-present and capability-absent model runs are A6. |
 | A4 | The review covers the assembled page, affected consumers, layout relationships, interaction, responsive and pointer behavior, scroll and overlay behavior, focus/input adaptation, locale content, geometry, and platform chrome. | Judged | One conclusion per minimum-check bullet against D2-D14. |
 | A5 | Tests, source, and fixtures are never promoted to a complete application or visual acceptance claim. | Judged | One conclusion against the minimum-check closing paragraph, evidence section, and report closing rule. |
-| A6 | Candidate model behavior covers evidence reuse, capability-present capture, capability-absent handoff, project evidence override, and comparison preservation under an exact input manifest. | Judged + Mechanical | Clean-context runs under `tests/skill-evals/evidence/2026-11-20-pr114/`; the repository scenario test reconstructs the candidate revision, verifies trace integrity, and checks the recorded input manifest. A later edit changes only the scenarios whose behavior it changes. |
+| A6 | Candidate model behavior covers evidence reuse, capability-present capture, capability-absent handoff, project evidence override, comparison preservation, and the ordinary-placement versus rendering-change icon distinction under an exact input manifest. | Judged + Mechanical | Clean-context runs under `tests/skill-evals/evidence/2026-11-20-pr114/`; PR122 adds the `shared-icon-rendering-contract` run. The repository test verifies each current scenario, capability profile and input mode; historical runs remain bound to their recorded definitions. |
 | A7 | The description triggers on affected implementation and review requests and stays out of visual-direction, general-audit, documentation, and non-UI tasks. | Judged + Mechanical | `tests/skill-evals/dsh-spec-client-ui-ux/trigger-evals.json`; trigger evidence binds the name and description, and every trace names the recorded skill revision and exact file read. |
 | A8 | README, installed copy, notices, Agent Note companions, translation pairs, defaults inventory, corpus, and static checks agree. | Mechanical | `pnpm test`, `pnpm run check:static`, `pnpm run check:corpus`, `pnpm run notices:check`, and `pnpm run skill:verify-bundles`. |
 | A9 | The record and its Chinese companion describe the shipped behavior with current source revisions, paths, evidence and translation terminology. | Mechanical + Judged | Pairing check plus semantic comparison against this note and `SKILL.md`. |
@@ -98,6 +99,8 @@ screenshot override, the fixture intentionally contains a simulated focus treatm
 rejected it as proof of native focus and reported the gap, while the no-skill baseline accepted the
 screenshots and passed only 2 of 4 assertions. The capability-present probe used one headless-Chrome
 run and did not use BrowserSkill.
+
+PR122 adds `tests/skill-evals/evidence/2026-11-23-pr122/dsh-spec-client-ui-ux/shared-icon-rendering-contract/`, which passes 5/5 assertions. It covers the declared non-scaling stroke and intentional fill contract, requires the target-size and DPR matrix for a rendering change, names every affected consumer, and keeps missing rendered evidence as a gap.
 
 The trigger corpus contains six positive and six near-miss queries. All twelve matched their
 expected trigger result, and every retained trace records the installed skill revision. The trigger

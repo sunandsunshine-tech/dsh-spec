@@ -7,6 +7,7 @@
  */
 
 import assert from 'node:assert/strict'
+import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
@@ -368,4 +369,45 @@ test('adopter documentation has one complete, bilingual skill-selection map', ()
   }
 
   for (const document of documents.values()) assertLocalLinksResolve(document)
+})
+
+test('independently installed DeepSeek Harness skills name the current repository pin', () => {
+  const rootNotice = repoFile('THIRD_PARTY_NOTICES.md')
+  const pin = /^Upstream: .*pinned at `(dsh-v[^`]+)`\s+\(`([0-9a-f]{40})`\)\.$/m.exec(rootNotice)
+  assert.ok(pin, 'the root notice does not declare the DeepSeek Harness pin')
+
+  for (const name of readdirSync(join(REPO_ROOT, 'skills'), { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && !entry.name.startsWith('.'))
+    .map((entry) => entry.name)) {
+    const noticePath = join(REPO_ROOT, 'skills', name, 'THIRD_PARTY_NOTICES')
+    if (!existsSync(noticePath)) continue
+    const notice = readFileSync(noticePath, 'utf8')
+    if (!notice.includes('github.com/deepseek-ai/deepseek-harness')) continue
+    const upstream =
+      /^- Upstream: <https:\/\/github\.com\/deepseek-ai\/deepseek-harness>, pinned at `(dsh-v[^`]+)`\s+\(`([0-9a-f]{40})`\)\.$/m.exec(
+        notice,
+      )
+    assert.ok(upstream, name + ' has a malformed DeepSeek Harness pin')
+    assert.equal(upstream[1], pin[1], name + ' does not name the current pin tag')
+    assert.equal(upstream[2], pin[2], name + ' does not name the current pin commit')
+
+    const pathStart = notice.search(/^- Upstream paths?:/m)
+    assert.notEqual(pathStart, -1, name + ' declares no upstream source paths')
+    const relation = notice.indexOf('\n- Relation:', pathStart)
+    const sourceSection = notice.slice(pathStart, relation === -1 ? undefined : relation)
+    const sourcePaths = [...sourceSection.matchAll(/`((?:\.agents|docs|packages|scripts)\/[^`]+)`/g)].map(
+      (match) => match[1] as string,
+    )
+    assert.ok(sourcePaths.length > 0, name + ' declares no resolvable upstream source path')
+    for (const sourcePath of sourcePaths) {
+      const object: ReturnType<typeof spawnSync> = spawnSync('git', [
+        '-C',
+        join(REPO_ROOT, 'submodules/dsh'),
+        'cat-file',
+        '-e',
+        `${pin[2]}:${sourcePath}`,
+      ])
+      assert.equal(object.status, 0, name + ' names an upstream path absent from its pin: ' + sourcePath)
+    }
+  }
 })

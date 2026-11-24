@@ -9,6 +9,10 @@ compatibility: "Requires Git; the bundled change-scope report also requires Node
 
 Use this skill to produce the local evidence a push owes, once, from the change it actually carries. Run the selected checks once before the push and do not duplicate what the repository's hooks or CI already decide: a repository's hooks are its own and usually narrow, and CI owns exhaustive coverage and the platform matrix. The one ordering exception is an automated tool that rewrites and publishes branches as a single operation; validate its result immediately afterward and do not merge until the evidence passes.
 
+## Defaults
+
+Apply this skill's use-site default only when neither the request nor existing project instructions choose one. Treat existing instructions as authoritative read-only input; do not ask for, create, modify, or copy instructions merely to select a default.
+
 ## Inspect the outgoing change
 
 1. Confirm the checkout and branch.
@@ -33,7 +37,7 @@ There is no universal local baseline beyond the repository's hooks. Every behavi
 - **Tested behavior:** run the test file or focused test name that owns the changed behavior. Add adjacent tests when a shared contract changes, and leave repository-wide coverage to CI unless the change is genuinely cross-cutting or the user asks for it.
 - **Machine-consumable expected failures:** run the boundary test that proves the project's existing stable machine-readable failure identity survives, the original cause or equivalent structured detail remains available, and consumers do not route on message text. When the project declares an error-handling standard, apply it (when available, use the `dsh-spec-error-handling` skill).
 - **Asynchronous or resource-owning tests:** when the change adds or changes an asynchronous, resource-owning or subprocess test, fixture, helper or CI execution path, decide whether restoration, negative-control, quiescent-teardown or concurrent-process evidence applies to the failure it could cause. This skill still selects the commands and does not repeat evidence that already passed.
-- **Browser-rendered UI:** inspect the actual assembled page across affected states and consumers, and produce or reuse the project's required rendered evidence. A passing test suite or source inspection does not establish visual acceptance; report any missing scene or capability as an unfinished check (when available, use the dsh-spec-client-ui-ux skill).
+- **Browser-rendered UI:** inspect the actual assembled page across affected states and consumers, and produce or reuse the project's required rendered evidence. Keep the project's existing tests, media evidence and approval triggers in scope; a passing test suite or source inspection does not establish visual acceptance. Report any missing scene, capability or required approval as an unfinished check (when available, use the dsh-spec-client-ui-ux skill).
 - **Observable output:** when the change is visible to a model, an editor, a CLI or a terminal, run the focused snapshot or the real runnable-example scenario that owns that output.
 - **Documentation and decision records:** run the repository's documentation check — the link check, documentation build or sync its workflow names — and the full lint when the documentation workflow requires it.
 - **Type checking and generated types:** a typed change runs the repository's typecheck before it is handed off. An unbuilt or stale generated declaration is not strict evidence: rebuild missing, stale or partial generated declarations before diagnosing remaining errors, and keep a local typing exception in test support, never in production types or ambient flags. Before claiming completion of a change whose types or build inputs moved, run the check that consumes the current build output after the build that produces it; stale output is not evidence.
@@ -58,7 +62,7 @@ Run the complete local approximation only when the user explicitly requests it, 
 
 ## Protect history-rewriting pushes
 
-Where the repository's instructions allow a history rewrite, rebase is an option for a standalone branch and for a branch in a stack, including after review. Before a standalone history rewrite, fetch the current remote branch and record its exact OID; publish with `--force-with-lease=<branch>:<observed-oid>` so a concurrent update aborts the push. A stack tool or other automation that publishes branches it manages supplies lease protection for the branches it manages; if it does not, record the OID and use the lease yourself. Raw `--force` is never allowed.
+Where the repository's instructions allow a history rewrite, rebase with rerere is the default refresh for a standalone branch and for a branch in a stack, including after review. Before rebasing, enable `git config rerere.enabled true`, ensure `rerere.autoUpdate` is unset or false so replayed resolutions stay unstaged, and inspect each replayed resolution before staging it. Before a standalone history rewrite, fetch the current remote branch and record its exact OID; publish with `--force-with-lease=<branch>:<observed-oid>` so a concurrent update aborts the push. A stack tool or other automation that publishes branches it manages supplies lease protection for the branches it manages; if it does not, record the OID and use the lease yourself. Raw `--force` is never allowed.
 
 After any rewritten push, fetch the live heads again and re-audit unresolved review threads, approvals, mergeability and checks. Commit hashes and inline-comment anchors from before the rewrite are not current evidence.
 

@@ -2,7 +2,8 @@
 
 The text and scripts of this skill are adapted from the DeepSeek Harness skill `record-browser-gif`.
 
-- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`).
+- Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.3-alpha.2` (`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`).
+- Historical adapted revision: `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`).
 - Upstream paths:
   - `.agents/skills/record-browser-gif/SKILL.md` — the source workflow and evidence policy.
   - `.agents/skills/record-browser-gif/scripts/encode_gif.py` — the source deterministic GIF encoder.

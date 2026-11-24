@@ -1,0 +1,4 @@
+PASS The source and Chinese counterpart use the new stem.
+PASS Both switchers name the new paths.
+PASS The aggregate record follows the renamed source.
+PASS Inbound links and the pair check use the new path successfully.

@@ -41,7 +41,7 @@ The alpha.2 revision adopts the upstream English UI sentence-case rule into the 
 
 ## Source and revision
 
-Upstream source: `deepseek-ai/deepseek-harness`, source files read at revision `f3803c96974ad4a94195fb97e5c637e9c2a3afe3` (`dsh-v0.2.2-alpha.2`); the repository's current pinned baseline is `9c2670d3bce5275e0d1610272958121af87787bb` (`dsh-v0.2.2-rc.5`). The alpha.2 delta is the diff `git -C submodules/dsh diff dsh-v0.2.1-rc.4..dsh-v0.2.2-alpha.2 -- .agents/skills/dsh-prose-standard/SKILL.md`; the same range from `dsh-v0.2.1-rc.3` to `dsh-v0.2.2-alpha.2` touches only one line across all five source files: prose `SKILL.md` 58 gains the English UI sentence-case rule (PS47). Files read as source:
+Upstream source: `deepseek-ai/deepseek-harness`, source files read at revision `f3803c96974ad4a94195fb97e5c637e9c2a3afe3` (`dsh-v0.2.2-alpha.2`); the repository's current pinned baseline is `4b399c39a6d1479cd84ca591b4d7c88e24d38a96` (`dsh-v0.2.3-alpha.2`). The alpha.2 delta is the diff `git -C submodules/dsh diff dsh-v0.2.1-rc.4..dsh-v0.2.2-alpha.2 -- .agents/skills/dsh-prose-standard/SKILL.md`; the same range from `dsh-v0.2.1-rc.3` to `dsh-v0.2.2-alpha.2` touches only one line across all five source files: prose `SKILL.md` 58 gains the English UI sentence-case rule (PS47). Files read as source:
 
 - `submodules/dsh/.agents/skills/dsh-prose-standard/SKILL.md`
 - `submodules/dsh/.agents/skills/dsh-prose-standard/references/examples.md`

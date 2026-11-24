@@ -18,7 +18,7 @@ The skill ships no script. Whether a failure has an owning family, a containment
 
 ### Source and revision
 
-Source revision: `dsh-v0.2.2-rc.5` (`9c2670d3bce5275e0d1610272958121af87787bb`), read on 2026-11-20.
+Source revision: `dsh-v0.2.3-alpha.2` (`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`), read on 2026-11-23.
 
 - `.agents/skills/dsh-error-handling/SKILL.md`
 - `.agents/skills/dsh-error-handling/references/error-codes.md`
@@ -68,7 +68,9 @@ The later upstream additions are adapted as follows.
 | E9 | Existing `name` and `code` values persist in logs and analytics, so changes need an upgrade guide. | A persisted or externally consumed error identity is a compatibility promise and needs a migration record when changed. |
 | E10 | Tests assert `error.info.name` and `error.info.code`, not only the message. | Tests assert the project's exact machine identity, the resulting state and, where a boundary exists, the reconstructed identity. |
 | E11 | A non-zero exit or no-match result is not inherently a failure; the operation's declared outcome decides. | A non-ideal result remains a success when the operation does not define it as failure; a success-shaped failure requires an explicit output-schema contract. |
-| E12 | Provider-extensible code families remain open and consumers tolerate unknown values. | Extensible families publish their shared codes and accept unknown additions; only a truly closed local family enumerates its complete value set. |
+| E12 | Provider-extensible code families remain open and consumers tolerate unknown values. | Extensible families keep their identity open to provider-added values and publish the shared values; only a truly closed local family enumerates its complete value set. |
+| E13 | alpha.2 `SKILL.md:39-69`: an empty catch covers one syntactic statement, names the expected failure, and states its safety reason; other failures surface, with separately tolerated operations wrapped separately. | The silent-handler section carries the independently-tolerated-operation, named-failure, safety-reason and selective-surfacing obligations without prescribing one runtime's exception type or syntactic form. |
+| E14 | alpha.2 `SKILL.md:20`: an execution wrapper preserves cancellation, timeout, denial and other expected-failure identity in its downstream result. | The handling section requires the wrapper to preserve the project's stable machine identity and distinguish the failure from display text or success. |
 
 ### Presupposition audit
 
@@ -188,6 +190,8 @@ Dispositions use the forge skill's values: **Keep** carries the original wording
 | E10 | request and upstream reference | Detailed family, code, conversion, compatibility, and test guidance needs one owner. | Adapt | `references/error-contracts.md` | the detailed contract is contextual material; keeping it out of the entry preserves lazy loading and the main procedure’s focus |
 | E11 | rc.5 `SKILL.md` | A non-zero exit or no matches is a non-ideal success when the operation does not define it as failure; a success-shaped failure needs an output schema that documents it. | Keep | `SK` § Typed, structured failures | the distinction belongs to the operation's declared outcome, not to whether a result feels unusual |
 | E12 | rc.5 `references/error-codes.md` | Provider-extensible families keep an open code type and consumers tolerate unknown codes. | Adapt | `SK` § Typed, structured failures; `references/error-contracts.md` § Fallback requirements | closed local families may enumerate codes; extensible families document known shared codes without rejecting future provider values |
+| E13 | alpha.2 `SKILL.md` § Empty catch clauses | A silent catch spans one syntactic statement, names the expected failure, states the safety reason in the handler, and rethrows other failures; each tolerated operation gets its own handler. | Adapt | `SK` § Silent failure handlers | platform-neutral wording keeps the independently-tolerated-operation, named-cause, reason and selective-surface obligations without importing a repository-specific checker, syntax form or exception type |
+| E14 | alpha.2 `SKILL.md:20` | An execution wrapper preserves cancellation, timeout, denial and other expected-failure identities on the downstream result. | Re-bind | `SK` § Handle, recover, or stop | the wrapper result must carry the owning project's stable machine identity and distinguishable outcome instead of display text or success |
 
 ### Target rulings
 
@@ -206,31 +210,28 @@ Dispositions use the forge skill's values: **Keep** carries the original wording
 | R11 | A source sentence is carried verbatim only when its runtime or product assumption holds in the target scope or its clause is vacuous where absent; otherwise it is adapted with role-based or conditional wording, and the conclusion is recorded as a row in § Presupposition audit and, where it changes, as an adaptation row in § Constraint dispositions. | A sentence that assumes a product runtime is not domain-neutral; verbatim fidelity is not generality. The audit makes each assumption explicit and checkable. | Rewrite a row or the policy. |
 | R12 | The exception vocabulary becomes handling/failure vocabulary in the heading and the two sentences that name it (N11a, N15, N27); "failure" covers exceptions, result values and other explicit failure models. | The source is TypeScript, but the target scope includes languages whose failures are values; the ownership, containment and verification rules survive the vocabulary change. | Restore the exception words, which narrows the skill to one failure model. |
 | R13 | Where the source names a reporting surface or a documentation practice, the target names the surface the affected user or system actually uses, and the contract record may be the owning API's documentation or the project's equivalent record (N12, N21, N23). | The target scope includes projects with no UI or default logs and with no API documentation; the rule keeps its required content and its conditional "where one exists". | Restore a fixed surface or documentation practice. |
-| R14 | Issue #104 owns the repository extraction pin. This skill records the rc.5 source revision and commit `603ed7e7d0da17d3290e44d5b3b999a636840a2d`, which supplies the silent-handler rules. | Provenance must distinguish the release baseline from a later source read; describing both as the pin would be false. | Move the source revision back to the baseline only when a release tag contains it. |
+| R14 | Issue #104 owns the repository extraction pin. This skill keeps the historical rc.5 adaptation and the later silent-handler source commit `603ed7e7d0da17d3290e44d5b3b999a636840a2d`; the current source baseline is `dsh-v0.2.3-alpha.2`. | Provenance must distinguish the historical adaptation, its later source read and the current pin; describing all three as one revision would be false. | Collapse the records only when the current pin contains every named source fact. |
 | R15 | Product-specific error bases, registry fields, concrete error classes, errno names, and upgrade-guide paths dissolve into project-owned families, discriminants, details, causes, and migration records. A project without a convention chooses one stable machine-readable discriminator and records its supported set; no field name, code spelling, declaration form or vocabulary is prescribed. | The target must preserve an adopter's current error model while still retaining a result-only fallback for new failures. | Restore a concrete platform contract or mandatory string-code vocabulary and narrow the skill's stated scope. |
 | R16 | Silent handling is a separate section because it owns a safety judgment that is easy to confuse with logging or recovery. | The upstream check exposes a recurring shape; the target needs the reason, discriminant, state consequence, and selective surfacing at one point of use. | Fold the section into general handling only if the distinction stops changing decisions. |
 | R17 | The detailed code guide lives in `references/error-contracts.md`. | The guide is used only when defining or reviewing a machine-readable failure contract, so lazy loading avoids carrying its tables through every error-handling task. | Inline the guide when the entry can lose a proportionate amount of other context. |
 
 ### Requirement anchors
 
-Every disposition row is the anchor for the requirement it carries. N1 is mechanical: the skill gate checks the name and directory match. N2-N30, N11a, and E1-E12 are judged against the source sentence. N30 retains an external literature link. The skill gate mechanically checks format, size, references, and link integrity. The development eval corpus records message-only failures, boundary-loss failures, silent multi-step handling, preservation of an existing project discriminant, documented non-ideal success, and provider-extensible codes.
+Every disposition row is the anchor for the requirement it carries. N1 is mechanical: the skill gate checks the name and directory match. N2-N30, N11a, and E1-E14 are judged against the source sentence. N30 retains an external literature link. The skill gate mechanically checks format, size, references, and link integrity. The development eval corpus records message-only failures, boundary-loss failures, silent multi-step and empty-handler safety, non-ideal success classification, provider-extensible codes, preservation of an existing project discriminant, and wrapper preservation of cancellation, timeout, and denial.
 
-The clean-context model evaluation under `tests/skill-evals/evidence/2026-11-20-pr113/` ran
-`codex exec --ephemeral` for candidate, previous-skill and no-skill profiles. All five candidate
-scenarios loaded the skill and passed all 20 assertions. The previous-skill baseline passed 18 of
-20 because it discarded unexpected cleanup failures; the no-skill profile also passed 20 of 20.
-The saved no-skill outputs therefore do not establish a candidate advantage for those prompts.
-One candidate run per scenario is evidence of the tested behavior, not a claim that every phrasing
-or host profile has equal effect.
+The reviewer-graded model evidence under `tests/skill-evals/evidence/2026-11-20-pr113/` records
+candidate and no-skill profiles at 20/20 and a previous-skill profile at 18/20. The saved outputs
+therefore do not establish a candidate advantage for those prompts. The directory retained neither
+command traces nor complete skill hashes, so it does not prove answer-blind loading; later changed
+behaviors have targeted evidence under `2026-11-23-pr121` and `2026-11-23-pr122`.
 
-The later isolated run under `tests/skill-evals/evidence/2026-11-23-pr113/` exercises the new
-outcome-classification and extensible-code contract directly and passes 4/4 assertions.
+The isolated run under `tests/skill-evals/evidence/2026-11-23-pr113/` exercises outcome
+classification and extensible codes directly and passes 4/4 assertions.
 
-The ten-query trigger corpus installed the candidate in an otherwise empty project and recorded
-whether the run read `SKILL.md`. Five positive prompts triggered. Five near-miss prompts initially
-produced four non-triggers and one performance-tuning false positive; adding performance tuning to
-the description's exclusions made the rerun five of five non-triggers. The first run was not used
-as final evidence for that query.
+The three PR122 runs for empty-catch scope, the safe-failure reason, and wrapper identity each pass 4/4, for 12/12 targeted assertions.
+
+The ten-query trigger corpus installed the candidate in an otherwise empty project: five positive
+prompts read `SKILL.md` and five near-miss prompts did not.
 
 ## Alternatives considered
 

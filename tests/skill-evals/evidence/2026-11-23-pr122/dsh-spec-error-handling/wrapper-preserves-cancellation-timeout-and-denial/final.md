@@ -1,0 +1,1 @@
+Updated [README.md](/workspace/evals/files/wrapper-classification/README.md) so the execution wrapper preserves the complete worker failure under `{ ok: false, failure }`. Downstream code can inspect the original discriminant, while display text remains separate. `git diff --check` passes.

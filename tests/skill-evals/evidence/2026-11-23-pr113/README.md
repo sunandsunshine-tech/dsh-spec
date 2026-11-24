@@ -1,6 +1,10 @@
 # PR #113 outcome-classification evidence
 
-This directory records the current model check for the error contract added by PR #113.
+> **Historical status:** this run predates later error-handling edits and is retained as provenance.
+> Current targeted evidence for the later changes is under
+> `tests/skill-evals/evidence/2026-11-23-pr122/dsh-spec-error-handling/`.
+
+This directory records the model check for the error contract added by PR #113.
 
 ```sh
 node tests/skill-evals/run-model-eval.mjs \
@@ -20,8 +24,8 @@ family as an open code type, exports its known constants, and keeps unknown prov
 of rejecting or reclassifying them.
 
 The retained scenario hash is
-`1b50c21040d751a42f983d8e3d2a1e94b5a6cbc6927de85a89327ed16959297b`. The current skill manifest
-is:
+`1b50c21040d751a42f983d8e3d2a1e94b5a6cbc6927de85a89327ed16959297b`. The skill manifest at run
+time was:
 
 ```text
 d0fcc4336a5ce2d71d357447fc13ac25a9ede594d721db0fcd40db237b075990  skills/dsh-spec-error-handling/SKILL.md

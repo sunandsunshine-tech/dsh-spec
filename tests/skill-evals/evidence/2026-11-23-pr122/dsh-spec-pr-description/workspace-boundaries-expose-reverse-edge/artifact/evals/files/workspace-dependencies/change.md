@@ -1,0 +1,21 @@
+## Changes
+
+### Interface changes
+
+None
+
+### Behavior changes
+
+The `@example/app` package now delegates shared input validation to `@example/core`.
+
+### Module responsibilities and dependencies
+
+| Unit | Responsibility | Status |
+|---|---|---|
+| `@example/app` | The application package now delegates shared input validation to `@example/core`. | Changes |
+| `@example/core` | The core package supplies the delegated shared input validation and imports `@example/app` for its event sink. | Leaves in place |
+| `@example/legacy` | The legacy package was a base runtime dependency of `@example/app`; its runtime responsibility is not specified by the available manifests. | Removes |
+
+- Added runtime dependency edge: `@example/app → @example/core`.
+- Removed runtime dependency edge: `@example/app → @example/legacy`.
+- Reverse-edge check: the added edge's reverse, `@example/core → @example/app`, remains in place. The removed edge has no reverse edge because the base `@example/legacy` manifest declares no runtime dependencies.

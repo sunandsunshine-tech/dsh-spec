@@ -8,22 +8,22 @@ Status: implemented
 
 本技能集合没有技能拥有落地一串相互依赖的 GitHub pull request 的工作。一个被要求落地 A ← B ← C（其中每个 pull request 都基于它下面那个）的 agent，必须在两种做法之间选择：靠手工合并并重定向各层来复现栈语义，或使用 GitHub 原生的 stacked-PR 特性——后者拥有栈级规则、CI、顺序、重定向与合并状态。上游 `dsh` 为这个选择携带了一个技能，`dsh-merging-stacked-prs`，但它是为那个仓库的约定写的：它指向上游根 `AGENTS.md` 以获取允许的历史，指向一张上游 cookbook 页面以获取评审修复的传播，并把合并方法固定为一个旗标。
 
-来源边界是明确的：上游技能是唯一的内容来源，此外还有请求与目标领域的事实（GitHub pull request 操作与已安装的 `gh stack` 扩展）。本仓库现有的文档——它的 `AGENTS.md`、它的决策记录及其约定——不是设计来源，因为它们是被移除或重写的仓库内容，而不是交付技能必须承载的行为。目标受众是操作 GitHub pull request 的 agent，交付物是一套通用的 GitHub PR（Pull Request）操作技能，而不是某个仓库落地策略的副本。
+来源边界是明确的：上游技能与上游 `prefer-rebase-with-rerere` 决策是内容来源，此外还有请求与目标领域的事实（GitHub pull request 操作与已安装的 `gh stack` 扩展）。本仓库自己的文档不是设计来源，因为它们是被移除或重写的仓库内容，而不是交付技能必须承载的行为。目标受众是操作 GitHub pull request 的 agent，交付物是一套通用的 GitHub PR（Pull Request）操作技能，而不是某个仓库落地策略的副本。
 
 ## 决策
 
-`dsh-spec-merging-stacked-prs` 以上游的单文件形态从 `skills/dsh-spec-merging-stacked-prs/` 交付。它锻造自 `.agents/skills/dsh-merging-stacked-prs`，来源是 pin 的 `submodules/dsh` 基线。
+`dsh-spec-merging-stacked-prs` 以上游的单文件形态从 `skills/dsh-spec-merging-stacked-prs/` 交付。它锻造自 `.agents/skills/dsh-merging-stacked-prs` 与当前 pin 的 `prefer-rebase-with-rerere` 决策。
 
 落地的技能是 `skills/dsh-spec-merging-stacked-prs/`：`SKILL.md` 加技能根的 `THIRD_PARTY_NOTICES`，frontmatter 的 `license` 字段点名它，因为文本改编自上游技能。它在 `.agents/skills/dsh-spec-merging-stacked-prs/` 的安装副本与之逐字节一致。该技能不随附脚本、包源或仓库测试文件：来源自己的只读 `gh` 与 GraphQL 命令按原样内联承载（R11）。
 
-机制就是上游机制，未作改动：官方的 GitHub stack 对象是成员资格权威；一条符合条件的同作者链——未入栈，或某个既有栈中保序的子集——以增量方式被链接；原生级联 rebase 与增量 merge-forward 是两种刷新历史；合并通过 `gh stack merge` 进行，绝不通过逐个 pull request 的 `gh pr merge` 加重定向；选择整个栈或一个显式限定的前缀；每个选中的 pull request 必须在删除分支之前报告 `MERGED`，而删除是单独的最后一轮。改编如下：
+机制来自上游：官方的 GitHub stack 对象是成员资格权威；一条符合条件的同作者链——未入栈，或某个既有栈中保序的子集——以增量方式被链接；原生级联 rebase 配合 rerere 是默认刷新方式，增量 merge-forward 只在 pull request 作者明确请求时使用；合并通过 `gh stack merge` 进行，绝不通过逐个 pull request 的 `gh pr merge` 加重定向；选择整个栈或一个显式限定的前缀；每个选中的 pull request 都按其实际必需评审与检查判断，因依赖父层尚未合并而形成的 `BLOCKED` 不算失败；每个选中的 pull request 必须在删除分支之前报告 `MERGED`，而删除是单独的最后一轮。改编如下：
 
-1. **名称与触发语言。** 目标名是请求的 `dsh-spec-merging-stacked-prs`；description 保留来源的触发词汇与要求含义，并追加中文触发语言。来源固定的 `master` 在正文中变成仓库的默认分支（R4）。
+1. **名称与触发语言。** 目标名是请求的 `dsh-spec-merging-stacked-prs`；description 保留来源的触发词汇与要求含义，并追加中文触发语言。来源固定的 `master` 在正文中变成声明的 stack base，通常是底层 PR 的 `baseRefName`（R4）。
 2. **上游文档指针。** 根 `AGENTS.md` 指针与 cookbook 页面被处置而非承载：历史规则重绑到落地仓库自己的指令（R10），评审修复的传播被消解，因为它在技能范围之外，改写后重新审计的检查作为接管的规则保留。
 3. **合并方法。** 来源固定的 `--merge` 被重绑：合并方法是落地仓库的策略（R5）。技能采用其指令规定的方法，其次采用 GitHub 设置唯一允许的方法，否则使用 `squash`。[squash 默认值决策](2026-11-18-stack-merge-defaults-to-squash.zh.md)部分取代 R5 中的回退事实。
 4. **没有合并授权门。** 来源没有把合并挡在人类回答之后，来源边界中也没有任何东西增加这样一道门；不携带逐 pull request 授权（R8）。来源自己的询问保留：对冲突或意外栈条目的用户指示，作者不同或不可用时询问，以及在本地／远程分歧时取消。
 5. **已核验的 CLI（命令行界面）表面。** 已安装的 `gh stack` 0.1.1 提供来源所假定的命令与旗标——`link --base`、`checkout`、`sync`、`rebase`、`push`、`merge --yes --merge/--squash/--rebase`——并且没有 `--delete-branch`。两个已核验的行为塑造了文本：`gh stack link` 的分支参数会被推送且可以创建 pull request，而一个匹配不到任何 pull request 的数字参数会被当作分支名，因此链接命令使用 pull request URL（R1）；并且落地的技能只链接开放的 pull request，遇到已关闭或已合并的条目时停下并询问（R9）。
-6. **符合性证据。** 来源要求每个选中的 pull request 符合仓库的评审与检查要求。该证据从同一份元数据中读取：`mergeStateStatus` 不是 `CLEAN`（包括仍在计算的 `UNKNOWN`），或 `reviewDecision` 为 `CHANGES_REQUESTED`，都是阻塞项（R2）。
+6. **符合性证据。** 来源要求每个选中的 pull request 符合其 base 分支的评审与检查要求。必需检查来自 `gh pr checks --required`；`CHANGES_REQUESTED`、必需检查失败、冲突、仍在计算的 `UNKNOWN`，或任何 `BEHIND` 状态都是阻塞项。原生 stack 还要求从 stack base 到每一层的历史保持线性；`BLOCKED` 与 `UNSTABLE` 要检查其原因，而不是仅凭标签拒绝（R2）。
 7. **部分落地。** 部分落地之后，技能重新查询官方栈，把已经报告 `MERGED` 的层视为已落地，并校验剩余 PR 仍按预期顺序链接、且目标为 trunk 或它下面的那一层（R3）。
 8. **交付。** frontmatter 增加可选的 `compatibility` 字段，说明技能所需的运行时；交付语言为英文并追加中文触发语言，中文评审草稿中文在前（R6）。本记录带有中文对侧与一致性记录。
 
@@ -31,7 +31,10 @@ Status: implemented
 
 ### 来源与修订
 
-上游来源修订：`dsh-v0.2.2-alpha.2`（`f3803c96974ad4a94195fb97e5c637e9c2a3afe3`），文件 `.agents/skills/dsh-merging-stacked-prs/SKILL.md`；当前抽取基线是 `dsh-v0.2.2-rc.5`（`9c2670d3bce5275e0d1610272958121af87787bb`）。该文件是技能唯一的内容来源。
+上游来源读取于 2026-11-23，版本 `dsh-v0.2.3-alpha.2`（`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`）：
+
+- `.agents/skills/dsh-merging-stacked-prs/SKILL.md`
+- `.agents/notes/implemented/process/2026-11-19-prefer-rebase-with-rerere.md`
 
 ### 约束处置
 
@@ -40,9 +43,9 @@ Status: implemented
 | # | 来源 | 约束 | 处置 | 落点 | 依据 |
 |---|---|---|---|---|---|
 | S1 | frontmatter `name` | 技能按落地动作命名。 | 改编 | SK frontmatter | 请求命名 `dsh-spec-merging-stacked-prs` |
-| S2 | frontmatter `description` | 在落地一串相互依赖的 PR（A ← B ← C）、合并一个 base 是另一个开放 PR 分支的 PR，或请求提到「stacked PRs」「PR stack」「dependent PRs」或按序合并相关 PR 时使用；每条同仓库链在落地前都必须使用 GitHub 官方的 stacked-PR 特性，好让 GitHub 拥有栈级规则、CI、顺序、重定向与合并状态；该链落地到 master。 | 改编 | SK frontmatter | 保留触发词汇与要求含义；来源的 `master` 变成仓库的默认分支（R4）；增加中文触发语言 |
+| S2 | frontmatter `description` | 在落地一串相互依赖的 PR（A ← B ← C）、合并一个 base 是另一个开放 PR 分支的 PR，或请求提到「stacked PRs」「PR stack」「dependent PRs」或按序合并相关 PR 时使用；每条同仓库链在落地前都必须使用 GitHub 官方的 stacked-PR 特性，好让 GitHub 拥有栈级规则、CI、顺序、重定向与合并状态；该链落地到 master。 | 改编 | SK frontmatter | 保留触发词汇与要求含义；来源的 `master` 变成声明的 stack base（R4）；增加中文触发语言 |
 | S3 | intro | 通过 GitHub 原生 stack 对象与 `gh stack merge` 落地相互依赖的 PR；不要靠合并并重定向单个 PR 来复现栈语义。 | 保留 | SK intro | 来源机制 |
-| S4 | intro | 根 `AGENTS.md` 拥有允许的 merge-forward 与 rebase 历史。 | 重绑 | SK intro, § Refresh | 该指涉是上游仓库文档；目的是历史策略属于被落地的仓库，因此它变成落地仓库自己的指令（其 `AGENTS.md` 或等价物）（R10） |
+| S4 | intro | 根 `AGENTS.md` 拥有允许的 merge-forward 与 rebase 历史。 | 重绑 | SK intro, § Refresh | 历史策略属于落地仓库；alpha.2 把带检查 rerere 解决结果的 rebase 设为默认，并只为 PR 作者的明确请求保留 merge-forward（R10） |
 | S5 | intro | 栈评审指南拥有评审修复的传播。 | 消解 | SK intro, § Refresh | 该指南不是目标的一部分；接管的检查是重新审计规则：任何 head 改写之后，重新获取 head 并重新审计讨论串、批准、可合并性与检查 |
 | S6 | § Require native stack support | 在改动 GitHub 状态之前运行 `gh stack --version`；扩展或服务器端特性不可用时硬停车；不要回退到手工合并与重定向。 | 保留 | SK § Require native stack support | 已核验：`gh stack version 0.1.1` 存在 |
 | S7 | § Require native stack support | GitHub 栈要求每个 head 分支都在同一仓库；跨 fork 的链硬停车。 | 保留 | SK § Require native stack support | 同一限制成立 |
@@ -58,11 +61,11 @@ Status: implemented
 | S17 | § Link missing stack members | 重新查询并要求一个栈编号、预期 trunk、完整 PR 集合，以及预期的位置与 base 链。 | 保留 | SK § Link missing stack members | 重新查询就是同一条内联 GraphQL 查询 |
 | S18 | § Link missing stack members | 绝不自动解散、重排或重建既有栈；链接是增量的，而已合并或已排队的条目不能被解除栈。 | 改编 | SK § Link missing stack members | 增量的规则被保留；`gh stack unstack --help` 确认已排队／自动合并的条目保持入栈，而已合并条目的主张未验证，因此目标文本陈述停止规则而不是该主张 |
 | S19 | § Refresh only when needed | 不要仅因为存在刷新机制就改写分支；当实机合并状态或仓库规则需要更新后的 trunk 时才刷新。 | 保留 | SK § Refresh only when needed | 未变 |
-| S20 | § Refresh only when needed | 原生级联 rebase：当本地尚未跟踪时用 `gh stack checkout <pr-or-stack>` 检出远程栈，然后运行 `gh stack sync`；它可能在本地校验之前 rebase 并 lease 保护地 force-push 每一个活跃层；检查被改写的范围，为每个受影响层运行检查，并且在它们通过之前不要合并或声称就绪。 | 保留 | SK § Refresh only when needed | `gh stack sync --help` 确认 fetch、级联 rebase 与原子 force-with-lease push |
+| S20 | 上游 `SKILL.md` § Refresh only when needed 与 `.agents/notes/implemented/process/2026-11-19-prefer-rebase-with-rerere.md` | 原生级联 rebase：当本地尚未跟踪时用 `gh stack checkout <pr-or-stack>` 检出远程栈，启用 `rerere.enabled`，保持 `rerere.autoUpdate` 未设置或为 false，然后运行 `gh stack sync`；它可能在本地校验之前 rebase 并 lease 保护地 force-push 每一个活跃层；检查每个重放的解决结果与被改写的范围，为每个受影响层运行检查，并且在它们通过之前不要合并或声称就绪。 | 改编 | SK § Refresh only when needed | alpha.2 把带检查 rerere 解决结果的 rebase 设为默认，并保持自动暂存关闭；上游记录提供精确设置，可安装技能重复这些设置，使没有来源记录的采用者也保留该行为；`gh stack sync --help` 确认 fetch、级联 rebase 与原子 force-with-lease push |
 | S21 | § Refresh only when needed | 同步冲突时使用 `gh stack rebase`，解决并校验，然后用 `gh stack push` 发布。 | 保留 | SK § Refresh only when needed | 两条命令都确认 |
 | S22 | § Refresh only when needed | 当本地与远程的栈组成分歧时，取消并询问，而不是删除或重建远程栈。 | 保留 | SK § Refresh only when needed | 非交互式分歧会中止而不推送 |
-| S23 | § Refresh only when needed | 增量 merge-forward：把 trunk 合入受影响的底层分支，自底向上把每个更新后的父层传播进它的子层，正常推送；当 base 前进时保留进行中的检查点。 | 保留 | SK § Refresh only when needed | 未变 |
-| S24 | § Refresh only when needed | 任何历史改写都在评审后允许，但它会使提交 OID 假设失效；推送后重新获取确切 head，并重新审计讨论串、批准、可合并性与检查；绝不使用原始 `--force`，也绝不覆盖一个并发前进的 head。 | 重绑 | SK § Refresh only when needed | 「允许」是目标仓库的策略：在落地仓库的指令允许处，改写可在评审后进行；OID、重新审计与 force 规则保留（R10） |
+| S23 | § Refresh only when needed | 增量 merge-forward：把 trunk 合入受影响的底层分支，自底向上把每个更新后的父层传播进它的子层，正常推送；当 base 前进时保留进行中的检查点。 | 改编 | SK § Refresh only when needed | alpha.2 只在策略允许且 PR 作者明确请求时使用这条历史 |
+| S24 | § Refresh only when needed | 任何历史改写都在评审后允许，但它会使提交 OID 假设失效；推送后重新获取确切 head，并重新审计讨论串、批准、可合并性与检查；绝不使用原始 `--force`，也绝不覆盖一个并发前进的 head。 | 重绑 | SK § Refresh only when needed | 在落地仓库允许处，rebase 是默认；merge-forward 需要 PR 作者的明确请求；OID、重新审计与 force 规则保留（R10） |
 | S25 | § Preflight the merge range | 合并之前立即重新查询官方栈；要求每个选中的 PR 开放、非草稿、顺序正确，并符合仓库的评审与检查要求。 | 改编 | SK § Preflight the merge range | 符合性从同一份元数据中的 `mergeStateStatus` 与 `reviewDecision` 读取（R2） |
 | S26 | § Preflight the merge range | 独立对待每个 PR 的状态。 | 保留 | SK § Preflight the merge range | 未变 |
 | S27 | § Preflight the merge range | 「落地整个栈」选择整个栈；部分落地需要一个显式的边界 PR，并包含从底层到它的每一层。 | 保留 | SK § Preflight the merge range | 未变 |
@@ -80,20 +83,22 @@ Status: implemented
 
 S31 与 S33 之间的编号空缺是刻意的（R8）：缺失的那一行本会加入一道采用者授权门，而来源边界排除它；这不是被丢弃的来源约束。
 
+PR122 的 `refresh-stack-with-rerere` 模型运行通过 4/4 项断言，覆盖默认 rebase 路径、关闭 rerere 自动暂存以及刷新后的验证顺序。`dependency-only-blocked-stack-can-land` 运行再通过 4/4 项断言，把仅依赖父层的 `BLOCKED` 与必需检查或评审失败区分开。
+
 ### 裁决
 
 | # | 裁决 | 依据 | 可逆方式 |
 |---|---|---|---|
 | R1 | 链接命令使用 pull request URL，而不是数字或分支名。 | `gh stack link --help`：分支参数会被推送且可以创建 pull request，而匹配不到任何 pull request 的数字参数会被当作分支名；URL 总能解析为 pull request | 改变命令形式；先解析数字 |
-| R2 | 符合性证据是同一份元数据中的 `mergeStateStatus` 与 `reviewDecision`：不等于 `CLEAN`（包括 `UNKNOWN`）的值，或 `CHANGES_REQUESTED`，都是阻塞项。 | 来源要求符合仓库的评审与检查要求；GitHub 报告的状态就是该判定 | 改变证据字段或阻塞集合 |
+| R2 | 符合性证据是 base 分支要求的评审与检查结果：`CHANGES_REQUESTED`、必需检查失败、冲突、仍在计算的 `UNKNOWN`，或任何 `BEHIND` 状态会阻塞。必需检查使用评审平台的 required-check 查询；stack base 与每一较低层都必须是下一层 head 的祖先。`BLOCKED` 与 `UNSTABLE` 要按原因判断，因为依赖栈可能仅因开放父层而 `BLOCKED`。 | 来源要求符合 base 分支的要求；聚合检查历史不足以识别必需检查，而非线性 stack 即使未被政策要求保持最新也无法落地 | 改变证据字段或阻塞集合 |
 | R3 | 部分落地之后，已经报告 `MERGED` 的层就是已落地；重新查询并按预期顺序校验剩余范围。 | GitHub 在部分落地之后重定向并 rebase 剩余层；来源要求重新查询并校验剩余层 | 调整规则 |
-| R4 | 来源的 `master` 变成仓库的默认分支。 | 一个交付技能不能点名另一个仓库的默认分支 | 无需 |
+| R4 | 来源的 `master` 变成 stack 声明的 base 分支：stack 对象的 `baseRefName`，或在链接链时底层 PR 的 `baseRefName`。 | 一个交付技能不能假定仓库默认分支就是 stack base | 无需 |
 | R5 | 合并方法是仓库策略。技能采用落地仓库指令规定的方法，其次采用 GitHub 设置唯一允许的方法，否则默认使用 `squash`。 | 来源的固定值是某个仓库的策略；目标领域有规定 squash 或 rebase 的仓库，GitHub 会拒绝仓库不允许的方法，而请求指定的回退方案是 squash | 在 [squash 默认值决策](2026-11-18-stack-merge-defaults-to-squash.zh.md)中保留该回退方案，或把它替换成一个显式配置输入 |
 | R6 | 评审草稿以中文在前，英文作为它的附加触发语言。 | 请求的评审语言与评审草稿规则 | 无需 |
 | R7 | 记录以已实现的骨架位于 `implemented/`。 | 请求的记录位置与记录生命周期 | 无需 |
 | R8 | 不携带任何合并授权门：技能在一次通过的预检之后运行合并，与来源相同。 | 来源没有这样的约束，而仓库内容被排除在来源边界之外；预检与禁止绕过的规则就是守卫 | 增加一个确认步骤作为安全兜底 |
 | R9 | 技能只链接开放的 pull request，遇到已关闭或已合并的条目时停下并询问。 | 来源说只有开放的 pull request 才能被链接或落地；只读探针确认一个已关闭的探针存在，但扩展对非开放条目的行为未验证，因此目标陈述安全的停止，而不是机制主张 | 如果支持的非开放路径被验证，修订该规则 |
-| R10 | 在落地仓库的指令允许之处，评审后的历史改写是被允许的；它使提交 OID 假设失效，因此推送后重新获取 head 并重新审计讨论串、批准、可合并性与检查；绝不使用原始 `--force`，也绝不覆盖并发前进的远程 head。 | 来源的历史规则被重绑到目标仓库的策略；来源的重新审计与 force 规则被保留 | 让规则无条件，或去掉重新审计 |
+| R10 | 落地仓库允许改写历史时，以检查 rerere 解决结果后的 rebase 作为默认刷新；merge-forward 是由 PR 作者明确请求的例外。两者都会使提交 OID 假设失效；推送后重新获取 head，并重新审计讨论串、批准、可合并性与检查；绝不使用原始 `--force`，也绝不覆盖并发前进的远程 head。 | 上游 rerere 决策是默认，受落地仓库历史策略约束；保留来源的重新审计与 force 规则 | 把默认改成 merge-forward，或去掉重新审计 |
 | R11 | 不随附脚本：来源中恰好可判定的检查按其自己的 `gh` 与 GraphQL 命令内联承载，由 agent 运行它们。 | 锻造的脚本决定是一项裁决；上游单文件形态被选中而非只读审计脚本，重视 agent 的灵活性与更小的表面，而非脚本稳定的退出类别与离线测试 | 如果判定其一致性值得那些表面，重新引入只读审计脚本 |
 
 ### 不随附脚本
