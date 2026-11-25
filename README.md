@@ -24,6 +24,8 @@ Install into the project, not into your home directory, and commit the result. A
 
 Install each skill with its own `gh skill install` invocation. By default, leave out `--pin`: the CLI installs the latest tagged release, or the default branch when the repository has no tagged release. Pass `--pin <tag-or-commit>` only when the project needs a fixed revision for CI, audit, reproducible builds or another fixed-version requirement.
 
+The rationale and boundary are recorded in [Ordinary installation tracks the latest release](.agents/dsh-spec-agent-notes/implemented/process/2026-11-25-ordinary-installation-tracks-latest-release.md).
+
 The commands below use `--dir .agents/skills` for the shared tree. For a host with its own project-scoped directory, install the same skills with `--agent <host>` and omit `--dir`.
 
 ### Start with the universal group

@@ -1,0 +1,28 @@
+# Pairing consistency record for 2026-11-25-ordinary-installation-tracks-latest-release.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-11-25-ordinary-installation-tracks-latest-release.md --target <lang>
+/agent-note-ordinary-installation-tracks-the-latest-release:
+  en: abc640e245d9a731
+  zh: df31fd4fd2fe9c80
+/agent-note-ordinary-installation-tracks-the-latest-release/problem:
+  en: 26424bd043535eba
+  zh: 7ce4e82552c73afb
+/agent-note-ordinary-installation-tracks-the-latest-release/decision:
+  en: 4d3e61bc94a1a7c2
+  zh: 0a3964b37276c439
+/agent-note-ordinary-installation-tracks-the-latest-release/decision/installation-guidance:
+  en: a3b90043ff91d3fe
+  zh: 4fe1cd7f6845dbcf
+/agent-note-ordinary-installation-tracks-the-latest-release/decision/scope:
+  en: e569fcd2b008f1fd
+  zh: 795b39f71213539e
+/agent-note-ordinary-installation-tracks-the-latest-release/alternatives-considered:
+  en: 6082839a525df754
+  zh: cc47ab1084186a24
+/agent-note-ordinary-installation-tracks-the-latest-release/consequences:
+  en: 432094ed976771e5
+  zh: 61fd03aa1e9bdfa4
+/agent-note-ordinary-installation-tracks-the-latest-release/consequences/verification:
+  en: 33cb982f653a1201
+  zh: 39c20c0899806db1

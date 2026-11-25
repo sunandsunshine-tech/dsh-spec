@@ -24,6 +24,8 @@ GitHub CLI 自己也带一个 agent 技能，去[它的仓库](https://github.co
 
 每个技能使用各自的 `gh skill install` 调用安装。默认省略 `--pin`：CLI 会安装最新的 tagged release；仓库没有 tagged release 时，则使用默认分支。只有项目需要为 CI、审计、可重复构建或其他固定版本场景锁定修订时，才传入 `--pin <tag-or-commit>`。
 
+这项决定的理由和适用范围记录在[普通安装跟随最新 release](.agents/dsh-spec-agent-notes/implemented/process/2026-11-25-ordinary-installation-tracks-latest-release.zh.md)。
+
 以下命令使用 `--dir .agents/skills` 安装共享目录。若宿主有自己的项目级目录，使用 `--agent <host>` 安装同一组技能，并省略 `--dir`。
 
 ### 从通用组开始

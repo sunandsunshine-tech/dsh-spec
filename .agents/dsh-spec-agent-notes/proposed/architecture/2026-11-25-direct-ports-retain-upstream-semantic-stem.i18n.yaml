@@ -9,8 +9,14 @@
   en: bbd1fbea6e332847
   zh: 278b3121f2febf50
 /agent-note-direct-ports-retain-their-upstream-semantic-stem/proposal:
-  en: e881e526b91747f2
-  zh: c6a48bc5ea0179e8
+  en: 9a28c39e8604b519
+  zh: e80d0996ea1e5e71
+/agent-note-direct-ports-retain-their-upstream-semantic-stem/proposal/shipped-naming-choices:
+  en: 27804680d8f8cfe4
+  zh: 3d183bc5a445d314
+/agent-note-direct-ports-retain-their-upstream-semantic-stem/proposal/unresolved-decisions:
+  en: 2933a91220feac8d
+  zh: 899832c4b17a2636
 /agent-note-direct-ports-retain-their-upstream-semantic-stem/proposal/migration-boundary:
   en: 41fc66347798c035
   zh: abc7425b7d7b35e6
@@ -18,8 +24,8 @@
   en: da249f99a9400e36
   zh: c9c42189dcb16c96
 /agent-note-direct-ports-retain-their-upstream-semantic-stem/acceptance-criteria:
-  en: b1503e57bf06c4eb
-  zh: c4238be640b94b87
+  en: 0473440ddb9d4393
+  zh: a6ec6bb6874e5ee4
 /agent-note-direct-ports-retain-their-upstream-semantic-stem/risks:
-  en: b0129457c329f89a
-  zh: 8de64a4283195a9a
+  en: 3a97a6e35e4235dd
+  zh: f45c39a3d5100a03

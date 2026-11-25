@@ -12,7 +12,17 @@ Status: proposed
 
 直接承载一个上游工作流、或将其通用化移植的技能，在 `dsh-spec-` 命名空间下保留该工作流的语义词干。只有复合技能或确实合并后的范围可以采用新名称，并且其锻造记录必须点名所有上游输入，并说明为什么合并后的名称更准确。
 
-#135 跟踪的性能重构以及 [从 dsh-speed-up-perf 重构性能技能](../feature/2026-11-25-reforge-performance-as-dsh-speed-up-perf.zh.md) 中的提案会恢复 `dsh-spec-speed-up-perf` 名称。在该重构落地前，已实现的[性能调查记录](../../implemented/feature/2026-11-24-forging-dsh-spec-performance-investigation.zh.md)仍是当前名称的 owner。
+### 已发布的命名选择
+
+#126 中的直接移植重命名交付了本提案的两个应用：`dsh-ci-test-reliability` 安装为 `dsh-spec-ci-test-reliability`，`record-browser-gif` 安装为 `dsh-spec-record-browser-gif`。
+
+`dsh-spec-agent-notes`、`dsh-spec-client-ui-ux` 和 `dsh-spec-prose-standard` 继续使用复合名称。它们的锻造记录点名各自纳入的上游工作流。[README.md](../../../../README.zh.md) 在面向采用者的目录中列出这些合并后的输入。
+
+### 未决事项
+
+当前 `dsh-spec-performance-investigation` 技能是单来源通用化移植，尚未满足这条命名规则。其真正的重构仍作为[从 dsh-speed-up-perf 重构性能技能](../feature/2026-11-25-reforge-performance-as-dsh-speed-up-perf.zh.md)中的提案保留，并由 #135 跟踪。在该重构落地前，已实现的[性能调查记录](../../implemented/feature/2026-11-24-forging-dsh-spec-performance-investigation.zh.md)仍是已发布技能的 owner。只改名称的别名不是迁移路径。
+
+#144 质疑：在 `dsh-spec-ci-test-reliability` 中保留 `ci-`，是否仍能准确命名这个通用化技能的范围。其结论可能修订直接移植的名称映射，或为通用化移植定义一个记录在案的例外。在 #135 与 #144 确定当前名称与范围的规则之前，本命名提案保持未决。
 
 ### 迁移边界
 
@@ -28,14 +38,15 @@ Status: proposed
 
 ## Acceptance criteria
 
-- 每个单源直接移植或通用化移植都命名为 `dsh-spec-<upstream-semantic-stem>`。
+- 每个单来源直接移植或通用化移植都命名为 `dsh-spec-<upstream-semantic-stem>`。
 - 每个复合或合并范围的名称都有记录的上游集合和明确的命名原因。
 - 当前引用一致采用提案名称；历史证据保留其记录时的名称和 hash。
-- 性能技能通过独立的 #135 实现工作迁移，而不是建立只改名称的别名。
-- 实现本提案时，双语记录和 corpus 检查通过。
+- #135 的性能重构与 #144 关于 CI test-reliability 名称范围的决策，将在不使用只改名称的别名的情况下确定其余直接移植的映射。
+- 实现本提案时，双语配对记录与语料门禁通过。
 
 ## Risks
 
 - 当两个来源覆盖同一工作流的不同部分时，相似的上游词干仍可能产生有歧义的名称。
 - 重命名会使旧触发证据失效，并可能要求为安装过旧名称的采用者安排分阶段迁移。
 - 过于字面的命名规则可能保留对通用采用者没有意义的上游品牌；语义词干判断只允许确实合并的范围记录例外。
+- 语义词干可以仍然可辨认，但范围收窄后就会让目录产生误导，即使名称本来照搬自上游；#144 是当前例子。
