@@ -16,6 +16,12 @@ Status: proposed
 
 跟踪：#131。
 
+### 当前状态与评审边界
+
+基线已经实现了这里描述的安装机制：[README.md](../../../../README.zh.md) 展示未 pin 的默认路径和固定修订变体，[repository-shape.test.ts](../../../../tests/repository-shape.test.ts) 同时检查两种形式。已关闭的 #125 和已合并的 #127 记录了这项已完成工作。
+
+本提案不要求新增安装器，也不要求迁移这些示例。它要求让这份理由与适用范围成为可从当前安装指南抵达的持久 owner。该可发现性链接尚未安装，所以在 #131 保留策略、并从现有指南或另一个当前治理 owner 链接到这里之前，本记录保持 proposed。
+
 ## Alternatives considered
 
 **把 `--pin latest` 作为普通安装形式。** 它看起来像版本选择 flag，但不是准确修订，把清晰的默认值变成了虚构的 pin。
@@ -31,6 +37,7 @@ Status: proposed
 - 当前文档都不把 `--pin latest` 描述为有效用法。
 - 安装检查区分普通路径和固定修订变体。
 - 提案不改变 repository 工具链和 GitHub Action 的 pin。
+- 安装指南或另一个当前治理 owner 链接到已保留策略；在该步骤落地前，本记录保持 proposed。
 
 ## Risks
 

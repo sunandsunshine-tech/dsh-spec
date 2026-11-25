@@ -18,10 +18,12 @@ The reforge preserves the upstream responsibilities as generalized requirements 
 
 - Benchmarks, required gates, profiling, optimization and reported evidence remain distinct decisions.
 - The acting model and project select capable tools; the skill neither assumes ambient tools nor downloads a substitute to bypass a missing capability.
-- A measurement states its clock, warm/cold state, included setup, completion condition, aggregate and excluded costs.
+- A measurement retains raw samples and states its clock, warm/cold state, included setup, completion condition, chosen aggregate and excluded costs.
 - Generated identifiers, private data and recognizable inputs do not enter fixtures or retained evidence.
 - Benchmarks use reviewed constants and do not depend on the user's home, ambient repository, network service or private corpus.
 - Cold-start runs use fresh processes or children; process memory distinguishes reachable retained state from transient pressure.
+- Stable identities survive equivalent updates; narrower subscriptions preserve update ordering and immediate-event behavior.
+- A negative control makes the targeted cost reappear in the original implementation or a controlled reintroduction.
 - Deliberate behavior differences are named, authorized and verified, while ordinary behavior and resource ownership are preserved.
 - Evidence limits are reported with the result rather than hidden behind a universal threshold.
 

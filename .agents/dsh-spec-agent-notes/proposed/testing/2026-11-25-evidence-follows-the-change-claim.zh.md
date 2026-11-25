@@ -25,6 +25,8 @@ Status: proposed
 
 现有[模型证据绑定记录](../../implemented/testing/2026-11-23-model-evidence-binds-changed-behavior.zh.md)拥有“行为证据绑定其执行字节”的规则。本提案拥有在确定性测试、模型证据、基线和隐私检查之间进行更广选择的规则。
 
+现有[pre-push 检查记录](../../implemented/process/2026-10-28-forging-dsh-spec-pre-push-checks.zh.md)继续负责根据 outgoing diff 的范围选择命令。本提案拥有主张类型、证据有效性、ROI 比较和隐私范围；它不替代该 outgoing-scope 选择。
+
 跟踪：#134。
 
 ## Alternatives considered

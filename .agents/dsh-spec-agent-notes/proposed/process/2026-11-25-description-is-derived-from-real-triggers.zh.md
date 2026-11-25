@@ -21,6 +21,8 @@ description 保留这些来源任务族，但不复制上游产品名称或不�
 
 触发验收同时使用应加载技能的正例和不应的近失例。这一组必须区分边界，而不是只证明宽泛的性能或评审语言会引起选中。
 
+当前触发语料为 `tests/skill-evals/dsh-spec-ci-test-reliability/trigger-evals.json`、`tests/skill-evals/dsh-spec-client-ui-ux/trigger-evals.json`、`tests/skill-evals/dsh-spec-error-handling/trigger-evals.json`、`tests/skill-evals/dsh-spec-performance-investigation/trigger-evals.json`、`tests/skill-evals/dsh-spec-pr-description/trigger-evals.json` 和 `tests/skill-evals/dsh-spec-record-browser-gif/trigger-evals.json`；`tests/skill-scenarios.test.ts` 校验它们的结构与当前触发面。
+
 跟踪：#132。
 
 ## Alternatives considered
@@ -37,6 +39,7 @@ description 保留这些来源任务族，但不复制上游产品名称或不�
 - 每个保留的来源任务族都有对应当前能力，或记录了被排除的理由。
 - 除非已加载技能提供该行为，否则不宣传它。
 - 变更 description 时记录正例和近失例触发评估。
+- 点名当前触发语料及其 scenario-gate 消费方，作为需要扩展或重跑的工件。
 - description 保持仓库目录预算，且只使用 BMP 字符。
 
 ## Risks

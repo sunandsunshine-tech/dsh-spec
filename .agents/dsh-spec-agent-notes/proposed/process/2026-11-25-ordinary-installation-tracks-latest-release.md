@@ -16,6 +16,12 @@ An exact tag or commit is supplied with `--pin <tag-or-commit>` only when CI, au
 
 Tracking: #131.
 
+### Current state and review boundary
+
+The base already implements the installation mechanics described here: [README.md](../../../../README.md) shows the unpinned default and fixed-revision variant, and [repository-shape.test.ts](../../../../tests/repository-shape.test.ts) checks both forms. Closed #125 and merged #127 record that completed work.
+
+This proposal does not ask for a new installer or a migration of those examples. It asks to make this rationale and scope the durable owner reached from current installation guidance. That discoverability link is not yet installed, so the record remains proposed until #131 retains the policy and links it from the existing guidance or another current governance owner.
+
 ## Alternatives considered
 
 **Use `--pin latest` as the ordinary install form.** It reads like a version-selection flag, but it is not an exact revision and turns a clear default into a fictional pin.
@@ -31,6 +37,7 @@ Tracking: #131.
 - No current documentation presents `--pin latest` as valid.
 - Installation checks distinguish the ordinary path from fixed-revision variants.
 - The proposal leaves repository-toolchain and GitHub Action pins unchanged.
+- Installation guidance or another current governance owner links to the retained policy; until that step lands, this record remains proposed.
 
 ## Risks
 

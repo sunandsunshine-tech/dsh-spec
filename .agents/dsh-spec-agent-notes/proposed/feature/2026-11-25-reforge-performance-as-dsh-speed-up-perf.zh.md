@@ -18,10 +18,12 @@ Status: proposed
 
 - benchmark、必需 gate、profiling、优化和已报告证据仍是不同决策。
 - 执行模型和项目选择可用工具；技能既不假定存在 ambient tool，也不下载替代品绕过缺失能力。
-- 测量陈述 clock、warm/cold 状态、包含的 setup、完成条件、聚合值和排除的成本。
+- 测量保留 raw sample，并陈述 clock、warm/cold 状态、包含的 setup、完成条件、所选聚合值和排除的成本。
 - 生成标识、私有数据和可辨识输入不进入 fixture 或保留证据。
 - benchmark 使用经评审的常量，不依赖用户主目录、环境中的 repository、网络服务或私有语料。
 - cold-start 运行使用新进程或子进程；process memory 区分可达的保留状态与瞬时压力。
+- 稳定标识在等价更新后保持不变；更窄的 subscription 保留更新顺序与 immediate-event 行为。
+- negative control 使目标成本在原实现或受控重新引入中重新出现。
 - 有意的行为差异被点名、获授权并验证，同时普通行为与资源所有权保持不变。
 - 证据限制随结果报告，不能藏在一个通用 threshold 后面。
 

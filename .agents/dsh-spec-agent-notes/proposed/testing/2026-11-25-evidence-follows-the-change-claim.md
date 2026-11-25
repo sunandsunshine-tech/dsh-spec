@@ -25,6 +25,8 @@ The change description names the claim and the evidence that decides it. Expensi
 
 The existing [model-evidence binding record](../../implemented/testing/2026-11-23-model-evidence-binds-changed-behavior.md) owns the rule that behavior evidence binds the bytes it exercised. This proposal owns the broader choice among deterministic tests, model evidence, baselines and privacy checks.
 
+The existing [pre-push checks record](../../implemented/process/2026-10-28-forging-dsh-spec-pre-push-checks.md) retains responsibility for selecting commands from the outgoing diff's scope. This proposal owns claim type, evidence currency, ROI comparison and privacy scope; it does not replace that outgoing-scope selection.
+
 Tracking: #134.
 
 ## Alternatives considered

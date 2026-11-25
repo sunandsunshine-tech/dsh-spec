@@ -21,6 +21,8 @@ The description preserves those source task families without copying upstream pr
 
 Trigger acceptance uses positive examples that should load the skill and near-miss examples that should not. The pair must distinguish the boundary, not merely prove that broad performance or review language causes selection.
 
+Current trigger corpora are `tests/skill-evals/dsh-spec-ci-test-reliability/trigger-evals.json`, `tests/skill-evals/dsh-spec-client-ui-ux/trigger-evals.json`, `tests/skill-evals/dsh-spec-error-handling/trigger-evals.json`, `tests/skill-evals/dsh-spec-performance-investigation/trigger-evals.json`, `tests/skill-evals/dsh-spec-pr-description/trigger-evals.json` and `tests/skill-evals/dsh-spec-record-browser-gif/trigger-evals.json`; `tests/skill-scenarios.test.ts` validates their shape and current trigger surface.
+
 Tracking: #132.
 
 ## Alternatives considered
@@ -37,6 +39,7 @@ Tracking: #132.
 - Every retained source task family has a corresponding current capability or a disclosed reason for exclusion.
 - No behavior is advertised unless the loaded skill supplies it.
 - Positive and near-miss trigger evaluations are recorded for a changed description.
+- The current trigger corpora and their scenario-gate consumer are named as the artifacts to extend or rerun.
 - The description remains within the repository's catalog budget with BMP characters only.
 
 ## Risks
