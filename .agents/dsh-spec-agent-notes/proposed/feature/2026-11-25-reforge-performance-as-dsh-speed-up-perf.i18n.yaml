@@ -1,0 +1,25 @@
+# Pairing consistency record for 2026-11-25-reforge-performance-as-dsh-speed-up-perf.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/proposed/feature/2026-11-25-reforge-performance-as-dsh-speed-up-perf.md --target <lang>
+/agent-note-reforge-performance-from-dsh-speed-up-perf:
+  en: 3265e5e6e1ab26db
+  zh: 87cae2147a496075
+/agent-note-reforge-performance-from-dsh-speed-up-perf/problem:
+  en: a93a248fb8454863
+  zh: c3f11e6bc52c6e1c
+/agent-note-reforge-performance-from-dsh-speed-up-perf/proposal:
+  en: b9263bf91f136f4c
+  zh: 0ad35ea09e134c71
+/agent-note-reforge-performance-from-dsh-speed-up-perf/proposal/boundaries-to-preserve:
+  en: 646e7908035c13b0
+  zh: 237e668c77c3f21a
+/agent-note-reforge-performance-from-dsh-speed-up-perf/alternatives-considered:
+  en: 7f31da46fb75fd14
+  zh: 525d15638fdaaf1e
+/agent-note-reforge-performance-from-dsh-speed-up-perf/acceptance-criteria:
+  en: e8ebed83fda6cbf4
+  zh: ecf2ed5fb5594069
+/agent-note-reforge-performance-from-dsh-speed-up-perf/risks:
+  en: 2b03ce6c86dcfef5
+  zh: c977bebda534a007

@@ -1,0 +1,22 @@
+# Pairing consistency record for 2026-11-25-description-is-derived-from-real-triggers.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/proposed/process/2026-11-25-description-is-derived-from-real-triggers.md --target <lang>
+/agent-note-descriptions-are-derived-from-real-triggers:
+  en: 7a545c09384cb739
+  zh: 52d5d347065aebad
+/agent-note-descriptions-are-derived-from-real-triggers/problem:
+  en: 38bb50cf646c1652
+  zh: 2241ca091e523261
+/agent-note-descriptions-are-derived-from-real-triggers/proposal:
+  en: 475bb1e4cbca276b
+  zh: 8ddbcadfd3523217
+/agent-note-descriptions-are-derived-from-real-triggers/alternatives-considered:
+  en: 763308aff7d8dce4
+  zh: 7a4d6490f151cb3b
+/agent-note-descriptions-are-derived-from-real-triggers/acceptance-criteria:
+  en: 64d8f0c3c6f6b5a8
+  zh: ba5430149ff5adc2
+/agent-note-descriptions-are-derived-from-real-triggers/risks:
+  en: 3dbe5bfe0021ac47
+  zh: 5120f749f49b87e2
