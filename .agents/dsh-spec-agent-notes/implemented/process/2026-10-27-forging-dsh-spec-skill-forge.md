@@ -52,7 +52,7 @@ The review drafts and their pairing records are ordinary work-directory content 
 | An existing decision record | Re-bind | `SKILL.md § Source` | Only the request, the current contract and the declaration decide; the record supplies a requirement only where one of them keeps that requirement in force |
 | Adopter declaration: forging record location | Keep | `.agents/dsh-spec-agent-notes/implemented/process/2026-10-27-forging-dsh-spec-skill-forge.md` | The notes mechanism's default root and the repository's `forging-<skill-name>` record convention |
 
-Unchanged: the guiding principle, tool names, Stop/Intent/Source/Disposition sections, the verification anchor table, the gate mechanics, and the description/trigger. The Verification section's Complete condition adds the default-completion acceptance above. The Record and Review sections carry the optional sibling references.
+Unchanged: the guiding principle, tool names, Stop/Intent/Source/Disposition sections, the verification anchor table, and the gate mechanics. The Verification section's Complete condition adds the default-completion acceptance above. The Record and Review sections carry the optional sibling references. [The description-trigger record](2026-11-25-description-is-derived-from-real-triggers.md) owns the later selection-projection rule.
 
 ## Alternatives considered
 

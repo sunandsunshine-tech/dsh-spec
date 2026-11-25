@@ -1,0 +1,5 @@
+ec6ce6582010cef2579f64e3e0c2830325276d9a6a94bbbdd8852736ae8b12f7  skills/dsh-spec-skill-forge/SKILL.md  mode=0644
+91579dd79f1c2803845f94eb8940fff863bfe0c801234eb8ab5153f934f017ba  skills/dsh-spec-skill-forge/THIRD_PARTY_NOTICES  mode=0644
+db1cb0a7039675497790123f63c3e730fd368b3bd31d84b2ca4d50a67ab5eded  skills/dsh-spec-skill-forge/references/offline-skill-authoring.md  mode=0644
+ecdf9fa41fc329aec1ae6bedf63e8c52dc8fb87dfabd20fa8ff9c8d864eb6c59  skills/dsh-spec-skill-forge/scripts/forge.mjs  mode=0755
+ac335042acf33e1b243759ceb83dc9cc709b44c03625e0338b24b7d4d31fc26f  skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs  mode=0755

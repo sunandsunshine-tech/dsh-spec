@@ -1,0 +1,15 @@
+{
+  "id": "description-derived-from-role-triggers-and-exclusions",
+  "prompt": "A bundled `release-audit` skill was copied from a broader release tool. Its description advertises deployment, feature flags, observability, security approval, incident response, and more, while the useful procedure checks version, migration, rollback, and compatibility evidence. Product clarifies that the skill's job stays evidence review before shipping; it must not deploy, apply migrations, manage flags, approve security exceptions, or respond to incidents. Reforge this skill so its catalog description and body boundary agree with that role, preserve the useful procedure, and add one positive and one near-miss selection query. Do not turn the procedure into catalog copy.",
+  "expected_output": "The description is a concise role, trigger, and exclusion projection for release-evidence review before shipping. The body states the same release-audit role and exclusions, including security approval and incident response, while retaining the version, migration, rollback, and compatibility procedure. Unsupported product-wide release claims disappear, and the positive and near-miss queries differ by audit work versus release execution or ownership.",
+  "files": [
+    "evals/files/vendor/release-audit/SKILL.md"
+  ],
+  "assertions": [
+    "The description and body identify release-evidence review before shipping and at least one supported object such as version, migration, rollback, or compatibility evidence.",
+    "The description and body agree that deployment, migration application, feature-flag management, security approval, and incident response are excluded rather than advertised capabilities.",
+    "The body retains the version, migration, rollback, and compatibility procedure as execution detail; the description does not become a procedure inventory.",
+    "The output includes a realistic positive query and a near-miss query that share release vocabulary but require audit work versus execution or ownership.",
+    "The description avoids a fixed open-ended inventory and omits unsupported observability or broader release claims."
+  ]
+}

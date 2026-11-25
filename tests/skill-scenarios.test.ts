@@ -112,7 +112,7 @@ const REQUIRED: RequiredProfile[] = [
 
 const FORGE_REQUIRED: RequiredProfile = {
   skill: 'dsh-spec-skill-forge',
-  ids: ['capability-dependent-fallback-design'],
+  ids: ['capability-dependent-fallback-design', 'description-derived-from-role-triggers-and-exclusions'],
   noIsolationIds: [],
   isolatedIds: [],
   handoffIds: [],
@@ -728,7 +728,7 @@ function assertTriggerCorpusIdentity(skill: string): void {
   )
 }
 
-function assertCurrentTriggerEvidence(skill: string, evidenceRoot: string): void {
+function assertCurrentTriggerEvidence(skill: string, evidenceRoot: string, requireCleanStderr = false): void {
   const corpusRoot = join(EVAL_SOURCE_ROOT, skill)
   const corpus = JSON.parse(readFileSync(join(corpusRoot, 'trigger-evals.json'), 'utf8')) as {
     agent_file: string
@@ -737,6 +737,7 @@ function assertCurrentTriggerEvidence(skill: string, evidenceRoot: string): void
   assertTriggerCorpusIdentity(skill)
   const expected = {
     'dsh-spec-ci-test-reliability': { positive: 4, negative: 4 },
+    'dsh-spec-skill-forge': { positive: 6, negative: 6 },
     'dsh-spec-record-browser-gif': { positive: 3, negative: 5 },
     'dsh-spec-performance-investigation': { positive: 5, negative: 6 },
   }[skill]
@@ -809,7 +810,11 @@ function assertCurrentTriggerEvidence(skill: string, evidenceRoot: string): void
       final.trim(),
       skill + '/' + query.id + ' final differs from trace',
     )
-    assert.ok(readFileSync(join(runRoot, 'stderr.log'), 'utf8').trim().length > 0)
+    const stderr = readFileSync(join(runRoot, 'stderr.log'), 'utf8')
+    assert.ok(stderr.trim().length > 0)
+    if (requireCleanStderr) {
+      assert.doesNotMatch(stderr, /rmcp::transport::worker|AuthRequired|Transport channel closed/i)
+    }
   }
 }
 
@@ -1263,7 +1268,7 @@ function fileHash(path: string): string {
 function traceEvents(trace: string): Array<{
   type: string
   command?: string
-  item?: { type?: string; command?: string; text?: string }
+  item?: { type?: string; command?: string; text?: string; aggregated_output?: string }
 }> {
   return trace
     .trim()
@@ -1274,19 +1279,49 @@ function traceEvents(trace: string): Array<{
 
 // Trace events are reviewer context. They are useful for understanding a run, but the model can
 // write to the process output and they are not an adversarial execution attestation.
+const ANSWER_BLIND_PATTERNS = [
+  [/evals[/\\]evals\.json/i, 'answer manifest'],
+  [/tests[/\\]skill-evals/i, 'source eval tree'],
+  [/\bexpected_output\b/i, 'answer-bearing metadata'],
+  [/(?:^|[/\\])codex-home(?:[/\\]|\s|$)/i, 'model runtime home'],
+  [/(?:^|[/\\])response(?:[/\\]|\s|$)/i, 'model response mount'],
+] as const
+
 function assertAnswerBlindTrace(root: string): void {
   const trace = readFileSync(join(root, 'trace.jsonl'), 'utf8')
   const events = traceEvents(trace)
   assert.equal(events.filter((event) => event.type === 'turn.started').length, 1, root + ' turn start count')
   assert.equal(events.filter((event) => event.type === 'turn.completed').length, 1, root + ' turn completion count')
-  for (const [pattern, label] of [
-    [/evals[/\\]evals\.json/i, 'answer manifest'],
-    [/tests[/\\]skill-evals/i, 'source eval tree'],
-    [/\bexpected_output\b/i, 'answer-bearing metadata'],
-    [/(?:^|[/\\])codex-home(?:[/\\]|\s|$)/i, 'model runtime home'],
-    [/(?:^|[/\\])response(?:[/\\]|\s|$)/i, 'model response mount'],
-  ] as const) {
+  for (const [pattern, label] of ANSWER_BLIND_PATTERNS) {
     assert.doesNotMatch(trace, pattern, root + ' exposed the ' + label)
+  }
+  const finalMessage = events
+    .filter((event) => event.type === 'item.completed' && event.item?.type === 'agent_message')
+    .at(-1)?.item?.text
+  assert.equal(typeof finalMessage, 'string', root + ' has no final agent message')
+  assert.equal(readFileSync(join(root, 'final.md'), 'utf8'), finalMessage, root + ' final response differs from trace')
+}
+
+function assertAnswerBlindTraceWithSkillOutput(root: string, skill: string): void {
+  const trace = readFileSync(join(root, 'trace.jsonl'), 'utf8')
+  const events = traceEvents(trace)
+  assert.equal(events.filter((event) => event.type === 'turn.started').length, 1, root + ' turn start count')
+  assert.equal(events.filter((event) => event.type === 'turn.completed').length, 1, root + ' turn completion count')
+  const commands = events
+    .flatMap((event) => [event.command, event.item?.command])
+    .filter((command): command is string => typeof command === 'string')
+    .join('\n')
+  for (const [pattern, label] of ANSWER_BLIND_PATTERNS) {
+    assert.doesNotMatch(commands, pattern, root + ' command referenced the ' + label)
+  }
+  const installed = `.agents/skills/${skill}/`
+  const sanitized = events.map((event) =>
+    event.item?.command?.includes(installed)
+      ? { ...event, item: { ...event.item, aggregated_output: '<installed skill output omitted>' } }
+      : event,
+  )
+  for (const [pattern, label] of ANSWER_BLIND_PATTERNS) {
+    assert.doesNotMatch(JSON.stringify(sanitized), pattern, root + ' exposed the ' + label)
   }
   const finalMessage = events
     .filter((event) => event.type === 'item.completed' && event.item?.type === 'agent_message')
@@ -1868,6 +1903,108 @@ test('the forge eval covers capability preference, fallback and a bounded handof
   assert.match(scenario.expected_output, /optional mechanism/)
   assert.match(scenario.expected_output, /fallback or explicit handoff/)
   assert.ok(scenario.assertions.some((assertion) => /resumable next step/.test(assertion)))
+})
+
+test('the forge eval derives descriptions from real trigger boundaries', () => {
+  const corpus = readCorpus(FORGE_REQUIRED.skill)
+  const scenario = corpus.evals.find((entry) => entry.id === 'description-derived-from-role-triggers-and-exclusions')
+  assert.ok(scenario)
+  assert.match(scenario.prompt, /catalog description and body boundary agree/i)
+  assert.match(scenario.prompt, /body boundary agree/i)
+  assert.match(scenario.prompt, /near-miss selection query/i)
+  assert.match(scenario.expected_output, /role, trigger, and exclusion projection/i)
+  assert.match(scenario.expected_output, /including security approval and incident response/i)
+  const assertions = scenario.assertions.join('\n')
+  assert.match(assertions, /body agree/i)
+  assert.match(assertions, /execution detail/i)
+  assert.match(assertions, /near-miss query/i)
+  assert.match(assertions, /audit work versus execution or ownership/i)
+})
+
+test('the forge catalog description fits the repository budget', () => {
+  const skill = readFileSync(join(REPO_ROOT, 'skills', 'dsh-spec-skill-forge', 'SKILL.md'), 'utf8')
+  const description = /^description:\s*"(.+)"$/m.exec(skill)?.[1]
+  assert.ok(description)
+  assert.ok(description.length <= 500, `${description.length} description characters`)
+  assert.equal(
+    Array.from(description).some((character) => (character.codePointAt(0) as number) > 0xffff),
+    false,
+  )
+})
+
+test('forge trigger corpus separates skill authoring from adjacent work', () => {
+  const skill = 'dsh-spec-skill-forge'
+  assertTriggerCorpusIdentity(skill)
+  const corpus = JSON.parse(readFileSync(join(EVAL_SOURCE_ROOT, skill, 'trigger-evals.json'), 'utf8')) as {
+    queries: Array<{ id: string; query: string; should_trigger: boolean }>
+  }
+  assert.deepEqual(
+    corpus.queries.map((query) => [query.id, query.should_trigger]),
+    [
+      ['forge-from-source-material', true],
+      ['rewrite-drifted-skill-description', true],
+      ['migrate-legacy-skill', true],
+      ['repair-agent-skill-structure', true],
+      ['package-repeated-agent-playbook', true],
+      ['tighten-overbroad-agent-capability', true],
+      ['install-published-skill', false],
+      ['use-installed-skill', false],
+      ['edit-unrelated-system-prompt', false],
+      ['openapi-description-near-miss', false],
+      ['review-runtime-code', false],
+      ['tool-definition-near-miss', false],
+    ],
+  )
+  assert.equal(new Set(corpus.queries.map((query) => query.id)).size, corpus.queries.length)
+  for (const query of corpus.queries) {
+    assertNonEmptyString(query.id, 'forge trigger id')
+    assertNonEmptyString(query.query, query.id + ' trigger query')
+  }
+})
+
+test('forge description evidence binds the behavior scenario and trigger corpus', () => {
+  const skill = 'dsh-spec-skill-forge'
+  const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-25-pr154', skill)
+  const scenario = readCorpus(skill).evals.find(
+    (entry) => entry.id === 'description-derived-from-role-triggers-and-exclusions',
+  )
+  assert.ok(scenario)
+
+  const root = join(evidenceRoot, scenario.id)
+  assertEvidencePath(evidenceRoot, root, scenario.id, 'directory')
+  const status = readFileSync(join(root, 'status.txt'), 'utf8')
+  assert.match(status, /^status: pass$/m)
+  assert.match(status, /^run_exit_code: 0$/m)
+  assert.match(status, /^assertions: 5\/5$/m)
+  assert.deepEqual(
+    readFileSync(join(root, 'assertions.txt'), 'utf8')
+      .trim()
+      .split('\n')
+      .map((line) => line.replace(/^PASS /, '')),
+    scenario.assertions,
+  )
+  const recorded = validateRecordedScenario(
+    skill,
+    JSON.parse(readFileSync(join(root, 'scenario-definition.json'), 'utf8')),
+    scenario.id,
+  )
+  assert.deepEqual(recorded, scenario)
+  assert.equal(
+    readFileSync(join(root, 'scenario-definition.sha256'), 'utf8').trim(),
+    `${scenarioDefinitionHash(recorded)}  ${skill}:${scenario.id}`,
+  )
+  assert.deepEqual(JSON.parse(readFileSync(join(root, 'capabilities.json'), 'utf8')), {
+    auth: 'host-proxy',
+    browser: false,
+    media: false,
+    sandbox: 'workspace-write',
+    subagents: false,
+  })
+  assertBehaviorSkillRevision(root, skill)
+  assertAnswerBlindTraceWithSkillOutput(root, skill)
+  assert.ok(traceCommandsFor(root).some((command) => commandPrintsSkill(command, skill)))
+  assert.equal(replayEvidencePatch(root, skill, scenario), true)
+  assertCurrentTriggerEvidence(skill, evidenceRoot, true)
 })
 
 test('error handling trigger corpus keeps positive and near-miss coverage', () => {

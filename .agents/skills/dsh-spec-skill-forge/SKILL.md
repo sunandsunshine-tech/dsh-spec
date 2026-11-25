@@ -1,6 +1,6 @@
 ---
 name: dsh-spec-skill-forge
-description: "Use when creating, writing, rewriting, forging, improving, adapting, or migrating an Agent Skill (SKILL.md) — its description, structure, triggers, or specification conformance need work — from an idea, reference material, or one or more existing skills. Produces the skill directory and a record of the decisions behind it. Not for merely installing, loading, or using an installed skill. 用于创建、编写、改写、锻造、优化、适配或迁移技能（Agent Skill / SKILL.md）。确定技能描述、触发时机、结构与规范符合性，产出技能目录与锻造记录。不用于安装、加载或使用已安装的技能。"
+description: "Use when creating, rewriting, or migrating an Agent Skill from a request, source, or existing skill, or when its role, structure, triggers, or specification conformance needs work. Not for installing, loading, or merely using a skill, or editing prompts outside a skill. 用于根据请求、来源或现有技能创建、改写或迁移 Agent Skill，或在其角色、结构、触发边界或规范符合性需要处理时使用。不用于安装、加载或仅使用技能，也不用于编辑技能之外的提示词。"
 license: "MIT; bundled dependency notices in THIRD_PARTY_NOTICES"
 compatibility: "Requires Node.js 24.11+ on the 24 line or 26+ for the bundled scripts. No build step or install."
 ---
@@ -48,7 +48,7 @@ Settle from the request and the adopter's standing instructions (`AGENTS.md` or 
 
 Classify execution capabilities as required properties or optional mechanisms. A preferred optional capability — including a subagent, parallel execution, or an isolated context — must not be the only route to a required result. State a completion path that preserves the required quality when the capability is absent, or an explicit pre-action handoff naming the unfinished work and the missing capability.
 
-Derive the trigger vocabulary and the excluded adjacent tasks from the source. Within the Stop boundaries the design is open: choose the structure, wording and scripts that fit the source.
+Make the description a selection projection of the source: the skill's actual role, positive trigger moments and objects, and important exclusions. For each source task family, preserve a current capability or record why it is excluded; advertise only behavior the loaded skill supplies. Keep execution detail in the body or reference. No fixed sentence formula is required, and the character limit is a constraint, not a quota. Within the Stop boundaries the design is open: choose the structure, wording and scripts that fit the source.
 
 Decide whether the forged skill needs a script. A missing runtime or tool is an error exit and a recorded ruling, not a stop.
 
@@ -95,7 +95,7 @@ Every requirement carries a verification anchor at the most precise level availa
 
 Run the gate as a separate read-only check; `publish` does not run it. When review is needed, run `pair` so that an orphan draft fails and the project's translation consistency gate can check the translation.
 
-A natural-language requirement central to the forged skill carries a development eval scenario when realistic prompts can falsify it and no deterministic check decides it. Capability-dependent behavior covers both capability profiles. Model evals run when the owned behavior changes and remain outside the delivered skill.
+A natural-language requirement central to the forged skill carries a development eval scenario when realistic prompts can falsify it and no deterministic check decides it. Capability-dependent behavior covers both capability profiles. Model evals run when the owned behavior changes and remain outside the delivered skill. Description changes carry recorded positive and near-miss trigger evaluations; when role, activation, or exclusions change, co-evaluate the description, body boundary, and trigger set. Semantic quality is judged, not regex-matched.
 
 **Complete**: every source constraint has one disposition row with its home; every requirement of the forged skill carries one anchor; for every capability-dependent requirement, the record states a conclusion for the capability-present and capability-absent profiles; absent-capability evidence is either a completed observable result with its owning validation or an explicit handoff; the gate passed with the parameters used; every judged item has a conclusion; every unverified item carries its reason; the declared review drafts are translated and the project's translation consistency gate has been run when review was needed; a forged skill that declares a default applies it only when neither the request nor existing project instructions choose one, while treating instructions as read-only input and never asking for, creating, modifying, or copying them merely to select a default; the record states the evidence, the pages read and their dates, and the rulings as current facts; no round or review narrative remains.
 

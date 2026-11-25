@@ -1,0 +1,84 @@
+# Release audit skill record
+
+## Design
+
+Goal: select `release-audit` for pre-ship evidence review of a release candidate's version, migration, rollback, and compatibility evidence, while keeping deployment, migration execution, feature-flag management, security-exception approval, and incident response outside the skill.
+
+Source revision: current project Git repository, revision `b54d6b76df8f91d231f6acfc3ef6d45fee8ca3e1`, read 2026-11-25.
+
+Settings:
+
+- Delivery language: English.
+- Audience: release reviewers and agents preparing shipping evidence.
+- Review drafts: none declared.
+- Scripts: none. The procedure reviews supplied evidence and does not repeat a deterministic operation that needs automation.
+- Optional execution capabilities: none required.
+
+## Source constraints
+
+| Location | Disposition | Target | Basis |
+|---|---|---|---|
+| `SKILL.md` frontmatter, `name` | Keep | `name` | `release-audit` remains the coherent unit. |
+| `SKILL.md` frontmatter, `license` | Keep | `license` | The source license still applies. |
+| `SKILL.md` frontmatter, `description` | Adapt | `description` | Replace the broad release-work claim with the actual evidence-review trigger and exclusions. |
+| `SKILL.md` body, opening paragraph | Keep | Opening paragraph | Preserve pre-ship review of version, migration, rollback, and compatibility evidence. |
+| `SKILL.md` body, prohibition | Keep and adapt | Operating boundary | Preserve the deployment, migration, feature-flag, and incident exclusions; state feature-flag management directly; add security-exception approval from the request. |
+| `SKILL.md` Procedure step 1 | Keep | Procedure step 1 | Preserve comparison of the candidate version with the release plan. |
+| `SKILL.md` Procedure step 2 | Keep | Procedure step 2 | Preserve reading migration and rollback evidence, with a boundary against executing it. |
+| `SKILL.md` Procedure step 3 | Keep | Procedure step 3 | Preserve compatibility-gap and missing-evidence reporting and its actionable fields. |
+| User request, role clarification | Adapt | Description and body boundary | The skill's job is evidence review before shipping. |
+| User request, security exclusion | Adapt | Description and body boundary | Security exceptions may be reviewed as evidence but must not be approved. |
+| User request, catalog/body agreement | Keep | Description and body boundary | Both now express the same role and prohibitions. |
+| User request, preserve procedure | Keep | Procedure | All three useful checks remain in the body. |
+| User request, do not turn procedure into catalog copy | Keep | Description | The description states selection intent and exclusions, not the procedure. |
+| User request, add one positive query | Keep | Description trigger evaluations | Recorded as an expected selection. |
+| User request, add one near-miss query | Keep | Description trigger evaluations | Recorded as an expected non-selection. |
+
+## Rulings
+
+- Migration and rollback remain trigger objects because they are evidence to review; execution and application are excluded.
+- Feature flags are excluded from management but may be examined as migration or compatibility evidence when they are part of the supplied release record.
+- Security exceptions remain outside the skill's authority; the evidence review may identify a missing decision but cannot approve it.
+- Observability was removed from the description because it is not part of the preserved evidence-review procedure.
+- No project standing instructions or skill record mechanism exist; this record uses the forge default location.
+
+## Description trigger evaluations
+
+| Kind | Query | Expected result | Judged result |
+|---|---|---|---|
+| Positive | "Audit the 4.2.0 release candidate's version, migration, rollback, and compatibility evidence before tomorrow's ship." | Select `release-audit`. | PASS: the request names the candidate, all four evidence types, and pre-ship review. |
+| Near-miss | "Deploy 4.2.0, run its migration, flip the legacy flag, and grant a security exception if the scan complains." | Do not select `release-audit`. | PASS: the request asks for actions the description and body exclude. |
+
+## Requirement anchors
+
+| Requirement | Anchor | Evidence | Result |
+|---|---|---|---|
+| Directory name and frontmatter satisfy Agent Skills constraints. | Mechanical | `verify-skill-spec.mjs evals/files/vendor/release-audit --json`; all 13 checks passed with 17 lines, a 280-character description, and about 238 body tokens. | PASS |
+| Description selects evidence review rather than broad release ownership. | Judged against the user request and product boundary. | Description names version, migration, rollback, compatibility, and pre-ship review. | PASS |
+| Description excludes deployment, migration application, feature-flag management, security-exception approval, and incident response. | Judged against the user request. | All five exclusions are explicit. | PASS |
+| Body uses the same evidence-review role and exclusions as the description. | Judged against the description and user request. | Opening paragraph and operating boundary agree with the description. | PASS |
+| Procedure remains in the body. | Judged against the user request. | All source procedure steps remain under `## Procedure`; the description contains no numbered steps. | PASS |
+| Procedure checks version, migration, rollback, and compatibility evidence and reports missing evidence. | Judged against the source procedure. | Steps 1-3 retain each check and add the expected evidence and status fields. | PASS |
+| Positive query selects the skill. | Judged against the description. | The query matches the stated trigger and objects. | PASS |
+| Near-miss query does not select the skill. | Judged against the description. | The query requests excluded operations. | PASS |
+
+No forged requirement depends on optional execution capabilities. The absence-capability profile is not applicable because there is no execution capability requirement.
+
+## Authoring sources
+
+- `references/offline-skill-authoring.md`, read 2026-11-25.
+- Agent Skills index: unreadable because the request restricts work to the current project.
+- Agent Skills best-practices page linked by the index: unreadable for the same reason.
+
+## Unverified items
+
+- Live model trigger rates were not measured because the project supplies no selection harness. The queries are recorded with semantic expected results.
+
+## Risks and rollback
+
+- Risk: a request that mentions release evidence alongside a prohibited action should receive the audit-only boundary and a handoff rather than execute the action.
+- Rollback: restore the source revision of `evals/files/vendor/release-audit/SKILL.md`.
+
+## Publish authorization
+
+The user's request authorizes reforging and replacing the bundled `release-audit` skill. No separate review draft is declared.
