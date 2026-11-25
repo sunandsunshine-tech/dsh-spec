@@ -112,7 +112,7 @@ const REQUIRED: RequiredProfile[] = [
 
 const FORGE_REQUIRED: RequiredProfile = {
   skill: 'dsh-spec-skill-forge',
-  ids: ['capability-dependent-fallback-design'],
+  ids: ['capability-dependent-fallback-design', 'description-derived-from-role-triggers-and-exclusions'],
   noIsolationIds: [],
   isolatedIds: [],
   handoffIds: [],
@@ -1868,6 +1868,59 @@ test('the forge eval covers capability preference, fallback and a bounded handof
   assert.match(scenario.expected_output, /optional mechanism/)
   assert.match(scenario.expected_output, /fallback or explicit handoff/)
   assert.ok(scenario.assertions.some((assertion) => /resumable next step/.test(assertion)))
+})
+
+test('the forge eval derives descriptions from real trigger boundaries', () => {
+  const corpus = readCorpus(FORGE_REQUIRED.skill)
+  const scenario = corpus.evals.find((entry) => entry.id === 'description-derived-from-role-triggers-and-exclusions')
+  assert.ok(scenario)
+  assert.match(scenario.prompt, /catalog selection projection/i)
+  assert.match(scenario.prompt, /role/i)
+  assert.match(scenario.prompt, /near-miss trigger query/i)
+  assert.match(scenario.expected_output, /source task famil/i)
+  assert.match(scenario.expected_output, /excludes deployment/i)
+  const assertions = scenario.assertions.join('\n')
+  assert.match(assertions, /body support/i)
+  assert.match(assertions, /adjacent tasks/i)
+  assert.match(assertions, /near-miss query/i)
+  assert.match(assertions, /execution detail in the body/i)
+})
+
+test('the forge catalog description fits the repository budget', () => {
+  const skill = readFileSync(join(REPO_ROOT, 'skills', 'dsh-spec-skill-forge', 'SKILL.md'), 'utf8')
+  const description = /^description:\s*"(.+)"$/m.exec(skill)?.[1]
+  assert.ok(description)
+  assert.ok(description.length <= 500, `${description.length} description characters`)
+  assert.equal(
+    Array.from(description).some((character) => (character.codePointAt(0) as number) > 0xffff),
+    false,
+  )
+})
+
+test('forge trigger corpus separates skill authoring from adjacent work', () => {
+  const skill = 'dsh-spec-skill-forge'
+  assertTriggerCorpusIdentity(skill)
+  const corpus = JSON.parse(readFileSync(join(EVAL_SOURCE_ROOT, skill, 'trigger-evals.json'), 'utf8')) as {
+    queries: Array<{ id: string; query: string; should_trigger: boolean }>
+  }
+  assert.deepEqual(
+    corpus.queries.map((query) => [query.id, query.should_trigger]),
+    [
+      ['forge-from-source-material', true],
+      ['rewrite-drifted-skill-description', true],
+      ['migrate-legacy-skill', true],
+      ['repair-agent-skill-structure', true],
+      ['install-published-skill', false],
+      ['use-installed-skill', false],
+      ['edit-unrelated-system-prompt', false],
+      ['openapi-description-near-miss', false],
+    ],
+  )
+  assert.equal(new Set(corpus.queries.map((query) => query.id)).size, corpus.queries.length)
+  for (const query of corpus.queries) {
+    assertNonEmptyString(query.id, 'forge trigger id')
+    assertNonEmptyString(query.query, query.id + ' trigger query')
+  }
 })
 
 test('error handling trigger corpus keeps positive and near-miss coverage', () => {

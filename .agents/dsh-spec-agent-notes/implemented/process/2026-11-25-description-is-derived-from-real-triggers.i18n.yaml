@@ -1,22 +1,19 @@
 # Pairing consistency record for 2026-11-25-description-is-derived-from-real-triggers.md (references/pairing-contract.md): per heading
 # source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
 # After editing either side, bring the other along and re-record with:
-#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/proposed/process/2026-11-25-description-is-derived-from-real-triggers.md --target <lang>
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-11-25-description-is-derived-from-real-triggers.md --target <lang>
 /agent-note-descriptions-are-derived-from-real-triggers:
-  en: 7a545c09384cb739
-  zh: 52d5d347065aebad
+  en: 64f2ba7ffc8d0c58
+  zh: 76816eefc8d776cb
 /agent-note-descriptions-are-derived-from-real-triggers/problem:
   en: 38bb50cf646c1652
   zh: 2241ca091e523261
-/agent-note-descriptions-are-derived-from-real-triggers/proposal:
-  en: 8a57fb47d8e4b7aa
-  zh: b14b249e2ed72f0f
+/agent-note-descriptions-are-derived-from-real-triggers/decision:
+  en: ddbdd67a61a0b9c0
+  zh: 3cf185624afa7020
 /agent-note-descriptions-are-derived-from-real-triggers/alternatives-considered:
   en: 763308aff7d8dce4
-  zh: 7a4d6490f151cb3b
-/agent-note-descriptions-are-derived-from-real-triggers/acceptance-criteria:
-  en: 58c255e8c8ce72ec
-  zh: 035aec88e2a7456c
-/agent-note-descriptions-are-derived-from-real-triggers/risks:
-  en: 3dbe5bfe0021ac47
-  zh: 5120f749f49b87e2
+  zh: 4f5d83d02762fb86
+/agent-note-descriptions-are-derived-from-real-triggers/consequences:
+  en: 1999ccb70e7d6a7d
+  zh: 1cd6258e0c917928

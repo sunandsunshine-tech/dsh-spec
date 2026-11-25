@@ -1,0 +1,46 @@
+{
+  "skill_name": "dsh-spec-skill-forge",
+  "agent_file": "trigger-fixtures/AGENTS.md",
+  "queries": [
+    {
+      "id": "forge-from-source-material",
+      "query": "Turn these incident notes into a reusable Agent Skill. Decide its role, when it should be selected, and what nearby work it should exclude; keep the detailed procedure in the body.",
+      "should_trigger": true
+    },
+    {
+      "id": "rewrite-drifted-skill-description",
+      "query": "Our SKILL.md description pulls in every code review. Rewrite it from the skill's actual role and boundaries, and add positive and near-miss selection examples.",
+      "should_trigger": true
+    },
+    {
+      "id": "migrate-legacy-skill",
+      "query": "We have an old project-specific prompt bundle. Migrate it into an Agent Skill, moving execution detail into the body or a reference and preserving supported source task families.",
+      "should_trigger": true
+    },
+    {
+      "id": "repair-agent-skill-structure",
+      "query": "Fix this SKILL.md's frontmatter, body structure, and reference paths so it conforms to Agent Skills, without changing unrelated application code.",
+      "should_trigger": true
+    },
+    {
+      "id": "install-published-skill",
+      "query": "Install this published Agent Skill into .agents/skills and stop when all of its files are copied.",
+      "should_trigger": false
+    },
+    {
+      "id": "use-installed-skill",
+      "query": "Use the installed PDF skill to extract tables from report.pdf. Do not inspect or alter the skill itself.",
+      "should_trigger": false
+    },
+    {
+      "id": "edit-unrelated-system-prompt",
+      "query": "Write a system prompt for our support bot. It is a runtime prompt, not an Agent Skill file.",
+      "should_trigger": false
+    },
+    {
+      "id": "openapi-description-near-miss",
+      "query": "Update the `description` fields in our OpenAPI document for the new endpoint. No Agent Skill files are involved.",
+      "should_trigger": false
+    }
+  ]
+}

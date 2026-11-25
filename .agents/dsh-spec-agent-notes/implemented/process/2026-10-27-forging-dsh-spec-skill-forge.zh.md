@@ -52,7 +52,7 @@ Status: implemented
 | 已有决策记录 | 重绑 | `SKILL.md § Source` | 只有请求、当前契约和声明决定；只有其中一项使某项要求继续生效时，记录才提供该要求 |
 | 采用者声明：锻造记录位置 | 保留 | `.agents/dsh-spec-agent-notes/implemented/process/2026-10-27-forging-dsh-spec-skill-forge.md` | 笔记机制的默认根与本仓库 `forging-<skill-name>` 的记录命名 |
 
-未改动：指导原则、工具名称、Stop/Intent/Source/Disposition 各节、验证锚点表、门禁机制，以及 description/触发。Verification 一节的 Complete 条件加入上述默认完成验收。Record 与 Review 两节携带可选的同仓技能引用。
+未改动：指导原则、工具名称、Stop/Intent/Source/Disposition 各节、验证锚点表，以及门禁机制。Verification 一节的 Complete 条件加入上述默认完成验收。Record 与 Review 两节携带可选的同仓技能引用。后续的 description 选择投影规则由 [description 触发记录](2026-11-25-description-is-derived-from-real-triggers.zh.md) 负责。
 
 ## 曾考虑的替代方案
 

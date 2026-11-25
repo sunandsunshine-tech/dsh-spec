@@ -14,6 +14,21 @@
         "A capability-absent path either completes through an equivalent verifiable mechanism or stops with completed work, pending work, the missing capability, and a resumable next step.",
         "The revision does not prescribe a fixed subagent count, depth, or tool name."
       ]
+    },
+    {
+      "id": "description-derived-from-role-triggers-and-exclusions",
+      "prompt": "Read `evals/files/vendor/release-audit/SKILL.md` as the source. Rewrite only its frontmatter description as a catalog selection projection. Preserve only source task families the body supports; state the actual release-audit role, the task moments and objects that should select it, and its adjacent exclusions. Keep procedure and execution detail in the body. Return the revised description plus one positive and one near-miss trigger query that turn on this boundary.",
+      "expected_output": "The description preserves each source task family supported by the body and identifies the release-audit role before shipping plus the version, migration, rollback, and compatibility evidence it examines; it excludes deployment, migration application, feature-flag management, and incident response. The body stays unchanged, unsupported observability and incident-response claims disappear, and the positive and near-miss queries differ by task rather than sharing only release vocabulary.",
+      "files": [
+        "evals/files/vendor/release-audit/SKILL.md"
+      ],
+      "assertions": [
+        "The description states the release-audit role and at least one task moment or object supported by the body.",
+        "Every retained source task family has current body support; unsupported release, observability, and incident-response claims are removed or explicitly excluded.",
+        "The description states adjacent tasks that must not select the skill and does not repeat the body's procedure.",
+        "The output includes a realistic positive query and a near-miss query that share release vocabulary but require different work.",
+        "The description avoids a fixed open-ended inventory and keeps execution detail in the body."
+      ]
     }
   ]
 }
