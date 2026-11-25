@@ -8,7 +8,7 @@ English | [中文](2026-11-17-skill-defaults-complete-without-project-instructio
 
 Declaring a default at its point of use keeps the value beside the behavior that consumes it. A skill that also reads the project's standing instructions could still leave the no-instruction state ambiguous: an executor might treat silence as missing configuration, ask the user to choose, add `AGENTS.md` to record the default, or create a second defaults table. Those responses make a temporary project depend on configuration it does not need and reintroduce the drift that local declaration avoids.
 
-Eleven skills select a behavior from a concrete default when a valid invocation leaves that default unspecified and existing project instructions are silent. They are `dsh-spec-agent-notes`, `dsh-spec-record-browser-gif`, `dsh-spec-client-ui-ux`, `dsh-spec-error-handling`, `dsh-spec-merging-stacked-prs`, `dsh-spec-pre-push-checks`, `dsh-spec-pr-description`, `dsh-spec-prose-standard`, `dsh-spec-skill-forge`, `dsh-spec-ci-test-reliability` and `dsh-spec-translate-docs`. Their concrete values already live at their use sites, but their shared execution rule did not.
+Twelve skills select a behavior from a concrete default when a valid invocation leaves that default unspecified and existing project instructions are silent. They are `dsh-spec-agent-notes`, `dsh-spec-ci-test-reliability`, `dsh-spec-client-ui-ux`, `dsh-spec-error-handling`, `dsh-spec-merging-stacked-prs`, `dsh-spec-performance-investigation`, `dsh-spec-pr-description`, `dsh-spec-pre-push-checks`, `dsh-spec-prose-standard`, `dsh-spec-record-browser-gif`, `dsh-spec-skill-forge` and `dsh-spec-translate-docs`. Their concrete values already live at their use sites, but their shared execution rule did not.
 
 ## Decision
 
@@ -47,7 +47,7 @@ The bundled scripts remain parameter-driven. They do not parse project instructi
 ## Consequences
 
 - A project with no `AGENTS.md` can initialize notes, choose the default translation target, write a change description, apply the default prose mode, land a stack, or forge a skill without first creating project configuration.
-- Eleven independent skills intentionally carry the same short paragraph. Each install remains self-contained; the content contract in `tests/skill-defaults.test.ts` detects a missing or duplicated contract paragraph and keeps each concrete value out of the shared paragraph.
+- Twelve independent skills intentionally carry the same short paragraph. Each install remains self-contained; the content contract in `tests/skill-defaults.test.ts` detects a missing or duplicated contract paragraph and keeps each concrete value out of the shared paragraph.
 - One-off overrides do not rewrite project instructions. A persistent override remains in the project document that already owns it; commands receive its path or value as parameters and do not create a second copy.
 - The inventory excludes `dsh-spec-agents-md`, whose default directory placement applies only after an authorized AGENTS-writing task, and excludes parameter defaults such as the pre-push report's `HEAD`; neither selects agent behavior from a missing project instruction.
 - The [forge decision record](2026-10-27-forging-dsh-spec-skill-forge.md) owns the future-skill acceptance clause, and the [translation decision record](2026-10-28-forging-dsh-spec-translate-docs.md) owns the current placement of translation defaults. Both are partially constrained by this record and remain active.
