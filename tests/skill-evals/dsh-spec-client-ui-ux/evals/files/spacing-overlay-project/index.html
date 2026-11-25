@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="src/tokens.css" />
+    <link rel="stylesheet" href="src/styles.css" />
+    <title>Account actions</title>
+  </head>
+  <body>
+    <main class="account-card">
+      <section class="settings-group">
+        <h2>Notifications</h2>
+        <p>Choose which updates arrive by email.</p>
+        <label><input type="checkbox" /> Product updates</label>
+      </section>
+      <section class="settings-group">
+        <h2>Account actions</h2>
+        <p>Manage account data and active sessions.</p>
+        <div class="action-row">
+          <button type="button">Export data</button>
+          <button type="button">Sign out everywhere</button>
+        </div>
+      </section>
+      <button id="account-menu-button" type="button" aria-haspopup="menu" aria-expanded="false">
+        Account menu
+      </button>
+      <div id="account-menu" class="account-menu" role="menu" hidden>
+        <button type="button" role="menuitem">Profile</button>
+        <button type="button" role="menuitem">Settings</button>
+      </div>
+    </main>
+    <script type="module" src="src/page.js"></script>
+  </body>
+</html>

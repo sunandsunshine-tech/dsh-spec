@@ -539,6 +539,22 @@ const GENERAL_REQUIRED: GeneralProfile[] = [
           /does not replace the shared rendering contract/i,
         ],
       },
+      {
+        id: 'spacing-grouping-and-overlay-fit',
+        signature: [/spacing and anchored-overlay change/i, /render report/i, /placement timeline/i, /spacing tokens/i],
+        assertions: [
+          /object and action groups/i,
+          /inter-group gap smaller than an intra-group gap/i,
+          /heading separated from its own content/i,
+          /outside-click dismissal and Escape.*focusable/i,
+          /only the outside-click path/i,
+          /clipped at the supported viewport/i,
+          /missing edge margin and inaccessible action/i,
+          /flip oscillation/i,
+          /flipping only into a side that fits/i,
+          /no repeated back-and-forth/i,
+        ],
+      },
     ],
   },
   {
@@ -2031,6 +2047,26 @@ test('web UI trigger corpus keeps positive and near-miss coverage', () => {
   }
 })
 
+test('web UI spacing grouping and overlay fit requirements remain explicit', () => {
+  const skill = readFileSync(join(REPO_ROOT, 'skills/dsh-spec-client-ui-ux/SKILL.md'), 'utf8')
+  const spacing = readFileSync(join(REPO_ROOT, 'skills/dsh-spec-client-ui-ux/references/spacing.md'), 'utf8')
+  assert.match(skill, /object and action groups at each nesting level/i)
+  assert.match(
+    skill,
+    /compare the separation within each group with the separation between comparable neighboring groups/i,
+  )
+  assert.match(skill, /heading closer to its own content than to a preceding group/i)
+  assert.match(skill, /padding, borders, line boxes and glyph whitespace/i)
+  assert.match(skill, /outside click and on Escape when it is focusable/i)
+  assert.match(skill, /fit the supported viewport with the project's edge margin/i)
+  assert.match(skill, /Flip only into a side that fits/i)
+  assert.match(skill, /repeated back-and-forth oscillation/i)
+  assert.match(spacing, /greater separation between groups than within them/i)
+  assert.match(spacing, /heading must remain closer to its own content than to the preceding group/i)
+  assert.match(spacing, /CSS margins, box-area ratios or one spacing token/i)
+  assert.doesNotMatch(`${skill}\n${spacing}`, /portal to body|React component|Toast/i)
+})
+
 test('web UI historical model evidence and trigger traces stay auditable', () => {
   const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-20-pr114')
   const evidenceReadme = readFileSync(join(evidenceRoot, 'README.md'), 'utf8')
@@ -3127,11 +3163,15 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
   assertEvidencePath(evidenceRoot, historicalInputsPath, 'PR121 evaluation files', 'file')
   const historicalInputs = readHashManifest(historicalInputsPath, 'PR121 evaluation files')
   const pr122EvidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-23-pr122')
+  const issue140EvidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-25-issue-140')
   type EvidenceRun = {
     skill: string
     run: string
     evidenceSkill?: string
     evidenceRoot?: string
+    current?: boolean
+    historicalSkillTree?: string
+    historicalInputs?: string
   }
   const runs: EvidenceRun[] = [
     { skill: 'dsh-spec-pr-description', run: 'stack-layer-replaces-legacy-ai-section' },
@@ -3203,6 +3243,15 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
       skill: 'dsh-spec-client-ui-ux',
       run: 'shared-icon-rendering-contract',
       evidenceRoot: pr122EvidenceRoot,
+      current: false,
+      historicalSkillTree: join(pr122EvidenceRoot, 'dsh-spec-client-ui-ux', 'skills-tree.sha256'),
+      historicalInputs: join(pr122EvidenceRoot, 'dsh-spec-client-ui-ux', 'input-files.sha256'),
+    },
+    {
+      skill: 'dsh-spec-client-ui-ux',
+      run: 'spacing-grouping-and-overlay-fit',
+      evidenceRoot: issue140EvidenceRoot,
+      current: true,
     },
     {
       skill: 'dsh-spec-record-browser-gif',
@@ -3267,6 +3316,7 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
     'dsh-spec-error-handling:wrapper-preserves-cancellation-timeout-and-denial':
       'wrapper-preserves-cancellation-timeout-and-denial',
     'dsh-spec-client-ui-ux:shared-icon-rendering-contract': 'shared-icon-rendering-contract',
+    'dsh-spec-client-ui-ux:spacing-grouping-and-overlay-fit': 'spacing-grouping-and-overlay-fit',
     'dsh-spec-record-browser-gif:missing-capture-capability-hands-off': 'missing-capture-capability-hands-off',
     'dsh-spec-record-browser-gif:real-ui-change-uses-one-isolated-run': 'real-ui-change-uses-one-isolated-run',
     'dsh-spec-merging-stacked-prs:refresh-stack-with-rerere': 'refresh-stack-with-rerere',
@@ -3302,7 +3352,7 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
     assert.ok(scenarioId, item.skill + '/' + item.run + ' has no behavior id')
     const scenario = readCorpus(item.skill).evals.find((entry) => entry.id === scenarioId)
     assert.ok(scenario, item.skill + '/' + item.run + ' names no current scenario')
-    const current = item.evidenceRoot === pr122EvidenceRoot
+    const current = item.current ?? item.evidenceRoot === pr122EvidenceRoot
     const scenarioDefinitionFile = join(root, 'scenario-definition.json')
     assertEvidencePath(root, scenarioDefinitionFile, item.skill + '/' + item.run + ' scenario definition', 'file')
     assertRegularEvidenceFile(scenarioDefinitionFile, item.skill + '/' + item.run + ' scenario definition')
@@ -3364,7 +3414,8 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
     } else if (current) {
       assertBehaviorSkillRevision(root, evidenceSkill, effectiveScenario.install ?? [])
     } else if (!current) {
-      assertHistoricalSkillRevision(root, evidenceSkill, effectiveScenario.install ?? [], skillsTree)
+      const revisionTree = item.historicalSkillTree ? readSkillTreeManifest(item.historicalSkillTree) : skillsTree
+      assertHistoricalSkillRevision(root, evidenceSkill, effectiveScenario.install ?? [], revisionTree)
     }
     const status = readFileSync(join(root, 'status.txt'), 'utf8')
     assert.match(status, /^status: pass$/m, item.skill + '/' + item.run)
@@ -3418,9 +3469,12 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
         assert.equal(entry.mode, fileMode(path), item.skill + '/' + item.run + ' input mode changed: ' + entry.relative)
       }
     } else {
+      const recordedHistoricalInputs = item.historicalInputs
+        ? readHashManifest(item.historicalInputs, item.skill + '/' + item.run + ' historical inputs')
+        : historicalInputs
       for (const entry of inputs) {
         assert.equal(
-          historicalInputs.get(`tests/skill-evals/${evidenceSkill}/${entry.relative}`),
+          recordedHistoricalInputs.get(`tests/skill-evals/${evidenceSkill}/${entry.relative}`),
           entry.hash,
           item.skill + '/' + item.run + ' input differs from its recorded historical manifest: ' + entry.relative,
         )
