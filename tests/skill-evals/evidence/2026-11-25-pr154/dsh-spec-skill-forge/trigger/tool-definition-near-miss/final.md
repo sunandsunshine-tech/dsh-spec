@@ -1,3 +1,3 @@
-The available skill is for creating, rewriting, or migrating Agent Skills; this task only updates an MCP tool description and involves no skill package, so that skill does not apply.
+The request concerns an MCP tool description, not creating, rewriting, or migrating an Agent Skill, and the user explicitly states that no skill package is involved. Therefore, the skill-forging capability does not apply.
 
 SELECT: none

@@ -2,5 +2,6 @@
 
 This is a selection-only probe. Do not execute the request, edit files, spawn subagents, or inspect
 paths outside this workspace. Decide whether an installed skill clearly applies, then answer why in
-one short paragraph. End with exactly `SELECT: dsh-spec-skill-forge` when that skill applies, or
-`SELECT: none` when no installed skill clearly applies.
+one short paragraph. Put exactly `SELECT: dsh-spec-skill-forge` on a final line by itself when that
+skill applies, or put `SELECT: none` on a final line by itself when no installed skill clearly
+applies.

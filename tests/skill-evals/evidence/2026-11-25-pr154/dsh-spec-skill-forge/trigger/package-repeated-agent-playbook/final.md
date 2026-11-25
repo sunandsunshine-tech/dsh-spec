@@ -1,3 +1,3 @@
-The request is to package a recurring playbook into a discoverable Agent Skill with explicit trigger boundaries, a clear scope, a stop line, and detailed steps deferred until the entry file loads. That matches the skill-creation and specification work covered by `dsh-spec-skill-forge`.
+The request is to shape an existing escalation playbook into a discoverable Agent Skill with explicit scope, stopping boundaries, and detailed steps deferred to a loaded reference—exactly the skill-forging workflow.
 
 SELECT: dsh-spec-skill-forge

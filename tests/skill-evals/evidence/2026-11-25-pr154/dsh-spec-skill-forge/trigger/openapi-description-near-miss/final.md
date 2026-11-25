@@ -1,3 +1,3 @@
-Updating OpenAPI endpoint descriptions does not involve creating, rewriting, or migrating an Agent Skill, so no installed skill clearly applies.
+The request concerns OpenAPI endpoint documentation rather than creating, rewriting, or migrating an Agent Skill, so the available skill-forging skill does not clearly apply.
 
 SELECT: none

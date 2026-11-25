@@ -1,3 +1,3 @@
-The request is to repair a `SKILL.md`’s frontmatter, structure, and references so it conforms to Agent Skills, which directly matches the skill-editing role of `dsh-spec-skill-forge`.
+The request directly matches `dsh-spec-skill-forge`: it involves correcting an existing Agent Skill’s frontmatter, structure, and reference paths for specification conformance, without unrelated application changes.
 
 SELECT: dsh-spec-skill-forge

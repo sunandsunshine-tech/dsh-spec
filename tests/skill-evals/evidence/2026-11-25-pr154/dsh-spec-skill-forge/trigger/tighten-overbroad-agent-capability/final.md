@@ -1,3 +1,3 @@
-This clearly falls within the skill-forging scope: the request is to revise an existing Agent Skill’s discovery wording and trigger boundaries so it targets the intended development work while excluding incident handling. `dsh-spec-skill-forge` directly covers rewriting a skill’s role, structure, triggers, and scope.
+The request changes an existing Agent Skill’s discovery text and trigger boundary, including excluding incident-handling work. That squarely fits the skill-forge skill’s scope for rewriting an Agent Skill’s role, structure, triggers, and boundaries.
 
 SELECT: dsh-spec-skill-forge

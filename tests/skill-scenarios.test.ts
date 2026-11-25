@@ -728,7 +728,7 @@ function assertTriggerCorpusIdentity(skill: string): void {
   )
 }
 
-function assertCurrentTriggerEvidence(skill: string, evidenceRoot: string): void {
+function assertCurrentTriggerEvidence(skill: string, evidenceRoot: string, requireCleanStderr = false): void {
   const corpusRoot = join(EVAL_SOURCE_ROOT, skill)
   const corpus = JSON.parse(readFileSync(join(corpusRoot, 'trigger-evals.json'), 'utf8')) as {
     agent_file: string
@@ -810,7 +810,11 @@ function assertCurrentTriggerEvidence(skill: string, evidenceRoot: string): void
       final.trim(),
       skill + '/' + query.id + ' final differs from trace',
     )
-    assert.ok(readFileSync(join(runRoot, 'stderr.log'), 'utf8').trim().length > 0)
+    const stderr = readFileSync(join(runRoot, 'stderr.log'), 'utf8')
+    assert.ok(stderr.trim().length > 0)
+    if (requireCleanStderr) {
+      assert.doesNotMatch(stderr, /rmcp::transport::worker|AuthRequired|Transport channel closed/i)
+    }
   }
 }
 
@@ -2000,7 +2004,7 @@ test('forge description evidence binds the behavior scenario and trigger corpus'
   assertAnswerBlindTraceWithSkillOutput(root, skill)
   assert.ok(traceCommandsFor(root).some((command) => commandPrintsSkill(command, skill)))
   assert.equal(replayEvidencePatch(root, skill, scenario), true)
-  assertCurrentTriggerEvidence(skill, evidenceRoot)
+  assertCurrentTriggerEvidence(skill, evidenceRoot, true)
 })
 
 test('error handling trigger corpus keeps positive and near-miss coverage', () => {

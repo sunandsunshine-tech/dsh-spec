@@ -1,3 +1,3 @@
-The request is for a runtime system prompt, not an Agent Skill or skill-based deliverable, so the skill-forge instructions do not clearly apply.
+The installed `dsh-spec-skill-forge` skill does not clearly apply: it governs Agent Skill creation and specification work, and explicitly excludes editing runtime prompts outside Agent Skills.
 
 SELECT: none

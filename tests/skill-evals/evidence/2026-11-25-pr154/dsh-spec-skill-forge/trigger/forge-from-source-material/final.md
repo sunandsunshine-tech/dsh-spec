@@ -1,3 +1,3 @@
-The `dsh-spec-skill-forge` skill clearly applies because the task is to create a reusable Agent Skill from incident notes, define its role and selection boundaries, and keep the detailed procedure in the skill body.
+This is a request to create an Agent Skill, define its role and selection boundaries, and place operational detail in the body—the exact scope of `dsh-spec-skill-forge`.
 
 SELECT: dsh-spec-skill-forge

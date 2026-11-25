@@ -1,3 +1,3 @@
-No installed PDF extraction skill is available, and `dsh-spec-skill-forge` applies only to creating, rewriting, or migrating Agent Skills—not PDF table extraction.
+No installed skill clearly applies: the requested PDF skill is not available, and the task does not involve creating, rewriting, or migrating an Agent Skill.
 
 SELECT: none
