@@ -1,6 +1,6 @@
 # Agent Note: Ordinary installation tracks the latest release
 
-Status: proposed
+Status: implemented
 
 English | [中文](2026-11-25-ordinary-installation-tracks-latest-release.zh.md)
 
@@ -8,19 +8,19 @@ English | [中文](2026-11-25-ordinary-installation-tracks-latest-release.zh.md)
 
 Installation guidance can make a fixed revision look like the normal choice. A copied example then leaves adopters on an old skill set while updates appear to work only for specially marked installations. Treating `latest` as a pin value is also misleading because it names an intent rather than an exact revision.
 
-## Proposal
+## Decision
 
 The normal installation path omits `--pin` and lets `gh skill install` select the latest tagged release; when a repository has no tagged release, the CLI's default-branch behavior applies.
 
 An exact tag or commit is supplied with `--pin <tag-or-commit>` only when CI, audit, reproducible builds, compatibility work or another fixed-version requirement needs it. `--pin latest` is invalid and must not appear as a documented shorthand. Unpinned installations follow the CLI update path; pinned installations stay fixed until explicitly unpinned.
 
-Tracking: #131.
+### Installation guidance
 
-### Current state and review boundary
+[README.md](../../../../README.md#install) presents the ordinary and fixed-revision forms and links this decision from the install instructions. [choosing-skills.md](../../../../docs/choosing-skills.md#install-model) carries the same distinction in the skill-selection guide.
 
-The base already implements the installation mechanics described here: [README.md](../../../../README.md) shows the unpinned default and fixed-revision variant, and [repository-shape.test.ts](../../../../tests/repository-shape.test.ts) checks both forms. Closed #125 and merged #127 record that completed work.
+### Scope
 
-This proposal does not ask for a new installer or a migration of those examples. It asks to make this rationale and scope the durable owner reached from current installation guidance. That discoverability link is not yet installed, so the record remains proposed until #131 retains the policy and links it from the existing guidance or another current governance owner.
+The policy covers installed skills only. Repository toolchain pins, dependency pins and GitHub Action pins keep their own fixed-version rules.
 
 ## Alternatives considered
 
@@ -30,17 +30,13 @@ This proposal does not ask for a new installer or a migration of those examples.
 
 **Always pin a known release.** It gives fixed content, but makes normal users perform manual upgrades and treats the safest reproducibility boundary as the default workflow.
 
-## Acceptance criteria
-
-- Ordinary installation examples in both languages omit `--pin`.
-- Fixed-revision examples name an exact tag or commit and state the CI, audit, reproducibility or compatibility need.
-- No current documentation presents `--pin latest` as valid.
-- Installation checks distinguish the ordinary path from fixed-revision variants.
-- The proposal leaves repository-toolchain and GitHub Action pins unchanged.
-- Installation guidance or another current governance owner links to the retained policy; until that step lands, this record remains proposed.
-
-## Risks
+## Consequences
 
 - An automatic update can introduce a behavioral regression; adopters that need stability must opt into an exact pin.
 - The default-branch fallback applies only before a project has release tags, so a first release may move ordinary installations from branch content to tagged content.
-- Documentation can still imply that pinning every runtime dependency is equivalent to pinning an installed skill; the proposal covers only skill installation.
+- Documentation can still imply that pinning every runtime dependency is equivalent to pinning an installed skill; this decision covers only skill installation.
+- The ordinary path follows updates without manual revision selection, while a fixed installation remains isolated until an explicit unpin.
+
+### Verification
+
+[repository-shape.test.ts](../../../../tests/repository-shape.test.ts) checks the ordinary and fixed-revision examples in both language pairs and rejects `--pin latest` in documented command examples. The corpus and pairing gates check the links, lifecycle skeleton and translated companion.

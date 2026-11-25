@@ -12,7 +12,17 @@ The skill set contains direct ports, generalized ports and composites built from
 
 A skill that carries one upstream workflow directly or as a generalized port keeps that workflow's semantic stem under the `dsh-spec-` namespace. Only a composite or a genuinely merged scope may adopt a new name, and its forge record must name every upstream input and the reason the merged name is more accurate.
 
-The performance reforge tracked by #135 and proposed in [Reforge performance from dsh-speed-up-perf](../feature/2026-11-25-reforge-performance-as-dsh-speed-up-perf.md) restores the name `dsh-spec-speed-up-perf`. The implemented [performance investigation record](../../implemented/feature/2026-11-24-forging-dsh-spec-performance-investigation.md) remains the owner of the current name until that reforge lands.
+### Shipped naming choices
+
+The direct-port renames in #126 ship two applications of the proposal: `dsh-ci-test-reliability` is installed as `dsh-spec-ci-test-reliability`, and `record-browser-gif` is installed as `dsh-spec-record-browser-gif`.
+
+`dsh-spec-agent-notes`, `dsh-spec-client-ui-ux` and `dsh-spec-prose-standard` retain composite names. Their forge records name the upstream workflows they incorporate. [README.md](../../../../README.md#choose-skills) exposes those merged inputs in the adopter-facing catalog.
+
+### Unresolved decisions
+
+The current `dsh-spec-performance-investigation` skill is a single-source generalized port and does not yet satisfy the naming rule. Its substantive reforge remains proposed in [Reforge performance from dsh-speed-up-perf](../feature/2026-11-25-reforge-performance-as-dsh-speed-up-perf.md) and is tracked by #135. The implemented [performance investigation record](../../implemented/feature/2026-11-24-forging-dsh-spec-performance-investigation.md) remains the owner of the shipped skill until that reforge lands. A name-only alias is not the migration path.
+
+Issue #144 questions whether retaining `ci-` in `dsh-spec-ci-test-reliability` still names the generalized skill's scope accurately. Its outcome can revise the direct-port mapping or define the recorded exception for a generalized port. The naming proposal remains open until #135 and #144 establish the current name-scope rules.
 
 ### Migration boundary
 
@@ -30,8 +40,8 @@ A rename updates current skill directories, frontmatter, installed copies, packa
 
 - Every single-source direct or generalized port is named `dsh-spec-<upstream-semantic-stem>`.
 - Every composite or merged-scope name has a recorded upstream set and an explicit naming reason.
-- Current references use the proposed name consistently; historical evidence keeps its recorded name and hash.
-- The performance skill is migrated under the separate #135 implementation work rather than by a naming-only alias.
+- Current references use the proposed name consistently; historical evidence keeps its recorded names and hashes.
+- The performance reforge in #135 and the CI test-reliability name-scope decision in #144 settle the remaining direct-port mappings without name-only aliases.
 - The bilingual record and corpus checks pass when this proposal is implemented.
 
 ## Risks
@@ -39,3 +49,4 @@ A rename updates current skill directories, frontmatter, installed copies, packa
 - Similar upstream stems can still produce ambiguous names when two sources cover different parts of one workflow.
 - Renaming invalidates old trigger evidence and may require a staged migration for adopters that installed the former name.
 - An excessively literal naming rule can preserve an upstream brand that is not meaningful to a general adopter; the semantic-stem test permits a recorded exception only for genuinely merged scopes.
+- A semantic stem can remain recognizable while its scope narrows, making the catalog misleading even though the name was copied from upstream; #144 is the current example.
