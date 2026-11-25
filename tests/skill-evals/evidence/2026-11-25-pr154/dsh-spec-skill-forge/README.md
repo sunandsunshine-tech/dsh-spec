@@ -9,7 +9,8 @@ The trigger corpus contains six positive and six near-miss requests. Positives c
 implicit requests to create, rewrite, migrate, repair, or package an Agent Skill. Near misses cover
 installation, use, ordinary prompt editing, an API description, runtime code, and a tool definition.
 Each probe ran in a separate temporary project with only the target skill installed. The final
-`SELECT:` marker and the full matrix are retained below.
+`SELECT:` marker is retained under `trigger/<id>/`, and the complete result matrix is
+`trigger-matrix.tsv`.
 
 Each query has one retained run. The 12/12 matrix proves those selection examples at this revision;
 it is not a repeated-sample trigger-rate estimate.

@@ -1264,7 +1264,7 @@ function fileHash(path: string): string {
 function traceEvents(trace: string): Array<{
   type: string
   command?: string
-  item?: { type?: string; command?: string; text?: string }
+  item?: { type?: string; command?: string; text?: string; aggregated_output?: string }
 }> {
   return trace
     .trim()
@@ -1275,19 +1275,49 @@ function traceEvents(trace: string): Array<{
 
 // Trace events are reviewer context. They are useful for understanding a run, but the model can
 // write to the process output and they are not an adversarial execution attestation.
+const ANSWER_BLIND_PATTERNS = [
+  [/evals[/\\]evals\.json/i, 'answer manifest'],
+  [/tests[/\\]skill-evals/i, 'source eval tree'],
+  [/\bexpected_output\b/i, 'answer-bearing metadata'],
+  [/(?:^|[/\\])codex-home(?:[/\\]|\s|$)/i, 'model runtime home'],
+  [/(?:^|[/\\])response(?:[/\\]|\s|$)/i, 'model response mount'],
+] as const
+
 function assertAnswerBlindTrace(root: string): void {
   const trace = readFileSync(join(root, 'trace.jsonl'), 'utf8')
   const events = traceEvents(trace)
   assert.equal(events.filter((event) => event.type === 'turn.started').length, 1, root + ' turn start count')
   assert.equal(events.filter((event) => event.type === 'turn.completed').length, 1, root + ' turn completion count')
-  for (const [pattern, label] of [
-    [/evals[/\\]evals\.json/i, 'answer manifest'],
-    [/tests[/\\]skill-evals/i, 'source eval tree'],
-    [/\bexpected_output\b/i, 'answer-bearing metadata'],
-    [/(?:^|[/\\])codex-home(?:[/\\]|\s|$)/i, 'model runtime home'],
-    [/(?:^|[/\\])response(?:[/\\]|\s|$)/i, 'model response mount'],
-  ] as const) {
+  for (const [pattern, label] of ANSWER_BLIND_PATTERNS) {
     assert.doesNotMatch(trace, pattern, root + ' exposed the ' + label)
+  }
+  const finalMessage = events
+    .filter((event) => event.type === 'item.completed' && event.item?.type === 'agent_message')
+    .at(-1)?.item?.text
+  assert.equal(typeof finalMessage, 'string', root + ' has no final agent message')
+  assert.equal(readFileSync(join(root, 'final.md'), 'utf8'), finalMessage, root + ' final response differs from trace')
+}
+
+function assertAnswerBlindTraceWithSkillOutput(root: string, skill: string): void {
+  const trace = readFileSync(join(root, 'trace.jsonl'), 'utf8')
+  const events = traceEvents(trace)
+  assert.equal(events.filter((event) => event.type === 'turn.started').length, 1, root + ' turn start count')
+  assert.equal(events.filter((event) => event.type === 'turn.completed').length, 1, root + ' turn completion count')
+  const commands = events
+    .flatMap((event) => [event.command, event.item?.command])
+    .filter((command): command is string => typeof command === 'string')
+    .join('\n')
+  for (const [pattern, label] of ANSWER_BLIND_PATTERNS) {
+    assert.doesNotMatch(commands, pattern, root + ' command referenced the ' + label)
+  }
+  const installed = `.agents/skills/${skill}/`
+  const sanitized = events.map((event) =>
+    event.item?.command?.includes(installed)
+      ? { ...event, item: { ...event.item, aggregated_output: '<installed skill output omitted>' } }
+      : event,
+  )
+  for (const [pattern, label] of ANSWER_BLIND_PATTERNS) {
+    assert.doesNotMatch(JSON.stringify(sanitized), pattern, root + ' exposed the ' + label)
   }
   const finalMessage = events
     .filter((event) => event.type === 'item.completed' && event.item?.type === 'agent_message')
@@ -1967,7 +1997,7 @@ test('forge description evidence binds the behavior scenario and trigger corpus'
     subagents: false,
   })
   assertBehaviorSkillRevision(root, skill)
-  // The Forge fallback quotes `evals/evals.json`, so that generic answer-blind trace probe would flag a legitimate skill read.
+  assertAnswerBlindTraceWithSkillOutput(root, skill)
   assert.ok(traceCommandsFor(root).some((command) => commandPrintsSkill(command, skill)))
   assert.equal(replayEvidencePatch(root, skill, scenario), true)
   assertCurrentTriggerEvidence(skill, evidenceRoot)

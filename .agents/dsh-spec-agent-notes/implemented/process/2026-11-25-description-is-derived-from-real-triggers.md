@@ -39,7 +39,7 @@ Tracking: #132.
 
 - Catalog selection is based on a truthful role and boundary; execution detail remains available after the body loads.
 - Source task families are either supported or explicitly excluded, so a generalized skill does not inherit an upstream claim it cannot satisfy.
-- The Forge entry and trigger corpus make description changes evaluate selection. The current 6/6 trigger matrix and the five-assertion behavior run are retained in `tests/skill-evals/evidence/2026-11-25-pr154/dsh-spec-skill-forge/`.
+- The Forge entry and trigger corpus make description changes evaluate selection. The current matrix is 6/6 positives and 6/6 near misses (12/12), and the five-assertion behavior run is retained in `tests/skill-evals/evidence/2026-11-25-pr154/dsh-spec-skill-forge/`.
 - The repository's catalog budget remains a ceiling. The Forge description is 363 BMP characters, leaving room for later corrections rather than encouraging an inventory.
 - `dsh-spec-skill-forge` checks only specification mechanics and budget. Semantic quality is judged from the source, the body and positive/near-miss examples.
 - Costs and limits: small trigger sets can overfit one phrasing, a composite skill can have a broad but honest role, and passing selected examples does not prove universal routing accuracy.
