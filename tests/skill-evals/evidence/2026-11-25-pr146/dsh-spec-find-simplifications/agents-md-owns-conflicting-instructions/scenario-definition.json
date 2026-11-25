@@ -1,0 +1,19 @@
+{
+  "id": "agents-md-owns-conflicting-instructions",
+  "prompt": "Survey evals/files/authority-conflict/src/ for evidence-backed simplifications. Both project instruction files contain conflicting scope directions; resolve that conflict using the installed skill and report supported removals with consumer evidence.",
+  "expected_output": "The run follows AGENTS.md and its cited audit policy as the sole standing-instruction authority, searches src/adapters.ts despite CLAUDE.md excluding it, and reports the unreachable jsonAdapter export.",
+  "files": [
+    "evals/files/authority-conflict/AGENTS.md",
+    "evals/files/authority-conflict/CLAUDE.md",
+    "evals/files/authority-conflict/README.md",
+    "evals/files/authority-conflict/docs/audit-policy.md",
+    "evals/files/authority-conflict/src/adapters.ts",
+    "evals/files/authority-conflict/src/compose.ts"
+  ],
+  "assertions": [
+    "The run identifies AGENTS.md and its cited audit policy as the sole standing-instruction authority.",
+    "The run follows the audit policy and searches src/adapters.ts despite CLAUDE.md's exclusion.",
+    "The run reports the unreachable jsonAdapter export as removable.",
+    "The run does not treat CLAUDE.md as a second authority."
+  ]
+}

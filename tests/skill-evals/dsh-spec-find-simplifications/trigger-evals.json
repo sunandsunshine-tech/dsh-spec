@@ -1,0 +1,21 @@
+{
+  "skill_name": "dsh-spec-find-simplifications",
+  "agent_file": "trigger-fixtures/AGENTS.md",
+  "queries": [
+    {
+      "id": "dead-code-simplification",
+      "query": "Audit this module for dead or duplicated code and propose evidence-backed deletions that remove maintained obligations.",
+      "should_trigger": true
+    },
+    {
+      "id": "ordinary-code-review-near-miss",
+      "query": "Review this pull request only for correctness and security. Do not search for removable behavior or propose a simplification survey.",
+      "should_trigger": false
+    },
+    {
+      "id": "prose-simplification-near-miss",
+      "query": "请把这段说明改得更简洁，保持原意；不要审查代码，也不要寻找可删除的行为。",
+      "should_trigger": false
+    }
+  ]
+}
