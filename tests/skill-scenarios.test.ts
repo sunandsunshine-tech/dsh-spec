@@ -123,6 +123,7 @@ interface GeneralRequirement {
   signature: RegExp[]
   expectedOutput?: RegExp[]
   assertions: RegExp[]
+  install?: string[]
 }
 
 interface GeneralProfile {
@@ -371,6 +372,41 @@ const GENERAL_REQUIRED: GeneralProfile[] = [
           /does not require an author request that does not exist/i,
           /revalidates every replayed layer/i,
         ],
+      },
+      {
+        id: 'route-test-reliability-with-sibling',
+        signature: [/asynchronous subprocess test/i, /dsh-spec-ci-test-reliability sibling is installed/i],
+        expectedOutput: [
+          /owning worker test/i,
+          /applicable test-reliability requirements/i,
+          /un-awaited child-process termination requires quiescent-teardown evidence/i,
+          /optional guidance/i,
+        ],
+        assertions: [
+          /owning worker test rather than the full suite/i,
+          /applicable test-reliability requirements before selecting evidence/i,
+          /identifies the un-awaited child-process termination and requires quiescent-teardown evidence/i,
+          /sibling only as availability-qualified guidance/i,
+          /does not copy the sibling's commands or internal procedure/i,
+        ],
+        install: ['dsh-spec-ci-test-reliability'],
+      },
+      {
+        id: 'route-test-reliability-without-sibling',
+        signature: [/asynchronous subprocess test/i, /dsh-spec-ci-test-reliability sibling is not installed/i],
+        expectedOutput: [
+          /still runs the owning worker test/i,
+          /applicable test-reliability requirements/i,
+          /un-awaited child-process termination requires quiescent-teardown evidence/i,
+          /without treating the missing sibling as a blocker/i,
+        ],
+        assertions: [
+          /owning worker test rather than the full suite/i,
+          /applicable test-reliability requirements before selecting evidence/i,
+          /identifies the un-awaited child-process termination and requires quiescent-teardown evidence/i,
+          /does not treat the missing sibling as a blocker/i,
+        ],
+        install: [],
       },
     ],
   },
@@ -959,6 +995,13 @@ function validateGeneralCorpus(corpus: ScenarioCorpus, required: GeneralProfile)
   for (const requirement of required.scenarios) {
     const scenario = byId.get(requirement.id)
     assert.ok(scenario)
+    if (requirement.install !== undefined) {
+      assert.deepEqual(
+        scenario.install ?? [],
+        requirement.install,
+        requirement.id + ' must preserve the declared sibling installation',
+      )
+    }
     const text = JSON.stringify(scenario)
     for (const pattern of requirement.signature) {
       assert.match(text, pattern, requirement.id + ' must preserve the scenario semantics ' + pattern)
@@ -1736,6 +1779,40 @@ test('the companion scenario corpus covers the default ladder and bounded author
   for (const required of GENERAL_REQUIRED) validateGeneralCorpus(readCorpus(required.skill), required)
 })
 
+test('pre-push reliability routing stays independent of the sibling', () => {
+  const shipped = readFileSync(join(REPO_ROOT, 'skills/dsh-spec-pre-push-checks/SKILL.md'), 'utf8')
+  const bullet = /^- \*\*Asynchronous or resource-owning tests:\*\*.*$/m.exec(shipped)?.[0]
+  assert.ok(bullet)
+  const requirement = bullet.indexOf("project's applicable test-reliability requirements")
+  const evidence = bullet.indexOf('restoration, negative-control, quiescent-teardown or concurrent-process evidence')
+  const sibling = bullet.indexOf('(when available, consider using the dsh-spec-ci-test-reliability skill)')
+  assert.ok(requirement >= 0 && evidence > requirement && sibling > evidence, bullet)
+  const withoutSibling = bullet.replace(' (when available, consider using the dsh-spec-ci-test-reliability skill)', '')
+  assert.match(withoutSibling, /project's applicable test-reliability requirements/i)
+  assert.match(withoutSibling, /restoration, negative-control, quiescent-teardown or concurrent-process evidence/i)
+  assert.match(withoutSibling, /This skill still selects the commands/)
+  assert.doesNotMatch(withoutSibling, /dsh-spec-ci-test-reliability/)
+
+  const corpus = readCorpus('dsh-spec-pre-push-checks')
+  const present = corpus.evals.find((scenario) => scenario.id === 'route-test-reliability-with-sibling')
+  const absent = corpus.evals.find((scenario) => scenario.id === 'route-test-reliability-without-sibling')
+  assert.ok(present && absent)
+  assert.deepEqual(present.files, absent.files)
+  assert.equal(present.change_patch, absent.change_patch)
+  assert.equal(present.change_root, absent.change_root)
+  assert.deepEqual(present.assertions.slice(0, 3), absent.assertions.slice(0, 3))
+  const assertPromptsHideGradedOutcomes = (scenarios: Scenario[]) => {
+    assert.doesNotMatch(
+      scenarios.map((scenario) => scenario.prompt).join('\n'),
+      /full suite|owning worker test|applicable test-reliability requirements|restoration|negative-control|quiescent-teardown|concurrent-process|optional guidance|does not copy/i,
+    )
+  }
+  assertPromptsHideGradedOutcomes([present, absent])
+  assert.throws(() =>
+    assertPromptsHideGradedOutcomes([present, { ...absent, prompt: `${absent.prompt} Leave the full suite to CI.` }]),
+  )
+})
+
 test('translation target migration scenarios keep concrete policy semantics', () => {
   const corpus = readCorpus('dsh-spec-translate-docs')
   const byId = new Map(corpus.evals.map((scenario) => [scenario.id, scenario]))
@@ -1799,6 +1876,17 @@ test('the companion scenario corpus fails closed when evidence is missing', () =
   meaningless.evals[0].expected_output = 'The task succeeded.'
   meaningless.evals[0].assertions = ['The result looks good.']
   assert.throws(() => validateGeneralCorpus(meaningless, required), /must preserve/)
+
+  const prePushRequired = GENERAL_REQUIRED.find((profile) => profile.skill === 'dsh-spec-pre-push-checks')
+  assert.ok(prePushRequired)
+  const missingInstall = readCorpus(prePushRequired.skill)
+  const present = missingInstall.evals.find((scenario) => scenario.id === 'route-test-reliability-with-sibling')
+  assert.ok(present)
+  delete present.install
+  assert.throws(
+    () => validateGeneralCorpus(missingInstall, prePushRequired),
+    /must preserve the declared sibling installation/,
+  )
 })
 
 test('completion evidence and handoff evidence are both present for absent capabilities', () => {
@@ -3301,6 +3389,12 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
   const historicalInputs = readHashManifest(historicalInputsPath, 'PR121 evaluation files')
   const pr122EvidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-23-pr122')
   const issue140EvidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-25-issue-140')
+  const historicalPrePushReadme = join(pr122EvidenceRoot, 'dsh-spec-pre-push-checks', 'README.md')
+  assertEvidencePath(pr122EvidenceRoot, historicalPrePushReadme, 'PR122 pre-push README', 'file')
+  assert.match(
+    readFileSync(historicalPrePushReadme, 'utf8'),
+    /^> \*\*Historical status:\*\* this run used the pre-routing-change `dsh-spec-pre-push-checks` skill tree\./m,
+  )
   type EvidenceRun = {
     skill: string
     run: string
@@ -3360,6 +3454,9 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
       skill: 'dsh-spec-pre-push-checks',
       run: 'select-rebase-refresh-with-rerere',
       evidenceRoot: pr122EvidenceRoot,
+      current: false,
+      historicalSkillTree: join(pr122EvidenceRoot, 'dsh-spec-pre-push-checks', 'skills-tree.sha256'),
+      historicalInputs: join(pr122EvidenceRoot, 'dsh-spec-pre-push-checks', 'input-files.sha256'),
     },
     {
       skill: 'dsh-spec-error-handling',
