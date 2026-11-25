@@ -1,0 +1,25 @@
+# Pairing consistency record for 2026-11-25-direct-ports-retain-upstream-semantic-stem.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/proposed/architecture/2026-11-25-direct-ports-retain-upstream-semantic-stem.md --target <lang>
+/agent-note-direct-ports-retain-their-upstream-semantic-stem:
+  en: a336504038513b7e
+  zh: 1f079ebeb3e12157
+/agent-note-direct-ports-retain-their-upstream-semantic-stem/problem:
+  en: bbd1fbea6e332847
+  zh: 278b3121f2febf50
+/agent-note-direct-ports-retain-their-upstream-semantic-stem/proposal:
+  en: e881e526b91747f2
+  zh: c6a48bc5ea0179e8
+/agent-note-direct-ports-retain-their-upstream-semantic-stem/proposal/migration-boundary:
+  en: 41fc66347798c035
+  zh: abc7425b7d7b35e6
+/agent-note-direct-ports-retain-their-upstream-semantic-stem/alternatives-considered:
+  en: da249f99a9400e36
+  zh: c9c42189dcb16c96
+/agent-note-direct-ports-retain-their-upstream-semantic-stem/acceptance-criteria:
+  en: b1503e57bf06c4eb
+  zh: c4238be640b94b87
+/agent-note-direct-ports-retain-their-upstream-semantic-stem/risks:
+  en: b0129457c329f89a
+  zh: 8de64a4283195a9a
