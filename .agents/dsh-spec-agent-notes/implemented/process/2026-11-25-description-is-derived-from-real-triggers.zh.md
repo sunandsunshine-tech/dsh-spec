@@ -25,7 +25,7 @@ Status: implemented
 
 当前触发语料还包括 `tests/skill-evals/dsh-spec-ci-test-reliability/trigger-evals.json`、`tests/skill-evals/dsh-spec-client-ui-ux/trigger-evals.json`、`tests/skill-evals/dsh-spec-error-handling/trigger-evals.json`、`tests/skill-evals/dsh-spec-performance-investigation/trigger-evals.json`、`tests/skill-evals/dsh-spec-pr-description/trigger-evals.json` 和 `tests/skill-evals/dsh-spec-record-browser-gif/trigger-evals.json`。`tests/skill-scenarios.test.ts` 校验语料结构、当前触发面、该行为场景及其保留的模型证据；description 的质量仍由评审判断，而不是由正则语义门禁裁决。
 
-跟踪：#132。
+跟踪：#160（设计：#132）。
 
 ## Alternatives considered
 

@@ -25,7 +25,7 @@ The Forge entry states this requirement in its intent, verification and evaluati
 
 Current trigger corpora also include `tests/skill-evals/dsh-spec-ci-test-reliability/trigger-evals.json`, `tests/skill-evals/dsh-spec-client-ui-ux/trigger-evals.json`, `tests/skill-evals/dsh-spec-error-handling/trigger-evals.json`, `tests/skill-evals/dsh-spec-performance-investigation/trigger-evals.json`, `tests/skill-evals/dsh-spec-pr-description/trigger-evals.json` and `tests/skill-evals/dsh-spec-record-browser-gif/trigger-evals.json`. `tests/skill-scenarios.test.ts` validates corpus shape, current trigger surfaces, the behavior scenario and its retained model evidence. Description quality remains a review judgment rather than a regex semantic gate.
 
-Tracking: #132.
+Tracking: #160 (design: #132).
 
 ## Alternatives considered
 
