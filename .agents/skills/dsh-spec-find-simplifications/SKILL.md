@@ -10,7 +10,7 @@ Find changes that remove maintained obligations: APIs, representations, lifecycl
 
 ## Establish scope and constraints
 
-Read the project's standing instructions (`AGENTS.md`, `CLAUDE.md`, or the file it points to) and the documents they name for architecture, design constraints and testing before judging a subsystem. When the project has no standing instructions, read its README and module documentation for the same constraints. Consult the active decision records for intentional decisions, and use the project's record workflow for a new record. Archived records are historical examples, not current authority: never inspect, verify or repair their outbound links.
+Read the project's standing instructions: `AGENTS.md` and any file it cites. Follow those instructions and read the architecture, design-constraint and testing documents they name before judging a subsystem. When the project has no `AGENTS.md`, read its README and module documentation for the same constraints. Consult the active decision records for intentional decisions, and use the project's record workflow for a new record. Archived records are historical examples, not current authority: never inspect, verify or repair their outbound links.
 
 Some designs are intentional even when they look redundant. The project's standing instructions, its decision records, or the user may protect a design; do not propose deleting one unless the user explicitly overrides that constraint. Unused members within a protected design remain candidates when their removal preserves its purpose.
 

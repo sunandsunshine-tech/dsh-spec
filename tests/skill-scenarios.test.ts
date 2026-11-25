@@ -1732,6 +1732,43 @@ test('the capability scenario corpus covers absent and available isolated execut
   assert.deepEqual(absent.capabilities, { browser: false, media: false })
 })
 
+test('find-simplifications binds AGENTS.md authority and trigger near misses', () => {
+  const skill = 'dsh-spec-find-simplifications'
+  const skillBody = readFileSync(join(REPO_ROOT, 'skills', skill, 'SKILL.md'), 'utf8')
+  assert.match(skillBody, /standing instructions: `AGENTS\.md` and any file it cites/)
+  assert.doesNotMatch(skillBody, /CLAUDE\.md/)
+
+  const corpus = readCorpus(skill)
+  const authority = corpus.evals.find((scenario) => scenario.id === 'agents-md-owns-conflicting-instructions')
+  assert.ok(authority)
+  const recorded = validateRecordedScenario(skill, authority, authority.id)
+  assert.equal(recorded.files?.length, 6)
+  assert.match(recorded.expected_output, /sole standing-instruction authority/)
+  assert.match(recorded.expected_output, /searches src\/adapters\.ts despite CLAUDE\.md excluding it/)
+  assert.match(recorded.expected_output, /unreachable jsonAdapter export/)
+  assert.match(recorded.assertions.join('\n'), /does not treat CLAUDE\.md as a second authority/)
+
+  const fixtureRoot = join(EVAL_SOURCE_ROOT, skill, 'evals/files/authority-conflict')
+  assert.match(readFileSync(join(fixtureRoot, 'AGENTS.md'), 'utf8'), /\[audit policy\]\(docs\/audit-policy\.md\)/)
+  assert.match(readFileSync(join(fixtureRoot, 'docs/audit-policy.md'), 'utf8'), /including `src\/adapters\.ts`/)
+  assert.match(readFileSync(join(fixtureRoot, 'CLAUDE.md'), 'utf8'), /`src\/adapters\.ts`.*out of scope/)
+
+  assertTriggerCorpusIdentity(skill)
+  const trigger = JSON.parse(readFileSync(join(EVAL_SOURCE_ROOT, skill, 'trigger-evals.json'), 'utf8')) as {
+    queries: Array<{ id: string; query: string; should_trigger: boolean }>
+  }
+  assert.deepEqual(
+    trigger.queries.map((entry) => [entry.id, entry.should_trigger]),
+    [
+      ['dead-code-simplification', true],
+      ['ordinary-code-review-near-miss', false],
+      ['prose-simplification-near-miss', false],
+    ],
+  )
+  assert.match(trigger.queries[1]?.query ?? '', /only for correctness and security/)
+  assert.match(trigger.queries[2]?.query ?? '', /不要审查代码/)
+})
+
 test('the companion scenario corpus covers the default ladder and bounded authorization', () => {
   for (const required of GENERAL_REQUIRED) validateGeneralCorpus(readCorpus(required.skill), required)
 })
@@ -2817,6 +2854,70 @@ test('performance investigation model evidence binds scenarios, capabilities and
     'the baseline used the target skill',
   )
   assert.match(readFileSync(join(baseline, 'patch.diff'), 'utf8'), /unitsByRegion/)
+})
+
+test('find-simplifications authority evidence binds the current skill and scenario', () => {
+  const skill = 'dsh-spec-find-simplifications'
+  const scenario = readCorpus(skill).evals.find((entry) => entry.id === 'agents-md-owns-conflicting-instructions')
+  assert.ok(scenario)
+  const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-25-pr146', skill)
+  const root = join(evidenceRoot, scenario.id)
+  assertEvidencePath(evidenceRoot, root, scenario.id, 'directory')
+
+  const status = readFileSync(join(root, 'status.txt'), 'utf8')
+  assert.match(status, /^status: pass$/m)
+  assert.match(status, /^run_exit_code: 0$/m)
+  assert.match(status, /^assertions: 4\/4$/m)
+  assert.deepEqual(
+    readFileSync(join(root, 'assertions.txt'), 'utf8')
+      .trim()
+      .split('\n')
+      .map((line) => line.replace(/^PASS /, '')),
+    scenario.assertions,
+  )
+
+  const recorded = validateRecordedScenario(
+    skill,
+    JSON.parse(readFileSync(join(root, 'scenario-definition.json'), 'utf8')),
+    scenario.id,
+  )
+  assert.deepEqual(recorded, scenario)
+  assert.equal(
+    readFileSync(join(root, 'scenario-definition.sha256'), 'utf8').trim(),
+    `${scenarioDefinitionHash(recorded)}  ${skill}:${scenario.id}`,
+  )
+  assert.deepEqual(JSON.parse(readFileSync(join(root, 'capabilities.json'), 'utf8')), {
+    auth: 'host-proxy',
+    browser: false,
+    media: false,
+    sandbox: 'workspace-write',
+    subagents: false,
+  })
+  const inputManifest = readFileSync(join(root, 'input-manifest.sha256'), 'utf8')
+    .trim()
+    .split('\n')
+    .map((line) => parseHashPath(line, 'find-simplifications input manifest'))
+  const expectedInputs = (scenario.files ?? []).sort()
+  assert.deepEqual(
+    inputManifest.map((entry) => entry.path).sort(),
+    expectedInputs,
+    'find-simplifications input manifest path set differs',
+  )
+  for (const entry of inputManifest) {
+    const source = join(EVAL_SOURCE_ROOT, skill, entry.path)
+    assert.equal(entry.hash, fileHash(source), 'find-simplifications changed input ' + entry.path)
+    assert.equal(entry.mode, fileMode(source), 'find-simplifications changed input mode ' + entry.path)
+  }
+  assertBehaviorSkillRevision(root, skill)
+  assertAnswerBlindTrace(root)
+  assert.ok(traceCommandsFor(root).some((command) => commandPrintsSkill(command, skill)))
+  const trace = readEvidenceTrace(join(root, 'trace.jsonl'))
+  assert.equal(trace.at(-1)?.type, 'turn.completed')
+  const final = readFileSync(join(root, 'final.md'), 'utf8')
+  assert.equal(finalEvidenceMessage(trace)?.trim(), final.trim())
+  assert.match(final, /AGENTS\.md.*audit policy/s)
+  assert.match(final, /jsonAdapter/)
+  assert.match(final, /CLAUDE\.md/)
 })
 
 test('the browser evidence fixture does not leak an unready server', async (t) => {
