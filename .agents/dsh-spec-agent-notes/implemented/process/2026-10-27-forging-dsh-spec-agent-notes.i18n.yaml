@@ -12,8 +12,8 @@
   en: dceb71f568f1114f
   zh: 2e9f7683fa7da117
 /agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/source-and-revision:
-  en: 8cbe7ffb91b34138
-  zh: e4e4f3ced78a26d0
+  en: 58bc40dd17c686fd
+  zh: f2a76b12bbae3dd2
 /agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/constraint-dispositions:
   en: 8430250aaa710099
   zh: 0993ed13d86d138b
@@ -24,20 +24,20 @@
   en: c5b99fa60a3fe39a
   zh: f987be6c7dec5147
 /agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/constraint-dispositions/gates-and-manifest:
-  en: 1859b4db6781c261
-  zh: 844935086e751443
+  en: 75a05fe7b1bb5c26
+  zh: 9059158c3ea93d16
 /agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/constraint-dispositions/manifest:
   en: df99917e1f2fd0ff
   zh: 1fe728bd8581456f
 /agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/constraint-dispositions/target-rulings:
-  en: f47f22f7d1e70237
-  zh: 0e1b70ec4c7a12f4
+  en: 1d52da4c5421c17c
+  zh: ddb8e796ee6a066f
 /agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/requirement-anchors:
-  en: 62e05737dc5747d5
-  zh: 8223e83194873c6e
+  en: 0eb120109a88092b
+  zh: f4273f91e6a9d7d0
 /agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/alternatives-considered:
   en: ce446659f375f9f5
   zh: 0b86aeb1744038ff
 /agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/consequences:
-  en: 7c1646fb301029e9
-  zh: a1ce9b3ac2868993
+  en: 1991041e02b7de3e
+  zh: 6fd2d2cf4bc847ef

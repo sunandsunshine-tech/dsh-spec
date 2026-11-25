@@ -382,6 +382,30 @@ function unitErrors(
   return errors
 }
 
+function unsealedCompanionUnits(
+  artifacts: ReadonlyMap<string, Buffer>,
+  companions: readonly string[],
+  byCompanion: ReadonlyMap<string, string>,
+  baselineFiles: Record<string, string>,
+): string[] {
+  const units = new Map<string, boolean>()
+  const baselineUnits = new Set<string>()
+  for (const path of Object.keys(baselineFiles)) {
+    const parsed = unitKeyFor(path, companions, byCompanion)
+    if (parsed !== undefined) baselineUnits.add(parsed.unitKey)
+  }
+  for (const path of artifacts.keys()) {
+    const parsed = unitKeyFor(path, companions, byCompanion)
+    if (parsed === undefined) continue
+    const source = parsed.kind + '/' + parsed.key + '.md'
+    units.set(parsed.unitKey, (units.get(parsed.unitKey) ?? false) || path !== source)
+  }
+  return [...units]
+    .filter(([unitKey, hasCompanion]) => hasCompanion && !baselineUnits.has(unitKey))
+    .map(([unitKey]) => unitKey)
+    .sort(comparePaths)
+}
+
 export function archiveCommand(layout: ProjectLayout, paths: NotesPaths, options: Options): ArchiveResult {
   const projectRoot = layout.projectRoot
   const root = paths.root
@@ -466,6 +490,9 @@ export function archiveCommand(layout: ProjectLayout, paths: NotesPaths, options
       if (!kinds.has(kind)) errors.push('archive: ' + ARCHIVE + '/' + kind + '/ — required class directory is missing')
     }
   }
+  if (artifacts.size === 0) {
+    errors.push('archive: no archived artifacts found; an empty archive is not a passing corpus')
+  }
   const manifestReal = safeRealpath(manifestPath)
   if (manifestReal !== undefined && !layout.isInsideProject(manifestReal)) {
     errors.push(
@@ -546,6 +573,21 @@ export function archiveCommand(layout: ProjectLayout, paths: NotesPaths, options
             path +
             ' — archived artifact is not sealed in manifest.json; inspect it with "archive --prepare"',
         )
+    }
+    if (sealing && baseCommit !== undefined && errors.length === 0) {
+      const companionUnits = unsealedCompanionUnits(
+        artifacts,
+        options.companions,
+        explicitMembers.byCompanion,
+        baseline.files,
+      )
+      if (companionUnits.length > 0 && options.preflightCommand === undefined) {
+        errors.push(
+          'archive: companion-bearing candidate ' +
+            companionUnits.join(', ') +
+            ' requires an owner readiness command; rerun with --preflight-command <path> and any --preflight-arg values',
+        )
+      }
     }
     if (sealing && baseCommit !== undefined && errors.length === 0) {
       const planPreflight =

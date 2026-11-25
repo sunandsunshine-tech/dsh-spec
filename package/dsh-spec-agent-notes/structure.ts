@@ -325,5 +325,8 @@ export function walkActiveTree(
       }
     }
   }
+  if (notes === 0) {
+    errors.push('structure: no active notes found; an empty active tree is not a passing corpus')
+  }
   return { command: 'check', errors, notes, companionFiles }
 }
