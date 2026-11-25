@@ -16,7 +16,7 @@ An exact tag or commit is supplied with `--pin <tag-or-commit>` only when CI, au
 
 ### Installation guidance
 
-[README.md](../../../../README.md#install) presents the ordinary and fixed-revision forms and links this decision from the install instructions. [choosing-skills.md](../../../../docs/choosing-skills.md#install-model) carries the same distinction in the skill-selection guide.
+[README.md](../../../../README.md) presents the ordinary and fixed-revision forms and links this decision from the install instructions. [choosing-skills.md](../../../../docs/choosing-skills.md) carries the same distinction in the skill-selection guide.
 
 ### Scope
 

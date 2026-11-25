@@ -16,7 +16,7 @@ Status: implemented
 
 ### 安装指南
 
-[README.md](../../../../README.zh.md#install) 展示普通安装形式与固定修订形式，并从安装说明链接到本决策。[choosing-skills.md](../../../../docs/choosing-skills.zh.md#install-model) 在技能选择指南中作同样的区分。
+[README.md](../../../../README.zh.md) 展示普通安装形式与固定修订形式，并从安装说明链接到本决策。[choosing-skills.md](../../../../docs/choosing-skills.zh.md) 在技能选择指南中作同样的区分。
 
 ### 范围
 

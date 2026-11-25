@@ -16,7 +16,7 @@ Status: proposed
 
 #126 中的直接移植重命名交付了本提案的两个应用：`dsh-ci-test-reliability` 安装为 `dsh-spec-ci-test-reliability`，`record-browser-gif` 安装为 `dsh-spec-record-browser-gif`。
 
-`dsh-spec-agent-notes`、`dsh-spec-client-ui-ux` 和 `dsh-spec-prose-standard` 继续使用复合名称。它们的锻造记录点名各自纳入的上游工作流。[README.md](../../../../README.zh.md#choose-skills) 在面向采用者的目录中列出这些合并后的输入。
+`dsh-spec-agent-notes`、`dsh-spec-client-ui-ux` 和 `dsh-spec-prose-standard` 继续使用复合名称。它们的锻造记录点名各自纳入的上游工作流。[README.md](../../../../README.zh.md) 在面向采用者的目录中列出这些合并后的输入。
 
 ### 未决事项
 

@@ -16,7 +16,7 @@ A skill that carries one upstream workflow directly or as a generalized port kee
 
 The direct-port renames in #126 ship two applications of the proposal: `dsh-ci-test-reliability` is installed as `dsh-spec-ci-test-reliability`, and `record-browser-gif` is installed as `dsh-spec-record-browser-gif`.
 
-`dsh-spec-agent-notes`, `dsh-spec-client-ui-ux` and `dsh-spec-prose-standard` retain composite names. Their forge records name the upstream workflows they incorporate. [README.md](../../../../README.md#choose-skills) exposes those merged inputs in the adopter-facing catalog.
+`dsh-spec-agent-notes`, `dsh-spec-client-ui-ux` and `dsh-spec-prose-standard` retain composite names. Their forge records name the upstream workflows they incorporate. [README.md](../../../../README.md) exposes those merged inputs in the adopter-facing catalog.
 
 ### Unresolved decisions
 
