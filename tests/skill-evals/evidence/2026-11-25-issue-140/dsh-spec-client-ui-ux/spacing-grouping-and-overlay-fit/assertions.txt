@@ -1,0 +1,4 @@
+PASS Using the rendered gaps and project spacing tokens, the review distinguishes the object and action groups and reports both the inter-group gap smaller than an intra-group gap and the heading separated from its own content.
+PASS The review requires outside-click dismissal and Escape while the overlay is focusable, and reports that the fixture has only the outside-click path.
+PASS The review finds the overlay clipped at the supported viewport and rejects the missing edge margin and inaccessible action.
+PASS The review identifies the flip oscillation and requires flipping only into a side that fits, with no repeated back-and-forth.

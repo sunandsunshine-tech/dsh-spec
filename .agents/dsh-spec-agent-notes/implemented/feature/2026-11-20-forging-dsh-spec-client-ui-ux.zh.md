@@ -12,13 +12,13 @@ DeepSeek Harness 带有一套成熟的 UI 变更工作流和响应式交互规�
 
 ## 决策
 
-本技能集合交付 `dsh-spec-client-ui-ux`，作为项目级的浏览器 UI 变更评审技能。它负责按影响分级的检查、最低渲染检查、共享组件消费方追踪、响应式与输入状态覆盖、保留前后对比、证据报告，以及对未检查范围进行如实交接。`Trace every affected consumer` 一节独占消费方集合、继承变体与包装，以及受影响／已检查／未检查报告；范围与最低检查章节只指向该所有者，不再重复定义。
+本技能集合交付 `dsh-spec-client-ui-ux`，作为项目级的浏览器 UI 变更评审技能。它负责按影响分级的检查、最低渲染检查、语义间距与分组判断、共享组件消费方追踪、响应式与输入状态覆盖、保留前后对比、证据报告，以及对未检查范围进行如实交接。`Trace every affected consumer` 一节独占消费方集合、继承变体与包装，以及受影响／已检查／未检查报告；范围与最低检查章节只指向该所有者，不再重复定义。
 
 采用方项目负责自己的视觉系统、组件 API、支持的浏览器、支持的主题与宽度、本地化机制、审批策略和确切设计值。技能读取这些声明，不会引入第二套 token 系统或样式目录。
 
 用户可见的浏览器 UI 行为变更默认会产生已记录的浏览器证据。技能只陈述通用要求，不指定证据实现；依赖层新增的某一具体工具录制技能，可以提供带可用性限定的示例。项目可以声明一种等价证据形式。缺少渲染证据或录制能力时，技能会明确交接，而不会声称已完成视觉验收。
 
-该技能由一个 `SKILL.md` 和技能根目录下的 `THIRD_PARTY_NOTICES` 组成。它不携带脚本，也不依赖兄弟技能。安装副本与落地目录中的内容一致。
+该技能由 `SKILL.md`、`references/spacing.md` 和技能根目录下的 `THIRD_PARTY_NOTICES` 组成。它不携带脚本，也不依赖兄弟技能。安装副本与落地目录中的内容一致。
 
 - 交付与语言：技能正文采用英文，description 中包含中文触发关键词。
 - 默认值：检查实际渲染后的 UI；对于用户可见的浏览器 UI 行为变更，除非项目提供等价形式或覆盖规则，否则会在一次隔离运行中记录浏览器证据。
@@ -26,7 +26,7 @@ DeepSeek Harness 带有一套成熟的 UI 变更工作流和响应式交互规�
 
 ## 来源与修订
 
-上游来源为 `deepseek-ai/deepseek-harness` 的 `dsh-v0.2.3-alpha.2`（`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`），读取日期为 2026-11-23：
+上游来源为 `deepseek-ai/deepseek-harness` 的 `dsh-v0.2.3-alpha.2`（`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`）。所列文件于 2026-11-23 读取；`SKILL.md` 与 `references/spacing.md` 于 2026-11-25 复核：
 
 - `.agents/skills/dsh-client-ui-ux/SKILL.md`
 - `.agents/skills/dsh-client-ui-ux/references/alignment.md`
@@ -35,7 +35,7 @@ DeepSeek Harness 带有一套成熟的 UI 变更工作流和响应式交互规�
 - `.agents/skills/dsh-responsive-ui/SKILL.md`
 - `.agents/skills/record-browser-gif/SKILL.md`
 
-Agent Skills 的 overview、specification、best-practices、description-optimization 和 evaluation 页面已于 2026-11-20 从 <https://agentskills.io/> 读取。
+Agent Skills 的 index、best-practices 和 evaluation 页面已于 2026-11-25 从 <https://agentskills.io/> 读取。其 overview、specification 和 description-optimization 页面已于 2026-11-20 读取。
 
 发布授权：仓库维护者已授权将本技能落地到技能集合中，并创建其子 issue 和 PR（Pull Request）。
 
@@ -50,6 +50,7 @@ Agent Skills 的 overview、specification、best-practices、description-optimiz
 | R5 | 技能仍只包含文字说明。 | 检查、设计判断和消费方覆盖属于语义决定；没有与具体项目无关的命令能决定它们。 | 当新要求可以机械判定时，再打包脚本。 |
 | R6 | 外部设计生成系统和通用 UI 指南系统仍不在本技能范围内。Taste Skill、UI UX Pro Max 和 frontend-design 可以为视觉表达提供参考，但它们都不负责本项目支持的消费方、状态、证据策略或渲染验收。仅修改源码且明确排除渲染评审的重构，不在本技能的触发边界内。 | 它们回答不同问题：视觉方向、通用规则符合性，以及不要求渲染评审的仅源码修改，都不需要项目级渲染验证。 | 将一项具体外部能力并入本技能，或让技能在评审已排除的仅源码重构上触发。 |
 | R7 | 检查是递归但有边界的：追踪受变更影响的消费方，只检查该变更可能影响的状态、主题、宽度和数据。`Trace every affected consumer` 是条件变体、组合包装、feature flag、生成输出和已检查／未检查消费方报告的唯一详细所有者。 | 固定矩阵代价高且不完整；对于共享变更，只用一个孤立示例也不充分。单一所有者可避免影响表与最低检查漂移。 | 用通用清单或固定截图数量替代按影响分级，或把详细消费方规则重新分散到多个章节。 |
+| R8 | 详细的间距判断位于 `references/spacing.md`；直接影响能否完成验收的浮层规则仍明确写在 `## Minimum rendered checks` 中。两者都保留由项目掌握的 token、视口、外边距、组件基础构件和分层机制。 | 所有评审人都需要浮层的验收条件，而嵌套间距模型对技能入口而言过于详细，需要交给可按需查阅的文件负责。这样拆分后，每条规则都易于发现，同时不界定采用方项目的值或实现。 | 将间距规则并入 `SKILL.md`，将浮层规则移到另一份参考文件，或把任一规则绑定到某一个项目系统。 |
 
 ## 约束处置
 
@@ -63,10 +64,10 @@ Agent Skills 的 overview、specification、best-practices、description-optimiz
 | D6 | `dsh-client-ui-ux/SKILL.md:32-36` | 保留作为起点的实际实现和可比较的采集条件。 | 保留 | `## Preserve the comparison`。 |
 | D7 | `dsh-client-ui-ux/SKILL.md:57-63` | 在新增另一套系统之前，复用现有组件、容器、交互、token 和视觉处理方式。 | 适配 | 范围、交互、图标和边界检查；项目负责自己的组件与 token 目录。 |
 | D8 | `dsh-client-ui-ux/references/icons.md:5-11,44-58` | 复用已有图形资源，并在预期尺寸下比较控件的 target、painted base、icon slot 和 painted glyph，包括共享前景色和有效透明度。 | 适配 | 图标与组件几何检查；确切的源库和数值变体由项目负责。 |
-| D9 | `dsh-client-ui-ux/SKILL.md:82-101` | 反馈持续时间、加载呈现、浮层关闭、视口适配、裁切、菜单行为，以及未受圆角容器裁切的滚动条，都会影响验收。 | 适配 | 反馈、加载、浮层、菜单、滚动和几何检查；项目提供其基础构件。 |
+| D9 | `dsh-client-ui-ux/SKILL.md:82-95` | 反馈持续时间，以及每个页面或区域只采用一种加载呈现，都会影响验收；操作失败后仍保留其可见数据。 | 适配 | 反馈/加载与交互检查；项目提供其组件、失败策略和报告界面。 |
 | D10 | `dsh-client-ui-ux/SKILL.md:103-109` | 平台 chrome，以及 frame clearance 加页面 inset 的总量，会影响组装后的界面。 | 重新绑定 | 对照项目支持的宿主界面检查平台 chrome。 |
 | D11 | `dsh-client-ui-ux/SKILL.md:61-80` | 字体排版的数值、圆角、间距、视口、描边和图标变体属于一个产品系统。 | 消解 | 项目提供确切值；技能检查稳定的分组、几何和实际使用条件。 |
-| D12 | `dsh-client-ui-ux/references/alignment.md:5-32` 和 `spacing.md:5-19` | 在渲染尺寸下比较具名对齐对象与轴；包含两端端点、内边距、边框和行盒，并复用项目的 spacing owners（间距职责方）。 | 适配 | 布局、几何和消费方检查使用项目声明的关系与值。 |
+| D12 | `dsh-client-ui-ux/references/alignment.md:5-32` | 在渲染尺寸下比较具名对齐对象与轴，并匹配两端端点。 | 适配 | 布局与组件几何检查使用项目自有的对齐职责方和值。 |
 | D13 | `dsh-responsive-ui/SKILL.md:8-31` | 在窄布局中保留未提交草稿、焦点与主要操作；优先重排，再考虑截断或图标折叠；不得通过全局裁切、全局缩小字号或缩小 target 隐藏冲突；重要标题或被截断的标题应在其他位置提供完整内容。 | 适配 | 响应式行为、文本与本地化，以及消费方检查；项目设定支持的宽度，可以收紧但不得省略草稿保留。 |
 | D14 | `dsh-responsive-ui/SKILL.md:33-60` | 仅图标控件需要可理解帮助或可见工具提示，并遵循悬停、触摸、键盘行为、跨宽度变化的焦点、软键盘和输入能力规则。项目未声明更严格的输入尺寸时，coarse-pointer 文本输入至少保持 16 CSS 像素，避免聚焦缩放。 | 适配 | 交互、响应式/指针、图标/触摸帮助、焦点/输入和浮层检查；机制名称由项目负责，而无声明时的无障碍下限仍保持可见。 |
 | D15 | `dsh-client-ui-ux/SKILL.md:54,91` | 用户可见文案归项目的 locale 与行文规范负责方所有。 | 重新绑定 | 文字与本地化检查要求该归属，并在项目存在相应机制时调用该机制。 |
@@ -74,18 +75,20 @@ Agent Skills 的 overview、specification、best-practices、description-optimiz
 | D17 | `record-browser-gif/SKILL.md:12-22` | 用户可见的 GUI 变更会附带由变更后构建生成、如实反映结果的浏览器证据；采集与发布彼此分开。 | 重新绑定 | 默认采用已记录的浏览器证据，并支持项目覆盖和能力交接；所选机制负责采集和发布。 |
 | D18 | 仓库 `AGENTS.md` 和 `dsh-spec-skill-forge/SKILL.md` | 每个技能都独立安装，并且在首选能力缺失时仍须完成工作或交接。 | 适配 | 技能不声明兄弟依赖，并包含能力缺失时的交接。 |
 | D19 | alpha.2 `references/icons.md` | 共享和行内线稿在 viewport 变化时保持声明的 stroke 行为；填充仍按几何缩放；普通摆放或复用修复不得改变该渲染契约；图形、stroke 或渲染变化要按已声明尺寸与设备像素比验证全部消费方。 | 适配 | icon/touch-help 与受影响状态覆盖普通摆放，不要求固定尺寸/DPR 矩阵；渲染变化按目标 CSS 尺寸和受支持设备像素比对照项目声明。不搬用上游宽度或组件名。 |
+| D20 | `dsh-client-ui-ux/SKILL.md:97-101` | 每个菜单、popover 和 tooltip 在点击外部时关闭；可获得焦点时，按 Escape 也会关闭。浮层须留出边缘间距以适配视口，不被裁切，也不被相邻元素覆盖；只在能放得下的一侧翻转；两侧都放不下时不得来回振荡，并让滚动条位于未受裁切的容器内。 | 适配 | 浮层检查项逐项写明各完成条件；采用方项目提供其视口、边缘值、基础构件、分层机制、滚动条处理和两侧都放不下时的回退方案。 |
+| D21 | `dsh-client-ui-ux/references/spacing.md:3-19` | 间距将单个对象、操作或重复单元划分为一组；每一嵌套层级和每个渲染端点都参与间距判断。构成可比相邻组时，组间间距须大于组内间距；标题须更靠近自身内容；重复组合和换行时保持该层级；不能只靠 CSS 外边距。 | 适配 | `references/spacing.md` 负责语义模型，`SKILL.md` 将分组与间距变更交由该文件处理。项目自身的间距与对齐 token、确切值和示例仍是权威依据；不复制任何上游产品示例或数值尺度。 |
 
 ## 验证锚点
 
 | # | 要求 | 锚点 | 证据 |
 |---|---|---|---|
 | A0 | 技能遵守 Agent Skills 格式，frontmatter 与外部链接均正确闭合，并保持在技能目录的 description 预算内。 | 机械检查 | `node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs skills/dsh-spec-client-ui-ux --description-max 500` 决定这一点。 |
-| A1 | 每项上游约束 D1-D19 在交付指令中都各有一项处置和一个落点。 | 判断 | 对照 `SKILL.md` 和所指名的参考文件，为每一行得出一项结论。 |
+| A1 | 每项上游约束 D1-D21 在交付指令中都各有一项处置和一个落点。 | 判断 | 对照 `SKILL.md` 和所指名的参考文件，为每一行得出一项结论。 |
 | A2 | 指令文件不包含 DSH 产品路径、token、名单、源仓库名称、固定视口或硬兄弟依赖。 | 机械检查 + 判断 | 对 `SKILL.md` 和交付的参考文件进行来源扫描，排除必需的 `THIRD_PARTY_NOTICES`；兄弟引用门禁决定命名形式。 |
 | A3 | 用户可见的浏览器 UI 变更默认采用如实反映结果的渲染证据；接受项目提供的等价证据；证据不可用时，产生明确、可据以恢复工作的交接。 | 判断 | 对照 `## Record browser evidence by default` 得出一项结论；能力存在与能力缺失的模型运行见 A6。 |
-| A4 | 评审覆盖组装后的页面、受影响的消费方、布局关系、交互、响应式与指针行为、滚动与浮层行为、焦点/输入适配、locale 内容、几何和平台 chrome。 | 判断 | 对照 D2-D14，为每条最低检查项目得出一项结论。 |
+| A4 | 评审覆盖组装后的页面、受影响的消费方、语义分组以及组内／组间间距、渲染对齐、交互、响应式与指针行为、浮层的关闭与边界约束、焦点/输入适配、locale 内容、几何和平台 chrome。 | 判断 | 对照 D2-D21，为每条最低检查项目得出一项结论。 |
 | A5 | 测试、源码和 fixture 绝不能被提升为完整应用或视觉验收结论。 | 判断 | 对照最低检查的结尾段落、证据章节和报告结尾规则得出一项结论。 |
-| A6 | candidate 模型的行为覆盖证据复用、能力存在时的采集、能力缺失时的交接、项目证据覆盖、前后对比保留，以及普通摆放与渲染变化之间的图标规则区分。 | 判断 + 机械检查 | `tests/skill-evals/evidence/2026-11-20-pr114/` 下保留干净上下文运行；PR122 新增 `shared-icon-rendering-contract`。仓库测试验证当前场景、能力档位与输入模式；历史运行继续绑定其记录定义。 |
+| A6 | candidate 模型的行为覆盖证据复用、能力存在时的采集、能力缺失时的交接、项目证据覆盖、前后对比保留、普通摆放与渲染变化之间的图标规则区分、间距层级，以及浮层的关闭、边界约束和稳定摆放。 | 判断 + 机械检查 | issue #140 在 `tests/skill-evals/evidence/2026-11-25-issue-140/` 下的 `spacing-grouping-and-overlay-fit` 运行是当前 client-UI 证据。PR122 图标运行已冻结到变更前的技能哈希。仓库测试验证当前场景、能力档位与输入模式；历史运行继续绑定其记录定义。 |
 | A7 | description 会在受影响的实现与评审请求上触发，并且不会在视觉方向、通用审计、文档和非 UI 任务上触发。 | 判断 + 机械检查 | `tests/skill-evals/dsh-spec-client-ui-ux/trigger-evals.json`；触发证据绑定名称与 description，每条 trace 都注明记录的技能修订和确切读取的文件。 |
 | A8 | README、安装副本、notices、Agent Note 配套文件、翻译配对、默认值清单、语料和静态检查保持一致。 | 机械检查 | `pnpm test`、`pnpm run check:static`、`pnpm run check:corpus`、`pnpm run notices:check` 和 `pnpm run skill:verify-bundles`。 |
 | A9 | 本记录及其中文配套文件使用当前源修订、路径、证据和翻译术语描述已交付行为。 | 机械检查 + 判断 | 配对检查，以及对照本记录和 `SKILL.md` 进行的语义比较。 |
@@ -95,6 +98,8 @@ Agent Skills 的 overview、specification、best-practices、description-optimiz
 位于 `tests/skill-evals/evidence/2026-11-20-pr114/` 的干净上下文评估让 candidate 运行了四个场景：共享消费方覆盖、缺少渲染器时的交接、项目声明的截图证据，以及能力存在时的默认证据。candidate 通过全部 17 项断言。在截图覆盖场景中，fixture 故意包含模拟焦点处理；candidate 未将其采纳为原生焦点的证据，并报告了这一缺口，而 no-skill baseline 接受了截图，4 项断言中只通过 2 项。能力存在探针使用一次 headless Chrome 运行，未使用 BrowserSkill。
 
 PR122 新增 `tests/skill-evals/evidence/2026-11-23-pr122/dsh-spec-client-ui-ux/shared-icon-rendering-contract/`，通过 5/5 项断言。它覆盖声明的非缩放描边与有意填充约定，要求渲染变化提供目标尺寸与 DPR 矩阵，点名全部受影响消费方，并把缺失的渲染证据保留为缺口。
+
+当前 `tests/skill-evals/evidence/2026-11-25-issue-140/dsh-spec-client-ui-ux/spacing-grouping-and-overlay-fit/` 运行通过 4/4 项断言。它使用一份提供的当前构建渲染报告和有序摆放时间线，区分对象组与操作组，保留项目的间距 token，既排除单侧关闭，也排除在声明视口内发生裁切，并排除反复翻转造成的振荡。PR122 client-UI 运行仍以冻结的变更前哈希作为历史记录。
 
 触发语料包含六个正例查询和六个近失查询。全部十二个查询都符合预期触发结果，每条留存的 trace 都记录了已安装技能的修订。触发清单绑定 frontmatter 中的名称与 description。
 
@@ -118,5 +123,5 @@ PR122 新增 `tests/skill-evals/evidence/2026-11-23-pr122/dsh-spec-client-ui-ux/
 - 没有录制机制的项目获得显式证据交接；具备等价机制的项目仍受支持。
 - 共享组件变更需要消费方证据，而不是一个代表性 fixture。
 - 技能不增加 DSH token、组件路径、设计师名单、产品页面规则、脚本或硬兄弟依赖。
-- 模型证据覆盖消费方发现、渲染证据复用、缺少能力时的交接、截图覆盖、模拟焦点未被采纳、能力存在时的 headless 采集以及十二个触发查询。其他产品上下文、视觉系统、采集机制和评审人不在该证据范围内。
+- 模型证据覆盖消费方发现、渲染证据复用、缺少能力时的交接、截图覆盖、模拟焦点未被采纳、能力存在时的 headless 采集、间距层级、浮层关闭与摆放，以及十二个触发查询。其他产品上下文、视觉系统、采集机制和评审人不在该证据范围内。
 - 回滚：回退落地提交；已 pin 的上游基线保持不变。

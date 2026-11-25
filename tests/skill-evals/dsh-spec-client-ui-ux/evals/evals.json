@@ -161,6 +161,31 @@
         "The review treats the missing rendered evidence as a gap.",
         "The review does not replace the shared rendering contract with an ordinary placement fix."
       ]
+    },
+    {
+      "id": "spacing-grouping-and-overlay-fit",
+      "prompt": "Review the spacing and anchored-overlay change in evals/files/spacing-overlay-project. The project supplies its accepted current-build render report and ordered placement timeline under `evidence/`; do not launch another browser, replace its spacing tokens, or substitute another evidence policy. Identify the concrete grouping and overlay failures and report whether the change is complete.",
+      "expected_output": "The review uses the rendered gap endpoints to distinguish the object and action groups, reports the reversed inter-group and intra-group hierarchy and the heading's separation from its own content, requires outside-click and focusable-Escape dismissal, reports the clipping and missing edge margin, and rejects the repeated flip as an unstable placement that must choose a side that fits.",
+      "capabilities": {
+        "browser": false,
+        "media": false
+      },
+      "files": [
+        "evals/files/spacing-overlay-project/AGENTS.md",
+        "evals/files/spacing-overlay-project/README.md",
+        "evals/files/spacing-overlay-project/index.html",
+        "evals/files/spacing-overlay-project/src/tokens.css",
+        "evals/files/spacing-overlay-project/src/styles.css",
+        "evals/files/spacing-overlay-project/src/page.js",
+        "evals/files/spacing-overlay-project/evidence/render-report.md",
+        "evals/files/spacing-overlay-project/evidence/placement-timeline.jsonl"
+      ],
+      "assertions": [
+        "Using the rendered gaps and project spacing tokens, the review distinguishes the object and action groups and reports both the inter-group gap smaller than an intra-group gap and the heading separated from its own content.",
+        "The review requires outside-click dismissal and Escape while the overlay is focusable, and reports that the fixture has only the outside-click path.",
+        "The review finds the overlay clipped at the supported viewport and rejects the missing edge margin and inaccessible action.",
+        "The review identifies the flip oscillation and requires flipping only into a side that fits, with no repeated back-and-forth."
+      ]
     }
   ]
 }
