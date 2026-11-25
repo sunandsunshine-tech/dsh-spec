@@ -172,7 +172,8 @@ The check decides the mechanical subset; the archive seal checks a newly sealed 
 - the root's lifecycle folders are closed and no `INDEX.md` exists;
 - every note sits at `{lifecycle}/{class}/yyyy-mm-dd-topic.md` with a date-shaped filename (calendar validity is not checked, matching the source);
 - the header block, the per-lifecycle skeleton and the alternatives section match this contract;
-- every companion suffix declared in a class folder or at a lifecycle root joins a source file, and an orphan is reported.
+- every companion suffix declared in a class folder or at a lifecycle root joins a source file, and an orphan is reported;
+- the active tree contains at least one note; an empty active tree fails the corpus gate.
 
 It does not decide whether a note should exist, whether its rationale is sound, whether its companion plan follows the default ladder, or whether a supersession was classified correctly. Those are judgment, recorded in the note and the change.
 

@@ -571,6 +571,21 @@ function unitErrors(artifacts, companions, byCompanion, baselineFiles) {
 	}
 	return errors;
 }
+function unsealedCompanionUnits(artifacts, companions, byCompanion, baselineFiles) {
+	const units = /* @__PURE__ */ new Map();
+	const baselineUnits = /* @__PURE__ */ new Set();
+	for (const path of Object.keys(baselineFiles)) {
+		const parsed = unitKeyFor(path, companions, byCompanion);
+		if (parsed !== void 0) baselineUnits.add(parsed.unitKey);
+	}
+	for (const path of artifacts.keys()) {
+		const parsed = unitKeyFor(path, companions, byCompanion);
+		if (parsed === void 0) continue;
+		const source = parsed.kind + "/" + parsed.key + ".md";
+		units.set(parsed.unitKey, (units.get(parsed.unitKey) ?? false) || path !== source);
+	}
+	return [...units].filter(([unitKey, hasCompanion]) => hasCompanion && !baselineUnits.has(unitKey)).map(([unitKey]) => unitKey).sort(comparePaths);
+}
 function archiveCommand(layout, paths, options) {
 	const projectRoot = layout.projectRoot;
 	const root = paths.root;
@@ -614,6 +629,7 @@ function archiveCommand(layout, paths, options) {
 		}
 		for (const kind of CLASSES) if (!kinds.has(kind)) errors.push("archive: archived/" + kind + "/ — required class directory is missing");
 	}
+	if (artifacts.size === 0) errors.push("archive: no archived artifacts found; an empty archive is not a passing corpus");
 	const manifestReal = safeRealpath(manifestPath);
 	if (manifestReal !== void 0 && !layout.isInsideProject(manifestReal)) errors.push(`archive: the manifest resolves outside the project root (${manifestReal}); the archive baseline must stay in the project`);
 	let manifest = emptyManifest();
@@ -664,6 +680,10 @@ function archiveCommand(layout, paths, options) {
 		errors.push(...extension.errors);
 		added = extension.added;
 		if (!sealing) for (const path of added) errors.push("archive: " + path + " — archived artifact is not sealed in manifest.json; inspect it with \"archive --prepare\"");
+		if (sealing && baseCommit !== void 0 && errors.length === 0) {
+			const companionUnits = unsealedCompanionUnits(artifacts, options.companions, explicitMembers.byCompanion, baseline.files);
+			if (companionUnits.length > 0 && options.preflightCommand === void 0) errors.push("archive: companion-bearing candidate " + companionUnits.join(", ") + " requires an owner readiness command; rerun with --preflight-command <path> and any --preflight-arg values");
+		}
 		if (sealing && baseCommit !== void 0 && errors.length === 0) {
 			const planPreflight = options.preflightCommand === void 0 ? [] : [options.preflightCommand, ...options.preflightArgs];
 			plan = sealPlanFor(baseCommit, manifest, added, artifacts, options.companions, explicitMembers.canonical, planPreflight);
@@ -736,7 +756,8 @@ options:
   --write              append new artifact hashes to the manifest (archive only; excludes --prepare)
   --expect-plan <id>   bind --write to the plan printed by --prepare (archive --write only)
   --preflight-command <path>
-                       executable to run without a shell before sealing (archive seal only)
+                       executable to run without a shell before sealing; required when a new unit
+                       contains a companion (archive seal only)
   --preflight-arg <arg>
                        one argument for --preflight-command; repeatable and may begin with "-"
   --json               print a JSON summary instead of lines
@@ -1230,6 +1251,7 @@ function walkActiveTree(layout, root, companions, members, formatAdopted) {
 			}
 		}
 	}
+	if (notes === 0) errors.push("structure: no active notes found; an empty active tree is not a passing corpus");
 	return {
 		command: "check",
 		errors,

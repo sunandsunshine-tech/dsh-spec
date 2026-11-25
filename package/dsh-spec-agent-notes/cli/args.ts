@@ -68,7 +68,8 @@ options:
   --write              append new artifact hashes to the manifest (archive only; excludes --prepare)
   --expect-plan <id>   bind --write to the plan printed by --prepare (archive --write only)
   --preflight-command <path>
-                       executable to run without a shell before sealing (archive seal only)
+                       executable to run without a shell before sealing; required when a new unit
+                       contains a companion (archive seal only)
   --preflight-arg <arg>
                        one argument for --preflight-command; repeatable and may begin with "-"
   --json               print a JSON summary instead of lines

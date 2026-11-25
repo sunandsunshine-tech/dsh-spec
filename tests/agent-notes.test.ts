@@ -80,6 +80,14 @@ The declined proposal.
 `
 
 const ROOT = '.agents/dsh-spec-agent-notes'
+const READINESS_OK = [
+  '--preflight-command',
+  process.execPath,
+  '--preflight-arg',
+  '-e',
+  '--preflight-arg',
+  'process.exit(0)',
+]
 
 function makeProject(t: CleanupContext): Fixture {
   const project = makeIsolatedFixture({ 'README.md': '# project\n' }, { cleanup: t })
@@ -356,6 +364,47 @@ test('archive --write seals after a successful preflight', (t) => {
   assert.equal(project.exists(`${ROOT}/archived/manifest.json`), true)
 })
 
+test('archive rejects a companion-bearing unit without an owner readiness command', (t) => {
+  const project = makeProject(t)
+  initTree(project)
+  project.write(`${ROOT}/archived/feature/2026-10-02-ship.md`, archived(IMPLEMENTED))
+  project.write(`${ROOT}/archived/feature/2026-10-02-ship.zh.md`, archived(IMPLEMENTED))
+  const result = runRaw(project, ['archive', '--prepare', '--companion', '.zh.md'])
+  assert.equal(result.status, 1)
+  assert.match(result.stdout, /requires an owner readiness command/)
+  assert.match(result.stdout, /--preflight-command/)
+  assert.equal(project.exists(`${ROOT}/archived/manifest.json`), false)
+})
+
+test('archive rejects an unsealed companion unit already listed in the manifest without readiness', (t) => {
+  const project = makeProject(t)
+  initTree(project)
+  const sourcePath = `${ROOT}/archived/feature/2026-10-02-ship.md`
+  const companionPath = `${ROOT}/archived/feature/2026-10-02-ship.zh.md`
+  project.write(sourcePath, archived(IMPLEMENTED))
+  project.write(companionPath, archived(IMPLEMENTED))
+  const manifestPath = `${ROOT}/archived/manifest.json`
+  const hash = (path: string): string => 'sha256:' + createHash('sha256').update(project.read(path)).digest('hex')
+  const before =
+    JSON.stringify(
+      {
+        version: 1,
+        files: {
+          'feature/2026-10-02-ship.md': hash(sourcePath),
+          'feature/2026-10-02-ship.zh.md': hash(companionPath),
+        },
+      },
+      null,
+      2,
+    ) + '\n'
+  project.write(manifestPath, before)
+
+  const result = runRaw(project, ['archive', '--write', '--companion', '.zh.md'])
+  assert.equal(result.status, 1)
+  assert.match(result.stdout, /requires an owner readiness command/)
+  assert.equal(project.read(manifestPath), before)
+})
+
 test('archive accepts a nested different-stem external unit member', (t) => {
   const project = makeProject(t)
   initTree(project)
@@ -364,7 +413,7 @@ test('archive accepts a nested different-stem external unit member', (t) => {
   project.write(source, archived(IMPLEMENTED))
   project.write(companion, 'external details\n')
   const member = 'feature/2026-10-02-ship.md=feature/support/details.txt'
-  const result = run(project, ['archive', '--write', '--member', member])
+  const result = run(project, ['archive', '--write', '--member', member, ...READINESS_OK])
   assert.equal(result.status, 0, result.stdout)
   const manifest = JSON.parse(project.read(`${ROOT}/archived/manifest.json`))
   assert.deepEqual(Object.keys(manifest.files).sort(), [member.split('=')[0], member.split('=')[1]].sort())
@@ -382,7 +431,7 @@ test('archive applies Markdown metadata checks to every nested member side', (t)
   assert.equal(incomplete.status, 1)
   assert.match(incomplete.stdout, /translation-ja\.md — requires Archived/)
   project.write(companion, archived(IMPLEMENTED))
-  const prepared = runRaw(project, ['archive', '--prepare', '--member', member])
+  const prepared = runRaw(project, ['archive', '--prepare', '--member', member, ...READINESS_OK])
   assert.equal(prepared.status, 0, prepared.stdout)
 })
 
@@ -425,11 +474,11 @@ test('archive plan binding includes the explicit member set', (t) => {
   project.write(`${ROOT}/archived/feature/support/shared.txt`, 'shared\n')
   const first = 'feature/2026-10-02-ship.md=feature/support/shared.txt'
   const second = 'feature/2026-10-03-other.md=feature/support/shared.txt'
-  const prepared = runRaw(project, ['archive', '--prepare', '--member', first])
+  const prepared = runRaw(project, ['archive', '--prepare', '--member', first, ...READINESS_OK])
   assert.equal(prepared.status, 0, prepared.stdout)
   const plan = /plan ([0-9a-f]{64})/.exec(prepared.stdout)?.[1]
   assert.ok(plan)
-  const written = runRaw(project, ['archive', '--write', '--expect-plan', plan, '--member', second])
+  const written = runRaw(project, ['archive', '--write', '--expect-plan', plan, '--member', second, ...READINESS_OK])
   assert.equal(written.status, 1)
   assert.match(written.stdout, /seal plan changed/)
   assert.equal(project.exists(`${ROOT}/archived/manifest.json`), false)
@@ -506,7 +555,7 @@ test('archive rejects an unknown class directory', (t) => {
   assert.match(result.stdout, /unknown class folder/)
 })
 
-test('archive seals the current companion subset instead of requiring every declared suffix', (t) => {
+test('archive seals companion artifacts after a successful owner readiness check', (t) => {
   const project = makeProject(t)
   initTree(project)
   project.write(`${ROOT}/implemented/feature/2026-10-02-ship.md`, IMPLEMENTED)
@@ -516,7 +565,39 @@ test('archive seals the current companion subset instead of requiring every decl
     `${ROOT}/archived/feature/2026-10-02-ship.zh.md`,
     archived(IMPLEMENTED.replace('A decision', '一个决定')),
   )
-  const sealed = run(project, ['archive', '--write', '--companion', '.zh.md', '--companion', '.i18n.yaml'])
+  project.write(`${ROOT}/archived/feature/2026-10-02-ship.i18n.yaml`, 'recorded: true\n')
+  const sealed = run(project, [
+    'archive',
+    '--write',
+    '--companion',
+    '.zh.md',
+    '--companion',
+    '.i18n.yaml',
+    ...READINESS_OK,
+  ])
+  assert.equal(sealed.status, 0, sealed.stdout)
+  const manifest = JSON.parse(project.read(`${ROOT}/archived/manifest.json`))
+  assert.deepEqual(Object.keys(manifest.files).sort(), [
+    'feature/2026-10-02-ship.i18n.yaml',
+    'feature/2026-10-02-ship.md',
+    'feature/2026-10-02-ship.zh.md',
+  ])
+})
+
+test('archive seals the companion subset present in the unit', (t) => {
+  const project = makeProject(t)
+  initTree(project)
+  project.write(`${ROOT}/archived/feature/2026-10-02-ship.md`, archived(IMPLEMENTED))
+  project.write(`${ROOT}/archived/feature/2026-10-02-ship.zh.md`, archived(IMPLEMENTED))
+  const sealed = run(project, [
+    'archive',
+    '--write',
+    '--companion',
+    '.zh.md',
+    '--companion',
+    '.i18n.yaml',
+    ...READINESS_OK,
+  ])
   assert.equal(sealed.status, 0, sealed.stdout)
   const manifest = JSON.parse(project.read(`${ROOT}/archived/manifest.json`))
   assert.deepEqual(Object.keys(manifest.files).sort(), ['feature/2026-10-02-ship.md', 'feature/2026-10-02-ship.zh.md'])
@@ -543,6 +624,7 @@ test('check gates the pre-format alternatives comment by the adoption date', (t)
 
 test('check pairs a lifecycle-root companion with its allowlisted source', (t) => {
   const project = makeProject(t)
+  project.write(`${ROOT}/proposed/process/2026-10-01-x.md`, PROPOSED)
   project.write(`${ROOT}/implemented/AGENTS.zh.md`, '# 生命周期说明\n')
   project.write(`${ROOT}/implemented/AGENTS.i18n.yaml`, 'AGENTS.md: 0000000000000000000000000000000000000000\n')
   const orphanMarkdown = run(project, ['check', '--companion', '.zh.md'])
@@ -595,7 +677,7 @@ test('archive requires one identical Archived date across Markdown sides', (t) =
   project.commit('implemented note')
   project.write(`${ROOT}/archived/feature/2026-10-02-ship.md`, archived(IMPLEMENTED, '2026-10-03'))
   project.write(`${ROOT}/archived/feature/2026-10-02-ship.zh.md`, archived(IMPLEMENTED, '2026-10-04'))
-  const result = run(project, ['archive', '--write', '--companion', '.zh.md'])
+  const result = run(project, ['archive', '--write', '--companion', '.zh.md', ...READINESS_OK])
   assert.equal(result.status, 1)
   assert.match(result.stdout, /different archive dates/)
 })
@@ -644,23 +726,23 @@ test('archive reads a trusted external baseline with --base-ref', (t) => {
   assert.match(missing.stdout, /cannot read baseline/)
 })
 
-test('check passes an empty active tree with a zero count', (t) => {
+test('check rejects an empty active tree', (t) => {
   const project = makeProject(t)
-  project.mkdir(`${ROOT}/implemented/feature`)
+  initTree(project)
   const result = run(project, ['check'])
-  assert.equal(result.status, 0, result.stdout)
-  assert.match(result.stdout, /0 note\(s\)/)
+  assert.equal(result.status, 1)
+  assert.match(result.stdout, /empty active tree is not a passing corpus/)
 })
 
-test('archive passes an empty sealed archive with a zero count', (t) => {
+test('archive rejects an empty sealed archive', (t) => {
   const project = makeProject(t)
   initTree(project)
   project.write('README.md', '# project\n')
   project.commit('initial')
   project.write(`${ROOT}/archived/manifest.json`, '{\n  "version": 1,\n  "files": {}\n}\n')
   const result = run(project, ['archive'])
-  assert.equal(result.status, 0, result.stdout)
-  assert.match(result.stdout, /0 frozen artifact/)
+  assert.equal(result.status, 1)
+  assert.match(result.stdout, /empty archive is not a passing corpus/)
 })
 
 test('archive --write writes nothing when a check fails', (t) => {
@@ -680,10 +762,13 @@ test('archive accepts a project-internal root whose name starts with dots', (t) 
   project.commit('initial')
   const initialized = run(project, ['init', '--root', '..notes'])
   assert.equal(initialized.status, 0, initialized.stdout + initialized.stderr)
-  project.write(`..notes/archived/manifest.json`, '{\n  "version": 1,\n  "files": {}\n}\n')
+  project.write(`..notes/archived/feature/2026-10-02-ship.md`, archived(IMPLEMENTED))
+  const sealed = run(project, ['archive', '--write', '--root', '..notes'])
+  assert.equal(sealed.status, 0, sealed.stdout)
+  project.commit('seal custom root')
   const result = run(project, ['archive', '--root', '..notes'])
   assert.equal(result.status, 0, result.stdout)
-  assert.match(result.stdout, /0 frozen artifact/)
+  assert.match(result.stdout, /1 frozen artifact/)
 })
 
 test('usage errors exit 2 and --json reports the summary', (t) => {
@@ -867,7 +952,7 @@ test('archive accepts historical units when the declared companion set grows', (
     ROOT + '/archived/feature/2026-10-03-new.zh.md',
     archived(IMPLEMENTED.replace('A decision', 'A new decision')),
   )
-  const sealed = run(project, ['archive', '--write', '--companion', '.zh.md'])
+  const sealed = run(project, ['archive', '--write', '--companion', '.zh.md', ...READINESS_OK])
   assert.equal(sealed.status, 0, sealed.stdout)
   project.commit('new seal')
   const verified = run(project, ['archive', '--companion', '.zh.md'])
@@ -954,7 +1039,15 @@ test('archive matches the longest declared companion suffix regardless of order'
   project.write(ROOT + '/archived/feature/2026-10-02-ship.md', archived(IMPLEMENTED))
   project.write(ROOT + '/archived/feature/2026-10-02-ship.yaml', 'sidecar: one\n')
   project.write(ROOT + '/archived/feature/2026-10-02-ship.i18n.yaml', 'en.md: 0\n')
-  const sealed = run(project, ['archive', '--write', '--companion', '.yaml', '--companion', '.i18n.yaml'])
+  const sealed = run(project, [
+    'archive',
+    '--write',
+    '--companion',
+    '.yaml',
+    '--companion',
+    '.i18n.yaml',
+    ...READINESS_OK,
+  ])
   assert.equal(sealed.status, 0, sealed.stdout)
   const manifest = JSON.parse(project.read(ROOT + '/archived/manifest.json'))
   assert.deepEqual(Object.keys(manifest.files).sort(), [
@@ -1077,7 +1170,7 @@ test('archive treats Markdown metadata case-sensitively', (t) => {
   initTree(project)
   project.write(ROOT + '/archived/feature/2026-10-02-ship.md', archived(IMPLEMENTED))
   project.write(ROOT + '/archived/feature/2026-10-02-ship.ZH.MD', 'not metadata\n')
-  const result = run(project, ['archive', '--write', '--companion', '.ZH.MD'])
+  const result = run(project, ['archive', '--write', '--companion', '.ZH.MD', ...READINESS_OK])
   assert.equal(result.status, 0, result.stdout)
 })
 
@@ -1252,7 +1345,7 @@ test('archive --write ignores a frozen companion whose suffix is no longer decla
   initTree(project)
   project.write(ROOT + '/archived/feature/2026-10-02-a.md', archived(IMPLEMENTED))
   project.write(ROOT + '/archived/feature/2026-10-02-a.i18n.yaml', 'en.md: 0\n')
-  const first = run(project, ['archive', '--write', '--companion', '.i18n.yaml'])
+  const first = run(project, ['archive', '--write', '--companion', '.i18n.yaml', ...READINESS_OK])
   assert.equal(first.status, 0, first.stdout)
   project.commit('seal with sidecar')
   project.write(ROOT + '/archived/feature/2026-10-03-b.md', archived(IMPLEMENTED))
@@ -1265,7 +1358,7 @@ test('archive --write keeps a frozen Markdown companion when its suffix is dropp
   initTree(project)
   project.write(ROOT + '/archived/feature/2026-10-02-a.md', archived(IMPLEMENTED))
   project.write(ROOT + '/archived/feature/2026-10-02-a.zh.md', archived(IMPLEMENTED))
-  const first = run(project, ['archive', '--write', '--companion', '.zh.md'])
+  const first = run(project, ['archive', '--write', '--companion', '.zh.md', ...READINESS_OK])
   assert.equal(first.status, 0, first.stdout)
   project.commit('seal with translation')
   project.write(ROOT + '/archived/feature/2026-10-03-b.md', archived(IMPLEMENTED))
