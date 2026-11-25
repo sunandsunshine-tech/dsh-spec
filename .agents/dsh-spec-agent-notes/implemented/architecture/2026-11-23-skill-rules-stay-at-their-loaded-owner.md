@@ -23,7 +23,7 @@ One resource owns each fact. Other resources may state the local consequence nee
 
 `pr-description` routes AI Usage at the entry and leaves its model, declaration block, grading and read-back checklist in `references/ai-usage.md`. `translate-docs` uses its three paths for admission and content production, with one completion section for writes, retirement, checks and reporting. `agent-notes` keeps lifecycle judgment, the companion ladder, archive readiness and freeze safety in its entry, while the two contracts own the detailed active and archived formats. `client-ui-ux` leaves detailed consumer tracing to one section. `record-browser-gif` states the output-preservation result while its encoder and publication reference own their mechanisms. The remaining structural moves follow the same ownership test.
 
-The 15 skills remain separate. A skill may name another only as an availability-qualified optional example. Shared tools, separate products, different triggers or different runtime prerequisites do not create a reason to merge skills.
+The 16 skills remain separate. A skill may name another only as an availability-qualified optional example. Shared tools, separate products, different triggers or different runtime prerequisites do not create a reason to merge skills.
 
 Model evidence follows the changed behavior described in [Model evidence binds the behavior it exercises](../testing/2026-11-23-model-evidence-binds-changed-behavior.md). A structure-only change uses the affected behavior scenarios rather than every historical scenario.
 
@@ -45,4 +45,4 @@ Model evidence follows the changed behavior described in [Model evidence binds t
 - A skill remains complete when installed alone and when its optional siblings are absent.
 - Structural consolidation can proceed without deleting distinct capabilities or consolidating independent installations.
 - A changed behavior selects targeted model evidence; unaffected scenarios remain evidence for the revision they exercised.
-- The repository keeps 15 distinct skills and the repeated `## Defaults` contract in each default-bearing entry.
+- The repository keeps 16 distinct skills and the repeated `## Defaults` contract in each default-bearing entry.
