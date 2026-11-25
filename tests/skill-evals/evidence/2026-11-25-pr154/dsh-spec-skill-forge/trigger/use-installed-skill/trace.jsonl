@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a21284-f3c6-7193-94f8-9d3afc14e0f1"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"No installed PDF extraction skill is available, and `dsh-spec-skill-forge` applies only to creating, rewriting, or migrating Agent Skills—not PDF table extraction.\n\nSELECT: none"}}
+{"type":"turn.completed","usage":{"input_tokens":18072,"cached_input_tokens":13440,"cache_write_input_tokens":0,"output_tokens":217,"reasoning_output_tokens":177}}

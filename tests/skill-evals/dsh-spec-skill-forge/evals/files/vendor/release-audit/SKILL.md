@@ -1,6 +1,6 @@
 ---
 name: release-audit
-description: "Use for all release work: deployment, rollback, migrations, feature flags, observability, incident response, security review, and more."
+description: "Use for all release work: deployment, rollback, migrations, feature flags, observability, incident response, security approval, and more."
 license: "MIT"
 ---
 

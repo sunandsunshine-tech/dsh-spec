@@ -1,0 +1,5 @@
+PASS The description and body identify release-evidence review before shipping and at least one supported object such as version, migration, rollback, or compatibility evidence.
+PASS The description and body agree that deployment, migration application, feature-flag management, security approval, and incident response are excluded rather than advertised capabilities.
+PASS The body retains the version, migration, rollback, and compatibility procedure as execution detail; the description does not become a procedure inventory.
+PASS The output includes a realistic positive query and a near-miss query that share release vocabulary but require audit work versus execution or ownership.
+PASS The description avoids a fixed open-ended inventory and omits unsupported observability or broader release claims.

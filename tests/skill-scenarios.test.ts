@@ -737,6 +737,7 @@ function assertCurrentTriggerEvidence(skill: string, evidenceRoot: string): void
   assertTriggerCorpusIdentity(skill)
   const expected = {
     'dsh-spec-ci-test-reliability': { positive: 4, negative: 4 },
+    'dsh-spec-skill-forge': { positive: 6, negative: 6 },
     'dsh-spec-record-browser-gif': { positive: 3, negative: 5 },
     'dsh-spec-performance-investigation': { positive: 5, negative: 6 },
   }[skill]
@@ -1874,16 +1875,16 @@ test('the forge eval derives descriptions from real trigger boundaries', () => {
   const corpus = readCorpus(FORGE_REQUIRED.skill)
   const scenario = corpus.evals.find((entry) => entry.id === 'description-derived-from-role-triggers-and-exclusions')
   assert.ok(scenario)
-  assert.match(scenario.prompt, /catalog selection projection/i)
-  assert.match(scenario.prompt, /role/i)
-  assert.match(scenario.prompt, /near-miss trigger query/i)
-  assert.match(scenario.expected_output, /source task famil/i)
-  assert.match(scenario.expected_output, /excludes deployment/i)
+  assert.match(scenario.prompt, /catalog description and body boundary agree/i)
+  assert.match(scenario.prompt, /body boundary agree/i)
+  assert.match(scenario.prompt, /near-miss selection query/i)
+  assert.match(scenario.expected_output, /role, trigger, and exclusion projection/i)
+  assert.match(scenario.expected_output, /including security approval and incident response/i)
   const assertions = scenario.assertions.join('\n')
-  assert.match(assertions, /body support/i)
-  assert.match(assertions, /adjacent tasks/i)
+  assert.match(assertions, /body agree/i)
+  assert.match(assertions, /execution detail/i)
   assert.match(assertions, /near-miss query/i)
-  assert.match(assertions, /execution detail in the body/i)
+  assert.match(assertions, /audit work versus execution or ownership/i)
 })
 
 test('the forge catalog description fits the repository budget', () => {
@@ -1910,10 +1911,14 @@ test('forge trigger corpus separates skill authoring from adjacent work', () => 
       ['rewrite-drifted-skill-description', true],
       ['migrate-legacy-skill', true],
       ['repair-agent-skill-structure', true],
+      ['package-repeated-agent-playbook', true],
+      ['tighten-overbroad-agent-capability', true],
       ['install-published-skill', false],
       ['use-installed-skill', false],
       ['edit-unrelated-system-prompt', false],
       ['openapi-description-near-miss', false],
+      ['review-runtime-code', false],
+      ['tool-definition-near-miss', false],
     ],
   )
   assert.equal(new Set(corpus.queries.map((query) => query.id)).size, corpus.queries.length)
@@ -1921,6 +1926,51 @@ test('forge trigger corpus separates skill authoring from adjacent work', () => 
     assertNonEmptyString(query.id, 'forge trigger id')
     assertNonEmptyString(query.query, query.id + ' trigger query')
   }
+})
+
+test('forge description evidence binds the behavior scenario and trigger corpus', () => {
+  const skill = 'dsh-spec-skill-forge'
+  const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-25-pr154', skill)
+  const scenario = readCorpus(skill).evals.find(
+    (entry) => entry.id === 'description-derived-from-role-triggers-and-exclusions',
+  )
+  assert.ok(scenario)
+
+  const root = join(evidenceRoot, scenario.id)
+  assertEvidencePath(evidenceRoot, root, scenario.id, 'directory')
+  const status = readFileSync(join(root, 'status.txt'), 'utf8')
+  assert.match(status, /^status: pass$/m)
+  assert.match(status, /^run_exit_code: 0$/m)
+  assert.match(status, /^assertions: 5\/5$/m)
+  assert.deepEqual(
+    readFileSync(join(root, 'assertions.txt'), 'utf8')
+      .trim()
+      .split('\n')
+      .map((line) => line.replace(/^PASS /, '')),
+    scenario.assertions,
+  )
+  const recorded = validateRecordedScenario(
+    skill,
+    JSON.parse(readFileSync(join(root, 'scenario-definition.json'), 'utf8')),
+    scenario.id,
+  )
+  assert.deepEqual(recorded, scenario)
+  assert.equal(
+    readFileSync(join(root, 'scenario-definition.sha256'), 'utf8').trim(),
+    `${scenarioDefinitionHash(recorded)}  ${skill}:${scenario.id}`,
+  )
+  assert.deepEqual(JSON.parse(readFileSync(join(root, 'capabilities.json'), 'utf8')), {
+    auth: 'host-proxy',
+    browser: false,
+    media: false,
+    sandbox: 'workspace-write',
+    subagents: false,
+  })
+  assertBehaviorSkillRevision(root, skill)
+  // The Forge fallback quotes `evals/evals.json`, so that generic answer-blind trace probe would flag a legitimate skill read.
+  assert.ok(traceCommandsFor(root).some((command) => commandPrintsSkill(command, skill)))
+  assert.equal(replayEvidencePatch(root, skill, scenario), true)
+  assertCurrentTriggerEvidence(skill, evidenceRoot)
 })
 
 test('error handling trigger corpus keeps positive and near-miss coverage', () => {
