@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from 'node:child_process'
-import { createHash, randomBytes } from 'node:crypto'
+import { randomBytes } from 'node:crypto'
 import { once } from 'node:events'
 import {
   cpSync,
@@ -16,7 +16,7 @@ import {
 } from 'node:fs'
 import { homedir, tmpdir } from 'node:os'
 import { createServer } from 'node:net'
-import { basename, dirname, isAbsolute, join, normalize, resolve, sep } from 'node:path'
+import { basename, dirname, isAbsolute, join, normalize, relative, resolve, sep } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 import { parseArgs } from 'node:util'
 import {
@@ -28,7 +28,6 @@ import {
   assertNoSymlinkComponents,
   assertProjectPath,
   assertRegularNonEmptyFile,
-  addOutputBytes,
   acquireFileLock,
   browserExecutablePaths,
   capabilityMaskPaths,
@@ -48,12 +47,37 @@ import {
   resolveCapability,
   resolveExecutableFile,
   resolveMiseMediaRoot,
+  runInterruptible,
   sandboxTmpfsArgs,
   singleTomlStringField,
   tomlField,
   tomlStringValue,
   trustedGitArgs,
 } from './runner-safety.mjs'
+import {
+  DEFAULT_MODEL_DEADLINE_MS,
+  MAX_MODEL_DEADLINE_MS,
+  MODEL_EVIDENCE_ARMS,
+  assertComparableEvidenceArms,
+  assertNoPrivacyCanariesInText,
+  assertRetainedRunPolicy,
+  claimForScenario,
+  canonicalJson,
+  createModelEvidenceMetadata,
+  hashEvidenceMetadata,
+  inspectRetainedRun,
+  modelPromptComponents,
+  privacyCanariesFor,
+  readEvidenceMetadataRecord,
+  remainingRunDeadline,
+  retainedSurfacesSha256,
+  retainedSurfacesSnapshot,
+  scenarioDefinitionHash,
+  sha256,
+  terminalTurnEvent,
+  validateScenarioClaim,
+  validateModelArm,
+} from './evidence-policy.mjs'
 
 const REPO_ROOT = resolve(import.meta.dirname, '../..')
 const EVAL_ROOT = join(REPO_ROOT, 'tests', 'skill-evals')
@@ -67,6 +91,9 @@ function parseOptions() {
       output: { type: 'string' },
       sandbox: { type: 'string', default: 'workspace-write' },
       replace: { type: 'boolean', default: false },
+      arm: { type: 'string', default: 'target-present' },
+      'deadline-ms': { type: 'string', default: String(DEFAULT_MODEL_DEADLINE_MS) },
+      counterpart: { type: 'string' },
     },
     strict: true,
   })
@@ -76,22 +103,13 @@ function parseOptions() {
   if (!['read-only', 'workspace-write'].includes(values.sandbox)) {
     throw new Error('--sandbox must be read-only or workspace-write')
   }
-  return values
-}
-
-function canonicalJson(value) {
-  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`
-  if (value && typeof value === 'object') {
-    const fields = Object.keys(value)
-      .sort()
-      .map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`)
-    return `{${fields.join(',')}}`
+  if (!MODEL_EVIDENCE_ARMS.includes(values.arm)) throw new Error('--arm must be target-present or target-absent')
+  if (!/^\d+$/.test(values['deadline-ms'])) throw new Error('--deadline-ms must be a positive integer')
+  values.deadlineMs = Number(values['deadline-ms'])
+  if (!Number.isSafeInteger(values.deadlineMs) || values.deadlineMs <= 0 || values.deadlineMs > MAX_MODEL_DEADLINE_MS) {
+    throw new Error(`--deadline-ms must be an integer from 1 to ${MAX_MODEL_DEADLINE_MS}`)
   }
-  return JSON.stringify(value)
-}
-
-function sha256(value) {
-  return createHash('sha256').update(value).digest('hex')
+  return values
 }
 
 function hashFile(path) {
@@ -116,21 +134,34 @@ function copyFile(source, destination) {
 }
 
 function assertEvidenceOutput(output) {
-  assertEvidenceRunPath(EVIDENCE_ROOT, output, options.skill)
+  assertEvidencePathPreflight(output, options.skill)
+}
+
+function assertEvidencePathPreflight(path, expectedSkill, label = 'evidence output') {
+  try {
+    assertEvidenceRunPath(EVIDENCE_ROOT, path, expectedSkill, label)
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : `${label} is invalid`)
+    process.exit(1)
+  }
 }
 
 function assertSkillName(skill, label = 'skill') {
   if (!/^dsh-spec-[a-z0-9-]+$/.test(skill)) throw new Error(`${label} has an invalid name: ${skill}`)
 }
 
-function stageScenario(skill, scenario, project) {
+function stageScenario(skill, scenario, project, arm) {
   assertSkillName(skill)
   const skillRoot = join(REPO_ROOT, 'skills', skill)
   if (!existsSync(join(skillRoot, 'SKILL.md'))) throw new Error(`missing skill: ${skill}`)
 
-  const installedSkills = new Set([skill, ...(scenario.install ?? [])])
-  const targetSkill = assertProjectPath(project, `.agents/skills/${skill}`, 'installed skill')
-  copyFile(skillRoot, targetSkill)
+  const targetPresent = arm === 'target-present'
+  const installedSkills = new Set([...(targetPresent ? [skill] : []), ...(scenario.install ?? [])])
+  mkdirSync(join(project, '.agents', 'skills'), { recursive: true })
+  if (targetPresent) {
+    const targetSkill = assertProjectPath(project, `.agents/skills/${skill}`, 'installed skill')
+    copyFile(skillRoot, targetSkill)
+  }
   for (const sibling of scenario.install ?? []) {
     assertSkillName(sibling, 'sibling')
     if (sibling === skill) throw new Error(`scenario names its target as a sibling: ${sibling}`)
@@ -140,6 +171,9 @@ function stageScenario(skill, scenario, project) {
     copyFile(siblingRoot, targetSibling)
   }
   for (const declared of scenario.files ?? []) {
+    if (!targetPresent && declared.startsWith(`.agents/skills/${skill}/`)) {
+      throw new Error(`target-absent scenario declares a file under the absent target skill: ${declared}`)
+    }
     const source = assertInputFile(join(EVAL_ROOT, skill), declared, 'scenario input')
 
     const sibling = /^\.agents\/skills\/([^/]+)\//.exec(declared)?.[1]
@@ -163,69 +197,6 @@ function run(command, args, options) {
   })
   if (result.error) throw result.error
   return result
-}
-
-function runInterruptible(command, args, options, onSpawn) {
-  return new Promise((resolveRun, rejectRun) => {
-    const child = spawn(command, args, {
-      stdio: ['ignore', 'pipe', 'pipe'],
-      ...options,
-    })
-    onSpawn?.(child)
-    const stdout = []
-    const stderr = []
-    let stdoutBytes = 0
-    let stderrBytes = 0
-    let outputError
-    let interrupted
-    let killTimer
-    const cleanup = () => {
-      process.off('SIGINT', interrupt)
-      process.off('SIGTERM', interrupt)
-      if (killTimer) clearTimeout(killTimer)
-    }
-    const interrupt = (signal) => {
-      interrupted = signal
-      child.kill(signal)
-      killTimer = setTimeout(() => {
-        if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL')
-      }, 2_000)
-    }
-    process.once('SIGINT', interrupt)
-    process.once('SIGTERM', interrupt)
-    child.stdout.setEncoding('utf8')
-    child.stderr.setEncoding('utf8')
-    child.stdout.on('data', (chunk) => {
-      try {
-        stdoutBytes = addOutputBytes(stdoutBytes, chunk, MODEL_EVIDENCE_LIMITS.stdoutBytes, 'model stdout')
-        stdout.push(chunk)
-      } catch (error) {
-        outputError ??= error
-        child.kill('SIGKILL')
-      }
-    })
-    child.stderr.on('data', (chunk) => {
-      try {
-        stderrBytes = addOutputBytes(stderrBytes, chunk, MODEL_EVIDENCE_LIMITS.stderrBytes, 'model stderr')
-        stderr.push(chunk)
-      } catch (error) {
-        outputError ??= error
-        child.kill('SIGKILL')
-      }
-    })
-    child.once('error', (error) => {
-      cleanup()
-      rejectRun(error)
-    })
-    child.once('close', (status, signal) => {
-      cleanup()
-      if (outputError) {
-        rejectRun(outputError)
-        return
-      }
-      resolveRun({ status, signal, stdout: stdout.join(''), stderr: stderr.join(''), interrupted })
-    })
-  })
 }
 
 const CONTROL_MESSAGE_BYTES = 8 * 1024
@@ -270,7 +241,16 @@ function writeControlLine(socket, value) {
     throw new Error('sandbox control message exceeds its byte limit')
   }
   return new Promise((resolveWrite, rejectWrite) => {
+    const onError = (error) => {
+      cleanup()
+      rejectWrite(error)
+    }
+    const cleanup = () => {
+      socket.off('error', onError)
+    }
+    socket.once('error', onError)
     socket.write(message, (error) => {
+      cleanup()
       if (error) rejectWrite(error)
       else resolveWrite()
     })
@@ -291,6 +271,10 @@ async function startSandboxControl() {
   const connection = new Promise((resolveConnection, rejectConnection) => {
     server.once('connection', (socket) => {
       server.close()
+      // Deadline teardown can close this socket while an awaited write is in flight. The read and
+      // write promises surface that failure; this fallback prevents the same close from becoming an
+      // unhandled EventEmitter error.
+      socket.on('error', () => {})
       if (existsSync(socketPath)) rmSync(socketPath, { force: true })
       resolveConnection(socket)
     })
@@ -347,7 +331,7 @@ function readBwrapChildPid(stream) {
   })
 }
 
-async function runModelSandbox(invocation, control, sandboxOutput) {
+async function runModelSandbox(invocation, control, sandboxOutput, deadlineMs, deadlineAt) {
   let socket
   let child
   let resolveStatusStream
@@ -366,12 +350,14 @@ async function runModelSandbox(invocation, control, sandboxOutput) {
       child = spawned
       resolveStatusStream(spawned.stdio[3])
     },
+    { deadlineMs: remainingRunDeadline(deadlineAt) },
   )
 
   try {
     const [connection, childPid] = await Promise.race([
       Promise.all([control.connection, statusStream.then(readBwrapChildPid)]),
       runPromise.then((result) => {
+        if (result.timedOut) throw new Error(`model run exceeded its ${deadlineMs} ms deadline`)
         const detail = result.stderr.trim().slice(0, 8192)
         throw new Error(
           `model sandbox exited before its control channel became ready (exit ${String(result.status)})` +
@@ -384,6 +370,7 @@ async function runModelSandbox(invocation, control, sandboxOutput) {
       await Promise.race([
         readControlLine(socket),
         runPromise.then((result) => {
+          if (result.timedOut) throw new Error(`model run exceeded its ${deadlineMs} ms deadline`)
           const detail = result.stderr.trim().slice(0, 8192)
           throw new Error(
             `model sandbox exited before reporting model status (exit ${String(result.status)})` +
@@ -417,6 +404,7 @@ async function runModelSandbox(invocation, control, sandboxOutput) {
     await writeControlLine(socket, { action: status.status === 0 ? 'collect' : 'abort' })
     socket.end()
     const result = await runPromise
+    if (result.timedOut) throw new Error(`model run exceeded its ${deadlineMs} ms deadline`)
     if (result.interrupted) throw new Error(`model run interrupted by ${result.interrupted}`)
     if (result.status !== status.status && status.status !== null) {
       throw new Error(`model sandbox exit ${String(result.status)} differs from model exit ${status.status}`)
@@ -428,7 +416,9 @@ async function runModelSandbox(invocation, control, sandboxOutput) {
       socket.destroy()
     }
     if (child && child.exitCode === null && child.signalCode === null) child.kill('SIGKILL')
-    await runPromise.catch(() => {})
+    const settled = await runPromise.catch(() => undefined)
+    if (settled?.timedOut) throw new Error(`model run exceeded its ${deadlineMs} ms deadline`)
+    if (settled?.interrupted) throw new Error(`model run interrupted by ${settled.interrupted}`)
     throw error
   }
 }
@@ -571,6 +561,20 @@ async function createIsolatedCodexHome(root) {
     const modelCatalogValue = modelCatalogLine ? tomlStringValue(modelCatalogLine) : undefined
     if (modelCatalogLine && !modelCatalogValue) throw new Error('model_catalog_json is unparseable')
     const modelCatalog = modelCatalogValue ? readSafeModelCatalog(sourceHome, modelCatalogValue) : undefined
+    const modelConfigSha256 = sha256(
+      canonicalJson({
+        top_level: topLevel
+          .filter((line) => line.split('=')[0]?.trim() !== 'model_catalog_json')
+          .map((line) => line.trim())
+          .sort((left, right) => (left < right ? -1 : left > right ? 1 : 0)),
+        provider: section
+          .filter((line) => line.split('=')[0]?.trim() !== 'experimental_bearer_token')
+          .map((line) => line.trim())
+          .sort((left, right) => (left < right ? -1 : left > right ? 1 : 0)),
+        model_catalog_sha256: modelCatalog ? sha256(modelCatalog) : null,
+        credential_mode: authProxy ? 'host-proxy' : 'direct',
+      }),
+    )
     const rewrittenTopLevel = modelCatalogLine
       ? topLevel.map((line) =>
           line.split('=')[0]?.trim() === 'model_catalog_json' ? 'model_catalog_json = "model-catalog.json"' : line,
@@ -591,7 +595,12 @@ async function createIsolatedCodexHome(root) {
       ].join('\n'),
     )
     if (modelCatalog) writeFileSync(join(codexHome, 'model-catalog.json'), modelCatalog)
-    return { authProxy, codexHome, credentialMode: authProxy ? 'host-proxy' : 'direct' }
+    return {
+      authProxy,
+      codexHome,
+      credentialMode: authProxy ? 'host-proxy' : 'direct',
+      modelConfigSha256,
+    }
   } catch (error) {
     if (authProxy) await authProxy.stop()
     throw error
@@ -612,6 +621,7 @@ function isolatedCodexCommand(
   const codexBinary = process.env.CODEX_BIN ?? 'codex'
   const codexPath = run('which', [codexBinary], {}).stdout.trim()
   if (!codexPath) throw new Error(`cannot find Codex binary: ${codexBinary}`)
+  const codexRuntimeSha256 = hashFileNoFollow(realpathSync(codexPath))
   const pnpmPath = run('which', ['pnpm'], {}).stdout.trim()
   if (!pnpmPath) throw new Error('cannot find pnpm')
   const nodeRuntimeRoot = dirname(dirname(realpathSync(process.execPath)))
@@ -655,6 +665,7 @@ function isolatedCodexCommand(
   ].join(':')
   return {
     command: 'bwrap',
+    modelRuntimeSha256: codexRuntimeSha256,
     args: [
       '--die-with-parent',
       '--new-session',
@@ -835,6 +846,10 @@ function skillTreeHashes(project, installedSkills) {
   return lines
 }
 
+function skillTreeDigest(project, installedSkills) {
+  return sha256(skillTreeHashes(project, installedSkills).join('\n'))
+}
+
 function changedPaths(project, base, environment, gitDirectory) {
   return parseNulSeparatedPaths(
     git(project, ['diff', '--cached', '--name-only', '-z', base], false, environment, gitDirectory).stdout,
@@ -886,6 +901,7 @@ function validateScenario(skill, scenario) {
     'outputs',
     'capabilities',
     'allow_subagents',
+    'comparison',
   ])
   for (const key of Object.keys(scenario)) {
     if (!known.has(key)) throw new Error(`unknown scenario field: ${key}`)
@@ -924,6 +940,7 @@ function validateScenario(skill, scenario) {
     assertNonEmptyString(scenario.change_root, 'scenario change_root')
     assertRelativeProjectPath(scenario.change_root, 'scenario change_root')
   }
+  validateScenarioClaim(skill, scenario)
   return scenario
 }
 
@@ -952,10 +969,78 @@ function recoverPreviousOutput(output, backup) {
   }
 }
 
+function observeCounterpartRun(root, canaries, extraPaths) {
+  const before = retainedSurfacesSnapshot(root, canaries, { extraPaths })
+  const metadataRecord = readEvidenceMetadataRecord(root, canaries)
+  const { metadata } = metadataRecord
+  const observation = inspectRetainedRun(root, metadata)
+  assertRetainedRunPolicy({
+    root,
+    metadata,
+    observed: observation.currentness,
+    provenance: observation.provenance,
+    canaries,
+    extraPaths,
+  })
+  const after = retainedSurfacesSnapshot(root, canaries, { extraPaths })
+  if (after.snapshotSha256 !== before.snapshotSha256) {
+    throw new Error('counterpart evidence changed during validation')
+  }
+  const evidenceSha256 = after.fileSha256.get('evidence.json')
+  if (!evidenceSha256 || metadataRecord.sha256 !== evidenceSha256) {
+    throw new Error('counterpart evidence metadata changed during validation')
+  }
+  return {
+    metadata,
+    observation,
+    snapshotSha256: after.snapshotSha256,
+    evidenceSha256,
+  }
+}
+
+function assertCounterpartIdentity(metadata, scenarioClaim, options) {
+  if (metadata.claim.type !== scenarioClaim.type || metadata.claim.subject !== scenarioClaim.subject) {
+    throw new Error('counterpart evidence names another comparison claim')
+  }
+  if (
+    metadata.comparison?.baseline !== scenarioClaim.comparison.baseline ||
+    metadata.comparison?.candidate !== scenarioClaim.comparison.candidate ||
+    metadata.comparison?.conditions_sha256 !== scenarioClaim.comparison.conditionsSha256
+  ) {
+    throw new Error('counterpart evidence declares different comparison conditions')
+  }
+  if (metadata.deadline_ms !== options.deadlineMs) {
+    throw new Error('counterpart evidence uses a different deadline_ms')
+  }
+  const expectedArm = options.arm === 'target-present' ? 'target-absent' : 'target-present'
+  if (metadata.arm !== expectedArm) throw new Error(`counterpart evidence must use the ${expectedArm} arm`)
+}
+
 const options = parseOptions()
 const scenario = readScenario(options.skill, options.scenario)
+const scenarioClaim = claimForScenario(options.skill, scenario)
+validateModelArm(scenarioClaim, options.arm)
+const privacyCanaries = privacyCanariesFor(options.skill, options.scenario, { includeCurrentHome: true })
 const output = resolve(REPO_ROOT, options.output)
 assertEvidenceOutput(output)
+let counterpart
+if (options.counterpart) {
+  if (scenarioClaim.type !== 'comparison') throw new Error('--counterpart is valid only for a comparison scenario')
+  const root = resolve(REPO_ROOT, options.counterpart)
+  assertEvidencePathPreflight(root, options.skill, 'counterpart evidence path')
+  if (root === output) throw new Error('--counterpart must name a different evidence run')
+  const extraPaths = [relative(EVIDENCE_ROOT, root).split(sep).join('/')]
+  const observedCounterpart = observeCounterpartRun(root, privacyCanaries, extraPaths)
+  const { metadata } = observedCounterpart
+  assertCounterpartIdentity(metadata, scenarioClaim, options)
+  counterpart = {
+    root,
+    ...observedCounterpart,
+    extraPaths,
+  }
+} else if (scenarioClaim.type === 'comparison' && options.arm === 'target-absent') {
+  throw new Error('a target-absent comparison arm requires --counterpart')
+}
 const outputParent = dirname(output)
 mkdirSync(outputParent, { recursive: true })
 const outputLock = join(outputParent, `.${basename(output)}.lock`)
@@ -966,6 +1051,7 @@ let stagedOutput
 let authProxy
 let sandboxControl
 let outputLockHandle
+const runDeadlineAt = performance.now() + options.deadlineMs
 try {
   outputLockHandle = await acquireFileLock(outputLock)
   recoverPreviousOutput(output, backupOutput)
@@ -979,7 +1065,7 @@ try {
   const sandboxOutput = join(temporaryParent, 'sandbox-output')
   mkdirSync(workspaceSeed, { recursive: true })
   mkdirSync(sandboxOutput, { recursive: true })
-  const installedSkills = stageScenario(options.skill, scenario, workspaceSeed)
+  const installedSkills = stageScenario(options.skill, scenario, workspaceSeed, options.arm)
   git(workspaceSeed, ['init', '-q'])
   git(workspaceSeed, ['config', 'user.name', 'Skill evaluation'])
   git(workspaceSeed, ['config', 'user.email', 'skill-evaluation@example.invalid'])
@@ -1006,7 +1092,7 @@ try {
   writeFileSync(join(stagedOutput, 'input-manifest.sha256'), `${inputManifest.join('\n')}\n`)
   writeFileSync(
     join(stagedOutput, 'scenario-definition.sha256'),
-    `${sha256(canonicalJson(scenario))}  ${options.skill}:${options.scenario}\n`,
+    `${scenarioDefinitionHash(scenario)}  ${options.skill}:${options.scenario}\n`,
   )
   writeFileSync(join(stagedOutput, 'scenario-definition.json'), `${JSON.stringify(scenario, null, 2)}\n`)
   const installedBefore = skillTreeHashes(workspaceSeed, installedSkills)
@@ -1020,7 +1106,10 @@ try {
   const imageArguments = (scenario.files ?? [])
     .filter((file) => /\.(?:png|jpe?g|webp)$/i.test(file))
     .flatMap((file) => ['--image', `/workspace/${file}`])
-  const subagentInstruction = scenario.allow_subagents ? 'You may spawn subagents.' : 'Do not spawn subagents.'
+  const promptComponents = modelPromptComponents(options.skill, scenario, options.arm)
+  const skillInstruction = promptComponents.armInstruction
+  const promptGuard = promptComponents.promptGuard
+  const prompt = promptComponents.renderedPrompt
   sandboxControl = await startSandboxControl()
   const invocation = isolatedCodexCommand(
     codexHome,
@@ -1044,13 +1133,29 @@ try {
       '--json',
       '-o',
       '/response/final.md',
-      `${scenario.prompt}\n\nUse the installed skill at .agents/skills/${options.skill}/SKILL.md for this task. Work only inside the current project. ${subagentInstruction} Do not read outside this project.`,
+      prompt,
     ],
   )
+  const executionProfile = {
+    ...invocation.profile,
+    model_config_sha256: isolatedHome.modelConfigSha256,
+    model_runtime_sha256: invocation.modelRuntimeSha256,
+  }
   writeFileSync(join(stagedOutput, 'capabilities.json'), `${JSON.stringify(invocation.profile, null, 2)}\n`)
-  const { collected, result } = await runModelSandbox(invocation, sandboxControl, sandboxOutput)
+  writeFileSync(join(stagedOutput, 'execution.json'), `${JSON.stringify(executionProfile, null, 2)}\n`)
+  remainingRunDeadline(runDeadlineAt)
+  const { collected, result } = await runModelSandbox(
+    invocation,
+    sandboxControl,
+    sandboxOutput,
+    options.deadlineMs,
+    runDeadlineAt,
+  )
   const elapsed = (performance.now() - started) / 1000
+  remainingRunDeadline(runDeadlineAt)
 
+  assertNoPrivacyCanariesInText('model stdout', result.stdout, privacyCanaries)
+  assertNoPrivacyCanariesInText('model stderr', result.stderr, privacyCanaries)
   const trace = sanitizeEvidenceText(result.stdout)
   writeFileSync(join(stagedOutput, 'trace.jsonl'), trace)
   writeFileSync(join(stagedOutput, 'stderr.log'), sanitizeEvidenceText(result.stderr))
@@ -1060,6 +1165,7 @@ try {
     console.error(result.stderr)
     process.exitCode = result.status ?? 1
   } else {
+    terminalTurnEvent(trace)
     const project = join(sandboxOutput, 'workspace')
     const finalResponse = join(sandboxOutput, 'response', 'final.md')
     const finalText = sanitizeEvidenceText(
@@ -1103,10 +1209,51 @@ try {
     if (installedBefore.join('\n') !== installedAfter.join('\n')) {
       throw new Error('the installed skill tree changed during the run')
     }
+    remainingRunDeadline(runDeadlineAt)
     writeFileSync(
       join(stagedOutput, 'status.txt'),
       `status: pending\nrun_exit_code: ${result.status ?? 'unknown'}\nassertions: pending\n`,
     )
+
+    const evidenceMetadata = createModelEvidenceMetadata({
+      skill: options.skill,
+      scenario,
+      arm: options.arm,
+      scenarioSha256: scenarioDefinitionHash(scenario),
+      inputManifestSha256: hashFile(join(stagedOutput, 'input-manifest.sha256')),
+      targetSkillTreeSha256: options.arm === 'target-present' ? skillTreeDigest(workspaceSeed, [options.skill]) : null,
+      dependencySkillTreeSha256: skillTreeDigest(workspaceSeed, scenario.install ?? []),
+      prompt,
+      armInstruction: skillInstruction,
+      promptGuard,
+      privacyCanaries,
+      counterpartEvidenceSha256: counterpart?.evidenceSha256 ?? null,
+      execution: executionProfile,
+      deadlineMs: options.deadlineMs,
+    })
+    const evidenceMetadataPath = join(stagedOutput, 'evidence.json')
+    writeFileSync(evidenceMetadataPath, `${JSON.stringify(evidenceMetadata, null, 2)}\n`)
+    if (counterpart) {
+      const currentCounterpart = observeCounterpartRun(counterpart.root, privacyCanaries, counterpart.extraPaths)
+      if (currentCounterpart.snapshotSha256 !== counterpart.snapshotSha256) {
+        throw new Error('counterpart evidence changed after its initial validation')
+      }
+      assertCounterpartIdentity(currentCounterpart.metadata, scenarioClaim, options)
+      const currentEvidenceSha256 = hashEvidenceMetadata(stagedOutput, privacyCanaries)
+      if (options.arm === 'target-present') {
+        assertComparableEvidenceArms(evidenceMetadata, currentCounterpart.metadata, {
+          scenario,
+          candidateEvidenceSha256: currentEvidenceSha256,
+          baselineEvidenceSha256: currentCounterpart.evidenceSha256,
+        })
+      } else {
+        assertComparableEvidenceArms(currentCounterpart.metadata, evidenceMetadata, {
+          scenario,
+          candidateEvidenceSha256: currentCounterpart.evidenceSha256,
+          baselineEvidenceSha256: currentEvidenceSha256,
+        })
+      }
+    }
 
     const lastLine = result.stdout.trim().split('\n').filter(Boolean).at(-1)
     const completion = lastLine ? JSON.parse(lastLine) : undefined
@@ -1117,9 +1264,44 @@ try {
         `input_tokens: ${usage.input_tokens ?? 'unknown'}\noutput_tokens: ${usage.output_tokens ?? 'unknown'}\n`,
       )
     }
+    assertRetainedRunPolicy({
+      root: stagedOutput,
+      metadata: evidenceMetadata,
+      observed: {
+        scenario_sha256: scenarioDefinitionHash(scenario),
+        input_manifest_sha256: hashFile(join(stagedOutput, 'input-manifest.sha256')),
+        scenario_prompt_sha256: sha256(scenario.prompt),
+        arm_instruction_sha256: sha256(skillInstruction),
+        prompt_guard_sha256: sha256(promptGuard),
+        rendered_prompt_sha256: sha256(prompt),
+        execution_sha256: sha256(canonicalJson(executionProfile)),
+        ...(scenarioClaim.type === 'comparison'
+          ? { comparison_conditions_sha256: scenarioClaim.comparison.conditionsSha256 }
+          : {}),
+      },
+      provenance: {
+        target_skill_tree_sha256:
+          options.arm === 'target-present' ? skillTreeDigest(workspaceSeed, [options.skill]) : null,
+        dependency_skill_tree_sha256: skillTreeDigest(workspaceSeed, scenario.install ?? []),
+      },
+      canaries: privacyCanaries,
+      extraPaths: [relative(EVIDENCE_ROOT, output).split(sep).join('/')],
+    })
+    remainingRunDeadline(runDeadlineAt)
 
     removeModelTree(temporaryParent)
     temporaryParent = undefined
+    remainingRunDeadline(runDeadlineAt)
+
+    if (counterpart) {
+      const currentSnapshotSha256 = retainedSurfacesSha256(counterpart.root, privacyCanaries, {
+        extraPaths: counterpart.extraPaths,
+      })
+      if (currentSnapshotSha256 !== counterpart.snapshotSha256) {
+        throw new Error('counterpart evidence changed before promotion')
+      }
+      remainingRunDeadline(runDeadlineAt)
+    }
 
     if (existsSync(output)) {
       if (!options.replace) throw new Error(`output already exists: ${output}`)

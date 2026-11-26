@@ -12,7 +12,7 @@ import {
   truncateSync,
   writeFileSync,
 } from 'node:fs'
-import { tmpdir } from 'node:os'
+import { homedir, tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { spawn, spawnSync } from 'node:child_process'
 import { once } from 'node:events'
@@ -31,7 +31,7 @@ const safety = (await import('./skill-evals/runner-safety.mjs' as string)) as {
   acquireFileLock(path: string): Promise<{ release(): Promise<void> }>
   addOutputBytes(currentBytes: number, chunk: string, limitBytes: number, label: string): number
   assertCredentialFreeBaseUrl(value: string, label: string): URL
-  assertEvidenceRunPath(root: string, output: string, expectedSkill?: string): void
+  assertEvidenceRunPath(root: string, output: string, expectedSkill?: string, label?: string): void
   assertInputFile(root: string, file: string, label: string): string
   assertProjectPath(project: string, path: string, label: string): string
   capabilityMaskPaths(browserEnabled: boolean, mediaEnabled: boolean): string[]
@@ -72,12 +72,74 @@ const safety = (await import('./skill-evals/runner-safety.mjs' as string)) as {
   tomlStringValue(line: string): string | undefined
   trustedGitArgs(gitDirectory: string, project: string, args: string[]): string[]
 }
+const policy = (await import('./skill-evals/evidence-policy.mjs' as string)) as {
+  assertComparableEvidenceArms(
+    candidate: unknown,
+    baseline: unknown,
+    options: {
+      scenario: { id: string; prompt: string; comparison: Record<string, unknown> }
+      candidateEvidenceSha256: string
+      baselineEvidenceSha256: string
+    },
+  ): { candidate: unknown; baseline: unknown }
+  hashEvidenceMetadata(root: string, canaries?: Array<{ set: string; value: string }>): string
+  privacyCanariesFor(
+    skill: string,
+    scenarioId: string,
+    options?: { includeCurrentHome?: boolean; currentHome?: string },
+  ): Array<{ set: string; value: string }>
+}
 
 function git(cwd: string, args: string[], env: Record<string, string | undefined> = {}) {
   return spawnSync('git', args, {
     cwd,
     encoding: 'utf8',
     env: safety.isolatedGitEnvironment(env),
+  })
+}
+
+function createFakeCodexHarness(root: string): { codexHome: string; bin: string } {
+  const codexHome = join(root, 'codex-home')
+  const bin = join(root, 'bin')
+  mkdirSync(codexHome, { recursive: true })
+  mkdirSync(bin, { recursive: true })
+  writeFileSync(
+    join(codexHome, 'config.toml'),
+    [
+      'model = "gpt-5"',
+      'model_provider = "test"',
+      '',
+      '[model_providers.test]',
+      'name = "test"',
+      'base_url = "https://provider.example/v1"',
+      'wire_api = "responses"',
+      '',
+    ].join('\n'),
+  )
+  return { codexHome, bin }
+}
+
+function writeFakeCodex(path: string, lines: string[]): void {
+  writeFileSync(path, ['#!/usr/bin/env node', ...lines, ''].join('\n'))
+  chmodSync(path, 0o755)
+}
+
+function runFakeModelRunner(
+  repository: string,
+  codexHome: string,
+  codex: string,
+  args: string[],
+): ReturnType<typeof spawnSync> {
+  return spawnSync(process.execPath, [join(repository, 'tests/skill-evals/run-model-eval.mjs'), ...args], {
+    cwd: repository,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      CODEX_BIN: codex,
+      CODEX_HOME: codexHome,
+    },
+    maxBuffer: 8 * 1024 * 1024,
+    timeout: 15_000,
   })
 }
 
@@ -201,6 +263,104 @@ test('evidence output replacement requires a date, skill and run leaf', async ()
   } finally {
     rmSync(root, { recursive: true, force: true })
   }
+})
+
+test('runner path preflight diagnostics redact configured canaries', () => {
+  const repository = dirname(import.meta.dirname)
+  const runner = join(repository, 'tests/skill-evals/run-model-eval.mjs')
+  const skill = 'dsh-spec-performance-investigation'
+  const scenario = 'backend-budgetless-latency'
+  const canaries = policy.privacyCanariesFor(skill, scenario, {
+    includeCurrentHome: true,
+    currentHome: homedir(),
+  })
+  const privatePath = join(homedir(), 'evidence-path-canary', 'run')
+  const cleanupRoot = join(repository, 'tests/skill-evals/evidence/2099-12-31-path-preflight')
+  const output = join(cleanupRoot, skill, 'baseline')
+  const assertRedacted = (result: ReturnType<typeof spawnSync>, guidance: RegExp) => {
+    assert.notEqual(result.status, 0)
+    const stderr = String(result.stderr)
+    assert.match(stderr, guidance)
+    for (const canary of canaries) assert.ok(!stderr.includes(canary.value), canary.set + ' canary leaked')
+  }
+  try {
+    const invalidOutput = spawnSync(
+      process.execPath,
+      [runner, '--skill', skill, '--scenario', scenario, '--output', privatePath],
+      { cwd: repository, encoding: 'utf8' },
+    )
+    assertRedacted(invalidOutput, /evidence output must use evidence\/<date>\/<skill>\/<run>/)
+    assert.equal(existsSync(privatePath), false)
+
+    const invalidCounterpart = spawnSync(
+      process.execPath,
+      [
+        runner,
+        '--skill',
+        skill,
+        '--scenario',
+        scenario,
+        '--output',
+        output,
+        '--counterpart',
+        privatePath,
+        '--arm',
+        'target-absent',
+      ],
+      { cwd: repository, encoding: 'utf8' },
+    )
+    assertRedacted(invalidCounterpart, /counterpart evidence path must use evidence\/<date>\/<skill>\/<run>/)
+    assert.equal(existsSync(join(repository, output)), false)
+  } finally {
+    rmSync(cleanupRoot, { recursive: true, force: true })
+  }
+})
+
+test('the runner rejects a target-absent arm before starting a behavior scenario', () => {
+  const repository = dirname(import.meta.dirname)
+  const output = 'tests/skill-evals/evidence/2099-12-31-target-absent/dsh-spec-error-handling/behavior'
+  const result = spawnSync(
+    process.execPath,
+    [
+      join(repository, 'tests/skill-evals/run-model-eval.mjs'),
+      '--skill',
+      'dsh-spec-error-handling',
+      '--scenario',
+      'outcome-classification-and-extensible-codes',
+      '--output',
+      output,
+      '--arm',
+      'target-absent',
+    ],
+    { cwd: repository, encoding: 'utf8' },
+  )
+  assert.notEqual(result.status, 0)
+  assert.match(String(result.stderr), /valid only for a comparison claim/)
+  assert.equal(existsSync(join(repository, output)), false)
+})
+
+test('the runner rejects a target-absent comparison arm without a counterpart before model start', () => {
+  const repository = dirname(import.meta.dirname)
+  const output =
+    'tests/skill-evals/evidence/2099-12-31-target-absent-comparison/dsh-spec-performance-investigation/baseline'
+  const result = spawnSync(
+    process.execPath,
+    [
+      join(repository, 'tests/skill-evals/run-model-eval.mjs'),
+      '--skill',
+      'dsh-spec-performance-investigation',
+      '--scenario',
+      'backend-budgetless-latency',
+      '--output',
+      output,
+      '--arm',
+      'target-absent',
+    ],
+    { cwd: repository, encoding: 'utf8' },
+  )
+  assert.notEqual(result.status, 0)
+  assert.match(String(result.stderr), /requires --counterpart/)
+  assert.equal(existsSync(join(repository, output)), false)
 })
 
 test('evidence output locking is exclusive and released after completion', async () => {
@@ -962,6 +1122,401 @@ test('the real model runner skips final and artifact processing after model fail
     assert.equal(result.status, 1)
     assert.equal(existsSync(output), false)
     assert.doesNotMatch(result.stderr, /Codex final response|artifact above/)
+  } finally {
+    rmSync(cleanupRoot, { recursive: true, force: true })
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('the real model runner refuses a zero-exit trace without a terminal turn event', (t) => {
+  if (!bwrapAvailable()) {
+    t.skip('bubblewrap namespaces and --size are unavailable on this host')
+    return
+  }
+  const repository = dirname(import.meta.dirname)
+  const root = mkdtempSync(join(tmpdir(), 'runner-terminal-event-'))
+  const evidenceDate = '2099-12-31-runner-terminal-event'
+  const cleanupRoot = join(repository, 'tests', 'skill-evals', 'evidence', evidenceDate)
+  const output = join(cleanupRoot, 'dsh-spec-error-handling', 'missing-terminal-event')
+  try {
+    const { codexHome, bin } = createFakeCodexHarness(root)
+    const fakeCodex = join(bin, 'fake-codex')
+    writeFakeCodex(fakeCodex, [
+      "const fs = require('node:fs')",
+      "fs.writeFileSync('/response/final.md', 'incomplete trace\\n')",
+      `process.stdout.write(JSON.stringify({ type: 'item.completed', item: { type: 'agent_message', text: 'incomplete trace\\n' } }) + '\\n')`,
+    ])
+    const result = runFakeModelRunner(repository, codexHome, fakeCodex, [
+      '--skill',
+      'dsh-spec-error-handling',
+      '--scenario',
+      'outcome-classification-and-extensible-codes',
+      '--output',
+      output,
+      '--sandbox',
+      'workspace-write',
+    ])
+    assert.notEqual(result.status, 0)
+    assert.match(String(result.stderr), /terminal turn event/)
+    assert.equal(existsSync(output), false)
+  } finally {
+    rmSync(cleanupRoot, { recursive: true, force: true })
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+// This proves whole-run expiry and pre-promotion rejection; it can expire before Codex starts.
+// The lower-level runInterruptible case proves termination of a child that has started.
+test('the real model runner enforces its whole-run deadline before promotion', (t) => {
+  if (!bwrapAvailable()) {
+    t.skip('bubblewrap namespaces and --size are unavailable on this host')
+    return
+  }
+  const repository = dirname(import.meta.dirname)
+  const root = mkdtempSync(join(tmpdir(), 'runner-deadline-'))
+  const evidenceDate = '2099-12-31-runner-deadline'
+  const cleanupRoot = join(repository, 'tests', 'skill-evals', 'evidence', evidenceDate)
+  const output = join(cleanupRoot, 'dsh-spec-error-handling', 'deadline')
+  try {
+    const { codexHome, bin } = createFakeCodexHarness(root)
+    const fakeCodex = join(bin, 'fake-codex')
+    writeFakeCodex(fakeCodex, ['setInterval(() => {}, 1000)'])
+    const started = performance.now()
+    const result = runFakeModelRunner(repository, codexHome, fakeCodex, [
+      '--skill',
+      'dsh-spec-error-handling',
+      '--scenario',
+      'outcome-classification-and-extensible-codes',
+      '--output',
+      output,
+      '--sandbox',
+      'workspace-write',
+      '--deadline-ms',
+      '750',
+    ])
+    assert.notEqual(result.status, 0)
+    assert.match(String(result.stderr), /run exceeded its(?: 750 ms)? deadline/)
+    assert.equal(existsSync(output), false)
+    assert.ok(performance.now() - started < 10_000, 'deadline did not terminate the sandbox')
+  } finally {
+    rmSync(cleanupRoot, { recursive: true, force: true })
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('the real model runner binds comparison linkage and rejects stale counterparts', (t) => {
+  if (!bwrapAvailable()) {
+    t.skip('bubblewrap namespaces and --size are unavailable on this host')
+    return
+  }
+  const repository = dirname(import.meta.dirname)
+  const root = mkdtempSync(join(tmpdir(), 'runner-target-absent-'))
+  const evidenceDate = '2099-12-31-runner-target-absent'
+  const cleanupRoot = join(repository, 'tests', 'skill-evals', 'evidence', evidenceDate)
+  const skill = 'dsh-spec-performance-investigation'
+  const candidateOutput = join(cleanupRoot, skill, 'candidate')
+  const baselineOutput = join(cleanupRoot, skill, 'baseline')
+  try {
+    const { codexHome, bin } = createFakeCodexHarness(root)
+    const fakeCodex = join(bin, 'fake-codex')
+    writeFakeCodex(fakeCodex, [
+      "const fs = require('node:fs')",
+      `const target = '/workspace/.agents/skills/${skill}'`,
+      'const candidate = fs.existsSync(target)',
+      "if (!fs.existsSync('/workspace/.agents/skills')) process.exit(43)",
+      "if (candidate !== process.argv.join(' ').includes('Use the installed skill')) process.exit(45)",
+      "const message = candidate ? 'candidate arm observed\\n' : 'target-absent arm observed\\n'",
+      "fs.writeFileSync('/response/final.md', message)",
+      `process.stdout.write(JSON.stringify({ type: 'item.completed', item: { type: 'agent_message', text: message } }) + '\\n')`,
+      `process.stdout.write(JSON.stringify({ type: 'turn.completed', usage: { input_tokens: 1, output_tokens: 1 } }) + '\\n')`,
+    ])
+    const candidateResult = runFakeModelRunner(repository, codexHome, fakeCodex, [
+      '--skill',
+      skill,
+      '--scenario',
+      'backend-budgetless-latency',
+      '--output',
+      candidateOutput,
+      '--sandbox',
+      'workspace-write',
+      '--deadline-ms',
+      '10000',
+    ])
+    assert.equal(candidateResult.status, 0, String(candidateResult.stderr))
+    const candidateEvidencePath = join(candidateOutput, 'evidence.json')
+    const candidateEvidenceText = readFileSync(candidateEvidencePath, 'utf8')
+    const tamperedCandidate = JSON.parse(candidateEvidenceText) as { deadline_ms: number }
+    writeFileSync(
+      candidateEvidencePath,
+      `${JSON.stringify({ ...tamperedCandidate, deadline_ms: tamperedCandidate.deadline_ms + 1 }, null, 2)}\n`,
+    )
+    const incompatible = runFakeModelRunner(repository, codexHome, fakeCodex, [
+      '--skill',
+      skill,
+      '--scenario',
+      'backend-budgetless-latency',
+      '--output',
+      baselineOutput,
+      '--counterpart',
+      candidateOutput,
+      '--sandbox',
+      'workspace-write',
+      '--arm',
+      'target-absent',
+      '--deadline-ms',
+      '10000',
+    ])
+    assert.notEqual(incompatible.status, 0)
+    assert.match(String(incompatible.stderr), /different deadline_ms/)
+    assert.equal(existsSync(baselineOutput), false)
+
+    const candidateEvidenceObject = JSON.parse(candidateEvidenceText) as {
+      evidence: { currentness: Record<string, string | null> }
+      provenance: { dependency_skill_tree_sha256: string; target_skill_tree_sha256: string | null }
+    }
+    const forgedCurrentnessOutput = join(cleanupRoot, skill, 'forged-currentness')
+    writeFileSync(
+      candidateEvidencePath,
+      `${JSON.stringify(
+        {
+          ...candidateEvidenceObject,
+          evidence: {
+            ...candidateEvidenceObject.evidence,
+            currentness: {
+              ...candidateEvidenceObject.evidence.currentness,
+              scenario_prompt_sha256: '0'.repeat(64),
+            },
+          },
+        },
+        null,
+        2,
+      )}\n`,
+    )
+    const forgedCurrentness = runFakeModelRunner(repository, codexHome, fakeCodex, [
+      '--skill',
+      skill,
+      '--scenario',
+      'backend-budgetless-latency',
+      '--output',
+      forgedCurrentnessOutput,
+      '--counterpart',
+      candidateOutput,
+      '--sandbox',
+      'workspace-write',
+      '--arm',
+      'target-absent',
+      '--deadline-ms',
+      '10000',
+    ])
+    assert.notEqual(forgedCurrentness.status, 0)
+    assert.match(String(forgedCurrentness.stderr), /currentness/)
+    assert.equal(existsSync(forgedCurrentnessOutput), false)
+
+    const forgedProvenanceOutput = join(cleanupRoot, skill, 'forged-provenance')
+    writeFileSync(
+      candidateEvidencePath,
+      `${JSON.stringify(
+        {
+          ...candidateEvidenceObject,
+          provenance: {
+            ...candidateEvidenceObject.provenance,
+            dependency_skill_tree_sha256: '0'.repeat(64),
+          },
+        },
+        null,
+        2,
+      )}\n`,
+    )
+    const forgedProvenance = runFakeModelRunner(repository, codexHome, fakeCodex, [
+      '--skill',
+      skill,
+      '--scenario',
+      'backend-budgetless-latency',
+      '--output',
+      forgedProvenanceOutput,
+      '--counterpart',
+      candidateOutput,
+      '--sandbox',
+      'workspace-write',
+      '--arm',
+      'target-absent',
+      '--deadline-ms',
+      '10000',
+    ])
+    assert.notEqual(forgedProvenance.status, 0)
+    assert.match(String(forgedProvenance.stderr), /provenance/)
+    assert.equal(existsSync(forgedProvenanceOutput), false)
+    writeFileSync(candidateEvidencePath, candidateEvidenceText)
+    const result = runFakeModelRunner(repository, codexHome, fakeCodex, [
+      '--skill',
+      skill,
+      '--scenario',
+      'backend-budgetless-latency',
+      '--output',
+      baselineOutput,
+      '--counterpart',
+      candidateOutput,
+      '--sandbox',
+      'workspace-write',
+      '--arm',
+      'target-absent',
+      '--deadline-ms',
+      '10000',
+    ])
+    assert.equal(result.status, 0, String(result.stderr))
+    assert.equal(readFileSync(join(baselineOutput, 'skill-hashes.txt'), 'utf8').trim(), '')
+    const baselineEvidencePath = join(baselineOutput, 'evidence.json')
+    const baselineEvidenceText = readFileSync(baselineEvidencePath, 'utf8')
+    const evidence = JSON.parse(baselineEvidenceText) as {
+      claim: { type: string }
+      arm: string
+      comparison: { counterpart_evidence_sha256: string | null; pair_status: string }
+      evidence: {
+        currentness: {
+          scenario_prompt_sha256: string
+          rendered_prompt_sha256: string
+          arm_instruction_sha256: string
+          prompt_guard_sha256: string
+        }
+      }
+      provenance: { target_skill_tree_sha256: string | null; dependency_skill_tree_sha256: string }
+      execution: { model_config_sha256: string; model_runtime_sha256: string }
+      privacy: { canary_sets: string[]; scope_sha256: string }
+    }
+    assert.equal(evidence.claim.type, 'comparison')
+    assert.equal(evidence.arm, 'target-absent')
+    assert.equal(evidence.provenance.target_skill_tree_sha256, null)
+    for (const hash of [
+      evidence.provenance.dependency_skill_tree_sha256,
+      evidence.evidence.currentness.scenario_prompt_sha256,
+      evidence.evidence.currentness.rendered_prompt_sha256,
+      evidence.execution.model_config_sha256,
+      evidence.execution.model_runtime_sha256,
+    ]) {
+      assert.match(hash, /^[0-9a-f]{64}$/)
+    }
+    assert.match(evidence.evidence.currentness.arm_instruction_sha256, /^[0-9a-f]{64}$/)
+    assert.match(evidence.evidence.currentness.prompt_guard_sha256, /^[0-9a-f]{64}$/)
+    assert.equal(evidence.comparison.counterpart_evidence_sha256, policy.hashEvidenceMetadata(candidateOutput))
+    assert.equal(evidence.comparison.pair_status, 'paired')
+    assert.match(evidence.privacy.scope_sha256, /^[0-9a-f]{64}$/)
+    assert.ok(evidence.privacy.canary_sets.includes('local-environment'))
+    assert.ok(evidence.privacy.canary_sets.includes('current-home'))
+    assert.equal(existsSync(join(baselineOutput, 'artifact', '.agents', 'skills', skill)), false)
+
+    const arbitraryBaselineOutput = join(cleanupRoot, skill, 'candidate-after-arbitrary-baseline')
+    writeFileSync(
+      baselineEvidencePath,
+      `${JSON.stringify(
+        {
+          ...evidence,
+          comparison: {
+            ...evidence.comparison,
+            counterpart_evidence_sha256: '0'.repeat(64),
+          },
+        },
+        null,
+        2,
+      )}\n`,
+    )
+    const arbitraryBaseline = runFakeModelRunner(repository, codexHome, fakeCodex, [
+      '--skill',
+      skill,
+      '--scenario',
+      'backend-budgetless-latency',
+      '--output',
+      arbitraryBaselineOutput,
+      '--counterpart',
+      baselineOutput,
+      '--sandbox',
+      'workspace-write',
+      '--deadline-ms',
+      '10000',
+    ])
+    assert.notEqual(arbitraryBaseline.status, 0)
+    assert.match(String(arbitraryBaseline.stderr), /baseline counterpart evidence hash differs/)
+    assert.equal(existsSync(arbitraryBaselineOutput), false)
+    writeFileSync(baselineEvidencePath, baselineEvidenceText)
+
+    const staleBaselineOutput = join(cleanupRoot, skill, 'candidate-after-stale-baseline')
+    writeFileSync(fakeCodex, `${readFileSync(fakeCodex, 'utf8')}\n// stale baseline candidate runtime\n`)
+    const staleBaseline = runFakeModelRunner(repository, codexHome, fakeCodex, [
+      '--skill',
+      skill,
+      '--scenario',
+      'backend-budgetless-latency',
+      '--output',
+      staleBaselineOutput,
+      '--counterpart',
+      baselineOutput,
+      '--sandbox',
+      'workspace-write',
+      '--deadline-ms',
+      '10000',
+    ])
+    assert.notEqual(staleBaseline.status, 0)
+    assert.match(String(staleBaseline.stderr), /baseline counterpart evidence hash differs/)
+    assert.equal(existsSync(staleBaselineOutput), false)
+
+    const candidateEvidence = JSON.parse(readFileSync(join(candidateOutput, 'evidence.json'), 'utf8')) as Record<
+      string,
+      unknown
+    >
+    assert.equal((candidateEvidence.comparison as { pair_status?: string }).pair_status, 'candidate-only')
+    const corpus = JSON.parse(
+      readFileSync(join(repository, 'tests', 'skill-evals', skill, 'evals', 'evals.json'), 'utf8'),
+    ) as { evals: Array<{ id: string; prompt: string; comparison: Record<string, unknown> }> }
+    const scenario = corpus.evals.find((entry) => entry.id === 'backend-budgetless-latency')
+    assert.ok(scenario)
+    const candidateEvidenceHash = policy.hashEvidenceMetadata(candidateOutput)
+    const baselineEvidenceHash = policy.hashEvidenceMetadata(baselineOutput)
+    assert.doesNotThrow(() =>
+      policy.assertComparableEvidenceArms(candidateEvidence, evidence, {
+        scenario,
+        candidateEvidenceSha256: candidateEvidenceHash,
+        baselineEvidenceSha256: baselineEvidenceHash,
+      }),
+    )
+  } finally {
+    rmSync(cleanupRoot, { recursive: true, force: true })
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('the real model runner rejects a privacy canary in model output before promotion', (t) => {
+  if (!bwrapAvailable()) {
+    t.skip('bubblewrap namespaces and --size are unavailable on this host')
+    return
+  }
+  const repository = dirname(import.meta.dirname)
+  const root = mkdtempSync(join(tmpdir(), 'runner-privacy-canary-'))
+  const evidenceDate = '2099-12-31-runner-privacy-canary'
+  const cleanupRoot = join(repository, 'tests', 'skill-evals', 'evidence', evidenceDate)
+  const skill = 'dsh-spec-performance-investigation'
+  const output = join(cleanupRoot, skill, 'private-corpus-remains-aggregate')
+  try {
+    const { codexHome, bin } = createFakeCodexHarness(root)
+    const fakeCodex = join(bin, 'fake-codex')
+    writeFakeCodex(fakeCodex, [
+      "const fs = require('node:fs')",
+      "const leaked = 'ALICE-SECRET-9182'",
+      "fs.writeFileSync('/response/final.md', 'clean answer\\n')",
+      `process.stdout.write(JSON.stringify({ type: 'item.completed', item: { type: 'agent_message', text: 'clean answer\\n', aggregated_output: leaked } }) + '\\n')`,
+      `process.stdout.write(JSON.stringify({ type: 'turn.completed', usage: { input_tokens: 1, output_tokens: 1 } }) + '\\n')`,
+    ])
+    const result = runFakeModelRunner(repository, codexHome, fakeCodex, [
+      '--skill',
+      skill,
+      '--scenario',
+      'private-corpus-remains-aggregate',
+      '--output',
+      output,
+      '--sandbox',
+      'workspace-write',
+    ])
+    assert.notEqual(result.status, 0)
+    assert.match(String(result.stderr), /model stdout.*private-performance-corpus/)
+    assert.equal(existsSync(output), false)
   } finally {
     rmSync(cleanupRoot, { recursive: true, force: true })
     rmSync(root, { recursive: true, force: true })

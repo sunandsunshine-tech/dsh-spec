@@ -57,6 +57,7 @@ export const MODEL_EVIDENCE_LIMITS = Object.freeze({
   stderrBytes: 128 * 1024 * 1024,
   stdoutBytes: 128 * 1024 * 1024,
   temporaryBytes: 512 * 1024 * 1024,
+  traceBytes: 128 * 1024 * 1024,
   workspaceBytes: 512 * 1024 * 1024,
   workspaceEntries: 8192,
 })
@@ -393,7 +394,7 @@ export function readSafeModelCatalog(sourceHome, value) {
   return `${JSON.stringify(parsed)}\n`
 }
 
-export function assertEvidenceRunPath(evidenceRoot, output, expectedSkill) {
+export function assertEvidenceRunPath(evidenceRoot, output, expectedSkill, label = 'evidence output') {
   const local = relative(evidenceRoot, output)
   const parts = local.split(sep)
   if (
@@ -403,11 +404,15 @@ export function assertEvidenceRunPath(evidenceRoot, output, expectedSkill) {
     !/^dsh-spec-[a-z0-9-]+$/.test(parts[1] ?? '') ||
     !/^[a-z0-9][a-z0-9-]*$/.test(parts[2] ?? '')
   )
-    throw new Error(`evidence output must be evidence/<date>/<skill>/<run>: ${output}`)
+    throw new Error(`${label} must use evidence/<date>/<skill>/<run>`)
   if (expectedSkill !== undefined && parts[1] !== expectedSkill)
-    throw new Error(`evidence output names ${parts[1]}, expected ${expectedSkill}: ${output}`)
-  assertRealContained(evidenceRoot, output, 'evidence output')
-  assertNoSymlinkComponents(evidenceRoot, output, 'evidence output')
+    throw new Error(`${label} skill must match expected ${expectedSkill}`)
+  try {
+    assertRealContained(evidenceRoot, output, label)
+    assertNoSymlinkComponents(evidenceRoot, output, label)
+  } catch {
+    throw new Error(`${label} must stay inside its evidence root and may not follow symbolic links`)
+  }
 }
 
 export function parseNulSeparatedPaths(output) {
@@ -420,12 +425,101 @@ export function addOutputBytes(currentBytes, chunk, limitBytes, label) {
   return nextBytes
 }
 
-export function hashFileNoFollow(path, maxBytes = Number.POSITIVE_INFINITY) {
-  const fd = openSync(path, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0))
+export function runInterruptible(command, args, options, onSpawn, { deadlineMs } = {}) {
+  if (!Number.isSafeInteger(deadlineMs) || deadlineMs <= 0) {
+    return Promise.reject(new Error('deadlineMs must be a positive integer'))
+  }
+  return new Promise((resolveRun, rejectRun) => {
+    const child = spawn(command, args, {
+      stdio: ['ignore', 'pipe', 'pipe'],
+      ...options,
+    })
+    onSpawn?.(child)
+    const stdout = []
+    const stderr = []
+    let stdoutBytes = 0
+    let stderrBytes = 0
+    let outputError
+    let interrupted
+    let timedOut = false
+    let killTimer
+    let deadlineTimer
+    const cleanup = () => {
+      process.off('SIGINT', interrupt)
+      process.off('SIGTERM', interrupt)
+      if (killTimer) clearTimeout(killTimer)
+      if (deadlineTimer) clearTimeout(deadlineTimer)
+    }
+    const terminate = (signal) => {
+      child.kill(signal)
+      killTimer = setTimeout(() => {
+        if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL')
+      }, 2_000)
+    }
+    const interrupt = (signal) => {
+      interrupted = signal
+      terminate(signal)
+    }
+    process.once('SIGINT', interrupt)
+    process.once('SIGTERM', interrupt)
+    deadlineTimer = setTimeout(() => {
+      timedOut = true
+      terminate('SIGTERM')
+    }, deadlineMs)
+    child.stdout.setEncoding('utf8')
+    child.stderr.setEncoding('utf8')
+    child.stdout.on('data', (chunk) => {
+      try {
+        stdoutBytes = addOutputBytes(stdoutBytes, chunk, MODEL_EVIDENCE_LIMITS.stdoutBytes, 'model stdout')
+        stdout.push(chunk)
+      } catch (error) {
+        outputError ??= error
+        child.kill('SIGKILL')
+      }
+    })
+    child.stderr.on('data', (chunk) => {
+      try {
+        stderrBytes = addOutputBytes(stderrBytes, chunk, MODEL_EVIDENCE_LIMITS.stderrBytes, 'model stderr')
+        stderr.push(chunk)
+      } catch (error) {
+        outputError ??= error
+        child.kill('SIGKILL')
+      }
+    })
+    child.once('error', (error) => {
+      cleanup()
+      rejectRun(error)
+    })
+    child.once('close', (status, signal) => {
+      cleanup()
+      if (outputError) {
+        rejectRun(outputError)
+        return
+      }
+      resolveRun({ status, signal, stdout: stdout.join(''), stderr: stderr.join(''), interrupted, timedOut })
+    })
+  })
+}
+
+export function openRegularFileNoFollow(path, label, maxBytes = Number.POSITIVE_INFINITY) {
+  if (!constants.O_NOFOLLOW || !constants.O_NONBLOCK) {
+    throw new Error(`${label} cannot be opened safely on this platform`)
+  }
+  const fd = openSync(path, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK)
   try {
     const stat = fstatSync(fd)
-    if (!stat.isFile()) throw new Error(`file hash requires a regular file: ${path}`)
-    if (stat.size > maxBytes) throw new Error(`file hash exceeds ${maxBytes} bytes: ${path}`)
+    if (!stat.isFile()) throw new Error(`${label} is not a regular file: ${path}`)
+    if (stat.size > maxBytes) throw new Error(`${label} exceeds ${maxBytes} bytes: ${path}`)
+    return { fd, stat }
+  } catch (error) {
+    closeSync(fd)
+    throw error
+  }
+}
+
+export function hashFileNoFollow(path, maxBytes = Number.POSITIVE_INFINITY) {
+  const { fd } = openRegularFileNoFollow(path, 'file hash', maxBytes)
+  try {
     const hash = createHash('sha256')
     const buffer = Buffer.allocUnsafe(64 * 1024)
     let bytesRead = 0
@@ -442,12 +536,9 @@ export function hashFileNoFollow(path, maxBytes = Number.POSITIVE_INFINITY) {
 }
 
 export function readFileNoFollowLimited(path, label, maxBytes) {
-  const fd = openSync(path, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0))
+  const { fd, stat } = openRegularFileNoFollow(path, label, maxBytes)
   try {
-    const stat = fstatSync(fd)
-    if (!stat.isFile()) throw new Error(`${label} is not a regular file: ${path}`)
     if (stat.size === 0) throw new Error(`${label} is empty: ${path}`)
-    if (stat.size > maxBytes) throw new Error(`${label} exceeds ${maxBytes} bytes: ${path}`)
     const contents = Buffer.allocUnsafe(stat.size)
     let bytesRead = 0
     while (bytesRead < contents.length) {
@@ -465,13 +556,10 @@ export function readFileNoFollowLimited(path, label, maxBytes) {
 }
 
 export function copyFileNoFollowLimited(source, destination, maxBytes) {
-  const sourceFd = openSync(source, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0))
+  const { fd: sourceFd, stat } = openRegularFileNoFollow(source, 'copy source', maxBytes)
   let destinationFd
   let destinationCreated = false
   try {
-    const stat = fstatSync(sourceFd)
-    if (!stat.isFile()) throw new Error(`copy source is not a regular file: ${source}`)
-    if (stat.size > maxBytes) throw new Error(`copy source exceeds ${maxBytes} bytes: ${source}`)
     mkdirSync(dirname(destination), { recursive: true })
     destinationFd = openSync(
       destination,

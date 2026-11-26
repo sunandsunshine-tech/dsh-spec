@@ -38,6 +38,9 @@ const safety = (await import('./skill-evals/runner-safety.mjs' as string)) as {
     inherited?: NodeJS.ProcessEnv,
   ): Record<string, string>
 }
+const evidencePolicy = (await import('./skill-evals/evidence-policy.mjs' as string)) as {
+  validateScenarioClaim(skill: string, scenario: Scenario): unknown
+}
 
 interface Scenario {
   id: string
@@ -50,6 +53,11 @@ interface Scenario {
     media?: boolean
   }
   allow_subagents?: boolean
+  comparison?: {
+    baseline: string
+    candidate: string
+    conditions: string[]
+  }
   change_patch?: string
   change_root?: string
   install?: string[]
@@ -891,6 +899,7 @@ function validateCorpus(corpus: ScenarioCorpus, required: RequiredProfile): void
     assertNonEmptyStrings(scenario.assertions, scenario.id + ' assertions')
     assert.ok((scenario.files?.length ?? 0) > 0, scenario.id + ' must ship its input files')
     assertNonEmptyStrings(scenario.files, scenario.id + ' files')
+    evidencePolicy.validateScenarioClaim(required.skill, scenario)
     if (scenario.change_patch !== undefined) {
       assertNonEmptyString(scenario.change_patch, scenario.id + ' change patch')
       assert.ok(scenario.files?.includes(scenario.change_patch), scenario.id + ' change patch is not a declared input')
@@ -930,6 +939,7 @@ function validateGeneralCorpus(corpus: ScenarioCorpus, required: GeneralProfile)
     assertNonEmptyString(scenario.prompt, scenario.id + ' prompt')
     assertNonEmptyString(scenario.expected_output, scenario.id + ' expected output')
     assertNonEmptyStrings(scenario.assertions, scenario.id + ' assertions')
+    evidencePolicy.validateScenarioClaim(required.skill, scenario)
     assert.ok((scenario.files?.length ?? 0) > 0, scenario.id + ' must ship its input files')
     if (scenario.change_patch !== undefined) {
       assertNonEmptyString(scenario.change_patch, scenario.id + ' change patch')
@@ -1119,6 +1129,7 @@ function validateRecordedScenario(skill: string, value: unknown, label: string):
     'outputs',
     'capabilities',
     'allow_subagents',
+    'comparison',
   ])
   for (const key of Object.keys(scenario)) assert.ok(known.has(key), label + ' has unknown field ' + key)
   assertNonEmptyString(scenario.id, label + ' id')
@@ -1153,6 +1164,7 @@ function validateRecordedScenario(skill: string, value: unknown, label: string):
   if (scenario.allow_subagents !== undefined) {
     assert.equal(typeof scenario.allow_subagents, 'boolean', label + ' allow_subagents must be boolean')
   }
+  evidencePolicy.validateScenarioClaim(skill, scenario)
   return scenario
 }
 
@@ -1356,56 +1368,28 @@ function readSkillHashes(root: string): Map<string, string> {
   return new Map([...readSkillHashEntries(root)].map(([path, entry]) => [path, entry.hash]))
 }
 
-function assertBehaviorSkillRevision(root: string, skill: string, installed: string[] = []): void {
+// Complete skill bytes are provenance. The scenario definition and inputs carry automated
+// currentness; reviewers select affected behavior subjects instead of comparing every tree to HEAD.
+function assertBehaviorSkillProvenance(root: string, skill: string, installed: string[] = []): void {
   const actual = readSkillHashEntries(root)
-  const expected = new Map<string, string>()
-  for (const name of [skill, ...installed]) {
-    const skillRoot = join(REPO_ROOT, 'skills', name)
-    for (const file of listFiles(skillRoot).filter((entry) => entry !== 'THIRD_PARTY_NOTICES')) {
-      expected.set(
-        `skills/${name}/${file}`,
-        createHash('sha256')
-          .update(readFileSync(join(skillRoot, file)))
-          .digest('hex'),
-      )
-    }
+  const names = new Set([skill, ...installed])
+  for (const path of actual.keys()) {
+    const name = /^skills\/([^/]+)\//.exec(path)?.[1]
+    assert.ok(name && names.has(name), root + ' records an undeclared skill: ' + path)
   }
-  for (const name of [skill, ...installed]) {
-    if (existsSync(join(REPO_ROOT, 'skills', name, 'THIRD_PARTY_NOTICES'))) {
-      assert.ok(actual.has(`skills/${name}/THIRD_PARTY_NOTICES`), root + ' did not record the notice set')
-    }
-  }
-  const actualBehavior = new Map([...actual].filter(([path]) => !path.endsWith('/THIRD_PARTY_NOTICES')))
-  assert.deepEqual([...actualBehavior.keys()].sort(), [...expected.keys()].sort(), root + ' skill file set differs')
-  for (const [path, hash] of expected) {
-    const recorded = actual.get(path)
-    assert.equal(recorded?.hash, hash, root + ' changed skill revision: ' + path)
-    assert.equal(recorded?.mode, fileMode(join(REPO_ROOT, path)), root + ' changed skill file mode: ' + path)
+  for (const name of names) {
+    assert.ok(actual.has(`skills/${name}/SKILL.md`), root + ' records no ' + name + ' SKILL.md provenance')
   }
 }
 
-function assertBrowserNameOnlySkillRevision(root: string, skill: string, formerSkill: string): void {
+function assertBrowserNameOnlyProvenance(root: string, formerSkill: string): void {
   const actual = readSkillHashEntries(root)
   const files = ['SKILL.md', 'THIRD_PARTY_NOTICES', 'references/publication.md', 'scripts/encode-browser-gif.mjs']
-  const expected = new Map<string, { hash: string; mode: string }>()
-  for (const file of files) {
-    const currentPath = `skills/${skill}/${file}`
-    let contents: string | Buffer = readFileSync(join(REPO_ROOT, currentPath))
-    if (file === 'SKILL.md') {
-      contents = contents.toString().replace(`name: ${skill}`, `name: ${formerSkill}`)
-    } else if (file === 'scripts/encode-browser-gif.mjs') {
-      contents = contents.toString().replaceAll(`package/${skill}/`, `package/${formerSkill}/`)
-    }
-    expected.set(`skills/${formerSkill}/${file}`, {
-      hash: createHash('sha256').update(contents).digest('hex'),
-      mode: fileMode(join(REPO_ROOT, currentPath)),
-    })
-  }
-  assert.deepEqual([...actual.keys()].sort(), [...expected.keys()].sort(), root + ' renamed skill file set differs')
-  for (const [path, revision] of expected) {
-    assert.equal(actual.get(path)?.hash, revision.hash, root + ' is not a name-only revision of ' + path)
-    assert.equal(actual.get(path)?.mode, revision.mode, root + ' changed the mode of ' + path)
-  }
+  assert.deepEqual(
+    [...actual.keys()].sort(),
+    files.map((file) => `skills/${formerSkill}/${file}`).sort(),
+    root + ' renamed skill provenance differs',
+  )
 }
 
 function readSkillTreeManifest(path: string): Map<string, string> {
@@ -2037,7 +2021,7 @@ test('forge description evidence binds the behavior scenario and trigger corpus'
     sandbox: 'workspace-write',
     subagents: false,
   })
-  assertBehaviorSkillRevision(root, skill)
+  assertBehaviorSkillProvenance(root, skill)
   assertAnswerBlindTraceWithSkillOutput(root, skill)
   assert.ok(traceCommandsFor(root).some((command) => commandPrintsSkill(command, skill)))
   assert.equal(replayEvidencePatch(root, skill, scenario), true)
@@ -2773,10 +2757,15 @@ test('performance fixtures expose runnable production paths and boundaries', () 
   }
 })
 
-test('performance investigation model evidence binds scenarios, capabilities and revisions', () => {
+test('performance investigation model evidence binds scenarios, capabilities and provenance', () => {
   const skill = 'dsh-spec-performance-investigation'
   const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-24-pr129', skill)
+  assert.match(
+    readFileSync(join(evidenceRoot, 'README.md'), 'utf8'),
+    /^> \*\*Historical status:\*\* `backend-budgetless-latency`/m,
+  )
   for (const scenario of readCorpus(skill).evals) {
+    const evolvedComparisonScenario = scenario.id === 'backend-budgetless-latency'
     const root = join(evidenceRoot, scenario.id)
     assertEvidencePath(evidenceRoot, root, scenario.id, 'directory')
     const status = readFileSync(join(root, 'status.txt'), 'utf8')
@@ -2800,7 +2789,12 @@ test('performance investigation model evidence binds scenarios, capabilities and
       JSON.parse(readFileSync(join(root, 'scenario-definition.json'), 'utf8')),
       scenario.id,
     )
-    assert.deepEqual(recorded, scenario, scenario.id + ' scenario definition differs')
+    if (evolvedComparisonScenario) {
+      assert.equal(recorded.comparison, undefined, scenario.id + ' already recorded typed comparison metadata')
+      assert.ok(scenario.comparison, scenario.id + ' no longer declares a comparison')
+    } else {
+      assert.deepEqual(recorded, scenario, scenario.id + ' scenario definition differs')
+    }
     assert.equal(
       readFileSync(join(root, 'scenario-definition.sha256'), 'utf8').trim(),
       `${scenarioDefinitionHash(recorded)}  ${skill}:${scenario.id}`,
@@ -2817,7 +2811,7 @@ test('performance investigation model evidence binds scenarios, capabilities and
       },
       scenario.id + ' capability profile differs',
     )
-    assertBehaviorSkillRevision(root, skill, scenario.install ?? [])
+    assertBehaviorSkillProvenance(root, skill, scenario.install ?? [])
     assertAnswerBlindTrace(root)
     assert.ok(
       traceCommandsFor(root).some((command) => commandPrintsSkill(command, skill)),
@@ -2856,7 +2850,7 @@ test('performance investigation model evidence binds scenarios, capabilities and
   assert.match(readFileSync(join(baseline, 'patch.diff'), 'utf8'), /unitsByRegion/)
 })
 
-test('find-simplifications authority evidence binds the current skill and scenario', () => {
+test('find-simplifications authority evidence binds scenario, inputs and skill provenance', () => {
   const skill = 'dsh-spec-find-simplifications'
   const scenario = readCorpus(skill).evals.find((entry) => entry.id === 'agents-md-owns-conflicting-instructions')
   assert.ok(scenario)
@@ -2908,7 +2902,7 @@ test('find-simplifications authority evidence binds the current skill and scenar
     assert.equal(entry.hash, fileHash(source), 'find-simplifications changed input ' + entry.path)
     assert.equal(entry.mode, fileMode(source), 'find-simplifications changed input mode ' + entry.path)
   }
-  assertBehaviorSkillRevision(root, skill)
+  assertBehaviorSkillProvenance(root, skill)
   assertAnswerBlindTrace(root)
   assert.ok(traceCommandsFor(root).some((command) => commandPrintsSkill(command, skill)))
   const trace = readEvidenceTrace(join(root, 'trace.jsonl'))
@@ -3387,7 +3381,7 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
   }
 })
 
-test('PR121 and PR122 targeted model evidence binds current inputs and recorded revisions', () => {
+test('PR121 and PR122 targeted model evidence binds current inputs and recorded provenance', () => {
   const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-23-pr121')
   const historicalBrowserReadmePath = join(evidenceRoot, 'dsh-spec-browser-gif-evidence/README.md')
   assertEvidencePath(evidenceRoot, historicalBrowserReadmePath, 'historical browser README', 'file')
@@ -3648,9 +3642,9 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
         'dsh-spec-record-browser-gif',
         item.skill + '/' + item.run + ' has no name-only revision policy',
       )
-      assertBrowserNameOnlySkillRevision(root, item.skill, evidenceSkill)
+      assertBrowserNameOnlyProvenance(root, evidenceSkill)
     } else if (current) {
-      assertBehaviorSkillRevision(root, evidenceSkill, effectiveScenario.install ?? [])
+      assertBehaviorSkillProvenance(root, evidenceSkill, effectiveScenario.install ?? [])
     } else if (!current) {
       const revisionTree = item.historicalSkillTree ? readSkillTreeManifest(item.historicalSkillTree) : skillsTree
       assertHistoricalSkillRevision(root, evidenceSkill, effectiveScenario.install ?? [], revisionTree)
@@ -3976,7 +3970,10 @@ test('committed evidence text contains no local home or build-toolchain paths', 
 
 test('the model runner refuses to replace the repository or evidence root', () => {
   const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence')
-  const before = readdirSync(evidenceRoot)
+  // Real-runner tests create 2099-* scratch leaves under this directory; their isolated lifecycle
+  // is outside this rejection check's stable committed corpus.
+  const stableEntries = () => readdirSync(evidenceRoot).filter((entry) => !entry.startsWith('2099-'))
+  const before = stableEntries()
   for (const output of ['.', 'tests/skill-evals/evidence', 'tests/skill-evals/evidence/2026-11-20-pr113']) {
     const result = spawnSync(
       process.execPath,
@@ -3995,5 +3992,5 @@ test('the model runner refuses to replace the repository or evidence root', () =
     assert.notEqual(result.status, 0, output + ' was accepted as an evidence output')
     assert.match(result.stderr, /evidence output/, output + ' did not fail on evidence containment')
   }
-  assert.deepEqual(readdirSync(evidenceRoot), before, 'the runner changed the evidence root')
+  assert.deepEqual(stableEntries(), before, 'the runner changed the evidence root')
 })
