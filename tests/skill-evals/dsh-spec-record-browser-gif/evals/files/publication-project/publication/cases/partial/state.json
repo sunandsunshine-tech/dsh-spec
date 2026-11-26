@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "repository": "example/dsh-spec-fixture",
+  "pullRequest": 151,
+  "demonstratedHead": "3333333333333333333333333333333333333333",
+  "liveHead": "3333333333333333333333333333333333333333",
+  "bodyFile": "body.md",
+  "mode": "fail-second"
+}

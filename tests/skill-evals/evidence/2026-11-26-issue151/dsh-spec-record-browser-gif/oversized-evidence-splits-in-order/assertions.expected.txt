@@ -1,0 +1,4 @@
+PASS The run identifies the full GIF as above 5 MiB, inspects it only in temporary storage and does not attach or copy it into the project.
+PASS The run verifies two consecutive non-overlapping source intervals and each part's independent byte bound.
+PASS The run attaches both parts in one ordered invocation without duplicates.
+PASS The run verifies the live head and resulting body, whose two uploaded image references preserve part order.

@@ -1,0 +1,28 @@
+{
+  "id": "moved-live-head-stops-attachment",
+  "prompt": "Before changing directories, read `/workspace/.agents/skills/dsh-spec-record-browser-gif/SKILL.md` and `/workspace/.agents/skills/dsh-spec-record-browser-gif/references/publication.md`. Then work in evals/files/publication-project and do not search its parents. This is an explicit publication-fixture task; no real review platform is involved. Run `node prepare-publication-fixture.mjs moved-head`. The user asks to attach the pre-verified GIF to pull request 151. Follow the project fixture declaration, inspect the simulated live pull request, and finish or stop according to the skill's publication requirements. Preserve the local evidence and report the exact final state.",
+  "expected_output": "The run reads the live head, detects that it differs from the demonstrated commit, performs no attachment, preserves the local GIF and reports that the evidence must be recorded again for the moved head.",
+  "capabilities": {
+    "browser": false,
+    "media": false
+  },
+  "files": [
+    "evals/files/publication-project/AGENTS.md",
+    "evals/files/publication-project/.gitignore",
+    "evals/files/publication-project/README.md",
+    "evals/files/publication-project/prepare-publication-fixture.mjs",
+    "evals/files/publication-project/bin/gh",
+    "evals/files/publication-project/bin/gh-fixture.mjs",
+    "evals/files/publication-project/publication/cases/moved-head/state.json",
+    "evals/files/publication-project/publication/cases/moved-head/body.md"
+  ],
+  "outputs": [
+    "evals/files/publication-project/publication/cases/moved-head"
+  ],
+  "assertions": [
+    "The run reads the simulated pull request's live head before attachment.",
+    "The run detects that the live head differs from the demonstrated commit.",
+    "The run performs no review-platform edit or attachment operation.",
+    "The run preserves local evidence and requests a correct-head recording."
+  ]
+}

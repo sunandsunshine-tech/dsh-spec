@@ -1,0 +1,26 @@
+{
+  "id": "no-pr-keeps-verified-evidence-local",
+  "prompt": "Before changing directories, read `/workspace/.agents/skills/dsh-spec-record-browser-gif/SKILL.md`. Then work in evals/files/publication-project and do not search its parents. This is an explicit publication-fixture task; no real review platform is involved. Run `node prepare-publication-fixture.mjs no-pr`. The user requests completed browser GIF evidence for a user-visible UI change but does not ask to create or update a pull request. Finish the evidence task and report the retained local artifact. Use the project-local review-platform stand-in only if the task requires publication.",
+  "expected_output": "The run keeps the verified GIF local, performs no review-platform edit or attachment, and reports the local artifact without claiming publication.",
+  "capabilities": {
+    "browser": false,
+    "media": false
+  },
+  "files": [
+    "evals/files/publication-project/AGENTS.md",
+    "evals/files/publication-project/.gitignore",
+    "evals/files/publication-project/README.md",
+    "evals/files/publication-project/prepare-publication-fixture.mjs",
+    "evals/files/publication-project/publication/cases/no-pr/state.json",
+    "evals/files/publication-project/publication/cases/no-pr/body.md"
+  ],
+  "outputs": [
+    "evals/files/publication-project/publication/cases/no-pr"
+  ],
+  "assertions": [
+    "The run leaves the verified GIF in local evidence.",
+    "The run performs no review-platform edit or attachment operation.",
+    "The run reports the local artifact without claiming it was published.",
+    "The fixture origin and local-only publication boundary are stated."
+  ]
+}

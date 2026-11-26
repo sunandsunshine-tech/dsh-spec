@@ -1,0 +1,27 @@
+{
+  "case": "split",
+  "fixture": true,
+  "full": {
+    "bytes": 5263479,
+    "sha256": "25d9b05715aba69ed1fa1e534003006574654999c8ee197f2c5ec33548c2b467",
+    "temporary": true
+  },
+  "maxBytes": 5242880,
+  "parts": [
+    {
+      "order": 1,
+      "range": "0.000-1.600s",
+      "bytes": 46,
+      "path": "publication/cases/split/evidence/part-01.gif",
+      "sha256": "e9c8aa3e3afbe0461c6121bb19ef4cef928e89b3899cedbfa863cc2b82b5e1fc"
+    },
+    {
+      "order": 2,
+      "range": "1.600-3.200s",
+      "bytes": 46,
+      "path": "publication/cases/split/evidence/part-02.gif",
+      "sha256": "2a250dcc8751421056fcb0ad9755a05d54f3ed1d807ab5da72cdc0241cca5a82"
+    }
+  ],
+  "source": "one isolated local browser run"
+}
