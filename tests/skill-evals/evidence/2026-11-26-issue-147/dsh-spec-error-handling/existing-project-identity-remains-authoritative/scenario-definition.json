@@ -1,0 +1,15 @@
+{
+  "id": "existing-project-identity-remains-authoritative",
+  "prompt": "Review evals/files/existing-identity/AGENTS.md and README.md. Improve the failure contract and tests without replacing the project's existing machine identity.",
+  "expected_output": "The project keeps its existing `kind` discriminant and does not add `name` or `code`, the message remains a human-readable report, and tests assert the exact `kind` and resulting state.",
+  "files": [
+    "evals/files/existing-identity/AGENTS.md",
+    "evals/files/existing-identity/README.md"
+  ],
+  "assertions": [
+    "The project's existing `kind` field remains the machine identity.",
+    "No competing `name` or `code` field is added.",
+    "Tests assert the exact `kind` and resulting state.",
+    "The message is not used for machine routing."
+  ]
+}

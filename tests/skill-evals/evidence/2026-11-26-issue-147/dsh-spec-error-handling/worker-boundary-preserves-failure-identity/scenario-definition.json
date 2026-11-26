@@ -1,0 +1,14 @@
+{
+  "id": "worker-boundary-preserves-failure-identity",
+  "prompt": "Review evals/files/worker-boundary/README.md. The worker currently serializes only the message and the parent reconstructs a plain error. Identify the contract and test changes needed to preserve failure identity across the boundary.",
+  "expected_output": "The transport carries the project's portable machine identity, the receiving side reconstructs an equivalent owning failure, and the original cause or equivalent structured detail remains available for diagnostics.",
+  "files": [
+    "evals/files/worker-boundary/README.md"
+  ],
+  "assertions": [
+    "The project's portable machine identity crosses the worker boundary.",
+    "The receiving side reconstructs an equivalent owning failure.",
+    "The original cause or equivalent structured detail is retained.",
+    "A boundary test proves the identity survives."
+  ]
+}

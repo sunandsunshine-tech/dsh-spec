@@ -1,0 +1,4 @@
+{"type":"skill","path":".agents/skills/dsh-spec-error-handling/SKILL.md","sha256":"ec33b342fb3012b57e27e172a3957d1a383a14b15623e94fd3b44f042fae0ef3"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"This is a wording-only change to an existing routine log message; it does not involve error design, exceptions, status codes, recovery, retries, or failure reporting, so the error-handling skill does not clearly apply.\n\nSELECT: none"}}
+{"type":"turn.completed","usage":{"input_tokens":12485,"cached_input_tokens":12288,"cache_write_input_tokens":0,"output_tokens":132,"reasoning_output_tokens":83}}

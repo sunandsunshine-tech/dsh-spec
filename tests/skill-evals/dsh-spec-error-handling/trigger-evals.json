@@ -28,6 +28,16 @@
       "should_trigger": true
     },
     {
+      "id": "embedded-state-after-fault",
+      "query": "An embedded sensor task overwrites its last I/O fault with success after a reset, so maintenance cannot identify which read failed. Define the failure identity, safe state, recovery owner, and device-visible report.",
+      "should_trigger": true
+    },
+    {
+      "id": "batch-partial-failure",
+      "query": "A nightly batch import skips failed records, returns overall success, and does not show which records were applied. Define the operation outcome, per-record failure identity, retry ownership, and visible partial-failure report.",
+      "should_trigger": true
+    },
+    {
       "id": "readme-prose-only",
       "query": "Review `trigger-fixtures/readme-prose-only/README.md` for a heading typo and incorrect capitalization.",
       "should_trigger": false,
@@ -68,6 +78,11 @@
       "files": [
         "trigger-fixtures/rename-variable/src/example.ts"
       ]
+    },
+    {
+      "id": "log-level-only",
+      "query": "Change the routine startup log message from `starting worker` to `worker started`; keep the log level and all behavior unchanged.",
+      "should_trigger": false
     }
   ]
 }

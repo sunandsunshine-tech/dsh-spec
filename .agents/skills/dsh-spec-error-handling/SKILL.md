@@ -1,12 +1,12 @@
 ---
 name: dsh-spec-error-handling
-description: "Apply error-handling principles when designing, implementing, or reviewing failures in applications, libraries, command-line tools, and services: exceptions, result variants, status or exit codes, recovery, retries, background tasks, silent handlers, and user-visible error reports. Not for general code review, test design, performance tuning, or debugging unrelated to failure handling. 用于应用、库、命令行工具和服务中的错误处理：异常、结果变体、状态码或退出码、恢复、重试、后台任务、静默捕获与用户可见错误报告；不用于一般代码评审、测试设计、性能调优，或与失败处理无关的调试。"
+description: "Apply error-handling principles when designing, implementing, or reviewing failures in applications, libraries, command-line tools, services, embedded systems, and batch systems: exceptions, result variants, status or exit codes, recovery, retries, background tasks, silent handlers, and visible error reports. Not for general code review, test design, performance tuning, or unrelated debugging. 用于应用、库、命令行工具、服务、嵌入式系统和批处理系统中的错误处理：异常、结果变体、状态码或退出码、恢复、重试、后台任务、静默捕获和可见错误报告；不用于一般代码评审、测试设计、性能调优或无关调试。"
 license: "MIT; upstream and repository notices in THIRD_PARTY_NOTICES"
 ---
 
 # Error handling
 
-Define failures, their owners, and what remains safe after failure.
+Define failures, their owners, and what remains safe after failure in applications, libraries, command-line tools, services, embedded systems, and batch systems.
 
 ## Defaults
 

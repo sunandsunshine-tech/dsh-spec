@@ -1,0 +1,4 @@
+PASS The project's existing `kind` field remains the machine identity.
+PASS No competing `name` or `code` field is added.
+PASS Tests assert the exact `kind` and resulting state.
+PASS The message is not used for machine routing.

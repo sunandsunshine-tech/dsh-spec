@@ -35,3 +35,7 @@ rendering contract, dependency-only stack blocking, an absent browser/media prof
 browser GIF run, source renaming, and locale-selected pages outside the pairing corpus. Each run
 records its resolved capability and sandbox profile, complete input modes, and skill-file modes;
 the alpha.2 baseline retarget and semantic rules are reviewed together in this layer.
+
+The three error-handling runs preserve the pre-#147 skill revision as historical evidence. They do
+not bind the current description or the embedded and batch scope added by #147. The current runs
+are under `../2026-11-26-issue-147/dsh-spec-error-handling/`.

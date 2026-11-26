@@ -1,0 +1,4 @@
+PASS The project's portable machine identity crosses the worker boundary.
+PASS The receiving side reconstructs an equivalent owning failure.
+PASS The original cause or equivalent structured detail is retained.
+PASS A boundary test proves the identity survives.

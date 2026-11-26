@@ -1,0 +1,4 @@
+PASS The silent scope contains one operation.
+PASS The expected failure is identified by a stable discriminant.
+PASS The reason states why discarding that failure leaves state valid.
+PASS Unexpected failures are rethrown or otherwise surfaced.

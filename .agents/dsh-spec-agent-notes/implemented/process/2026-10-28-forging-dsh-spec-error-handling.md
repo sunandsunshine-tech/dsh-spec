@@ -8,9 +8,13 @@ English | [中文](2026-10-28-forging-dsh-spec-error-handling.zh.md)
 
 The set extracts DeepSeek Harness's development pattern as skills, and one part of that pattern has no skill behind it: how a system declares a failure, assigns a stable machine identity, decides who owns recovery, and makes the outcome visible to the person it affects. Upstream `dsh` carries that part in `.agents/skills/dsh-error-handling/SKILL.md` and its error-code reference. Its title names the harness; its examples cite that repository's error base, registry fields, errno mapping, and `assertNever` helper; its convention rule says to reuse "package error conventions"; and its report rule assumes the product's runtime. The set needs the mechanism without the product's types, fields, paths, or reporting assumptions.
 
+Embedded and batch systems need the same failure contract across device, process and operation boundaries. A catalog description that omits them hides the skill from that work, and batch work can leave partially committed effects that the calling system must distinguish.
+
 ## Decision
 
 `dsh-spec-error-handling` ships from `skills/dsh-spec-error-handling/`, and its installed copy at `.agents/skills/dsh-spec-error-handling/` mirrors it byte for byte. The skill is a `SKILL.md` and `references/error-contracts.md` for software-engineering projects of any kind: applications, libraries, command-line tools, services, embedded systems, and batch systems. The body carries six units: typed structured failures; handling, recovery or stopping; silent failure handlers; localized visible reports; compatibility and verification; and foundations. The typed-failure unit owns classification by the operation's declared outcome and distinguishes closed local families from provider-extensible families. The reference owns field roles, family and code selection, fallback requirements, foreign-error conversion, compatibility, and the test checklist.
+
+The opening scope and catalog description name all six system shapes. Each project keeps its own failure representation, status or exit convention, reporting surface and recovery owner.
 
 The skill ships no script. Whether a failure has an owning family, a containment rule, a truthful reason for silent handling, and an actionable report are design judgments. The skill has no environment requirements and therefore no `compatibility` field.
 
@@ -25,9 +29,13 @@ Source revision: `dsh-v0.2.3-alpha.2` (`4b399c39a6d1479cd84ca591b4d7c88e24d38a96
 
 Silent failure handling was read from `deepseek-ai/deepseek-harness` commit `603ed7e7d0da17d3290e44d5b3b999a636840a2d` on 2026-11-20. The repository pin is owned by [the baseline issue](https://github.com/sunandsunshine-tech/dsh-spec/issues/104); this record owns the source revisions from which the text was adapted.
 
-Agent Skills pages read on 2026-11-20:
+The embedded and batch scope correction is tracked by [issue #147](https://github.com/sunandsunshine-tech/dsh-spec/issues/147), a remediation issue under #137.
+
+Agent Skills pages read on 2026-11-26:
 
 - [documentation index](https://agentskills.io/llms.txt)
+- [overview](https://agentskills.io/home.md)
+- [specification](https://agentskills.io/specification.md)
 - [best practices for skill creators](https://agentskills.io/skill-creation/best-practices.md)
 - [optimizing skill descriptions](https://agentskills.io/skill-creation/optimizing-descriptions.md)
 - [evaluating skill output quality](https://agentskills.io/skill-creation/evaluating-skills.md)
@@ -40,10 +48,11 @@ Not read as design sources: skills outside this repository's tree and the instal
 
 ### Adapted target text
 
-The six adapted units, exactly as the skill carries them, against the upstream sentence each replaces:
+The seven adapted units, exactly as the skill carries them, against the upstream sentence each replaces:
 
 | Unit | Upstream | Target text |
 |---|---|---|
+| N4 | Define failures, their owners, and what remains safe after failure. | Define failures, their owners, and what remains safe after failure in applications, libraries, command-line tools, services, embedded systems, and batch systems. |
 | N11a | `## Catch, recover, or stop` | `## Handle, recover, or stop` |
 | N12 | For each failure, define handling and reporting owners, containment, and guarantees in the owning API documentation: valid invariants, absent/partial/committed/unknown effects, and cleanup responsibility. | For each failure, define handling and reporting owners, containment, and guarantees in the owning API's documentation or the project's equivalent record of the API's contract: valid invariants, absent/partial/committed/unknown effects, and cleanup responsibility. |
 | N15 | Catching limits exception propagation, not mutations. | Handling a failure limits how far it propagates, not the mutations already made. |
@@ -79,9 +88,9 @@ The first table covers the original source: the 31 disposition rows plus the thr
 | # | Unit | Carried unit | Presupposition | Target scope | Conclusion |
 |---|---|---|---|---|---|
 | P1 | N1 | name `dsh-error-handling` | none beyond the source's own name | a skill name is project metadata | None; kept as a name change under N1 |
-| P2 | N2 | description sentence | the trigger vocabulary names failure, recovery, retry, background work and user-visible reports | the terms name the topic, not a runtime obligation | None; kept — the description changes under N2 |
+| P2 | N2 | description sentence | the trigger vocabulary names failure, recovery, retry, background work, visible reports and the supported system shapes | the terms name the topic and selection boundary, not a runtime obligation | None; kept — the description changes under N2 |
 | P3 | N3 | H1 `DeepSeek Harness Error Handling` | the source product | the target's subject is error handling | None; kept as a referent change under N3 |
-| P4 | N4 | intro | none — failures, owners and safety are model-neutral | any software project | Shared; kept |
+| P4 | N4 | intro | none — failures, owners and safety are model-neutral | applications, libraries, command-line tools, services, embedded and batch systems each own their failure representation and reporting surface | Changed (Adapt under N4); the shared obligation now names the supported system shapes |
 | P5 | N5h | heading `## Typed, structured failures` | failures can be declared and structured | exception classes, result enums and error codes all provide a declared structure | Shared; kept |
 | P6 | N5 | declared types, stable discriminants, handling-relevant details | a declared failure taxonomy with a stable discriminant | every failure model declares kinds (classes, codes, enums) and supports a stable discriminant | Shared; kept |
 | P7 | N6 | package error conventions | a packaging unit owns error conventions | packages, modules and services are the common owning units | Changed (Re-bind under N6); the owning unit stays concrete |
@@ -130,11 +139,11 @@ The first table covers the original source: the 31 disposition rows plus the thr
 
 ### Description
 
-The skill's frontmatter description, exactly (484 characters, under the repository's 500-character catalog budget):
+The skill's frontmatter description, exactly (495 characters, under the repository's 500-character catalog budget):
 
-> Apply error-handling principles when designing, implementing, or reviewing failures in applications, libraries, command-line tools, and services: exceptions, result variants, status or exit codes, recovery, retries, background tasks, silent handlers, and user-visible error reports. Not for general code review, test design, performance tuning, or debugging unrelated to failure handling. 用于应用、库、命令行工具和服务中的错误处理：异常、结果变体、状态码或退出码、恢复、重试、后台任务、静默捕获与用户可见错误报告；不用于一般代码评审、测试设计、性能调优，或与失败处理无关的调试。
+> Apply error-handling principles when designing, implementing, or reviewing failures in applications, libraries, command-line tools, services, embedded systems, and batch systems: exceptions, result variants, status or exit codes, recovery, retries, background tasks, silent handlers, and visible error reports. Not for general code review, test design, performance tuning, or unrelated debugging. 用于应用、库、命令行工具、服务、嵌入式系统和批处理系统中的错误处理：异常、结果变体、状态码或退出码、恢复、重试、后台任务、静默捕获和可见错误报告；不用于一般代码评审、测试设计、性能调优或无关调试。
 
-The English sentence is the delivery language. It names the adopting system shapes, failure representations, and adjacent tasks the skill covers, then excludes general code review, test design, performance tuning, and debugging unrelated to failure handling. The Chinese sentence is the additional trigger language.
+The English sentence is the delivery language. It names all six supported system shapes, failure representations, and adjacent tasks the skill covers, then excludes general code review, test design, performance tuning, and unrelated debugging. The Chinese sentence is the additional trigger language.
 
 ### Constraint dispositions
 
@@ -145,7 +154,7 @@ Dispositions use the forge skill's values: **Keep** carries the original wording
 | N1 | frontmatter `name` | The skill is named `dsh-error-handling`. | Adapt | `SK` frontmatter `name` | the target skill's name is `dsh-spec-error-handling` (P1) |
 | N2 | frontmatter `description` | "Apply error-handling principles when designing or reviewing failures, recovery, retries, background tasks, and user-visible error reports." | Adapt | `SK` frontmatter `description` | the delivery side leads with English and appends the Chinese trigger language; "designing, implementing, or reviewing" names the target reader's moments, and the domain clause names software (P2) |
 | N3 | H1 | The title is `DeepSeek Harness Error Handling`. | Adapt | `SK` H1 | the target's subject is error handling; the product the source names is not the target's subject (P3) |
-| N4 | intro | Define failures, their owners, and what remains safe after failure. | Keep | `SK` intro | domain-neutral; failures, owners and safety are model-neutral (P4) |
+| N4 | intro | Define failures, their owners, and what remains safe after failure. | Adapt | `SK` intro | domain-neutral; the target adds the supported system shapes while leaving each system's failure representation and reporting surface project-owned (P4) |
 | N5 | § Typed, structured failures | Expected failures need declared types, stable discriminants, and handling-relevant details. | Keep | `SK` § Typed, structured failures | every failure model declares kinds (classes, codes, enums) and supports a stable discriminant; "declared types" names the declaration, not a language family (P6) |
 | N6 | § Typed, structured failures | Reuse package error conventions. | Re-bind | `SK` § Typed, structured failures | the fixed packaging unit is gone as a determinate referent; the equivalent means is the software unit that owns the failure — its package, module or service — and the target keeps that owning unit concrete (P7) |
 | N7 | § Typed, structured failures | Preserve causes. | Keep | `SK` § Typed, structured failures | shared where a cause can be carried, vacuous where the model has no cause concept (P8) |
@@ -199,14 +208,14 @@ Dispositions use the forge skill's values: **Keep** carries the original wording
 |---|---|---|---|
 | R1 | The skill is a prose `SKILL.md` plus one load-on-demand contract reference; it ships no bundled script and no `compatibility` field. | The entry carries design judgment; the expanded source's naming tables, conversion table, compatibility rules, and checklist are detailed reference material. No source rule is decidable as a complete command. | Merge the reference into the entry, or add a script that decides a new mechanical contract. |
 | R2 | The product name is dropped from the H1; the intro sentence and three of the four section headings and their order are carried as layout; the "Catch, recover, or stop" heading is adapted under N11a. | The source's product is not the target's subject; the only product-bearing identity text the source has is the H1. | Restore the product name, which re-imports the source's boundary. |
-| R3 | The description names applications, libraries, command-line tools and services; exceptions, result variants and status or exit codes; implementing as well as designing and reviewing; the excluded adjacent tasks; and the Chinese trigger keywords. The exact text is quoted under § Description. | The model sees the description before it loads the body, so the trigger must name the system shapes and failure representations whose failures this skill governs. | Edit the description and rerun the skill-spec gate and trigger-sensitive model eval. |
+| R3 | The description names applications, libraries, command-line tools, services, embedded systems and batch systems; exceptions, result variants and status or exit codes; recovery, retries, background tasks, silent handlers and visible reports; implementing as well as designing and reviewing; the excluded adjacent tasks; and the Chinese trigger keywords. The exact text is quoted under § Description. | The model sees the description before it loads the body, so the trigger must name the system shapes and failure representations whose failures this skill governs. | Edit the description and rerun the skill-spec gate and trigger-sensitive model eval. |
 | R4 | `assertNever` is re-bound to an unreachable-branch or failed-invariant defect; such a defect may remain a plain error and containment still never turns it into success. | The helper is a source-repository convention; a general project reaches the same purpose with its own exhaustiveness or assertion mechanism, and the rule is about the defect's kind, not the helper's name. | Restore the helper's name, which narrows the rule to one ecosystem. |
 | R5 | "Package error conventions" becomes the error conventions of the package, module or service that owns the failure. | The concrete owning unit is what makes the rule reusable rather than a slogan; a general project's unit may be a package, a module or a service, and the rule names the unit that owns the failure. | Widen the unit to the project. |
 | R6 | The Foundations section and its external link are carried unchanged. | The three works are software-engineering literature; the link is external and absolute, so the gate does not treat it as a local dependency. | Remove the section, which drops the source's rationale for the rules. |
 | R7 | The skill declares provenance from outside the loaded text: its frontmatter `license` field names a skill-root `THIRD_PARTY_NOTICES`, and the root `THIRD_PARTY_NOTICES.md` lists it among the adapted skills. | The repository's adapted-skill convention requires the declaration for an installed copy; the notice carries the upstream path, revision, relation and both MIT notices, and the root notice registers the skill. | Remove the notice and the root registration. |
 | R8 | The skill's Chinese review draft (`.zh.md`) and its pairing record (`.i18n.yaml`) exist only at the stop, are checked by the project pairing gate, and are removed by `publish`; this record carries its Chinese companion and consistency record. | The request confines translation pairing to the stop; the note pair is completed at the final review. | Remove the note companion and its consistency record. |
 | R9 | This record ships in `implemented/process/` with the skill. | The notes contract moves a record from `proposed/` to `implemented/` when the decision ships. | Move it back to `proposed/process/` if the landing is reverted. |
-| R10 | The target scope is software projects of any kind: applications, libraries, command-line tools, services, embedded and batch systems. The text assumes no UI, no default-enabled logs, no API-documentation practice, no application runtime, and no single failure model. | The request names software engineering as the domain; a rule that only holds for a product-shaped application is not applicable there, and the set exists to be installed into arbitrary projects. | Narrow the scope and state the surface assumptions in the description. |
+| R10 | The target scope is software projects of any kind: applications, libraries, command-line tools, services, embedded and batch systems. The description and opening scope name all six. The text assumes no UI, no default-enabled logs, no API-documentation practice, no application runtime, no exception class, no fixed exit-code framework, no registry, and no single failure model. | The request names software engineering as the domain; the generic failure rules apply without the source product's runtime, and omitting embedded or batch systems from selection hides valid failure work. | Narrow the scope and state the surface assumptions in the description. |
 | R11 | A source sentence is carried verbatim only when its runtime or product assumption holds in the target scope or its clause is vacuous where absent; otherwise it is adapted with role-based or conditional wording, and the conclusion is recorded as a row in § Presupposition audit and, where it changes, as an adaptation row in § Constraint dispositions. | A sentence that assumes a product runtime is not domain-neutral; verbatim fidelity is not generality. The audit makes each assumption explicit and checkable. | Rewrite a row or the policy. |
 | R12 | The exception vocabulary becomes handling/failure vocabulary in the heading and the two sentences that name it (N11a, N15, N27); "failure" covers exceptions, result values and other explicit failure models. | The source is TypeScript, but the target scope includes languages whose failures are values; the ownership, containment and verification rules survive the vocabulary change. | Restore the exception words, which narrows the skill to one failure model. |
 | R13 | Where the source names a reporting surface or a documentation practice, the target names the surface the affected user or system actually uses, and the contract record may be the owning API's documentation or the project's equivalent record (N12, N21, N23). | The target scope includes projects with no UI or default logs and with no API documentation; the rule keeps its required content and its conditional "where one exists". | Restore a fixed surface or documentation practice. |
@@ -217,21 +226,33 @@ Dispositions use the forge skill's values: **Keep** carries the original wording
 
 ### Requirement anchors
 
-Every disposition row is the anchor for the requirement it carries. N1 is mechanical: the skill gate checks the name and directory match. N2-N30, N11a, and E1-E14 are judged against the source sentence. N30 retains an external literature link. The skill gate mechanically checks format, size, references, and link integrity. The development eval corpus records message-only failures, boundary-loss failures, silent multi-step and empty-handler safety, non-ideal success classification, provider-extensible codes, preservation of an existing project discriminant, and wrapper preservation of cancellation, timeout, and denial.
+Every disposition row is the anchor for the requirement it carries. N1 is mechanical: the skill gate checks the name and directory match. N2-N30, N11a, and E1-E14 are judged against the source sentence. N30 retains an external literature link. The skill gate mechanically checks format, size, references, and link integrity. The development eval corpus records message-only failures, boundary-loss failures, silent multi-step and empty-handler safety, non-ideal success classification, provider-extensible codes, preservation of an existing project discriminant, and wrapper preservation of cancellation, timeout, and denial. The trigger corpus records the existing five positive moments and five near misses, plus embedded failure identity, batch partial failure, and a log-level-only near miss.
 
-The reviewer-graded model evidence under `tests/skill-evals/evidence/2026-11-20-pr113/` records
+The historical reviewer-graded model evidence under `tests/skill-evals/evidence/2026-11-20-pr113/` records
 candidate and no-skill profiles at 20/20 and a previous-skill profile at 18/20. The saved outputs
 therefore do not establish a candidate advantage for those prompts. The directory retained neither
 command traces nor complete skill hashes, so it does not prove answer-blind loading; later changed
-behaviors have targeted evidence under `2026-11-23-pr121` and `2026-11-23-pr122`.
+behaviors have revision-bound evidence under `2026-11-23-pr121` and `2026-11-23-pr122`.
 
-The isolated run under `tests/skill-evals/evidence/2026-11-23-pr113/` exercises outcome
+The historical isolated run under `tests/skill-evals/evidence/2026-11-23-pr113/` exercises outcome
 classification and extensible codes directly and passes 4/4 assertions.
 
-The three PR122 runs for empty-catch scope, the safe-failure reason, and wrapper identity each pass 4/4, for 12/12 targeted assertions.
+The historical PR122 runs for empty-catch scope, the safe-failure reason, and wrapper identity each pass 4/4, for 12/12 targeted assertions.
 
-The ten-query trigger corpus installed the candidate in an otherwise empty project: five positive
-prompts read `SKILL.md` and five near-miss prompts did not.
+The current typed behavior evidence under
+`tests/skill-evals/evidence/2026-11-26-issue-147/dsh-spec-error-handling/` records three
+`target-present` behavior claims, not comparisons or causal benefit claims. Existing project
+identity, silent-handler safety and worker-boundary preservation each pass 4/4 reviewer-checked
+assertions, for 12/12 total. Each run retains its scenario and input currentness, execution profile,
+installed skill provenance, terminal trace and retained artifacts.
+
+The current 13-query trigger matrix records seven positives that loaded `SKILL.md` and selected the
+skill, and six near misses that did neither. It includes embedded failure identity, batch partial
+failure, and the log-level-only negative boundary. The matrix and input manifest bind the current
+name and description. It is a 13/13 example matrix, not a repeated-sample trigger-rate estimate.
+
+The earlier ten-query trigger run and the PR113/PR121/PR122 model runs remain historical evidence
+for their recorded revisions.
 
 ## Alternatives considered
 
@@ -255,15 +276,20 @@ prompts read `SKILL.md` and five near-miss prompts did not.
 
 **Add a per-file provenance header to the skill.** It lost because the notice sentence that asks for a header is scoped to engine files with an SPDX identifier; the shipped declaration is the skill-root `THIRD_PARTY_NOTICES` named by the `license` field, which travels with an installed copy without entering the loaded text (R7).
 
+**Drop embedded and batch systems from the target scope.** It lost because their failures have the same machine-identity, state, recovery and reporting obligations as application failures, and the generic rules require no DSH runtime or mechanism. Removing them from the description would make valid failure work undiscoverable.
+
+**Add embedded exception classes, a batch exit-code framework, or a registry.** These lost because they would replace the adopting project's failure representation and contradict the skill's project-owned discriminant rule (R15).
+
 ## Consequences
 
 - The set ships `dsh-spec-error-handling` from `skills/dsh-spec-error-handling/` with an identical installed copy; the deliverable is the entry, one contract reference, and the skill-root notice.
-- The entry assumes no UI, default-enabled logs, API-documentation practice, application runtime, base error, or single failure model. The reference supplies result-only fallback requirements for a new failure when the project has no convention.
+- The entry covers applications, libraries, command-line tools, services, embedded systems and batch systems. It assumes no UI, default-enabled logs, API-documentation practice, application runtime, base error, fixed exit-code framework, registry, or single failure model. The reference supplies result-only fallback requirements for a new failure when the project has no convention.
 - The detailed contract has one reference owner; the entry links to it where family and code decisions need that detail.
-- Costs: the reference adds a second runtime-loaded file for contract work; generalized wording is less concrete than product examples; one clean-context run per scenario covers the changed decisions but does not establish trigger precision across all prompts.
+- Costs: the reference adds a second runtime-loaded file for contract work; generalized wording is less concrete than product examples; one trigger run per example cannot estimate selection rates.
 - Risks: over-generalization can lose the source's force; a sentence outside the audit can still carry an unrecorded assumption; an adaptation can drift; the description can compete with a code-review skill.
+- The current evidence is behavior and trigger evidence only; it makes no comparison claim and no repeated-sample reliability claim.
 - **Executor adherence is judged, not measured.** Whether an agent applies the rules is judgment; no command decides it, so the skill's effect rests on the review.
 - **Presupposition classification is a judgment.** Whether a sentence's runtime assumption is shared, vacuous or unshared is decided per sentence in § Presupposition audit, and review checks the classification against the target scope.
 - **Mechanism parity is judged, not mechanically provable.** Fidelity to the upstream mechanism is checked against the source text by review.
 - What was given up: verbatim fidelity on the adapted units, a product-specific base-error contract, and a per-file provenance header.
-- Rollback: revert the skill revision, its installed copy, the eval corpus, and this record; the baseline pin remains owned by #104.
+- Rollback: revert the skill revision, its installed copy, the trigger corpus and current evidence, the historical evidence classifications, and this record; the baseline pin remains owned by #104.

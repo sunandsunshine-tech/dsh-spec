@@ -1,0 +1,4 @@
+{"type":"skill","path":".agents/skills/dsh-spec-error-handling/SKILL.md","sha256":"ec33b342fb3012b57e27e172a3957d1a383a14b15623e94fd3b44f042fae0ef3"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The issue is an ordinary unit-test expected/actual assertion mismatch, not error-handling design or review, which the `dsh-spec-error-handling` skill explicitly excludes; no other installed skill clearly applies.\n\nSELECT: none"}}
+{"type":"turn.completed","usage":{"input_tokens":12485,"cached_input_tokens":12288,"cache_write_input_tokens":0,"output_tokens":583,"reasoning_output_tokens":536}}

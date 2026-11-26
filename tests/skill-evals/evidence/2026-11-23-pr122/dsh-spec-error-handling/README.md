@@ -1,6 +1,11 @@
 # PR #122 error-handling evidence
 
-These runs verify the alpha.2 failure-handling additions against the current skill:
+> **Historical status:** these runs used the pre-#147 skill revision. They preserve the alpha.2
+> failure-handling checks but do not bind the current embedded and batch scope added by #147.
+> Current evidence is under
+> `../../2026-11-26-issue-147/dsh-spec-error-handling/`.
+
+These runs verify the alpha.2 failure-handling additions against that recorded skill revision:
 
 | Scenario | Assertions | Result |
 |---|---:|---|

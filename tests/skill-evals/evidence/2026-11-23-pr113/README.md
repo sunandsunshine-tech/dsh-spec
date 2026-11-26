@@ -2,7 +2,7 @@
 
 > **Historical status:** this run predates later error-handling edits and is retained as provenance.
 > Current targeted evidence for the later changes is under
-> `tests/skill-evals/evidence/2026-11-23-pr122/dsh-spec-error-handling/`.
+> [the issue #147 evidence](../2026-11-26-issue-147/dsh-spec-error-handling/).
 
 This directory records the model check for the error contract added by PR #113.
 
