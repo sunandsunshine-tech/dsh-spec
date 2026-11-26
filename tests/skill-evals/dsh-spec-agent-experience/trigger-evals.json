@@ -1,0 +1,41 @@
+{
+  "skill_name": "dsh-spec-agent-experience",
+  "agent_file": "trigger-fixtures/AGENTS.md",
+  "queries": [
+    {
+      "id": "rewrite-system-prompt-for-discovery",
+      "query": "Write a compact system prompt for our support bot that keeps the purpose and critical constraints visible, gives the model a reliable way to discover the refund policy when a case needs it, and does not paste the whole handbook.",
+      "should_trigger": true
+    },
+    {
+      "id": "place-tool-parameter-rules",
+      "query": "Revise the `deploy_release` tool definition so the callers can see the default, allowed range, paired fields, and production-only requirement on the relevant parameters without changing what the tool does.",
+      "should_trigger": true
+    },
+    {
+      "id": "reshape-skill-instructions",
+      "query": "Rewrite the instructions inside this existing Agent Skill so it starts with only the purpose, actions, and constraints, then makes its deferred references discoverable. Keep its name, description, scripts, and role unchanged.",
+      "should_trigger": true
+    },
+    {
+      "id": "shorten-multi-step-workflow-context",
+      "query": "The steps of our checkout recovery workflow all receive a long checklist. Rewrite the workflow steps so each one sees the context it needs, defers rare details to named resources, and returns a bounded result with a way to retrieve more.",
+      "should_trigger": true
+    },
+    {
+      "id": "create-whole-agent-skill",
+      "query": "Turn this incident runbook into a new Agent Skill. Choose the skill's role, description, structure, scripts, references, eval plan, and lifecycle, then forge the complete package.",
+      "should_trigger": false
+    },
+    {
+      "id": "trim-readme-prose",
+      "query": "Tighten the prose in `docs/getting-started.md`: remove repetition and decorative wording while preserving every prerequisite and failure mode. Do not redesign any agent prompt or instructions.",
+      "should_trigger": false
+    },
+    {
+      "id": "review-code-only",
+      "query": "Review `src/cache.ts` only for correctness, concurrency, and test coverage. Report bugs in the implementation; do not inspect or change prompts, tool descriptions, or agent instructions.",
+      "should_trigger": false
+    }
+  ]
+}

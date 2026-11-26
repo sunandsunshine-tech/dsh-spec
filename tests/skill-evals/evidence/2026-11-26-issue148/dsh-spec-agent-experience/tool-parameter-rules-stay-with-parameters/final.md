@@ -1,0 +1,3 @@
+Reworked [current.schema.json](/workspace/evals/files/release-tool/current.schema.json:1) in place. The tool name and all seven parameter names remain unchanged. Defaults and ranges now live on their parameters, `dependentRequired` enforces paired scheduling fields, and conditional branches enforce production approval and canary-specific percentage rules. The tool description now states only the observable behavior.
+
+Validated the JSON and Draft 2020-12 schema structure, then ran 21 acceptance/rejection cases covering every behavior note. All passed, and `git diff --check` is clean. The expanded contract is roughly 602 estimated tokens, up from about 400, because the previously prose-only rules are now machine-enforceable.

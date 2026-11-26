@@ -1,0 +1,15 @@
+{
+  "id": "minimal-context-and-explicit-discovery",
+  "prompt": "Write `system-prompt.md` for the support assistant described by the attached project brief. Begin with the purpose and the critical no-promise and payment-data constraints before any action guidance. The runtime can retrieve any cataloged resource by its exact path. Keep the starting prompt compact enough to act from immediately, while making the detailed resources discoverable when a case needs them. Do not edit the supplied brief or resource files.",
+  "expected_output": "The system prompt begins with the support purpose and critical customer-data and approval constraints before action guidance, then lists the available actions. It gives every deferred resource a useful description and an exact retrieval path, and it tells the assistant to load the refund or escalation detail only when the case needs it.",
+  "files": [
+    "evals/files/support-agent/project-brief.md"
+  ],
+  "assertions": [
+    "The initial prompt covers the support purpose, available actions, and critical no-promise and payment-data constraints.",
+    "The full refund policy is deferred rather than copied into the initial prompt.",
+    "Each deferred resource has a description and an exact `read_resource` path.",
+    "The prompt says when to retrieve each deferred resource instead of loading every detail at the start.",
+    "The critical constraints appear before action guidance, and the prompt adds no unspecified action, resource, or policy value."
+  ]
+}

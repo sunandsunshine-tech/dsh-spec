@@ -1,0 +1,5 @@
+PASS Results are concise findings anchored by stable thread and message identifiers rather than whole-thread dumps.
+PASS Each finding includes a bounded amount of adjacent context and a result-limit boundary.
+PASS Omitted messages and truncation are marked with enough counts or identifier ranges for the reader to judge the gap.
+PASS A concrete retrieval action can fetch more context by thread identifier and message range or pagination.
+PASS The instructions ask the assistant to judge whether further search or retrieval adds needed evidence, and completion evidence names the source ranges used.

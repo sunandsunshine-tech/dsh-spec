@@ -1,0 +1,51 @@
+{
+  "name": "schedule_release",
+  "description": "Schedules a release. If replicas is omitted the service uses 2; replicas must be from 1 to 10. start_at and timezone must be supplied together. The rollout strategy defaults to all-at-once. For canary rollouts, canary_percentage defaults to 10 and must be from 1 to 100. A production release requires approval_ticket. The scheduler validates this and returns an id.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "environment": {
+        "type": "string",
+        "enum": [
+          "staging",
+          "production"
+        ],
+        "description": "Target environment."
+      },
+      "replicas": {
+        "type": "integer",
+        "description": "Number of replicas."
+      },
+      "start_at": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Optional release start instant."
+      },
+      "timezone": {
+        "type": "string",
+        "description": "Optional IANA timezone paired with start_at."
+      },
+      "rollout_strategy": {
+        "type": "string",
+        "enum": [
+          "all-at-once",
+          "canary"
+        ],
+        "description": "How traffic moves to the new release."
+      },
+      "canary_percentage": {
+        "type": "integer",
+        "description": "Traffic percentage for a canary release."
+      },
+      "approval_ticket": {
+        "type": "string",
+        "description": "Approval ticket identifier for production."
+      }
+    },
+    "required": [
+      "environment",
+      "approval_ticket"
+    ],
+    "additionalProperties": false
+  }
+}

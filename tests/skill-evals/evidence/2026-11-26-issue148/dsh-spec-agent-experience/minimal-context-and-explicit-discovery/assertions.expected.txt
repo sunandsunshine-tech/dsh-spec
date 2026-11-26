@@ -1,0 +1,5 @@
+PASS The initial prompt covers the support purpose, available actions, and critical no-promise and payment-data constraints.
+PASS The full refund policy is deferred rather than copied into the initial prompt.
+PASS Each deferred resource has a description and an exact `read_resource` path.
+PASS The prompt says when to retrieve each deferred resource instead of loading every detail at the start.
+PASS The critical constraints appear before action guidance, and the prompt adds no unspecified action, resource, or policy value.
