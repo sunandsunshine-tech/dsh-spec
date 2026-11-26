@@ -4,52 +4,56 @@ Status: implemented
 
 [English](2026-10-13-dependabot-signs-with-a-fixed-address.md) | 中文
 
-## Problem
+## 问题
 
-每一次 Dependabot 的 action 升级都过不了 DCO 门禁，于是每一次都得人工落地。
+每一次 Dependabot 的 action 版本更新都过不了 DCO 门禁，所以每一次都只能人工落地。
 
-Dependabot 提交时作者是 `<安装 id>+dependabot[bot]@users.noreply.github.com`，而提交信息里总是带着 `Signed-off-by: dependabot[bot] <support@github.com>`。这个 trailer 地址由 GitHub 固定，且**刻意与每个机器人各自的 noreply 作者地址不同**；而 `verify-dco.ts` 是从提交本身读作者身份、不信任 trailer，于是它报出 `signs dependabot[bot] <support@github.com>, but the commit's author is dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>` 并以 1 退出。
+Dependabot 会把提交的作者地址设为 `<installation-id>+dependabot[bot]@users.noreply.github.com>`，并且总是携带 `Signed-off-by: dependabot[bot] <support@github.com>`。这个 trailer 地址由 GitHub 固定，且刻意不同于每个机器人各自的作者地址；而 `verify-dco.ts` 从提交本身读取作者身份，不信任 trailer，因此报出 `signs dependabot[bot] <support@github.com>, but the commit's author is dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>` 并以状态码 1 退出。
 
-这个拒绝是设计如此，不是缺陷：那道比较正是为了抓出"签名的人不是作者"或"邮箱写错"。但它同时意味着：本仓库配置的唯一自动化依赖通道**永远无法满足它**，于是每周的升级都带着一个红色检查到达。
+这种拦下是设计所致，不是缺陷：这项比较正是为了抓出签署者并非提交作者，或者地址拼写有误的情况。但它同时也意味着，本仓库配置的唯一一条自动化依赖通道永远无法满足它，于是每周的版本更新都带着一个红色检查到达。
 
-## Decision
+## 决策
 
-`verify-dco.ts` 对作者地址是 Dependabot 自己的提交，接受它那个固定的 trailer 地址；并且对声称机器人身份的提交，去 GitHub 核实而不是采信。
+对于作者地址属于 Dependabot 自己的提交，`verify-dco.ts` 接受其固定的 trailer 地址。只要提交的作者地址或最终块中的任一条签署指向列入白名单的机器人，它就会向 GitHub 核验该提交，Dependabot 以 noreply 形式进行的自我签署也包括在内。
 
-这两个决定落在同一个门禁里，因为第二个只对第一个豁免的那些提交生效：正是豁免造出了一个值得核实的身份，所以全是人类提交的区间仅凭 `git log` 就能判定，而带有机器人提交的区间只就那几条去问 GitHub。
+trailer 检查与机器人检查位于同一道提交准入门禁中：人类提交在本地判定，机器人身份则需要 GitHub 将其与本地写入的声称区分开。
 
-豁免**锚在作者地址上，而不是作者名**：只有 `git log` 报出的作者邮箱匹配 `^\d+\+dependabot\[bot\]@users\.noreply\.github\.com$`，**且** trailer 恰好是 `dependabot[bot] <support@github.com>` 时，该提交才通过。其余所有提交仍然对作者与提交者做精确比较，所以"签名写成了别人"照样失败。
+门禁先把 CRLF 与 CR 行尾统一为 LF，再使用 `git interpret-trailers --parse` 解析最终 trailer 块，因此续行会根据 Git 的 trailer 规则展开。每条展开后的 `Signed-off-by:` 都必须恰好写出一项身份，即提交的作者或 committer。折叠值写出多项身份时会失败。
 
-显示名换不来这个豁免。GitHub 是按作者地址解析账号的，所以那个模式里的地址属于机器人，而 `user.name` 是提交者自己设的任何值——`git -c user.name="dependabot[bot]"` 会用人类地址签名，并被拒绝。
+只有当作者地址匹配 `^\d+\+dependabot\[bot\]@users\.noreply\.github\.com$`，且签署恰好是 `dependabot[bot] <support@github.com>` 时，才接受 Dependabot 的固定 trailer。其余每条签署仍保留精确的作者或 committer 比较，因此指向第三方的签署仍会失败。
 
-对每一条豁免生效的提交，门禁随后要求三项 GitHub 侧的事实：`author.type === 'Bot'`、login 在它的白名单内、以及 `commit.verification.verified`。一个人本地写出来的提交能满足前两项可写的事实，却满足不了签名——于是这个豁免既接受了 Dependabot 的升级，也拒绝了它本来分辨不出的伪造。
+仅凭显示名无法取得这项豁免。显示名若指向列入白名单的机器人，确实会触发核验：GitHub 必须把该提交的 committer 解析为该机器人，而不是解析为人工账号。因此，使用人类地址的人即使写入 `git -c user.name="dependabot[bot]"`，也会失败。
 
-这保住了什么：贡献者的检出对纯人类提交的区间仅凭 `git log` 就能判定，且任何提交都不被要求签名——DCO 本不需要签名，要求它等于把本仓库的偏好强加给每位贡献者。代价是什么：门禁不再在所有情况下都是一次纯 `git log` 读取。区间里出现机器人提交就需要 `gh`，且要已认证；一个本地写了这种提交、又在离线环境跑门禁的贡献者，得到的是拒绝而不是通过——这是诚实的答案，因为只有 GitHub 能把那条提交与伪造区分开。
+对于每条写明列入白名单机器人的提交，门禁要求三项 GitHub 侧事实：`committer.type === 'Bot'`、预期的机器人登录名，以及 `commit.verification.verified`。GitHub 的[提交 API](https://docs.github.com/en/rest/commits/commits#get-a-commit)会分别给出作者与 committer 的账号归属，而[签名核验](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification)会把已验证签名绑定到 committer 邮箱。因此，仅凭作者归属加一个 `verified` 布尔值，并不能证明该机器人签署了提交。
 
-凭据由 CI 那一步提供：它像 vendored 包那个 workflow 一样，把 `GITHUB_TOKEN` 交给这一步——`gh` 认这个变量，也认 `GH_TOKEN`，两者都没有就拒绝，于是一个不提供凭据的步骤会让检查**失败**而不是跳过这个问题。这次查询只需要 `contents: read` 这一个权限范围。
+这保住了什么：贡献者的检出仅凭 `git log` 就能判定只含人类提交的区间，并且不会要求任何提交提供签名——DCO 本不需要签名，要求签名会把本仓库的偏好强加给每位贡献者。代价是什么：门禁不再在所有情况下都只是一次纯 `git log` 读取。区间中若有机器人提交，就需要已认证的 `gh`；贡献者在本地创作了这样一条提交，却在离线环境运行门禁，得到的是拦下而非通过，这正是诚实的答案，因为只有 GitHub 能把该提交与伪造区分开。
 
-## Alternatives considered
+凭据由 CI 步骤负责提供。它像 vendored 包的 workflow 给自身步骤提供凭据那样携带 `GITHUB_TOKEN`：`gh` 既读取该变量，也读取 `GH_TOKEN`，两者都不存在时便不会继续；因此，不提供任何凭据的步骤会让检查失败，而不是跳过这个问题。这次查询只需要 `contents: read` 这一权限范围。
 
-**撤掉 Dependabot，有新版本时手工改 pin。** 改动最小，门禁一动不动。它输了，因为那个 pin 是两个 workflow 文件里的一行，而每周的机器人正是最不值得人工去做的那件杂事：`actions/setup-node` 从 7.0.0 到 7.1.0 只差两行，让人每周重复这两行，等于把自动化通道存在的理由取消掉。
+## 曾考虑的替代方案
 
-**跳过所有作者名以 `[bot]` 结尾的提交。** 一行代码，还顺带覆盖 release-please 与将来任何机器人。它输了，因为作者名是贡献者可控的：`git -c user.name="some[bot]"` 就能让一个普通贡献者跳过门禁。已经有仓库采用过这个形状，其中一处后来把它当作绕过漏洞移除了。
+**撤掉 Dependabot，在出现 release 时手工更新 `pin`。** 这是最小的改动，并且让门禁保持不变。它落选，是因为 `pin` 是两份 workflow 文件中的一行，而每周由机器人处理正是值得免去的人工杂务：`actions/setup-node` 从 7.0.0 移到 7.1.0 只产生两行差异，让人每周手工重复这件事，正是自动化通道之所以存在要消除的人工维护。
 
-**对每条提交都去问 GitHub，从而也对人类要求签名。** 它输了，因为 DCO 本不需要签名：强加一个签名，等于为每位贡献者加一把密钥去应付一项该证书并不作出的检查，而这道门禁的整个设计前提是仅凭 `git` 就能跑。
+**跳过所有作者名以 `[bot]` 结尾的提交。** 只需一行，还能覆盖 release-please 和未来任何机器人。它落选，是因为作者名由贡献者控制：`git -c user.name="some[bot]"` 会让普通贡献者跳过门禁。有两个采用这种形状的仓库此后已不再使用它，其中一个把这条绕过路径本身记作原因。
 
-**不动门禁，把豁免记在 PR 里。** 完全不改门禁。它输了，因为必须变绿的那套 CI 是从 `main` 上取门禁来跑的，所以豁免必须先落在 `main` 上，Dependabot 的 PR 才可能过。
+**把整个豁免放进本地门禁，信任这两项可写事实。** 这是最早写出的改动。它落选，是因为贡献者能同时写入 `user.email` 和 trailer，于是豁免便建立在 GitHub 一无所知的内容上。
 
-## Consequences
+**向 GitHub 查询每条提交，从而也要求人类提供签名。** 它落选，是因为 DCO 本不需要签名：要求签名会给每位贡献者的设置加一把密钥，去满足这张证书并不作出的检查；而这道门禁的整个设计前提是仅凭 `git` 就能运行。
 
-每周的升级带着绿色到达，且携带的仍是门禁照样要求人类提供的那份签名。`support@github.com` 只对一个作者地址被接受，所以这不是一个通用的后门。
+**信任 API 给出的作者归属与 `verified` 布尔值。** 它落选，是因为 GitHub 的 author 账号标识的是提交作者，而不是签名所核验的邮箱和 committer。否则，一个由 Dependabot 担任作者、由人类担任 committer 的提交，就会同时满足两项可在本地写入的字段和远端布尔值。
 
-代价：另一个注入自家签名地址的机器人会以同样方式失败，直到有人把它的 trailer 连同它的作者模式一起加进 `DEPENDABOT_TRAILER`。这是刻意的——对其他人比较仍然精确，而放宽它需要一次改动加一份记录，而不是一条"关于机器人"的通用规则。
+**豁免机器人，并把这项豁免记录在 PR（Pull Request）中，而不是门禁里。** 完全不动门禁。它落选，是因为必须变绿的 CI 从 `main` 运行门禁，所以豁免必须先落在 `main` 上，Dependabot 的 PR 才能通过。
 
-它挡不住的伪造，以及它并不新引入的伪造。一个确实由机器人创作并签名的提交，与一个本地提交、只是带着这两个字符串的提交，无法从提交本身分辨——因为这两项事实都来自提交自身：`git log` 读到的是贡献者自己设的作者记录，而 trailer 也是他写下的。所以一个把 `user.email` 设成 `49699333+dependabot[bot]@users.noreply.github.com` 并写下那个 trailer 的贡献者，能过这道门禁。
+## 后果
 
-**这不是本次改动开出的口子。** 一道拿 trailer 去比作者记录的门禁，比的就是两项贡献者可控的事实；改动前那条规则同样如此，只是偏了一步——把提交的作者设成 trailer 里那个地址，`named === author` 从来就能满足。真正拿作者身份去比**外部记录**、而不是比提交自身的，是签名校验（GitHub 的签名验证、GPG、Sigstore），而这道门禁从未做过这一点，上面的备选条目里已经就这个取舍做过决定。
+每周的版本更新都以通过状态到达，并携带门禁仍然要求人类提供的那份签署完成合并。`support@github.com` 只对一个作者地址被接受，所以这不是通用的后门。
 
-这次改动**新**允许的是：一个披着机器人身份的提交，在 PR 列表里读起来像可信的自动化。防线与从前同一条——PR 在合并前经过评审，而 DCO 这一步只在 PR 上跑，所以落到 `main` 上的就是评审人放行过的东西。
+代价是：另一个注入自身签署的机器人会以同样方式失败，直到把它的作者模式、登录名与可接受的 trailer 加入 `BOT_AUTHORS`。这是刻意的——对其余所有人，比较仍保持精确；放宽它需要一次改动和一份记录，而不是一条关于机器人的通用规则。
 
-## Testing
+只有当 GitHub 将提交的 committer 解析为该机器人，并报告签名已由 GitHub 核验后，门禁才接受携带 Dependabot 作者地址和 trailer 的提交。作者、committer 与 trailer 字符串仍可由贡献者写入；外部 committer 解析和签名才是把机器人提交与本地声称区分开的检查。
 
-`tests/dco.test.ts` 用 fixture 仓库跑这道门禁，把两半都钉住：Dependabot 的固定 trailer 对 Dependabot 的作者地址被接受，对其它任何情况都不被接受——机器人的名字配人类地址、机器人的提交配人类 trailer、以及另一个机器人的固定 trailer，全部照样失败；此外还有"整条没有 trailer"与"空区间"两个用例。
+剩下的人类控制是评审：DCO 步骤在 PR 上运行，落到 `main` 上的内容就是评审人放行的内容。
+
+## 测试
+
+`tests/dco.test.ts` 使用 fixture（测试前置数据）仓库运行门禁。它 pin 住以下情形：合法的 LF 与 CRLF 折叠签署、对折叠多身份的拦下、仅作者和仅 committer 的身份、Dependabot 的固定 trailer 及其 noreply 自我签署、Dependabot 作者配人类 committer、跨多个提交的逐 SHA 事实、带人类地址的机器人名称、未签名和失败的 GitHub 查询、无关机器人、缺少最终块签署，以及空区间。

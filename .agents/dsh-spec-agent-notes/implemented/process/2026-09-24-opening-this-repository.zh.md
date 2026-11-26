@@ -14,9 +14,9 @@ Status: implemented
 
 **行为准则是 Contributor Covenant 2.1 官方英文原文,不建中文配对。** 以英文原文为准;而配对约定要求两侧同等权威,所以中文一侧要么是第二个权威,要么只是一个指针。本仓库只留指针。
 
-**入站贡献从 day0 起带 DCO。** `CONTRIBUTING.md` 写明 `Signed-off-by` 要求,`scripts/verify-dco.ts` 检查 PR 范围内每个提交都带与作者一致的签名,并对声称机器人身份的提交去 GitHub 核实。agent 不替他人签名,所以检查认的是贡献者本人的签名;唯一那个 trailer 由 GitHub 固定的机器人,只有在 GitHub 报出「这条提交属于它、且由它签名」之后才被接受。
+**入站贡献从 day0 起带 DCO。** `CONTRIBUTING.md` 写明 `Signed-off-by` 要求,`scripts/verify-dco.ts` 要求 PR（Pull Request）范围内的每个提交都在最终 trailer 块中至少带一条签署,并且每条展开后的 `Signed-off-by:` 都必须写明提交的作者或 committer。对于声称机器人身份的提交,它还会去 GitHub 核实。agent 不替他人签名,所以检查认的是贡献者本人的签名;唯一那个 trailer 由 GitHub 固定的机器人,只有在 GitHub 报出「这条提交属于它、且由它签名」之后才被接受。
 
-**允许 AI 贡献,但必须披露。** 贡献用 `Assisted-by:` trailer 声明协助,并且由人继续为改动实际做了什么负责;自主 agent 提交的 PR 需事先获批。历史里本来就在用这个 trailer,政策写下的是既有做法,不是新规矩。
+**允许 AI 贡献,但必须披露。** 贡献用 `Assisted-by:` trailer 声明协助,并且由人继续为改动实际做了什么负责;自主 agent 提交的 PR 需事先获批。历史里本来就在用这个 trailer,政策写下的是既有做法,不是新规矩。提交主题通过[squash 提交主题由非合并提交数量决定](2026-11-26-squash-subjects-follow-the-non-merge-commit-count.zh.md)应用这项决定，该记录不建立第二套 AI 或 DCO 策略。
 
 **公开的提交身份是 GitHub noreply 地址。** 仓库转公开之前改写每个提交的作者与 committer 邮箱,此时还没有 fork、没有外部 clone、也没有不可变 release;先在账号侧打开邮箱隐私设置,让改写后的身份在下次推送时不被拦回。
 

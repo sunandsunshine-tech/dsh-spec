@@ -38,9 +38,13 @@ pnpm run test:browser-gif
 pnpm run test:watch
   # the suite in watch mode
 
-node scripts/verify-dco.ts --base=<ref> --head=<sha>
-  # every commit in the range carries a Signed-off-by trailer that matches its author; a commit
-  # claiming a bot identity is verified against GitHub as well
+node scripts/verify-dco.ts --base=<ref> --head=<sha> [--pr-title=<text>]
+  # every unfolded final-block Signed-off-by matches the author or committer; CRLF and CR normalize
+  # to LF first. A bot identity named by the author address or a sign-off requires GitHub's matching
+  # committer account and verified signature. Default PR mode rejects every manual tracker suffix
+  # using Git's actual subject. The explicit --mode=squash-commit check requires one commit with one
+  # parent and one canonical positive unpadded suffix at the true end. Dependabot's fixed
+  # support@github.com trailer is the one bot exception.
 
 node scripts/submit-vendored.ts --dry-run
   # prints the dependency-submission payload and posts nothing
@@ -67,6 +71,11 @@ pnpm run skill:refresh
 ```
 
 The repository develops and checks on Node.js 26; shipped scripts support `^24.11.0 || >=26.0.0`, and CI covers both supported Node lines. The pnpm and Vite+ versions the root `package.json` pins are part of that toolchain. Source formatting is Oxfmt through `vp fmt`, configured in the root `vite.config.ts`; `pnpm run check:static` adds Oxlint and the `tsrs` type checker.
+
+## Change metadata
+
+- Follow [the repository's subject rule](CONTRIBUTING.md#commit-and-pull-request-subjects) for the title and commit subjects: use the conventional form, describe the resulting change, keep tracker and review references in the body, and leave the single canonical ` (#<pr>)` suffix to GitHub. Under `COMMIT_OR_PR_TITLE`, a PR with one non-merge commit takes its prospective subject from the commit; any other count takes it from the title. Both branch inputs remain suffix-free. Write the body through the [four-block PR-description skill](skills/dsh-spec-pr-description/SKILL.md) and its [AI Usage reference](skills/dsh-spec-pr-description/references/ai-usage.md).
+- Every AI-assisted commit names each participating machine in an `Assisted-by:` trailer and still carries the DCO `Signed-off-by:`. The sole fixed-address DCO exception is [Dependabot's `support@github.com` sign-off](.agents/dsh-spec-agent-notes/implemented/process/2026-10-13-dependabot-signs-with-a-fixed-address.md), accepted only after GitHub resolves the committer as that bot and verifies its signature.
 
 ## Boundaries
 

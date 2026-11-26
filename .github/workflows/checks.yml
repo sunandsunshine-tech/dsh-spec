@@ -5,6 +5,7 @@ name: checks
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, edited]
   push:
     branches: [main]
 
@@ -70,11 +71,14 @@ jobs:
       #
       # A commit claiming a bot identity is verified against GitHub as well, which is why this step
       # carries a token: `gh` reads `GITHUB_TOKEN` and refuses without it, and a refusal is not a
-      # pass. `contents: read` is the only scope it needs, and a range of human commits never asks.
+      # pass. `COMMIT_OR_PR_TITLE` makes a PR with one non-merge commit use that commit subject and
+      # every other count use the title; the gate rejects suffixes in both branch inputs.
+      # `contents: read` is the only scope it needs, and a range of human commits never asks.
       - name: the Developer Certificate of Origin
         if: github.event_name == 'pull_request'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DCO_PR_TITLE: ${{ github.event.pull_request.title }}
         run: node scripts/verify-dco.ts --base="origin/${{ github.base_ref }}" --head="${{ github.event.pull_request.head.sha }}"
 
   checks:
