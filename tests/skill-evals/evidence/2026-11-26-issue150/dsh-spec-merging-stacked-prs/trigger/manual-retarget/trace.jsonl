@@ -1,0 +1,4 @@
+{"type":"skill","path":".agents/skills/dsh-spec-merging-stacked-prs/SKILL.md","sha256":"e94624a78734821d571617d10fadc8ae45328d153f5ce57c29b11f687af600c5"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The stacked-PR merging skill does not apply because this is a single PR retarget, and that skill explicitly excludes manual target changes.\n\nSELECT: none"}}
+{"type":"turn.completed","usage":{"input_tokens":12458,"cached_input_tokens":12288,"cache_write_input_tokens":0,"output_tokens":198,"reasoning_output_tokens":167}}

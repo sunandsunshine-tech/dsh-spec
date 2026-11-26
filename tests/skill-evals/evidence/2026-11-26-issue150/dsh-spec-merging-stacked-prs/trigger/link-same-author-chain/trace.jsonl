@@ -1,0 +1,4 @@
+{"type":"skill","path":".agents/skills/dsh-spec-merging-stacked-prs/SKILL.md","sha256":"e94624a78734821d571617d10fadc8ae45328d153f5ce57c29b11f687af600c5"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The request is to create and verify an official GitHub stack of three dependent open PRs whose bases are already correct, which directly matches the installed stacked-PR skill’s scope.\n\nSELECT: dsh-spec-merging-stacked-prs"}}
+{"type":"turn.completed","usage":{"input_tokens":12478,"cached_input_tokens":12288,"cache_write_input_tokens":0,"output_tokens":365,"reasoning_output_tokens":316}}

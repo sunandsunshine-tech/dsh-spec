@@ -23,7 +23,7 @@ Status: implemented
 
 锻造技能入口在意图、验证和评估覆盖范围中陈述这项要求。`tests/skill-evals/dsh-spec-skill-forge/evals/evals.json` 中的行为场景 `description-derived-from-role-triggers-and-exclusions` 让锻造技能在保留流程的同时，对齐 release-audit description 与正文边界。其触发语料 `tests/skill-evals/dsh-spec-skill-forge/trigger-evals.json` 包含六个正例请求和六个近失例请求，覆盖显式与隐式技能编写，并以安装、使用、提示词编辑、API 描述、运行时代码和工具定义作为近失例。
 
-当前触发语料还包括 `tests/skill-evals/dsh-spec-ci-test-reliability/trigger-evals.json`、`tests/skill-evals/dsh-spec-client-ui-ux/trigger-evals.json`、`tests/skill-evals/dsh-spec-error-handling/trigger-evals.json`、`tests/skill-evals/dsh-spec-find-simplifications/trigger-evals.json`、`tests/skill-evals/dsh-spec-performance-investigation/trigger-evals.json`、`tests/skill-evals/dsh-spec-pr-description/trigger-evals.json`、`tests/skill-evals/dsh-spec-record-browser-gif/trigger-evals.json` 和 `tests/skill-evals/dsh-spec-translate-docs/trigger-evals.json`。`tests/skill-scenarios.test.ts` 校验语料结构、当前触发面、该行为场景及其保留的模型证据；description 的质量仍由评审判断，而不是由正则语义门禁裁决。
+当前触发语料还包括 `tests/skill-evals/dsh-spec-ci-test-reliability/trigger-evals.json`、`tests/skill-evals/dsh-spec-client-ui-ux/trigger-evals.json`、`tests/skill-evals/dsh-spec-error-handling/trigger-evals.json`、`tests/skill-evals/dsh-spec-find-simplifications/trigger-evals.json`、`tests/skill-evals/dsh-spec-merging-stacked-prs/trigger-evals.json`、`tests/skill-evals/dsh-spec-performance-investigation/trigger-evals.json`、`tests/skill-evals/dsh-spec-pr-description/trigger-evals.json`、`tests/skill-evals/dsh-spec-record-browser-gif/trigger-evals.json` 和 `tests/skill-evals/dsh-spec-translate-docs/trigger-evals.json`。`tests/skill-scenarios.test.ts` 校验语料结构、当前触发面、该行为场景及其保留的模型证据；description 的质量仍由评审判断，而不是由正则语义门禁裁决。
 
 跟踪：#160（设计：#132）。
 

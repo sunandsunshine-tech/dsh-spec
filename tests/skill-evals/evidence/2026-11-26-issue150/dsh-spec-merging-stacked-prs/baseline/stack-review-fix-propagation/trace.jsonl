@@ -1,0 +1,4 @@
+{"type":"skill","path":".agents/skills/dsh-spec-merging-stacked-prs/SKILL.md","sha256":"c931f4e3e53192cb02c41d53a0880527ccca1bb10ac85364bb52e3b76a52544e"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The request concerns propagating changes across dependent PR branches, which matches the skill’s dependent-PR and stacked-branch trigger; the explicit prohibition on merging limits execution but does not remove the skill’s applicability.\n\nSELECT: dsh-spec-merging-stacked-prs"}}
+{"type":"turn.completed","usage":{"input_tokens":12434,"cached_input_tokens":12160,"cache_write_input_tokens":0,"output_tokens":384,"reasoning_output_tokens":329}}
