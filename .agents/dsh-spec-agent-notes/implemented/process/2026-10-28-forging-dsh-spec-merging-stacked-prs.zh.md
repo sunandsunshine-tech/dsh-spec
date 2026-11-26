@@ -18,7 +18,7 @@ Status: implemented
 
 机制来自上游：官方的 GitHub stack 对象是成员资格权威；一条符合条件的同作者链——未入栈，或某个既有栈中保序的子集——以增量方式被链接；原生级联 rebase 配合 rerere 是默认刷新方式，增量 merge-forward 只在 pull request 作者明确请求时使用；合并通过 `gh stack merge` 进行，绝不通过逐个 pull request 的 `gh pr merge` 加重定向；选择整个栈或一个显式限定的前缀；每个选中的 pull request 都按其实际必需评审与检查判断，因依赖父层尚未合并而形成的 `BLOCKED` 不算失败；每个选中的 pull request 必须在删除分支之前报告 `MERGED`，而删除是单独的最后一轮。改编如下：
 
-1. **名称与触发语言。** 目标名是请求的 `dsh-spec-merging-stacked-prs`；description 保留来源的触发词汇与要求含义，并追加中文触发语言。来源固定的 `master` 在正文中变成声明的 stack base，通常是底层 PR 的 `baseRefName`（R4）。
+1. **名称与触发语言。** 目标名是请求的 `dsh-spec-merging-stacked-prs`。description 点名 GitHub 官方堆叠落地：相互依赖的 PR（A ← B ← C）、以另一个开放 PR 分支为 base 的 PR，以及按序合并相关 PR。它排除评审修复传播、普通单 PR 合并、人工更改目标分支和非 GitHub 依赖链，并追加中文触发语言。中文把 manual target changes 写作「人工更改目标分支」，并把最终禁止项写作「不得逐个合并 PR 并更改其目标分支来模仿堆叠语义」（R12）。来源固定的 `master` 在正文中变成声明的 stack base，通常是底层 PR 的 `baseRefName`（R4）。
 2. **上游文档指针。** 根 `AGENTS.md` 指针与 cookbook 页面被处置而非承载：历史规则重绑到落地仓库自己的指令（R10），评审修复的传播被消解，因为它在技能范围之外，改写后重新审计的检查作为接管的规则保留。
 3. **合并方法。** 来源固定的 `--merge` 被重绑：合并方法是落地仓库的策略（R5）。技能采用其指令规定的方法，其次采用 GitHub 设置唯一允许的方法，否则使用 `squash`。[squash 默认值决策](2026-11-18-stack-merge-defaults-to-squash.zh.md)部分取代 R5 中的回退事实。
 4. **没有合并授权门。** 来源没有把合并挡在人类回答之后，来源边界中也没有任何东西增加这样一道门；不携带逐 pull request 授权（R8）。来源自己的询问保留：对冲突或意外栈条目的用户指示，作者不同或不可用时询问，以及在本地／远程分歧时取消。
@@ -43,7 +43,7 @@ Status: implemented
 | # | 来源 | 约束 | 处置 | 落点 | 依据 |
 |---|---|---|---|---|---|
 | S1 | frontmatter `name` | 技能按落地动作命名。 | 改编 | SK frontmatter | 请求命名 `dsh-spec-merging-stacked-prs` |
-| S2 | frontmatter `description` | 在落地一串相互依赖的 PR（A ← B ← C）、合并一个 base 是另一个开放 PR 分支的 PR，或请求提到「stacked PRs」「PR stack」「dependent PRs」或按序合并相关 PR 时使用；每条同仓库链在落地前都必须使用 GitHub 官方的 stacked-PR 特性，好让 GitHub 拥有栈级规则、CI、顺序、重定向与合并状态；该链落地到 master。 | 改编 | SK frontmatter | 保留触发词汇与要求含义；来源的 `master` 变成声明的 stack base（R4）；增加中文触发语言 |
+| S2 | frontmatter `description` | 用于 GitHub 官方堆叠落地：相互依赖的 PR（A ← B ← C）、以另一个开放 PR 分支为 base 的 PR，以及按序合并相关 PR；排除评审修复传播、普通单 PR 合并、人工更改目标分支和非 GitHub 依赖链。 | 改编 | SK frontmatter | 保留触发词汇与要求含义；收窄正向边界并明确近失例（R12）；中文把 manual target changes 写作「人工更改目标分支」；来源的 `master` 变成声明的 stack base（R4） |
 | S3 | intro | 通过 GitHub 原生 stack 对象与 `gh stack merge` 落地相互依赖的 PR；不要靠合并并重定向单个 PR 来复现栈语义。 | 保留 | SK intro | 来源机制 |
 | S4 | intro | 根 `AGENTS.md` 拥有允许的 merge-forward 与 rebase 历史。 | 重绑 | SK intro, § Refresh | 历史策略属于落地仓库；alpha.2 把带检查 rerere 解决结果的 rebase 设为默认，并只为 PR 作者的明确请求保留 merge-forward（R10） |
 | S5 | intro | 栈评审指南拥有评审修复的传播。 | 消解 | SK intro, § Refresh | 该指南不是目标的一部分；接管的检查是重新审计规则：任何 head 改写之后，重新获取 head 并重新审计讨论串、批准、可合并性与检查 |
@@ -100,6 +100,7 @@ PR122 的 `refresh-stack-with-rerere` 模型运行通过 4/4 项断言，覆盖�
 | R9 | 技能只链接开放的 pull request，遇到已关闭或已合并的条目时停下并询问。 | 来源说只有开放的 pull request 才能被链接或落地；只读探针确认一个已关闭的探针存在，但扩展对非开放条目的行为未验证，因此目标陈述安全的停止，而不是机制主张 | 如果支持的非开放路径被验证，修订该规则 |
 | R10 | 落地仓库允许改写历史时，以检查 rerere 解决结果后的 rebase 作为默认刷新；merge-forward 是由 PR 作者明确请求的例外。两者都会使提交 OID 假设失效；推送后重新获取 head，并重新审计讨论串、批准、可合并性与检查；绝不使用原始 `--force`，也绝不覆盖并发前进的远程 head。 | 上游 rerere 决策是默认，受落地仓库历史策略约束；保留来源的重新审计与 force 规则 | 把默认改成 merge-forward，或去掉重新审计 |
 | R11 | 不随附脚本：来源中恰好可判定的检查按其自己的 `gh` 与 GraphQL 命令内联承载，由 agent 运行它们。 | 锻造的脚本决定是一项裁决；上游单文件形态被选中而非只读审计脚本，重视 agent 的灵活性与更小的表面，而非脚本稳定的退出类别与离线测试 | 如果判定其一致性值得那些表面，重新引入只读审计脚本 |
+| R12 | description 选择 GitHub 官方堆叠落地、合并基于另一个开放 PR 分支的 PR，以及按序合并相关 PR。它排除评审修复传播、普通单 PR 合并、人工更改目标分支和非 GitHub 依赖链。中文把 manual target changes 写作「人工更改目标分支」，并把最终禁止项写作「不得逐个合并 PR 并更改其目标分支来模仿堆叠语义」。 | 技能正文把评审修复传播置于堆叠落地之外，其余排除任务都不构成堆叠落地需求，且最终从句点名的禁止项是逐个合并 PR 并更改其目标分支，而非受支持的 rebase 刷新（#174） | 改变触发边界，或改回把 rebase 当作禁止操作 |
 
 ### 不随附脚本
 
