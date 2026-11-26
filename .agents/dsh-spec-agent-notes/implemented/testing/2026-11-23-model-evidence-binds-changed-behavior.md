@@ -24,7 +24,7 @@ Current input and skill manifests bind normalized executable mode alongside cont
 
 ## Verification
 
-`tests/skill-scenarios.test.ts` distinguishes trigger and behavior evidence. It verifies that trigger manifests use the frontmatter surface, that behavioral traces and run manifests identify the exact revision used, that current inputs and skill modes still match, that historical inputs match their checked-in manifests, and that recorded skill hashes remain internally consistent. `tests/skill-evals/README.md` states the evidence model; the affected evidence READMEs state the scope of their runs.
+`tests/skill-scenarios.test.ts` distinguishes trigger and behavior evidence. It verifies that trigger manifests use the frontmatter surface, that current inputs, skill modes and `assertions.expected.txt` still match, and that historical inputs and skill hashes match their checked-in manifests. A scenario whose inputs remain current but whose skill revision is historical validates the recorded hash against the named retained tree; an absent target hash fails closed. The current PR-description AI Usage and artifact checks read the Issue #143 evidence root, while PR #121 remains explicit historical provenance. `tests/skill-evals/README.md` states the evidence model; the affected evidence READMEs state the scope of their runs.
 
 ## Alternatives considered
 

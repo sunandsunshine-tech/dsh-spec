@@ -843,6 +843,7 @@ function assertCurrentTriggerEvidence(skill: string, evidenceRoot: string, requi
   const expected = {
     'dsh-spec-ci-test-reliability': { positive: 4, negative: 4 },
     'dsh-spec-skill-forge': { positive: 6, negative: 6 },
+    'dsh-spec-pr-description': { positive: 2, negative: 4 },
     'dsh-spec-record-browser-gif': { positive: 3, negative: 5 },
     'dsh-spec-performance-investigation': { positive: 5, negative: 6 },
     'dsh-spec-translate-docs': { positive: 5, negative: 4 },
@@ -1524,6 +1525,7 @@ function assertHistoricalSkillRevision(
     if (!name || !names.has(name)) continue
     expected.set(path, hash)
   }
+  assert.ok(expected.has(`skills/${skill}/SKILL.md`), root + ' has no retained historical revision for ' + skill)
   assert.deepEqual([...actual.keys()].sort(), [...expected.keys()].sort(), root + ' historical skill file set differs')
   for (const [path, hash] of expected) {
     assert.equal(actual.get(path), hash, root + ' differs from its recorded historical skill revision: ' + path)
@@ -1553,6 +1555,18 @@ test('historical evidence Git helpers ignore inherited redirection variables', (
     rmSync(root, { recursive: true, force: true })
   }
 })
+
+test('historical skill revision validation requires the target skill hash', () => {
+  const root = join(
+    REPO_ROOT,
+    'tests/skill-evals/evidence/2026-11-23-pr122/dsh-spec-pr-description/workspace-boundaries-expose-reverse-edge',
+  )
+  assert.throws(
+    () => assertHistoricalSkillRevision(root, 'dsh-spec-pr-description', [], new Map()),
+    /has no retained historical revision/,
+  )
+})
+
 function stageScenarioProject(skill: string, scenario: Scenario, root: string): void {
   const skillRoot = join(EVAL_SOURCE_ROOT, skill)
   for (const file of scenario.files ?? []) {
@@ -1765,20 +1779,54 @@ test('translate docs trigger corpus separates pair maintenance from ordinary doc
   )
 })
 
-test('pr-description eval covers stack-local AI Usage migration', () => {
+test('pr-description binds current trigger evidence', () => {
+  assertCurrentTriggerEvidence(
+    'dsh-spec-pr-description',
+    join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-25-issue143/dsh-spec-pr-description'),
+  )
+})
+
+test('pr-description eval covers issue exceptions and review update boundaries', () => {
   const corpus = readCorpus('dsh-spec-pr-description')
-  assert.equal(corpus.evals.length, 2)
+  assert.equal(corpus.evals.length, 6)
+  assert.deepEqual(
+    corpus.evals.map((entry) => entry.id),
+    [
+      'stack-layer-replaces-legacy-ai-section',
+      'workspace-boundaries-expose-reverse-edge',
+      'tracked-issue-reference-count',
+      'tracker-without-matching-issue',
+      'unfinished-review-does-not-update',
+      'handled-review-updates-ai-usage',
+    ],
+  )
+  const skillText = readFileSync(join(REPO_ROOT, 'skills', 'dsh-spec-pr-description', 'SKILL.md'), 'utf8')
+  const description = /^description: "(.*)"$/m.exec(skillText)?.[1]
+  assert.ok(description)
+  assert.ok(description.length <= 500, `${description.length} description characters`)
+  assert.match(description, /after a handled review round/i)
+  assert.match(description, /处理完一轮评审之后/)
+  assert.doesNotMatch(description, /or after review|或在评审之后使用/)
+  assert.match(skillText, /Reference at least one same-project tracked issue/)
+  assert.match(skillText, /no matching issue exists and give the tracker search or status/i)
+  assert.match(skillText, /If the project has no issue tracker, state that no tracker applies/i)
+  assert.match(skillText, /cannot turn an existing tracked issue into an optional reference/i)
+  assert.match(skillText, /explicit no-tracker or no-matching-issue exception/i)
   const scenario = corpus.evals.find((entry) => entry.id === 'stack-layer-replaces-legacy-ai-section')
   assert.ok(scenario)
   assert.equal(scenario.id, 'stack-layer-replaces-legacy-ai-section')
-  assert.equal(scenario.assertions.length, 8)
+  assert.equal(scenario.assertions.length, 9)
   assert.match(scenario.prompt, /top layer of a two-layer stack/)
   assert.match(scenario.prompt, /Human and Agent Roles/)
+  assert.match(scenario.prompt, /declares no issue tracker/)
   assert.match(scenario.expected_output, /does not add tracker labels, Project fields, or dates/)
-  for (const file of scenario.files ?? []) {
-    const absolute = join(EVAL_SOURCE_ROOT, 'dsh-spec-pr-description', file)
-    assert.equal(statSync(absolute).isFile(), true, file + ' is not a file')
-    assert.ok(statSync(absolute).size > 0, file + ' is empty')
+  assert.match(scenario.assertions.join('\n'), /no issue tracker applies/)
+  for (const entry of corpus.evals) {
+    for (const file of entry.files ?? []) {
+      const absolute = join(EVAL_SOURCE_ROOT, 'dsh-spec-pr-description', file)
+      assert.equal(statSync(absolute).isFile(), true, `${entry.id}: ${file} is not a file`)
+      assert.ok(statSync(absolute).size > 0, `${entry.id}: ${file} is empty`)
+    }
   }
   const body = readFileSync(join(EVAL_SOURCE_ROOT, 'dsh-spec-pr-description', 'evals/files/project/pr-body.md'), 'utf8')
   assert.match(body, /^## Human and Agent Roles$/m)
@@ -1788,13 +1836,51 @@ test('pr-description eval covers stack-local AI Usage migration', () => {
   assert.match(dependencies.assertions.join('\n'), /base-to-head manifest diff/)
   assert.match(dependencies.assertions.join('\n'), /removed runtime edge is written as app → legacy/)
   assert.match(dependencies.assertions.join('\n'), /core → app runtime edge/)
+  const tracked = corpus.evals.find((entry) => entry.id === 'tracked-issue-reference-count')
+  assert.ok(tracked)
+  assert.match(tracked.prompt, /both same-project issues must be visible/i)
+  assert.match(tracked.prompt, /hidden, code-fenced, inline-code, and cross-project forms/i)
+  assert.match(
+    tracked.expected_output,
+    /visible same-project references for both Issue #17 with a resolving keyword and Issue #18/i,
+  )
+  assert.match(tracked.assertions.join('\n'), /Hidden, code-fenced, inline-code, and cross-project references/)
+  const nonCountingReferences = readFileSync(
+    join(EVAL_SOURCE_ROOT, 'dsh-spec-pr-description', 'evals/files/tracked-issues/non-counting-references.md'),
+    'utf8',
+  )
+  assert.match(nonCountingReferences, /<!--/)
+  assert.match(nonCountingReferences, /```markdown/)
+  assert.match(nonCountingReferences, /Inline `Resolves Issue #17`/)
+  assert.match(nonCountingReferences, /github\.com\/example\/other-project\/issues\/17/)
+  const noIssue = corpus.evals.find((entry) => entry.id === 'tracker-without-matching-issue')
+  assert.ok(noIssue)
+  assert.match(noIssue.expected_output, /tracker query and zero-result status/i)
+  assert.match(noIssue.assertions.join('\n'), /Change request #31 is not treated as an issue reference/)
+  const unfinished = corpus.evals.find((entry) => entry.id === 'unfinished-review-does-not-update')
+  assert.ok(unfinished)
+  assert.match(unfinished.prompt, /only review activity changed/i)
+  assert.match(unfinished.assertions.join('\n'), /review row remains n\/a/)
+  assert.match(unfinished.assertions.join('\n'), /answered comment whose fix is not published/)
+  assert.match(
+    readFileSync(
+      join(EVAL_SOURCE_ROOT, 'dsh-spec-pr-description', 'evals/files/review/unfinished/review-state.md'),
+      'utf8',
+    ),
+    /answered that it will be fixed, but no fix is published/,
+  )
+  const handled = corpus.evals.find((entry) => entry.id === 'handled-review-updates-ai-usage')
+  assert.ok(handled)
+  assert.match(handled.expected_output, /pair level/i)
+  assert.match(handled.assertions.join('\n'), /no-comments statement is removed/)
   stageSkillWithEvals('dsh-spec-pr-description')
 })
 
-test('pr-description trigger corpus covers dependency-edge and near misses', () => {
+test('pr-description trigger corpus separates descriptions from adjacent work', () => {
   const skill = 'dsh-spec-pr-description'
   const skillText = readFileSync(join(REPO_ROOT, 'skills', skill, 'SKILL.md'), 'utf8')
   assert.match(skillText, /^description: ".*module responsibilities and dependency edges.*模块职责与依赖边.*"$/m)
+  assertTriggerCorpusIdentity(skill)
   const corpus = JSON.parse(readFileSync(join(EVAL_SOURCE_ROOT, skill, 'trigger-evals.json'), 'utf8')) as {
     skill_name: string
     agent_file: string
@@ -1808,12 +1894,19 @@ test('pr-description trigger corpus covers dependency-edge and near misses', () 
     corpus.queries.map((entry) => [entry.id, entry.should_trigger]),
     [
       ['dependency-edge-report', true],
+      ['handled-review-description-update', true],
       ['release-note-near-miss', false],
       ['commit-message-near-miss', false],
       ['ordinary-docs-near-miss', false],
+      ['unfinished-review-comment-near-miss', false],
     ],
   )
   assert.match(corpus.queries[0]?.query ?? '', /dependency-edge/i)
+  assert.match(corpus.queries[1]?.query ?? '', /handled round/i)
+  assert.match(corpus.queries.at(-1)?.query ?? '', /fix has not been published/i)
+  assert.match(corpus.queries.at(-1)?.query ?? '', /classify the round as handled or unfinished/i)
+  assert.match(corpus.queries.at(-1)?.query ?? '', /do not create or update a pull-request description/i)
+  assert.doesNotMatch(corpus.queries.at(-1)?.query ?? '', /draft a reply/i)
   for (const entry of corpus.queries) {
     assertNonEmptyString(entry.id, 'pr-description trigger eval id')
     assertNonEmptyString(entry.query, entry.id + ' trigger query')
@@ -3566,24 +3659,25 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
 })
 
 test('PR121, PR122 and PR141 targeted model evidence binds current inputs and recorded provenance', () => {
-  const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-23-pr121')
-  const historicalBrowserReadmePath = join(evidenceRoot, 'dsh-spec-browser-gif-evidence/README.md')
-  assertEvidencePath(evidenceRoot, historicalBrowserReadmePath, 'historical browser README', 'file')
+  const historicalEvidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-23-pr121')
+  const historicalBrowserReadmePath = join(historicalEvidenceRoot, 'dsh-spec-browser-gif-evidence/README.md')
+  assertEvidencePath(historicalEvidenceRoot, historicalBrowserReadmePath, 'historical browser README', 'file')
   const historicalBrowserReadme = readFileSync(historicalBrowserReadmePath, 'utf8')
   assert.match(historicalBrowserReadme, /^> \*\*Historical status:\*\* this run used the pre-final fixture/m)
   assert.match(historicalBrowserReadme, /2026-11-23-pr122\/dsh-spec-browser-gif-evidence\/real-ui-change/)
   assert.match(
-    readFileSync(join(evidenceRoot, 'dsh-spec-translate-docs/README.md'), 'utf8'),
+    readFileSync(join(historicalEvidenceRoot, 'dsh-spec-translate-docs/README.md'), 'utf8'),
     /^> \*\*Historical status:\*\*/m,
     'PR121 translate-docs evidence is not visibly historical',
   )
-  const skillsTreePath = join(evidenceRoot, 'skills-tree.sha256')
-  assertEvidencePath(evidenceRoot, skillsTreePath, 'PR121 skills tree', 'file')
+  const skillsTreePath = join(historicalEvidenceRoot, 'skills-tree.sha256')
+  assertEvidencePath(historicalEvidenceRoot, skillsTreePath, 'PR121 skills tree', 'file')
   const skillsTree = readSkillTreeManifest(skillsTreePath)
-  const historicalInputsPath = join(evidenceRoot, 'evaluation-files.sha256')
-  assertEvidencePath(evidenceRoot, historicalInputsPath, 'PR121 evaluation files', 'file')
+  const historicalInputsPath = join(historicalEvidenceRoot, 'evaluation-files.sha256')
+  assertEvidencePath(historicalEvidenceRoot, historicalInputsPath, 'PR121 evaluation files', 'file')
   const historicalInputs = readHashManifest(historicalInputsPath, 'PR121 evaluation files')
   const pr122EvidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-23-pr122')
+  const pr122PrDescriptionSkillTree = join(pr122EvidenceRoot, 'dsh-spec-pr-description', 'skills-tree.sha256')
   const issue140EvidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-25-issue-140')
   const historicalPrePushReadme = join(pr122EvidenceRoot, 'dsh-spec-pre-push-checks', 'README.md')
   assertEvidencePath(pr122EvidenceRoot, historicalPrePushReadme, 'PR122 pre-push README', 'file')
@@ -3598,6 +3692,7 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
     'pre-#142 translate-docs evidence is not visibly historical',
   )
   const pr142EvidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-25-pr142')
+  const pr143EvidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-25-issue143')
   type EvidenceRun = {
     skill: string
     run: string
@@ -3606,6 +3701,7 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
     current?: boolean
     historicalSkillTree?: string
     historicalInputs?: string
+    historicalSkillRevision?: boolean
   }
   const runs: EvidenceRun[] = [
     { skill: 'dsh-spec-pr-description', run: 'stack-layer-replaces-legacy-ai-section' },
@@ -3665,6 +3761,38 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
       skill: 'dsh-spec-pr-description',
       run: 'workspace-boundaries-expose-reverse-edge',
       evidenceRoot: pr122EvidenceRoot,
+      historicalSkillTree: pr122PrDescriptionSkillTree,
+      historicalSkillRevision: true,
+    },
+    {
+      skill: 'dsh-spec-pr-description',
+      run: 'stack-layer-replaces-legacy-ai-section',
+      evidenceRoot: pr143EvidenceRoot,
+      current: true,
+    },
+    {
+      skill: 'dsh-spec-pr-description',
+      run: 'tracked-issue-reference-count',
+      evidenceRoot: pr143EvidenceRoot,
+      current: true,
+    },
+    {
+      skill: 'dsh-spec-pr-description',
+      run: 'tracker-without-matching-issue',
+      evidenceRoot: pr143EvidenceRoot,
+      current: true,
+    },
+    {
+      skill: 'dsh-spec-pr-description',
+      run: 'unfinished-review-does-not-update',
+      evidenceRoot: pr143EvidenceRoot,
+      current: true,
+    },
+    {
+      skill: 'dsh-spec-pr-description',
+      run: 'handled-review-updates-ai-usage',
+      evidenceRoot: pr143EvidenceRoot,
+      current: true,
     },
     {
       skill: 'dsh-spec-code-review',
@@ -3780,6 +3908,10 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
     'dsh-spec-ci-test-reliability:diagnose-without-fixing': 'diagnose-without-fixing',
     'dsh-spec-ci-test-reliability:redesign-slow-repeated-suite': 'redesign-slow-repeated-suite',
     'dsh-spec-pr-description:workspace-boundaries-expose-reverse-edge': 'workspace-boundaries-expose-reverse-edge',
+    'dsh-spec-pr-description:tracked-issue-reference-count': 'tracked-issue-reference-count',
+    'dsh-spec-pr-description:tracker-without-matching-issue': 'tracker-without-matching-issue',
+    'dsh-spec-pr-description:unfinished-review-does-not-update': 'unfinished-review-does-not-update',
+    'dsh-spec-pr-description:handled-review-updates-ai-usage': 'handled-review-updates-ai-usage',
     'dsh-spec-code-review:review-dependency-edges-and-reverse-edge': 'review-dependency-edges-and-reverse-edge',
     'dsh-spec-code-review:review-cites-numbered-rule': 'review-cites-numbered-rule',
     'dsh-spec-code-review:review-ordinary-ui-with-optional-reports-absent':
@@ -3828,7 +3960,7 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
   }
 
   for (const item of runs) {
-    const runEvidenceRoot = item.evidenceRoot ?? evidenceRoot
+    const runEvidenceRoot = item.evidenceRoot ?? historicalEvidenceRoot
     const evidenceSkill = item.evidenceSkill ?? item.skill
     const root = join(runEvidenceRoot, evidenceSkill, item.run)
     assertEvidencePath(runEvidenceRoot, root, evidenceSkill + '/' + item.run + ' run', 'directory')
@@ -3845,7 +3977,7 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
       JSON.parse(readFileSync(scenarioDefinitionFile, 'utf8')),
       item.skill + '/' + item.run + ' scenario definition',
     )
-    for (const file of [
+    const requiredRunFiles = [
       'input-manifest.sha256',
       'skill-hashes.txt',
       'status.txt',
@@ -3853,7 +3985,9 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
       'final.md',
       'trace.jsonl',
       'artifacts.sha256',
-    ]) {
+    ]
+    if (current) requiredRunFiles.push('assertions.expected.txt')
+    for (const file of requiredRunFiles) {
       const path = join(root, file)
       if (file === 'skill-hashes.txt' && existsSync(join(root, 'skill.sha256'))) continue
       assertEvidencePath(root, path, item.skill + '/' + item.run + ' ' + file, 'file')
@@ -3888,13 +4022,27 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
         item.skill + '/' + item.run + ' capability profile differs',
       )
     }
-    if (current && renamedEvidence) {
+    if (current && renamedEvidence && item.historicalSkillRevision !== true) {
       assert.equal(
         item.skill,
         'dsh-spec-record-browser-gif',
         item.skill + '/' + item.run + ' has no name-only revision policy',
       )
       assertBrowserNameOnlyProvenance(root, evidenceSkill)
+    } else if (item.historicalSkillRevision === true) {
+      assert.ok(item.historicalSkillTree, item.skill + '/' + item.run + ' has no historical skill tree')
+      assertEvidencePath(
+        runEvidenceRoot,
+        item.historicalSkillTree,
+        item.skill + '/' + item.run + ' historical skill tree',
+        'file',
+      )
+      assertHistoricalSkillRevision(
+        root,
+        evidenceSkill,
+        effectiveScenario.install ?? [],
+        readSkillTreeManifest(item.historicalSkillTree),
+      )
     } else if (current) {
       assertBehaviorSkillProvenance(root, evidenceSkill, effectiveScenario.install ?? [])
     } else if (!current) {
@@ -3924,6 +4072,13 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
       true,
       item.skill + '/' + item.run + ' has a failed assertion',
     )
+    if (current) {
+      assert.equal(
+        readFileSync(join(root, 'assertions.expected.txt'), 'utf8').trim(),
+        expectedAssertions.map((assertion) => `PASS ${assertion}`).join('\n'),
+        item.skill + '/' + item.run + ' expected assertions differ',
+      )
+    }
     const finalText = readFileSync(join(root, 'final.md'), 'utf8')
     assert.ok(finalText.trim().length > 0)
 
@@ -4149,14 +4304,14 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
     if (current) assert.equal(replayable, true, item.skill + '/' + item.run + ' is not replayable from its inputs')
     else if (!replayable) {
       assert.match(
-        readFileSync(join(evidenceRoot, 'README.md'), 'utf8'),
+        readFileSync(join(historicalEvidenceRoot, 'README.md'), 'utf8'),
         /historical/i,
         item.skill + '/' + item.run + ' is not replayable but its evidence is not marked historical',
       )
     }
   }
 
-  const prDescriptionRoot = join(evidenceRoot, 'dsh-spec-pr-description')
+  const prDescriptionRoot = join(pr143EvidenceRoot, 'dsh-spec-pr-description')
   const prDescriptionRun = join(prDescriptionRoot, 'stack-layer-replaces-legacy-ai-section')
   assert.ok(
     traceCommandsFor(prDescriptionRun).some((command) =>
@@ -4170,7 +4325,7 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
   assert.equal(prBody.match(/ai-declaration:start/g)?.length, 1)
   assert.doesNotMatch(prBody, /labels?:|Project fields?:|Start Date|telemetry/i)
 
-  const notesRoot = join(evidenceRoot, 'dsh-spec-agent-notes')
+  const notesRoot = join(historicalEvidenceRoot, 'dsh-spec-agent-notes')
   assert.ok(
     traceCommandsFor(join(notesRoot, 'no-peer-uses-user-language')).some((command) =>
       commandPrintsFile(command, '.agents/skills/dsh-spec-agent-notes/references/notes-contract.md'),

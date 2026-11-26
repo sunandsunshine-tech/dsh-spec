@@ -1,7 +1,7 @@
 ---
 name: dsh-spec-pr-description
 license: "MIT; upstream and repository notices in THIRD_PARTY_NOTICES"
-description: "Use for creating or updating a change-request description in any project — pull request, merge request, patch set, or change list — or after review. Covers four content blocks, module responsibilities and dependency edges, AI Usage, test evidence and disclosures. Not for commit messages, release notes, code-review findings, or the code itself. 用于创建或更新任何项目中的变更请求描述（pull request、merge request、patch set 或 change list），或在评审之后使用。涵盖四块内容、模块职责与依赖边、AI Usage、测试证据与披露义务。不用于提交信息、发布说明、代码审查发现或代码改动本身。"
+description: "Create or update a change-request description in any project — pull request, merge request, patch set, or change list — or after a handled review round. Covers four content blocks, module responsibilities and dependency edges, AI Usage, test evidence and disclosures. Not for commit messages, release notes, code-review findings, or the code itself. 用于创建或更新任何项目中的变更请求描述（pull request、merge request、patch set 或 change list），或处理完一轮评审之后使用。涵盖四块内容、模块职责与依赖边、AI Usage、测试证据与披露义务。不用于提交信息、发布说明、代码审查发现或代码改动本身。"
 ---
 
 # Writing change-request descriptions
@@ -23,7 +23,8 @@ Each change request in a stack has its own description, covering only its layer 
 ### Motivation
 
 - State the problem in one sentence.
-- Reference the same-project tracked issue when one tracks the change; never invent a reference. Use the project's declared reference syntax; when the project declares no reference syntax, use the tracker's conventional form — for a GitHub tracker, `Fixes #N`, `Closes #N` or `Resolves #N` when the change resolves the issue and `Refs #N` when it gives context — or link the issue and name the tracker.
+- Reference at least one same-project tracked issue when the project has an issue tracker and an issue tracks the change; never invent a reference. If the tracker exists but no issue tracks the change yet, state that no matching issue exists and give the tracker search or status that makes the absence checkable. If the project has no issue tracker, state that no tracker applies. A project's conventions choose the reference syntax, but they cannot turn an existing tracked issue into an optional reference.
+- Use the project's declared issue-reference syntax; when the project declares none, use the tracker's conventional form — for a GitHub tracker, `Fixes #N`, `Closes #N` or `Resolves #N` when the change resolves the issue and `Refs #N` when it gives context — or link the issue and name the tracker.
 - A change-request number is not an issue reference, and a reference hidden in an HTML comment, a code fence or inline code does not count.
 
 ### Changes
@@ -85,7 +86,7 @@ Write the complete description when the change request is created, even when it 
 
 Before the description is considered written, read it back and verify:
 
-- the description states the four content blocks — why (with its issue reference when one exists), what, the test design and entries, and the AI Usage section — under the default headings in order or under the project's structure;
+- the description states the four content blocks — why (with a tracked-issue reference or the explicit no-tracker or no-matching-issue exception), what, the test design and entries, and the AI Usage section — under the default headings in order or under the project's structure;
 - every reported package responsibility and dependency edge matches the current manifests and call sites;
 - exactly one AI Usage section exists and no superseded section remains;
 - the AI Usage section satisfies [references/ai-usage.md](references/ai-usage.md) §Read-back validation and reflects the current code and review state;

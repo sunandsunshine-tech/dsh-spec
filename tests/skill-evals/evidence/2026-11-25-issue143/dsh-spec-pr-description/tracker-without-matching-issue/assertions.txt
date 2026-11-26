@@ -1,0 +1,4 @@
+PASS Motivation explicitly states that no matching issue tracks the change.
+PASS The tracker search or zero-result status makes the absence checkable.
+PASS No Issue reference is invented.
+PASS Change request #31 is not treated as an issue reference.

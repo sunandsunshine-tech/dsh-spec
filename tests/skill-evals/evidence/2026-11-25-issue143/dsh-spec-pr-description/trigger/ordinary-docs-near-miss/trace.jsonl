@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a212a4-68bd-7c12-8352-c12a7356d8eb"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"This is an ordinary documentation edit about workspace runtime dependencies; it does not request or update a change-request description, review round, test evidence, or AI-usage disclosure.\n\nSELECT: none"}}
+{"type":"turn.completed","usage":{"input_tokens":13275,"cached_input_tokens":9600,"cache_write_input_tokens":0,"output_tokens":152,"reasoning_output_tokens":113}}

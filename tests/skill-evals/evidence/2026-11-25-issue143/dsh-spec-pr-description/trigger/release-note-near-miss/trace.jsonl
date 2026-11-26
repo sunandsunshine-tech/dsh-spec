@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a212a4-5640-7802-9e7b-4fe562f212aa"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The request is for a user-facing release note, which is explicitly outside the pull-request description skill’s scope. No changelist or PR write-up was requested, so the specialized skill should not be selected.\n\nSELECT: none"}}
+{"type":"turn.completed","usage":{"input_tokens":13273,"cached_input_tokens":9600,"cache_write_input_tokens":0,"output_tokens":117,"reasoning_output_tokens":69}}

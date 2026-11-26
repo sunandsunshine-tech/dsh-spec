@@ -1,0 +1,17 @@
+{
+  "id": "unfinished-review-does-not-update",
+  "prompt": "Read evals/files/review/unfinished/review-state.md and evals/files/review/unfinished/ai-usage.md. The implementation and tests still match the current description; only review activity changed. Decide whether a handled review round permits a description update. If it does not, leave the file unchanged and explain the exact unfinished conditions.",
+  "expected_output": "The description is not updated because the review round is unfinished: one fix is pushed but unanswered, another comment remains unresolved, and a third comment is answered but its fix is not published. The review row stays n/a, no comment is claimed as handled, and the final report names all three missing conditions.",
+  "files": [
+    "evals/files/review/AGENTS.md",
+    "evals/files/review/unfinished/review-state.md",
+    "evals/files/review/unfinished/ai-usage.md"
+  ],
+  "assertions": [
+    "The AI Usage file remains unchanged.",
+    "The review row remains n/a.",
+    "The report does not claim that any review comment was handled.",
+    "The report identifies the unanswered reply and the unresolved comment as reasons no handled round exists.",
+    "The report identifies the answered comment whose fix is not published as a reason no handled round exists."
+  ]
+}

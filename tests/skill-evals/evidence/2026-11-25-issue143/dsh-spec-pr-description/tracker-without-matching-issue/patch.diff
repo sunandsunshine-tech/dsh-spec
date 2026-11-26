@@ -1,0 +1,10 @@
+diff --git a/evals/files/tracker-no-issue/motivation.md b/evals/files/tracker-no-issue/motivation.md
+index def6630..ca8f5ec 100644
+--- a/evals/files/tracker-no-issue/motivation.md
++++ b/evals/files/tracker-no-issue/motivation.md
+@@ -1,3 +1,5 @@
+ ## Motivation
+ 
+ Exhausted retries currently leave no structured record of the final failure.
++
++No matching GitHub issue currently tracks this change. The supplied tracker status records the search `repo:sunshine/example is:issue "retry exhaustion logging"` with 0 matching issues on 2026-11-25.
