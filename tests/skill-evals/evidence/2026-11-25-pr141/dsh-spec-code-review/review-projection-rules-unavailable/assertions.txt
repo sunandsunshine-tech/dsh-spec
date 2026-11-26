@@ -1,0 +1,4 @@
+PASS The review reports that the project declares no projection or recovery rules.
+PASS The review records the projection review as an explicit gap.
+PASS The review does not import another project's bounds, version, checkpoint, or migration defaults.
+PASS The review does not present the rule-dependent projection review as complete.

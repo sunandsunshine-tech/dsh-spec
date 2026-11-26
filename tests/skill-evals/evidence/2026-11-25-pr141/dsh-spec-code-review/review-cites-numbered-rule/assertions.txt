@@ -1,0 +1,3 @@
+PASS The review cites `API-2` as the violated numbered rule.
+PASS The review identifies the new exported function without API documentation.
+PASS The review does not invent a different rule ID.

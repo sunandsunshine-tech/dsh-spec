@@ -1,0 +1,24 @@
+{
+  "id": "review-ordinary-ui-with-optional-reports-absent",
+  "prompt": "Review the outgoing change at HEAD against HEAD^ in evals/files/ordinary-ui-review using the installed dsh-spec-code-review skill. Read the project rules and the actual diff. The current-build Settings screenshot at evals/files/ordinary-ui-review/evidence/settings-after.png is attached and remains valid for this fixture's build, 768-pixel viewport, data, theme, and state. The component audit report and design-system full-audit record were not supplied. Assess all three omissions under the project rules. Do not modify files or Git state.",
+  "expected_output": "The review reports no blocker. The page-local spacing change is covered by the current rendered Settings screenshot at the declared viewport; the absent component audit report and full-audit record are optional omissions, not gaps, and the still-valid evidence requires no recheck.",
+  "capabilities": {
+    "browser": false,
+    "media": false
+  },
+  "files": [
+    "evals/files/ordinary-ui-review/AGENTS.md",
+    "evals/files/ordinary-ui-review/index.html",
+    "evals/files/ordinary-ui-review/src/settings.css",
+    "evals/files/ordinary-ui-review/change.patch",
+    "evals/files/ordinary-ui-review/evidence/settings-after.png"
+  ],
+  "change_patch": "evals/files/ordinary-ui-review/change.patch",
+  "change_root": "evals/files/ordinary-ui-review",
+  "assertions": [
+    "The review reports no blocker for the ordinary page-local spacing change.",
+    "The review treats the absent component audit report as an optional omission rather than a gap.",
+    "The review does not require a design-system full-audit record.",
+    "The review does not demand rechecking the still-valid rendered evidence."
+  ]
+}

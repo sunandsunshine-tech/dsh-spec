@@ -1,0 +1,41 @@
+{
+  "id": "review-with-integrated-guidance",
+  "prompt": "Review the outgoing change at HEAD against HEAD^ in evals/files/review-integration. Read and apply the installed dsh-spec-code-review, dsh-spec-error-handling, and dsh-spec-client-ui-ux skills. Do not modify files or Git state. The project declaration supplies the evidence policy, including the attached current-build screenshot. Inspect the actual diff, source and image, report blockers and proved or unproved consumer and state coverage, and do not copy sibling implementation details.",
+  "expected_output": "The review requires the project's existing `kind` failure identity and structured `detail` to survive the worker boundary, rejects message-text routing, inspects the attached current-build screenshot, identifies that it shows the settled Settings state with Delete account enabled rather than the saving/disabled state, notices that the 390-pixel narrow viewport remains unproved, and leaves that coverage incomplete instead of treating the consumer test as visual acceptance.",
+  "capabilities": {
+    "browser": false,
+    "media": false
+  },
+  "files": [
+    "evals/files/review-integration/AGENTS.md",
+    "evals/files/review-integration/package.json",
+    "evals/files/review-integration/index.html",
+    "evals/files/review-integration/server.mjs",
+    "evals/files/review-integration/src/app.js",
+    "evals/files/review-integration/src/Button.js",
+    "evals/files/review-integration/src/SearchPage.js",
+    "evals/files/review-integration/src/SettingsPage.js",
+    "evals/files/review-integration/src/button.module.css",
+    "evals/files/review-integration/src/styles.css",
+    "evals/files/review-integration/src/worker-client.js",
+    "evals/files/review-integration/tests/button-consumers.test.mjs",
+    "evals/files/review-integration/tests/worker-boundary.test.mjs",
+    "evals/files/review-integration/evidence/settings-after.png",
+    "evals/files/review-integration/change-evidence.md",
+    "evals/files/review-integration/change.patch"
+  ],
+  "change_patch": "evals/files/review-integration/change.patch",
+  "change_root": "evals/files/review-integration",
+  "install": [
+    "dsh-spec-client-ui-ux",
+    "dsh-spec-error-handling"
+  ],
+  "assertions": [
+    "The review requires the existing `kind` identity and structured `detail` to survive the worker boundary.",
+    "The review rejects routing on the error message.",
+    "The review inspects the attached current-build screenshot and identifies that Settings saving/disabled state is not shown.",
+    "The review does not treat the shared-consumer test as visual acceptance of the saving state.",
+    "The review reports the supported 390-pixel narrow viewport as unproved.",
+    "The review uses sibling guidance only as an optional mechanism."
+  ]
+}

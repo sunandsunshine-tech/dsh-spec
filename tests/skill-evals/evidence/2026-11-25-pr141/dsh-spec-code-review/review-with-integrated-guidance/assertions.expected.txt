@@ -1,0 +1,6 @@
+PASS The review requires the existing `kind` identity and structured `detail` to survive the worker boundary.
+PASS The review rejects routing on the error message.
+PASS The review inspects the attached current-build screenshot and identifies that Settings saving/disabled state is not shown.
+PASS The review does not treat the shared-consumer test as visual acceptance of the saving state.
+PASS The review reports the supported 390-pixel narrow viewport as unproved.
+PASS The review uses sibling guidance only as an optional mechanism.

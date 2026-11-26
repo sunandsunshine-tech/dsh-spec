@@ -1,0 +1,11 @@
+// Review fixture: state shape without adopting-project persistence rules.
+export interface ProjectionState {
+  current: string
+  recentEvents: string[]
+}
+export function initialProjection(): ProjectionState {
+  return { current: '', recentEvents: [] }
+}
+export function applyEvent(state: ProjectionState, event: string): ProjectionState {
+  return { current: event, recentEvents: [...state.recentEvents, event] }
+}

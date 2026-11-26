@@ -1,0 +1,30 @@
+// Review fixture: persisted projection state and transitions.
+import type { ProjectionReader, SessionEvent } from './types.js'
+// Projection state and transitions.
+export interface ProjectionState {
+  owner: string
+  lastSequence: number
+  reader: ProjectionReader
+  events: SessionEvent[]
+}
+// Recovery version.
+export const PROJECTION_VERSION = 1
+// Factory.
+export function initialProjection(owner: string, reader: ProjectionReader): ProjectionState {
+  return { owner, lastSequence: 0, reader, events: [] }
+}
+// Event application.
+export function applyEvent(state: ProjectionState, event: SessionEvent): ProjectionState {
+  return {
+    ...state,
+    lastSequence: event.sequence,
+    events: [...state.events, event],
+  }
+}
+// Readers.
+export function readOwner(state: ProjectionState): string {
+  return state.owner
+}
+export function readHistory(state: ProjectionState): SessionEvent[] {
+  return state.events
+}

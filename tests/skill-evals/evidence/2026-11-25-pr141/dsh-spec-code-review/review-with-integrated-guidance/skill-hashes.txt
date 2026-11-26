@@ -1,0 +1,8 @@
+b5cfc05ad106420f71984bf574b7130820be9abd1336821509ebba38150d06f4  skills/dsh-spec-client-ui-ux/SKILL.md  mode=0644
+541ae59807e0f6fcc3def16c97843a6ec7a81b706878ee028761f0a8418f8ad7  skills/dsh-spec-client-ui-ux/THIRD_PARTY_NOTICES  mode=0644
+43cb62a199d3d0f1678b7da0637da62a004cce37c1965dc2a41bc1bf78cce796  skills/dsh-spec-client-ui-ux/references/spacing.md  mode=0644
+fb67bf3e7b5bb22356f07c4c440f85e22574185075c791d1b99f9167971b2b14  skills/dsh-spec-code-review/SKILL.md  mode=0644
+05164059123efb423da33c1fc4cc8be626953f34d070dcbfca1e52301485eb6d  skills/dsh-spec-code-review/THIRD_PARTY_NOTICES  mode=0644
+819bc73a2404dbeb4a02e73274670f2cdf34145f359c749aa565b6d4dc0dd2f1  skills/dsh-spec-error-handling/SKILL.md  mode=0644
+87b18dbb2fdc66084889f297acd74fe644671e9b2934e1930c19373ffec4c616  skills/dsh-spec-error-handling/THIRD_PARTY_NOTICES  mode=0644
+b33e83b46d544140a30b7d53f524787b8c4b8e6ab159f16821dc5f220d341afc  skills/dsh-spec-error-handling/references/error-contracts.md  mode=0644

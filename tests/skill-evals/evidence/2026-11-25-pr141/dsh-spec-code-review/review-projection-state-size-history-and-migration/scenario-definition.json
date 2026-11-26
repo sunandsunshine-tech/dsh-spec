@@ -1,0 +1,20 @@
+{
+  "id": "review-projection-state-size-history-and-migration",
+  "prompt": "Review the outgoing change at HEAD against HEAD^ in evals/files/projection-review using the installed dsh-spec-code-review skill. Read the project design rules, inspect the actual diff and source, and report blockers with their rule IDs. Do not import another project's projection defaults. Do not modify files or Git state.",
+  "expected_output": "The review reports four blockers: SESSION-1 because persisted state retains a runtime reader; SESSION-2 because the event array grows linearly without declared bounds; SESSION-3 because readHistory retains and synchronously returns the full event history; and SESSION-4 because the state shape and recovery behavior change while PROJECTION_VERSION stays 1 with no migration.",
+  "files": [
+    "evals/files/projection-review/AGENTS.md",
+    "evals/files/projection-review/src/types.ts",
+    "evals/files/projection-review/src/projection.txt",
+    "evals/files/projection-review/change.patch"
+  ],
+  "change_patch": "evals/files/projection-review/change.patch",
+  "change_root": "evals/files/projection-review",
+  "assertions": [
+    "The review cites SESSION-1 because a runtime reader is stored in persisted projection state.",
+    "The review cites SESSION-2 because an unbounded event history is retained in projection state.",
+    "The review cites SESSION-3 because readHistory synchronously exposes the retained full history.",
+    "The review cites SESSION-4 because recovery semantics changed without a version increment or migration.",
+    "The review derives every finding from the adopting project's declared rules."
+  ]
+}

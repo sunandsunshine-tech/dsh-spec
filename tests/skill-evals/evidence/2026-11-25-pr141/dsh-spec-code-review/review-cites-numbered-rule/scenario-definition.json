@@ -1,0 +1,17 @@
+{
+  "id": "review-cites-numbered-rule",
+  "prompt": "Review the outgoing change at HEAD against HEAD^ in evals/files/numbered-rule-review using the installed dsh-spec-code-review skill. Read the numbered project rules, inspect the actual diff, and cite every violated rule by its ID. Do not modify files or Git state.",
+  "expected_output": "The review reports that the new exported `parseConfig` function violates `API-2` because it has no API documentation naming its error behavior.",
+  "files": [
+    "evals/files/numbered-rule-review/AGENTS.md",
+    "evals/files/numbered-rule-review/src/config.ts",
+    "evals/files/numbered-rule-review/change.patch"
+  ],
+  "change_patch": "evals/files/numbered-rule-review/change.patch",
+  "change_root": "evals/files/numbered-rule-review",
+  "assertions": [
+    "The review cites `API-2` as the violated numbered rule.",
+    "The review identifies the new exported function without API documentation.",
+    "The review does not invent a different rule ID."
+  ]
+}

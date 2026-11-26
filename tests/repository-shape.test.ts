@@ -444,6 +444,13 @@ test('independently installed DeepSeek Harness skills name the current repositor
   }
 })
 
+test('Code Review attributes dependency-edge and projection rules to alpha.2', () => {
+  const notice = repoFile('skills/dsh-spec-code-review/THIRD_PARTY_NOTICES')
+  assert.match(notice, /carried, including alpha\.2's workspace-responsibility and runtime-dependency-edge review/)
+  assert.match(notice, /\.agents\/skills\/dsh-session-projection\/SKILL\.md/)
+  assert.doesNotMatch(notice, /target adds project-neutral checks[^\n]*workspace responsibilities/)
+})
+
 test('directly ported skills keep their upstream-aligned names', () => {
   for (const [delivered, upstream] of [
     ['dsh-spec-ci-test-reliability', 'dsh-ci-test-reliability'],

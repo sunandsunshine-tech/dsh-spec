@@ -1,0 +1,8 @@
+**Review blocked.** I reviewed `HEAD` `0ffba5d` against `HEAD^` `8326436` and the project rules in [AGENTS.md](/workspace/evals/files/projection-review/AGENTS.md:3). The only changed file is [src/projection.txt](/workspace/evals/files/projection-review/src/projection.txt:7).
+
+- **SESSION-1 — runtime resource persisted:** `ProjectionState.reader` stores a `ProjectionReader` handle in the persisted projection and carries it through `initialProjection`. Readers and runtime resources must remain outside projection state.
+- **SESSION-2 — unbounded linear retention:** Adding `events: SessionEvent[]` and appending every event causes linear growth without the required explicit purpose, memory bound, replay bound, or per-event bound.
+- **SESSION-3 — history depends on retained events:** `readHistory` returns the retained `state.events` array. The synchronous historical read therefore requires retaining the full event history rather than reading history independently, including during a cache miss.
+- **SESSION-4 — version and migration not updated:** The projection fields and recovery shape changed, but `PROJECTION_VERSION` remains `1`, and no migration demonstrates that restored-checkpoint replay matches full replay.
+
+No test or quality-gate command is declared for this fixture. `git diff --check HEAD^ HEAD` passed, but it does not address these semantic blockers. No files or Git state were modified.

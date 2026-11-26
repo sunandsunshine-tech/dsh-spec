@@ -1,0 +1,6 @@
+PASS The review verifies runtime edges from the workspace manifests.
+PASS The review reports the app → validator edge and the validator responsibility.
+PASS The review reports the app → core runtime edge.
+PASS The review reports the removed app → legacy runtime edge.
+PASS The review flags the existing core → app reverse dependency.
+PASS The review does not accept the description's reported edge list as complete.
