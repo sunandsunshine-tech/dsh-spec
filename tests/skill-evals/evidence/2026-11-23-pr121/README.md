@@ -2,7 +2,7 @@
 
 > **Historical status:** these reviewer-certified runs preserve the skill, scenario and input
 > revisions recorded for PR #121. They are not current behavior evidence; current behavior evidence
-> belongs to PR #122.
+> for a later skill revision must bind that revision directly.
 
 This tree preserves the model and behavioral evidence recorded for the PR #121 review corrections.
 The runs used the isolated runner documented in `tests/skill-evals/README.md`; the runner hid the

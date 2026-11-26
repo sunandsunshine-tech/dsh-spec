@@ -1,0 +1,17 @@
+diff --git a/docs/guide.md b/docs/guide.md
+--- a/docs/guide.md
++++ b/docs/guide.md
+@@ -3,8 +3,11 @@
+ 
+ English | [中文](guide.zh.md)
+ 
+-The gate checks requests before dispatch.
++The gate checks every request and records the failure before dispatch.
+ 
+ ## Operations
+ 
+-Operators can retry a failed request once.
++Operators can retry a failed request once. A second failure requires support.
++
++> [!WARNING]
++> Preserve the request identifier.

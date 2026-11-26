@@ -96,6 +96,7 @@ const REQUIRED: RequiredProfile[] = [
       'target-removal-active-scope',
       'range-operation-does-not-create-missing-target',
       'source-rename-keeps-pair',
+      'briefing-is-delta-plus-style-source',
     ],
     noIsolationIds: [
       'no-isolation-local-update-completes',
@@ -844,6 +845,7 @@ function assertCurrentTriggerEvidence(skill: string, evidenceRoot: string, requi
     'dsh-spec-skill-forge': { positive: 6, negative: 6 },
     'dsh-spec-record-browser-gif': { positive: 3, negative: 5 },
     'dsh-spec-performance-investigation': { positive: 5, negative: 6 },
+    'dsh-spec-translate-docs': { positive: 4, negative: 4 },
   }[skill]
   assert.ok(expected, skill + ' has no expected trigger distribution')
   assert.equal(
@@ -978,7 +980,7 @@ function validateCorpus(corpus: ScenarioCorpus, required: RequiredProfile): void
     assert.ok(scenario)
     assert.match(
       scenario.prompt,
-      /no clean-context|no staged independent|no .*verification mechanism/i,
+      /no clean-context|no staged independent|no .*(?:verification|working-separation) mechanism/i,
       id + ' must exclude the documented fallback mechanisms',
     )
     assert.match(scenario.expected_output, /hands? off|handoff|stops? before claiming completion/i)
@@ -1734,6 +1736,34 @@ test('performance investigation binds current trigger evidence', () => {
   )
 })
 
+test('translate docs binds current trigger evidence', () => {
+  assertCurrentTriggerEvidence(
+    'dsh-spec-translate-docs',
+    join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-25-pr142/dsh-spec-translate-docs'),
+  )
+})
+
+test('translate docs trigger corpus separates pair maintenance from ordinary documentation work', () => {
+  const corpus = JSON.parse(
+    readFileSync(join(EVAL_SOURCE_ROOT, 'dsh-spec-translate-docs', 'trigger-evals.json'), 'utf8'),
+  ) as { queries: Array<{ id: string; should_trigger: boolean }> }
+  const expected = new Map([
+    ['explicit-pair-update', true],
+    ['explicit-pair-check', true],
+    ['declared-pair-document-change', true],
+    ['workflow-authorized-new-pair', true],
+    ['ordinary-standalone-translation', false],
+    ['ordinary-documentation-edit', false],
+    ['adjacent-documentation-review', false],
+    ['inferred-translation-without-pair-scope', false],
+  ])
+  assert.deepEqual(
+    corpus.queries.map((query) => [query.id, query.should_trigger]),
+    [...expected],
+    'translate docs trigger categories differ',
+  )
+})
+
 test('pr-description eval covers stack-local AI Usage migration', () => {
   const corpus = readCorpus('dsh-spec-pr-description')
   assert.equal(corpus.evals.length, 2)
@@ -1922,6 +1952,11 @@ test('translation target migration scenarios keep concrete policy semantics', ()
       id: 'source-rename-keeps-pair',
       signature: /rename docs\/old-guide\.md to docs\/new-guide\.md/i,
       assertion: /aggregate record follows the renamed source/i,
+    },
+    {
+      id: 'briefing-is-delta-plus-style-source',
+      signature: /declared docs\/style\.md/i,
+      assertion: /briefing is treated as the change-local delta plus rules/i,
     },
   ]
   for (const requirement of requirements) {
@@ -3536,6 +3571,11 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
   const historicalBrowserReadme = readFileSync(historicalBrowserReadmePath, 'utf8')
   assert.match(historicalBrowserReadme, /^> \*\*Historical status:\*\* this run used the pre-final fixture/m)
   assert.match(historicalBrowserReadme, /2026-11-23-pr122\/dsh-spec-browser-gif-evidence\/real-ui-change/)
+  assert.match(
+    readFileSync(join(evidenceRoot, 'dsh-spec-translate-docs/README.md'), 'utf8'),
+    /^> \*\*Historical status:\*\*/m,
+    'PR121 translate-docs evidence is not visibly historical',
+  )
   const skillsTreePath = join(evidenceRoot, 'skills-tree.sha256')
   assertEvidencePath(evidenceRoot, skillsTreePath, 'PR121 skills tree', 'file')
   const skillsTree = readSkillTreeManifest(skillsTreePath)
@@ -3551,6 +3591,12 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
     /^> \*\*Historical status:\*\* this run used the pre-routing-change `dsh-spec-pre-push-checks` skill tree\./m,
   )
   const pr141EvidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-25-pr141')
+  assert.match(
+    readFileSync(join(pr122EvidenceRoot, 'dsh-spec-translate-docs/README.md'), 'utf8'),
+    /^> \*\*Historical status:\*\*/m,
+    'pre-#142 translate-docs evidence is not visibly historical',
+  )
+  const pr142EvidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-25-pr142')
   type EvidenceRun = {
     skill: string
     run: string
@@ -3692,11 +3738,23 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
       skill: 'dsh-spec-translate-docs',
       run: 'source-rename-keeps-pair',
       evidenceRoot: pr122EvidenceRoot,
+      current: false,
+      historicalSkillTree: join(pr122EvidenceRoot, 'dsh-spec-translate-docs', 'skills-tree.sha256'),
+      historicalInputs: join(pr122EvidenceRoot, 'dsh-spec-translate-docs', 'input-files.sha256'),
     },
     {
       skill: 'dsh-spec-translate-docs',
       run: 'locale-selected-pages-are-unpaired',
       evidenceRoot: pr122EvidenceRoot,
+      current: false,
+      historicalSkillTree: join(pr122EvidenceRoot, 'dsh-spec-translate-docs', 'skills-tree.sha256'),
+      historicalInputs: join(pr122EvidenceRoot, 'dsh-spec-translate-docs', 'input-files.sha256'),
+    },
+    {
+      skill: 'dsh-spec-translate-docs',
+      run: 'briefing-style',
+      evidenceRoot: pr142EvidenceRoot,
+      current: true,
     },
   ]
   const scenarioIds: Record<string, string> = {
@@ -3741,6 +3799,7 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
     'dsh-spec-merging-stacked-prs:dependency-only-blocked-stack-can-land': 'dependency-only-blocked-stack-can-land',
     'dsh-spec-translate-docs:source-rename-keeps-pair': 'source-rename-keeps-pair',
     'dsh-spec-translate-docs:locale-selected-pages-are-unpaired': 'locale-selected-pages-are-unpaired',
+    'dsh-spec-translate-docs:briefing-style': 'briefing-is-delta-plus-style-source',
   }
   const requiredCommands: Record<string, RegExp[]> = {
     'dsh-spec-record-browser-gif:candidate-real': [
@@ -3758,6 +3817,11 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
       /npm test(?:\s|$|['"])/,
       /npm run test:contract(?:\s|$|['"])/,
       /npm run test:integration(?:\s|$|['"])/,
+    ],
+    'dsh-spec-translate-docs:briefing-style': [
+      /translate-pair\.mjs\s+brief(?:\s|$).*--root(?:\s|$)/,
+      /docs\/style\.md(?:\s|$|['"])/,
+      /\.agents\/dsh-spec-translate-docs\/terminology\.md(?:\s|$|['"])/,
     ],
   }
 
@@ -3983,8 +4047,15 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
       const observedHashes = reads.flatMap((read) => {
         if (read.aggregated_output === undefined) return []
         const candidates = [read.aggregated_output]
-        const frontmatter = read.aggregated_output.indexOf('---\n')
-        if (frontmatter >= 0) candidates.push(read.aggregated_output.slice(frontmatter))
+        for (
+          let frontmatter = read.aggregated_output.indexOf('---\n');
+          frontmatter >= 0;
+          frontmatter = read.aggregated_output.indexOf('---\n', frontmatter + 4)
+        ) {
+          if (!read.aggregated_output.startsWith('name:', frontmatter + 4)) continue
+          candidates.push(read.aggregated_output.slice(frontmatter))
+          break
+        }
         if (current && evidenceSkill === item.skill) {
           const skillText = readFileSync(join(REPO_ROOT, path), 'utf8')
           if (read.aggregated_output.includes(skillText)) candidates.push(skillText)
@@ -4054,6 +4125,36 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
           'the final report names another GIF',
         )
       }
+    }
+    if (current && item.skill === 'dsh-spec-translate-docs' && item.run === 'briefing-style') {
+      assert.equal(
+        readFileSync(join(root, 'changed-paths.txt'), 'utf8').trim(),
+        '',
+        'briefing handoff edited files without working separation',
+      )
+      assert.match(
+        finalText,
+        /committed source diff|change brief|change-local source diff|briefing digest does not replace/i,
+        'briefing evidence claims the brief is self-contained',
+      )
+      assert.ok(
+        commands.some(
+          (entry) =>
+            entry.exit_code === 2 && /translate-pair\.mjs\s+brief(?:\s|$).*--root(?:\s|$)/.test(entry.command ?? ''),
+        ),
+        'briefing evidence does not record the direct-command limitation',
+      )
+      assert.match(
+        finalText,
+        /temporary (?:recovery|git).*metadata|temporary .*repository|replay.*temporary/i,
+        'briefing evidence hides the reconstructed Git path',
+      )
+      assert.match(finalText, /translation-rules\.md/i, 'briefing handoff omits the full translation rules')
+      assert.match(finalText, /docs\/style\.md/, 'briefing handoff omits the declared style source')
+      assert.match(finalText, /terminology/i, 'briefing handoff omits the terminology read')
+      assert.match(finalText, /guide\.zh\.md/i, 'briefing handoff omits the pending counterpart')
+      assert.match(finalText, /record/i, 'briefing handoff omits the pending record')
+      assert.match(finalText, /check/i, 'briefing handoff omits the pending pair check')
     }
     const replayable = replayEvidencePatch(root, item.skill, effectiveScenario)
     if (current) assert.equal(replayable, true, item.skill + '/' + item.run + ' is not replayable from its inputs')

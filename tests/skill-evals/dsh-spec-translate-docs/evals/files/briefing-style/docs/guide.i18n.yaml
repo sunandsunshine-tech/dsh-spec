@@ -1,0 +1,10 @@
+# Pairing consistency record for guide.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write docs/guide.md --target <lang>
+/guide:
+  en: e389ff7123cc8786
+  zh: 4adcfdb69cdfd793
+/guide/operations:
+  en: 7744e2a5ea438dc0
+  zh: 131c410d13da248e
