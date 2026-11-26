@@ -1,0 +1,16 @@
+{
+  "id": "tool-parameter-rules-stay-with-parameters",
+  "prompt": "Rework `release-tool/current.schema.json` in place. The attached behavior notes are authoritative, but the current definition dumps operational rules into prose that callers cannot enforce. Preserve the tool name, accepted behavior, and public parameter names while making the definition describe the contract where each rule belongs.",
+  "expected_output": "The tool description states only what the operation does and returns. Defaults and bounds are on their parameters; the `start_at` and `timezone` pairing is represented as a schema dependency; the canary-only percentage and its bounds/default are conditional on `rollout_strategy`; and `approval_ticket` is required only for production.",
+  "files": [
+    "evals/files/release-tool/current.schema.json",
+    "evals/files/release-tool/behavior-notes.md"
+  ],
+  "assertions": [
+    "The tool description states the operation and result without repeating parameter rules or implementation details.",
+    "`replicas` remains an integer with default `2`, minimum `1`, and maximum `10`.",
+    "`start_at` and `timezone` are either supplied together or omitted together through a schema dependency.",
+    "`rollout_strategy` has its declared default and enum, and `canary_percentage` is required only for `canary` with bounds `1` through `100` and default `10`.",
+    "`approval_ticket` is required when `environment` is `production` without changing the tool's accepted behavior."
+  ]
+}

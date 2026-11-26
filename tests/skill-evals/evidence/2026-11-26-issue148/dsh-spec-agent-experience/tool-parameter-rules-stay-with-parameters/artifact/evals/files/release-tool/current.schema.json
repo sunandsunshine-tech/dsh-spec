@@ -1,0 +1,109 @@
+{
+  "name": "schedule_release",
+  "description": "Schedules one release and returns its identifier.",
+  "parameters": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "environment": {
+        "type": "string",
+        "enum": [
+          "staging",
+          "production"
+        ],
+        "description": "Target environment."
+      },
+      "replicas": {
+        "type": "integer",
+        "default": 2,
+        "minimum": 1,
+        "maximum": 10,
+        "description": "Number of replicas."
+      },
+      "start_at": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Release start instant."
+      },
+      "timezone": {
+        "type": "string",
+        "description": "IANA timezone for the release schedule."
+      },
+      "rollout_strategy": {
+        "type": "string",
+        "enum": [
+          "all-at-once",
+          "canary"
+        ],
+        "default": "all-at-once",
+        "description": "How traffic moves to the new release."
+      },
+      "canary_percentage": {
+        "type": "integer",
+        "default": 10,
+        "minimum": 1,
+        "maximum": 100,
+        "description": "Traffic percentage for a canary release."
+      },
+      "approval_ticket": {
+        "type": "string",
+        "description": "Approval ticket identifier for production."
+      }
+    },
+    "required": [
+      "environment"
+    ],
+    "additionalProperties": false,
+    "dependentRequired": {
+      "start_at": [
+        "timezone"
+      ],
+      "timezone": [
+        "start_at"
+      ]
+    },
+    "allOf": [
+      {
+        "if": {
+          "properties": {
+            "environment": {
+              "const": "production"
+            }
+          },
+          "required": [
+            "environment"
+          ]
+        },
+        "then": {
+          "required": [
+            "approval_ticket"
+          ]
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "rollout_strategy": {
+              "const": "canary"
+            }
+          },
+          "required": [
+            "rollout_strategy"
+          ]
+        },
+        "then": {
+          "required": [
+            "canary_percentage"
+          ]
+        },
+        "else": {
+          "not": {
+            "required": [
+              "canary_percentage"
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

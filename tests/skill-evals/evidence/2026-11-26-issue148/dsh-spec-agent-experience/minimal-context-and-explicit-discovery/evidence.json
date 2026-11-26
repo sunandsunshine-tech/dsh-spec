@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "claim": {
+    "type": "behavior",
+    "subject": "dsh-spec-agent-experience:minimal-context-and-explicit-discovery"
+  },
+  "arm": "target-present",
+  "comparison": null,
+  "evidence": {
+    "kind": "model",
+    "currentness": {
+      "scenario_sha256": "0ad37d46ca8bb318ea9da331ac87aa00bec5a262ab56cb2ec6ed1c68fc8c81b5",
+      "input_manifest_sha256": "2bfb216c1824348bbffb3decafce0336950e0b12c070571f48c1b33ce382b7c3",
+      "scenario_prompt_sha256": "b039db497ae9e6124b0108e6247d3a3177475720802f56f1145f0081655c9b3b",
+      "arm_instruction_sha256": "6bbd6c15df0b29a6730789586faf80701f9caa29480ee6dcb587204447980859",
+      "prompt_guard_sha256": "e587246af427c697477e3f5e361192ebb5316c5f17540449cf6de853ec64af30",
+      "rendered_prompt_sha256": "dc7ad0f7ebe3dc66bb58a281c3621ebd8765536bc5886121ee58e7e72dd90983",
+      "execution_sha256": "df0d14c0a241265515e09d97e5b796c7a07f4e04e2b1e49e7bc971557340c54a"
+    }
+  },
+  "execution": {
+    "auth": "host-proxy",
+    "browser": false,
+    "media": false,
+    "model_config_sha256": "81fe0a5e2d45e2a687f9ff2d811dd45cca60b986eeb96b994e9255e9eda70e1c",
+    "model_runtime_sha256": "63279cf1860a285495fa0bad3c40f5eb38c3487f7425adb603bcbd49175fcaf8",
+    "sandbox": "workspace-write",
+    "subagents": false
+  },
+  "provenance": {
+    "target_skill_tree_sha256": "98ee8247a331a9710fa52d8705672d98c4d82da19d62c6cfeaab92dc2567d458",
+    "dependency_skill_tree_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "deadline_ms": 1800000,
+  "privacy": {
+    "canary_sets": [
+      "current-home",
+      "local-environment"
+    ],
+    "scope_sha256": "3726314447cc88cca5b194aabe75121fc9362ed77f4b385e3fe0020453d1d94c",
+    "surfaces": "all-retained-files"
+  }
+}

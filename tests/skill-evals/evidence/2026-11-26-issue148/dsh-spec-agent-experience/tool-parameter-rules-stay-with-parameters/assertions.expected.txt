@@ -1,0 +1,5 @@
+PASS The tool description states the operation and result without repeating parameter rules or implementation details.
+PASS `replicas` remains an integer with default `2`, minimum `1`, and maximum `10`.
+PASS `start_at` and `timezone` are either supplied together or omitted together through a schema dependency.
+PASS `rollout_strategy` has its declared default and enum, and `canary_percentage` is required only for `canary` with bounds `1` through `100` and default `10`.
+PASS `approval_ticket` is required when `environment` is `production` without changing the tool's accepted behavior.

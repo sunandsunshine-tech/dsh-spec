@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a217b0-9204-7ff1-9832-b416ecdbbb0b"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The installed `dsh-spec-agent-experience` skill clearly applies because the request changes a tool definition’s parameter documentation so callers can discover defaults, constraints, pairings, and conditional requirements without changing behavior.\n\nSELECT: dsh-spec-agent-experience"}}
+{"type":"turn.completed","usage":{"input_tokens":12523,"cached_input_tokens":9600,"cache_write_input_tokens":0,"output_tokens":136,"reasoning_output_tokens":82}}

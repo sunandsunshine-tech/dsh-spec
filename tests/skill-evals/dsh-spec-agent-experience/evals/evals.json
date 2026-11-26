@@ -1,0 +1,51 @@
+{
+  "skill_name": "dsh-spec-agent-experience",
+  "evals": [
+    {
+      "id": "minimal-context-and-explicit-discovery",
+      "prompt": "Write `system-prompt.md` for the support assistant described by the attached project brief. Begin with the purpose and the critical no-promise and payment-data constraints before any action guidance. The runtime can retrieve any cataloged resource by its exact path. Keep the starting prompt compact enough to act from immediately, while making the detailed resources discoverable when a case needs them. Do not edit the supplied brief or resource files.",
+      "expected_output": "The system prompt begins with the support purpose and critical customer-data and approval constraints before action guidance, then lists the available actions. It gives every deferred resource a useful description and an exact retrieval path, and it tells the assistant to load the refund or escalation detail only when the case needs it.",
+      "files": [
+        "evals/files/support-agent/project-brief.md"
+      ],
+      "assertions": [
+        "The initial prompt covers the support purpose, available actions, and critical no-promise and payment-data constraints.",
+        "The full refund policy is deferred rather than copied into the initial prompt.",
+        "Each deferred resource has a description and an exact `read_resource` path.",
+        "The prompt says when to retrieve each deferred resource instead of loading every detail at the start.",
+        "The critical constraints appear before action guidance, and the prompt adds no unspecified action, resource, or policy value."
+      ]
+    },
+    {
+      "id": "tool-parameter-rules-stay-with-parameters",
+      "prompt": "Rework `release-tool/current.schema.json` in place. The attached behavior notes are authoritative, but the current definition dumps operational rules into prose that callers cannot enforce. Preserve the tool name, accepted behavior, and public parameter names while making the definition describe the contract where each rule belongs.",
+      "expected_output": "The tool description states only what the operation does and returns. Defaults and bounds are on their parameters; the `start_at` and `timezone` pairing is represented as a schema dependency; the canary-only percentage and its bounds/default are conditional on `rollout_strategy`; and `approval_ticket` is required only for production.",
+      "files": [
+        "evals/files/release-tool/current.schema.json",
+        "evals/files/release-tool/behavior-notes.md"
+      ],
+      "assertions": [
+        "The tool description states the operation and result without repeating parameter rules or implementation details.",
+        "`replicas` remains an integer with default `2`, minimum `1`, and maximum `10`.",
+        "`start_at` and `timezone` are either supplied together or omitted together through a schema dependency.",
+        "`rollout_strategy` has its declared default and enum, and `canary_percentage` is required only for `canary` with bounds `1` through `100` and default `10`.",
+        "`approval_ticket` is required when `environment` is `production` without changing the tool's accepted behavior."
+      ]
+    },
+    {
+      "id": "bounded-results-with-local-context-and-retrieval",
+      "prompt": "Write `agent-instructions.md` for the incident assistant described in the attached project brief. Staff need enough surrounding conversation to judge a match without receiving whole threads, and they need a precise way to request more when the bounded result is insufficient. Make the instructions judgeable at completion and avoid turning every answer into repeated broad searches. Use ordinary Markdown formatting without trailing whitespace.",
+      "expected_output": "The instructions require a bounded result set with stable thread and message identifiers, a small adjacent context window, explicit counts or ranges for omitted messages and truncation, and exact calls for retrieving more. They also require the assistant to judge whether another search adds needed evidence before doing it.",
+      "files": [
+        "evals/files/incident-agent/project-brief.md"
+      ],
+      "assertions": [
+        "Results are concise findings anchored by stable thread and message identifiers rather than whole-thread dumps.",
+        "Each finding includes a bounded amount of adjacent context and a result-limit boundary.",
+        "Omitted messages and truncation are marked with enough counts or identifier ranges for the reader to judge the gap.",
+        "A concrete retrieval action can fetch more context by thread identifier and message range or pagination.",
+        "The instructions ask the assistant to judge whether further search or retrieval adds needed evidence, and completion evidence names the source ranges used."
+      ]
+    }
+  ]
+}
