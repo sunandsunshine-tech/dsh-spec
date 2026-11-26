@@ -394,7 +394,7 @@ export function readSafeModelCatalog(sourceHome, value) {
   return `${JSON.stringify(parsed)}\n`
 }
 
-export function assertEvidenceRunPath(evidenceRoot, output, expectedSkill) {
+export function assertEvidenceRunPath(evidenceRoot, output, expectedSkill, label = 'evidence output') {
   const local = relative(evidenceRoot, output)
   const parts = local.split(sep)
   if (
@@ -404,11 +404,15 @@ export function assertEvidenceRunPath(evidenceRoot, output, expectedSkill) {
     !/^dsh-spec-[a-z0-9-]+$/.test(parts[1] ?? '') ||
     !/^[a-z0-9][a-z0-9-]*$/.test(parts[2] ?? '')
   )
-    throw new Error(`evidence output must be evidence/<date>/<skill>/<run>: ${output}`)
+    throw new Error(`${label} must use evidence/<date>/<skill>/<run>`)
   if (expectedSkill !== undefined && parts[1] !== expectedSkill)
-    throw new Error(`evidence output names ${parts[1]}, expected ${expectedSkill}: ${output}`)
-  assertRealContained(evidenceRoot, output, 'evidence output')
-  assertNoSymlinkComponents(evidenceRoot, output, 'evidence output')
+    throw new Error(`${label} skill must match expected ${expectedSkill}`)
+  try {
+    assertRealContained(evidenceRoot, output, label)
+    assertNoSymlinkComponents(evidenceRoot, output, label)
+  } catch {
+    throw new Error(`${label} must stay inside its evidence root and may not follow symbolic links`)
+  }
 }
 
 export function parseNulSeparatedPaths(output) {

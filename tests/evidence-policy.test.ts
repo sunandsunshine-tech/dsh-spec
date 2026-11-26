@@ -21,7 +21,11 @@ const policy = (await import('./skill-evals/evidence-policy.mjs' as string)) as 
   assertComparableEvidenceArms(
     candidate: EvidenceMetadata,
     baseline: EvidenceMetadata,
-    options?: { scenario: { id: string; prompt: string; comparison?: Comparison } },
+    options?: {
+      scenario: { id: string; prompt: string; comparison?: Comparison }
+      candidateEvidenceSha256: string
+      baselineEvidenceSha256: string
+    },
   ): {
     candidate: EvidenceMetadata
     baseline: EvidenceMetadata
@@ -178,7 +182,8 @@ const hashB = 'b'.repeat(64)
 const hashC = 'c'.repeat(64)
 const hashD = 'd'.repeat(64)
 const hashE = 'e'.repeat(64)
-const counterpartHash = 'f'.repeat(64)
+const retainedCandidateHash = '1'.repeat(64)
+const retainedBaselineHash = '2'.repeat(64)
 const execution: ExecutionProfile = {
   auth: 'host-proxy',
   browser: false,
@@ -215,6 +220,14 @@ function scopeCanaries(currentHome = '/home/test') {
     includeCurrentHome: true,
     currentHome,
   })
+}
+
+function comparisonLinkOptions(scenario: { id: string; prompt: string; comparison?: Comparison }) {
+  return {
+    scenario,
+    candidateEvidenceSha256: retainedCandidateHash,
+    baselineEvidenceSha256: retainedBaselineHash,
+  }
 }
 
 test('claim typing distinguishes behavior, trigger and comparative evidence', () => {
@@ -297,7 +310,7 @@ test('target-absent arms are rejected outside comparative claims', () => {
     targetSkillTreeSha256: null,
     dependencySkillTreeSha256: sha256(''),
     prompt: 'Shared scenario prompt.\n\nWork only inside the current project.',
-    counterpartEvidenceSha256: counterpartHash,
+    counterpartEvidenceSha256: retainedCandidateHash,
     execution,
   })
   assert.equal(metadata.arm, 'target-absent')
@@ -414,7 +427,7 @@ test('comparative currentness requires the declared arm and comparable inputs', 
     targetSkillTreeSha256: null,
     dependencySkillTreeSha256: sha256(''),
     prompt: 'Shared scenario prompt.\n\nWork only inside the current project.',
-    counterpartEvidenceSha256: counterpartHash,
+    counterpartEvidenceSha256: retainedCandidateHash,
     execution,
     deadlineMs: 60_000,
   })
@@ -467,7 +480,7 @@ test('comparison arms must share prompt, inputs, execution, deadline and privacy
     dependencySkillTreeSha256: sha256(''),
     prompt: baselinePrompt.renderedPrompt,
     promptGuard: baselinePrompt.promptGuard,
-    counterpartEvidenceSha256: counterpartHash,
+    counterpartEvidenceSha256: retainedCandidateHash,
     execution,
     deadlineMs: 60_000,
   })
@@ -485,10 +498,47 @@ test('comparison arms must share prompt, inputs, execution, deadline and privacy
     execution,
     deadlineMs: 60_000,
   })
-  assert.deepEqual(policy.assertComparableEvidenceArms(candidate, baseline, { scenario }), { candidate, baseline })
+  assert.deepEqual(policy.assertComparableEvidenceArms(candidate, baseline, comparisonLinkOptions(scenario)), {
+    candidate,
+    baseline,
+  })
+  const staleBaseline = {
+    ...baseline,
+    comparison: { ...baseline.comparison!, counterpart_evidence_sha256: '0'.repeat(64) },
+  } as EvidenceMetadata
+  assert.throws(
+    () => policy.assertComparableEvidenceArms(candidate, staleBaseline, comparisonLinkOptions(scenario)),
+    /baseline counterpart evidence hash differs/,
+  )
+  const pairedCandidate = policy.createModelEvidenceMetadata({
+    skill: 'dsh-spec-example',
+    scenario,
+    arm: 'target-present',
+    scenarioSha256: hashA,
+    inputManifestSha256: hashB,
+    targetSkillTreeSha256: hashC,
+    dependencySkillTreeSha256: sha256(''),
+    prompt: candidatePrompt.renderedPrompt,
+    armInstruction: candidatePrompt.armInstruction,
+    promptGuard: candidatePrompt.promptGuard,
+    counterpartEvidenceSha256: retainedBaselineHash,
+    execution,
+    deadlineMs: 60_000,
+  })
+  assert.doesNotThrow(() =>
+    policy.assertComparableEvidenceArms(pairedCandidate, baseline, comparisonLinkOptions(scenario)),
+  )
+  const staleCandidate = {
+    ...pairedCandidate,
+    comparison: { ...pairedCandidate.comparison!, counterpart_evidence_sha256: '3'.repeat(64) },
+  } as EvidenceMetadata
+  assert.throws(
+    () => policy.assertComparableEvidenceArms(staleCandidate, baseline, comparisonLinkOptions(scenario)),
+    /candidate counterpart evidence hash differs/,
+  )
   const differentDeadline = { ...baseline, deadline_ms: 60_001 }
   assert.throws(
-    () => policy.assertComparableEvidenceArms(candidate, differentDeadline, { scenario }),
+    () => policy.assertComparableEvidenceArms(candidate, differentDeadline, comparisonLinkOptions(scenario)),
     /disagree on deadline_ms/,
   )
   const differentExecution = policy.createModelEvidenceMetadata({
@@ -501,12 +551,12 @@ test('comparison arms must share prompt, inputs, execution, deadline and privacy
     dependencySkillTreeSha256: sha256(''),
     prompt: baselinePrompt.renderedPrompt,
     promptGuard: baselinePrompt.promptGuard,
-    counterpartEvidenceSha256: counterpartHash,
+    counterpartEvidenceSha256: retainedCandidateHash,
     execution: { ...execution, browser: true },
     deadlineMs: 60_000,
   })
   assert.throws(
-    () => policy.assertComparableEvidenceArms(candidate, differentExecution, { scenario }),
+    () => policy.assertComparableEvidenceArms(candidate, differentExecution, comparisonLinkOptions(scenario)),
     /disagree on execution_sha256/,
   )
   const differentPrivacyScope = policy.createModelEvidenceMetadata({
@@ -521,7 +571,7 @@ test('comparison arms must share prompt, inputs, execution, deadline and privacy
     promptGuard: baselinePrompt.promptGuard,
     privacyCanaries: scopeCanaries('/home/a'),
     currentHome: '/home/a',
-    counterpartEvidenceSha256: counterpartHash,
+    counterpartEvidenceSha256: retainedCandidateHash,
     execution,
     deadlineMs: 60_000,
   })
@@ -542,7 +592,12 @@ test('comparison arms must share prompt, inputs, execution, deadline and privacy
     deadlineMs: 60_000,
   })
   assert.throws(
-    () => policy.assertComparableEvidenceArms(candidatePrivacyScope, differentPrivacyScope, { scenario }),
+    () =>
+      policy.assertComparableEvidenceArms(
+        candidatePrivacyScope,
+        differentPrivacyScope,
+        comparisonLinkOptions(scenario),
+      ),
     /disagree on privacy scope/,
   )
 })
@@ -566,7 +621,7 @@ test('comparison prompt hashes must reconstruct the exact scenario and target tr
     dependencySkillTreeSha256: sha256(''),
     prompt: baselinePrompt.renderedPrompt,
     promptGuard: baselinePrompt.promptGuard,
-    counterpartEvidenceSha256: counterpartHash,
+    counterpartEvidenceSha256: retainedCandidateHash,
     execution,
     deadlineMs: 60_000,
   })
@@ -584,7 +639,7 @@ test('comparison prompt hashes must reconstruct the exact scenario and target tr
     execution,
     deadlineMs: 60_000,
   })
-  assert.doesNotThrow(() => policy.assertComparableEvidenceArms(candidate, baseline, { scenario }))
+  assert.doesNotThrow(() => policy.assertComparableEvidenceArms(candidate, baseline, comparisonLinkOptions(scenario)))
 
   const arbitraryBaseline = {
     ...baseline,
@@ -597,7 +652,7 @@ test('comparison prompt hashes must reconstruct the exact scenario and target tr
     },
   }
   assert.throws(
-    () => policy.assertComparableEvidenceArms(candidate, arbitraryBaseline, { scenario }),
+    () => policy.assertComparableEvidenceArms(candidate, arbitraryBaseline, comparisonLinkOptions(scenario)),
     /target-absent rendered_prompt_sha256/,
   )
 
@@ -616,7 +671,7 @@ test('comparison prompt hashes must reconstruct the exact scenario and target tr
     deadlineMs: 60_000,
   })
   assert.throws(
-    () => policy.assertComparableEvidenceArms(arbitraryCandidate, baseline, { scenario }),
+    () => policy.assertComparableEvidenceArms(arbitraryCandidate, baseline, comparisonLinkOptions(scenario)),
     /target-present arm_instruction_sha256/,
   )
   assert.throws(() => policy.assertComparableEvidenceArms(candidate, baseline), /requires the current scenario/)
@@ -754,7 +809,7 @@ test('retained-run validation reconstructs currentness and provenance from recor
       promptGuard: emptySiblingPrompt.promptGuard,
       privacyCanaries: canaries,
       currentHome: '/home/test',
-      counterpartEvidenceSha256: counterpartHash,
+      counterpartEvidenceSha256: retainedCandidateHash,
       execution,
       deadlineMs: 60_000,
     })

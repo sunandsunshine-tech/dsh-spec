@@ -68,8 +68,11 @@ comparison rather than a separate behavior claim. Candidate and baseline must ag
 prompt, inputs, execution and model configuration, deadline, comparison conditions, sibling
 provenance and privacy scope; their rendered prompts differ only through the target installation and
 target-use treatment. `comparison.pair_status` is `candidate-only` for a provisional candidate and
-`paired` for an arm validated with a counterpart; a paired arm records the counterpart
-`evidence.json` hash. Before accepting a counterpart, the runner reconstructs currentness and
+`paired` for an arm validated with a counterpart. A candidate remains `candidate-only` until its
+baseline exists; a paired baseline's `evidence.json` hash must equal the actual candidate file.
+If a target-present record also carries a counterpart hash, that optional reverse edge must equal
+the actual baseline file, without requiring a cyclic pair. Before accepting a counterpart, the
+runner reconstructs currentness and
 provenance from the retained scenario, input, capability, execution and skill files, reconstructs
 each arm's prompt from its exact target instruction and guard, and rechecks a full retained-tree
 snapshot before promotion. Typed evidence without the separately retained execution profile cannot
@@ -171,7 +174,8 @@ exposes private data. `evidence.json` hashes the ordered canary scope, including
 canary, without retaining canary values. Validation reconstructs that hash from the supplied
 canaries, requires the exact subject-selected set names and current-home value, and scans only the
 validated scope. The current home comes from the running process; committed tooling keeps only the
-generic WSL user and Conda home prefixes in the local-environment set.
+generic WSL user and Conda home prefixes in the local-environment set. Path preflight diagnostics
+state the required relative shape without echoing an absolute output or counterpart path.
 
 ## Coverage
 

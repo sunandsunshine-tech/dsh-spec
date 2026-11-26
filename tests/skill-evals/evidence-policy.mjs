@@ -573,7 +573,11 @@ export function compareEvidenceProvenance(metadata, observed) {
   }
 }
 
-export function assertComparableEvidenceArms(candidate, baseline, { scenario } = {}) {
+export function assertComparableEvidenceArms(
+  candidate,
+  baseline,
+  { scenario, candidateEvidenceSha256, baselineEvidenceSha256 } = {},
+) {
   validateEvidenceMetadata(candidate)
   validateEvidenceMetadata(baseline)
   if (!scenario || typeof scenario !== 'object' || Array.isArray(scenario)) {
@@ -586,6 +590,17 @@ export function assertComparableEvidenceArms(candidate, baseline, { scenario } =
   if (baseline.arm !== 'target-absent') throw new Error('the baseline arm must be target-absent')
   if (baseline.comparison.pair_status !== 'paired') {
     throw new Error('the target-absent baseline must be paired with candidate evidence')
+  }
+  assertHash(candidateEvidenceSha256, 'candidate retained evidence sha256')
+  assertHash(baselineEvidenceSha256, 'baseline retained evidence sha256')
+  if (baseline.comparison.counterpart_evidence_sha256 !== candidateEvidenceSha256) {
+    throw new Error('baseline counterpart evidence hash differs from the retained candidate')
+  }
+  if (
+    candidate.comparison.counterpart_evidence_sha256 !== null &&
+    candidate.comparison.counterpart_evidence_sha256 !== baselineEvidenceSha256
+  ) {
+    throw new Error('candidate counterpart evidence hash differs from the retained baseline')
   }
   if (candidate.claim.subject !== baseline.claim.subject) throw new Error('comparison arms name different subjects')
   const [skill, scenarioId] = candidate.claim.subject.split(':')

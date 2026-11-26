@@ -64,6 +64,7 @@ import {
   claimForScenario,
   canonicalJson,
   createModelEvidenceMetadata,
+  hashEvidenceMetadata,
   inspectRetainedRun,
   modelPromptComponents,
   privacyCanariesFor,
@@ -133,7 +134,16 @@ function copyFile(source, destination) {
 }
 
 function assertEvidenceOutput(output) {
-  assertEvidenceRunPath(EVIDENCE_ROOT, output, options.skill)
+  assertEvidencePathPreflight(output, options.skill)
+}
+
+function assertEvidencePathPreflight(path, expectedSkill, label = 'evidence output') {
+  try {
+    assertEvidenceRunPath(EVIDENCE_ROOT, path, expectedSkill, label)
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : `${label} is invalid`)
+    process.exit(1)
+  }
 }
 
 function assertSkillName(skill, label = 'skill') {
@@ -1017,7 +1027,7 @@ let counterpart
 if (options.counterpart) {
   if (scenarioClaim.type !== 'comparison') throw new Error('--counterpart is valid only for a comparison scenario')
   const root = resolve(REPO_ROOT, options.counterpart)
-  assertEvidenceRunPath(EVIDENCE_ROOT, root, options.skill)
+  assertEvidencePathPreflight(root, options.skill, 'counterpart evidence path')
   if (root === output) throw new Error('--counterpart must name a different evidence run')
   const extraPaths = [relative(EVIDENCE_ROOT, root).split(sep).join('/')]
   const observedCounterpart = observeCounterpartRun(root, privacyCanaries, extraPaths)
@@ -1221,20 +1231,29 @@ try {
       execution: executionProfile,
       deadlineMs: options.deadlineMs,
     })
+    const evidenceMetadataPath = join(stagedOutput, 'evidence.json')
+    writeFileSync(evidenceMetadataPath, `${JSON.stringify(evidenceMetadata, null, 2)}\n`)
     if (counterpart) {
       const currentCounterpart = observeCounterpartRun(counterpart.root, privacyCanaries, counterpart.extraPaths)
       if (currentCounterpart.snapshotSha256 !== counterpart.snapshotSha256) {
         throw new Error('counterpart evidence changed after its initial validation')
       }
       assertCounterpartIdentity(currentCounterpart.metadata, scenarioClaim, options)
+      const currentEvidenceSha256 = hashEvidenceMetadata(stagedOutput, privacyCanaries)
       if (options.arm === 'target-present') {
-        assertComparableEvidenceArms(evidenceMetadata, currentCounterpart.metadata, { scenario })
+        assertComparableEvidenceArms(evidenceMetadata, currentCounterpart.metadata, {
+          scenario,
+          candidateEvidenceSha256: currentEvidenceSha256,
+          baselineEvidenceSha256: currentCounterpart.evidenceSha256,
+        })
       } else {
-        assertComparableEvidenceArms(currentCounterpart.metadata, evidenceMetadata, { scenario })
+        assertComparableEvidenceArms(currentCounterpart.metadata, evidenceMetadata, {
+          scenario,
+          candidateEvidenceSha256: currentCounterpart.evidenceSha256,
+          baselineEvidenceSha256: currentEvidenceSha256,
+        })
       }
     }
-    const evidenceMetadataPath = join(stagedOutput, 'evidence.json')
-    writeFileSync(evidenceMetadataPath, `${JSON.stringify(evidenceMetadata, null, 2)}\n`)
 
     const lastLine = result.stdout.trim().split('\n').filter(Boolean).at(-1)
     const completion = lastLine ? JSON.parse(lastLine) : undefined
