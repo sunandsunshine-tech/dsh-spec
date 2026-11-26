@@ -1,0 +1,21 @@
+{
+  "id": "tracked-issue-reference-count",
+  "prompt": "Update evals/files/tracked-issues/motivation.md using the project conventions, tracker state, change record, and supplied reference fixture. Write the Motivation section back and report what you changed.",
+  "expected_output": "Motivation states the problem and contains visible same-project references for both Issue #17 with a resolving keyword and Issue #18 with an informational keyword. The project convention does not make the tracked issue references optional. The references are outside HTML comments, code fences, and inline code. Issue #19, change request #20, and cross-project issue references are not presented as tracked issue references.",
+  "files": [
+    "evals/files/tracked-issues/AGENTS.md",
+    "evals/files/tracked-issues/tracker.md",
+    "evals/files/tracked-issues/non-counting-references.md",
+    "evals/files/tracked-issues/change.md",
+    "evals/files/tracked-issues/motivation.md"
+  ],
+  "assertions": [
+    "Motivation states the problem in one sentence.",
+    "Visible same-project references to both Issue #17 and Issue #18 are present.",
+    "The project convention does not make the tracked issue references optional.",
+    "Issue #17 uses a resolving keyword and Issue #18 uses an informational keyword.",
+    "The qualifying references are outside HTML comments, code fences, and inline code.",
+    "Hidden, code-fenced, inline-code, and cross-project references are not counted as tracked issue references.",
+    "Issue #19 and change request #20 are not presented as tracked issue references."
+  ]
+}

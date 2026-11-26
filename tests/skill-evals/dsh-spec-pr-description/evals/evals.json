@@ -3,8 +3,8 @@
   "evals": [
     {
       "id": "stack-layer-replaces-legacy-ai-section",
-      "prompt": "Update evals/files/project/pr-body.md for the top layer of a two-layer stack. The project declares no description template, contributing guide, or tracker conventions. Work only on this layer: it caps idempotent HTTP retries at three attempts; the lower layer's retry telemetry is context, not part of this change. The current draft contains an old `## Human and Agent Roles` section copied from another layer. Use the supplied change summary and AI notes, produce the complete final description, write it back, validate it, and report the result.",
-      "expected_output": "The updated body uses the default four-section structure, removes the old Human and Agent Roles section, carries exactly one valid AI Usage section for the retry cap only, leaves the unhandled review row at n/a with an empty decision-record cell and puts the no-comments statement after the table, and does not add tracker labels, Project fields, or dates.",
+      "prompt": "Update evals/files/project/pr-body.md for the top layer of a two-layer stack. The project declares no issue tracker, description template, or contributing guide. Work only on this layer: it caps idempotent HTTP retries at three attempts; the lower layer's retry telemetry is context, not part of this change. The current draft contains an old `## Human and Agent Roles` section copied from another layer. Use the supplied change summary and AI notes, produce the complete final description, write it back, validate it, and report the result.",
+      "expected_output": "The updated body uses the default four-section structure, states that no issue tracker applies rather than silently omitting the tracker exception, removes the old Human and Agent Roles section, carries exactly one valid AI Usage section for the retry cap only, leaves the unhandled review row at n/a with an empty decision-record cell and puts the no-comments statement after the table, and does not add tracker labels, Project fields, or dates.",
       "files": [
         "evals/files/project/AGENTS.md",
         "evals/files/project/change-summary.md",
@@ -22,6 +22,7 @@
         "The AI-DECLARATION version is 0.1.2 and its badge equals the highest row level.",
         "The body reports the supplied passing test evidence without claiming an unrun check.",
         "The review row remains n/a with an empty decision-record cell, and the no-comments statement follows the table.",
+        "Motivation states that no issue tracker applies instead of silently omitting the tracker exception.",
         "The update does not invent tracker labels, Project fields, or dates."
       ]
     },
@@ -45,6 +46,78 @@
         "The removed runtime edge is written as app → legacy.",
         "The existing core → app runtime edge is reported rather than called absent.",
         "The section does not hide the dependency cycle behind a composition-only explanation."
+      ]
+    },
+    {
+      "id": "tracked-issue-reference-count",
+      "prompt": "Update evals/files/tracked-issues/motivation.md using the project conventions, tracker state, change record, and supplied reference fixture. Write the Motivation section back and report what you changed.",
+      "expected_output": "Motivation states the problem and contains visible same-project references for both Issue #17 with a resolving keyword and Issue #18 with an informational keyword. The project convention does not make the tracked issue references optional. The references are outside HTML comments, code fences, and inline code. Issue #19, change request #20, and cross-project issue references are not presented as tracked issue references.",
+      "files": [
+        "evals/files/tracked-issues/AGENTS.md",
+        "evals/files/tracked-issues/tracker.md",
+        "evals/files/tracked-issues/non-counting-references.md",
+        "evals/files/tracked-issues/change.md",
+        "evals/files/tracked-issues/motivation.md"
+      ],
+      "assertions": [
+        "Motivation states the problem in one sentence.",
+        "Visible same-project references to both Issue #17 and Issue #18 are present.",
+        "The project convention does not make the tracked issue references optional.",
+        "Issue #17 uses a resolving keyword and Issue #18 uses an informational keyword.",
+        "The qualifying references are outside HTML comments, code fences, and inline code.",
+        "Hidden, code-fenced, inline-code, and cross-project references are not counted as tracked issue references.",
+        "Issue #19 and change request #20 are not presented as tracked issue references."
+      ]
+    },
+    {
+      "id": "tracker-without-matching-issue",
+      "prompt": "Update evals/files/tracker-no-issue/motivation.md for a change the project's GitHub issue tracker does not currently track. Preserve the problem sentence and make the exception explicit and checkable from the supplied tracker status. Write the section back.",
+      "expected_output": "Motivation states that no matching same-project issue exists, includes the recorded tracker query and zero-result status or an equivalent visible reference to that status, and does not invent an Issue reference or treat change request #31 as one.",
+      "files": [
+        "evals/files/tracker-no-issue/AGENTS.md",
+        "evals/files/tracker-no-issue/tracker-status.md",
+        "evals/files/tracker-no-issue/change.md",
+        "evals/files/tracker-no-issue/motivation.md"
+      ],
+      "assertions": [
+        "Motivation explicitly states that no matching issue tracks the change.",
+        "The tracker search or zero-result status makes the absence checkable.",
+        "No Issue reference is invented.",
+        "Change request #31 is not treated as an issue reference."
+      ]
+    },
+    {
+      "id": "unfinished-review-does-not-update",
+      "prompt": "Read evals/files/review/unfinished/review-state.md and evals/files/review/unfinished/ai-usage.md. The implementation and tests still match the current description; only review activity changed. Decide whether a handled review round permits a description update. If it does not, leave the file unchanged and explain the exact unfinished conditions.",
+      "expected_output": "The description is not updated because the review round is unfinished: one fix is pushed but unanswered, another comment remains unresolved, and a third comment is answered but its fix is not published. The review row stays n/a, no comment is claimed as handled, and the final report names all three missing conditions.",
+      "files": [
+        "evals/files/review/AGENTS.md",
+        "evals/files/review/unfinished/review-state.md",
+        "evals/files/review/unfinished/ai-usage.md"
+      ],
+      "assertions": [
+        "The AI Usage file remains unchanged.",
+        "The review row remains n/a.",
+        "The report does not claim that any review comment was handled.",
+        "The report identifies the unanswered reply and the unresolved comment as reasons no handled round exists.",
+        "The report identifies the answered comment whose fix is not published as a reason no handled round exists."
+      ]
+    },
+    {
+      "id": "handled-review-updates-ai-usage",
+      "prompt": "Read evals/files/review/handled/review-state.md and update evals/files/review/handled/ai-usage.md for the handled review round. Preserve the existing stages and declaration format, replace the review row and obsolete no-comments statement, update the badge or declaration only if the highest level changes, and report the result.",
+      "expected_output": "The review row is no longer n/a, records the author's decisions on both comments, and uses the pair level with the existing badge and declaration. The obsolete statement that no review comments have been handled is removed, and the other rows are preserved.",
+      "files": [
+        "evals/files/review/AGENTS.md",
+        "evals/files/review/handled/review-state.md",
+        "evals/files/review/handled/ai-usage.md"
+      ],
+      "assertions": [
+        "The review row records the pair level and the author's decisions on both comments.",
+        "The review row no longer reads n/a.",
+        "The obsolete no-comments statement is removed.",
+        "Exactly one valid AI-DECLARATION block remains with the pair badge and declaration.",
+        "The other AI Usage rows are preserved."
       ]
     }
   ]

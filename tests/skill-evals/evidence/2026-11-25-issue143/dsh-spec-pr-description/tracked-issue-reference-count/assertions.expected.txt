@@ -1,0 +1,7 @@
+PASS Motivation states the problem in one sentence.
+PASS Visible same-project references to both Issue #17 and Issue #18 are present.
+PASS The project convention does not make the tracked issue references optional.
+PASS Issue #17 uses a resolving keyword and Issue #18 uses an informational keyword.
+PASS The qualifying references are outside HTML comments, code fences, and inline code.
+PASS Hidden, code-fenced, inline-code, and cross-project references are not counted as tracked issue references.
+PASS Issue #19 and change request #20 are not presented as tracked issue references.

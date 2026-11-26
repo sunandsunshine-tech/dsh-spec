@@ -1,0 +1,5 @@
+PASS The review row records the pair level and the author's decisions on both comments.
+PASS The review row no longer reads n/a.
+PASS The obsolete no-comments statement is removed.
+PASS Exactly one valid AI-DECLARATION block remains with the pair badge and declaration.
+PASS The other AI Usage rows are preserved.

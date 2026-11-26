@@ -8,6 +8,11 @@
       "should_trigger": true
     },
     {
+      "id": "handled-review-description-update",
+      "query": "The review fixes are pushed and every thread has a posted answer. Update the pull-request description and its AI Usage review row to match the handled round.",
+      "should_trigger": true
+    },
+    {
       "id": "release-note-near-miss",
       "query": "Write the user-facing release note for the new export command. Do not prepare or update a pull-request description.",
       "should_trigger": false
@@ -20,6 +25,11 @@
     {
       "id": "ordinary-docs-near-miss",
       "query": "Update the developer guide to explain how workspace packages declare runtime dependencies. This is ordinary documentation, not a change-request description.",
+      "should_trigger": false
+    },
+    {
+      "id": "unfinished-review-comment-near-miss",
+      "query": "One review thread has a posted answer, but its fix has not been published. Does this unfinished review round require a pull-request description update? Return only yes or no.",
       "should_trigger": false
     }
   ]

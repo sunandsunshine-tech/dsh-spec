@@ -1,0 +1,77 @@
+diff --git a/evals/files/project/pr-body.md b/evals/files/project/pr-body.md
+index 99a7e27..974f659 100644
+--- a/evals/files/project/pr-body.md
++++ b/evals/files/project/pr-body.md
+@@ -1,31 +1,62 @@
+-# Add retry telemetry
++# Cap idempotent HTTP retries at three attempts
+ 
+ ## Motivation
+ 
+-Add retry telemetry for the request client.
++Idempotent HTTP requests could exceed the intended retry limit. No issue tracker applies because this project declares none.
+ 
+ ## Changes
+ 
+ **Interface changes**
+ 
+-Add telemetry events.
++- `HttpClientOptions.maxAttempts` accepts `1 | 2 | 3` and defaults to `3`.
+ 
+ **Behavior changes**
+ 
+-Emit one event after every request.
++- Only idempotent `GET` and `HEAD` requests retry. The client returns a non-retryable response without another attempt, and `maxAttempts` caps total attempts at three by default.
++- **Retry boundary:** The author set three as the maximum and limited retries to idempotent methods so the retry path cannot replay non-idempotent requests.
++
++**Module responsibilities and dependencies**
++
++None.
+ 
+ ## Testing
+ 
+ **Test design**
+ 
+-The telemetry tests cover a successful request.
++| Scenario | Behavior before | Behavior after | Covering test |
++|:--|:--|:--|:--|
++| `GET` returns `503` with `maxAttempts: 3` | The client can retry beyond the intended three-attempt cap. | The request stops after exactly three attempts. | `GET respects the configured attempt cap` |
++| `POST` returns `503` with `maxAttempts: 3` | A non-idempotent request can enter the retry path. | The request makes one attempt. | `POST does not retry` |
+ 
+ **Test entries**
+ 
+-`npm test` passed.
++- **`GET respects the configured attempt cap`** — ran `npm test` locally; the test passed and verified the three-attempt cap.
++  <details><summary>Proof</summary>
++
++  `✔ GET respects the configured attempt cap`; `tests 2`, `pass 2`, `fail 0`.
++
++  </details>
++- **`POST does not retry`** — ran `npm test` locally; the test passed and verified that a non-idempotent request makes one attempt.
++  <details><summary>Proof</summary>
++
++  `✔ POST does not retry`; `tests 2`, `pass 2`, `fail 0`.
++
++  </details>
++
++## AI Usage
++
++<!-- ai-declaration:start -->
++[![AI-DECLARATION: pair](https://img.shields.io/badge/䷼%20AI--DECLARATION-pair-ffedd5?labelColor=ffedd5)](https://ai-declaration.md)
++
++**AI declaration** ([v0.1.2](https://ai-declaration.md/en/0.1.2)): `pair`
++<!-- ai-declaration:end -->
+ 
+-## Human and Agent Roles
++| Stage | Level | AI involvement | Decision record |
++|:--|:--|--:|:--|
++| breakdown | pair | 40% | The author identified the retry-cap scope and set the layer boundary; the AI traced the affected client paths. |
++| design | assist | 20% | The author supplied the option name, the three-attempt maximum, and the decision to retry only idempotent methods; the AI filled in the mechanism. |
++| testing | pair | 35% | The author required idempotent-only and retry-limit cases; the AI wrote the cases. |
++| implementation | pair | 40% | The AI wrote the code and tests; the author required one rework to keep non-retryable responses out of the retry path. |
++| review | n/a | — |  |
+ 
+-| Stage | Level | Role |
+-|:--|:--|:--|
+-| implementation | copilot | The AI implemented telemetry. |
++No review comments have been handled yet.

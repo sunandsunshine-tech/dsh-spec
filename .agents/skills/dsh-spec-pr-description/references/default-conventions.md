@@ -8,7 +8,7 @@ A project that declares no conventions of its own can take this file as its work
 
 - GitHub: `Fixes #N`, `Closes #N` or `Resolves #N` when the change resolves the issue; `Refs #N` when it gives context.
 - Another tracker: use the reference form the tracker documents; when it documents none, link the issue and name the tracker.
-- The entry states what counts as an issue reference.
+- The entry states what counts as an issue reference and how the no-tracker and no-matching-issue exceptions remain explicit and checkable.
 
 ### Structure and language
 

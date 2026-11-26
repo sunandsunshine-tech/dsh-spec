@@ -1,0 +1,17 @@
+{
+  "id": "handled-review-updates-ai-usage",
+  "prompt": "Read evals/files/review/handled/review-state.md and update evals/files/review/handled/ai-usage.md for the handled review round. Preserve the existing stages and declaration format, replace the review row and obsolete no-comments statement, update the badge or declaration only if the highest level changes, and report the result.",
+  "expected_output": "The review row is no longer n/a, records the author's decisions on both comments, and uses the pair level with the existing badge and declaration. The obsolete statement that no review comments have been handled is removed, and the other rows are preserved.",
+  "files": [
+    "evals/files/review/AGENTS.md",
+    "evals/files/review/handled/review-state.md",
+    "evals/files/review/handled/ai-usage.md"
+  ],
+  "assertions": [
+    "The review row records the pair level and the author's decisions on both comments.",
+    "The review row no longer reads n/a.",
+    "The obsolete no-comments statement is removed.",
+    "Exactly one valid AI-DECLARATION block remains with the pair badge and declaration.",
+    "The other AI Usage rows are preserved."
+  ]
+}

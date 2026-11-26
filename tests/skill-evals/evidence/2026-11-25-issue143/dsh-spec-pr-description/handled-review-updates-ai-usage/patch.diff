@@ -1,0 +1,12 @@
+diff --git a/evals/files/review/handled/ai-usage.md b/evals/files/review/handled/ai-usage.md
+index 97fcecb..d0ac2cf 100644
+--- a/evals/files/review/handled/ai-usage.md
++++ b/evals/files/review/handled/ai-usage.md
+@@ -12,6 +12,4 @@
+ | design | assist | 20% | The author supplied the three-attempt cap and idempotent-only boundary; the AI filled in the mechanism. |
+ | testing | pair | 35% | The author required bounded retry and non-idempotent cases; the AI wrote the tests. |
+ | implementation | pair | 35% | The AI wrote the change; the author required the retry cap and request boundary. |
+-| review | n/a | — |  |
+-
+-No review comments have been handled yet.
++| review | pair | 40% | The author decided to fix both review comments: adding a three-attempt cap and a non-idempotent request test. The AI implemented the fixes and answered both comments. |

@@ -1,0 +1,9 @@
+PASS The body uses the default Motivation, Changes, Testing, and AI Usage sections.
+PASS The old Human and Agent Roles section is removed rather than retained beside AI Usage.
+PASS Exactly one AI Usage section and one AI-DECLARATION block remain.
+PASS The AI Usage table records this retry-cap layer only and does not repeat the lower layer's telemetry work.
+PASS The AI-DECLARATION version is 0.1.2 and its badge equals the highest row level.
+PASS The body reports the supplied passing test evidence without claiming an unrun check.
+PASS The review row remains n/a with an empty decision-record cell, and the no-comments statement follows the table.
+PASS Motivation states that no issue tracker applies instead of silently omitting the tracker exception.
+PASS The update does not invent tracker labels, Project fields, or dates.

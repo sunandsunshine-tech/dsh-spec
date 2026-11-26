@@ -1,0 +1,7 @@
+id	should_trigger	selected	result
+dependency-edge-report	true	true	pass
+handled-review-description-update	true	true	pass
+release-note-near-miss	false	false	pass
+commit-message-near-miss	false	false	pass
+ordinary-docs-near-miss	false	false	pass
+unfinished-review-comment-near-miss	false	false	pass
