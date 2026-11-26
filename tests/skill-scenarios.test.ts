@@ -318,6 +318,66 @@ const GENERAL_REQUIRED: GeneralProfile[] = [
           /does not accept the description's reported edge list as complete/i,
         ],
       },
+      {
+        id: 'review-ordinary-ui-with-optional-reports-absent',
+        signature: [
+          /ordinary-ui-review/i,
+          /current-build Settings screenshot/i,
+          /component audit report and design-system full-audit record were not supplied/i,
+        ],
+        expectedOutput: [
+          /reports no blocker/i,
+          /optional omissions, not gaps/i,
+          /still-valid evidence requires no recheck/i,
+        ],
+        assertions: [
+          /no blocker for the ordinary page-local spacing change/i,
+          /component audit report as an optional omission rather than a gap/i,
+          /does not require a design-system full-audit record/i,
+          /does not demand rechecking the still-valid rendered evidence/i,
+        ],
+      },
+      {
+        id: 'review-projection-state-size-history-and-migration',
+        signature: [
+          /projection-review/i,
+          /project design rules/i,
+          /do not import another project's projection defaults/i,
+        ],
+        expectedOutput: [
+          /SESSION-1.*runtime reader/i,
+          /SESSION-2.*grows linearly/i,
+          /SESSION-3.*full event history/i,
+          /SESSION-4.*PROJECTION_VERSION stays 1 with no migration/i,
+        ],
+        assertions: [
+          /SESSION-1 because a runtime reader is stored/i,
+          /SESSION-2 because an unbounded event history/i,
+          /SESSION-3 because readHistory synchronously exposes/i,
+          /SESSION-4 because recovery semantics changed/i,
+          /adopting project's declared rules/i,
+        ],
+      },
+      {
+        id: 'review-projection-rules-unavailable',
+        signature: [
+          /projection-unruled-review/i,
+          /without importing defaults/i,
+          /ownership, state size, historical reads, and migration behavior/i,
+        ],
+        expectedOutput: [
+          /declares no state-persistence, projection, or recovery rules/i,
+          /explicit review gap/i,
+          /does not apply another project's fixed-size, version, checkpoint, or migration defaults/i,
+          /or present the rule-dependent review as complete/i,
+        ],
+        assertions: [
+          /declares no projection or recovery rules/i,
+          /records the projection review as an explicit gap/i,
+          /does not import another project's bounds, version, checkpoint, or migration defaults/i,
+          /does not present the rule-dependent projection review as complete/i,
+        ],
+      },
     ],
   },
   {
@@ -3469,7 +3529,7 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
   }
 })
 
-test('PR121 and PR122 targeted model evidence binds current inputs and recorded provenance', () => {
+test('PR121, PR122 and PR141 targeted model evidence binds current inputs and recorded provenance', () => {
   const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-23-pr121')
   const historicalBrowserReadmePath = join(evidenceRoot, 'dsh-spec-browser-gif-evidence/README.md')
   assertEvidencePath(evidenceRoot, historicalBrowserReadmePath, 'historical browser README', 'file')
@@ -3490,6 +3550,7 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
     readFileSync(historicalPrePushReadme, 'utf8'),
     /^> \*\*Historical status:\*\* this run used the pre-routing-change `dsh-spec-pre-push-checks` skill tree\./m,
   )
+  const pr141EvidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-25-pr141')
   type EvidenceRun = {
     skill: string
     run: string
@@ -3515,8 +3576,31 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
       run: 'candidate-real',
       evidenceSkill: 'dsh-spec-browser-gif-evidence',
     },
-    { skill: 'dsh-spec-code-review', run: 'review-with-integrated-guidance' },
-    { skill: 'dsh-spec-code-review', run: 'review-without-siblings' },
+    {
+      skill: 'dsh-spec-code-review',
+      run: 'review-with-integrated-guidance',
+      evidenceRoot: pr141EvidenceRoot,
+    },
+    {
+      skill: 'dsh-spec-code-review',
+      run: 'review-without-siblings',
+      evidenceRoot: pr141EvidenceRoot,
+    },
+    {
+      skill: 'dsh-spec-code-review',
+      run: 'review-ordinary-ui-with-optional-reports-absent',
+      evidenceRoot: pr141EvidenceRoot,
+    },
+    {
+      skill: 'dsh-spec-code-review',
+      run: 'review-projection-state-size-history-and-migration',
+      evidenceRoot: pr141EvidenceRoot,
+    },
+    {
+      skill: 'dsh-spec-code-review',
+      run: 'review-projection-rules-unavailable',
+      evidenceRoot: pr141EvidenceRoot,
+    },
     { skill: 'dsh-spec-error-handling', run: 'outcome-classification-and-extensible-codes' },
     { skill: 'dsh-spec-pre-push-checks', run: 'select-integrated-evidence' },
     { skill: 'dsh-spec-pre-push-checks', run: 'select-minimum-without-siblings' },
@@ -3538,12 +3622,12 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
     {
       skill: 'dsh-spec-code-review',
       run: 'review-dependency-edges-and-reverse-edge',
-      evidenceRoot: pr122EvidenceRoot,
+      evidenceRoot: pr141EvidenceRoot,
     },
     {
       skill: 'dsh-spec-code-review',
       run: 'review-cites-numbered-rule',
-      evidenceRoot: pr122EvidenceRoot,
+      evidenceRoot: pr141EvidenceRoot,
     },
     {
       skill: 'dsh-spec-pre-push-checks',
@@ -3639,6 +3723,11 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
     'dsh-spec-pr-description:workspace-boundaries-expose-reverse-edge': 'workspace-boundaries-expose-reverse-edge',
     'dsh-spec-code-review:review-dependency-edges-and-reverse-edge': 'review-dependency-edges-and-reverse-edge',
     'dsh-spec-code-review:review-cites-numbered-rule': 'review-cites-numbered-rule',
+    'dsh-spec-code-review:review-ordinary-ui-with-optional-reports-absent':
+      'review-ordinary-ui-with-optional-reports-absent',
+    'dsh-spec-code-review:review-projection-state-size-history-and-migration':
+      'review-projection-state-size-history-and-migration',
+    'dsh-spec-code-review:review-projection-rules-unavailable': 'review-projection-rules-unavailable',
     'dsh-spec-error-handling:empty-catch-names-and-separates-operation': 'empty-catch-names-and-separates-operation',
     'dsh-spec-error-handling:empty-catch-names-and-documents-safe-failure':
       'empty-catch-names-and-documents-safe-failure',
@@ -3681,7 +3770,7 @@ test('PR121 and PR122 targeted model evidence binds current inputs and recorded 
     assert.ok(scenarioId, item.skill + '/' + item.run + ' has no behavior id')
     const scenario = readCorpus(item.skill).evals.find((entry) => entry.id === scenarioId)
     assert.ok(scenario, item.skill + '/' + item.run + ' names no current scenario')
-    const current = item.current ?? item.evidenceRoot === pr122EvidenceRoot
+    const current = item.current ?? (item.evidenceRoot === pr122EvidenceRoot || item.evidenceRoot === pr141EvidenceRoot)
     const scenarioDefinitionFile = join(root, 'scenario-definition.json')
     assertEvidencePath(root, scenarioDefinitionFile, item.skill + '/' + item.run + ' scenario definition', 'file')
     assertRegularEvidenceFile(scenarioDefinitionFile, item.skill + '/' + item.run + ' scenario definition')

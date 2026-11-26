@@ -1,0 +1,18 @@
+{
+  "id": "review-projection-rules-unavailable",
+  "prompt": "Review the outgoing change at HEAD against HEAD^ in evals/files/projection-unruled-review using the installed dsh-spec-code-review skill. Read the project rules and inspect the actual diff. Assess ownership, state size, historical reads, and migration behavior without importing defaults from another project. Record rule-dependent review as a gap rather than treating it as passed. Do not modify files or Git state.",
+  "expected_output": "The review records that the project declares no state-persistence, projection, or recovery rules, so rule-specific ownership, state size, historical-read, and migration assessment remains an explicit review gap. It may report observable runtime defects, but it does not apply another project's fixed-size, version, checkpoint, or migration defaults or present the rule-dependent review as complete.",
+  "files": [
+    "evals/files/projection-unruled-review/AGENTS.md",
+    "evals/files/projection-unruled-review/src/projection.txt",
+    "evals/files/projection-unruled-review/change.patch"
+  ],
+  "change_patch": "evals/files/projection-unruled-review/change.patch",
+  "change_root": "evals/files/projection-unruled-review",
+  "assertions": [
+    "The review reports that the project declares no projection or recovery rules.",
+    "The review records the projection review as an explicit gap.",
+    "The review does not import another project's bounds, version, checkpoint, or migration defaults.",
+    "The review does not present the rule-dependent projection review as complete."
+  ]
+}

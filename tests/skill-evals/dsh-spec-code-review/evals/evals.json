@@ -114,6 +114,68 @@
         "The review flags the existing core → app reverse dependency.",
         "The review does not accept the description's reported edge list as complete."
       ]
+    },
+    {
+      "id": "review-ordinary-ui-with-optional-reports-absent",
+      "prompt": "Review the outgoing change at HEAD against HEAD^ in evals/files/ordinary-ui-review using the installed dsh-spec-code-review skill. Read the project rules and the actual diff. The current-build Settings screenshot at evals/files/ordinary-ui-review/evidence/settings-after.png is attached and remains valid for this fixture's build, 768-pixel viewport, data, theme, and state. The component audit report and design-system full-audit record were not supplied. Assess all three omissions under the project rules. Do not modify files or Git state.",
+      "expected_output": "The review reports no blocker. The page-local spacing change is covered by the current rendered Settings screenshot at the declared viewport; the absent component audit report and full-audit record are optional omissions, not gaps, and the still-valid evidence requires no recheck.",
+      "capabilities": {
+        "browser": false,
+        "media": false
+      },
+      "files": [
+        "evals/files/ordinary-ui-review/AGENTS.md",
+        "evals/files/ordinary-ui-review/index.html",
+        "evals/files/ordinary-ui-review/src/settings.css",
+        "evals/files/ordinary-ui-review/change.patch",
+        "evals/files/ordinary-ui-review/evidence/settings-after.png"
+      ],
+      "change_patch": "evals/files/ordinary-ui-review/change.patch",
+      "change_root": "evals/files/ordinary-ui-review",
+      "assertions": [
+        "The review reports no blocker for the ordinary page-local spacing change.",
+        "The review treats the absent component audit report as an optional omission rather than a gap.",
+        "The review does not require a design-system full-audit record.",
+        "The review does not demand rechecking the still-valid rendered evidence."
+      ]
+    },
+    {
+      "id": "review-projection-state-size-history-and-migration",
+      "prompt": "Review the outgoing change at HEAD against HEAD^ in evals/files/projection-review using the installed dsh-spec-code-review skill. Read the project design rules, inspect the actual diff and source, and report blockers with their rule IDs. Do not import another project's projection defaults. Do not modify files or Git state.",
+      "expected_output": "The review reports four blockers: SESSION-1 because persisted state retains a runtime reader; SESSION-2 because the event array grows linearly without declared bounds; SESSION-3 because readHistory retains and synchronously returns the full event history; and SESSION-4 because the state shape and recovery behavior change while PROJECTION_VERSION stays 1 with no migration.",
+      "files": [
+        "evals/files/projection-review/AGENTS.md",
+        "evals/files/projection-review/src/types.ts",
+        "evals/files/projection-review/src/projection.txt",
+        "evals/files/projection-review/change.patch"
+      ],
+      "change_patch": "evals/files/projection-review/change.patch",
+      "change_root": "evals/files/projection-review",
+      "assertions": [
+        "The review cites SESSION-1 because a runtime reader is stored in persisted projection state.",
+        "The review cites SESSION-2 because an unbounded event history is retained in projection state.",
+        "The review cites SESSION-3 because readHistory synchronously exposes the retained full history.",
+        "The review cites SESSION-4 because recovery semantics changed without a version increment or migration.",
+        "The review derives every finding from the adopting project's declared rules."
+      ]
+    },
+    {
+      "id": "review-projection-rules-unavailable",
+      "prompt": "Review the outgoing change at HEAD against HEAD^ in evals/files/projection-unruled-review using the installed dsh-spec-code-review skill. Read the project rules and inspect the actual diff. Assess ownership, state size, historical reads, and migration behavior without importing defaults from another project. Record rule-dependent review as a gap rather than treating it as passed. Do not modify files or Git state.",
+      "expected_output": "The review records that the project declares no state-persistence, projection, or recovery rules, so rule-specific ownership, state size, historical-read, and migration assessment remains an explicit review gap. It may report observable runtime defects, but it does not apply another project's fixed-size, version, checkpoint, or migration defaults or present the rule-dependent review as complete.",
+      "files": [
+        "evals/files/projection-unruled-review/AGENTS.md",
+        "evals/files/projection-unruled-review/src/projection.txt",
+        "evals/files/projection-unruled-review/change.patch"
+      ],
+      "change_patch": "evals/files/projection-unruled-review/change.patch",
+      "change_root": "evals/files/projection-unruled-review",
+      "assertions": [
+        "The review reports that the project declares no projection or recovery rules.",
+        "The review records the projection review as an explicit gap.",
+        "The review does not import another project's bounds, version, checkpoint, or migration defaults.",
+        "The review does not present the rule-dependent projection review as complete."
+      ]
     }
   ]
 }

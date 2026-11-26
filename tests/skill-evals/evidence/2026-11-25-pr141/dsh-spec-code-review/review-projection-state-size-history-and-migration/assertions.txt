@@ -1,0 +1,5 @@
+PASS The review cites SESSION-1 because a runtime reader is stored in persisted projection state.
+PASS The review cites SESSION-2 because an unbounded event history is retained in projection state.
+PASS The review cites SESSION-3 because readHistory synchronously exposes the retained full history.
+PASS The review cites SESSION-4 because recovery semantics changed without a version increment or migration.
+PASS The review derives every finding from the adopting project's declared rules.

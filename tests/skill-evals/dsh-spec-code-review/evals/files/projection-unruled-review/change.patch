@@ -1,0 +1,18 @@
+diff --git a/src/projection.txt b/src/projection.txt
+--- a/src/projection.txt
++++ b/src/projection.txt
+@@ -1,9 +1,9 @@
+ // Review fixture: state shape without adopting-project persistence rules.
+ export interface ProjectionState {
+   current: string
+-  recentEvents?: string[]
++  recentEvents: string[]
+ }
+ export function initialProjection(): ProjectionState {
+-  return { current: '' }
++  return { current: '', recentEvents: [] }
+ }
+ export function applyEvent(state: ProjectionState, event: string): ProjectionState {
+-  return { current: event }
++  return { current: event, recentEvents: [...state.recentEvents, event] }
+ }

@@ -6,6 +6,8 @@ inherited process environment, kept provider credentials behind a host-side loop
 retained artifacts according to the scenario. The model still has network access; the guide states
 that boundary explicitly.
 
+> **Historical status:** the two Code Review runs in this tree remain bound to the PR122 skill revision. Current Code Review runs, including both of those scenarios, are under `../2026-11-25-pr141/`.
+
 | Skill | Scenario | Assertions |
 |---|---|---:|
 | `dsh-spec-pr-description` | `workspace-boundaries-expose-reverse-edge` | 6/6 |

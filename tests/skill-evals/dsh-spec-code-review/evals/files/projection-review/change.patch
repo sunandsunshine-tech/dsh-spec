@@ -1,0 +1,39 @@
+diff --git a/src/projection.txt b/src/projection.txt
+--- a/src/projection.txt
++++ b/src/projection.txt
+@@ -1,7 +1,9 @@
+ // Review fixture: persisted projection state and transitions.
+-import type { SessionEvent } from './types.js'
++import type { ProjectionReader, SessionEvent } from './types.js'
+ // Projection state and transitions.
+ export interface ProjectionState {
+   owner: string
+   lastSequence: number
++  reader: ProjectionReader
++  events: SessionEvent[]
+ }
+@@ -10,4 +12,4 @@
+ // Factory.
+-export function initialProjection(owner: string): ProjectionState {
+-  return { owner, lastSequence: 0 }
++export function initialProjection(owner: string, reader: ProjectionReader): ProjectionState {
++  return { owner, lastSequence: 0, reader, events: [] }
+ }
+@@ -14,4 +16,8 @@
+ // Event application.
+ export function applyEvent(state: ProjectionState, event: SessionEvent): ProjectionState {
+-  return { ...state, lastSequence: event.sequence }
++  return {
++    ...state,
++    lastSequence: event.sequence,
++    events: [...state.events, event],
++  }
+ }
+@@ -18,4 +24,7 @@
+ // Readers.
+ export function readOwner(state: ProjectionState): string {
+   return state.owner
+ }
++export function readHistory(state: ProjectionState): SessionEvent[] {
++  return state.events
++}
