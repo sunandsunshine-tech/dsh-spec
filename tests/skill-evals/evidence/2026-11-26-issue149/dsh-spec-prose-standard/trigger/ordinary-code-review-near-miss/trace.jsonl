@@ -1,0 +1,5 @@
+{"type":"query","id":"ordinary-code-review-near-miss","query_sha256":"5f130256ec482fda671ff353767a9d54f6bdb894c9dcd2ce327b4e0fe4af9c2a"}
+{"type":"skill","path":".agents/skills/dsh-spec-prose-standard/SKILL.md","sha256":"9886be2dc52c0dc17d7491ddb7ef883575f05e12752f7c7d32a8ef01690f61fd"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"This is a correctness and security review of executable TypeScript code, not a review or authoring task for durable prose. The prose-standard skill explicitly excludes code correctness, so it does not apply.\n\nSELECT: none"}}
+{"type":"turn.completed","usage":{"input_tokens":12438,"cached_input_tokens":12288,"cache_write_input_tokens":0,"output_tokens":256,"reasoning_output_tokens":213}}

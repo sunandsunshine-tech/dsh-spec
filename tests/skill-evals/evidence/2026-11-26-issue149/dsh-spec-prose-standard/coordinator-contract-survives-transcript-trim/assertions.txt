@@ -1,0 +1,10 @@
+PASS The page preserves per-session write serialization and independent ordering between sessions.
+PASS The page states that new writes are rejected once disposal starts and accepted writes drain before buffered events are flushed.
+PASS The page states that buffered events are flushed before the disposal promise resolves.
+PASS The page preserves the backend error, reports it to the caller that submitted the write, and does not retry it.
+PASS The page states that writes queued behind a failed write in the same session reject with the same backend error without reaching the backend.
+PASS The page preserves that cross-session serialization is intentionally absent so a slow backend in one session does not block another session.
+PASS The page preserves the exact new-write rejection text `coordinator is closing`.
+PASS The page states that a rejected `flushBufferedEvents()` propagates its backend error through `dispose()`.
+PASS The page states that the public API surface is unstable and makes no compatibility guarantee.
+PASS The repaired page removes authoring-session narration and does not add a code walkthrough.

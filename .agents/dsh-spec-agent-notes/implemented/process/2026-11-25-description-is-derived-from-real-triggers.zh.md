@@ -23,7 +23,9 @@ Status: implemented
 
 锻造技能入口在意图、验证和评估覆盖范围中陈述这项要求。`tests/skill-evals/dsh-spec-skill-forge/evals/evals.json` 中的行为场景 `description-derived-from-role-triggers-and-exclusions` 让锻造技能在保留流程的同时，对齐 release-audit description 与正文边界。其触发语料 `tests/skill-evals/dsh-spec-skill-forge/trigger-evals.json` 包含七个正例请求和七个近失例请求，覆盖显式与隐式整个技能编写，并以安装、使用、已定技能指令编辑、提示词编辑、API 描述、运行时代码和工具定义作为近失例。
 
-当前触发语料还包括 `tests/skill-evals/dsh-spec-agent-experience/trigger-evals.json`、`tests/skill-evals/dsh-spec-ci-test-reliability/trigger-evals.json`、`tests/skill-evals/dsh-spec-client-ui-ux/trigger-evals.json`、`tests/skill-evals/dsh-spec-error-handling/trigger-evals.json`、`tests/skill-evals/dsh-spec-find-simplifications/trigger-evals.json`、`tests/skill-evals/dsh-spec-merging-stacked-prs/trigger-evals.json`、`tests/skill-evals/dsh-spec-performance-investigation/trigger-evals.json`、`tests/skill-evals/dsh-spec-pr-description/trigger-evals.json`、`tests/skill-evals/dsh-spec-record-browser-gif/trigger-evals.json` 和 `tests/skill-evals/dsh-spec-translate-docs/trigger-evals.json`。`tests/skill-scenarios.test.ts` 校验语料结构、当前触发面、该行为场景及其保留的模型证据；description 的质量仍由评审判断，而不是由正则语义门禁裁决。
+当前触发语料还包括 `tests/skill-evals/dsh-spec-agent-experience/trigger-evals.json`、`tests/skill-evals/dsh-spec-ci-test-reliability/trigger-evals.json`、`tests/skill-evals/dsh-spec-client-ui-ux/trigger-evals.json`、`tests/skill-evals/dsh-spec-error-handling/trigger-evals.json`、`tests/skill-evals/dsh-spec-find-simplifications/trigger-evals.json`、`tests/skill-evals/dsh-spec-merging-stacked-prs/trigger-evals.json`、`tests/skill-evals/dsh-spec-performance-investigation/trigger-evals.json`、`tests/skill-evals/dsh-spec-pr-description/trigger-evals.json`、`tests/skill-evals/dsh-spec-prose-standard/trigger-evals.json`、`tests/skill-evals/dsh-spec-record-browser-gif/trigger-evals.json` 和 `tests/skill-evals/dsh-spec-translate-docs/trigger-evals.json`。`tests/skill-scenarios.test.ts` 校验语料结构、当前触发面、该行为场景及其保留的模型证据；description 的质量仍由评审判断，而不是由正则语义门禁裁决。
+
+`dsh-spec-prose-standard` 每次保留的触发探针都在 `trigger-query.json` 中记录语料中的准确查询及其 SHA-256，trace 携带相同身份和哈希。即使两次运行都选中同一技能，从另一查询移来的 trace 或 final 也会在验证中失败。模型运行器写出的行为 trace 注明其执行的场景定义哈希，因此从另一场景复制的 trace 和 final 会无法通过场景来源校验。
 
 跟踪：#160（设计：#132）。
 
@@ -44,4 +46,4 @@ Status: implemented
 - 仓库的目录预算仍是上限。锻造技能的 description 为 462 个 BMP 字符，为后续修正留有空间，而不是鼓励堆砌清单。
 - `dsh-spec-skill-forge` 只检查规范机制和预算。语义质量依据来源、正文以及正例／近失例判断。
 - 代价和限制：小型触发集可能过拟合一种措辞；复合技能可能拥有宽泛但真实的角色；通过选定示例并不能证明通用路由准确。
-- 验证：`node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs skills/dsh-spec-skill-forge --description-max 500`、`node --test --test-name-pattern='forge' tests/skill-scenarios.test.ts`、笔记检查与翻译配对检查以当前产物为准。行为运行使用 `tests/skill-evals/run-model-eval.mjs`；单独的触发探针保留了每个最终 `SELECT:` 标记和 14 行矩阵。
+- 验证：`node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs skills/dsh-spec-skill-forge --description-max 500`、`node --test --test-name-pattern='forge|prose-standard' tests/skill-scenarios.test.ts`、笔记检查与翻译配对检查以当前产物为准。行为运行使用 `tests/skill-evals/run-model-eval.mjs`；单独的触发探针保留了每个最终 `SELECT:` 标记、精确的查询绑定，以及 14 行锻造技能矩阵和 `dsh-spec-prose-standard` 的 12 行矩阵，并以交换 trace 与 final 的负向控制验证失败路径。

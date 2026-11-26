@@ -1,0 +1,5 @@
+{
+  "id": "audit-prompt-leakage",
+  "query": "Audit the tool description for authoring-session references and state the durable behavior from the tool's current vantage.",
+  "query_sha256": "a230d3cb7e5e5784281e349064b3db582386754f9db68991138ab86eff669cf1"
+}

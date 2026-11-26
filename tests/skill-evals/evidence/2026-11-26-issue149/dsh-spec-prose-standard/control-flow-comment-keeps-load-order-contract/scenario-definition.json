@@ -1,0 +1,15 @@
+{
+  "id": "control-flow-comment-keeps-load-order-contract",
+  "prompt": "Trim only the block comment above registerTools in evals/files/plugin-order/src/register-tools.ts. The function body already shows the loading steps; retain the non-obvious consequence the comment establishes and remove control-flow narration. Keep executable code unchanged and write the file back.",
+  "expected_output": "The comment no longer lists first, next, then, or finally steps. It states that the workspace policy is registered before model-facing tools so every write and edit call passes through the read-before-mutation gate. The executable code is unchanged.",
+  "files": [
+    "evals/files/plugin-order/AGENTS.md",
+    "evals/files/plugin-order/src/register-tools.ts"
+  ],
+  "assertions": [
+    "The comment removes the step-by-step loading narration.",
+    "The comment retains that workspace policy loads before model-facing tools.",
+    "The comment retains that both write and edit calls pass through the read-before-mutation gate.",
+    "The executable code remains unchanged."
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "id": "restore-comment-contract",
+  "query": "The comment above `withRetry` was shortened until it no longer states that retries happen only before the first byte is sent. Restore the missing contract in the comment without narrating the implementation.",
+  "query_sha256": "5160f2784fd6d8108f66841775de8c9a454bc5e0504fc082dcd83833e4139ecb"
+}

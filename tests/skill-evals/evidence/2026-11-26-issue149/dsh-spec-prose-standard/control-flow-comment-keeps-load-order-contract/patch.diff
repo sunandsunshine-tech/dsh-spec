@@ -1,0 +1,15 @@
+diff --git a/evals/files/plugin-order/src/register-tools.ts b/evals/files/plugin-order/src/register-tools.ts
+index a51a149..e6d37cb 100644
+--- a/evals/files/plugin-order/src/register-tools.ts
++++ b/evals/files/plugin-order/src/register-tools.ts
+@@ -10,10 +10,6 @@ type Policy = {
+ }
+ 
+ /*
+- * First read the plugin list. Next sort each plugin by phase. Then create the
+- * workspace policy and register it. After that, iterate over the model-facing
+- * tools and register each tool. Finally return the registry.
+- *
+  * Loading policy before the model-facing tools makes every write and edit call
+  * pass through the read-before-mutation gate.
+  */

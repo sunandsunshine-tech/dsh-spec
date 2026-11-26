@@ -1,0 +1,5 @@
+{
+  "id": "write-prompt-instructions",
+  "query": "Rewrite the system prompt so the agent must ask before destructive operations and must preserve the reason for the refusal.",
+  "query_sha256": "d932eeff5575d19d6fe1629e0163116dc879b78971e7ad5fe13a356ab2f21db6"
+}

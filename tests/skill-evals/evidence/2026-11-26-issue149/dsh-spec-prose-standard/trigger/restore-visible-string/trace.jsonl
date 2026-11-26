@@ -1,0 +1,5 @@
+{"type":"query","id":"restore-visible-string","query_sha256":"45b8191442c5d11aa8876c1ffd965e5a15b2501e8af728bb96321b9d6d96387e"}
+{"type":"skill","path":".agents/skills/dsh-spec-prose-standard/SKILL.md","sha256":"9886be2dc52c0dc17d7491ddb7ef883575f05e12752f7c7d32a8ef01690f61fd"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"This request targets durable user-visible error text, requiring complete information about the failed path and recovery action while preserving the established sentence-case style, so the specification-prose skill applies.\n\nSELECT: dsh-spec-prose-standard"}}
+{"type":"turn.completed","usage":{"input_tokens":12448,"cached_input_tokens":12288,"cache_write_input_tokens":0,"output_tokens":360,"reasoning_output_tokens":314}}

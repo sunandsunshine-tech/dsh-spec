@@ -1,0 +1,5 @@
+{"type":"query","id":"code-correctness-only-near-miss","query_sha256":"974e02c2dfda871077fa409d6e9f2b4f8c9e8aae676ff22083b6ea8f909eb969"}
+{"type":"skill","path":".agents/skills/dsh-spec-prose-standard/SKILL.md","sha256":"9886be2dc52c0dc17d7491ddb7ef883575f05e12752f7c7d32a8ef01690f61fd"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The task concerns executable TypeScript control flow and fixing a null dereference, which falls under code correctness rather than durable prose authoring, review, or auditing. The prose-standard skill therefore does not apply.\n\nSELECT: none"}}
+{"type":"turn.completed","usage":{"input_tokens":12449,"cached_input_tokens":12288,"cache_write_input_tokens":0,"output_tokens":130,"reasoning_output_tokens":85}}

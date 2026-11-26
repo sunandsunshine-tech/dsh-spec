@@ -1,0 +1,5 @@
+{
+  "id": "restore-visible-string",
+  "query": "Restore the user-visible export error so it names the failed path and the recovery action while keeping the existing sentence-case style.",
+  "query_sha256": "45b8191442c5d11aa8876c1ffd965e5a15b2501e8af728bb96321b9d6d96387e"
+}

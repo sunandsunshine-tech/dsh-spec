@@ -1,0 +1,5 @@
+{"type":"query","id":"write-documentation-page","query_sha256":"fcc7a93c30ab3d335d7f1d46d6deae7d64d78877f26ec93686cca8b83c34dc51"}
+{"type":"skill","path":".agents/skills/dsh-spec-prose-standard/SKILL.md","sha256":"9886be2dc52c0dc17d7491ddb7ef883575f05e12752f7c7d32a8ef01690f61fd"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The request requires drafting durable procedural documentation, so it is routed to the prose-standard skill for guidance on complete, instruction-oriented technical writing.\n\nSELECT: dsh-spec-prose-standard"}}
+{"type":"turn.completed","usage":{"input_tokens":12450,"cached_input_tokens":12288,"cache_write_input_tokens":0,"output_tokens":250,"reasoning_output_tokens":213}}

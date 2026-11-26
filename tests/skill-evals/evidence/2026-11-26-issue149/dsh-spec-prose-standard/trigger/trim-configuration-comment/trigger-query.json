@@ -1,0 +1,5 @@
+{
+  "id": "trim-configuration-comment",
+  "query": "Trim the configuration comment in `vite.config.ts` so it keeps why policy loads before tools and drops the step-by-step explanation.",
+  "query_sha256": "0e21dd7037a7d696078305cf61cb3699ca60d76588a4869766b79a91e6262560"
+}

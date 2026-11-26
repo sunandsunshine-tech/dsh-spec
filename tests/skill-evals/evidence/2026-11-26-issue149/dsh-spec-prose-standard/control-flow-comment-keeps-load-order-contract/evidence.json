@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "claim": {
+    "type": "behavior",
+    "subject": "dsh-spec-prose-standard:control-flow-comment-keeps-load-order-contract"
+  },
+  "arm": "target-present",
+  "comparison": null,
+  "evidence": {
+    "kind": "model",
+    "currentness": {
+      "scenario_sha256": "e1e21dc291dfc308bbdc5a50178a6f9a792aa82ac821be87ba98a2238d13ba84",
+      "input_manifest_sha256": "ffc9b39319ec31d0460c96913f7574d7957f8f674d71c36ba4c55db0cf2e9d4c",
+      "scenario_prompt_sha256": "030896e232da6ce903d5ebaa2aca1f985c5f7b82ec7b167f6081caa41d1529ba",
+      "arm_instruction_sha256": "6e9482f51c4ee82141b30670268c89d95b188b5709b1bdf6084335e3f4af01ae",
+      "prompt_guard_sha256": "e587246af427c697477e3f5e361192ebb5316c5f17540449cf6de853ec64af30",
+      "rendered_prompt_sha256": "85b9a0939b3a1c6544cf3c733d2bbe451c7323a6482afbbbe7c101fe782e92bd",
+      "execution_sha256": "df0d14c0a241265515e09d97e5b796c7a07f4e04e2b1e49e7bc971557340c54a"
+    }
+  },
+  "execution": {
+    "auth": "host-proxy",
+    "browser": false,
+    "media": false,
+    "model_config_sha256": "81fe0a5e2d45e2a687f9ff2d811dd45cca60b986eeb96b994e9255e9eda70e1c",
+    "model_runtime_sha256": "63279cf1860a285495fa0bad3c40f5eb38c3487f7425adb603bcbd49175fcaf8",
+    "sandbox": "workspace-write",
+    "subagents": false
+  },
+  "provenance": {
+    "target_skill_tree_sha256": "70d26d4f7f029413bf0234970c7ea055c419c53aaa52ac07516c23e2b32ea403",
+    "dependency_skill_tree_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "deadline_ms": 1800000,
+  "privacy": {
+    "canary_sets": [
+      "current-home",
+      "local-environment"
+    ],
+    "scope_sha256": "2b910be53fbe40382a58ac7b2d82bffe01809fb589a28caca231ac26a8090db2",
+    "surfaces": "all-retained-files"
+  }
+}

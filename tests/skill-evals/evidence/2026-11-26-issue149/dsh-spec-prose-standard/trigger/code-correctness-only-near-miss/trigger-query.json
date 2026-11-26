@@ -1,0 +1,5 @@
+{
+  "id": "code-correctness-only-near-miss",
+  "query": "Fix the null dereference in `session.ts` so the failing call returns the parsed record. The defect is in executable control flow.",
+  "query_sha256": "974e02c2dfda871077fa409d6e9f2b4f8c9e8aae676ff22083b6ea8f909eb969"
+}

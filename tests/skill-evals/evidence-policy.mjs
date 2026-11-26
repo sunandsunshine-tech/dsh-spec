@@ -1151,12 +1151,16 @@ export function inspectRetainedTriggerRun(root, metadata, canaries) {
   if (!query || typeof query !== 'object' || Array.isArray(query)) {
     throw new Error('retained trigger query must be an object')
   }
-  const known = new Set(['id', 'query', 'should_trigger', 'agent_file', 'currentness'])
+  const known = new Set(['id', 'query', 'query_sha256', 'should_trigger', 'agent_file', 'currentness'])
   for (const key of Object.keys(query)) {
     if (!known.has(key)) throw new Error(`retained trigger query has unknown field ${key}`)
   }
   assertNonEmptyString(query.id, 'retained trigger id')
   assertNonEmptyString(query.query, 'retained trigger prompt')
+  if (query.query_sha256 !== undefined) {
+    assertHash(query.query_sha256, 'retained trigger query sha256')
+    if (query.query_sha256 !== sha256(query.query)) throw new Error('retained trigger query hash differs')
+  }
   assertNonEmptyString(query.agent_file, 'retained trigger agent file')
   if (typeof query.should_trigger !== 'boolean') throw new Error('retained trigger decision must be boolean')
   const queryCurrentness = query.currentness

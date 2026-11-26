@@ -1,0 +1,5 @@
+{
+  "id": "write-documentation-page",
+  "query": "Write the deployment guide for the new cache purge command. Explain its prerequisites, the exact command, and how to verify that the purge completed.",
+  "query_sha256": "fcc7a93c30ab3d335d7f1d46d6deae7d64d78877f26ec93686cca8b83c34dc51"
+}

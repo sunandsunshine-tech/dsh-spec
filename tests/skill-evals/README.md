@@ -218,6 +218,15 @@ Trigger evidence binds `skills/<name>/SKILL.md#name-description`. The body may c
 invalidating trigger selection; a name or description change requires the trigger corpus to be
 rerun.
 
+Each trigger probe produced for this evidence model retains `trigger-query.json` with the exact
+query text and its SHA-256, and the trace carries the same query identity and hash. Replacing a
+probe's trace or final with another query's retained output therefore fails validation even when
+both selections match.
+
+The behavior runner writes one scenario event naming the scenario subject and definition hash.
+Tests also bind the scenario's behavior-bearing skill hashes to a repository manifest and the
+retained run's complete skill manifest, so changing those files without a new run fails closed.
+
 Runs created before `evidence.json` existed remain subject to the existing scenario, input and
 recorded-skill checks. They are neither downgraded nor upgraded merely because typed metadata is
 absent. Currentness is computed from the declared selectors; it is not stored as a mutable
