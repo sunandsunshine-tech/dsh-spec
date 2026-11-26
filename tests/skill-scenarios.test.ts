@@ -39,12 +39,13 @@ const safety = (await import('./skill-evals/runner-safety.mjs' as string)) as {
   ): Record<string, string>
 }
 const evidencePolicy = (await import('./skill-evals/evidence-policy.mjs' as string)) as {
+  readEvidenceMetadata(root: string): EvidenceMetadata
+  inspectRetainedRun(root: string, metadata: EvidenceMetadata): RetainedEvidenceObservation
   validateScenarioClaim(skill: string, scenario: Scenario): unknown
   readEvidenceMetadataRecord(root: string): {
-    metadata: { claim: { subject: string } }
+    metadata: EvidenceMetadata
     sha256: string
   }
-  inspectRetainedRun(root: string, metadata: { claim: { subject: string } }): { scenario: Scenario }
 }
 
 interface Scenario {
@@ -72,6 +73,27 @@ interface Scenario {
 interface ScenarioCorpus {
   skill_name: string
   evals: Scenario[]
+}
+
+interface EvidenceMetadata {
+  claim: {
+    type: string
+    subject: string
+  }
+  arm: string | null
+  comparison: unknown
+  evidence: {
+    currentness: Record<string, string | null>
+  }
+}
+
+interface RetainedEvidenceObservation {
+  scenario: Scenario
+  currentness: Record<string, string>
+  provenance: {
+    target_skill_tree_sha256: string | null
+    dependency_skill_tree_sha256: string
+  }
 }
 
 interface StagedSkill {
@@ -838,7 +860,12 @@ function assertTriggerCorpusIdentity(skill: string): void {
   )
 }
 
-function assertCurrentTriggerEvidence(skill: string, evidenceRoot: string, requireCleanStderr = false): void {
+function assertCurrentTriggerEvidence(
+  skill: string,
+  evidenceRoot: string,
+  requireCleanStderr = false,
+  matrixMode: 'selected' | 'read-skill' = 'selected',
+): void {
   const corpusRoot = join(EVAL_SOURCE_ROOT, skill)
   const corpus = JSON.parse(readFileSync(join(corpusRoot, 'trigger-evals.json'), 'utf8')) as {
     agent_file: string
@@ -847,6 +874,7 @@ function assertCurrentTriggerEvidence(skill: string, evidenceRoot: string, requi
   assertTriggerCorpusIdentity(skill)
   const expected = {
     'dsh-spec-ci-test-reliability': { positive: 4, negative: 4 },
+    'dsh-spec-error-handling': { positive: 7, negative: 6 },
     'dsh-spec-skill-forge': { positive: 6, negative: 6 },
     'dsh-spec-pr-description': { positive: 2, negative: 4 },
     'dsh-spec-record-browser-gif': { positive: 3, negative: 5 },
@@ -887,12 +915,15 @@ function assertCurrentTriggerEvidence(skill: string, evidenceRoot: string, requi
   )
 
   const matrixLines = readFileSync(join(evidenceRoot, 'trigger-matrix.tsv'), 'utf8').trim().split('\n')
-  assert.equal(matrixLines[0], 'id\tshould_trigger\tselected\tresult')
+  assert.equal(
+    matrixLines[0],
+    matrixMode === 'selected' ? 'id\tshould_trigger\tselected\tresult' : 'id\tshould_trigger\tread_skill\tresult',
+  )
   const matrix = new Map(
     matrixLines.slice(1).map((line) => {
-      const [id, shouldTrigger, selected, result] = line.split('\t')
-      assert.ok(id && shouldTrigger && selected && result, skill + ' trigger matrix row is malformed')
-      return [id, { shouldTrigger, selected, result }] as const
+      const [id, shouldTrigger, observed, result] = line.split('\t')
+      assert.ok(id && shouldTrigger && observed && result, skill + ' trigger matrix row is malformed')
+      return [id, { shouldTrigger, observed, result }] as const
     }),
   )
   assert.equal(matrix.size, corpus.queries.length, skill + ' trigger matrix size differs')
@@ -908,11 +939,38 @@ function assertCurrentTriggerEvidence(skill: string, evidenceRoot: string, requi
       skill + '/' + query.id + ' is missing a stable selection marker',
     )
     const selected = marker === `SELECT: ${skill}`
+    const traceText = readFileSync(join(runRoot, 'trace.jsonl'), 'utf8')
+    const traceEntries = traceText
+      .trim()
+      .split('\n')
+      .map(
+        (line) =>
+          JSON.parse(line) as {
+            type?: string
+            path?: string
+            sha256?: string
+            command?: string
+            exit_code?: number | null
+          },
+      )
+    const readSkill = traceEntries.some(
+      (entry) => entry.type === 'command' && entry.exit_code === 0 && commandPrintsSkill(entry.command, skill),
+    )
     assert.equal(row.shouldTrigger, String(query.should_trigger))
-    assert.equal(row.selected, String(selected))
+    assert.equal(row.observed, String(matrixMode === 'selected' ? selected : readSkill), skill + '/' + query.id)
     assert.equal(row.result, 'pass')
     assert.equal(selected, query.should_trigger, skill + '/' + query.id + ' selected the wrong skill')
-    const traceText = readFileSync(join(runRoot, 'trace.jsonl'), 'utf8')
+    if (matrixMode === 'read-skill') {
+      const skillEvents = traceEntries.filter((entry) => entry.type === 'skill')
+      assert.equal(skillEvents.length, 1, skill + '/' + query.id + ' skill provenance')
+      assert.equal(skillEvents[0]?.path, `.agents/skills/${skill}/SKILL.md`, skill + '/' + query.id + ' skill path')
+      assert.equal(
+        skillEvents[0]?.sha256,
+        fileHash(join(REPO_ROOT, 'skills', skill, 'SKILL.md')),
+        skill + '/' + query.id + ' skill revision',
+      )
+      assert.equal(readSkill, query.should_trigger, skill + '/' + query.id + ' read the wrong skill')
+    }
     assert.doesNotMatch(traceText, /evals[/\\]evals\.json|tests[/\\]skill-evals|expected_output/)
     const trace = readEvidenceTrace(join(runRoot, 'trace.jsonl'))
     assert.equal(trace.filter((entry) => entry.type === 'turn.completed').length, 1)
@@ -928,6 +986,24 @@ function assertCurrentTriggerEvidence(skill: string, evidenceRoot: string, requi
       assert.doesNotMatch(stderr, /rmcp::transport::worker|AuthRequired|Transport channel closed/i)
     }
   }
+}
+
+function assertCurrentBehaviorEvidence(root: string, skill: string, scenario: Scenario): void {
+  const metadata = evidencePolicy.readEvidenceMetadata(root)
+  assert.equal(metadata.claim.type, 'behavior', root + ' claim type')
+  assert.equal(metadata.claim.subject, `${skill}:${scenario.id}`, root + ' claim subject')
+  assert.equal(metadata.arm, 'target-present', root + ' arm')
+  assert.equal(metadata.comparison, null, root + ' comparison')
+  const recordedScenario = validateRecordedScenario(
+    skill,
+    JSON.parse(readFileSync(join(root, 'scenario-definition.json'), 'utf8')),
+    root + ' scenario',
+  )
+  assert.deepEqual(recordedScenario, scenario, root + ' does not record the current scenario')
+  assert.equal(metadata.evidence.currentness.scenario_sha256, scenarioDefinitionHash(scenario), root + ' scenario hash')
+  const observation = evidencePolicy.inspectRetainedRun(root, metadata)
+  assert.deepEqual(observation.scenario, scenario, root + ' retained scenario differs')
+  assert.equal(observation.currentness.scenario_sha256, scenarioDefinitionHash(scenario), root + ' observed hash')
 }
 
 function stageSkillWithEvals(skill: string): StagedSkill {
@@ -2359,7 +2435,20 @@ test('forge description evidence binds the behavior scenario and trigger corpus'
   assertCurrentTriggerEvidence(skill, evidenceRoot, true)
 })
 
-test('error handling trigger corpus keeps positive and near-miss coverage', () => {
+test('error handling description, body and triggers cover embedded and batch failures', () => {
+  const skillText = readFileSync(join(REPO_ROOT, 'skills/dsh-spec-error-handling/SKILL.md'), 'utf8')
+  const description = /^description:\s*"(.+)"$/m.exec(skillText)?.[1]
+  assert.ok(description)
+  assert.ok(description.length <= 500, `${description.length} error-handling description characters`)
+  assert.equal(
+    Array.from(description).some((character) => (character.codePointAt(0) as number) > 0xffff),
+    false,
+  )
+  assert.match(description, /services, embedded systems, and batch systems/)
+  assert.match(
+    skillText,
+    /Define failures, their owners, and what remains safe after failure in applications, libraries, command-line tools, services, embedded systems, and batch systems\./,
+  )
   const corpus = JSON.parse(
     readFileSync(join(EVAL_SOURCE_ROOT, 'dsh-spec-error-handling', 'trigger-evals.json'), 'utf8'),
   ) as {
@@ -2371,10 +2460,40 @@ test('error handling trigger corpus keeps positive and near-miss coverage', () =
   assertNonEmptyString(corpus.agent_file, 'trigger agent file')
   assert.ok(corpus.agent_file.startsWith('trigger-fixtures/'))
   assert.ok(existsSync(join(EVAL_SOURCE_ROOT, 'dsh-spec-error-handling', corpus.agent_file)))
-  assert.equal(corpus.queries.length, 10)
+  assert.deepEqual(
+    corpus.queries.map((entry) => [entry.id, entry.should_trigger]),
+    [
+      ['worker-loses-variant', true],
+      ['cleanup-catch-scope', true],
+      ['provider-status-mapping', true],
+      ['cli-exit-handling', true],
+      ['visible-unknown-outcome', true],
+      ['embedded-state-after-fault', true],
+      ['batch-partial-failure', true],
+      ['readme-prose-only', false],
+      ['unit-assertion-diff', false],
+      ['add-pagination', false],
+      ['build-performance', false],
+      ['rename-variable', false],
+      ['log-level-only', false],
+    ],
+  )
+  assert.equal(corpus.queries.length, 13)
   assert.equal(new Set(corpus.queries.map((entry) => entry.id)).size, corpus.queries.length)
-  assert.equal(corpus.queries.filter((entry) => entry.should_trigger).length, 5)
-  assert.equal(corpus.queries.filter((entry) => !entry.should_trigger).length, 5)
+  assert.equal(corpus.queries.filter((entry) => entry.should_trigger).length, 7)
+  assert.equal(corpus.queries.filter((entry) => !entry.should_trigger).length, 6)
+  assert.match(
+    corpus.queries.find((entry) => entry.id === 'embedded-state-after-fault')?.query ?? '',
+    /embedded.*failure identity.*safe state.*recovery owner.*device-visible report/i,
+  )
+  assert.match(
+    corpus.queries.find((entry) => entry.id === 'batch-partial-failure')?.query ?? '',
+    /operation outcome.*per-record failure identity.*retry ownership.*partial-failure report/i,
+  )
+  assert.match(
+    corpus.queries.find((entry) => entry.id === 'log-level-only')?.query ?? '',
+    /startup log message.*keep.*log level.*behavior unchanged/i,
+  )
   for (const entry of corpus.queries) {
     assertNonEmptyString(entry.id, 'trigger eval id')
     assertNonEmptyString(entry.query, entry.id + ' trigger query')
@@ -2384,6 +2503,23 @@ test('error handling trigger corpus keeps positive and near-miss coverage', () =
       assert.ok(existsSync(absolute), entry.id + ' fixture is missing: ' + file)
       assert.ok(statSync(absolute).size > 0, entry.id + ' fixture is empty: ' + file)
     }
+  }
+  const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-26-issue-147/dsh-spec-error-handling')
+  assertCurrentTriggerEvidence('dsh-spec-error-handling', evidenceRoot, true, 'read-skill')
+})
+
+test('error handling current behavior evidence binds the affected scenarios', () => {
+  const skill = 'dsh-spec-error-handling'
+  const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-26-issue-147/dsh-spec-error-handling')
+  const corpus = readCorpus(skill)
+  for (const id of [
+    'existing-project-identity-remains-authoritative',
+    'silent-handler-covers-one-safe-failure',
+    'worker-boundary-preserves-failure-identity',
+  ]) {
+    const scenario = corpus.evals.find((entry) => entry.id === id)
+    assert.ok(scenario, id + ' is missing from the current error-handling corpus')
+    assertCurrentBehaviorEvidence(join(evidenceRoot, id), skill, scenario)
   }
 })
 
@@ -2413,7 +2549,7 @@ test('performance trigger corpus routes runtime paths and excludes adjacent work
   assert.equal(corpus.queries.filter((query) => !query.should_trigger).length, 6)
 })
 
-test('error handling model evidence retains candidate and baseline runs', () => {
+test('error handling historical evidence retains candidate, baseline and trigger traces', () => {
   const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-20-pr113')
   const candidateSkillHash = readSkillTreeManifest(join(evidenceRoot, 'skills-tree.sha256')).get(
     'skills/dsh-spec-error-handling/SKILL.md',
@@ -2447,27 +2583,24 @@ test('error handling model evidence retains candidate and baseline runs', () => 
         return [entry.path, entry.hash] as const
       }),
   )
-  for (const path of [
-    'tests/skill-evals/dsh-spec-error-handling/trigger-evals.json',
-    'tests/skill-evals/dsh-spec-error-handling/trigger-fixtures/AGENTS.md',
-  ]) {
-    assert.equal(
-      triggerInputs.get(path),
-      createHash('sha256')
-        .update(readFileSync(join(REPO_ROOT, path)))
-        .digest('hex'),
-      'error handling trigger input differs: ' + path,
-    )
-  }
-  assert.equal(
-    triggerInputs.get(triggerSurfacePath('dsh-spec-error-handling')),
-    triggerSurfaceHash('dsh-spec-error-handling'),
-    'error handling trigger surface differs',
+  assert.deepEqual(
+    [...triggerInputs].sort(([left], [right]) => left.localeCompare(right)),
+    [
+      [
+        'tests/skill-evals/dsh-spec-error-handling/trigger-evals.json',
+        '5e0359c35e91888ad872f6cfdaabb539961ca1078ffc04206a5ebbb22fc0d888',
+      ],
+      [
+        'tests/skill-evals/dsh-spec-error-handling/trigger-fixtures/AGENTS.md',
+        '5fb6adb893006d0f847b9fc10698fb190a5c7cecaa9d6380c7e7496c12bd8961',
+      ],
+      [
+        triggerSurfacePath('dsh-spec-error-handling'),
+        '9921fb9af3ba8c68c839bb3c6a1186faa578811925410d713673baa5d17b64cb',
+      ],
+    ].sort(([left], [right]) => left.localeCompare(right)),
+    'historical error handling trigger inputs changed',
   )
-  const triggerCorpus = JSON.parse(
-    readFileSync(join(EVAL_SOURCE_ROOT, 'dsh-spec-error-handling', 'trigger-evals.json'), 'utf8'),
-  ) as { agent_file: string; queries: Array<{ id: string; should_trigger: boolean }> }
-  assert.ok(existsSync(join(EVAL_SOURCE_ROOT, 'dsh-spec-error-handling', triggerCorpus.agent_file)))
   const matrixLines = readFileSync(join(evidenceRoot, 'trigger-matrix.tsv'), 'utf8').trim().split('\n')
   assert.equal(matrixLines[0], 'id\tshould_trigger\tread_skill\tresult')
   const matrix = new Map(
@@ -2477,17 +2610,29 @@ test('error handling model evidence retains candidate and baseline runs', () => 
       return [id, { shouldTrigger, readSkill, result }] as const
     }),
   )
-  assert.equal(matrix.size, triggerCorpus.queries.length)
-  for (const query of triggerCorpus.queries) {
-    const row = matrix.get(query.id)
-    assert.ok(row, 'missing trigger matrix row ' + query.id)
-    assert.equal(row.shouldTrigger, String(query.should_trigger))
-    const trace = readFileSync(join(triggerRoot, query.id, 'trace.jsonl'), 'utf8')
+  const historicalQueries = [
+    ['worker-loses-variant', true],
+    ['cleanup-catch-scope', true],
+    ['provider-status-mapping', true],
+    ['cli-exit-handling', true],
+    ['visible-unknown-outcome', true],
+    ['readme-prose-only', false],
+    ['unit-assertion-diff', false],
+    ['add-pagination', false],
+    ['build-performance', false],
+    ['rename-variable', false],
+  ] as const
+  assert.equal(matrix.size, historicalQueries.length)
+  for (const [id, shouldTrigger] of historicalQueries) {
+    const row = matrix.get(id)
+    assert.ok(row, 'missing trigger matrix row ' + id)
+    assert.equal(row.shouldTrigger, String(shouldTrigger))
+    const trace = readFileSync(join(triggerRoot, id, 'trace.jsonl'), 'utf8')
       .trim()
       .split('\n')
       .map((line) => JSON.parse(line) as { type: string; command?: string; exit_code?: number | null; sha256?: string })
     const skillEvents = trace.filter((entry) => entry.type === 'skill')
-    assert.equal(skillEvents.length, 1, query.id + ' trace context must identify the skill revision used')
+    assert.equal(skillEvents.length, 1, id + ' trace context must identify the skill revision used')
     assert.equal(skillEvents[0]?.sha256, candidateSkillHash)
     const readSkill = trace.some(
       (entry) =>
@@ -2495,15 +2640,15 @@ test('error handling model evidence retains candidate and baseline runs', () => 
         entry.exit_code === 0 &&
         commandReadsSkill(entry.command, 'dsh-spec-error-handling'),
     )
-    assert.equal(row.readSkill, String(readSkill), query.id + ' trace disagrees with the matrix')
-    assert.equal(row.result, query.should_trigger === readSkill ? 'pass' : 'fail')
-    assert.equal(row.result, 'pass', query.id + ' has the wrong trigger result')
+    assert.equal(row.readSkill, String(readSkill), id + ' trace disagrees with the matrix')
+    assert.equal(row.result, shouldTrigger === readSkill ? 'pass' : 'fail')
+    assert.equal(row.result, 'pass', id + ' has the wrong trigger result')
     assert.ok(
       trace.some((entry) => entry.type === 'turn.completed'),
-      query.id + ' trace lacks usage',
+      id + ' trace lacks usage',
     )
-    assert.ok(readFileSync(join(triggerRoot, query.id, 'final.md'), 'utf8').trim().length > 0)
-    assert.ok(readFileSync(join(triggerRoot, query.id, 'stderr.log'), 'utf8').trim().length > 0)
+    assert.ok(readFileSync(join(triggerRoot, id, 'final.md'), 'utf8').trim().length > 0)
+    assert.ok(readFileSync(join(triggerRoot, id, 'stderr.log'), 'utf8').trim().length > 0)
   }
   assert.doesNotMatch(
     readFileSync(join(triggerRoot, 'visible-unknown-outcome', 'final.md'), 'utf8'),
@@ -3747,6 +3892,7 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
   )
   const pr142EvidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-25-pr142')
   const pr143EvidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-25-issue143')
+  const issue147EvidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-26-issue-147')
   type EvidenceRun = {
     skill: string
     run: string
@@ -3870,16 +4016,52 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
       skill: 'dsh-spec-error-handling',
       run: 'empty-catch-names-and-separates-operation',
       evidenceRoot: pr122EvidenceRoot,
+      current: false,
+      historicalSkillTree: join(
+        pr122EvidenceRoot,
+        'dsh-spec-error-handling/empty-catch-names-and-separates-operation/skill-hashes.txt',
+      ),
+      historicalInputs: join(pr122EvidenceRoot, 'dsh-spec-error-handling/evaluation-files.sha256'),
     },
     {
       skill: 'dsh-spec-error-handling',
       run: 'empty-catch-names-and-documents-safe-failure',
       evidenceRoot: pr122EvidenceRoot,
+      current: false,
+      historicalSkillTree: join(
+        pr122EvidenceRoot,
+        'dsh-spec-error-handling/empty-catch-names-and-documents-safe-failure/skill-hashes.txt',
+      ),
+      historicalInputs: join(pr122EvidenceRoot, 'dsh-spec-error-handling/evaluation-files.sha256'),
     },
     {
       skill: 'dsh-spec-error-handling',
       run: 'wrapper-preserves-cancellation-timeout-and-denial',
       evidenceRoot: pr122EvidenceRoot,
+      current: false,
+      historicalSkillTree: join(
+        pr122EvidenceRoot,
+        'dsh-spec-error-handling/wrapper-preserves-cancellation-timeout-and-denial/skill-hashes.txt',
+      ),
+      historicalInputs: join(pr122EvidenceRoot, 'dsh-spec-error-handling/evaluation-files.sha256'),
+    },
+    {
+      skill: 'dsh-spec-error-handling',
+      run: 'existing-project-identity-remains-authoritative',
+      evidenceRoot: issue147EvidenceRoot,
+      current: true,
+    },
+    {
+      skill: 'dsh-spec-error-handling',
+      run: 'silent-handler-covers-one-safe-failure',
+      evidenceRoot: issue147EvidenceRoot,
+      current: true,
+    },
+    {
+      skill: 'dsh-spec-error-handling',
+      run: 'worker-boundary-preserves-failure-identity',
+      evidenceRoot: issue147EvidenceRoot,
+      current: true,
     },
     {
       skill: 'dsh-spec-client-ui-ux',
@@ -3978,6 +4160,10 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
       'empty-catch-names-and-documents-safe-failure',
     'dsh-spec-error-handling:wrapper-preserves-cancellation-timeout-and-denial':
       'wrapper-preserves-cancellation-timeout-and-denial',
+    'dsh-spec-error-handling:existing-project-identity-remains-authoritative':
+      'existing-project-identity-remains-authoritative',
+    'dsh-spec-error-handling:silent-handler-covers-one-safe-failure': 'silent-handler-covers-one-safe-failure',
+    'dsh-spec-error-handling:worker-boundary-preserves-failure-identity': 'worker-boundary-preserves-failure-identity',
     'dsh-spec-client-ui-ux:shared-icon-rendering-contract': 'shared-icon-rendering-contract',
     'dsh-spec-client-ui-ux:spacing-grouping-and-overlay-fit': 'spacing-grouping-and-overlay-fit',
     'dsh-spec-record-browser-gif:missing-capture-capability-hands-off': 'missing-capture-capability-hands-off',

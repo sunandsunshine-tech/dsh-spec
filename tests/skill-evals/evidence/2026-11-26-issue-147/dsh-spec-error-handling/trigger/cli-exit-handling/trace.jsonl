@@ -1,0 +1,6 @@
+{"type":"skill","path":".agents/skills/dsh-spec-error-handling/SKILL.md","sha256":"ec33b342fb3012b57e27e172a3957d1a383a14b15623e94fd3b44f042fae0ef3"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"I’m using `dsh-spec-error-handling` because the question turns on CLI exit status, distinct failure classes, and non-stdout diagnostic contracts."}}
+{"type":"command","command":"/bin/bash -c 'cat /workspace/.agents/skills/dsh-spec-error-handling/SKILL.md'","exit_code":0}
+{"type":"item.completed","item":{"id":"item_2","type":"agent_message","text":"This clearly applies: the CLI should use stable exit codes `11` and `23` as machine-readable discriminants for invalid configuration and checker unavailability, write readable, actionable diagnostics to stderr, and reserve stdout for normal output so callers never infer failure by parsing it. Tests should assert each exact exit code, verify that stdout contains no failure contract, and check that stderr identifies the corresponding failure and safe next action.\n\nSELECT: dsh-spec-error-handling"}}
+{"type":"turn.completed","usage":{"input_tokens":27103,"cached_input_tokens":25216,"cache_write_input_tokens":0,"output_tokens":943,"reasoning_output_tokens":596}}

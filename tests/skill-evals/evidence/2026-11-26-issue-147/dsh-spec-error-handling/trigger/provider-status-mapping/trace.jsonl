@@ -1,0 +1,6 @@
+{"type":"skill","path":".agents/skills/dsh-spec-error-handling/SKILL.md","sha256":"ec33b342fb3012b57e27e172a3957d1a383a14b15623e94fd3b44f042fae0ef3"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"I’m using the `dsh-spec-error-handling` skill because the request concerns mapping failure statuses while preserving retry semantics; I’ll only evaluate applicability and will not execute the design."}}
+{"type":"command","command":"/bin/bash -c 'cat /workspace/.agents/skills/dsh-spec-error-handling/SKILL.md'","exit_code":0}
+{"type":"item.completed","item":{"id":"item_2","type":"agent_message","text":"The skill clearly applies because the request asks to design a service failure contract around foreign HTTP statuses, stable numeric identity, and retry behavior. Its guidance on structured errors, preserving provider codes, compatibility of retry-triggering identities, and explicit safe-retry ownership directly governs this decision.\n\nSELECT: dsh-spec-error-handling"}}
+{"type":"turn.completed","usage":{"input_tokens":27046,"cached_input_tokens":25088,"cache_write_input_tokens":0,"output_tokens":729,"reasoning_output_tokens":400}}

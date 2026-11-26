@@ -1,0 +1,3 @@
+This clearly applies: the CLI should use stable exit codes `11` and `23` as machine-readable discriminants for invalid configuration and checker unavailability, write readable, actionable diagnostics to stderr, and reserve stdout for normal output so callers never infer failure by parsing it. Tests should assert each exact exit code, verify that stdout contains no failure contract, and check that stderr identifies the corresponding failure and safe next action.
+
+SELECT: dsh-spec-error-handling

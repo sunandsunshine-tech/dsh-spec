@@ -1,0 +1,6 @@
+{"type":"skill","path":".agents/skills/dsh-spec-error-handling/SKILL.md","sha256":"ec33b342fb3012b57e27e172a3957d1a383a14b15623e94fd3b44f042fae0ef3"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"I’m using `dsh-spec-error-handling` because the fixture asks how a batch should represent partial failure, record identity, retry responsibility, and reporting."}}
+{"type":"command","command":"/bin/bash -c 'cat .agents/skills/dsh-spec-error-handling/SKILL.md'","exit_code":0}
+{"type":"item.completed","item":{"id":"item_2","type":"agent_message","text":"The request directly involves batch failure semantics: aggregate operation outcomes, stable per-record failure identity, retry ownership, and visible partial-failure reporting, all of which this skill governs. End exactly\n\nSELECT: dsh-spec-error-handling"}}
+{"type":"turn.completed","usage":{"input_tokens":27084,"cached_input_tokens":25216,"cache_write_input_tokens":0,"output_tokens":577,"reasoning_output_tokens":279}}

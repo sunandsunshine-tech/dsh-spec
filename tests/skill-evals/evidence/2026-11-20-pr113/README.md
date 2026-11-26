@@ -2,8 +2,9 @@
 
 > This directory retains final responses and reviewer-assigned scores, but not behavioral traces,
 > command logs, input manifests or complete runtime skill hashes. It does not establish
-> answer-blind loading. Changed behavior after this layer is covered by the targeted evidence under
-> `../2026-11-23-pr121/` and `../2026-11-23-pr122/`.
+> answer-blind loading. Changed behavior after this layer is covered by
+> [the issue #147 evidence](../2026-11-26-issue-147/dsh-spec-error-handling/); the intermediate
+> revisions remain under `../2026-11-23-pr121/` and `../2026-11-23-pr122/`.
 
 The checked-in `skills-tree.sha256` and `evaluation-files.sha256` freeze the source and fixture
 hashes recorded by the original Git trees, so historical verification does not require branch-only

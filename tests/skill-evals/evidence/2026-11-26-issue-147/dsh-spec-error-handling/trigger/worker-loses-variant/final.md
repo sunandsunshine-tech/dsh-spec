@@ -1,0 +1,3 @@
+The `dsh-spec-error-handling` skill clearly applies because a structured result variant crosses a worker boundary as text, changing retry behavior. Preserve a stable machine-readable failure discriminant, handling-relevant structured details, cause and effect guarantees, and explicit retry safety; keep display text separate and reconstruct an equivalent owning failure on the parent side.
+
+SELECT: dsh-spec-error-handling
