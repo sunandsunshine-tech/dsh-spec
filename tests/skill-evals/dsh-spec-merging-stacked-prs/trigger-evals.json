@@ -1,0 +1,51 @@
+{
+  "skill_name": "dsh-spec-merging-stacked-prs",
+  "agent_file": "trigger-fixtures/AGENTS.md",
+  "queries": [
+    {
+      "id": "land-whole-official-stack",
+      "query": "PRs #241 <- #242 <- #243 are linked as one official GitHub stack and all required checks pass. Land the whole stack using the repository's squash policy.",
+      "should_trigger": true
+    },
+    {
+      "id": "land-through-boundary-pr",
+      "query": "Our official GitHub stack has four layers, #301 through #304. Land only through #302, then report what remains above it.",
+      "should_trigger": true
+    },
+    {
+      "id": "link-same-author-chain",
+      "query": "Three open PRs, #410 <- #411 <- #412, all authored by me, have the correct bases but are not linked as a GitHub stack yet. Link them into one official stack and stop after verifying the order.",
+      "should_trigger": true
+    },
+    {
+      "id": "refresh-then-land",
+      "query": "The trunk moved and GitHub reports our official stacked PRs are behind, while every required check and review still passes. Refresh the stack, validate each rewritten layer, and land it if the refreshed checks pass.",
+      "should_trigger": true
+    },
+    {
+      "id": "ordinary-single-pr-merge",
+      "query": "Squash-merge PR #501 into main once its required checks pass. It is a standalone change with no dependent PRs.",
+      "should_trigger": false
+    },
+    {
+      "id": "manual-retarget",
+      "query": "PR #602 currently targets feature/auth and should target main instead. Retarget it with gh pr edit and leave every branch unchanged.",
+      "should_trigger": false
+    },
+    {
+      "id": "stack-review-fix-propagation",
+      "query": "Review comments on PR #704 also apply to the two dependent branches above it. Propagate the fixes through those layers and push the updated heads, but do not merge any PR.",
+      "should_trigger": false
+    },
+    {
+      "id": "non-github-dependent-mrs",
+      "query": "We use GitLab merge requests with two dependent source branches. Rebase the child onto the parent and update its target branch after the parent lands.",
+      "should_trigger": false
+    },
+    {
+      "id": "gh-stack-unavailable",
+      "query": "The gh stack extension is not installed. Merge these two independent PRs one at a time with the repository's squash setting; do not install tools or link a stack.",
+      "should_trigger": false
+    }
+  ]
+}

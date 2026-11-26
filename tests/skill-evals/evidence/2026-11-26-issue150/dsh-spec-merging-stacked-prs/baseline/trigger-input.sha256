@@ -1,0 +1,3 @@
+fc437476eee3400b71498d00ced49a52a2c6fc022fdf7afedba72e1c550066af  tests/skill-evals/dsh-spec-merging-stacked-prs/trigger-evals.json
+9f544e1af23371000eb4049918c8425bc52437e40642c8bde04735da5789dd46  tests/skill-evals/dsh-spec-merging-stacked-prs/trigger-fixtures/AGENTS.md
+967405dbfb95743e42550bbbca17279ed01761ed3d5ee0a9172af0f2491be202  skills/dsh-spec-merging-stacked-prs/SKILL.md#name-description

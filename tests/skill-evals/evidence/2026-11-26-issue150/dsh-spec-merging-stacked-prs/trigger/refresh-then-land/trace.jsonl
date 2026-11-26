@@ -1,0 +1,4 @@
+{"type":"skill","path":".agents/skills/dsh-spec-merging-stacked-prs/SKILL.md","sha256":"e94624a78734821d571617d10fadc8ae45328d153f5ce57c29b11f687af600c5"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The installed skill clearly applies because this is an official dependent PR stack that must be refreshed and then landed in stack order after trunk changes.\n\nSELECT: dsh-spec-merging-stacked-prs"}}
+{"type":"turn.completed","usage":{"input_tokens":12473,"cached_input_tokens":12288,"cache_write_input_tokens":0,"output_tokens":306,"reasoning_output_tokens":266}}

@@ -85,6 +85,8 @@ The numbering gap between S31 and S33 is deliberate (R8): the missing row would 
 
 PR122's `refresh-stack-with-rerere` model run passes 4/4 assertions for the default rebase path, the disabled automatic rerere staging, and the post-refresh validation order. Its `dependency-only-blocked-stack-can-land` run passes another 4/4 assertions and separates a dependency-only `BLOCKED` state from failed required checks or reviews.
 
+The trigger corpus separates official-stack landing from adjacent PR work. It selects four positive requests for whole-stack landing, bounded-prefix landing, same-author linking and refresh-then-land; it selects none of five near misses for a standalone merge, a manual target change, review-fix propagation, a GitLab dependency chain, and a non-stack task when `gh stack` is unavailable. The current matrix is 4/4 positives and 5/5 near misses.
+
 ### Rulings
 
 | # | Ruling | Basis | Reversible by |

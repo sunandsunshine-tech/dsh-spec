@@ -1,0 +1,4 @@
+{"type":"skill","path":".agents/skills/dsh-spec-merging-stacked-prs/SKILL.md","sha256":"e94624a78734821d571617d10fadc8ae45328d153f5ce57c29b11f687af600c5"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The stacked-PR skill does not apply because the PRs are independent, no stack should be linked, and the task explicitly excludes installing `gh stack`; it is therefore an ordinary two-step squash merge rather than a stacked-PR operation.\n\nSELECT: none"}}
+{"type":"turn.completed","usage":{"input_tokens":12466,"cached_input_tokens":12288,"cache_write_input_tokens":0,"output_tokens":167,"reasoning_output_tokens":114}}

@@ -877,6 +877,7 @@ function assertCurrentTriggerEvidence(
     'dsh-spec-error-handling': { positive: 7, negative: 6 },
     'dsh-spec-skill-forge': { positive: 6, negative: 6 },
     'dsh-spec-pr-description': { positive: 2, negative: 4 },
+    'dsh-spec-merging-stacked-prs': { positive: 4, negative: 5 },
     'dsh-spec-record-browser-gif': { positive: 3, negative: 5 },
     'dsh-spec-performance-investigation': { positive: 5, negative: 6 },
     'dsh-spec-translate-docs': { positive: 5, negative: 4 },
@@ -1904,6 +1905,51 @@ test('pr-description binds current trigger evidence', () => {
     'dsh-spec-pr-description',
     join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-25-issue143/dsh-spec-pr-description'),
   )
+})
+
+test('merging stacked PRs binds current trigger evidence', () => {
+  assertCurrentTriggerEvidence(
+    'dsh-spec-merging-stacked-prs',
+    join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-26-issue150/dsh-spec-merging-stacked-prs'),
+  )
+})
+
+test('merging stacked PRs trigger corpus separates official landing from adjacent work', () => {
+  const skill = 'dsh-spec-merging-stacked-prs'
+  const skillText = readFileSync(join(REPO_ROOT, 'skills', skill, 'SKILL.md'), 'utf8')
+  const description = /^description: "(.*)"$/m.exec(skillText)?.[1]
+  assert.ok(description)
+  assert.ok(description.length <= 500, `${description.length} description characters`)
+  assert.match(description, /Requires GitHub stacked-PR support and gh stack/i)
+  assert.match(description, /Not for review-fix propagation, single-PR merges, manual target changes/i)
+  assert.match(description, /不适用于评审修复传播/)
+
+  const corpus = JSON.parse(readFileSync(join(EVAL_SOURCE_ROOT, skill, 'trigger-evals.json'), 'utf8')) as {
+    queries: Array<{ id: string; query: string; should_trigger: boolean }>
+  }
+  assert.deepEqual(
+    corpus.queries.map((entry) => [entry.id, entry.should_trigger]),
+    [
+      ['land-whole-official-stack', true],
+      ['land-through-boundary-pr', true],
+      ['link-same-author-chain', true],
+      ['refresh-then-land', true],
+      ['ordinary-single-pr-merge', false],
+      ['manual-retarget', false],
+      ['stack-review-fix-propagation', false],
+      ['non-github-dependent-mrs', false],
+      ['gh-stack-unavailable', false],
+    ],
+  )
+  assert.match(corpus.queries[0]?.query ?? '', /official GitHub stack/i)
+  assert.match(corpus.queries[1]?.query ?? '', /only through #302/i)
+  assert.match(corpus.queries[2]?.query ?? '', /all authored by me/i)
+  assert.match(corpus.queries[3]?.query ?? '', /Refresh the stack.*land it/i)
+  assert.match(corpus.queries[4]?.query ?? '', /standalone change with no dependent PRs/i)
+  assert.match(corpus.queries[5]?.query ?? '', /Retarget it with gh pr edit/i)
+  assert.match(corpus.queries[6]?.query ?? '', /do not merge any PR/i)
+  assert.match(corpus.queries[7]?.query ?? '', /GitLab merge requests/i)
+  assert.match(corpus.queries[8]?.query ?? '', /gh stack extension is not installed/i)
 })
 
 test('pr-description eval covers issue exceptions and review update boundaries', () => {
