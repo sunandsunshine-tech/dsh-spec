@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "claim": {
+    "type": "behavior",
+    "subject": "dsh-spec-agent-notes:proposal-unavailable-hands-off-inventory"
+  },
+  "arm": "target-present",
+  "comparison": null,
+  "evidence": {
+    "kind": "model",
+    "currentness": {
+      "scenario_sha256": "f95df9a648af18d6192922ad760f2ebd5a9d053184699c17c769447f6893e3e5",
+      "input_manifest_sha256": "36253425500e917ea56c704b8ced7820de883e8c3c9f71f49ed7ce23384631b9",
+      "scenario_prompt_sha256": "bf4ebb96152d403363bc5af85c855bd43e2493894969956c9e62d96c4b67f30b",
+      "arm_instruction_sha256": "d33e1d16d59ce99c8a9604fc7c133fbf41afae88f4715cc2bb2da0737345a6ec",
+      "prompt_guard_sha256": "e587246af427c697477e3f5e361192ebb5316c5f17540449cf6de853ec64af30",
+      "rendered_prompt_sha256": "a9ee40467bed977efc1d27980d2acd9e34461cf505c0ccc69d082a6d1765fcdc",
+      "execution_sha256": "df0d14c0a241265515e09d97e5b796c7a07f4e04e2b1e49e7bc971557340c54a"
+    }
+  },
+  "execution": {
+    "auth": "host-proxy",
+    "browser": false,
+    "media": false,
+    "model_config_sha256": "81fe0a5e2d45e2a687f9ff2d811dd45cca60b986eeb96b994e9255e9eda70e1c",
+    "model_runtime_sha256": "63279cf1860a285495fa0bad3c40f5eb38c3487f7425adb603bcbd49175fcaf8",
+    "sandbox": "workspace-write",
+    "subagents": false
+  },
+  "provenance": {
+    "target_skill_tree_sha256": "6e8e6e0e8cc907c0feea776532d3911defe3a64579f619d921861dbd25abe942",
+    "dependency_skill_tree_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "deadline_ms": 1800000,
+  "privacy": {
+    "canary_sets": [
+      "current-home",
+      "local-environment"
+    ],
+    "scope_sha256": "2b910be53fbe40382a58ac7b2d82bffe01809fb589a28caca231ac26a8090db2",
+    "surfaces": "all-retained-files"
+  }
+}

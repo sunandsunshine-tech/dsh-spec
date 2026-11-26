@@ -9,17 +9,17 @@
   en: 6de8c811c1fee937
   zh: 824c13dfaa6b86b2
 /agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/decision:
-  en: dceb71f568f1114f
-  zh: 2e9f7683fa7da117
+  en: 5a81b73b6b658986
+  zh: 5033ff98c421a3f4
 /agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/source-and-revision:
-  en: 58bc40dd17c686fd
-  zh: f2a76b12bbae3dd2
+  en: d48bf262962a5ace
+  zh: ce33afb72b07a9a8
 /agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/constraint-dispositions:
-  en: 8430250aaa710099
-  zh: 0993ed13d86d138b
+  en: ac4c185f5709dc1a
+  zh: 58fdad79c1d435af
 /agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/constraint-dispositions/notes-contract-and-lifecycle-instructions:
   en: a78d836d9dc3d454
-  zh: 18e25e48b641372a
+  zh: f9043dd1bc4f4e5f
 /agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/constraint-dispositions/archive-workflow:
   en: c5b99fa60a3fe39a
   zh: f987be6c7dec5147
@@ -29,15 +29,18 @@
 /agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/constraint-dispositions/manifest:
   en: df99917e1f2fd0ff
   zh: 1fe728bd8581456f
+/agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/constraint-dispositions/proposal-first-workflow:
+  en: 116876a98da0bf67
+  zh: ba8610866dfba1bb
 /agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/constraint-dispositions/target-rulings:
   en: 1d52da4c5421c17c
-  zh: ddb8e796ee6a066f
+  zh: 1daab13a48b4defe
 /agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/requirement-anchors:
-  en: 0eb120109a88092b
-  zh: f4273f91e6a9d7d0
+  en: d3fa1e8336cf9db3
+  zh: e2e8041b8ffc4ea7
 /agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/alternatives-considered:
   en: ce446659f375f9f5
   zh: 0b86aeb1744038ff
 /agent-note-forging-dsh-spec-agent-notes-from-the-upstream-notes-mechanism/consequences:
-  en: 1991041e02b7de3e
-  zh: 6fd2d2cf4bc847ef
+  en: 945ee81fc75ca330
+  zh: a8f83e1a4bc09d85

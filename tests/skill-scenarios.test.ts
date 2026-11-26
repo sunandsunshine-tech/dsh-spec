@@ -66,7 +66,7 @@ const evidencePolicy = (await import('./skill-evals/evidence-policy.mjs' as stri
     root: string,
     canaries?: Array<{ set: string; value: string }>,
   ): {
-    metadata: EvidenceMetadata
+    metadata: ModelEvidenceMetadata
     sha256: string
   }
   validateScenarioClaim(skill: string, scenario: Scenario): unknown
@@ -84,6 +84,27 @@ const evidencePolicy = (await import('./skill-evals/evidence-policy.mjs' as stri
     files?: Array<{ path: string; bytes: string | Buffer; mode: string }>
   }): string
   triggerSurfaceSha256(skillText: string): string
+}
+
+interface ModelEvidenceMetadata extends EvidenceMetadata {
+  claim: {
+    type: string
+    subject: string
+  }
+  arm: string
+  evidence: {
+    kind: string
+    currentness: Record<string, string>
+  }
+  provenance: {
+    target_skill_tree_sha256: string
+    dependency_skill_tree_sha256: string
+  }
+  privacy: {
+    canary_sets: string[]
+    scope_sha256: string
+    surfaces: string
+  }
 }
 
 interface Scenario {
@@ -104,6 +125,7 @@ interface Scenario {
   }
   change_patch?: string
   change_root?: string
+  project_root?: string
   install?: string[]
   outputs?: string[]
 }
@@ -716,6 +738,58 @@ const GENERAL_REQUIRED: GeneralProfile[] = [
         id: 'external-companion-mechanism',
         signature: [/without the repository's Translate Docs skill/i, /review-companion mechanism/i],
         assertions: [/--member path mapping/i, /different-stem nested review companion/i],
+      },
+      {
+        id: 'proposal-first-issue-links-active-note',
+        signature: [/issue #133/i, /substantial/i, /no proposed owner/i, /branch-local draft/i],
+        expectedOutput: [
+          /branch-local draft.*not active inventory/i,
+          /proposed\/process/i,
+          /issue\.md links to.*proposal.*proposal links back to issue\.md/i,
+          /measured reintroduction condition/i,
+          /without copying the proposal/i,
+          /notes check passes/i,
+        ],
+        assertions: [
+          /proposal links issue\.md.*issue\.md links back.*status.*evidence/i,
+          /Problem.*Proposal.*Alternatives considered.*Acceptance criteria.*Risks/i,
+          /work-record removal decision.*measured reintroduction condition/i,
+          /branch-local unmerged draft.*not.*active inventory/i,
+          /No implementation change.*active work record.*active-tree check passes/i,
+        ],
+      },
+      {
+        id: 'proposal-unavailable-hands-off-inventory',
+        signature: [/issue #141/i, /cannot be inspected/i, /proposal-unavailable\/unmerged-draft\.md/i],
+        expectedOutput: [
+          /does not begin implementation.*unmerged draft.*active inventory/i,
+          /hands off.*missing.*inventory.*execution tracker/i,
+          /resumable next step.*restore inspection.*retain.*review a proposal/i,
+        ],
+        assertions: [
+          /unmerged draft.*not.*active inventory.*approval.*implementation authority/i,
+          /unavailable target-branch notes inventory.*execution tracker/i,
+          /project files unchanged.*no note.*work record.*implementation/i,
+          /resumable next step.*restore inspection.*retain.*review a proposal/i,
+        ],
+      },
+      {
+        id: 'proposal-checkpoint-keeps-partial-moves-complete',
+        signature: [/issue #140/i, /checkpoint/i, /one tracker item/i, /design authority/i],
+        expectedOutput: [
+          /resumable-export.*proposed\/feature/i,
+          /retention-policy.*Chinese counterpart.*consistency record.*implemented\/feature/i,
+          /tracker item.*current note path.*note links back.*own tracker item/i,
+          /notes check.*companion declarations/i,
+          /No translation.*Chinese translated prose.*unchanged/i,
+        ],
+        assertions: [
+          /resumable-export.*proposed.*complete bilingual unit.*pending criterion/i,
+          /retention-policy.*implemented\/feature.*English note.*Chinese counterpart.*lifecycle heading tokens/i,
+          /tracker item.*current note path.*note links back.*own tracker item/i,
+          /Source and tests remain unchanged.*work record.*notes check.*companion declarations/i,
+          /No translation.*subagent.*terminology edit.*Chinese prose.*byte-for-byte.*except.*lifecycle tokens.*pair records.*replay/i,
+        ],
       },
     ],
   },
@@ -1372,6 +1446,22 @@ function assertInputFile(skillRoot: string, file: string, label: string): string
   return absolute
 }
 
+function scenarioProjectPath(scenario: Scenario, file: string, label = 'scenario input'): string {
+  if (scenario.project_root === undefined) return file
+  const prefix = `${scenario.project_root}/`
+  assert.ok(file.startsWith(prefix), label + ' is outside the scenario project root')
+  return file.slice(prefix.length)
+}
+
+function validateScenarioProjectRoot(scenario: Scenario, label: string): void {
+  if (scenario.project_root === undefined) return
+  assertNonEmptyString(scenario.project_root, label + ' project root')
+  assertContainedRelativePath(scenario.project_root, label + ' project root')
+  assert.ok(scenario.project_root.startsWith('evals/files/'), label + ' project root must be inside evals/files')
+  assert.equal(scenario.change_patch, undefined, label + ' cannot combine project_root with change_patch')
+  for (const file of scenario.files ?? []) scenarioProjectPath(scenario, file, label + ' input')
+}
+
 function validateCorpus(corpus: ScenarioCorpus, required: RequiredProfile): void {
   assert.equal(corpus.skill_name, required.skill)
   assert.ok(corpus.evals.length > 0, 'an empty eval corpus is not a passing corpus')
@@ -1421,6 +1511,7 @@ function validateCorpus(corpus: ScenarioCorpus, required: RequiredProfile): void
       assertNonEmptyString(scenario.change_root, scenario.id + ' change root')
       assertContainedRelativePath(scenario.change_root, scenario.id + ' change root')
     }
+    validateScenarioProjectRoot(scenario, scenario.id)
     for (const output of scenario.outputs ?? []) {
       assertNonEmptyString(output, scenario.id + ' output')
       assertContainedRelativePath(output, scenario.id + ' output')
@@ -1462,6 +1553,7 @@ function validateGeneralCorpus(corpus: ScenarioCorpus, required: GeneralProfile)
       assertNonEmptyString(scenario.change_root, scenario.id + ' change root')
       assertContainedRelativePath(scenario.change_root, scenario.id + ' change root')
     }
+    validateScenarioProjectRoot(scenario, scenario.id)
     for (const output of scenario.outputs ?? []) {
       assertNonEmptyString(output, scenario.id + ' output')
       assertContainedRelativePath(output, scenario.id + ' output')
@@ -1647,6 +1739,7 @@ function validateRecordedScenario(skill: string, value: unknown, label: string):
     'files',
     'change_patch',
     'change_root',
+    'project_root',
     'install',
     'outputs',
     'capabilities',
@@ -1673,6 +1766,7 @@ function validateRecordedScenario(skill: string, value: unknown, label: string):
     assertNonEmptyString(scenario.change_root, label + ' change root')
     assertContainedRelativePath(scenario.change_root, label + ' change root')
   }
+  validateScenarioProjectRoot(scenario, label)
   if (scenario.capabilities !== undefined) {
     assert.ok(
       scenario.capabilities && typeof scenario.capabilities === 'object' && !Array.isArray(scenario.capabilities),
@@ -1797,6 +1891,16 @@ function finalEvidenceMessage(trace: EvidenceTraceEntry[]): string | undefined {
 
 function fileHash(path: string): string {
   return createHash('sha256').update(readFileSync(path)).digest('hex')
+}
+
+function skillTreeDigest(skills: readonly string[]): string {
+  const lines = [...skills].sort().flatMap((skill) =>
+    listFiles(join(REPO_ROOT, 'skills', skill)).map((file) => {
+      const path = join(REPO_ROOT, 'skills', skill, file)
+      return `${fileHash(path)}  skills/${skill}/${file}  mode=${fileMode(path)}`
+    }),
+  )
+  return createHash('sha256').update(lines.join('\n')).digest('hex')
 }
 
 function traceEvents(trace: string): Array<{
@@ -2026,7 +2130,7 @@ function stageScenarioProject(skill: string, scenario: Scenario, root: string): 
   const skillRoot = join(EVAL_SOURCE_ROOT, skill)
   for (const file of scenario.files ?? []) {
     const source = join(skillRoot, file)
-    const destination = join(root, file)
+    const destination = join(root, scenarioProjectPath(scenario, file))
     mkdirSync(dirname(destination), { recursive: true })
     cpSync(source, destination)
   }
@@ -2498,6 +2602,212 @@ test('Agent Notes audit commands load the declared companion contract', () => {
   assert.match(body, /before auditing/i)
   assert.match(body, /--companion \.zh\.md --companion \.i18n\.yaml/)
   assert.match(body, /bare check is valid only when the project declares no companions/i)
+})
+
+test('Agent Notes proposal-first fixtures cover retained, checkpointed and unavailable states', (t) => {
+  const evalRoot = join(EVAL_SOURCE_ROOT, 'dsh-spec-agent-notes', 'evals', 'files')
+  const notes = join(REPO_ROOT, 'skills', 'dsh-spec-agent-notes', 'scripts', 'notes.mjs')
+  const checkpointScenario = readCorpus('dsh-spec-agent-notes').evals.find(
+    (scenario) => scenario.id === 'proposal-checkpoint-keeps-partial-moves-complete',
+  )
+  assert.ok(checkpointScenario)
+  assert.equal(checkpointScenario.project_root, 'evals/files/checkpoint')
+  const checkpointProject = mkdtempSync(join(tmpdir(), 'agent-notes-checkpoint-project-'))
+  t.after(() => rmSync(checkpointProject, { recursive: true, force: true }))
+  stageScenarioProject('dsh-spec-agent-notes', checkpointScenario, checkpointProject)
+  const checkpointEnvironment = isolatedGitEnv(checkpointProject)
+  const checkpointGit = (...args: string[]) => {
+    const result = spawnSync('git', args, {
+      cwd: checkpointProject,
+      encoding: 'utf8',
+      env: checkpointEnvironment,
+    })
+    assert.equal(result.status, 0, result.stderr)
+    return result.stdout
+  }
+  checkpointGit('init', '-q')
+  checkpointGit('config', 'user.name', 'Checkpoint fixture')
+  checkpointGit('config', 'user.email', 'checkpoint@example.invalid')
+  checkpointGit('add', '-A')
+  checkpointGit('commit', '-qm', 'fixture: last-confirmed state')
+  assert.equal(checkpointGit('status', '--short'), '')
+  for (const file of checkpointScenario.files ?? []) {
+    assert.equal(
+      existsSync(join(checkpointProject, scenarioProjectPath(checkpointScenario, file))),
+      true,
+      'checkpoint input is not rooted at the fixture project: ' + file,
+    )
+  }
+  const checkpointPair = spawnSync(
+    process.execPath,
+    [join(REPO_ROOT, 'skills/dsh-spec-translate-docs/scripts/translate-pair.mjs'), 'check', '--root', '.'],
+    { cwd: checkpointProject, encoding: 'utf8', env: checkpointEnvironment },
+  )
+  assert.equal(checkpointPair.status, 0, checkpointPair.stdout + checkpointPair.stderr)
+  const checkpointRootCheck = spawnSync(
+    process.execPath,
+    [notes, 'check', '--root', '.agents/dsh-spec-agent-notes', '--companion', '.zh.md', '--companion', '.i18n.yaml'],
+    { cwd: checkpointProject, encoding: 'utf8', env: checkpointEnvironment },
+  )
+  assert.equal(checkpointRootCheck.status, 0, checkpointRootCheck.stdout + checkpointRootCheck.stderr)
+
+  const proposalRoot = join(evalRoot, 'proposal-first', '.agents', 'dsh-spec-agent-notes')
+  const proposalChecked = spawnSync(process.execPath, [notes, 'check', '--root', proposalRoot], {
+    cwd: REPO_ROOT,
+    encoding: 'utf8',
+  })
+  assert.equal(proposalChecked.status, 0, proposalChecked.stdout + proposalChecked.stderr)
+
+  const checkpointNotes = join(evalRoot, 'checkpoint', '.agents', 'dsh-spec-agent-notes')
+  const checkpointChecked = spawnSync(
+    process.execPath,
+    [notes, 'check', '--root', checkpointNotes, '--companion', '.zh.md', '--companion', '.i18n.yaml'],
+    { cwd: REPO_ROOT, encoding: 'utf8' },
+  )
+  assert.equal(checkpointChecked.status, 0, checkpointChecked.stdout + checkpointChecked.stderr)
+
+  const unavailable = join(evalRoot, 'proposal-unavailable')
+  assert.match(readFileSync(join(unavailable, 'unmerged-draft.md'), 'utf8'), /not been reviewed or retained/)
+  assert.equal(existsSync(join(unavailable, '.agents', 'dsh-spec-agent-notes')), false)
+
+  const checklist = readFileSync(join(evalRoot, 'checkpoint/issue.md'), 'utf8')
+  assert.match(checklist, /## Tracker item: Resumable export/)
+  assert.match(checklist, /## Tracker item: Export retention policy/)
+  assert.match(checklist, /Resumable export.*2026-11-20-resumable-export\.md/s)
+  assert.match(checklist, /Export retention policy.*2026-11-21-retention-policy\.md/s)
+  assert.match(checklist, /Pending: cancelling an in-flight export/i)
+
+  const source = readFileSync(join(evalRoot, 'checkpoint/src/exports.mjs'), 'utf8')
+  assert.doesNotMatch(source, /cancel/i)
+  const tests = readFileSync(join(evalRoot, 'checkpoint/tests/exports.test.mjs'), 'utf8')
+  assert.match(tests, /resume/i)
+  assert.match(tests, /purgeExpired/i)
+
+  const featureRoot = join(checkpointNotes, 'proposed', 'feature')
+  const checkpointFixtureRoot = join(evalRoot, 'checkpoint')
+  const partialPath = join(featureRoot, '2026-11-20-resumable-export.md')
+  const partial = readFileSync(partialPath, 'utf8')
+  assert.match(partial, /Status: proposed/)
+  assert.match(partial, /Cancelling an in-flight export/i)
+  assert.match(
+    partial,
+    /\[Issue #140, tracker item “Resumable export”\]\(\.\.\/\.\.\/\.\.\/\.\.\/issue\.md#tracker-item-resumable-export\)/,
+  )
+  const completePath = join(featureRoot, '2026-11-21-retention-policy.md')
+  const complete = readFileSync(completePath, 'utf8')
+  assert.match(complete, /Status: proposed/)
+  assert.match(complete, /seven days/i)
+  assert.match(
+    complete,
+    /\[Issue #140, tracker item “Export retention policy”\]\(\.\.\/\.\.\/\.\.\/\.\.\/issue\.md#tracker-item-export-retention-policy\)/,
+  )
+  for (const stem of ['2026-11-20-resumable-export', '2026-11-21-retention-policy']) {
+    for (const suffix of ['.zh.md', '.i18n.yaml']) {
+      assert.equal(existsSync(join(featureRoot, stem + suffix)), true, stem + suffix + ' is missing')
+    }
+    const pair = spawnSync(
+      process.execPath,
+      [
+        join(REPO_ROOT, 'skills/dsh-spec-translate-docs/scripts/translate-pair.mjs'),
+        'check',
+        join('.agents', 'dsh-spec-agent-notes', 'proposed', 'feature', stem + '.md'),
+      ],
+      { cwd: checkpointFixtureRoot, encoding: 'utf8' },
+    )
+    assert.equal(pair.status, 0, pair.stdout + pair.stderr)
+  }
+
+  const workflow = readFileSync(join(REPO_ROOT, 'skills/dsh-spec-agent-notes/references/workflow.md'), 'utf8')
+  assert.match(
+    workflow,
+    /Proposed Agent Note.*Execution issue or tracker item.*Implementation commit or change request/s,
+  )
+  assert.match(workflow, /Each proposal links its execution tracker, and each tracker item links back to its proposal/)
+  assert.match(
+    workflow,
+    /Use one proposal and one tracker item for a coherent decision\. Split independent decisions into separate proposals and tracker items/,
+  )
+  assert.match(
+    workflow,
+    /Search the target branch's active `proposed\/` inventory for a note that owns or constrains the decision/,
+  )
+  assert.match(
+    workflow,
+    /A note confined to a working tree, Draft change, unmerged branch or stale local revision is not active inventory/,
+  )
+  assert.match(workflow, /A proposal-only change is reviewed and merged with `Status: proposed`/)
+  assert.match(workflow, /A partial change uses the project's non-closing reference convention/)
+  assert.match(workflow, /Keep the note in `proposed\/` if any accepted criterion/)
+  assert.match(workflow, /Move the note to `implemented\/` only at the complete checkpoint/)
+  assert.match(workflow, /^## Multi-goal proposals$/m)
+  assert.match(workflow, /A coherent proposal may have several acceptance criteria or several execution-tracker goals/)
+  assert.match(
+    workflow,
+    /If scope is reduced or expanded, update the proposal's acceptance criteria and review that design change/,
+  )
+  assert.match(workflow, /non-closing reference convention/)
+  assert.match(workflow, /independent, complete decision/)
+  assert.match(workflow, /measured condition for reintroducing it/)
+  assert.doesNotMatch(workflow, /Do not create `work\.md`/)
+
+  const proposalDecision = readFileSync(
+    join(REPO_ROOT, '.agents/dsh-spec-agent-notes/implemented/process/2026-09-18-drop-the-work-record.md'),
+    'utf8',
+  )
+  assert.match(proposalDecision, /Reintroduce it only if resuming proves unreliable without it/)
+  assert.match(proposalDecision, /The removed path is absent/)
+  assert.match(proposalDecision, /No executable in the repository creates, reads or updates that path/)
+  assert.doesNotMatch(proposalDecision, /Nothing references the artifact/)
+
+  const forgingRecord = readFileSync(
+    join(REPO_ROOT, '.agents/dsh-spec-agent-notes/implemented/process/2026-10-27-forging-dsh-spec-agent-notes.md'),
+    'utf8',
+  )
+  assert.match(forgingRecord, /The proposal-first workflow is not attributed to upstream/)
+  assert.match(forgingRecord, /The proposal-first owner note is current project authority/)
+  for (const id of ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8', 'W9', 'W10']) {
+    const row = new RegExp(`^\\| ${id} \\| ([^|]+) \\|`, 'm').exec(forgingRecord)
+    assert.ok(row, id + ' disposition anchor is missing')
+    assert.doesNotMatch(row[1] ?? '', /`WF`/, id + ' cites its target as its source')
+  }
+  for (const id of ['39', '40', '41', '42', '43', '44', '45', '46', '47', '48']) {
+    assert.match(forgingRecord, new RegExp(`^\\| ${id} \\|`, 'm'), id + ' verification anchor is missing')
+  }
+  assert.match(forgingRecord, /proposal-to-tracker and tracker-to-proposal links are both present/)
+  assert.match(forgingRecord, /Any reduction or expansion of accepted scope returns to proposal review/)
+  assert.match(forgingRecord, /A partial change uses the project's non-closing reference convention/)
+  assert.match(
+    forgingRecord,
+    /Checkpoint after each material implementation goal, before completion, and whenever work pauses or resumes/,
+  )
+  assert.match(forgingRecord, /An abandoned proposal is rejected or deleted under the notes lifecycle/)
+  assert.match(forgingRecord, /creates no duplicate standing-instruction asset/)
+  assert.match(forgingRecord, /Report the design owner and status, execution tracker, completed evidence/)
+
+  const corpus = readCorpus('dsh-spec-agent-notes')
+  for (const id of [
+    'proposal-first-issue-links-active-note',
+    'proposal-unavailable-hands-off-inventory',
+    'proposal-checkpoint-keeps-partial-moves-complete',
+  ]) {
+    const scenario = corpus.evals.find((entry) => entry.id === id)
+    assert.ok(scenario)
+    assert.doesNotMatch(
+      scenario.prompt,
+      /Make substantial future work|Prepare the proposal for review|update the issue with the proposal link|each note's lifecycle|retention-policy moves/i,
+      id + ' prompt leaks its expected solution',
+    )
+  }
+  const first = corpus.evals.find((entry) => entry.id === 'proposal-first-issue-links-active-note')
+  const checkpoint = corpus.evals.find((entry) => entry.id === 'proposal-checkpoint-keeps-partial-moves-complete')
+  assert.ok(first)
+  assert.ok(checkpoint)
+  assert.ok(first.assertions.some((assertion) => /proposal links issue\.md.*issue\.md links back/i.test(assertion)))
+  assert.ok(
+    checkpoint.assertions.some((assertion) =>
+      /tracker item.*current note path.*note links back.*own tracker item/i.test(assertion),
+    ),
+  )
 })
 
 test('the capability scenario corpus covers absent and available isolated execution', () => {
@@ -5327,6 +5637,137 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
   )
 })
 
+test('Agent Notes proposal-first model evidence is current and typed', () => {
+  const skill = 'dsh-spec-agent-notes'
+  const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-25-issue133', skill)
+  const corpus = readCorpus(skill)
+  const runs = [
+    { id: 'proposal-first-issue-links-active-note', assertions: 5, install: [] },
+    { id: 'proposal-unavailable-hands-off-inventory', assertions: 4, install: [] },
+    {
+      id: 'proposal-checkpoint-keeps-partial-moves-complete',
+      assertions: 5,
+      install: ['dsh-spec-translate-docs'],
+    },
+  ] as const
+
+  for (const run of runs) {
+    const scenario = corpus.evals.find((entry) => entry.id === run.id)
+    assert.ok(scenario, run.id + ' has no current scenario')
+    if (run.id === 'proposal-checkpoint-keeps-partial-moves-complete') {
+      assert.equal(scenario.project_root, 'evals/files/checkpoint')
+    }
+    const root = join(evidenceRoot, run.id)
+    const { metadata } = evidencePolicy.readEvidenceMetadataRecord(root)
+    assert.equal(metadata.claim.subject, `${skill}:${run.id}`)
+    assert.equal(metadata.claim.type, 'behavior')
+    assert.equal(metadata.arm, 'target-present')
+    assert.equal(metadata.evidence.kind, 'model')
+    assert.equal(metadata.execution.subagents, false)
+    assert.equal(
+      metadata.provenance.target_skill_tree_sha256,
+      skillTreeDigest([skill]),
+      run.id + ' does not bind the current target skill tree',
+    )
+    assert.equal(
+      metadata.provenance.dependency_skill_tree_sha256,
+      skillTreeDigest(scenario.install ?? []),
+      run.id + ' does not bind its current dependency skills',
+    )
+
+    const inspected = evidencePolicy.inspectRetainedRun(root, metadata)
+    assert.deepEqual(inspected.scenario, scenario, run.id + ' was recorded from another scenario')
+
+    const status = readFileSync(join(root, 'status.txt'), 'utf8')
+    assert.match(status, /^status: pass$/m)
+    assert.match(status, /^run_exit_code: 0$/m)
+    assert.match(status, new RegExp(`^assertions: ${run.assertions}/${run.assertions}$`, 'm'))
+    assert.match(status, /^evidence_status: current$/m)
+    assert.match(status, /^current_proof: true$/m)
+
+    const expectedAssertions = scenario.assertions.map((assertion) => `PASS ${assertion}`).join('\n')
+    assert.equal(readFileSync(join(root, 'assertions.expected.txt'), 'utf8').trim(), expectedAssertions)
+    assert.equal(readFileSync(join(root, 'assertions.txt'), 'utf8').trim(), expectedAssertions)
+
+    const inputs = readFileSync(join(root, 'input-manifest.sha256'), 'utf8')
+      .trim()
+      .split('\n')
+      .map((line) => {
+        const match = /^([0-9a-f]{64})  (.+)  mode=([0-7]{4})$/.exec(line)
+        assert.ok(match, run.id + ' has a malformed input manifest')
+        return { hash: match[1] as string, path: match[2] as string, mode: match[3] as string }
+      })
+    assert.deepEqual(
+      inputs.map((entry) => entry.path),
+      scenario.files,
+      run.id + ' input order differs from its current scenario',
+    )
+    for (const entry of inputs) {
+      const path = join(EVAL_SOURCE_ROOT, skill, entry.path)
+      assert.equal(fileHash(path), entry.hash, run.id + ' input changed: ' + entry.path)
+      assert.equal(fileMode(path), entry.mode, run.id + ' input mode changed: ' + entry.path)
+    }
+
+    assert.equal(replayEvidencePatch(root, skill, scenario), true, run.id + ' is not replayable')
+    assertAnswerBlindTrace(root)
+    const commands = traceCommandsFor(root)
+    assert.ok(
+      commands.some((command) =>
+        commandPrintsFile(command, '.agents/skills/dsh-spec-agent-notes/references/workflow.md'),
+      ),
+      run.id + ' did not read the workflow contract',
+    )
+    assert.ok(
+      commands.some((command) =>
+        commandPrintsFile(command, '.agents/skills/dsh-spec-agent-notes/references/notes-contract.md'),
+      ),
+      run.id + ' did not read the notes contract',
+    )
+    if (run.id !== 'proposal-unavailable-hands-off-inventory') {
+      assert.ok(commands.some((command) => /notes\.mjs check(?:\s|$|['"])/.test(command ?? '')))
+    }
+    if (run.id === 'proposal-checkpoint-keeps-partial-moves-complete') {
+      const commandText = commands.join('\n')
+      assert.match(commandText, /translate-pair\.mjs (?:check|write|brief)/)
+      assert.doesNotMatch(commandText, /translate-pair\.mjs (?:brief|init)/)
+      assert.doesNotMatch(commandText, /(?:subagent|spawn_agent)/)
+      assert.doesNotMatch(commandText, /--root\s+evals\/files\/checkpoint\/\.agents\/dsh-spec-agent-notes/)
+    }
+
+    const changedPaths = JSON.parse(readFileSync(join(root, 'changed-paths.json'), 'utf8')) as string[]
+    if (run.id === 'proposal-unavailable-hands-off-inventory') {
+      assert.deepEqual(changedPaths, [], run.id + ' changed project files')
+    }
+    if (run.id === 'proposal-checkpoint-keeps-partial-moves-complete') {
+      assert.deepEqual(changedPaths, [
+        '.agents/dsh-spec-agent-notes/implemented/feature/2026-11-21-retention-policy.i18n.yaml',
+        '.agents/dsh-spec-agent-notes/implemented/feature/2026-11-21-retention-policy.md',
+        '.agents/dsh-spec-agent-notes/implemented/feature/2026-11-21-retention-policy.zh.md',
+        'issue.md',
+      ])
+      const moveLifecycleTokens = (text: string) =>
+        text
+          .replace(/^Status: proposed$/m, 'Status: implemented')
+          .replace(/^## Proposal$/m, '## Decision')
+          .replace(/^## Acceptance criteria$/m, '## Testing')
+          .replace(/^## Risks$/m, '## Consequences')
+      const inputRoot = join(
+        EVAL_SOURCE_ROOT,
+        skill,
+        'evals/files/checkpoint/.agents/dsh-spec-agent-notes/proposed/feature',
+      )
+      const movedRoot = join(root, 'artifact/.agents/dsh-spec-agent-notes/implemented/feature')
+      for (const suffix of ['.md', '.zh.md']) {
+        assert.equal(
+          readFileSync(join(movedRoot, `2026-11-21-retention-policy${suffix}`), 'utf8'),
+          moveLifecycleTokens(readFileSync(join(inputRoot, `2026-11-21-retention-policy${suffix}`), 'utf8')),
+          run.id + ' rewrote translated or non-lifecycle prose in ' + suffix,
+        )
+      }
+    }
+  }
+})
+
 test('the scenario input check rejects missing, empty, directory and escaping files', () => {
   const root = mkdtempSync(join(tmpdir(), 'skill-scenarios-files-'))
   const files = join(root, 'evals', 'files')
@@ -5434,7 +5875,7 @@ test('every typed evidence leaf passes full retained policy under a different HO
     )
     checked += 1
   }
-  assert.equal(checked, 13, 'typed evidence leaf count changed')
+  assert.equal(checked, 24, 'typed evidence leaf count changed')
 })
 
 test('the model runner refuses to replace the repository or evidence root', () => {

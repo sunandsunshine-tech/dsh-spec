@@ -153,6 +153,11 @@ A review or outgoing-diff scenario may declare `change_patch` and `change_root`.
 that patch in reverse to commit the base state, then reapplies it to commit the candidate, so the
 model reviews a real `HEAD^..HEAD` diff. The patch file remains a declared input.
 
+A scenario may declare `project_root` under `evals/files/`. Every declared input must be below that
+root; the runner strips the prefix when staging, so the fixture directory itself becomes
+`/workspace` and its files are committed as the model's real project root. Replay uses the same
+mapping. `project_root` cannot be combined with `change_patch`.
+
 An output path must be `evidence/<date>/<skill>/<run>` and its skill component must match
 `--skill`. Every input-manifest entry carries its executable mode bits, so changing whether a
 fixture command can run invalidates the retained evidence. When replacing an existing run, the

@@ -1,0 +1,135 @@
+diff --git a/.agents/dsh-spec-agent-notes/proposed/feature/2026-11-21-retention-policy.i18n.yaml b/.agents/dsh-spec-agent-notes/implemented/feature/2026-11-21-retention-policy.i18n.yaml
+similarity index 62%
+rename from .agents/dsh-spec-agent-notes/proposed/feature/2026-11-21-retention-policy.i18n.yaml
+rename to .agents/dsh-spec-agent-notes/implemented/feature/2026-11-21-retention-policy.i18n.yaml
+index e75e8e6..f5a552c 100644
+--- a/.agents/dsh-spec-agent-notes/proposed/feature/2026-11-21-retention-policy.i18n.yaml
++++ b/.agents/dsh-spec-agent-notes/implemented/feature/2026-11-21-retention-policy.i18n.yaml
+@@ -1,22 +1,22 @@
+ # Pairing consistency record for 2026-11-21-retention-policy.md (references/pairing-contract.md): per heading
+ # source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+ # After editing either side, bring the other along and re-record with:
+-#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/proposed/feature/2026-11-21-retention-policy.md --target <lang>
++#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/feature/2026-11-21-retention-policy.md --target <lang>
+ /agent-note-export-retention-policy:
+-  en: 1d0612ea3700e5e8
+-  zh: 664d3e19257dd900
++  en: 9c620fec70c85236
++  zh: 1cc585a691071ad4
+ /agent-note-export-retention-policy/problem:
+   en: 22c19dd821d83ee7
+   zh: 3ad832bb459aadd9
+-/agent-note-export-retention-policy/proposal:
+-  en: 890d251d0db8f0ce
+-  zh: 618b491d2e0c4b05
++/agent-note-export-retention-policy/decision:
++  en: 1c9fa015bbc4b328
++  zh: f81252c240be4f19
+ /agent-note-export-retention-policy/alternatives-considered:
+   en: 7f239eb95f332683
+   zh: c367c011e38c730c
+-/agent-note-export-retention-policy/acceptance-criteria:
+-  en: fd56f08598f6052a
+-  zh: 19f75448dd608e65
+-/agent-note-export-retention-policy/risks:
+-  en: d1d1f51b1ac5008f
+-  zh: 3469070a847be0c8
++/agent-note-export-retention-policy/testing:
++  en: c79276ce218e5708
++  zh: 0e4e7bd3d365cfcb
++/agent-note-export-retention-policy/consequences:
++  en: 9db3893faaaeecd2
++  zh: 87ee5ddea69de8b1
+diff --git a/.agents/dsh-spec-agent-notes/proposed/feature/2026-11-21-retention-policy.md b/.agents/dsh-spec-agent-notes/implemented/feature/2026-11-21-retention-policy.md
+similarity index 93%
+rename from .agents/dsh-spec-agent-notes/proposed/feature/2026-11-21-retention-policy.md
+rename to .agents/dsh-spec-agent-notes/implemented/feature/2026-11-21-retention-policy.md
+index f06c1bd..ed2ec3d 100644
+--- a/.agents/dsh-spec-agent-notes/proposed/feature/2026-11-21-retention-policy.md
++++ b/.agents/dsh-spec-agent-notes/implemented/feature/2026-11-21-retention-policy.md
+@@ -1,6 +1,6 @@
+ # Agent Note: Export retention policy
+ 
+-Status: proposed
++Status: implemented
+ 
+ English | [中文](2026-11-21-retention-policy.zh.md)
+ 
+@@ -8,7 +8,7 @@ English | [中文](2026-11-21-retention-policy.zh.md)
+ 
+ Saved export state accumulates unless the store has a bounded retention rule and a purge operation.
+ 
+-## Proposal
++## Decision
+ 
+ Saved exports are kept for seven days by default, and only entries older than that window are purged. This keeps storage bounded.
+ 
+@@ -18,11 +18,11 @@ Tracking: [Issue #140, tracker item “Export retention policy”](../../../../i
+ 
+ **Retain all exports indefinitely.** It avoids expiry decisions, but storage grows without a bound and stale state never leaves the store.
+ 
+-## Acceptance criteria
++## Testing
+ 
+ - Saved exports expire after seven days by default.
+ - Purging removes expired exports while retaining entries inside the window.
+ 
+-## Risks
++## Consequences
+ 
+ Clock changes can move an entry across the retention boundary, and a purge that is not atomic can expose a partially removed entry.
+diff --git a/.agents/dsh-spec-agent-notes/proposed/feature/2026-11-21-retention-policy.zh.md b/.agents/dsh-spec-agent-notes/implemented/feature/2026-11-21-retention-policy.zh.md
+similarity index 93%
+rename from .agents/dsh-spec-agent-notes/proposed/feature/2026-11-21-retention-policy.zh.md
+rename to .agents/dsh-spec-agent-notes/implemented/feature/2026-11-21-retention-policy.zh.md
+index 493472d..1a0b907 100644
+--- a/.agents/dsh-spec-agent-notes/proposed/feature/2026-11-21-retention-policy.zh.md
++++ b/.agents/dsh-spec-agent-notes/implemented/feature/2026-11-21-retention-policy.zh.md
+@@ -1,6 +1,6 @@
+ # Agent Note: 导出保留策略
+ 
+-Status: proposed
++Status: implemented
+ 
+ [English](2026-11-21-retention-policy.md) | 中文
+ 
+@@ -8,7 +8,7 @@ Status: proposed
+ 
+ 如果存储没有有界保留规则和清除操作，已保存的导出状态就会不断累积。
+ 
+-## Proposal
++## Decision
+ 
+ 已保存的导出默认保留七天，并且只清除超过该窗口的条目。
+ 
+@@ -18,11 +18,11 @@ Status: proposed
+ 
+ **无限期保留所有导出。** 这样可以避免过期判定，但存储会无界增长，过期状态也永远不会离开存储。
+ 
+-## Acceptance criteria
++## Testing
+ 
+ - 已保存的导出默认在七天后过期。
+ - 清除会移除已过期的导出，同时保留窗口内的条目。
+ 
+-## Risks
++## Consequences
+ 
+ 时钟变化可能使某个条目越过保留边界；非原子清除则可能暴露只被部分移除的条目。
+diff --git a/issue.md b/issue.md
+index 5ec3a1c..f86ff05 100644
+--- a/issue.md
++++ b/issue.md
+@@ -10,8 +10,8 @@
+ 
+ ## Tracker item: Export retention policy
+ 
+-- Design owner: [Export retention policy](.agents/dsh-spec-agent-notes/proposed/feature/2026-11-21-retention-policy.md)
+-- Status: implementation complete, lifecycle pending
++- Design owner: [Export retention policy](.agents/dsh-spec-agent-notes/implemented/feature/2026-11-21-retention-policy.md)
++- Status: implemented
+ - Completed evidence: `node --test tests/exports.test.mjs` passes; default retention is seven days and purge removes expired exports.
+-- Pending: record the complete proposal checkpoint and update this tracker link.
+-- Next checkpoint: move the complete bilingual unit only after its implemented skeleton and companions are current.
++- Pending: none.
++- Next checkpoint: none.

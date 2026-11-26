@@ -1,0 +1,2 @@
+evals/files/proposal-first/.agents/dsh-spec-agent-notes/proposed/process/2026-11-26-proposal-first-planning.md
+evals/files/proposal-first/issue.md

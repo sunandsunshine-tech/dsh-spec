@@ -1,0 +1,22 @@
+# Pairing consistency record for 2026-11-20-resumable-export.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/proposed/feature/2026-11-20-resumable-export.md --target <lang>
+/agent-note-resumable-export:
+  en: 63a227acb2dd09bb
+  zh: 9b7bfb6454328e7e
+/agent-note-resumable-export/problem:
+  en: 492f99d3a8ee9198
+  zh: 5944ffae2b626396
+/agent-note-resumable-export/proposal:
+  en: 1afbe37830ff1501
+  zh: 6ada14555b2ae56c
+/agent-note-resumable-export/alternatives-considered:
+  en: 009552e5b18efeed
+  zh: f52821b341bc22de
+/agent-note-resumable-export/acceptance-criteria:
+  en: a44a80ed6c9b96b5
+  zh: af49018d124f9cf4
+/agent-note-resumable-export/risks:
+  en: b6f062d8c4799329
+  zh: b547561bef3e4960

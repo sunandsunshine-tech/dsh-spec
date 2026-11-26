@@ -1,0 +1,47 @@
+# Agent Note: Proposal-first planning
+
+Status: proposed
+
+## Problem
+
+Issue #133 requests a substantial policy change, but the target branch has no proposed Agent Note that owns the design. The issue currently carries only execution state, and a draft from another checkout is discussion material rather than retained inventory. Beginning implementation from that draft, or turning the issue into the complete design record, would make authority depend on an unmerged or mutable source. The existing work-record removal decision also rules out adding another status store as a shortcut.
+
+## Proposal
+
+Make proposal-first planning the gate for this substantial policy change:
+
+1. Retain this note under `proposed/process/` in the target branch before implementation. It owns the policy's problem, intended change, alternatives, acceptance criteria and risks; Issue #133 remains the execution tracker and links back to this note.
+2. Treat the branch-local draft only as discussion. Reconcile it through review into this target-inventory note rather than adopting or copying its text or design by default.
+3. Before implementation starts, review the retained proposal and keep `Status: proposed`; retention is design authority, not implementation approval.
+4. Record implementation only in the change that ships the policy and its verification. Update Issue #133 with completed evidence and remaining accepted work, and do not add a work record or a second status source.
+5. If implementation changes the decision, alternatives or accepted scope, return to proposal review before relying on the new scope.
+
+This note creates no policy implementation or standing-instruction change.
+
+## Alternatives considered
+
+**Keep the design in Issue #133 only.** It loses because the tracker would simultaneously own mutable design and execution status, recreating overlapping sources that the existing work-record decision removed.
+
+**Promote the branch-local draft as authority.** It loses because a draft outside the target inventory has not been reviewed or made discoverable at the path from which implementation is expected to start. It remains discussion input.
+
+**Create a separate work record for progress.** It loses because the implemented work-record removal decision forbids a second status store and defines the reintroduction threshold, which Issue #133 has not met.
+
+## Acceptance criteria
+
+- The target branch contains exactly one active `proposed/process/` note that owns Issue #133, and the issue's design-owner link resolves to that note.
+- The note states the full intended policy, rejected alternatives, observable completion conditions and risks; Issue #133 continues to own execution state and evidence.
+- No implementation or standing-instruction edit is required to retain the proposal, and the note remains `Status: proposed` until the proposal is reviewed and retained in the target branch.
+- Implementation evidence is recorded only after a shipped change exists and is linked from Issue #133.
+- The note check passes with `--root evals/files/proposal-first/.agents/dsh-spec-agent-notes`.
+
+## Risks
+
+- A reviewer could mistake a retained proposal for permission to implement it; Issue #133 must continue to say design review is pending.
+- Copying the unmerged discussion draft wholesale could hide unresolved review questions and give branch-local material unintended authority.
+- Duplicating acceptance criteria or completion evidence in Issue #133 would recreate the status ambiguity removed by the existing work-record decision.
+- Subsequent implementation may require policy documentation changes; none are authorized by this proposal-only checkpoint.
+
+## Related
+
+- [Issue #133](../../../../issue.md) is the execution tracker.
+- [Drop the work record](../../implemented/process/2026-09-18-drop-the-work-record.md) remains authoritative and is not superseded by this proposal.

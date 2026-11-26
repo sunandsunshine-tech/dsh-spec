@@ -1,0 +1,17 @@
+{
+  "id": "proposal-first-issue-links-active-note",
+  "prompt": "Start issue #133 from evals/files/proposal-first/issue.md with evals/files/proposal-first/.agents/dsh-spec-agent-notes as the notes root. The policy change is substantial and implementation has not begun. Target history has no proposed owner for it. A branch-local draft at evals/files/proposal-first/unmerged-draft.md is available as discussion from another checkout. Do not implement the policy, edit standing instructions, or copy the draft's design. Report what can proceed.",
+  "expected_output": "The branch-local draft is not active inventory, and implementation does not start from it. issue.md links to one new English proposal under proposed/process/, and the proposal links back to issue.md. The issue records the design owner, execution status and absent implementation evidence without copying the proposal. The proposal preserves the existing work-record removal decision, including its measured reintroduction condition. No implementation change, AGENTS.md, active work record or translation companion is created, and the notes check passes.",
+  "files": [
+    "evals/files/proposal-first/issue.md",
+    "evals/files/proposal-first/unmerged-draft.md",
+    "evals/files/proposal-first/.agents/dsh-spec-agent-notes/implemented/process/2026-09-18-drop-the-work-record.md"
+  ],
+  "assertions": [
+    "The proposal links issue.md, and issue.md links back to the proposal under proposed/process/ with its status and absent implementation evidence.",
+    "The proposal has the proposed header and the Problem, Proposal, Alternatives considered, Acceptance criteria, and Risks sections.",
+    "The proposal links the existing work-record removal decision and preserves its measured reintroduction condition instead of duplicating or superseding it.",
+    "The branch-local unmerged draft is not treated as active inventory or approval to implement.",
+    "No implementation change, AGENTS.md, active work record or translation companion is created, and the active-tree check passes."
+  ]
+}

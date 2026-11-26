@@ -38,4 +38,4 @@ Two things the record did that nothing replaces: the commands that resume a clon
 
 ## Verification of absence
 
-Nothing references the artifact: no file under `.agents/`, `docs/`, or `skills/` names `work.md`, and no tier claims it. `grep -rn 'work\.md' AGENTS.md docs skills .agents/dsh-spec` returns nothing.
+The removed path is absent: `test ! -e .agents/dsh-spec/work.md` passes. No executable in the repository creates, reads or updates that path. Remaining references are policy prose, tests and evaluation fixtures that preserve the removal decision or its measured reintroduction condition; none restores the artifact as a status consumer.

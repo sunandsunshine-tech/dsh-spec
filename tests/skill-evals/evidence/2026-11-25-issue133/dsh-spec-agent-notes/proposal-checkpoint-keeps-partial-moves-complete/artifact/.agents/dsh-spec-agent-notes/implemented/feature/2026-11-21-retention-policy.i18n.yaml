@@ -1,0 +1,22 @@
+# Pairing consistency record for 2026-11-21-retention-policy.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/feature/2026-11-21-retention-policy.md --target <lang>
+/agent-note-export-retention-policy:
+  en: 9c620fec70c85236
+  zh: 1cc585a691071ad4
+/agent-note-export-retention-policy/problem:
+  en: 22c19dd821d83ee7
+  zh: 3ad832bb459aadd9
+/agent-note-export-retention-policy/decision:
+  en: 1c9fa015bbc4b328
+  zh: f81252c240be4f19
+/agent-note-export-retention-policy/alternatives-considered:
+  en: 7f239eb95f332683
+  zh: c367c011e38c730c
+/agent-note-export-retention-policy/testing:
+  en: c79276ce218e5708
+  zh: 0e4e7bd3d365cfcb
+/agent-note-export-retention-policy/consequences:
+  en: 9db3893faaaeecd2
+  zh: 87ee5ddea69de8b1

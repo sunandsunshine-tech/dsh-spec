@@ -1,0 +1,15 @@
+{
+  "id": "proposal-unavailable-hands-off-inventory",
+  "prompt": "Begin substantial future work for issue #141: export retries must survive process restarts. The target branch's `.agents/dsh-spec-agent-notes/` inventory and its execution tracker cannot be inspected. The only available design material is the branch-local unmerged draft at evals/files/proposal-unavailable/unmerged-draft.md, and implementation has not begun. Do not change project files. Report whether implementation can begin and the next safe step.",
+  "expected_output": "The run does not begin implementation or treat the unmerged draft as active inventory. It hands off the missing target-branch notes inventory and execution tracker, leaves project files unchanged, and gives a resumable next step to restore inspection and retain and review a proposal before implementation resumes.",
+  "files": [
+    "evals/files/proposal-unavailable/README.md",
+    "evals/files/proposal-unavailable/unmerged-draft.md"
+  ],
+  "assertions": [
+    "The unmerged draft is not treated as active inventory, approval, or implementation authority.",
+    "The handoff names the unavailable target-branch notes inventory and execution tracker.",
+    "The run leaves project files unchanged and creates no note, work record, or implementation.",
+    "The handoff gives a resumable next step to restore inspection and retain and review a proposal before implementation."
+  ]
+}

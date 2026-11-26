@@ -11,18 +11,22 @@ An Agent Note is a durable decision record: the *why* and the *what was given up
 
 This skill owns the full lifecycle of those records — where they live, when to write one, the uniform format, how they move and are pruned, and how finished ones are frozen into an archive. The references hold the full rules; the bundled script decides the mechanical ones.
 
+For substantial future work, a proposed note owns the design while the project's execution tracker owns status and evidence. A proposal becomes active guidance only after it enters the target branch's `proposed/` inventory; approval or merge of a proposal is not implementation.
+
 ## Defaults
 
 Apply this skill's use-site default only when neither the request nor existing project instructions choose one. Treat existing instructions as authoritative read-only input; do not ask for, create, modify, or copy instructions merely to select a default.
 
 ## Procedure
 
-1. **Check supersession before writing.** Search the active tree for notes that own or constrain the same decision. Use the project's current code, configuration, package documentation, generated catalogs, newer notes and inbound links to establish whether an older rationale still owns or constrains anything. Plan one change for every match: update the owner, consolidate a full supersession, archive a qualifying implemented note, or reject or delete a stale proposal. A new note never competes with an existing owner.
-2. **Initialize the tree once.** In a project that has none, run `node <skill-dir>/scripts/notes.mjs init` before the first note. It creates the lifecycle and class folders and the six archived class folders with ignored `.gitkeep` placeholders only in empty folders, and never overwrites an existing file.
-3. **Choose the lifecycle, then load the owning contract.** Substantial future work starts in `proposed/`; a decision already made starts in `implemented/`; a declined proposal goes to `rejected/` with the reason on its status line. Load [the notes contract](references/notes-contract.md) before creating, updating, reviewing, auditing, moving, consolidating or pruning a note. Its path, format, classification, companion and pruning rules are authoritative.
-4. **Keep an implemented note true.** Update paths, names, keys and defaults in the same change that alters them, and rewrite stale facts in place; do not append a change history. That tracks realization, not the decision: a reversed decision needs a new note that supersedes the old one.
-5. **Prune as part of the change**, never as a separate word-count or age sweep. The keep, archive, reject or delete decision is semantic and follows the notes contract.
-6. **Run the checks.** Load [the notes contract](references/notes-contract.md#companions) before auditing so the project's companion mechanism is known. Run `node <skill-dir>/scripts/notes.mjs check` with every declared companion option; for example, a project whose units use `.zh.md` translations and `.i18n.yaml` records runs `check --companion .zh.md --companion .i18n.yaml`. A bare check is valid only when the project declares no companions. `check` fails when the active tree has no notes. Run `node <skill-dir>/scripts/notes.mjs archive` for the frozen archive; archive verification fails when no artifact is sealed. A change that leaves a failing check is unfinished. `<skill-dir>` stands for this skill directory; the project's own suite may wrap the commands.
+1. **Route substantial future work.** Load [the workflow contract](references/workflow.md) and [the notes contract](references/notes-contract.md) before deciding whether substantial future work needs a proposal, linking its execution tracker, or checkpointing implementation. A proposal that exists only on a working branch, Draft change or unmerged branch is not active inventory. Create or find the design owner and execution tracker before implementation, and do not treat a branch-local proposal as approval.
+2. **Check supersession before writing.** Search the active tree for notes that own or constrain the same decision. Use the project's current code, configuration, package documentation, generated catalogs, newer notes and inbound links to establish whether an older rationale still owns or constrains anything. Plan one change for every match: update the owner, consolidate a full supersession, archive a qualifying implemented note, or reject or delete a stale proposal. A new note never competes with an existing owner.
+3. **Initialize the tree once.** In a project that has none, run `node <skill-dir>/scripts/notes.mjs init` before the first note. It creates the lifecycle and class folders and the six archived class folders with ignored `.gitkeep` placeholders only in empty folders, and never overwrites an existing file.
+4. **Choose the lifecycle.** Substantial future work starts in `proposed/`; a decision already made starts in `implemented/`; a declined proposal goes to `rejected/` with the reason on its status line. The loaded notes contract owns the path, format, classification, companion and pruning rules for creating, updating, reviewing, auditing, moving, consolidating or pruning a note.
+5. **Keep an implemented note true.** Update paths, names, keys and defaults in the same change that alters them, and rewrite stale facts in place; do not append a change history. That tracks realization, not the decision: a reversed decision needs a new note that supersedes the old one.
+6. **Checkpoint implementation.** Keep a proposal in `proposed/` while any accepted criterion or goal remains unshipped. The execution tracker records completed and pending evidence; the note does not become a progress log. Move the note only when its accepted scope has shipped and its verification is recorded. The workflow contract owns full and partial checkpoints, multi-goal scope and commit evidence.
+7. **Prune as part of the change**, never as a separate word-count or age sweep. The keep, archive, reject or delete decision is semantic and follows the notes contract.
+8. **Run the checks.** Load [the notes contract](references/notes-contract.md#companions) before auditing so the project's companion mechanism is known. Run `node <skill-dir>/scripts/notes.mjs check` with every declared companion option; for example, a project whose units use `.zh.md` translations and `.i18n.yaml` records runs `check --companion .zh.md --companion .i18n.yaml`. A bare check is valid only when the project declares no companions. `check` fails when the active tree has no notes. Run `node <skill-dir>/scripts/notes.mjs archive` for the frozen archive; archive verification fails when no artifact is sealed. A change that leaves a failing check is unfinished. `<skill-dir>` stands for this skill directory; the project's own suite may wrap the commands.
 
 ## Where notes live
 
@@ -33,6 +37,8 @@ The root defaults to `.agents/dsh-spec-agent-notes/` directly under the project 
 Write a note only for lasting decision rationale that code, tests and existing documentation do not explain. Update the note that owns the decision instead of creating a duplicate. Mechanical or local edits, including local UI presentation and interaction changes, are exempt. A note is never edited into a different decision: supersede it with a new one and keep both cross-linked unless the old note is later consolidated into its owner.
 
 The notes contract owns the header, status lines, required sections and alternatives rule. A note that changes lifecycle moves to that lifecycle's path and satisfies its format in the same change.
+
+For a substantial future proposal, the workflow contract owns the relationship between the note, its execution tracker and implementation evidence. Retaining the proposal still leaves it `proposed/`; implementation checkpoints decide when the shipped decision may move.
 
 ## Companions
 
@@ -77,5 +83,6 @@ Every handover names the failed step, completed work, pending work and a resumab
 
 ## References
 
+- [Proposal-first workflow](references/workflow.md) — load before routing substantial future work, linking its execution tracker, checkpointing implementation, or moving a completed proposal to `implemented/`.
 - [Notes contract](references/notes-contract.md) — load before writing, moving, consolidating or pruning a note.
 - [Archive contract](references/archive-contract.md) — load before archiving, sealing or verifying the archive.

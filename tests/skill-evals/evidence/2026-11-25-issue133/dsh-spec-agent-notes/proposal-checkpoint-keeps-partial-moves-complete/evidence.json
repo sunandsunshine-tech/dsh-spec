@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "claim": {
+    "type": "behavior",
+    "subject": "dsh-spec-agent-notes:proposal-checkpoint-keeps-partial-moves-complete"
+  },
+  "arm": "target-present",
+  "comparison": null,
+  "evidence": {
+    "kind": "model",
+    "currentness": {
+      "scenario_sha256": "8327a01dd71496a3a3db82bea4c8729bf8d75d33a1696b6107eff0058b52f0df",
+      "input_manifest_sha256": "7683e93bd254407ab428b764b9fb1d80af93c1f8426f15f942c56a3e5b6b733a",
+      "scenario_prompt_sha256": "ca16e1b032f16c216bb1b69af23202b180d705e1277e6eec42214521792380bb",
+      "arm_instruction_sha256": "d33e1d16d59ce99c8a9604fc7c133fbf41afae88f4715cc2bb2da0737345a6ec",
+      "prompt_guard_sha256": "e587246af427c697477e3f5e361192ebb5316c5f17540449cf6de853ec64af30",
+      "rendered_prompt_sha256": "1a44f16fad7218308682e215914682dd987d00fce8811ec542e4fdfb9dc9a40f",
+      "execution_sha256": "df0d14c0a241265515e09d97e5b796c7a07f4e04e2b1e49e7bc971557340c54a"
+    }
+  },
+  "execution": {
+    "auth": "host-proxy",
+    "browser": false,
+    "media": false,
+    "model_config_sha256": "81fe0a5e2d45e2a687f9ff2d811dd45cca60b986eeb96b994e9255e9eda70e1c",
+    "model_runtime_sha256": "63279cf1860a285495fa0bad3c40f5eb38c3487f7425adb603bcbd49175fcaf8",
+    "sandbox": "workspace-write",
+    "subagents": false
+  },
+  "provenance": {
+    "target_skill_tree_sha256": "6e8e6e0e8cc907c0feea776532d3911defe3a64579f619d921861dbd25abe942",
+    "dependency_skill_tree_sha256": "92020925eb6ff61997974dcdb6e91a0600fc32ccbb65c3e5691a3346b93e865a"
+  },
+  "deadline_ms": 1800000,
+  "privacy": {
+    "canary_sets": [
+      "current-home",
+      "local-environment"
+    ],
+    "scope_sha256": "2b910be53fbe40382a58ac7b2d82bffe01809fb589a28caca231ac26a8090db2",
+    "surfaces": "all-retained-files"
+  }
+}

@@ -53,6 +53,7 @@
 | cancel | 取消 |  |  |  |
 | capability | 能力 |  |  | 必须与 `feature` → `功能` 区分 |
 | checkpoint | 检查点 |  |  |  |
+| non-closing reference convention | 非关闭式引用约定 |  |  | 部分变更引用跟踪器时，不声称整个跟踪范围已经关闭 |
 | composition bundle | 组合包 |  |  | 只约束应用或插件的组合语境，不约束所有 `bundle` |
 | consumer | 消费方 |  | 消费者 |  |
 | context | 上下文 |  |  |  |
