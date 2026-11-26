@@ -1,22 +1,19 @@
 # Pairing consistency record for 2026-11-25-substantial-work-starts-as-a-proposal.md (references/pairing-contract.md): per heading
 # source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
 # After editing either side, bring the other along and re-record with:
-#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/proposed/process/2026-11-25-substantial-work-starts-as-a-proposal.md --target <lang>
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-11-25-substantial-work-starts-as-a-proposal.md --target <lang>
 /agent-note-substantial-work-starts-as-a-proposal:
-  en: 336242711172f2e2
-  zh: 83f8cb6841488759
+  en: bd3573b9142c6736
+  zh: a00ba78933971695
 /agent-note-substantial-work-starts-as-a-proposal/problem:
   en: 0e78fbd993aa008f
-  zh: 114add20a4c49309
-/agent-note-substantial-work-starts-as-a-proposal/proposal:
-  en: 486c7f921b02356f
-  zh: 287e89850ea5e5b2
+  zh: 669cee18bc4de2f4
+/agent-note-substantial-work-starts-as-a-proposal/decision:
+  en: bab140304a2a672b
+  zh: 41cea137652e689c
 /agent-note-substantial-work-starts-as-a-proposal/alternatives-considered:
-  en: d2eaef37f4f81621
-  zh: 978aa0ee2fec8383
-/agent-note-substantial-work-starts-as-a-proposal/acceptance-criteria:
-  en: e913293095b6114a
-  zh: 7986a2fca0d49522
-/agent-note-substantial-work-starts-as-a-proposal/risks:
-  en: 9bed2bbe34bd8cc9
-  zh: 7216019f7bb34777
+  en: df68f8e78527a37e
+  zh: afc70dad4bb289e3
+/agent-note-substantial-work-starts-as-a-proposal/consequences:
+  en: 5bcbf02aafd429ca
+  zh: 7c30ac433865f42e

@@ -147,6 +147,13 @@ function copyFile(source, destination) {
   cpSync(source, destination, { recursive: lstatSync(source).isDirectory() })
 }
 
+function scenarioProjectPath(scenario, declared, label) {
+  if (scenario.project_root === undefined) return declared
+  const prefix = `${scenario.project_root}/`
+  if (!declared.startsWith(prefix)) throw new Error(`${label} is outside the scenario project root`)
+  return declared.slice(prefix.length)
+}
+
 function assertEvidenceOutput(output) {
   assertEvidencePathPreflight(
     output,
@@ -202,14 +209,15 @@ function stageScenario(skill, scenario, project, arm) {
       throw new Error(`target-absent scenario declares a file under the absent target skill: ${declared}`)
     }
     const source = assertInputFile(join(EVAL_ROOT, skill), declared, 'scenario input')
+    const destination = scenarioProjectPath(scenario, declared, 'scenario input')
 
-    const sibling = /^\.agents\/skills\/([^/]+)\//.exec(declared)?.[1]
+    const sibling = /^\.agents\/skills\/([^/]+)\//.exec(destination)?.[1]
     if (sibling) {
       if (!installedSkills.has(sibling)) {
-        copyFile(source, assertProjectPath(project, declared, 'scenario input'))
+        copyFile(source, assertProjectPath(project, destination, 'scenario input'))
       }
     } else {
-      copyFile(source, assertProjectPath(project, declared, 'scenario input'))
+      copyFile(source, assertProjectPath(project, destination, 'scenario input'))
     }
   }
   return installedSkills
@@ -941,6 +949,7 @@ function validateScenario(skill, scenario) {
     'capabilities',
     'allow_subagents',
     'comparison',
+    'project_root',
   ])
   for (const key of Object.keys(scenario)) {
     if (!known.has(key)) throw new Error(`unknown scenario field: ${key}`)
@@ -971,6 +980,22 @@ function validateScenario(skill, scenario) {
     if (sibling === skill) throw new Error(`scenario names its target as a sibling: ${sibling}`)
   }
   for (const file of scenario.files) assertInputFile(join(EVAL_ROOT, skill), file, 'scenario input')
+  if (scenario.project_root !== undefined) {
+    assertNonEmptyString(scenario.project_root, 'scenario project_root')
+    assertRelativeProjectPath(scenario.project_root, 'scenario project_root')
+    if (!scenario.project_root.startsWith('evals/files/')) {
+      throw new Error('scenario project_root must be inside evals/files')
+    }
+    if (scenario.change_patch !== undefined) {
+      throw new Error('scenario project_root cannot be combined with change_patch')
+    }
+    const prefix = `${scenario.project_root}/`
+    for (const file of scenario.files) {
+      if (!file.startsWith(prefix)) {
+        throw new Error(`scenario input is outside project_root: ${file}`)
+      }
+    }
+  }
   for (const output of scenario.outputs ?? []) assertRelativeProjectPath(output, 'scenario output')
   if (scenario.change_patch !== undefined) {
     assertNonEmptyString(scenario.change_patch, 'scenario change_patch')
@@ -1272,7 +1297,8 @@ try {
     )
   } else {
     const inputManifest = (scenario.files ?? []).map((path) => {
-      const absolute = assertProjectPath(workspaceSeed, path, 'scenario input')
+      const stagedPath = scenarioProjectPath(scenario, path, 'scenario input')
+      const absolute = assertProjectPath(workspaceSeed, stagedPath, 'scenario input')
       assertRegularNonEmptyFile(absolute, 'scenario input')
       return `${hashFile(absolute)}  ${path}  mode=${modeBits(absolute)}`
     })
@@ -1295,11 +1321,12 @@ try {
   const started = performance.now()
   const imageArguments = (scenario?.files ?? [])
     .filter((file) => /\.(?:png|jpe?g|webp)$/i.test(file))
-    .flatMap((file) => ['--image', `/workspace/${file}`])
+    .flatMap((file) => ['--image', `/workspace/${scenarioProjectPath(scenario, file, 'scenario image')}`])
   const promptComponents = scenario ? modelPromptComponents(options.skill, scenario, options.arm) : undefined
   const skillInstruction = promptComponents?.armInstruction ?? ''
   const promptGuard = promptComponents?.promptGuard ?? ''
-  const prompt = trigger ? trigger.query : promptComponents.renderedPrompt
+  const prompt = trigger ? trigger.query : promptComponents?.renderedPrompt
+  if (typeof prompt !== 'string') throw new Error('behavior run has no rendered prompt')
   sandboxControl = await startSandboxControl()
   const invocation = isolatedCodexCommand(
     codexHome,

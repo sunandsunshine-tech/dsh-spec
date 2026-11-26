@@ -1,0 +1,5 @@
+PASS The proposal links issue.md, and issue.md links back to the proposal under proposed/process/ with its status and absent implementation evidence.
+PASS The proposal has the proposed header and the Problem, Proposal, Alternatives considered, Acceptance criteria, and Risks sections.
+PASS The proposal links the existing work-record removal decision and preserves its measured reintroduction condition instead of duplicating or superseding it.
+PASS The branch-local unmerged draft is not treated as active inventory or approval to implement.
+PASS No implementation change, AGENTS.md, active work record or translation companion is created, and the active-tree check passes.

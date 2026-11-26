@@ -1,0 +1,5 @@
+PASS resumable-export remains under proposed with its complete bilingual unit because cancellation cleanup is absent, and its tracker item records the pending criterion and evidence.
+PASS retention-policy moves to implemented/feature with its English note, Chinese counterpart and mechanically re-recorded consistency record; only Status and the required lifecycle heading tokens change.
+PASS Each tracker item links to its current note path, and each note links back to its own tracker item; no status history is added to either note.
+PASS Source and tests remain unchanged by the checkpoint, no work record is created, and the notes check with both companion declarations passes.
+PASS No translation, translation brief, subagent or terminology edit occurs; the Chinese prose stays byte-for-byte unchanged except the mirrored lifecycle tokens, both pair records replay from the fixture root, and the notes and pairing checks pass.

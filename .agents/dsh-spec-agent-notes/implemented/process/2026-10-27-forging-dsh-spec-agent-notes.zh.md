@@ -10,9 +10,10 @@ Status: implemented
 
 ## 决策
 
-技能 `dsh-spec-agent-notes` 从上游笔记约定与归档工作流锻造而来，适配到通用的 agent 使用领域，以及预期决策能跨会话留存的读者。技能是一个目录，包含：
+技能 `dsh-spec-agent-notes` 从上游笔记约定与归档工作流锻造而来，适配到通用的 agent 使用领域，以及预期决策能跨会话留存的读者。提案先行执行层由[实质工作从提案开始](2026-11-25-substantial-work-starts-as-a-proposal.zh.md)拥有。技能是一个目录，包含：
 
-- `SKILL.md` —— agent 加载的任务路由与安全边界：取代检查、生命周期选择、必需的 notes/archive 约定加载、语义修剪、单元与翻译伴随规则、归档 readiness 与冻结边界、命令入口，以及停下并交接的规则。活跃格式、分类与修剪流程由 `references/notes-contract.md` 拥有；归档移动、元数据、manifest 与封印流程由 `references/archive-contract.md` 拥有。
+- `SKILL.md` —— agent 加载的任务路由与安全边界：提案先行路由与检查点、取代检查、生命周期选择、必需的 workflow/notes/archive 约定加载、语义修剪、单元与翻译伴随规则、归档 readiness 与冻结边界、命令入口，以及停下并交接的规则。
+- `references/workflow.md` —— 提案先行执行层：提案／issue／commit 所有权、目标清单的可发现性、以 proposed 状态保留、部分与完整检查点、多目标提案与 work-record 所有权，包括任何经测量的重新引入条件。
 - `references/notes-contract.md` —— 活跃树约定：布局、分类、何时写、文件格式、生命周期移动、伴随文件、修剪。
 - `references/archive-contract.md` —— 冻结归档：什么可以进入、单元、归档变更、manifest、冻结保证、封印与验证、交接。
 - `scripts/notes.mjs` —— 适配后的机械门禁：`init` 用于一次性生成树骨架，`check` 用于活跃树，`archive` 用于验证，`archive --prepare` 生成不写 manifest 的封印计划，绑定计划的 `archive --write` 写入冻结归档。
@@ -20,7 +21,7 @@ Status: implemented
 - `package/dsh-spec-agent-notes/` —— 门禁的 TypeScript 源码，带 `vite.config.ts` 与 `build.ts`；打包产物是 `scripts/notes.mjs`。
 - `tests/agent-notes.test.ts` —— 门禁的测试，维护在本仓库中，不随技能发布。
 
-默认记录根目录：项目根下直接放置 `.agents/dsh-spec-agent-notes/`，可用 `--root` 覆盖，并由采用方的声明指定；归档根目录始终是 `<notes root>/archived`。按 [2026-10-28 锻造记录](2026-10-28-forging-dsh-spec-agent-experience.zh.md) 的规则，来源声明是技能根 `THIRD_PARTY_NOTICES` 通知加 frontmatter 的 `license` 字段，技能规范门禁随该字段报告 15 项检查。
+默认记录根目录：项目根下直接放置 `.agents/dsh-spec-agent-notes/`，可用 `--root` 覆盖，并由采用方的声明指定；归档根目录始终是 `<notes root>/archived`。按 [2026-10-28 锻造记录](2026-10-28-forging-dsh-spec-agent-experience.zh.md) 的规则，来源声明是技能根 `THIRD_PARTY_NOTICES` 通知加 frontmatter 的 `license` 字段，技能规范门禁报告 15 项检查，其中包含该字段。
 
 - 交付语言是英语；评审语言是中文，由于评审语言与交付语言不同，description 追加中文触发语言。
 - 运行时：Node.js 24.11+ 或 26+；每条命令都在 Git checkout 内运行，没有非 Git 模式（R11）。
@@ -41,11 +42,13 @@ Status: implemented
 
 当前关于归档 readiness 的裁定已于 2026-11-25 对照 `deepseek-ai/deepseek-harness` tag `dsh-v0.2.3-alpha.2`（`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`）核对：归档工作流要求在封印前配齐伴随文件，且 `archived-agent-notes.ts` 会验证完整的三件套。同日阅读的 Agent Skills 页面为[索引](https://agentskills.io/llms.txt)、[最佳实践](https://agentskills.io/skill-creation/best-practices.md)、[规范](https://agentskills.io/specification.md)与[使用脚本](https://agentskills.io/skill-creation/using-scripts.md)。
 
-未作为来源读取：本仓库自己的笔记相关技能及其早先的归档移植（`dsh-archive-agent-notes` 技能与 `dsh-spec-manager` 脚本，两者均已移除），以及任何早先的锻造记录或决策记录。采用方的笔记机制只为本笔记提供决策记录格式——一条关于记录放在哪里的工作区指令，不是设计来源。
+提案先行工作流并非源自上游。其要求来源是当前请求与[实质工作从提案开始](2026-11-25-substantial-work-starts-as-a-proposal.zh.md)；上游来源提供笔记与归档机制，本地工作流则围绕该机制叠加。当前请求提供 W6-W10 所记录的部分变更、检查点、放弃、常驻指令与报告要求；`references/workflow.md` 是这些要求的目标位置，绝不是其来源。
+
+未作为上游来源读取：本仓库自己的笔记相关技能及其早先的归档移植（`dsh-archive-agent-notes` 技能与 `dsh-spec-manager` 脚本，两者均已移除），以及更早的仓库决策记录。凡本记录点名它之处，提案先行拥有者记录就是当前项目的权威，而不是上游约束的证据。采用方的笔记机制提供本记录使用的决策记录格式——一条说明记录存放在哪里的工作区指令——而本地工作流决定该机制如何参与提案与执行所有权。
 
 ## 约束处置
 
-处置沿用锻造技能的取值：**Keep** 在语言与布局调整下保留原措辞与含义；**Adapt** 实例化一个目标值；**Re-bind** 把已消失的指称抽象到其目的，并找到目标中的等价物；**Dissolve** 记录该指称已消失，以及由哪项检查接手。目标归属：`SK` = `SKILL.md`，`NC` = `references/notes-contract.md`，`AC` = `references/archive-contract.md`，`gate` = `scripts/notes.mjs`，`test` = `tests/agent-notes.test.ts`。
+处置沿用锻造技能的取值：**Keep** 在语言与布局调整下保留原措辞与含义；**Adapt** 实例化一个目标值；**Re-bind** 把已消失的指称抽象到其目的，并找到目标中的等价物；**Dissolve** 记录该指称已消失，以及由哪项检查接手。目标归属：`SK` = `SKILL.md`，`WF` = `references/workflow.md`，`NC` = `references/notes-contract.md`，`AC` = `references/archive-contract.md`，`gate` = `scripts/notes.mjs`，`test` = `tests/agent-notes.test.ts`。
 
 ### 笔记约定与生命周期指令
 
@@ -86,10 +89,10 @@ Status: implemented
 | N31 | `README` § When to write | 部分取代保持活跃并互相链接，同时更新每一处当前事实。 | Keep | NC § When | 上游文本 |
 | N32 | `README` § When to write | 合并不得把旧文件重写为其反面，也不得依赖 Git 历史作为理由的唯一副本。 | Adapt | NC § When | “Git history”对不绑定 VCS 的采用方变为“项目历史”（同 N7） |
 | N33 | `README` § When to write | 功能新增记录只在缺失条件下才合并进后来的移除记录；移除记录的拥有者保留所列理由；移除理由与验证缺失的测试可以保留，而过时的实现清单与只验证过被删除行为的测试不是当前验证证据；部分取代已有定义。 | Keep | NC § When | 上游文本 |
-| N34 | `README` § File format | 统一格式由一条仓库命令强制执行，该命令是文档同步的一部分。 | Adapt | NC §§ Companions, Checks; SK § Checks; gate | 项目的检查以 `<skill-dir>/scripts/notes.mjs check` 为基础，并传入笔记契约声明的全部伴随选项；源侧的 docs-sync 接线被取消，交由项目自己的检查 |
+| N34 | `README` § File format | 统一格式由一条仓库命令强制执行，该命令是文档同步的一部分。 | Adapt | NC §§ Companions, Checks; SK § Checks; gate | 项目的检查以 `<skill-dir>/scripts/notes.mjs check` 为基础，并传入笔记约定声明的全部伴随选项；源侧的 docs-sync 接线被取消，交由项目自己的检查 |
 | N35 | `README` § Header block | 前三行精确为 `# Agent Note: <title>`、空行、`Status: <status>`，然后是一个空行。 | Keep | NC § Header; gate | 上游文本；门禁强制执行第 1–4 行 |
 | N36 | `README` § Header block | Status 有三种形式，且必须与生命周期文件夹一致；门禁会交叉核对。 | Keep | NC § Header; gate | 上游文本 |
-| N37 | `README` § Header block | Status 不带日期或括注；文件名承载日期，项目历史承载其余一切；以修正后的形式接受是正文内容。 | Adapt | NC § Header | “Git history”变为“项目历史”（N7）；状态规则保留 |
+| N37 | `README` § Header block | Status 不带日期或括注；文件名承载日期，项目历史承载其余一切；修正后的验收是正文内容。 | Adapt | NC § Header | “Git history”变为“项目历史”（N7）；状态规则保留 |
 | N38 | `README` § Header block | 否决理由是唯一带内容的状态。 | Keep | NC § Header | 上游文本 |
 | N39 | `README` § Skeleton | 每份记录都以 `## Problem` 开启正文，写得无需解决方案也能独立成立。 | Keep | NC § Body; gate | 上游文本 |
 | N40 | `README` § Skeleton | 反复出现的章节使用规范名称；真正专有的技术章节可以放在必需章节之间。 | Keep | NC § Body | 上游文本 |
@@ -193,12 +196,27 @@ Status: implemented
 | M3 | `archived-agent-notes.ts` | 渲染出的 manifest 是两空格 JSON、路径排序、末尾换行，因此在没有变化时重新封印是空操作。 | Keep | gate `renderManifest`; test | 上游文本；排序基于码点 |
 | M4 | `verify-archived-agent-notes.ts` | 基线提交从 Git 读取；manifest 在该提交处不存在，或被严格解析。 | Keep | AC § Frozen guarantee; gate | 上游文本 |
 
+### 提案先行工作流
+
+| # | 来源 | 约束 | 处置 | 归属 | 依据 |
+|---|---|---|---|---|---|
+| W1 | 提案先行拥有者记录 § Decision；§ Consequences | proposed 记录拥有设计理由与验收标准；其执行跟踪器条目拥有依赖、状态、已完成与待办证据以及下一个检查点。该记录链接跟踪器，跟踪器也链接回该记录，不复制完整设计。 | Keep | `WF` § One owner for each fact；§ Retain the proposal before implementation；提案先行拥有者记录 | 当前请求与拥有者决策 |
+| W2 | 提案先行拥有者记录 § Decision | 只存在于工作树、Draft 变更、未合入分支或陈旧本地修订中的提案不计入有效清单。实现只能从已保留在目标分支 `proposed/` 下的提案开始。 | Keep | `WF` § Retain the proposal before implementation | 当前请求与拥有者决策 |
+| W3 | 提案先行拥有者记录 § Decision；§ Consequences | 只要仍有任何已获认可的验收条件或目标尚未交付，提案就保持 `proposed`。只有当每一项已获认可的验收条件都已交付并验证时，它才作为一个完整单元移动到 `implemented/`。 | Keep | `WF` § Checkpoint full and partial work；`SK` § Procedure；`NC` § Moving between lifecycles | 当前请求与拥有者决策 |
+| W4 | 提案先行拥有者记录 § Consequences | 相互独立的决策使用各自的提案与跟踪器条目。一份连贯提案按其完整的已获认可目标集合来评估，并且一个已完成目标绝不会使一份未完成提案被视为已完成。 | Keep | `WF` § Multi-goal proposals | 当前请求与拥有者决策 |
+| W5 | 提案先行拥有者记录 § Decision；§ Consequences | 对决策、备选方案或已获认可范围的改动会使提案回到设计评审。在其验收条件与伴随文件完成更新和评审之前，不得用缩减或扩大的范围宣告完成。 | Keep | `WF` § Checkpoint full and partial work；§ Multi-goal proposals | 当前请求与拥有者决策 |
+| W6 | 当前请求；提案先行拥有者记录 § Decision | 一项使已获认可范围仍未完成的变更，采用项目的非关闭式引用约定，保持跟踪器状态明确，并记录已完成的验收条件、承载该验收条件的变更、验证与剩余工作。 | Keep | `WF` § Record execution evidence | 当前请求；拥有者决策把执行证据分配给跟踪器 |
+| W7 | 当前请求；提案先行拥有者记录 § Decision；§ Consequences | 在每个实质性实现目标完成后、整体完成前，以及每当工作暂停或恢复时，都执行检查点。读取当前提案与跟踪器，然后将每项已获认可的验收条件与已交付的实现及其验证进行比对。 | Keep | `WF` § Checkpoint full and partial work | 当前请求；拥有者决策定义完整与部分检查点 |
+| W8 | 提案先行拥有者记录 § Consequences | 被放弃的提案在笔记生命周期中予以否决或删除；它绝不会作为隐式积压项继续留存。 | Keep | `WF` § Checkpoint full and partial work；`NC` § When to write one；§ Pruning the active tree | 拥有者决策要求否决或删除被放弃的提案 |
+| W9 | 提案先行拥有者记录 § Decision | 本工作流不创建重复的常驻指令（standing instructions）资产。它不会创建或修改 `AGENTS.md`、生成的策略或其他常驻指令文件；项目现有指令与已安装技能提供该规则。 | Keep | `WF` § Do not copy standing instructions；`SK` § Writing the note | 当前请求与拥有者决策 |
+| W10 | 当前请求；提案先行拥有者记录 § Decision | 报告设计拥有者与状态、执行跟踪器、已完成证据、剩余的已获认可目标及相关检查；完整检查点还要报告 implemented 路径与更新后的链接。 | Keep | `WF` § Report a checkpoint | 当前请求；拥有者决策把状态与证据分配给跟踪器 |
+
 ### 目标裁定
 
 | # | 裁定 | 理由 | 可撤销方式 |
 |---|---|---|---|
 | R1 | 项目根是工作目录的 Git checkout 根；默认记录根目录是其下直接放置的 `.agents/dsh-spec-agent-notes/`，生命周期文件夹与 `archived/` 树都在该目录内。`--root` 指定项目根内的另一个目录，项目声明也可以指定一个。归档根目录始终是 `<notes root>/archived`；没有可单独配置的归档根。 | 笔记路径是分支树里的相对路径，所以 Git checkout 提供了它需要的锚点；以技能命名的命名空间让这棵树不会与采用方的其他 `.agents/` 机制冲突，而单一根目录让生命周期及其冻结分支同处一棵树。 | 修改默认值、参数，或 SKILL、两份约定与门禁中的归档子目录规则。 |
-| R2 | 上游三件套变为通用单元：一个源记录加上分配给该记录的所有伴随文件。重复的 `--companion <suffix>` 只分类可能的伴随文件，不构成项目级必需集合。外部机制拥有伴随文件的名称、格式、一致性记录与语义检查；Agent Notes 拥有单元成员关系、移动、计划阶段的完整性和冻结。对于翻译，[能力感知默认值](../feature/2026-11-18-agent-notes-capability-aware-bilingual-defaults.zh.md)按以下顺序解析目标集：当前请求、持久项目政策、同一 owner 定义类别中完整 peer 配对的一致集合、与源语言不同的主 agent 用户语言，或没有目标。这些环境判断由模型完成，脚本接收已解析事实。生成翻译前，所选机制的工作分离规则适用；没有分离时，源记录保持完成，目标作为具名待办成员进入交接。显式集合可以包含多个目标。新增目标采用渐进方式：新记录使用当前集合，被编辑的记录补上缺失目标，未触碰记录不回填。取消目标会清理所有符合条件的 active 与未封印单元；已封印单元不变。首次封印准备精确成员集与哈希，运行项目的无 shell readiness 命令，并只在匹配计划且确认 readiness 未修改单元后写入。任何包含伴随文件的新单元若没有该命令，都无法准备；仅含源文件的单元可以省略该命令。 | 采用方可以替换翻译机制，因此任何后缀、目标代码、记录形状或兄弟 API 都不能成为单元模型。把 scope 政策与单单元组成分离，避免昂贵回填，同时允许低成本删除清理。哈希绑定的准备式封印记录最终状态，又不让 Agent Notes 学会另一机制的格式。翻译质量仍需要该机制的独立生产或评审边界。 | 重新引入翻译专用的单元语义、全局后缀完整性、CLI 自动目标推断，在缺少分离时于工作上下文翻译选定目标，或绕过准备式 readiness 的封印路径。 |
+| R2 | 上游三件套变为通用单元：一个源记录加上分配给该记录的所有伴随文件。重复的 `--companion <suffix>` 只分类可能的伴随文件，不构成项目级必需集合。外部机制拥有伴随文件的名称、格式、一致性记录与语义检查；Agent Notes 拥有单元成员关系、移动、计划阶段的完整性和冻结。对于翻译，[能力感知默认值](../feature/2026-11-18-agent-notes-capability-aware-bilingual-defaults.zh.md)按以下顺序解析目标集：当前请求、持久项目策略、同一 owner 定义类别中完整 peer 配对的一致集合、与源语言不同的主 agent 用户语言，或没有目标。这些环境判断由模型完成，脚本接收已解析事实。生成翻译前，所选机制的工作分离规则适用；没有分离时，源记录保持完成，目标作为具名待办成员进入交接。显式集合可以包含多个目标。新增目标采用渐进方式：新记录使用当前集合，被编辑的记录补上缺失目标，未触碰记录不回填。取消目标会清理所有符合条件的 active 与未封印单元；已封印单元不变。首次封印准备精确成员集与哈希，运行项目的无 shell readiness 命令，并只在匹配计划且确认 readiness 未修改单元后写入。任何包含伴随文件的新单元若没有该命令，都无法准备；仅含源文件的单元可以省略该命令。 | 采用方可以替换翻译机制，因此任何后缀、目标代码、记录形状或兄弟 API 都不能成为单元模型。把范围策略与单单元组成分离，避免昂贵回填，同时允许低成本删除清理。哈希绑定的准备式封印记录最终状态，又不让 Agent Notes 学会另一机制的格式。翻译质量仍需要该机制的独立生产或评审边界。 | 重新引入翻译专用的单元语义、全局后缀完整性、CLI 自动目标推断，在缺少分离时于工作上下文翻译选定目标，或绕过准备式 readiness 的封印路径。 |
 | R3 | 固定的格式采用日期变为 `--format-adopted <yyyy-mm-dd>`；没有它，任何格式前注释都不被接受。 | 通用采用方有自己的采用日期；一次全新的采用不得获得逃生口。 | 去掉该标志或恢复固定日期。 |
 | R4 | 三个 Figma 封印例外不携带。 | 它们授权对一件源产物做一次性改动；携带它们会凭空发明目标策略。 | 如果采用方需要，新增一个显式例外机制。 |
 | R5 | 要求六个归档类别目录，`init` 用 `.gitkeep` 占位文件创建它们；占位文件被门禁忽略，且绝不进入 manifest。 | 上游要求六个类别目录；已提交的占位文件解决了 Git 的空目录问题，同时不削弱封闭树。 | 去掉该要求，或停止在 `init` 中创建这些目录。 |
@@ -225,7 +243,7 @@ Status: implemented
 | R26 | `notes.mjs init` 一次性初始化笔记树：创建三个生命周期文件夹及其六个类别文件夹、六个归档类别文件夹，并在空文件夹中创建 `.gitkeep` 占位文件；它是幂等的，绝不覆盖已有文件，也不创建 manifest 或任何 `AGENTS.md`。门禁忽略 `.gitkeep` 占位文件，它们绝不进入归档 manifest。 | 一次初始化避免了零散的设置，并让六个目录的归档要求可以在 Git 中表达；create-vs-update 让采用方的新增内容保持安全。 | 移除 `init`、改变其布局，或停止忽略占位文件。 |
 | R27 | 在验证模式下，当 manifest 列出产物时，门禁要求 manifest 路径在项目中被 Git 跟踪（已暂存或已提交）；`--write` 与空 manifest 豁免。首次封印流程是：准备、运行 owner readiness 检查、受保护的写入、暂存或提交归档，然后验证。 | 上游允许未受跟踪的首次封印相对空基线通过验证；跟踪 manifest 让验证保持有意义，并拦下一个 manifest 尚未进入分支的未受跟踪伪造视图。准备计划在不可逆写入前绑定精确最终状态与外部 readiness。能暂存或提交 manifest 的本地行为者在信任模型之内（R28），不是门禁必须检测的布局。 | 移除该检查、绕过准备式写入，或收紧为只检查 HEAD。 |
 | R28 | 信任模型是被陈述出来的，而不是机械化的：验证信任工作树、Git index 与项目的分支历史；能伪造 `.git` 布局或重写历史的本地行为者在保证之外，项目的 CI 与受保护历史才是锚点。 | 源侧的信任模型相同；把它陈述出来让门禁的范围保持诚实，并避免一个机制并不需要的本地对抗性沙箱。 | 加入对抗性布局检测。 |
-| R29 | 技能 description 承担触发：在非平凡变更前使用它，判断该变更是否需要持久决策记录，以及生命周期动作。上游常驻的范围句——只为持久决策理由写、机械或局部编辑豁免——留在技能正文。 | 采用方项目没有上游根 AGENTS 的常驻规则，因此只有生命周期动作的 description 不会在变更前加载技能；在 description 中重复范围又会把技能选择与正文拥有的规则混为一谈。 | 把范围句移回 description，或去掉变更前触发。 |
+| R29 | 技能 description 承担触发：在非平凡变更前使用它，判断该变更是否需要持久决策记录，以及生命周期动作。上游常驻的范围句——只为持久决策理由写、机械或局部编辑豁免——留在技能正文。 | 采用方项目没有上游根 AGENTS 的常驻指令（standing orders），因此只有生命周期动作的 description 不会在变更前加载技能；在 description 中重复范围又会把技能选择与正文拥有的规则混为一谈。 | 把范围句移回 description，或去掉变更前触发。 |
 
 ## 要求锚点
 
@@ -265,10 +283,21 @@ Status: implemented
 | 30 | 上游语料兼容性 | 机械 | 随附门禁接受上游语料：346 份活跃记录与 692 个伴随文件在上游记录根下通过 `check`，2,772 件归档产物在没有伴随文件声明的情况下通过 `archive`，上游可选的 `archived/AGENTS.md` 被接受并忽略 |
 | 31 | 译文/一致性记录的伴随文件一致性 | 未验证 | 委托给项目自己的配对门禁；本技能不运行内容检查（R2） |
 | 32 | 在没有外部基线的情况下，检测一次隐藏已封印编辑的强推重写 | 未验证 | 上游机制也没有这种证明；可信的 `--base-ref` 属于项目的 CI（R11、R28） |
-| 33 | 模型解析的翻译目标集、通用单元组成与渐进迁移 | 判断 | 五步选择顺序、多目标集合、通用／外部队列边界、首次封印规则、渐进新增、active 删除与已封印不可变性由 `tests/skill-defaults.test.ts` 与语义场景门禁锁定。`tests/skill-evals/dsh-spec-agent-notes/` 的开发语料携带 19 个场景，覆盖无机制、仅安装不启用、请求与项目覆盖、peer 推断与冲突、用户语言回退、源语言冲突、多目标、外部伴随机制、readiness 失败、首次封印、未触碰记录、渐进新增、active 删除、非翻译伴随与已封印历史。模型运行证据在 CI 之外（R2）。 |
+| 33 | 模型解析的翻译目标集、通用单元组成与渐进迁移 | 判断 | 五步选择顺序、多目标集合、通用／外部伴随边界、首次封印规则、渐进新增、active 删除与已封印不可变性由 `tests/skill-defaults.test.ts` 与语义场景门禁锁定。`tests/skill-evals/dsh-spec-agent-notes/` 的开发语料携带 22 个场景，覆盖无机制、仅安装不启用、请求与项目覆盖、peer 推断与冲突、用户语言回退、源语言冲突、多目标、外部伴随机制、readiness 失败、首次封印、未触碰记录、渐进新增、active 删除、非翻译伴随、已封印历史、提案先行机制的可发现性、不可检视清单的交接与完整／部分检查点。模型运行证据在 CI 之外（R2）。 |
 | 34 | 早于格式日期的语料的导入路径 | 判断 | `NC` § Alternatives considered；采用方传入 `--format-adopted`，门禁只接受日期早于它的记录（R3） |
 | 36 | 归档被排除在文档门禁之外，包括出站链接，且不是当前行为的权威 | 判断 | `AC` 引言；项目自己的文档门禁配置 |
 | 37 | 候选正文派生自上游来源，而不是采用方的笔记树 | 判断 | § 来源与修订；正文从上游文件重新推导；限定范围的 5/6-gram 扫描报告没有仅采用方的 shingle；上游根指令文件作为触发措辞的来源被纳入 |
+| 38 | 实质未来工作有一个设计拥有者和一个执行跟踪器条目；两者互相链接，部分工作保持 proposed，且只有完整且已获认可的单元才移动到 implemented | 判断 | `SK` § Procedure；`WF` § One owner、§ Checkpoint、§ Multi-goal；[拥有者 Agent Note](2026-11-25-substantial-work-starts-as-a-proposal.zh.md)；提案先行与检查点场景 |
+| 39 | 执行跟踪器所有权与设计所有权保持区分，且提案到跟踪器、跟踪器到提案两个方向的链接都存在 | 判断 | `WF` § One owner for each fact；提案先行场景的断言检查两个方向 |
+| 40 | 分支本地、Draft 与未合入的提案不计入有效清单；实现使用保留在目标分支上的提案 | 判断 | `WF` § Retain the proposal before implementation；提案先行与不可检视清单场景 |
+| 41 | 部分完成的提案保持 `proposed`；完成要求在完整检查点中满足每一项已获认可的验收条件、配齐全部伴随文件并完成验证 | 判断 | `WF` § Checkpoint full and partial work；带完整双语单元的检查点场景 |
+| 42 | 相互独立的决策使用各自的提案与跟踪器条目；一份连贯提案要针对其全部已获认可的目标进行评估 | 判断 | `WF` § Multi-goal proposals；带独立跟踪器条目的检查点 fixture（测试前置数据） |
+| 43 | 已获认可范围的任何缩减或扩大，都必须先回到提案评审，才能宣告完成 | 判断 | `WF` § Checkpoint full and partial work、§ Multi-goal proposals；评审锚点是工作流文本 |
+| 44 | 部分变更使用非关闭式引用，并在跟踪器中记录已完成项、承载该已完成项的变更、验证结果与剩余工作作为证据 | 判断 | `WF` § Record execution evidence；评审锚点是工作流文本 |
+| 45 | 检查点在每项实质性目标之后、完成之前，以及暂停或恢复时运行，并对照当前提案与跟踪器 | 判断 | `WF` § Checkpoint full and partial work；评审锚点是工作流文本 |
+| 46 | 被放弃的提案会被否决或删除，而不是作为隐式积压项保留 | 判断 | `WF` § Checkpoint full and partial work；`NC` § Pruning the active tree；工作流与笔记约定陈述该结果 |
+| 47 | 该工作流不创建 `AGENTS.md` 或其他重复的常驻指令资产 | 判断 | `WF` § Do not copy standing instructions；`SK` § Writing the note；提案先行拥有者决策保持项目指令为来源 |
+| 48 | 检查点报告点名设计拥有者与状态、跟踪器、已完成与剩余证据、相关检查；完整检查点还点名 implemented 路径与链接 | 判断 | `WF` § Report a checkpoint；工作流文本点名每个必需的报告字段 |
 
 ## 曾考虑的替代方案
 
@@ -314,7 +343,7 @@ Status: implemented
 
 ## 后果
 
-- 技能从 `skills/dsh-spec-agent-notes/` 交付，并在 `.agents/skills/` 下有安装副本；该目录携带技能、两份参考约定与打包门禁，不携带工作目录，也不携带中文评审配对。
+- 技能从 `skills/dsh-spec-agent-notes/` 交付，并在 `.agents/skills/` 下有安装副本；该目录携带技能、工作流层、两份格式／归档约定与打包门禁，不携带工作目录，也不携带中文评审配对。
 - 本仓库的决策记录及其中文伴随文件位于 `.agents/dsh-spec-agent-notes/`；早先的笔记机制与 `dsh-archive-agent-notes` 安装已不存在。
 - 笔记语料保留既有正文与伴随文件；本记录位于 `implemented/process`。
 - 子模块基线 pin 在 `dsh-v0.2.3-alpha.2`（`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`）。
@@ -326,5 +355,6 @@ Status: implemented
 - **分类依赖模型语义。** 上游六个类别带有软件色彩，通用领域的 agent 必须把自己的决策映射到它们上面；这种映射是一项假设（R18），采用方自己的语料是证据。
 - **Git 是硬前提。** 没有 Git 的项目不能使用任何命令；compatibility 行陈述安装/初始化要求，采用方集合的收窄是有意为之（R11）。
 - **归档那一半对某些采用方而言是部分机制。** 活跃生命周期适用于任何决策领域；封印还要求 Git、准备成员集以及伴随文件 owner 要求的外部 readiness 命令（R2）。
+- **提案先行所有权是一项本地扩展。** 上游来源提供笔记与归档机制；当前请求及其拥有者记录提供执行跟踪器所有权、提案在目标分支上的保留、检查点与多目标规则。work-record 的重新引入仍受早先决策中经测量的条件约束。
 - **语料兼容性结果是一次记录的运行，不是自动化测试。** 后来的源修订可能让某项格式假设失效，因此在门禁改动之前，会对 pin 的 submodule 重跑语料检查。
 - **随附脚本及其测试套件是维护成本。** 脚本只镜像一层小而具名的门禁表面，身份不变量很少，且测试位于仓库测试套件中，而不是随技能发布的技能里。

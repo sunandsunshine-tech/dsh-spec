@@ -2,7 +2,7 @@
 
 Agent Notes are effectively RFCs written by agents: durable proposals and decision records that preserve the rationale, the alternatives, the consequences and the required verification that code, tests and ordinary documentation cannot carry. They exist so a later session can find out why a decision was made and what it beat before it re-opens the question.
 
-This contract owns the active lifecycle tree. [The archive contract](archive-contract.md) owns the frozen archive; [SKILL.md](../SKILL.md) owns the procedure.
+This contract owns the active lifecycle tree, while [the workflow contract](workflow.md) owns the proposal/issue/commit split, target-inventory discoverability, retention as proposed and execution checkpoints. [The archive contract](archive-contract.md) owns the frozen archive; [SKILL.md](../SKILL.md) owns the procedure.
 
 ## Layout and naming
 
@@ -39,7 +39,7 @@ The gate rejects any other folder that holds Markdown; an empty directory is not
 
 ## When to write one
 
-Write or update the owning note only for lasting decision rationale that code, tests and existing documentation do not explain; the note is part of that change. A proposal for substantial future work starts in `proposed/`; a decision already made starts in `implemented/`. Pick the class that matches the decision.
+Write or update the owning note only for lasting decision rationale that code, tests and existing documentation do not explain; the note is part of that change. A proposal for substantial future work starts in `proposed/`; a decision already made starts in `implemented/`. Pick the class that matches the decision. A branch-local proposal is not active inventory; the workflow contract owns retention and execution-tracker linkage.
 
 **Every new note triggers a supersession check.** Search the active tree for older notes covering the same decision, mechanism or rejected alternative, and classify each match while writing the new note: update the owner, consolidate a full supersession, archive a qualifying implemented unit, reject an obsolete proposal, or delete a rejection that no longer prevents a mistake. Keep partial supersessions active and cross-linked. Do not defer a known match to a later corpus audit.
 
@@ -120,7 +120,7 @@ The comment is valid only for notes dated before the adoption date passed as `--
 
 ### Moving between lifecycles
 
-Moving a file between lifecycle folders means updating the `Status:` line and re-satisfying that folder's skeleton in the same change — the gate fails the move otherwise. Concretely, `proposed/` → `implemented/` rewrites `## Proposal` into a present-tense `## Decision`, folds `## Acceptance criteria` and `## Risks` into `## Consequences` (or a present-tense `## Testing` or `## Verification` section for what now pins the behavior), and drops plans in favor of what shipped. `proposed/` → `rejected/` only adds the reason to the `Status:` line and freezes the file.
+Moving a file between lifecycle folders means updating the `Status:` line and re-satisfying that folder's skeleton in the same change — the gate fails the move otherwise. Concretely, `proposed/` → `implemented/` rewrites `## Proposal` into a present-tense `## Decision`, folds `## Acceptance criteria` and `## Risks` into `## Consequences` (or a present-tense `## Testing` or `## Verification` section for what now pins the behavior), and drops plans in favor of what shipped. It is the complete checkpoint: any unshipped accepted scope keeps the note `proposed/`. `proposed/` → `rejected/` only adds the reason to the `Status:` line and freezes the file.
 
 ### Companions
 

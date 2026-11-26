@@ -1,0 +1,6 @@
+4017db6ea3ff1b54d393e6a7d670d64fccd66f81b87fe3b38a2961484b4e0d64  skills/dsh-spec-agent-notes/SKILL.md  mode=0644
+6d87eff8ae7ef024d35465e6b561687bdd96241fb0a4ebb60589f2b9325a177a  skills/dsh-spec-agent-notes/THIRD_PARTY_NOTICES  mode=0644
+1e133b2df8175f96d311b285fc54541815c142c213f3aaa1069faf41688ceb50  skills/dsh-spec-agent-notes/references/archive-contract.md  mode=0644
+fe28d47e65184e14ec5523bf20a182eed5161126f58b45d604f0d76d9c59fa94  skills/dsh-spec-agent-notes/references/notes-contract.md  mode=0644
+e50401fd62a909ba55e727e7b686a7c98b46e803304262812e18ac8787545e88  skills/dsh-spec-agent-notes/references/workflow.md  mode=0644
+a364e2ae947b1bb249a62fe7dc40fa6c54892d907c67103bebd00e4080a85baf  skills/dsh-spec-agent-notes/scripts/notes.mjs  mode=0755

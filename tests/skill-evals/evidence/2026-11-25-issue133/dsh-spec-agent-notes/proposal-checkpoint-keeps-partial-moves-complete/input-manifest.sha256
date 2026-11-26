@@ -1,0 +1,10 @@
+fc17015fa6004f62c0e758f2e9489f43e48551b6d81889b0f4bdb0b16eb372fc  evals/files/checkpoint/issue.md  mode=0644
+3c864010060561f66274129be6521bbb0742d8bb62650afcba114b308d9dd5f4  evals/files/checkpoint/src/exports.mjs  mode=0644
+7771c91736dc98d4b0569326191673b77a8f6b40fedf53319c8903c10179698a  evals/files/checkpoint/tests/exports.test.mjs  mode=0644
+57c102ca40f2832e1aa116c720c20f0da30dbc323f281b812769d57b4bb2c820  evals/files/checkpoint/.agents/dsh-spec-translate-docs/terminology.md  mode=0644
+296c626b900a411a880fef29daca5d7232990d7eb4dde7f4e843ae7f1d54eb41  evals/files/checkpoint/.agents/dsh-spec-agent-notes/proposed/feature/2026-11-20-resumable-export.md  mode=0644
+b34426f81c1c37156338018b2680a21135d069f743e52b0bdae7f734edbadec9  evals/files/checkpoint/.agents/dsh-spec-agent-notes/proposed/feature/2026-11-20-resumable-export.zh.md  mode=0644
+b6ee2b0dc4b17c2d1bc78363dcb0c6e51f3e1ae985ecb3806f093f165c061841  evals/files/checkpoint/.agents/dsh-spec-agent-notes/proposed/feature/2026-11-20-resumable-export.i18n.yaml  mode=0644
+9e58b9cc36e397b2b8aa11886d0a491a65e79fee7e2513e4a1243ce2d6e305fd  evals/files/checkpoint/.agents/dsh-spec-agent-notes/proposed/feature/2026-11-21-retention-policy.md  mode=0644
+c244aae16d59a4e20f0670e296002f54beed6c6ea9042a2b4e5e2474d0105d26  evals/files/checkpoint/.agents/dsh-spec-agent-notes/proposed/feature/2026-11-21-retention-policy.zh.md  mode=0644
+74ac9a80ab8fb25e1b269f996fad7323af14272c407435aba08eec912c0636ac  evals/files/checkpoint/.agents/dsh-spec-agent-notes/proposed/feature/2026-11-21-retention-policy.i18n.yaml  mode=0644

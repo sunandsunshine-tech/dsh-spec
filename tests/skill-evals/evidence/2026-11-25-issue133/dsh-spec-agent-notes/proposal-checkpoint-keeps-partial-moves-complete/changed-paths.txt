@@ -1,0 +1,4 @@
+.agents/dsh-spec-agent-notes/implemented/feature/2026-11-21-retention-policy.i18n.yaml
+.agents/dsh-spec-agent-notes/implemented/feature/2026-11-21-retention-policy.md
+.agents/dsh-spec-agent-notes/implemented/feature/2026-11-21-retention-policy.zh.md
+issue.md

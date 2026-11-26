@@ -352,6 +352,64 @@
         "The note and its different-stem nested review companion form one unit.",
         "No translation skill or pairing record is required."
       ]
+    },
+    {
+      "id": "proposal-first-issue-links-active-note",
+      "prompt": "Start issue #133 from evals/files/proposal-first/issue.md with evals/files/proposal-first/.agents/dsh-spec-agent-notes as the notes root. The policy change is substantial and implementation has not begun. Target history has no proposed owner for it. A branch-local draft at evals/files/proposal-first/unmerged-draft.md is available as discussion from another checkout. Do not implement the policy, edit standing instructions, or copy the draft's design. Report what can proceed.",
+      "expected_output": "The branch-local draft is not active inventory, and implementation does not start from it. issue.md links to one new English proposal under proposed/process/, and the proposal links back to issue.md. The issue records the design owner, execution status and absent implementation evidence without copying the proposal. The proposal preserves the existing work-record removal decision, including its measured reintroduction condition. No implementation change, AGENTS.md, active work record or translation companion is created, and the notes check passes.",
+      "files": [
+        "evals/files/proposal-first/issue.md",
+        "evals/files/proposal-first/unmerged-draft.md",
+        "evals/files/proposal-first/.agents/dsh-spec-agent-notes/implemented/process/2026-09-18-drop-the-work-record.md"
+      ],
+      "assertions": [
+        "The proposal links issue.md, and issue.md links back to the proposal under proposed/process/ with its status and absent implementation evidence.",
+        "The proposal has the proposed header and the Problem, Proposal, Alternatives considered, Acceptance criteria, and Risks sections.",
+        "The proposal links the existing work-record removal decision and preserves its measured reintroduction condition instead of duplicating or superseding it.",
+        "The branch-local unmerged draft is not treated as active inventory or approval to implement.",
+        "No implementation change, AGENTS.md, active work record or translation companion is created, and the active-tree check passes."
+      ]
+    },
+    {
+      "id": "proposal-unavailable-hands-off-inventory",
+      "prompt": "Begin substantial future work for issue #141: export retries must survive process restarts. The target branch's `.agents/dsh-spec-agent-notes/` inventory and its execution tracker cannot be inspected. The only available design material is the branch-local unmerged draft at evals/files/proposal-unavailable/unmerged-draft.md, and implementation has not begun. Do not change project files. Report whether implementation can begin and the next safe step.",
+      "expected_output": "The run does not begin implementation or treat the unmerged draft as active inventory. It hands off the missing target-branch notes inventory and execution tracker, leaves project files unchanged, and gives a resumable next step to restore inspection and retain and review a proposal before implementation resumes.",
+      "files": [
+        "evals/files/proposal-unavailable/README.md",
+        "evals/files/proposal-unavailable/unmerged-draft.md"
+      ],
+      "assertions": [
+        "The unmerged draft is not treated as active inventory, approval, or implementation authority.",
+        "The handoff names the unavailable target-branch notes inventory and execution tracker.",
+        "The run leaves project files unchanged and creates no note, work record, or implementation.",
+        "The handoff gives a resumable next step to restore inspection and retain and review a proposal before implementation."
+      ]
+    },
+    {
+      "id": "proposal-checkpoint-keeps-partial-moves-complete",
+      "prompt": "Perform the checkpoint for issue #140 in the fixture project rooted at the current working directory. The fixture files are committed there, and issue.md, src/exports.mjs and tests/exports.test.mjs are at the project-relative paths named in the tracker. The linked proposals are the design authority and acceptance criteria, and the issue has one tracker item for each independent decision. The complete unit's English and Chinese bodies are already final, present-tense text, and its i18n record is current. Make only the mechanical lifecycle move: no translation, prose rewrite, translation brief, subagent or terminology change is required or permitted. Change only lifecycle status, the required lifecycle heading tokens, affected paths and links, and mechanically re-record the existing pair. Do not implement missing work or change the source, tests, terminology, standing instructions or accepted scope. Report the tracker and unit lifecycle states and the checks you run.",
+      "expected_output": "resumable-export remains under proposed/feature/ with its complete bilingual unit because cancellation cleanup has not shipped. retention-policy moves with its English note, Chinese counterpart and mechanically re-recorded consistency record under implemented/feature/; its first-proposed date and filename are preserved. No translation or prose rewrite occurs. The Chinese translated prose, terminology and every non-lifecycle byte remain unchanged; only Status, the required lifecycle heading tokens and the consistency record refresh differ. Each tracker item links to its current note path, each note links back to its own tracker item, source and tests remain unchanged, no work record is created, and the notes check with both companion declarations passes. Translation records remain rooted at the fixture project and replay from its Git root.",
+      "files": [
+        "evals/files/checkpoint/issue.md",
+        "evals/files/checkpoint/src/exports.mjs",
+        "evals/files/checkpoint/tests/exports.test.mjs",
+        "evals/files/checkpoint/.agents/dsh-spec-translate-docs/terminology.md",
+        "evals/files/checkpoint/.agents/dsh-spec-agent-notes/proposed/feature/2026-11-20-resumable-export.md",
+        "evals/files/checkpoint/.agents/dsh-spec-agent-notes/proposed/feature/2026-11-20-resumable-export.zh.md",
+        "evals/files/checkpoint/.agents/dsh-spec-agent-notes/proposed/feature/2026-11-20-resumable-export.i18n.yaml",
+        "evals/files/checkpoint/.agents/dsh-spec-agent-notes/proposed/feature/2026-11-21-retention-policy.md",
+        "evals/files/checkpoint/.agents/dsh-spec-agent-notes/proposed/feature/2026-11-21-retention-policy.zh.md",
+        "evals/files/checkpoint/.agents/dsh-spec-agent-notes/proposed/feature/2026-11-21-retention-policy.i18n.yaml"
+      ],
+      "install": ["dsh-spec-translate-docs"],
+      "project_root": "evals/files/checkpoint",
+      "assertions": [
+        "resumable-export remains under proposed with its complete bilingual unit because cancellation cleanup is absent, and its tracker item records the pending criterion and evidence.",
+        "retention-policy moves to implemented/feature with its English note, Chinese counterpart and mechanically re-recorded consistency record; only Status and the required lifecycle heading tokens change.",
+        "Each tracker item links to its current note path, and each note links back to its own tracker item; no status history is added to either note.",
+        "Source and tests remain unchanged by the checkpoint, no work record is created, and the notes check with both companion declarations passes.",
+        "No translation, translation brief, subagent or terminology edit occurs; the Chinese prose stays byte-for-byte unchanged except the mirrored lifecycle tokens, both pair records replay from the fixture root, and the notes and pairing checks pass."
+      ]
     }
   ]
 }
