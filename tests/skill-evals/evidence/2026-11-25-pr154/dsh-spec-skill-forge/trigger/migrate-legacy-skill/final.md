@@ -1,3 +1,3 @@
-The `dsh-spec-skill-forge` skill clearly applies because the request is to migrate an existing prompt bundle into an Agent Skill, organize execution guidance into the body or a reference, and preserve supported source task families.
+The request is to migrate an existing prompt bundle into a complete Agent Skill while preserving its task families, which directly matches the skill-creation and migration role of `dsh-spec-skill-forge`.
 
 SELECT: dsh-spec-skill-forge

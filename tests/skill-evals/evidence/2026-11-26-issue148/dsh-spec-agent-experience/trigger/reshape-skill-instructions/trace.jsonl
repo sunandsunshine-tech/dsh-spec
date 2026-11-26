@@ -1,4 +1,4 @@
-{"type":"thread.started","thread_id":"01a217b0-9906-7041-83d8-d859fa0cf1fe"}
+{"type":"thread.started","thread_id":"01a217e2-9b11-7fe2-baef-6946dc2e0764"}
 {"type":"turn.started"}
-{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The request directly matches the skill’s purpose: revising an existing Agent Skill’s instructions so purpose, actions, and constraints appear first while deferred references remain discoverable, without changing its metadata or supporting files.\n\nSELECT: dsh-spec-agent-experience"}}
-{"type":"turn.completed","usage":{"input_tokens":12513,"cached_input_tokens":9600,"cache_write_input_tokens":0,"output_tokens":290,"reasoning_output_tokens":238}}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The task changes an existing Agent Skill’s instruction text, which clearly matches `dsh-spec-agent-experience`; no execution or inspection is needed for this selection-only probe.\n\nSELECT: dsh-spec-agent-experience"}}
+{"type":"turn.completed","usage":{"input_tokens":12440,"cached_input_tokens":12288,"cache_write_input_tokens":0,"output_tokens":170,"reasoning_output_tokens":123}}

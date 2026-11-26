@@ -8,6 +8,11 @@
       "should_trigger": true
     },
     {
+      "id": "rewrite-whole-agent-skill",
+      "query": "Rewrite this complete Agent Skill so its role, description, body structure, references, scripts, and evaluation plan form one coherent package. Preserve supported behavior, but re-evaluate the whole skill.",
+      "should_trigger": true
+    },
+    {
       "id": "rewrite-drifted-skill-description",
       "query": "Our SKILL.md description pulls in every code review. Rewrite it from the skill's actual role and boundaries, and add positive and near-miss selection examples.",
       "should_trigger": true
@@ -40,6 +45,11 @@
     {
       "id": "use-installed-skill",
       "query": "Use the installed PDF skill to extract tables from report.pdf. Do not inspect or alter the skill itself.",
+      "should_trigger": false
+    },
+    {
+      "id": "reshape-skill-instructions",
+      "query": "Rewrite the instructions inside this existing Agent Skill so it starts with only the purpose, actions, and constraints, then makes its deferred references discoverable. Keep its name, description, scripts, and role unchanged.",
       "should_trigger": false
     },
     {

@@ -36,7 +36,7 @@ gh skill install sunandsunshine-tech/dsh-spec "<skill>" \
 
 | 技能 | 增加什么 | 推荐配套 |
 |---|---|---|
-| `dsh-spec-agent-experience` | 编写或修订提示词、工具定义、技能入口和多步工作流，使其中的信息可被发现，并高效使用上下文 | `dsh-spec-agents-md`、`dsh-spec-prose-standard` |
+| `dsh-spec-agent-experience` | 编写或修订提示词文本——system prompt、工具定义、现有 Agent Skill 的指令、上下文加载指令和多步工作流——使其中的信息可被发现，并高效使用上下文 | `dsh-spec-agents-md`、`dsh-spec-prose-standard` |
 | `dsh-spec-agents-md` | 把常驻指令（standing instructions）放入 `AGENTS.md`，通过指针和更新边界让文件保持准确 | `dsh-spec-agent-experience`、`dsh-spec-prose-standard` |
 | `dsh-spec-agent-notes` | 判断非平凡改动何时需要持久性决策记录，并维护其生命周期 | `dsh-spec-prose-standard`、`dsh-spec-translate-docs` |
 | `dsh-spec-prose-standard` | 让持久性文档、注释、指令和可见文案保持完整，不含推理过程或装饰 | `dsh-spec-translate-docs` |
@@ -97,7 +97,7 @@ gh skill install sunandsunshine-tech/dsh-spec "<skill>" \
 |---|---|---|
 | `dsh-spec-skill-forge` | 从构想、资料或已有技能锻造或修订 Agent 技能，并记录背后的决定 | `dsh-spec-agent-experience`、`dsh-spec-prose-standard`、`dsh-spec-agent-notes`、`dsh-spec-translate-docs` |
 
-`dsh-spec-agent-experience` 塑造提示词层面的设计；`dsh-spec-prose-standard` 控制持久性文字；`dsh-spec-agent-notes` 记录锻造决定；`dsh-spec-translate-docs` 让相关配对文档保持同步。锻造技能负责协调这些能力的编写流程。
+锻造技能负责创建、改写和迁移整个 Agent Skill。该技能的角色与结构确定后，`dsh-spec-agent-experience` 塑造其提示词或指令文本；`dsh-spec-prose-standard` 控制持久性文字；`dsh-spec-agent-notes` 记录锻造决定；`dsh-spec-translate-docs` 让相关配对文档保持同步。
 
 `dsh-spec-skill-forge` 是在本包锻造的。
 

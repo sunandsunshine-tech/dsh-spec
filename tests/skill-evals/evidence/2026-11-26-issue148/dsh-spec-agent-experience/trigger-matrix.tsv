@@ -2,7 +2,9 @@ id	should_trigger	selected	result
 rewrite-system-prompt-for-discovery	true	true	pass
 place-tool-parameter-rules	true	true	pass
 reshape-skill-instructions	true	true	pass
+reduce-context-loading-overhead	true	true	pass
 shorten-multi-step-workflow-context	true	true	pass
-create-whole-agent-skill	false	true	fail
+create-whole-agent-skill	false	false	pass
+rewrite-whole-agent-skill	false	false	pass
 trim-readme-prose	false	false	pass
 review-code-only	false	false	pass

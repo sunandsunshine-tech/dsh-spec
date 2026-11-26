@@ -1,11 +1,11 @@
 # Agent-experience behavior and trigger evidence
 
 The host-configured Codex CLI was `codex-cli 0.171.0-alpha.13`; the configured model was
-`deepseek-flash`. Behavior and trigger runs were recorded on 2026-11-26 against
+`deepseek-flash`. Behavior and trigger runs were rerun on 2026-11-26 against
 `skills/dsh-spec-agent-experience/SKILL.md` at
-`97dc54ce905850846d6cc3d7f60b4d122638d72e9962fa667163031bc810c18f`. The canonical name and
+`855d9677ca8148abf427a74aa1595c17443cc3bc1390b20bd668edffbe7074a7`. The canonical name and
 description surface hash is
-`d302781dba62f6d738d7648985e40a3cf473b72349c1a7f3455ed3d1fe2fc3da`.
+`bf545950a4c72526dbae7dfdb6179a94432f2a0bb10f4f8c70484a423b329564`.
 
 ## Behavior runs
 
@@ -40,9 +40,10 @@ normalized trace, changed paths, patch, retained artifact and reviewer-assigned 
 
 ## Trigger runs
 
-The trigger corpus has four positive surfaces: a system prompt, a tool definition, an existing
-skill's instructions, and a multi-step workflow. Its three near misses are whole-skill authoring,
-ordinary prose trimming, and ordinary implementation review.
+The trigger corpus has five positive surfaces: a system prompt, a tool definition, an existing
+skill's instructions, context-loading instructions, and a multi-step workflow. Its four near misses
+are whole-skill creation, whole-skill rewriting, ordinary prose trimming, and ordinary
+implementation review.
 
 Each query ran in a separate temporary project with only `dsh-spec-agent-experience` installed.
 Each process used a fresh isolated `HOME` and `CODEX_HOME` containing only the model-provider
@@ -51,12 +52,11 @@ user skills were not loaded. The project was read-only. Every trace has exactly 
 `turn.completed` event as its final event, and every retained stderr log is free of
 `rmcp::transport::worker`, `AuthRequired`, and `Transport channel closed`.
 
-Six of seven probes reached the expected selection. The whole-skill-authoring near miss selected
-`dsh-spec-agent-experience`: the current description includes “a skill's instructions,” while
-`dsh-spec-skill-forge` owns creation and rewriting of a complete skill. The failing result is kept
-in `trigger-matrix.tsv` and `trigger/create-whole-agent-skill/`; [issue
-#171](https://github.com/sunandsunshine-tech/dsh-spec/issues/171) owns the routing correction. This
-evidence package does not change the skill description or body.
+All nine probes reached the expected selection. Existing skill instruction text still loads this
+skill when the skill's role and structure remain settled. Whole-skill creation and rewriting do not.
+The same `reshape-skill-instructions` and `rewrite-whole-agent-skill` requests are negative and
+positive, respectively, in the `dsh-spec-skill-forge` trigger corpus. Together the two matrices
+record the shared routing boundary from both sides.
 
 `trigger-input.sha256` binds the corpus, fixture, and current name/description surface. Each
 `trigger/<id>/` directory retains the final response, normalized `codex exec --json` trace and

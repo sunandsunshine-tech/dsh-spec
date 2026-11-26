@@ -1,5 +1,6 @@
 id	should_trigger	selected	result
 forge-from-source-material	true	true	pass
+rewrite-whole-agent-skill	true	true	pass
 rewrite-drifted-skill-description	true	true	pass
 migrate-legacy-skill	true	true	pass
 repair-agent-skill-structure	true	true	pass
@@ -7,6 +8,7 @@ package-repeated-agent-playbook	true	true	pass
 tighten-overbroad-agent-capability	true	true	pass
 install-published-skill	false	false	pass
 use-installed-skill	false	false	pass
+reshape-skill-instructions	false	false	pass
 edit-unrelated-system-prompt	false	false	pass
 openapi-description-near-miss	false	false	pass
 review-runtime-code	false	false	pass

@@ -1114,7 +1114,6 @@ function assertCurrentTriggerEvidence(
   evidenceRoot: string,
   requireCleanStderr = false,
   matrixMode: 'selected' | 'read-skill' = 'selected',
-  knownMismatches = new Set<string>(),
 ): void {
   const corpusRoot = join(EVAL_SOURCE_ROOT, skill)
   const corpus = JSON.parse(readFileSync(join(corpusRoot, 'trigger-evals.json'), 'utf8')) as {
@@ -1123,10 +1122,10 @@ function assertCurrentTriggerEvidence(
   }
   assertTriggerCorpusIdentity(skill)
   const expected = {
-    'dsh-spec-agent-experience': { positive: 4, negative: 3 },
+    'dsh-spec-agent-experience': { positive: 5, negative: 4 },
     'dsh-spec-ci-test-reliability': { positive: 4, negative: 4 },
     'dsh-spec-error-handling': { positive: 7, negative: 6 },
-    'dsh-spec-skill-forge': { positive: 6, negative: 6 },
+    'dsh-spec-skill-forge': { positive: 7, negative: 7 },
     'dsh-spec-pr-description': { positive: 2, negative: 4 },
     'dsh-spec-merging-stacked-prs': { positive: 4, negative: 5 },
     'dsh-spec-record-browser-gif': { positive: 3, negative: 5 },
@@ -1210,9 +1209,9 @@ function assertCurrentTriggerEvidence(
     )
     assert.equal(row.shouldTrigger, String(query.should_trigger))
     assert.equal(row.observed, String(matrixMode === 'selected' ? selected : readSkill), skill + '/' + query.id)
+    assert.equal(row.result, 'pass')
+    assert.equal(selected, query.should_trigger, skill + '/' + query.id + ' selected the wrong skill')
     if (matrixMode === 'read-skill') {
-      assert.equal(row.result, 'pass')
-      assert.equal(selected, query.should_trigger, skill + '/' + query.id + ' selected the wrong skill')
       const skillEvents = traceEntries.filter((entry) => entry.type === 'skill')
       assert.equal(skillEvents.length, 1, skill + '/' + query.id + ' skill provenance')
       assert.equal(skillEvents[0]?.path, `.agents/skills/${skill}/SKILL.md`, skill + '/' + query.id + ' skill path')
@@ -1222,13 +1221,6 @@ function assertCurrentTriggerEvidence(
         skill + '/' + query.id + ' skill revision',
       )
       assert.equal(readSkill, query.should_trigger, skill + '/' + query.id + ' read the wrong skill')
-    } else {
-      assert.equal(row.result, knownMismatches.has(query.id) ? 'fail' : 'pass')
-      if (knownMismatches.has(query.id)) {
-        assert.equal(selected, !query.should_trigger, skill + '/' + query.id + ' no longer has its recorded mismatch')
-      } else {
-        assert.equal(selected, query.should_trigger, skill + '/' + query.id + ' selected the wrong skill')
-      }
     }
     assert.doesNotMatch(traceText, /evals[/\\]evals\.json|tests[/\\]skill-evals|expected_output/)
     const trace = readEvidenceTrace(join(runRoot, 'trace.jsonl'))
@@ -3114,6 +3106,12 @@ test('the forge catalog description fits the repository budget', () => {
     Array.from(description).some((character) => (character.codePointAt(0) as number) > 0xffff),
     false,
   )
+  assert.match(description, /creating, rewriting, or migrating a whole Agent Skill/i)
+  assert.match(description, /changing prompt or instruction text.*role and structure stay settled/i)
+  assert.match(
+    skill,
+    /The forge owns creating, rewriting or migrating a whole Agent Skill.*Within an existing Agent Skill, changing only prompt or instruction text while that skill's role and structure stay settled uses the project's prompt requirements/,
+  )
 })
 
 test('forge trigger corpus separates skill authoring from adjacent work', () => {
@@ -3126,6 +3124,7 @@ test('forge trigger corpus separates skill authoring from adjacent work', () => 
     corpus.queries.map((query) => [query.id, query.should_trigger]),
     [
       ['forge-from-source-material', true],
+      ['rewrite-whole-agent-skill', true],
       ['rewrite-drifted-skill-description', true],
       ['migrate-legacy-skill', true],
       ['repair-agent-skill-structure', true],
@@ -3133,6 +3132,7 @@ test('forge trigger corpus separates skill authoring from adjacent work', () => 
       ['tighten-overbroad-agent-capability', true],
       ['install-published-skill', false],
       ['use-installed-skill', false],
+      ['reshape-skill-instructions', false],
       ['edit-unrelated-system-prompt', false],
       ['openapi-description-near-miss', false],
       ['review-runtime-code', false],
@@ -3193,6 +3193,22 @@ test('forge description evidence binds the behavior scenario and trigger corpus'
 
 test('agent-experience evidence binds prompt behavior and the forge selection boundary', () => {
   const skill = 'dsh-spec-agent-experience'
+  const skillText = readFileSync(join(REPO_ROOT, 'skills', skill, 'SKILL.md'), 'utf8')
+  const description = /^description:\s*"(.+)"$/m.exec(skillText)?.[1]
+  assert.ok(description)
+  assert.ok(description.length <= 500, `${description.length} agent-experience description characters`)
+  assert.equal(
+    Array.from(description).some((character) => (character.codePointAt(0) as number) > 0xffff),
+    false,
+  )
+  assert.match(description, /an existing Agent Skill's instruction text/i)
+  assert.match(description, /Not for creating, rewriting, or migrating a whole Agent Skill/i)
+  assert.match(skillText, /Own prompt text, not whole-skill design/)
+  assert.match(skillText, /This skill shapes prompt and instruction text/)
+  assert.match(
+    skillText,
+    /For an existing Agent Skill, it applies once the skill's role and structure are settled.*Creating, rewriting or migrating a whole Agent Skill.*outside this skill/,
+  )
   const corpus = readCorpus(skill)
   assert.deepEqual(
     corpus.evals.map((scenario) => scenario.id),
@@ -3241,12 +3257,7 @@ test('agent-experience evidence binds prompt behavior and the forge selection bo
     assert.ok(traceCommandsFor(root).some((command) => commandPrintsSkill(command, skill)))
     assert.equal(replayEvidencePatch(root, skill, scenario), true)
   }
-  // The current description's "a skill's instructions" surface also selects for whole-skill
-  // authoring. Issue #171 owns the routing change; this corpus keeps the failed near miss visible.
-  assertCurrentTriggerEvidence(skill, evidenceRoot, true, 'selected', new Set(['create-whole-agent-skill']))
-  const forgeOverlap = readFileSync(join(evidenceRoot, 'trigger/create-whole-agent-skill/final.md'), 'utf8')
-  assert.equal(forgeOverlap.trim().split('\n').at(-1), `SELECT: ${skill}`)
-  assert.match(forgeOverlap, /skill.s instructions/i)
+  assertCurrentTriggerEvidence(skill, evidenceRoot, true)
 })
 
 test('agent-experience trigger corpus covers prompt surfaces and adjacent work', () => {
@@ -3261,8 +3272,10 @@ test('agent-experience trigger corpus covers prompt surfaces and adjacent work',
       ['rewrite-system-prompt-for-discovery', true],
       ['place-tool-parameter-rules', true],
       ['reshape-skill-instructions', true],
+      ['reduce-context-loading-overhead', true],
       ['shorten-multi-step-workflow-context', true],
       ['create-whole-agent-skill', false],
+      ['rewrite-whole-agent-skill', false],
       ['trim-readme-prose', false],
       ['review-code-only', false],
     ],
@@ -3270,10 +3283,57 @@ test('agent-experience trigger corpus covers prompt surfaces and adjacent work',
   assert.match(corpus.queries[0]?.query ?? '', /system prompt/i)
   assert.match(corpus.queries[1]?.query ?? '', /tool definition/i)
   assert.match(corpus.queries[2]?.query ?? '', /instructions.*Agent Skill/i)
-  assert.match(corpus.queries[3]?.query ?? '', /workflow steps/i)
-  assert.match(corpus.queries[4]?.query ?? '', /new Agent Skill.*forge the complete package/i)
-  assert.match(corpus.queries[5]?.query ?? '', /prose/i)
-  assert.match(corpus.queries[6]?.query ?? '', /Review .* only for correctness/i)
+  assert.match(corpus.queries[3]?.query ?? '', /context-loading instructions/i)
+  assert.match(corpus.queries[4]?.query ?? '', /workflow steps/i)
+  assert.match(corpus.queries[5]?.query ?? '', /new Agent Skill.*forge the complete package/i)
+  assert.match(corpus.queries[6]?.query ?? '', /complete Agent Skill.*re-evaluate the whole skill/i)
+  assert.match(corpus.queries[7]?.query ?? '', /prose/i)
+  assert.match(corpus.queries[8]?.query ?? '', /Review .* only for correctness/i)
+})
+
+test('overlap triggers route whole-skill work and settled instruction text to different owners', () => {
+  const readQueries = (skill: string) =>
+    (
+      JSON.parse(readFileSync(join(EVAL_SOURCE_ROOT, skill, 'trigger-evals.json'), 'utf8')) as {
+        queries: Array<{ id: string; query: string; should_trigger: boolean }>
+      }
+    ).queries
+  const agentQueries = readQueries('dsh-spec-agent-experience')
+  const forgeQueries = readQueries('dsh-spec-skill-forge')
+  for (const [id, agentExpected, forgeExpected] of [
+    ['reshape-skill-instructions', true, false],
+    ['rewrite-whole-agent-skill', false, true],
+  ] as const) {
+    const agent = agentQueries.find((query) => query.id === id)
+    const forge = forgeQueries.find((query) => query.id === id)
+    assert.ok(agent && forge, id + ' overlap query is missing')
+    assert.equal(agent.query, forge.query, id + ' overlap query differs between corpora')
+    assert.equal(agent.should_trigger, agentExpected, id + ' agent-experience expectation')
+    assert.equal(forge.should_trigger, forgeExpected, id + ' forge expectation')
+    const agentFinal = readFileSync(
+      join(
+        REPO_ROOT,
+        'tests/skill-evals/evidence/2026-11-26-issue148/dsh-spec-agent-experience/trigger',
+        id,
+        'final.md',
+      ),
+      'utf8',
+    )
+    const forgeFinal = readFileSync(
+      join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-25-pr154/dsh-spec-skill-forge/trigger', id, 'final.md'),
+      'utf8',
+    )
+    assert.equal(
+      agentFinal.trim().split('\n').at(-1),
+      agentExpected ? 'SELECT: dsh-spec-agent-experience' : 'SELECT: none',
+      id + ' agent-experience evidence',
+    )
+    assert.equal(
+      forgeFinal.trim().split('\n').at(-1),
+      forgeExpected ? 'SELECT: dsh-spec-skill-forge' : 'SELECT: none',
+      id + ' forge evidence',
+    )
+  }
 })
 
 test('error handling description, body and triggers cover embedded and batch failures', () => {

@@ -1,3 +1,3 @@
 Created [system-prompt.md](/workspace/system-prompt.md).
 
-It places the purpose, no-refund-promise rule, and payment-data constraints first; provides immediate action guidance; and defers refund policy and escalation details to exact-path resource retrieval. The supplied brief and skill files were not changed.
+It leads with purpose and the refund no-promise/payment-data constraints, then provides a compact workflow with exact-path, on-demand retrieval of the refund policy and escalation resources. The supplied brief and skill files remain unchanged.

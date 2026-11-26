@@ -1,6 +1,6 @@
 ---
 name: dsh-spec-skill-forge
-description: "Use when creating, rewriting, or migrating an Agent Skill from a request, source, or existing skill, or when its role, structure, triggers, or specification conformance needs work. Not for installing, loading, or merely using a skill, or editing prompts outside a skill. 用于根据请求、来源或现有技能创建、改写或迁移 Agent Skill，或在其角色、结构、触发边界或规范符合性需要处理时使用。不用于安装、加载或仅使用技能，也不用于编辑技能之外的提示词。"
+description: "Use when creating, rewriting, or migrating a whole Agent Skill from a request, source, or existing skill, or when its role, structure, triggers, or specification conformance needs work. Not for installing, loading, or merely using a skill, or for changing prompt or instruction text inside an existing skill while its role and structure stay settled. 用于根据请求、来源或现有技能创建、改写或迁移整个 Agent Skill，或在其角色、结构、触发边界或规范符合性需要处理时使用。不用于安装、加载或仅使用技能，也不用于在现有技能的角色与结构保持不变时修改其提示词或指令文本。"
 license: "MIT; bundled dependency notices in THIRD_PARTY_NOTICES"
 compatibility: "Requires Node.js 24.11+ on the 24 line or 26+ for the bundled scripts. No build step or install."
 ---
@@ -8,6 +8,8 @@ compatibility: "Requires Node.js 24.11+ on the 24 line or 26+ for the bundled sc
 # Skill forging
 
 Forge one Agent Skill from the request, a source, or an existing skill, and keep the decisions behind it as current facts.
+
+The forge owns creating, rewriting or migrating a whole Agent Skill — its role, description, structure, triggers, resources, lifecycle and evaluation. Within an existing Agent Skill, changing only prompt or instruction text while that skill's role and structure stay settled uses the project's prompt requirements (when available, consider using the `dsh-spec-agent-experience` skill).
 
 ## Guiding principles
 

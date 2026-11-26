@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a217e2-f233-7093-90cd-2a427ea2173f"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The request only rewrites the instruction text of an existing Agent Skill while preserving its role and structure, which is expressly outside the `dsh-spec-skill-forge` trigger scope. No other installed skill clearly matches this narrowly scoped selection probe.\n\nSELECT: none"}}
+{"type":"turn.completed","usage":{"input_tokens":12444,"cached_input_tokens":12160,"cache_write_input_tokens":0,"output_tokens":428,"reasoning_output_tokens":373}}

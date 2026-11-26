@@ -1,25 +1,24 @@
 diff --git a/evals/files/release-tool/current.schema.json b/evals/files/release-tool/current.schema.json
-index 4e2fb23..0be4b05 100644
+index 4e2fb23..279c6a9 100644
 --- a/evals/files/release-tool/current.schema.json
 +++ b/evals/files/release-tool/current.schema.json
-@@ -1,7 +1,8 @@
+@@ -1,6 +1,6 @@
  {
    "name": "schedule_release",
 -  "description": "Schedules a release. If replicas is omitted the service uses 2; replicas must be from 1 to 10. start_at and timezone must be supplied together. The rollout strategy defaults to all-at-once. For canary rollouts, canary_percentage defaults to 10 and must be from 1 to 100. A production release requires approval_ticket. The scheduler validates this and returns an id.",
 +  "description": "Schedules one release and returns its identifier.",
    "parameters": {
-+    "$schema": "https://json-schema.org/draft/2020-12/schema",
      "type": "object",
      "properties": {
-       "environment": {
-@@ -14,16 +15,19 @@
+@@ -14,16 +14,19 @@
        },
        "replicas": {
          "type": "integer",
+-        "description": "Number of replicas."
++        "description": "Number of replicas.",
 +        "default": 2,
 +        "minimum": 1,
-+        "maximum": 10,
-         "description": "Number of replicas."
++        "maximum": 10
        },
        "start_at": {
          "type": "string",
@@ -30,26 +29,30 @@ index 4e2fb23..0be4b05 100644
        "timezone": {
          "type": "string",
 -        "description": "Optional IANA timezone paired with start_at."
-+        "description": "IANA timezone for the release schedule."
++        "description": "IANA timezone for the release start instant."
        },
        "rollout_strategy": {
          "type": "string",
-@@ -31,10 +35,14 @@
+@@ -31,21 +34,91 @@
            "all-at-once",
            "canary"
          ],
-+        "default": "all-at-once",
-         "description": "How traffic moves to the new release."
+-        "description": "How traffic moves to the new release."
++        "description": "How traffic moves to the new release.",
++        "default": "all-at-once"
        },
        "canary_percentage": {
          "type": "integer",
+-        "description": "Traffic percentage for a canary release."
++        "description": "Traffic percentage for a canary release.",
 +        "default": 10,
 +        "minimum": 1,
-+        "maximum": 100,
-         "description": "Traffic percentage for a canary release."
++        "maximum": 100
        },
        "approval_ticket": {
-@@ -43,9 +51,59 @@
+         "type": "string",
+-        "description": "Approval ticket identifier for production."
++        "description": "Approval ticket identifier."
        }
      },
      "required": [
@@ -59,29 +62,28 @@ index 4e2fb23..0be4b05 100644
      ],
 -    "additionalProperties": false
 +    "additionalProperties": false,
-+    "dependentRequired": {
-+      "start_at": [
-+        "timezone"
-+      ],
-+      "timezone": [
-+        "start_at"
-+      ]
-+    },
 +    "allOf": [
 +      {
 +        "if": {
-+          "properties": {
-+            "environment": {
-+              "const": "production"
-+            }
-+          },
 +          "required": [
-+            "environment"
++            "start_at"
 +          ]
 +        },
 +        "then": {
 +          "required": [
-+            "approval_ticket"
++            "timezone"
++          ]
++        }
++      },
++      {
++        "if": {
++          "required": [
++            "timezone"
++          ]
++        },
++        "then": {
++          "required": [
++            "start_at"
 +          ]
 +        }
 +      },
@@ -107,6 +109,23 @@ index 4e2fb23..0be4b05 100644
 +              "canary_percentage"
 +            ]
 +          }
++        }
++      },
++      {
++        "if": {
++          "properties": {
++            "environment": {
++              "const": "production"
++            }
++          },
++          "required": [
++            "environment"
++          ]
++        },
++        "then": {
++          "required": [
++            "approval_ticket"
++          ]
 +        }
 +      }
 +    ]

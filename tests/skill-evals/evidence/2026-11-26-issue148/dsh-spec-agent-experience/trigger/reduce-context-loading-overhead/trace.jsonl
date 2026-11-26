@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a217e2-a55d-72a1-adcf-2503d06bd9bf"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The request changes context-loading instructions so the agent reads essential purpose, task, and constraints first, then follows exact paths to deeper references. That clearly matches the `dsh-spec-agent-experience` skill’s coverage of context-loading and multi-step workflow instructions.\n\nSELECT: dsh-spec-agent-experience"}}
+{"type":"turn.completed","usage":{"input_tokens":12444,"cached_input_tokens":12288,"cache_write_input_tokens":0,"output_tokens":146,"reasoning_output_tokens":81}}
