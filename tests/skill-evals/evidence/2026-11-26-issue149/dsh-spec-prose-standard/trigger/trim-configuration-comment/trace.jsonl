@@ -1,0 +1,5 @@
+{"type":"query","id":"trim-configuration-comment","query_sha256":"0e21dd7037a7d696078305cf61cb3699ca60d76588a4869766b79a91e6262560"}
+{"type":"skill","path":".agents/skills/dsh-spec-prose-standard/SKILL.md","sha256":"9886be2dc52c0dc17d7491ddb7ef883575f05e12752f7c7d32a8ef01690f61fd"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The request trims a durable configuration comment while preserving its causal rationale and removing procedural detail, which falls within the skill’s prose-trimming scope.\n\nSELECT: dsh-spec-prose-standard"}}
+{"type":"turn.completed","usage":{"input_tokens":12449,"cached_input_tokens":12288,"cache_write_input_tokens":0,"output_tokens":207,"reasoning_output_tokens":166}}

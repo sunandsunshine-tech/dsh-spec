@@ -1,0 +1,12 @@
+diff --git a/evals/files/leakage-keeps/README.md b/evals/files/leakage-keeps/README.md
+index 64bd81c..1a057d0 100644
+--- a/evals/files/leakage-keeps/README.md
++++ b/evals/files/leakage-keeps/README.md
+@@ -7,7 +7,3 @@ handover, the old connection drains before the new one accepts.
+ 
+ The generic projection pair supplies badges. Resolved specs are not cached. Label processing
+ normalizes each label, truncates it, and wraps the result.
+-
+-This change replaces the probe field. Earlier in this branch we tried v2, and review rejected a
+-slower alternative. First normalize the label, then truncate it, then wrap it. A future change will
+-remove the wrapper.

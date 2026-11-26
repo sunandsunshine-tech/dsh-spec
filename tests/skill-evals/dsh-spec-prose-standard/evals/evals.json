@@ -1,0 +1,60 @@
+{
+  "skill_name": "dsh-spec-prose-standard",
+  "evals": [
+    {
+      "id": "coordinator-contract-survives-transcript-trim",
+      "prompt": "Repair evals/files/coordinator/docs/coordinator.md using evals/files/coordinator/docs/working-notes.md and evals/files/coordinator/src/coordinator.ts as evidence. The current page was over-trimmed. Restore every caller-visible contract fact established by the source material while deleting the authoring-session narration, and write the repaired page back. Do not edit the source or working notes, and do not add a code walkthrough.",
+      "expected_output": "The repaired page states per-session serialization and independent ordering between sessions, preserves the intentional slow-backend isolation rationale, rejects new writes after disposal starts with the exact message `coordinator is closing`, waits for accepted writes before flushing buffered events and resolving disposal, preserves the backend error reported to the caller that submitted the write without retry, states that queued writes behind a failed same-session write reject with the same error without reaching the backend, propagates a rejected `flushBufferedEvents()` through `dispose()`, and states that the public API is unstable with no compatibility guarantee. It removes first-person investigation, rejected design history, and review narration, and does not restate the source file line by line.",
+      "files": [
+        "evals/files/coordinator/AGENTS.md",
+        "evals/files/coordinator/docs/working-notes.md",
+        "evals/files/coordinator/docs/coordinator.md",
+        "evals/files/coordinator/src/coordinator.ts"
+      ],
+      "assertions": [
+        "The page preserves per-session write serialization and independent ordering between sessions.",
+        "The page states that new writes are rejected once disposal starts and accepted writes drain before buffered events are flushed.",
+        "The page states that buffered events are flushed before the disposal promise resolves.",
+        "The page preserves the backend error, reports it to the caller that submitted the write, and does not retry it.",
+        "The page states that writes queued behind a failed write in the same session reject with the same backend error without reaching the backend.",
+        "The page preserves that cross-session serialization is intentionally absent so a slow backend in one session does not block another session.",
+        "The page preserves the exact new-write rejection text `coordinator is closing`.",
+        "The page states that a rejected `flushBufferedEvents()` propagates its backend error through `dispose()`.",
+        "The page states that the public API surface is unstable and makes no compatibility guarantee.",
+        "The repaired page removes authoring-session narration and does not add a code walkthrough."
+      ]
+    },
+    {
+      "id": "control-flow-comment-keeps-load-order-contract",
+      "prompt": "Trim only the block comment above registerTools in evals/files/plugin-order/src/register-tools.ts. The function body already shows the loading steps; retain the non-obvious consequence the comment establishes and remove control-flow narration. Keep executable code unchanged and write the file back.",
+      "expected_output": "The comment no longer lists first, next, then, or finally steps. It states that the workspace policy is registered before model-facing tools so every write and edit call passes through the read-before-mutation gate. The executable code is unchanged.",
+      "files": [
+        "evals/files/plugin-order/AGENTS.md",
+        "evals/files/plugin-order/src/register-tools.ts"
+      ],
+      "assertions": [
+        "The comment removes the step-by-step loading narration.",
+        "The comment retains that workspace policy loads before model-facing tools.",
+        "The comment retains that both write and edit calls pass through the read-before-mutation gate.",
+        "The executable code remains unchanged."
+      ]
+    },
+    {
+      "id": "leakage-keeps-survive-mixed-readme-audit",
+      "prompt": "Audit evals/files/leakage-keeps/README.md for chain-of-thought leakage and apply clear fixes in place. Preserve durable references and behavior facts that are not leakage. Do not change the documented limits or runtime behavior, and report which keeps you retained.",
+      "expected_output": "The audit keeps the issue #1470 follow-up reference, the complete-rendered-value scope of the manifest-depth cap including wrappers, the present-tense byte-length counterfactual, the measured depth bound with 512, 4096, and 0.15s, and the runtime old/new connection handover. It also keeps the current generic-projection and non-cached-resolution facts while removing change, branch, review, draft, and control-flow narration.",
+      "files": [
+        "evals/files/leakage-keeps/AGENTS.md",
+        "evals/files/leakage-keeps/README.md"
+      ],
+      "assertions": [
+        "The issue #1470 follow-up reference remains on the README.",
+        "The manifest-depth cap still applies to the complete rendered value, wrappers included.",
+        "The present-tense byte-length-guard counterfactual remains instead of becoming project history.",
+        "The measured depth bound retains the evidence word and the 512, 4096, and 0.15s values.",
+        "The runtime old/new connection handover remains as a lifecycle fact.",
+        "Change, branch, review, draft, and control-flow narration is removed while the current projection and non-cached-resolution facts remain."
+      ]
+    }
+  ]
+}

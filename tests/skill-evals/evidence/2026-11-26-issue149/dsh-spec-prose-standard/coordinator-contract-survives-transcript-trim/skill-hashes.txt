@@ -1,0 +1,5 @@
+9886be2dc52c0dc17d7491ddb7ef883575f05e12752f7c7d32a8ef01690f61fd  skills/dsh-spec-prose-standard/SKILL.md  mode=0644
+d8e23815437b8370cab70a6b389c10c8632e3cdceb3c176f10ac66aa97d3c5e4  skills/dsh-spec-prose-standard/THIRD_PARTY_NOTICES  mode=0644
+9db1ee2c217e2e9d5a4044f12f2214abe9d9de0ce76a572f822fd6ffa1bbe071  skills/dsh-spec-prose-standard/references/coverage.md  mode=0644
+f6429483721bb4db6e9297befcb94161d28b7720b71568e805c9e1c7b25ea897  skills/dsh-spec-prose-standard/references/examples.md  mode=0644
+0b5cd006a3b8b541c502e6c7709099b0d709806496b522e854f7681af598c4f5  skills/dsh-spec-prose-standard/references/recall-batteries.md  mode=0644

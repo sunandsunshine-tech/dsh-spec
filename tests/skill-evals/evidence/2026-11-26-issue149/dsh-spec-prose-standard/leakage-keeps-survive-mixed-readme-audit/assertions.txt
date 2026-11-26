@@ -1,0 +1,6 @@
+PASS The issue #1470 follow-up reference remains on the README.
+PASS The manifest-depth cap still applies to the complete rendered value, wrappers included.
+PASS The present-tense byte-length-guard counterfactual remains instead of becoming project history.
+PASS The measured depth bound retains the evidence word and the 512, 4096, and 0.15s values.
+PASS The runtime old/new connection handover remains as a lifecycle fact.
+PASS Change, branch, review, draft, and control-flow narration is removed while the current projection and non-cached-resolution facts remain.

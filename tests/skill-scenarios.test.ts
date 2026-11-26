@@ -1,11 +1,12 @@
 /**
  * Development-side model scenarios for prompt writing, isolated-context capabilities, Agent Notes
- * companion defaults, Translate Docs scoped authorization, the forge's capability conclusions,
- * error-contract judgment, Web UI review evidence and browser GIF capture.
+ * companion defaults, Translate Docs scoped authorization, description-trigger evidence,
+ * durable-prose contract restoration, the forge's capability conclusions, error-contract judgment,
+ * Web UI review evidence and browser GIF capture.
  *
  * The source corpus lives under tests/ because skills/ is a distribution artifact. The tests stage
- * a temporary skill copy with the corpus at the official evals/ path. They validate the scenario
- * contract, not a model run.
+ * a temporary skill copy with the corpus at the official evals/ path. They bind retained runs to
+ * their current scenario, input, behavior-skill and exact trigger-query provenance.
  */
 
 import assert from 'node:assert/strict'
@@ -924,6 +925,76 @@ const GENERAL_REQUIRED: GeneralProfile[] = [
     ],
   },
   {
+    skill: 'dsh-spec-prose-standard',
+    scenarios: [
+      {
+        id: 'coordinator-contract-survives-transcript-trim',
+        signature: [/over-trimmed/i, /working-notes\.md/i, /caller-visible contract fact/i],
+        expectedOutput: [
+          /per-session serialization and independent ordering between sessions/i,
+          /rejects new writes after disposal starts/i,
+          /waits for accepted writes before flushing buffered events/i,
+          /preserves the backend error/i,
+          /queued writes.*failed same-session write.*same error.*without reaching the backend/i,
+          /intentional slow-backend isolation rationale/i,
+          /exact message `coordinator is closing`/i,
+          /rejected `flushBufferedEvents\(\)` through `dispose\(\)`/i,
+          /public API is unstable with no compatibility guarantee/i,
+          /removes first-person investigation/i,
+          /does not restate the source file line by line/i,
+        ],
+        assertions: [
+          /per-session write serialization and independent ordering between sessions/i,
+          /new writes are rejected once disposal starts.*accepted writes drain before buffered events are flushed/i,
+          /buffered events are flushed before the disposal promise resolves/i,
+          /backend error.*caller that submitted the write.*does not retry/i,
+          /queued behind a failed write in the same session.*same backend error.*without reaching the backend/i,
+          /cross-session serialization is intentionally absent.*slow backend.*does not block another session/i,
+          /exact new-write rejection text `coordinator is closing`/i,
+          /rejected `flushBufferedEvents\(\)` propagates its backend error through `dispose\(\)`/i,
+          /public API surface is unstable and makes no compatibility guarantee/i,
+          /removes authoring-session narration and does not add a code walkthrough/i,
+        ],
+      },
+      {
+        id: 'control-flow-comment-keeps-load-order-contract',
+        signature: [/block comment above registerTools/i, /remove control-flow narration/i],
+        expectedOutput: [
+          /no longer lists first, next, then, or finally steps/i,
+          /workspace policy is registered before model-facing tools/i,
+          /write and edit call passes through the read-before-mutation gate/i,
+          /executable code is unchanged/i,
+        ],
+        assertions: [
+          /removes the step-by-step loading narration/i,
+          /workspace policy loads before model-facing tools/i,
+          /both write and edit calls pass through the read-before-mutation gate/i,
+          /executable code remains unchanged/i,
+        ],
+      },
+      {
+        id: 'leakage-keeps-survive-mixed-readme-audit',
+        signature: [/Audit .*README\.md.*chain-of-thought leakage/i, /Preserve durable references/i],
+        expectedOutput: [
+          /issue #1470 follow-up reference/i,
+          /complete-rendered-value scope.*including wrappers/i,
+          /present-tense byte-length counterfactual/i,
+          /measured depth bound with 512, 4096, and 0\.15s/i,
+          /runtime old\/new connection handover/i,
+          /current generic-projection and non-cached-resolution facts/i,
+        ],
+        assertions: [
+          /issue #1470 follow-up reference remains/i,
+          /manifest-depth cap still applies to the complete rendered value, wrappers included/i,
+          /present-tense byte-length-guard counterfactual remains/i,
+          /measured depth bound retains the evidence word and the 512, 4096, and 0\.15s values/i,
+          /runtime old\/new connection handover remains as a lifecycle fact/i,
+          /narration is removed while the current projection and non-cached-resolution facts remain/i,
+        ],
+      },
+    ],
+  },
+  {
     skill: 'dsh-spec-performance-investigation',
     scenarios: [
       {
@@ -1114,11 +1185,13 @@ function assertCurrentTriggerEvidence(
   evidenceRoot: string,
   requireCleanStderr = false,
   matrixMode: 'selected' | 'read-skill' = 'selected',
+  knownMismatches = new Set<string>(),
+  requireQueryBinding = false,
 ): void {
   const corpusRoot = join(EVAL_SOURCE_ROOT, skill)
   const corpus = JSON.parse(readFileSync(join(corpusRoot, 'trigger-evals.json'), 'utf8')) as {
     agent_file: string
-    queries: Array<{ id: string; should_trigger: boolean }>
+    queries: Array<{ id: string; query: string; should_trigger: boolean }>
   }
   assertTriggerCorpusIdentity(skill)
   const expected = {
@@ -1126,6 +1199,7 @@ function assertCurrentTriggerEvidence(
     'dsh-spec-ci-test-reliability': { positive: 4, negative: 4 },
     'dsh-spec-error-handling': { positive: 7, negative: 6 },
     'dsh-spec-skill-forge': { positive: 7, negative: 7 },
+    'dsh-spec-prose-standard': { positive: 8, negative: 4 },
     'dsh-spec-pr-description': { positive: 2, negative: 4 },
     'dsh-spec-merging-stacked-prs': { positive: 4, negative: 5 },
     'dsh-spec-record-browser-gif': { positive: 3, negative: 5 },
@@ -1183,6 +1257,7 @@ function assertCurrentTriggerEvidence(
     const row = matrix.get(query.id)
     assert.ok(row, skill + ' trigger matrix is missing ' + query.id)
     const runRoot = join(evidenceRoot, 'trigger', query.id)
+    if (requireQueryBinding) assertTriggerQueryBinding(runRoot, skill, query)
     const final = readFileSync(join(runRoot, 'final.md'), 'utf8')
     const marker = final.trim().split('\n').at(-1)
     assert.ok(
@@ -1236,6 +1311,57 @@ function assertCurrentTriggerEvidence(
     if (requireCleanStderr) {
       assert.doesNotMatch(stderr, /rmcp::transport::worker|AuthRequired|Transport channel closed/i)
     }
+  }
+}
+
+function assertTriggerQueryBinding(root: string, skill: string, query: { id: string; query: string }): void {
+  const bindingPath = join(root, 'trigger-query.json')
+  assertEvidencePath(root, bindingPath, skill + '/' + query.id + ' trigger query', 'file')
+  assertRegularEvidenceFile(bindingPath, skill + '/' + query.id + ' trigger query')
+  const binding = JSON.parse(readFileSync(bindingPath, 'utf8')) as {
+    id?: string
+    query?: string
+    query_sha256?: string
+  }
+  assert.deepEqual(Object.keys(binding).sort(), ['id', 'query', 'query_sha256'])
+  assert.equal(binding.id, query.id, skill + '/' + query.id + ' trigger query id')
+  assert.equal(binding.query, query.query, skill + '/' + query.id + ' trigger query text')
+  const querySha256 = createHash('sha256').update(query.query).digest('hex')
+  assert.equal(binding.query_sha256, querySha256, skill + '/' + query.id + ' trigger query hash')
+
+  const events = readEvidenceTrace(join(root, 'trace.jsonl')).filter((event) => event.type === 'query') as Array<{
+    id?: string
+    query_sha256?: string
+  }>
+  assert.equal(events.length, 1, skill + '/' + query.id + ' query provenance event')
+  assert.equal(events[0]?.id, query.id, skill + '/' + query.id + ' trace query id')
+  assert.equal(events[0]?.query_sha256, querySha256, skill + '/' + query.id + ' trace query hash')
+}
+
+function assertBehaviorScenarioTraceBinding(root: string, skill: string, scenario: Scenario): void {
+  const scenarioSha256 = scenarioDefinitionHash(scenario)
+  const definitionHashPath = join(root, 'scenario-definition.sha256')
+  assertEvidencePath(root, definitionHashPath, skill + '/' + scenario.id + ' scenario hash', 'file')
+  assert.equal(
+    readFileSync(definitionHashPath, 'utf8').trim(),
+    `${scenarioSha256}  ${skill}:${scenario.id}`,
+    skill + '/' + scenario.id + ' scenario hash differs',
+  )
+  const events = readEvidenceTrace(join(root, 'trace.jsonl')).filter((event) => event.type === 'scenario') as Array<{
+    subject?: string
+    path?: string
+    sha256?: string
+  }>
+  assert.equal(events.length, 1, skill + '/' + scenario.id + ' scenario provenance event')
+  assert.equal(events[0]?.subject, `${skill}:${scenario.id}`, skill + '/' + scenario.id + ' trace subject')
+  assert.equal(events[0]?.path, 'scenario-definition.json', skill + '/' + scenario.id + ' trace path')
+  assert.equal(events[0]?.sha256, scenarioSha256, skill + '/' + scenario.id + ' trace scenario hash')
+}
+
+function assertBehaviorRunSkillHashes(root: string, skill: string, behaviorFiles: ReadonlyMap<string, string>): void {
+  const actual = readSkillHashes(root)
+  for (const [path, hash] of behaviorFiles) {
+    assert.equal(actual.get(path), hash, skill + ' behavior run skill hash differs: ' + path)
   }
 }
 
@@ -1647,6 +1773,11 @@ interface EvidenceTraceItem {
 
 interface EvidenceTraceEntry {
   type: string
+  id?: string
+  path?: string
+  sha256?: string
+  subject?: string
+  query_sha256?: string
   item?: EvidenceTraceItem
 }
 
@@ -2586,6 +2717,192 @@ test('pr-description trigger corpus separates descriptions from adjacent work', 
       assert.ok(file.startsWith('trigger-fixtures/'), entry.id + ' fixture escapes trigger-fixtures')
       assert.ok(existsSync(join(EVAL_SOURCE_ROOT, skill, file)), entry.id + ' fixture is missing: ' + file)
     }
+  }
+})
+
+test('prose-standard eval covers proposition restoration and leakage keeps', () => {
+  const skill = 'dsh-spec-prose-standard'
+  const corpus = readCorpus(skill)
+  assert.deepEqual(
+    corpus.evals.map((entry) => entry.id),
+    [
+      'coordinator-contract-survives-transcript-trim',
+      'control-flow-comment-keeps-load-order-contract',
+      'leakage-keeps-survive-mixed-readme-audit',
+    ],
+  )
+  const prompts = corpus.evals.map((entry) => entry.prompt).join('\n')
+  assert.doesNotMatch(
+    prompts,
+    /per-session|independent ordering|buffered events|read-before-mutation|#1470|counterfactual|measured|old connection|new one accepts/i,
+  )
+
+  const coordinatorRoot = join(EVAL_SOURCE_ROOT, skill, 'evals/files/coordinator')
+  assert.match(readFileSync(join(coordinatorRoot, 'docs/working-notes.md'), 'utf8'), /preserves its own ordering/)
+  assert.match(readFileSync(join(coordinatorRoot, 'docs/working-notes.md'), 'utf8'), /does not retry/)
+  assert.match(readFileSync(join(coordinatorRoot, 'docs/coordinator.md'), 'utf8'), /First I checked/)
+
+  const pluginFile = join(EVAL_SOURCE_ROOT, skill, 'evals/files/plugin-order/src/register-tools.ts')
+  const pluginSource = readFileSync(pluginFile, 'utf8')
+  assert.match(pluginSource, /First read the plugin list/)
+  assert.match(pluginSource, /Finally return the registry/)
+  assert.match(pluginSource, /read-before-mutation gate/)
+
+  const leakageFile = join(EVAL_SOURCE_ROOT, skill, 'evals/files/leakage-keeps/README.md')
+  const leakageSource = readFileSync(leakageFile, 'utf8')
+  assert.match(leakageSource, /issue #1470 owns/)
+  assert.match(leakageSource, /Without the byte-length guard/)
+  assert.match(leakageSource, /measured: 512 nests ≈ 0\.15s; 4096 blocks the event loop/)
+  assert.match(leakageSource, /old connection drains before the new one accepts/)
+  assert.match(leakageSource, /This change replaces/)
+  assert.match(leakageSource, /First normalize/)
+
+  stageSkillWithEvals(skill)
+})
+
+test('prose-standard trigger corpus separates durable prose from adjacent work', () => {
+  const skill = 'dsh-spec-prose-standard'
+  assertTriggerCorpusIdentity(skill)
+  const corpus = JSON.parse(readFileSync(join(EVAL_SOURCE_ROOT, skill, 'trigger-evals.json'), 'utf8')) as {
+    queries: Array<{ id: string; query: string; should_trigger: boolean }>
+  }
+  assert.deepEqual(
+    corpus.queries.map((query) => [query.id, query.should_trigger]),
+    [
+      ['write-documentation-page', true],
+      ['audit-durable-instructions', true],
+      ['restore-comment-contract', true],
+      ['trim-configuration-comment', true],
+      ['write-prompt-instructions', true],
+      ['restore-visible-string', true],
+      ['trim-visible-string', true],
+      ['audit-prompt-leakage', true],
+      ['transient-chat-edit-near-miss', false],
+      ['code-correctness-only-near-miss', false],
+      ['ordinary-code-review-near-miss', false],
+      ['agent-note-lifecycle-only-near-miss', false],
+    ],
+  )
+  assert.equal(new Set(corpus.queries.map((query) => query.id)).size, corpus.queries.length)
+  assert.equal(corpus.queries.filter((query) => query.should_trigger).length, 8)
+  assert.equal(corpus.queries.filter((query) => !query.should_trigger).length, 4)
+  assert.match(corpus.queries[0]?.query ?? '', /deployment guide/i)
+  assert.match(corpus.queries[1]?.query ?? '', /Audit AGENTS\.md/i)
+  assert.match(corpus.queries[2]?.query ?? '', /Restore the missing contract in the comment/i)
+  assert.match(corpus.queries[3]?.query ?? '', /Trim the configuration comment/i)
+  assert.match(corpus.queries[4]?.query ?? '', /Rewrite the system prompt/i)
+  assert.match(corpus.queries[5]?.query ?? '', /Restore the user-visible export error/i)
+  assert.match(corpus.queries[6]?.query ?? '', /Trim the modal copy/i)
+  assert.match(corpus.queries[7]?.query ?? '', /Audit the tool description/i)
+  assert.match(corpus.queries[8]?.query ?? '', /chat reply.*read it once here/i)
+  assert.match(corpus.queries[9]?.query ?? '', /defect is in executable control flow/i)
+  assert.match(corpus.queries[10]?.query ?? '', /correctness and security regressions/i)
+  assert.match(corpus.queries[11]?.query ?? '', /note text is final/i)
+  assert.doesNotMatch(
+    corpus.queries
+      .filter((query) => !query.should_trigger)
+      .map((query) => query.query)
+      .join('\n'),
+    /\bdo not\b|\bdon't\b/i,
+  )
+  for (const query of corpus.queries) {
+    assertNonEmptyString(query.id, 'prose-standard trigger id')
+    assertNonEmptyString(query.query, query.id + ' trigger query')
+  }
+})
+
+test('prose-standard evidence binds current behavior files and trigger evidence', () => {
+  const skill = 'dsh-spec-prose-standard'
+  const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-26-issue149', skill)
+  const corpus = readCorpus(skill)
+  const behaviorFiles = readHashManifest(join(evidenceRoot, 'behavior-files.sha256'), 'prose-standard behavior files')
+  const expectedFiles = [
+    `skills/${skill}/SKILL.md`,
+    `skills/${skill}/references/coverage.md`,
+    `skills/${skill}/references/examples.md`,
+    `skills/${skill}/references/recall-batteries.md`,
+  ]
+  assert.deepEqual([...behaviorFiles.keys()].sort(), expectedFiles)
+  for (const path of expectedFiles) {
+    assert.equal(
+      behaviorFiles.get(path),
+      createHash('sha256')
+        .update(readFileSync(join(REPO_ROOT, path)))
+        .digest('hex'),
+      'prose-standard behavior file changed: ' + path,
+    )
+  }
+  for (const scenario of corpus.evals) {
+    const root = join(evidenceRoot, scenario.id)
+    assertCurrentBehaviorEvidence(root, skill, scenario)
+    assertBehaviorRunSkillHashes(root, skill, behaviorFiles)
+    assertBehaviorScenarioTraceBinding(root, skill, scenario)
+  }
+  const readme = readFileSync(join(evidenceRoot, 'README.md'), 'utf8')
+  assert.match(readme, /passed 20 of 20 reviewer-certified assertions/)
+  assert.match(readme, /All twelve decisions matched the expected outcome/)
+  assertCurrentTriggerEvidence(skill, evidenceRoot, true, 'selected', new Set(), true)
+})
+
+test('prose-standard evidence rejects stale, swapped and cross-query provenance', () => {
+  const skill = 'dsh-spec-prose-standard'
+  const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-26-issue149', skill)
+  const corpus = readCorpus(skill)
+  const behaviorFiles = readHashManifest(join(evidenceRoot, 'behavior-files.sha256'), 'prose-standard behavior files')
+  const temporaryRoot = mkdtempSync(join(tmpdir(), 'prose-evidence-swap-'))
+  try {
+    const changedSkillRoot = join(temporaryRoot, skill)
+    cpSync(join(REPO_ROOT, 'skills', skill), changedSkillRoot, { recursive: true })
+    const changedSkillPath = join(changedSkillRoot, 'SKILL.md')
+    writeFileSync(changedSkillPath, `${readFileSync(changedSkillPath, 'utf8')}\nChanged without a rerun.\n`)
+    const changedBehaviorFiles = new Map(
+      [...behaviorFiles.keys()].map((path) => [
+        path,
+        fileHash(join(changedSkillRoot, path.slice(`skills/${skill}/`.length))),
+      ]),
+    )
+    assert.throws(
+      () =>
+        assertBehaviorRunSkillHashes(
+          join(evidenceRoot, 'coordinator-contract-survives-transcript-trim'),
+          skill,
+          changedBehaviorFiles,
+        ),
+      /behavior run skill hash differs/,
+    )
+
+    const scenarioCopy = join(temporaryRoot, 'scenario-copy')
+    cpSync(join(evidenceRoot, 'coordinator-contract-survives-transcript-trim'), scenarioCopy, { recursive: true })
+    cpSync(
+      join(evidenceRoot, 'control-flow-comment-keeps-load-order-contract/trace.jsonl'),
+      join(scenarioCopy, 'trace.jsonl'),
+    )
+    cpSync(
+      join(evidenceRoot, 'control-flow-comment-keeps-load-order-contract/final.md'),
+      join(scenarioCopy, 'final.md'),
+    )
+    const coordinator = corpus.evals.find((scenario) => scenario.id === 'coordinator-contract-survives-transcript-trim')
+    assert.ok(coordinator)
+    assert.throws(
+      () => assertBehaviorScenarioTraceBinding(scenarioCopy, skill, coordinator),
+      /trace subject|trace scenario hash/,
+    )
+
+    const triggerCorpus = JSON.parse(readFileSync(join(EVAL_SOURCE_ROOT, skill, 'trigger-evals.json'), 'utf8')) as {
+      queries: Array<{ id: string; query: string; should_trigger: boolean }>
+    }
+    const queryRoot = join(temporaryRoot, 'query-copy')
+    cpSync(join(evidenceRoot, 'trigger/write-documentation-page'), queryRoot, { recursive: true })
+    cpSync(join(evidenceRoot, 'trigger/audit-durable-instructions/trace.jsonl'), join(queryRoot, 'trace.jsonl'))
+    cpSync(join(evidenceRoot, 'trigger/audit-durable-instructions/final.md'), join(queryRoot, 'final.md'))
+    const documentationQuery = triggerCorpus.queries.find((query) => query.id === 'write-documentation-page')
+    assert.ok(documentationQuery)
+    assert.throws(
+      () => assertTriggerQueryBinding(queryRoot, skill, documentationQuery),
+      /trace query id|trace query hash/,
+    )
+  } finally {
+    rmSync(temporaryRoot, { recursive: true, force: true })
   }
 })
 
@@ -4885,7 +5202,7 @@ test('browser GIF publication evidence preserves local, moved-head, split and fa
   assert.match(historicalReadme, /^> \*\*Historical status:\*\*/m)
 })
 
-test('PR121, PR122 and PR141 targeted model evidence binds current inputs and recorded provenance', () => {
+test('targeted model evidence binds current scenarios, inputs and recorded provenance', () => {
   const historicalEvidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-23-pr121')
   const historicalBrowserReadmePath = join(historicalEvidenceRoot, 'dsh-spec-browser-gif-evidence/README.md')
   assertEvidencePath(historicalEvidenceRoot, historicalBrowserReadmePath, 'historical browser README', 'file')
@@ -4921,6 +5238,7 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
   const pr142EvidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-25-pr142')
   const pr143EvidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-25-issue143')
   const issue147EvidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-26-issue-147')
+  const proseEvidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-26-issue149')
   type EvidenceRun = {
     skill: string
     run: string
@@ -5020,6 +5338,24 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
       skill: 'dsh-spec-pr-description',
       run: 'handled-review-updates-ai-usage',
       evidenceRoot: pr143EvidenceRoot,
+      current: true,
+    },
+    {
+      skill: 'dsh-spec-prose-standard',
+      run: 'coordinator-contract-survives-transcript-trim',
+      evidenceRoot: proseEvidenceRoot,
+      current: true,
+    },
+    {
+      skill: 'dsh-spec-prose-standard',
+      run: 'control-flow-comment-keeps-load-order-contract',
+      evidenceRoot: proseEvidenceRoot,
+      current: true,
+    },
+    {
+      skill: 'dsh-spec-prose-standard',
+      run: 'leakage-keeps-survive-mixed-readme-audit',
+      evidenceRoot: proseEvidenceRoot,
       current: true,
     },
     {
@@ -5206,6 +5542,11 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
     'dsh-spec-pr-description:tracker-without-matching-issue': 'tracker-without-matching-issue',
     'dsh-spec-pr-description:unfinished-review-does-not-update': 'unfinished-review-does-not-update',
     'dsh-spec-pr-description:handled-review-updates-ai-usage': 'handled-review-updates-ai-usage',
+    'dsh-spec-prose-standard:coordinator-contract-survives-transcript-trim':
+      'coordinator-contract-survives-transcript-trim',
+    'dsh-spec-prose-standard:control-flow-comment-keeps-load-order-contract':
+      'control-flow-comment-keeps-load-order-contract',
+    'dsh-spec-prose-standard:leakage-keeps-survive-mixed-readme-audit': 'leakage-keeps-survive-mixed-readme-audit',
     'dsh-spec-code-review:review-dependency-edges-and-reverse-edge': 'review-dependency-edges-and-reverse-edge',
     'dsh-spec-code-review:review-cites-numbered-rule': 'review-cites-numbered-rule',
     'dsh-spec-code-review:review-ordinary-ui-with-optional-reports-absent':
@@ -5682,6 +6023,79 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
   assert.equal(prBody.match(/ai-declaration:start/g)?.length, 1)
   assert.doesNotMatch(prBody, /labels?:|Project fields?:|Start Date|telemetry/i)
 
+  const proseRoot = join(proseEvidenceRoot, 'dsh-spec-prose-standard')
+  const coordinatorDoc = readFileSync(
+    join(
+      proseRoot,
+      'coordinator-contract-survives-transcript-trim/artifact/evals/files/coordinator/docs/coordinator.md',
+    ),
+    'utf8',
+  )
+  assert.match(coordinatorDoc, /serializes writes (?:within (?:a|each) session|per session|to a backend by session)/i)
+  assert.match(coordinatorDoc, /different sessions\s+(?:can|may)[\s\S]*independently/i)
+  assert.match(
+    coordinatorDoc,
+    /slow backend(?:\s+(?:call|operation|write))?\s+in one session\s+(?:must not|does not)[\s\S]*block\s+another session/i,
+  )
+  assert.match(
+    coordinatorDoc,
+    /(?:(?:calls|submissions)\s+(?:to|through)\s+`write\(\)`\s+reject|`write\(\)`\s+calls\s+reject|`write\(\)`\s+rejects new submissions)/i,
+  )
+  assert.match(coordinatorDoc, /`coordinator is closing`/)
+  assert.match(
+    coordinatorDoc,
+    /writes\s+accepted\s+before\s+disposal\s+(?:drain|complete)\s+before\s+buffered\s+events\s+are\s+flushed/i,
+  )
+  assert.match(coordinatorDoc, /(?:`dispose\(\)`|disposal\s+promise) resolves only after[\s\S]*flush completes/i)
+  assert.match(
+    coordinatorDoc,
+    /flush(?:BufferedEvents\(\)| buffered events)[\s\S]*reject[\s\S]*(?:`dispose\(\)`|disposal)[\s\S]*error/i,
+  )
+  assert.match(coordinatorDoc, /(?:preserves|reports)\s+(?:that\s+|the\s+)?same backend error/i)
+  assert.match(coordinatorDoc, /caller(?: that\s+submitted|'s promise)/i)
+  assert.match(coordinatorDoc, /does not retry/i)
+  assert.match(
+    coordinatorDoc,
+    /queued behind (?:the )?(?:failed|rejected) write[\s\S]*same backend error[\s\S]*without reaching the backend/i,
+  )
+  assert.match(coordinatorDoc, /(?:public API(?: surface)?|public surface) is unstable/i)
+  assert.match(coordinatorDoc, /no compatibility (?:guarantee|promise)/i)
+  assert.doesNotMatch(coordinatorDoc, /First I|old draft|rejected in review|This change/i)
+
+  const pluginSource = readFileSync(
+    join(EVAL_SOURCE_ROOT, 'dsh-spec-prose-standard/evals/files/plugin-order/src/register-tools.ts'),
+    'utf8',
+  )
+  const pluginArtifact = readFileSync(
+    join(
+      proseRoot,
+      'control-flow-comment-keeps-load-order-contract/artifact/evals/files/plugin-order/src/register-tools.ts',
+    ),
+    'utf8',
+  )
+  assert.doesNotMatch(pluginArtifact, /First read|Next sort|Then create|After that|Finally return/)
+  assert.match(pluginArtifact, /Loading policy before the model-facing tools/)
+  assert.match(pluginArtifact, /write and edit call[\s\S]*read-before-mutation gate/)
+  const withoutBlockComment = (text: string) => text.replace(/\/\*[\s\S]*?\*\//, '')
+  assert.equal(withoutBlockComment(pluginArtifact), withoutBlockComment(pluginSource))
+
+  const leakageReadme = readFileSync(
+    join(proseRoot, 'leakage-keeps-survive-mixed-readme-audit/artifact/evals/files/leakage-keeps/README.md'),
+    'utf8',
+  )
+  assert.match(leakageReadme, /issue #1470 owns\s+the follow-up/)
+  assert.match(leakageReadme, /manifest-depth cap applies to the complete rendered value, wrappers included/i)
+  assert.match(leakageReadme, /Without the byte-length guard, multibyte labels double-encode/)
+  assert.match(leakageReadme, /measured: 512 nests ≈ 0\.15s; 4096 blocks the event loop/)
+  assert.match(leakageReadme, /old connection drains before the new one accepts/)
+  assert.match(leakageReadme, /generic projection pair supplies badges/)
+  assert.match(leakageReadme, /Resolved specs are not cached/)
+  assert.match(leakageReadme, /Label processing[\s\S]*normalizes each label, truncates it, and wraps the result/)
+  assert.doesNotMatch(
+    leakageReadme,
+    /This change|Earlier in this branch|tried v2|review rejected|First normalize|future change|replaces the probe field|in place of the probe field/i,
+  )
+
   const notesRoot = join(historicalEvidenceRoot, 'dsh-spec-agent-notes')
   assert.ok(
     traceCommandsFor(join(notesRoot, 'no-peer-uses-user-language')).some((command) =>
@@ -5935,7 +6349,7 @@ test('every typed evidence leaf passes full retained policy under a different HO
     )
     checked += 1
   }
-  assert.equal(checked, 24, 'typed evidence leaf count changed')
+  assert.equal(checked, 27, 'typed evidence leaf count changed')
 })
 
 test('the model runner refuses to replace the repository or evidence root', () => {

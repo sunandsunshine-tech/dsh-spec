@@ -1,0 +1,1 @@
+Trimmed the comment above `registerTools` in [register-tools.ts](/workspace/evals/files/plugin-order/src/register-tools.ts:12), removing step-by-step narration while preserving the read-before-mutation ordering guarantee. Executable code is unchanged, and `git diff --check` passes.

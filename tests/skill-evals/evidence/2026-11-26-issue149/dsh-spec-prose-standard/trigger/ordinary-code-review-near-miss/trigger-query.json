@@ -1,0 +1,5 @@
+{
+  "id": "ordinary-code-review-near-miss",
+  "query": "Review this TypeScript diff for correctness and security regressions before I merge it.",
+  "query_sha256": "5f130256ec482fda671ff353767a9d54f6bdb894c9dcd2ce327b4e0fe4af9c2a"
+}

@@ -1,0 +1,4 @@
+PASS The comment removes the step-by-step loading narration.
+PASS The comment retains that workspace policy loads before model-facing tools.
+PASS The comment retains that both write and edit calls pass through the read-before-mutation gate.
+PASS The executable code remains unchanged.

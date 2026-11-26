@@ -1,0 +1,5 @@
+{"type":"query","id":"audit-durable-instructions","query_sha256":"e2675f2d9844b6c01145751440ad481e50af4fe2e250948ac98ce732be15a2c8"}
+{"type":"skill","path":".agents/skills/dsh-spec-prose-standard/SKILL.md","sha256":"9886be2dc52c0dc17d7491ddb7ef883575f05e12752f7c7d32a8ef01690f61fd"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The request targets durable instruction text and explicitly covers chain-of-thought leakage, dead citations, and prose repairs, which aligns with the selected skill’s scope. Although the requested work includes execution, the fixture instructions limit this response to routing selection.\n\nSELECT: dsh-spec-prose-standard"}}
+{"type":"turn.completed","usage":{"input_tokens":12448,"cached_input_tokens":12288,"cache_write_input_tokens":0,"output_tokens":302,"reasoning_output_tokens":243}}

@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "claim": {
+    "type": "behavior",
+    "subject": "dsh-spec-prose-standard:leakage-keeps-survive-mixed-readme-audit"
+  },
+  "arm": "target-present",
+  "comparison": null,
+  "evidence": {
+    "kind": "model",
+    "currentness": {
+      "scenario_sha256": "14ba58af51ef37a6ea138b951649649f594f5b30d2392ca28d7f1753d1c1297e",
+      "input_manifest_sha256": "f1e704663d1fb5537f61680a21973387bb9f8703c66b07ea5785dc96c3292f40",
+      "scenario_prompt_sha256": "c6ad12a2824d4269e3722fa5448a16c933996074d8e98d210abfef1a368faf44",
+      "arm_instruction_sha256": "6e9482f51c4ee82141b30670268c89d95b188b5709b1bdf6084335e3f4af01ae",
+      "prompt_guard_sha256": "e587246af427c697477e3f5e361192ebb5316c5f17540449cf6de853ec64af30",
+      "rendered_prompt_sha256": "74bcaf87aaadceae455a3476bcefc71c2145e17983096e94981f12e605bdadcd",
+      "execution_sha256": "df0d14c0a241265515e09d97e5b796c7a07f4e04e2b1e49e7bc971557340c54a"
+    }
+  },
+  "execution": {
+    "auth": "host-proxy",
+    "browser": false,
+    "media": false,
+    "model_config_sha256": "81fe0a5e2d45e2a687f9ff2d811dd45cca60b986eeb96b994e9255e9eda70e1c",
+    "model_runtime_sha256": "63279cf1860a285495fa0bad3c40f5eb38c3487f7425adb603bcbd49175fcaf8",
+    "sandbox": "workspace-write",
+    "subagents": false
+  },
+  "provenance": {
+    "target_skill_tree_sha256": "70d26d4f7f029413bf0234970c7ea055c419c53aaa52ac07516c23e2b32ea403",
+    "dependency_skill_tree_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "deadline_ms": 1800000,
+  "privacy": {
+    "canary_sets": [
+      "current-home",
+      "local-environment"
+    ],
+    "scope_sha256": "2b910be53fbe40382a58ac7b2d82bffe01809fb589a28caca231ac26a8090db2",
+    "surfaces": "all-retained-files"
+  }
+}

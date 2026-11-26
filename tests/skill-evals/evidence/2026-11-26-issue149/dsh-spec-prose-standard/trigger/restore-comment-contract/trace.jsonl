@@ -1,0 +1,5 @@
+{"type":"query","id":"restore-comment-contract","query_sha256":"5160f2784fd6d8108f66841775de8c9a454bc5e0504fc082dcd83833e4139ecb"}
+{"type":"skill","path":".agents/skills/dsh-spec-prose-standard/SKILL.md","sha256":"9886be2dc52c0dc17d7491ddb7ef883575f05e12752f7c7d32a8ef01690f61fd"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The request concerns restoring a durable code comment that preserves a missing behavioral contract without narrating implementation, which directly matches the prose-standard skill’s scope.\n\nSELECT: dsh-spec-prose-standard"}}
+{"type":"turn.completed","usage":{"input_tokens":12463,"cached_input_tokens":12288,"cache_write_input_tokens":0,"output_tokens":342,"reasoning_output_tokens":302}}

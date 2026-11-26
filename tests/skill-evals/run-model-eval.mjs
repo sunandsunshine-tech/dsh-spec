@@ -1284,6 +1284,7 @@ try {
         {
           id: trigger.id,
           query: trigger.query,
+          query_sha256: sha256(trigger.query),
           should_trigger: trigger.shouldTrigger,
           agent_file: trigger.agentFile,
           currentness: {
@@ -1373,7 +1374,16 @@ try {
 
   assertNoPrivacyCanariesInText('model stdout', result.stdout, privacyCanaries)
   assertNoPrivacyCanariesInText('model stderr', result.stderr, privacyCanaries)
-  const trace = sanitizeEvidenceText(result.stdout)
+  const modelTrace = sanitizeEvidenceText(result.stdout)
+  const tracePrefix = scenario
+    ? {
+        type: 'scenario',
+        subject: `${options.skill}:${options.scenario}`,
+        path: 'scenario-definition.json',
+        sha256: scenarioDefinitionHash(scenario),
+      }
+    : { type: 'query', id: trigger.id, query_sha256: sha256(trigger.query) }
+  const trace = `${JSON.stringify(tracePrefix)}\n${modelTrace}`
   writeFileSync(join(stagedOutput, 'trace.jsonl'), trace)
   writeFileSync(join(stagedOutput, 'stderr.log'), sanitizeEvidenceText(result.stderr))
   writeFileSync(join(stagedOutput, 'time.txt'), `time_seconds: ${elapsed.toFixed(2)}\n`)

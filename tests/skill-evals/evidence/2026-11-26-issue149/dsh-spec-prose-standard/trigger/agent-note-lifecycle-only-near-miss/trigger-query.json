@@ -1,0 +1,5 @@
+{
+  "id": "agent-note-lifecycle-only-near-miss",
+  "query": "An approved Agent Note and its companions are complete. Prepare the archive unit, seal its manifest, move the files, and verify the archive; the note text is final.",
+  "query_sha256": "e8aacc6a283aed05eb0016dab554eb6db3857c3eb1d8ce25c9a1b5a24e6cca2e"
+}

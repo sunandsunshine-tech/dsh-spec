@@ -1,0 +1,5 @@
+{
+  "id": "trim-visible-string",
+  "query": "Trim the modal copy so it keeps what happened and the next action while removing repeated reassurance.",
+  "query_sha256": "7ea20a7f6c9fe7bf8413298d489894b90cf31226b8a7dd6f6291b491c102f025"
+}

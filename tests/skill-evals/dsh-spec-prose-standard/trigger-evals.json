@@ -1,0 +1,66 @@
+{
+  "skill_name": "dsh-spec-prose-standard",
+  "agent_file": "trigger-fixtures/AGENTS.md",
+  "queries": [
+    {
+      "id": "write-documentation-page",
+      "query": "Write the deployment guide for the new cache purge command. Explain its prerequisites, the exact command, and how to verify that the purge completed.",
+      "should_trigger": true
+    },
+    {
+      "id": "audit-durable-instructions",
+      "query": "Audit AGENTS.md for chain-of-thought leakage and change narration. Report dead citations and apply clear durable-prose fixes.",
+      "should_trigger": true
+    },
+    {
+      "id": "restore-comment-contract",
+      "query": "The comment above `withRetry` was shortened until it no longer states that retries happen only before the first byte is sent. Restore the missing contract in the comment without narrating the implementation.",
+      "should_trigger": true
+    },
+    {
+      "id": "trim-configuration-comment",
+      "query": "Trim the configuration comment in `vite.config.ts` so it keeps why policy loads before tools and drops the step-by-step explanation.",
+      "should_trigger": true
+    },
+    {
+      "id": "write-prompt-instructions",
+      "query": "Rewrite the system prompt so the agent must ask before destructive operations and must preserve the reason for the refusal.",
+      "should_trigger": true
+    },
+    {
+      "id": "restore-visible-string",
+      "query": "Restore the user-visible export error so it names the failed path and the recovery action while keeping the existing sentence-case style.",
+      "should_trigger": true
+    },
+    {
+      "id": "trim-visible-string",
+      "query": "Trim the modal copy so it keeps what happened and the next action while removing repeated reassurance.",
+      "should_trigger": true
+    },
+    {
+      "id": "audit-prompt-leakage",
+      "query": "Audit the tool description for authoring-session references and state the durable behavior from the tool's current vantage.",
+      "should_trigger": true
+    },
+    {
+      "id": "transient-chat-edit-near-miss",
+      "query": "Shorten this chat reply to two sentences and remove the apology. I will read it once here.",
+      "should_trigger": false
+    },
+    {
+      "id": "code-correctness-only-near-miss",
+      "query": "Fix the null dereference in `session.ts` so the failing call returns the parsed record. The defect is in executable control flow.",
+      "should_trigger": false
+    },
+    {
+      "id": "ordinary-code-review-near-miss",
+      "query": "Review this TypeScript diff for correctness and security regressions before I merge it.",
+      "should_trigger": false
+    },
+    {
+      "id": "agent-note-lifecycle-only-near-miss",
+      "query": "An approved Agent Note and its companions are complete. Prepare the archive unit, seal its manifest, move the files, and verify the archive; the note text is final.",
+      "should_trigger": false
+    }
+  ]
+}

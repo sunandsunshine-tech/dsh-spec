@@ -1,0 +1,5 @@
+{
+  "id": "audit-durable-instructions",
+  "query": "Audit AGENTS.md for chain-of-thought leakage and change narration. Report dead citations and apply clear durable-prose fixes.",
+  "query_sha256": "e2675f2d9844b6c01145751440ad481e50af4fe2e250948ac98ce732be15a2c8"
+}

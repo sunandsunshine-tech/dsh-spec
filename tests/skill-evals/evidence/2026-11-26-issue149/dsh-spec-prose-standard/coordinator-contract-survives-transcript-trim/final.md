@@ -1,0 +1,3 @@
+Repaired [coordinator.md](/workspace/evals/files/coordinator/docs/coordinator.md:1) using the requested prose standard. It now preserves the caller-visible ordering, disposal, failure, and API-stability contracts while removing session narration and avoiding a code walkthrough.
+
+Only the documentation page changed. `git diff --check` and the leakage scan pass; the source and working notes remain untouched.

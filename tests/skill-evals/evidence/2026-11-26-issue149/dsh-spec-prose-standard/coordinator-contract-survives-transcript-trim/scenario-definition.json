@@ -1,0 +1,23 @@
+{
+  "id": "coordinator-contract-survives-transcript-trim",
+  "prompt": "Repair evals/files/coordinator/docs/coordinator.md using evals/files/coordinator/docs/working-notes.md and evals/files/coordinator/src/coordinator.ts as evidence. The current page was over-trimmed. Restore every caller-visible contract fact established by the source material while deleting the authoring-session narration, and write the repaired page back. Do not edit the source or working notes, and do not add a code walkthrough.",
+  "expected_output": "The repaired page states per-session serialization and independent ordering between sessions, preserves the intentional slow-backend isolation rationale, rejects new writes after disposal starts with the exact message `coordinator is closing`, waits for accepted writes before flushing buffered events and resolving disposal, preserves the backend error reported to the caller that submitted the write without retry, states that queued writes behind a failed same-session write reject with the same error without reaching the backend, propagates a rejected `flushBufferedEvents()` through `dispose()`, and states that the public API is unstable with no compatibility guarantee. It removes first-person investigation, rejected design history, and review narration, and does not restate the source file line by line.",
+  "files": [
+    "evals/files/coordinator/AGENTS.md",
+    "evals/files/coordinator/docs/working-notes.md",
+    "evals/files/coordinator/docs/coordinator.md",
+    "evals/files/coordinator/src/coordinator.ts"
+  ],
+  "assertions": [
+    "The page preserves per-session write serialization and independent ordering between sessions.",
+    "The page states that new writes are rejected once disposal starts and accepted writes drain before buffered events are flushed.",
+    "The page states that buffered events are flushed before the disposal promise resolves.",
+    "The page preserves the backend error, reports it to the caller that submitted the write, and does not retry it.",
+    "The page states that writes queued behind a failed write in the same session reject with the same backend error without reaching the backend.",
+    "The page preserves that cross-session serialization is intentionally absent so a slow backend in one session does not block another session.",
+    "The page preserves the exact new-write rejection text `coordinator is closing`.",
+    "The page states that a rejected `flushBufferedEvents()` propagates its backend error through `dispose()`.",
+    "The page states that the public API surface is unstable and makes no compatibility guarantee.",
+    "The repaired page removes authoring-session narration and does not add a code walkthrough."
+  ]
+}
