@@ -2,7 +2,15 @@
 
 This repository develops the skill set it ships. The commands below run before a change is pushed.
 
-Commits carry a `Signed-off-by:` trailer that names their author, and the work is offered under the repository's MIT license. Two pages beside this one take two kinds of report off the issue tracker: a security report belongs in [`SECURITY.md`](SECURITY.md), and a conduct report in [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
+Commits carry a `Signed-off-by:` trailer that names their author or committer, and the work is offered under the repository's MIT license. Two pages beside this one take two kinds of report off the issue tracker: a security report belongs in [`SECURITY.md`](SECURITY.md), and a conduct report in [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md).
+
+## Commit and pull-request subjects
+
+This repository's live GitHub squash-title setting is `COMMIT_OR_PR_TITLE`. A pull request with exactly one non-merge commit takes the prospective squash subject from that commit subject; a pull request with any other non-merge commit count takes it from the pull request title. Merge commits do not decide the source. Both sources use `type(scope): imperative summary`: `type` and `scope` stay conventional tokens, and `summary` states the resulting change in the imperative mood where the language marks one. Write the summary in the change's working language rather than imposing English. Leave tracker and review references in the pull request body.
+
+Do not add a trailing tracker suffix such as `(#136)` to the pull request title or any branch commit subject. GitHub supplies exactly one canonical space-prefixed suffix with the pull request number when it creates the squash commit. The DCO gate rejects the entire trailing suffix run in those branch inputs, including one suffix, suffixes without preceding whitespace, and adjacent, spaced, or mixed duplicate groups. It reads Git's rendered subject, so leading blank lines do not hide a suffix. A post-squash merged commit may be checked separately with `--mode=squash-commit`; that mode requires exactly one commit with one parent and one canonical ` (#N)` suffix whose issue number matches `[1-9][0-9]*`. The suffix must end the subject: zero and zero-padded issue numbers, or trailing whitespace such as a nonbreaking space, are rejected.
+
+Commit subjects use the same shape and describe the resulting change rather than review, rebase, or session mechanics. The gate checks only the suffix shape; review decides whether a subject describes the change rather than its session mechanics. Write the pull request body through the [four-block description contract](skills/dsh-spec-pr-description/SKILL.md) and its [AI Usage contract](skills/dsh-spec-pr-description/references/ai-usage.md); those references own the body structure rather than this guide.
 
 ## Gates to run
 
@@ -20,7 +28,7 @@ node scripts/verify-dco.ts --base=origin/main
 
 `pnpm test` is the functional suite: what the DCO check decides about a range, the payload the vendored-notices submission posts, the skill gate, the Agent Note gate, the change-scope report, the draft lifecycle, the installed-copy refresh and the shipped pairing mechanism.
 
-`node scripts/verify-dco.ts --base=origin/main` reads a commit range and asserts that every commit carries a `Signed-off-by:` trailer matching its author, or its committer where the two differ; a commit claiming a bot identity is verified against GitHub as well.
+`node scripts/verify-dco.ts --base=origin/main` reads a commit range and asserts that every unfolded `Signed-off-by:` in the final trailer block matches the commit's author or committer; CRLF and CR line endings follow the same folding rules as LF. A commit naming an allowlisted bot is verified through GitHub's committer account and signature; author attribution and `verification.verified` alone are not enough. The one fixed-address exception is Dependabot's `dependabot[bot] <support@github.com>`, accepted only when GitHub reports the committer as that bot and GitHub-signed; its rationale is in [the Dependabot decision record](.agents/dsh-spec-agent-notes/implemented/process/2026-10-13-dependabot-signs-with-a-fixed-address.md). Pull-request CI supplies the current title in default PR mode, which rejects every manual tracker suffix in the title and branch commit subjects and reports whether the prospective subject comes from the sole non-merge commit or the title. To include the title locally, run `DCO_PR_TITLE="$(gh pr view --json title --jq .title)" node scripts/verify-dco.ts --base=origin/main`.
 
 Every change owes these checks. CI installs the pinned toolchain and runs the corpus gate, `check:static`, the bundle check and the suite on every pull request and on every push to `main`, and the DCO check on every pull request; the bundle and static checks need the Vite+ toolchain locally; the corpus gate needs Node and the Git checkout, with no install or build.
 
@@ -28,23 +36,23 @@ The repository develops and checks on Node.js 26. Shipped script bundles support
 
 ## AI involvement
 
-AI involvement is allowed. It is disclosed in the commit message with an `Assisted-by:` trailer, naming every machine that took part:
+AI involvement is allowed. Every AI-assisted commit carries an `Assisted-by:` trailer for each machine that took part:
 
 ```
 Assisted-by: DeepSeek Harness (dsh)
 ```
 
-The commit message itself describes the change.
+The trailers sit alongside the DCO. `Assisted-by:` records machine participation; `Signed-off-by:` still names the human author or committer who submits the work.
 
 ## Developer Certificate of Origin
 
-Every commit carries a `Signed-off-by:` line that names its author, or its committer where the two differ:
+Every commit carries at least one `Signed-off-by:` line in its final trailer block. Each line names the commit's author or committer; when those identities differ, either one is accepted:
 
 ```sh
 git commit --signoff
 ```
 
-`Signed-off-by:` is the [Developer Certificate of Origin](https://developercertificate.org/) 1.1 certification that the contributor has the right to submit the work under the repository's license. The line names the person who submits the work and no one else; an agent does not sign on another person's behalf, and a person does not sign for an agent. A commit whose sign-off is missing, or names someone other than its committer, is sent back.
+`Signed-off-by:` is the [Developer Certificate of Origin](https://developercertificate.org/) 1.1 certification that the contributor has the right to submit the work under the repository's license. The line names the commit's author or committer, never a third party; an agent does not sign on another person's behalf, and a person does not sign for an agent. A commit whose final block lacks a sign-off, or contains one naming neither recorded identity, is sent back.
 
 The DCO is the whole inbound-rights arrangement from the first contribution onward. **There is no Contributor License Agreement.**
 

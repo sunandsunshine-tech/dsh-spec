@@ -1,0 +1,22 @@
+# Pairing consistency record for 2026-11-26-squash-subjects-follow-the-non-merge-commit-count.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-11-26-squash-subjects-follow-the-non-merge-commit-count.md --target <lang>
+/agent-note-squash-subjects-follow-the-non-merge-commit-count:
+  en: 01c6ca291be4dbc0
+  zh: 8858d49bec0e2d13
+/agent-note-squash-subjects-follow-the-non-merge-commit-count/problem:
+  en: c892cc0d33eab68c
+  zh: e09cb18eb05e5425
+/agent-note-squash-subjects-follow-the-non-merge-commit-count/decision:
+  en: e5e70260f10657f3
+  zh: 34703256218bc2df
+/agent-note-squash-subjects-follow-the-non-merge-commit-count/verification:
+  en: 0e13242ec6640017
+  zh: 7d998144929f2bb0
+/agent-note-squash-subjects-follow-the-non-merge-commit-count/alternatives-considered:
+  en: e2a3aeab2b70051b
+  zh: 53cbabfe63616fb4
+/agent-note-squash-subjects-follow-the-non-merge-commit-count/consequences:
+  en: 9030b171d2ae1064
+  zh: 8485cc8a8efe8ec7

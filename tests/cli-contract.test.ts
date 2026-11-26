@@ -162,13 +162,29 @@ test('verify-dco rejects empty range values', () => {
     ['DCO_BASE', '-x'],
     ['DCO_HEAD', ''],
     ['DCO_HEAD', '-1'],
+    ['DCO_PR_TITLE', ''],
+    ['DCO_MODE', ''],
   ]) {
-    const result = runScript('scripts/verify-dco.ts', [], process.cwd(), { env: { [name]: value } })
+    const result = runScript('scripts/verify-dco.ts', [], process.cwd(), {
+      env: { GITHUB_EVENT_NAME: undefined, DCO_MODE: undefined, DCO_PR_TITLE: undefined, [name]: value },
+    })
     assert.equal(result.status, 2, name + ': ' + result.output)
     assert.match(result.stderr, new RegExp(name + ' needs a value'))
   }
-  for (const flag of ['--base=', '--head=', '--root=', '--root=-x', '--base=-x', '--head=-1']) {
-    const result = runScript('scripts/verify-dco.ts', [flag])
+  for (const flag of [
+    '--base=',
+    '--head=',
+    '--root=',
+    '--root=-x',
+    '--base=-x',
+    '--head=-1',
+    '--pr-title=',
+    '--pr-title=   ',
+    '--mode=',
+  ]) {
+    const result = runScript('scripts/verify-dco.ts', [flag], process.cwd(), {
+      env: { GITHUB_EVENT_NAME: undefined, DCO_MODE: undefined, DCO_PR_TITLE: undefined },
+    })
     assert.equal(result.status, 2, flag + ': ' + result.output)
     assert.match(result.stderr, /needs a value/)
   }

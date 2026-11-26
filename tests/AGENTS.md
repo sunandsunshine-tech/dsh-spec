@@ -1,10 +1,10 @@
 # Functional suite
 
 The suite covers the checks and tooling this repository owns rather than the skills it ships: the DCO
-check, the vendored-notices submission, the CLI contract, the corpus and bundle gates, the pinned
-toolchain, the skill gate, the Agent Note gate, the change-scope report, the draft lifecycle, the
-installed-copy refresh, the shipped pairing mechanism and retained model evidence. Run the commands below
-from the repository root.
+and commit-metadata check, the vendored-notices submission, the CLI contract, the corpus and bundle
+gates, the pinned toolchain, the skill gate, the Agent Note gate, the change-scope report, the draft
+lifecycle, the installed-copy refresh, the shipped pairing mechanism and retained model evidence. Run
+the commands below from the repository root.
 
 ```sh
 pnpm test
@@ -32,7 +32,7 @@ line, and the test fails rather than skipping when either binary is absent.
 | `helpers/bundles.ts` | The work-draft/landed bundle resolution shared by the cases that run a bundled skill script. |
 | `helpers/fake-cdp-chrome.mjs` | A deterministic fake DevTools endpoint for the browser GIF capture fixture: programmatic commands, successful screenshots, post-handshake disconnects and a descendant process for cleanup checks. |
 | `cli-contract.test.ts` | The shared command-line contract: `--help`/`-h`, unknown-option diagnostics, exit codes and indented JSON, checked across the repository and bundled scripts. |
-| `dco.test.ts` | `scripts/verify-dco.ts`: the trailer half, decided from `git log` alone, and the bot-identity half, decided against a `gh` stand-in. |
+| `dco.test.ts` | `scripts/verify-dco.ts`: every unfolded LF or CRLF final-block sign-off, hostile separator-safe metadata, per-SHA GitHub committer and signature facts, Git's actual prospective PR subjects by non-merge commit count, and the explicit one-parent positive true-end post-squash mode. |
 | `toolchain.test.ts` | The pinned pnpm version agreeing across `package.json`, the checks workflow and the lockfile's self-management document; the Node engine, CI matrix, type-check configuration, direct toolchain pins, format/lint/type negative controls and shipped bundle targets. |
 | `check-bundles.test.ts` | `scripts/check-bundles.ts`: changed, missing and extra committed-bundle states through the comparison function. |
 | `build-skills.test.ts` | `scripts/build-skills.ts`: a successful build that writes nothing gets a clean diagnostic instead of an ENOENT crash. |
