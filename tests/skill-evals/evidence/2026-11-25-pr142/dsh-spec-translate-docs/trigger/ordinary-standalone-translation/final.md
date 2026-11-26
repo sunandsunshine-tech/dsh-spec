@@ -1,3 +1,3 @@
-This is a one-off sentence translation, not maintenance of a Markdown translation pair, so no installed skill clearly applies. Chinese: 在运行测试之前，先构建项目。
+这句话属于普通的一次性句子翻译，不涉及维护 Markdown 翻译配对，因此没有适用的技能。中文翻译：请先构建项目，再运行测试。
 
 SELECT: none

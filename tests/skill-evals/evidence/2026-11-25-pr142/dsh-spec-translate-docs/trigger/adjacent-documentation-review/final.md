@@ -1,3 +1,3 @@
-This is a one-off review of a README’s onboarding links and grammar, with no indication that it is part of a declared bilingual translation pair. The translation-documentation skill therefore does not clearly apply.
+The translation-pair skill does not clearly apply because this selection-only request concerns the README’s onboarding links and grammar, while the persistent translation policy targets `docs/policy-guide.md`, not the README.
 
 SELECT: none

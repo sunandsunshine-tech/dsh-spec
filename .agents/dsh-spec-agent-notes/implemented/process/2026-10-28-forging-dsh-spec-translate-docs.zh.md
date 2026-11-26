@@ -14,7 +14,7 @@ Status: implemented
 
 - 机制是自包含的：技能随附脚本，机械地检查配对并生成其记录；
 - 脚本只以上游为依据——本仓库的 manager 移植是历史遗留物，本次锻造将取代它，它不是来源；
-- 调用边界只在正文中陈述；description 不携带点名用户的规则；
+- 调用边界在正文与目录 description 中一致陈述；description 不携带点名用户的规则；
 - 一个技能。既有配对或显式授权的配对都会自动维护；普通一次性翻译与未配对文档工作不会启用该技能。负责的模型或工作流可以为该范围内的一个源解析默认目标集；直接 CLI 调用把结果作为显式 `--target` 接收。
 - 每个源记录自己的语言；只有首次写入记录省略 `--source-lang` 时才使用 `en`。目标集可由声明、请求或负责模型根据项目与 peer 证据解析，可以包含多个目标；
 - 术语表位于 `.agents/dsh-spec-translate-docs/terminology.md`，缺失时从模板初始化；
@@ -113,7 +113,7 @@ PR122 的 `locale-selected-pages-are-unpaired` 模型运行针对其记录的修
 |---|---|---|---|---|---|
 | S1 | L2 | 技能名为 `dsh-translate-docs` | 改编 | `name: dsh-spec-translate-docs` | 请求的名字 |
 | S2 | L3 | description：手动运行扩展的双语文档工作流，含简报、可用时的隔离行文、整篇文档翻译与按范围的配对校验 | 重绑 | description：配对维护职责、正向界定配对范围、排除普通翻译，以及中文触发语言 | 详细边界留在正文；目录 description 选择既有配对或获授权的配对工作，而不声称自己覆盖普通翻译 |
-| S3 | L4–L5 | `disable-model-invocation`、`user-invocable` | 消解 | 仅在正文中的调用边界 | 这些字段不在 Agent Skills 的封闭集合中，且通过 `metadata` 无效；该技能为配对文档维护保留模型选择 |
+| S3 | L4–L5 | `disable-model-invocation`、`user-invocable` | 消解 | 正文与目录 description 中的调用边界 | 这些字段不在 Agent Skills 的封闭集合中，且通过 `metadata` 无效；该技能为配对文档维护保留模型选择 |
 | S4 | L8 | 标题 `Translating DeepSeek-Harness docs` | 改编 | `# Translating paired documents` | 采用者中立的领域 |
 | S5 | L12 | 只在用户显式按名调用时运行扩展工作流 | 重绑 | `## Invocation boundary`：既有配对或显式授权的配对会启用配对维护；显式选择仍支配为未配对项创建目标集的工作 | 限定范围的配对维护取代上游只按名称调用的控制，同时不会把每次文档翻译都变成配对工作 |
 | S6 | L12 | 绝不因普通文档工作、其他技能或推断出的需要而加载；日常翻译遵循 `docs/AGENTS.md` 中的一次性规则 | 重绑 | `## Invocation boundary` 与自动维护规则 | 被触及的既有配对不是普通独立翻译；未配对与推断出的普通翻译留在技能之外，而仅安装并不构成启用 |
@@ -243,15 +243,15 @@ PR122 的 `locale-selected-pages-are-unpaired` 模型运行针对其记录的修
 |---|---|---|---|
 | V2 | 脚本按约定所述行事：记录计算／解析／渲染／规范正文；规范切换行按结构定位（正确、位于元数据之后、缺失、标签错误、多余链接、重复、行内代码引用、多目标列举、绝对 URL 后缀）；结构签名；链接 locale；选择旗标、生成 glob 与空语料；默认剪枝树对采用者跳过（默认树下的完整配对被忽略；隐藏目录遍历；声明选择时目标识别按选择过滤；配对选择；多目标选择与批量记录的规范注释稳定性；list/check/write；简报粒度、目标到源、两侧同时改动、术语行与覆盖；机械化 `--apply`；`init`；按配对限定的简报命令按打印内容执行；带与不带声明旗标的按更新检查；非默认记录路径；纯翻译修正；无显示旗标的重记录稳定性；畸形／不配对区域、带标题的区域不透明度、单侧漂移、仅区域的简报、`--apply` 区域守卫（防御性，不计入）；生成源通过／失败与命令重复；manager 注释／重排的记录正文；autolink 解析；默认清单内容；裸非默认目标；以及除两个防御守卫（全有或全无拼接与区域交集）之外的每个文档化失败退出 | 机械 | `node --test tests/translation-docs.test.ts` 通过 |
 | V3 | 打包产物自包含且在 Node 24.11+ 上运行 | 机械 | `pnpm run skill:build dsh-spec-translate-docs` 构建一个 ESM 文件；测试在不安装、不访问网络的情况下执行它 |
-| V4 | 技能符合 Agent Skills 规范 | 机械 | `node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs skills/dsh-spec-translate-docs --description-max 500` 以退出码 0 结束，报告 15 项检查、0 失败、122 行正文、约 4111 个 token 与一个 478 字符的 description，含三份参考 |
+| V4 | 技能符合 Agent Skills 规范 | 机械 | `node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs skills/dsh-spec-translate-docs --description-max 500` 以退出码 0 结束，报告 15 项检查、0 失败、122 行正文、约 4108 个 token 与一个 478 字符的 description，含三份参考 |
 | V5 | 每份随附参考与脚本都在 SKILL.md 中被点名；链接可解析；正文在预算之内 | 机械 | 门禁的 `reference mentions`、`script coverage`、`links stay inside`、`links resolve`、`link depth` 与 `budget` 行 |
 | V6 | 许可与出处完整 | 判断加机械 | 门禁读取 `license` 字段；关于 `THIRD_PARTY_NOTICES` 的一项结论覆盖每个被改编的上游文本、脚本与 spec 文件以及随附 npm 包；解析出的解析器闭包登记在共享根通知表中 |
 | V7 | 机制移植自上游，而非本仓库的 manager | 判断 | 关于模块与出处表映射、以及在技能、包与测试中扫描 `scripts/dsh-spec-manager` 的一项结论 |
 | V8 | 每个上游机制部分都被搬运或明确消解 | 判断 | 每个出处行与每个泛化行各一项结论，包括被消解的清单、索引平面与流水线提示词部分，以及被搬运的生成区域语法、区域比较、`--generated` 豁免与文风样例原则 |
-| V9 | 裁决得到实现：调用边界只写在正文中，并以收窄的配对维护 description 呈现；由模型解析目标集并显式传给 CLI、通用工作流授权、一个技能、目标声明、配对选择、按目标的术语与模板、无配置文件、渐进新增与 active 强一致删除 | 判断 | 每条裁决一项结论；开发语料携带 scope 选择、显式多目标、渐进新增、active 删除、范围不回填与能力场景 |
+| V9 | 裁决得到实现：配对维护的调用边界在正文与目录 description 中一致陈述；由模型解析目标集并显式传给 CLI、通用工作流授权、一个技能、目标声明、配对选择、按目标的术语与模板、无配置文件、渐进新增与 active 强一致删除 | 判断 | 每条裁决一项结论；开发语料携带 scope 选择、显式多目标、渐进新增、active 删除、范围不回填与能力场景 |
 | V16 | 工作流下的真实翻译质量 | 未验证 | 评审草稿是首次运行；其质量未测量 |
 | V17 | 中文之外的目标准行为 | 未验证 | 当前测试覆盖 `zh` 与 `ja` fixture；其他语言共用代码路径但没有验收语料 |
-| V18 | 跨真实提示词的触发质量 | 判断 + 机械 | `tests/skill-evals/dsh-spec-translate-docs/trigger-evals.json` 有四项正例与四项近似反例探针；`tests/skill-evals/evidence/2026-11-25-pr142/dsh-spec-translate-docs/trigger-matrix.tsv` 记录 8/8。近似反例覆盖普通独立翻译、普通文档编辑／评审，以及无配对范围的推断翻译。 |
+| V18 | 跨真实提示词的触发质量 | 判断 + 机械 | `tests/skill-evals/dsh-spec-translate-docs/trigger-evals.json` 有五个正例与四个近似反例探针；`tests/skill-evals/evidence/2026-11-25-pr142/dsh-spec-translate-docs/trigger-matrix.tsv` 记录 9/9。正例包括仅由持久项目政策选择的新配对；近似反例覆盖普通独立翻译、普通文档编辑／评审，以及无配对范围的推断翻译。 |
 | V19 | CLI 失败模式、先决条件与空语料行为 | 机械 | V2 用例覆盖：点名没有文件点名的配对（2）；不完整的点名配对（write 为 2，check 为 1）；已一致的点名简报（2）；缺失的术语表（2，带 init 提示）；缺失上次确认提交（2，带提示，不打印原始 Git 错误）；对正文变更运行 `--apply`（2，不写任何内容）；在另一动词上使用 `--apply` 或 `--all`（2）；空检查（2）；文件已存在时的 `init`（0）；多于一个目标的 `init`（2）；空语料上的 `list`（0）；配对状态只有 `ok`、`out-of-sync` 与 `missing`；带范围旗标的按配对检查只报告其自身配对；生成 apply 与 write/check 命令携带不同于默认的 `--terminology` 覆盖与 `--root`，并按打印内容执行；批量写入保持规范注释稳定，随后一次无旗标重记录使它保持不变；不带显示名称的 `--target ja`（2）与 `init --target ja`（2）；无效的 `--generated` 模式（2）；带区域不匹配的点名简报（2，不写任何内容）；以及带区域不匹配的不带配对简报（2，点名配对） |
 | V20 | 生成区域语法与不透明度 | 机械 | 畸形、嵌套 BEGIN、没有 BEGIN 的 END、slug 不匹配、未闭合区域与重复 slug 失败；围栏内的标记形状行是普通代码（包括区域内的围栏标记示例）；围栏之外、区域之内的标记形状行失败；紧邻段落行的标记失败，而文档边界处的标记通过；BEGIN 紧随区域内容、内容紧随 END 也通过；区域内的标题重新生成而不改变记录；`check` 为单侧漂移点名 slug |
 | V21 | 区域比较与简报 | 机械 | 相同的重新生成使记录不变并产生「无需简报」；单侧改动使 check 失败、list 报告该配对、点名简报退出 2、不带配对的简报以退出码 2 中止并点名配对；`--apply` 区域交集守卫是防御性的，不是计数的用例 |
@@ -272,10 +272,10 @@ PR122 的 `locale-selected-pages-are-unpaired` 模型运行针对其记录的修
 | V37 | 按目标顺序写入 | 机械 | 源编辑后，编辑 zh 并写入 zh 使 ja 失败；编辑 ja 并写入 ja 使 zh 保持绿色且源哈希行不变；随后两个目标都检查为绿 |
 | V38 | 文风默认值的丰富度 | 机械 | style-examples.md 携带上游品质的校准点（误报／漏检、bilingual from birth、grandfathered、cookbook）以及防御／测试／长段落样例组；translation-rules 仍是唯一的优先级归属；出处只在通知中 |
 | V39 | 整篇文档、能力、简报与目标迁移场景及可运行输入，从开发侧存储暂存 | 机械 | `tests/skill-evals/dsh-spec-translate-docs/evals/evals.json` 携带十二个场景，覆盖局部完成、明确交接、隔离上下文、单路径授权、显式多目标、歧义目标、渐进新增、active 删除、locale 选择页面、范围不回填、源重命名，以及一个会单独读取已声明文风来源的行文简报；`tests/skill-scenarios.test.ts` 验证暂存、包含关系、具体语义以及交付树中没有 `evals/`。 |
-| V40 | 场景矩阵中的真实模型行为 | 判断 + 机械 | 当前 #142 证据以 8/8 触发探针覆盖变化后的启用边界，并以一次 6/6 模型运行覆盖变化后的简报交接。PR121 的四次 translate-docs 运行与 PR122 的源重命名和 locale-unpaired 运行绑定较早修订，属于历史证据，而不是当前证明。其余行为场景在各自负责的行为变化时等待针对性运行。[能力记录](2026-11-17-delegation-is-a-capability-choice-not-a-skill-dependency.zh.md) 继续拥有能力边界。 |
+| V40 | 场景矩阵中的真实模型行为 | 判断 + 机械 | 当前 #142 证据以 9/9 触发探针覆盖变化后的启用边界，并以一次 5/5 模型运行覆盖变化后的简报交接。PR121 的四次 translate-docs 运行与 PR122 的源重命名和 locale-unpaired 运行绑定较早修订，属于历史证据，而不是当前证明。其余行为场景在各自负责的行为变化时等待针对性运行。[能力记录](2026-11-17-delegation-is-a-capability-choice-not-a-skill-dependency.zh.md) 继续拥有能力边界。 |
 | V41 | Locale 选择路径留在发现之外，但指向它们的链接保持同一语义目标 | 机械 + 判断 | `--unpaired` 贯穿语料发现、`existingTargets` 与 `linkContext`；`locale-selected-pages-are-unpaired` 运行记录命令，维护中的指南配对仍保持一致。单元覆盖拒绝不完整发现、把不同本地化目标视为同一语义目标，并抑制其 locale 违规。 |
 | V42 | 必需目标完整性是显式的 | 机械 | `check --require-target` 与 `list --require-target` 为选中的源补充缺失行；省略旗标时保持既有配对行为，命名配对也不能与该政策旗标组合。 |
-| V43 | 启用与普通翻译保持区分 | 判断 + 机械 | 触发语料覆盖显式创建／检查配对、由推断触及的既有配对，以及工作流授权的配对创建；其近似反例覆盖普通独立翻译、未配对编辑／评审与无配对范围的推断翻译。记录的矩阵为 8/8。 |
+| V43 | 启用与普通翻译保持区分 | 判断 + 机械 | 触发语料覆盖显式创建／检查配对、由推断触及的既有配对、工作流授权的配对创建，以及仅由持久项目政策选择的新配对；其近似反例覆盖普通独立翻译、未配对编辑／评审与无配对范围的推断翻译。记录的矩阵为 9/9。 |
 | V44 | 简报没有被呈现为完整文风来源 | 判断 + 机械 | 单元覆盖锁定规则摘要中的外部文风指令；`briefing-is-delta-plus-style-source` 模型场景记录生成的简报、分别读取 `docs/style.md` 与完整术语表，以及不在工作上下文中编辑的干净上下文交接。 |
 
 ## 考虑过的替代方案

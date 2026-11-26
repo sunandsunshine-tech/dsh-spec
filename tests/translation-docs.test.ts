@@ -1024,6 +1024,10 @@ test('the shipped description and style references reflect the declared design',
   assert.match(skill, /Markdown/)
   assert.match(skill, /maintaining an existing or explicitly authorized Markdown translation pair/i)
   assert.match(skill, /Not for ordinary one-off translation, editing an unpaired document/)
+  assert.match(
+    skill,
+    /a persistent project instruction, the user or the responsible workflow selects an existing or new pair/,
+  )
   assert.match(skill, /does not activate for ordinary one-off translation/i)
   assert.match(skill, /change-local work set/i)
   assert.doesNotMatch(skill, /whole working set/i)

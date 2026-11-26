@@ -3,6 +3,7 @@ explicit-pair-update	true	true	pass
 explicit-pair-check	true	true	pass
 declared-pair-document-change	true	true	pass
 workflow-authorized-new-pair	true	true	pass
+standing-policy-new-pair	true	true	pass
 ordinary-standalone-translation	false	false	pass
 ordinary-documentation-edit	false	false	pass
 adjacent-documentation-review	false	false	pass

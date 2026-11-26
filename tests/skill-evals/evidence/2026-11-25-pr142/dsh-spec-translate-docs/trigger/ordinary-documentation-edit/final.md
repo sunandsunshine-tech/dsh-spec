@@ -1,3 +1,3 @@
-This is a routine edit to an unpaired documentation file, not maintenance of a declared Markdown translation pair, so the translation skill does not clearly apply.
+The translation-pair skill does not clearly apply because this is a one-off punctuation edit to `docs/contributing.md`, not maintenance of the explicitly paired `docs/policy-guide.md`.
 
 SELECT: none

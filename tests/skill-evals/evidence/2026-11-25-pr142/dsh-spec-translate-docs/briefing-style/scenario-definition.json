@@ -1,7 +1,7 @@
 {
   "id": "briefing-is-delta-plus-style-source",
   "prompt": "Treat evals/files/briefing-style as the project root and pass `--root evals/files/briefing-style` to bundled commands. The candidate change to the maintained English-Chinese pair docs/guide.md is already committed, so the pair is out of sync. The host can pass your final response to a clean-context translator. Handle the pair update according to the installed skill and project instructions, then report the result.",
-  "expected_output": "The run records that the declared-root brief command fails for this nested fixture, reconstructs the committed base and candidate in a temporary Git repository, and uses the shipped brief command there. The resulting change-local brief, declared docs/style.md and terminology table are separately presented. The working-context model stops before translating and hands the pending counterpart update, record and pair check to the clean context.",
+  "expected_output": "The run obtains the committed briefing for the nested fixture and identifies both changed sections. The change-local source diff, declared docs/style.md, terminology table and translation rules are separately presented. The working-context model stops before translating and hands the pending counterpart update, record and pair check to the clean context.",
   "files": [
     "evals/files/briefing-style/AGENTS.md",
     "evals/files/briefing-style/docs/style.md",
@@ -14,8 +14,7 @@
   "change_patch": "evals/files/briefing-style/change.patch",
   "change_root": "evals/files/briefing-style",
   "assertions": [
-    "The run records that the declared-root `brief` command fails because the fixture is nested below the workspace Git root.",
-    "The run reconstructs the exact committed base and candidate in a temporary Git repository and obtains the brief with the shipped command.",
+    "The run obtains the committed briefing for the nested fixture and identifies both changed sections.",
     "The run separately reads the declared `docs/style.md`, terminology table and translation rules.",
     "The briefing is treated as the change-local delta plus rules, not as the complete style source.",
     "The run leaves the counterpart and aggregate record unchanged because translation is handed to the clean context.",

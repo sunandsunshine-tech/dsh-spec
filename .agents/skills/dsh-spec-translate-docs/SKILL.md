@@ -9,7 +9,7 @@ compatibility: "Requires Node.js 24.11+ on the 24 line or 26+ and Git for the br
 
 ## Invocation boundary
 
-This skill runs when the project's standing instructions say an existing pair is maintained, when a documented change touches either side of one, or when the user or responsible workflow explicitly selects creating, updating or checking a pair. An explicit `--require-target` may apply the project's declared completeness policy to a selected source set. It does not activate for ordinary one-off translation, an unpaired document's edit, or an inferred translation need that supplies no pair scope. Those sources authorize creating or updating a pair; once selected, translation and pairing are required, and failure is handed off unfinished. Installation alone is not activation. The [pairing contract](references/pairing-contract.md) owns path scope, target-selection rules and failure details.
+This skill runs when a persistent project instruction, the user or the responsible workflow selects an existing or new pair for creating, updating or checking, or when a documented change touches either side of an existing pair. An explicit `--require-target` may apply the project's declared completeness policy to a selected source set. It does not activate for ordinary one-off translation, an unpaired document's edit, or an inferred translation need that supplies no pair scope. Those sources authorize creating or updating a pair; once selected, translation and pairing are required, and failure is handed off unfinished. Installation alone is not activation. The [pairing contract](references/pairing-contract.md) owns path scope, target-selection rules and failure details.
 
 ## Defaults
 

@@ -1,3 +1,3 @@
-The `dsh-spec-translate-docs` skill clearly applies because `docs/guide.md` is the edited side of a maintained English-Chinese Markdown translation pair, and the request is to synchronize the Chinese counterpart and its consistency record.
+The task is clearly covered by `dsh-spec-translate-docs`: `docs/guide.md` belongs to a maintained English-Chinese Markdown pair, and the request is to synchronize both its Chinese counterpart and the consistency record after a source-side edit.
 
 SELECT: dsh-spec-translate-docs

@@ -57,7 +57,7 @@ const USE_SITE_PINS = [
   {
     skill: 'dsh-spec-translate-docs',
     file: 'SKILL.md',
-    text: 'when the user or responsible workflow explicitly selects creating, updating or checking a pair',
+    text: 'when a persistent project instruction, the user or the responsible workflow selects an existing or new pair for creating, updating or checking',
   },
   {
     skill: 'dsh-spec-pr-description',

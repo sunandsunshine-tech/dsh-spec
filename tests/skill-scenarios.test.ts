@@ -845,7 +845,7 @@ function assertCurrentTriggerEvidence(skill: string, evidenceRoot: string, requi
     'dsh-spec-skill-forge': { positive: 6, negative: 6 },
     'dsh-spec-record-browser-gif': { positive: 3, negative: 5 },
     'dsh-spec-performance-investigation': { positive: 5, negative: 6 },
-    'dsh-spec-translate-docs': { positive: 4, negative: 4 },
+    'dsh-spec-translate-docs': { positive: 5, negative: 4 },
   }[skill]
   assert.ok(expected, skill + ' has no expected trigger distribution')
   assert.equal(
@@ -1752,6 +1752,7 @@ test('translate docs trigger corpus separates pair maintenance from ordinary doc
     ['explicit-pair-check', true],
     ['declared-pair-document-change', true],
     ['workflow-authorized-new-pair', true],
+    ['standing-policy-new-pair', true],
     ['ordinary-standalone-translation', false],
     ['ordinary-documentation-edit', false],
     ['adjacent-documentation-review', false],
@@ -3822,6 +3823,7 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
       /translate-pair\.mjs\s+brief(?:\s|$).*--root(?:\s|$)/,
       /docs\/style\.md(?:\s|$|['"])/,
       /\.agents\/dsh-spec-translate-docs\/terminology\.md(?:\s|$|['"])/,
+      /references\/translation-rules\.md(?:\s|$|['"])/,
     ],
   }
 
@@ -4134,22 +4136,9 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
       )
       assert.match(
         finalText,
-        /committed source diff|change brief|change-local source diff|briefing digest does not replace/i,
+        /canonical briefing|change-local/i,
         'briefing evidence claims the brief is self-contained',
       )
-      assert.ok(
-        commands.some(
-          (entry) =>
-            entry.exit_code === 2 && /translate-pair\.mjs\s+brief(?:\s|$).*--root(?:\s|$)/.test(entry.command ?? ''),
-        ),
-        'briefing evidence does not record the direct-command limitation',
-      )
-      assert.match(
-        finalText,
-        /temporary (?:recovery|git).*metadata|temporary .*repository|replay.*temporary/i,
-        'briefing evidence hides the reconstructed Git path',
-      )
-      assert.match(finalText, /translation-rules\.md/i, 'briefing handoff omits the full translation rules')
       assert.match(finalText, /docs\/style\.md/, 'briefing handoff omits the declared style source')
       assert.match(finalText, /terminology/i, 'briefing handoff omits the terminology read')
       assert.match(finalText, /guide\.zh\.md/i, 'briefing handoff omits the pending counterpart')

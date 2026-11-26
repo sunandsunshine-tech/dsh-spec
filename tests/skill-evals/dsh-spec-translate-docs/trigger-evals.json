@@ -23,6 +23,11 @@
       "should_trigger": true
     },
     {
+      "id": "standing-policy-new-pair",
+      "query": "Apply the repository's standing translation policy to the documentation it designates.",
+      "should_trigger": true
+    },
+    {
       "id": "ordinary-standalone-translation",
       "query": "Translate this sentence into Chinese in your response: Build the project before running the tests.",
       "should_trigger": false

@@ -1,5 +1,4 @@
-PASS The run records that the declared-root `brief` command fails because the fixture is nested below the workspace Git root.
-PASS The run reconstructs the exact committed base and candidate in a temporary Git repository and obtains the brief with the shipped command.
+PASS The run obtains the committed briefing for the nested fixture and identifies both changed sections.
 PASS The run separately reads the declared `docs/style.md`, terminology table and translation rules.
 PASS The briefing is treated as the change-local delta plus rules, not as the complete style source.
 PASS The run leaves the counterpart and aggregate record unchanged because translation is handed to the clean context.

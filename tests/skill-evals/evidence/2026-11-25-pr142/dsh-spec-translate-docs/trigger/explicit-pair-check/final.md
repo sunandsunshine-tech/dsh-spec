@@ -1,3 +1,3 @@
-The request directly concerns maintaining an existing Markdown translation pair and checking its consistency record, so the `dsh-spec-translate-docs` skill clearly applies.
+The request concerns checking a declared English–Chinese Markdown translation pair and its consistency record, which directly matches the skill’s scope.
 
 SELECT: dsh-spec-translate-docs

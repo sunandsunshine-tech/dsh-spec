@@ -1,3 +1,3 @@
-The request adds `docs/new-guide.md` to a maintained Chinese translation set and requires both its counterpart and an aggregate consistency record, which is exactly the paired Markdown translation workflow covered by the installed skill.
+The `dsh-spec-translate-docs` skill clearly applies because the request explicitly adds a Markdown document to a maintained translation set and asks for its counterpart plus an aggregate consistency record.
 
 SELECT: dsh-spec-translate-docs
