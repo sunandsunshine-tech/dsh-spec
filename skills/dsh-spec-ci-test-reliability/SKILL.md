@@ -1,12 +1,12 @@
 ---
 name: dsh-spec-ci-test-reliability
 license: "MIT; upstream and repository notices in THIRD_PARTY_NOTICES"
-description: "Use when designing, reviewing, or diagnosing slow, over-broad, or unstable automated tests and fixtures that can fail under CI concurrency, shared host resources, clocks, process-global state, subprocesses, network listeners, or asynchronous teardown. Not for general test plans, product QA checklists, or coverage-only work. 用于设计、评审或诊断过慢、范围过大，或在 CI 并发、共享主机资源、时钟、进程全局状态、子进程、网络监听或异步清理条件下可能不稳定的自动化测试与 fixture；不用于普通测试计划、产品 QA 清单或单纯覆盖率工作。"
+description: "Use when designing, reviewing, or diagnosing slow, over-broad, or unstable tests and fixtures in CI or an equivalent test lane affected by concurrency, shared hosts, clocks, global state, subprocesses, listeners or teardown. Covers test-lane duration as test design, not production performance. Not for general test plans, QA checklists, coverage or production performance. 用于在受并发、共享主机、时钟、全局状态、子进程、监听器或清理影响的 CI 或等效测试执行通道中，设计、评审或诊断过慢、范围过大或不稳定的测试与 fixture；测试耗时属于测试设计，不属于生产性能；不用于普通测试计划、QA 清单、覆盖率或生产性能。"
 ---
 
-# Reliable tests
+# CI and test-lane reliability
 
-Build tests that remain correct in the project's real execution topology, not only when run alone on a quiet workstation. This skill owns isolation and reliability decisions; it does not select every command a push needs.
+Build tests that remain correct in the project's real CI or equivalent test-lane execution topology, not only when run alone on a quiet workstation. This skill owns isolation, reliability and deterministic test-duration decisions for that lane; it does not investigate production performance or select every command a push needs.
 
 ## Defaults
 
@@ -71,12 +71,14 @@ Prefer an observation that holds on every supported platform.
 
 By default, split a mixed test into fast contract cases and one shared real-resource scenario, and run expensive evidence only in a lane where the result can differ.
 
+Elapsed-time guidance in this section is test-lane design feedback; it does not make or support a production-performance claim.
+
 For a deterministic test, elapsed time is first a property of test design, not a budget to raise. Before changing a timeout, remove repeated work or move evidence to the narrowest sufficient layer:
 
 - keep fast contract and preflight cases independent of expensive browsers, media, containers, or real services;
 - create one expensive fixture per owning scenario instead of rebuilding it for every case;
 - use the smallest input that can expose the intended regression;
-- run an expensive integration or evidence scenario once on a representative CI lane unless portability requires another run;
+- run an expensive integration or evidence scenario once in a representative CI or equivalent test lane unless portability requires another run;
 - split a test that repeats the same slow assertion across many tiny variations, or collapse the variations into one table-driven contract with one external execution.
 
 Do not multiply every test group's timeout because one group is slow.

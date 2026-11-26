@@ -56,12 +56,12 @@ Add this group when the project changes code and needs repeatable review, eviden
 | `dsh-spec-code-review` | Reviews a change against the project's declared standards and the evidence code alone cannot show | `dsh-spec-pre-push-checks`, `dsh-spec-agent-notes` |
 | `dsh-spec-pre-push-checks` | Selects the smallest sufficient checks for the outgoing diff before push or review | `dsh-spec-code-review`, `dsh-spec-ci-test-reliability` |
 | `dsh-spec-error-handling` | Designs error handling for failures, recovery, retries, background work and user-visible reports across machine boundaries | `dsh-spec-ci-test-reliability`, `dsh-spec-code-review` |
-| `dsh-spec-ci-test-reliability` | Designs, reviews, diagnoses and redesigns slow, over-broad or unstable tests around isolation, shared resources, processes and cleanup | `dsh-spec-pre-push-checks`, `dsh-spec-error-handling` |
+| `dsh-spec-ci-test-reliability` | Designs, reviews, diagnoses and redesigns slow, over-broad or unstable tests in CI or an equivalent test lane, covering isolation, shared resources, processes, cleanup and deterministic duration | `dsh-spec-pre-push-checks`, `dsh-spec-error-handling` |
 | `dsh-spec-performance-investigation` | Turns a production user-path performance concern into comparable measurements, a located bottleneck, a behavior-preserving change and a negative control | `dsh-spec-pre-push-checks`, `dsh-spec-code-review` |
 
-`dsh-spec-code-review` judges the change; `dsh-spec-pre-push-checks` proves the parts a local check can prove; `dsh-spec-ci-test-reliability` owns the topology behind a slow or unstable test. `dsh-spec-performance-investigation` owns measured latency, throughput, memory and responsiveness on a production user path; a slow test suite alone stays with test reliability. `dsh-spec-error-handling` covers the failure paths those checks exercise. `dsh-spec-find-simplifications` proposes a reduction, and `dsh-spec-agent-notes` preserves a decision that needs more than the diff.
+`dsh-spec-code-review` judges the change; `dsh-spec-pre-push-checks` proves the parts a local check can prove; `dsh-spec-ci-test-reliability` owns the execution topology and deterministic duration behind a slow or unstable test in CI or an equivalent test lane. `dsh-spec-performance-investigation` owns measured latency, throughput, memory and responsiveness on a production user path; a slow test suite alone stays with test-lane reliability. `dsh-spec-error-handling` covers the failure paths those checks exercise. `dsh-spec-find-simplifications` proposes a reduction, and `dsh-spec-agent-notes` preserves a decision that needs more than the diff.
 
-All six skills are ported from dsh. `dsh-spec-performance-investigation` is generalized from `dsh-speed-up-perf`.
+All six skills are ported from dsh. `dsh-spec-ci-test-reliability` is generalized for CI or an equivalent test lane, and `dsh-spec-performance-investigation` is generalized from `dsh-speed-up-perf`.
 
 ## Change descriptions and landing
 

@@ -27,7 +27,7 @@ The reforge preserves the upstream responsibilities as generalized requirements 
 - Deliberate behavior differences are named, authorized and verified, while ordinary behavior and resource ownership are preserved.
 - Evidence limits are reported with the result rather than hidden behind a universal threshold.
 
-The current [performance investigation record](../../implemented/feature/2026-11-24-forging-dsh-spec-performance-investigation.md) remains the owner of the shipped skill until implementation. This proposal prepares its reforge and uses the naming rule in [Direct ports retain their upstream semantic stem](../architecture/2026-11-25-direct-ports-retain-upstream-semantic-stem.md).
+The current [performance investigation record](../../implemented/feature/2026-11-24-forging-dsh-spec-performance-investigation.md) remains the owner of the shipped skill until implementation. This proposal prepares its reforge and uses the naming rule in [Single-source ports retain their upstream semantic stem](../architecture/2026-11-25-single-source-ports-retain-upstream-semantic-stem.md).
 
 Tracking: #135. Earlier evaluation is recorded by #123 and landed through #129.
 

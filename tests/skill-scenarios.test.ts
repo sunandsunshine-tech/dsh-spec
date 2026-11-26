@@ -39,13 +39,51 @@ const safety = (await import('./skill-evals/runner-safety.mjs' as string)) as {
   ): Record<string, string>
 }
 const evidencePolicy = (await import('./skill-evals/evidence-policy.mjs' as string)) as {
+  assertRetainedRunPolicy(options: {
+    root: string
+    metadata: EvidenceMetadata
+    observed: Record<string, string | null>
+    provenance?: RetainedEvidenceObservation['provenance']
+    canaries: Array<{ set: string; value: string }>
+  }): EvidenceMetadata
   readEvidenceMetadata(root: string): EvidenceMetadata
   inspectRetainedRun(root: string, metadata: EvidenceMetadata): RetainedEvidenceObservation
-  validateScenarioClaim(skill: string, scenario: Scenario): unknown
-  readEvidenceMetadataRecord(root: string): {
+  inspectRetainedTriggerRun(
+    root: string,
+    metadata: EvidenceMetadata,
+    canaries: Array<{ set: string; value: string }>,
+  ): {
+    query: { id: string; query: string; should_trigger: boolean; agent_file: string }
+    currentness: Record<string, string | null>
+    execution: EvidenceMetadata['execution']
+  }
+  privacyCanariesFor(
+    skill: string,
+    subject: string,
+    options?: { includeCurrentHome?: boolean; currentHome?: string },
+  ): Array<{ set: string; value: string }>
+  readEvidenceMetadataRecord(
+    root: string,
+    canaries?: Array<{ set: string; value: string }>,
+  ): {
     metadata: EvidenceMetadata
     sha256: string
   }
+  validateScenarioClaim(skill: string, scenario: Scenario): unknown
+  modelPromptComponents(
+    skill: string,
+    scenario: Scenario,
+    arm: 'target-present' | 'target-absent',
+  ): { scenarioPrompt: string; armInstruction: string; promptGuard: string; renderedPrompt: string }
+  scenarioDefinitionHash(scenario: Scenario): string
+  sha256(value: string | Buffer): string
+  triggerCorpusSha256(options: {
+    corpus: string | Buffer
+    agentFile: string
+    agent: string | Buffer
+    files?: Array<{ path: string; bytes: string | Buffer; mode: string }>
+  }): string
+  triggerSurfaceSha256(skillText: string): string
 }
 
 interface Scenario {
@@ -84,6 +122,21 @@ interface EvidenceMetadata {
   comparison: unknown
   evidence: {
     currentness: Record<string, string | null>
+  }
+  execution: {
+    auth: string
+    browser: boolean
+    media: boolean
+    model_config_sha256: string
+    model_runtime_sha256: string
+    sandbox: string
+    subagents: boolean
+  }
+  deadline_ms: number
+  privacy: {
+    canary_sets: string[]
+    scope_sha256: string
+    surfaces: string
   }
 }
 
@@ -1006,6 +1059,156 @@ function assertCurrentBehaviorEvidence(root: string, skill: string, scenario: Sc
   assert.equal(observation.currentness.scenario_sha256, scenarioDefinitionHash(scenario), root + ' observed hash')
 }
 
+interface TriggerCorpus {
+  skill_name: string
+  agent_file: string
+  queries: Array<{
+    id: string
+    query: string
+    should_trigger: boolean
+    files?: string[]
+  }>
+}
+
+function readTriggerCorpus(skill: string): TriggerCorpus {
+  return JSON.parse(readFileSync(join(EVAL_SOURCE_ROOT, skill, 'trigger-evals.json'), 'utf8')) as TriggerCorpus
+}
+
+function currentTriggerCorpusSha256(skill: string, corpus: TriggerCorpus): string {
+  const resources = new Map<string, Buffer>()
+  for (const query of corpus.queries) {
+    for (const file of query.files ?? []) {
+      if (!resources.has(file)) resources.set(file, readFileSync(join(EVAL_SOURCE_ROOT, skill, file)))
+    }
+  }
+  return evidencePolicy.triggerCorpusSha256({
+    corpus: readFileSync(join(EVAL_SOURCE_ROOT, skill, 'trigger-evals.json')),
+    agentFile: corpus.agent_file,
+    agent: readFileSync(join(EVAL_SOURCE_ROOT, skill, corpus.agent_file)),
+    files: [...resources].map(([path, bytes]) => ({
+      path,
+      bytes,
+      mode: lstatSync(join(EVAL_SOURCE_ROOT, skill, path)).mode & 0o111 ? '0755' : '0644',
+    })),
+  })
+}
+
+function assertCurrentTypedTriggerEvidence(skill: string): void {
+  const corpus = readTriggerCorpus(skill)
+  assert.equal(corpus.skill_name, skill)
+  assert.equal(corpus.agent_file, 'trigger-fixtures/AGENTS.md')
+  const positive = corpus.queries.filter((query) => query.should_trigger).length
+  const negative = corpus.queries.filter((query) => !query.should_trigger).length
+  assert.deepEqual({ positive, negative }, { positive: 4, negative: 4 })
+  const surface = evidencePolicy.triggerSurfaceSha256(
+    readFileSync(join(REPO_ROOT, 'skills', skill, 'SKILL.md'), 'utf8'),
+  )
+  const corpusSha256 = currentTriggerCorpusSha256(skill, corpus)
+  const triggerRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-26-issue-144', skill, 'trigger')
+  const currentInputs = readHashManifest(join(triggerRoot, 'trigger-input.sha256'), skill + ' trigger inputs')
+  assert.deepEqual(
+    [...currentInputs].sort(([left], [right]) => left.localeCompare(right)),
+    [
+      [`skills/${skill}/SKILL.md#name-description`, surface],
+      [
+        `tests/skill-evals/${skill}/trigger-evals.json`,
+        createHash('sha256')
+          .update(readFileSync(join(EVAL_SOURCE_ROOT, skill, 'trigger-evals.json')))
+          .digest('hex'),
+      ],
+      [
+        `tests/skill-evals/${skill}/${corpus.agent_file}`,
+        createHash('sha256')
+          .update(readFileSync(join(EVAL_SOURCE_ROOT, skill, corpus.agent_file)))
+          .digest('hex'),
+      ],
+    ].sort(([left], [right]) => left.localeCompare(right)),
+  )
+  const matrix = readFileSync(join(triggerRoot, 'trigger-matrix.tsv'), 'utf8').trim().split('\n')
+  assert.equal(matrix[0], 'id\tshould_trigger\tselected\tresult')
+  assert.equal(matrix.length, corpus.queries.length + 1)
+  const matrixRows = new Map(
+    matrix.slice(1).map((line) => {
+      const [id, shouldTrigger, selected, result] = line.split('\t')
+      assert.ok(id && shouldTrigger && selected && result, 'current trigger matrix row is malformed')
+      return [id, { shouldTrigger, selected, result }] as const
+    }),
+  )
+  let execution: string | undefined
+  let deadline: number | undefined
+  for (const expected of corpus.queries) {
+    const root = join(triggerRoot, expected.id)
+    const canaries = evidencePolicy.privacyCanariesFor(skill, 'trigger', { includeCurrentHome: true })
+    const { metadata } = evidencePolicy.readEvidenceMetadataRecord(root, canaries)
+    const inspected = evidencePolicy.inspectRetainedTriggerRun(root, metadata, canaries)
+    assert.deepEqual(metadata.claim, { type: 'trigger', subject: `${skill}:trigger` })
+    assert.deepEqual(metadata.evidence.currentness, {
+      trigger_surface_sha256: surface,
+      trigger_corpus_sha256: corpusSha256,
+    })
+    assert.deepEqual(inspected.query, {
+      id: expected.id,
+      query: expected.query,
+      should_trigger: expected.should_trigger,
+      agent_file: corpus.agent_file,
+      currentness: {
+        trigger_surface_sha256: surface,
+        trigger_corpus_sha256: corpusSha256,
+      },
+    })
+    assert.match(readFileSync(join(root, 'status.txt'), 'utf8'), /^status: pass$/m)
+    assert.match(readFileSync(join(root, 'status.txt'), 'utf8'), /^assertions: 1\/1$/m)
+    const row = matrixRows.get(expected.id)
+    assert.ok(row, 'current trigger matrix omits ' + expected.id)
+    assert.equal(row.shouldTrigger, String(expected.should_trigger))
+    assert.equal(row.selected, String(expected.should_trigger))
+    assert.equal(row.result, 'pass')
+    const serializedExecution = JSON.stringify(metadata.execution)
+    if (execution === undefined) execution = serializedExecution
+    else assert.equal(serializedExecution, execution, 'trigger execution identity changed between runs')
+    if (deadline === undefined) deadline = metadata.deadline_ms
+    else assert.equal(metadata.deadline_ms, deadline, 'trigger deadline changed between runs')
+  }
+  assert.equal(deadline, 1_800_000)
+}
+
+function assertCurrentTypedBehaviorEvidence(skill: string, scenarioId: string): void {
+  const scenario = readCorpus(skill).evals.find((entry) => entry.id === scenarioId)
+  assert.ok(scenario)
+  const root = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-26-issue-144', skill, scenarioId)
+  const canaries = evidencePolicy.privacyCanariesFor(skill, scenarioId, { includeCurrentHome: true })
+  const { metadata } = evidencePolicy.readEvidenceMetadataRecord(root, canaries)
+  const inspected = evidencePolicy.inspectRetainedRun(root, metadata)
+  assert.deepEqual(metadata.claim, { type: 'behavior', subject: `${skill}:${scenarioId}` })
+  assert.equal(metadata.arm, 'target-present')
+  assert.deepEqual(inspected.scenario, scenario)
+  assert.equal(metadata.evidence.currentness.scenario_sha256, evidencePolicy.scenarioDefinitionHash(scenario))
+  const prompt = evidencePolicy.modelPromptComponents(skill, scenario, 'target-present')
+  assert.equal(metadata.evidence.currentness.scenario_prompt_sha256, evidencePolicy.sha256(scenario.prompt))
+  assert.equal(metadata.evidence.currentness.arm_instruction_sha256, evidencePolicy.sha256(prompt.armInstruction))
+  assert.equal(metadata.evidence.currentness.prompt_guard_sha256, evidencePolicy.sha256(prompt.promptGuard))
+  assert.equal(metadata.evidence.currentness.rendered_prompt_sha256, evidencePolicy.sha256(prompt.renderedPrompt))
+  const inputManifest = readFileSync(join(root, 'input-manifest.sha256'), 'utf8').trim().split('\n')
+  assert.deepEqual(
+    inputManifest.map((line) => parseHashPath(line, scenarioId).path),
+    scenario.files,
+  )
+  for (const line of inputManifest) {
+    const input = parseHashPath(line, scenarioId)
+    const absolute = join(EVAL_SOURCE_ROOT, skill, input.path)
+    assert.equal(createHash('sha256').update(readFileSync(absolute)).digest('hex'), input.hash)
+    assert.equal(lstatSync(absolute).mode & 0o111 ? '0755' : '0644', input.mode)
+  }
+  assert.match(readFileSync(join(root, 'status.txt'), 'utf8'), /^status: pass$/m)
+  assert.match(readFileSync(join(root, 'status.txt'), 'utf8'), /^assertions: 5\/5$/m)
+  assert.equal(
+    readFileSync(join(root, 'assertions.txt'), 'utf8').trim(),
+    scenario.assertions.map((assertion) => `PASS ${assertion}`).join('\n'),
+  )
+  assert.ok(traceCommandsFor(root).some((command) => commandPrintsSkill(command, skill)))
+  assert.equal(metadata.deadline_ms, 1_800_000)
+}
+
 function stageSkillWithEvals(skill: string): StagedSkill {
   const temporaryRoot = mkdtempSync(join(tmpdir(), 'skill-evals-'))
   const skillRoot = join(temporaryRoot, skill)
@@ -1856,11 +2059,77 @@ test('trigger evidence changes only with the name or description', () => {
   )
 })
 
-test('renamed skills bind current trigger evidence to the delivered name and description', () => {
+test('browser GIF renamed skill binds current trigger evidence to the delivered name and description', () => {
   const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-24-pr126')
-  for (const skill of ['dsh-spec-ci-test-reliability', 'dsh-spec-record-browser-gif']) {
-    assertCurrentTriggerEvidence(skill, join(evidenceRoot, skill))
+  assertCurrentTriggerEvidence('dsh-spec-record-browser-gif', join(evidenceRoot, 'dsh-spec-record-browser-gif'))
+})
+
+test('CI test reliability keeps pre-scope-correction trigger evidence historical', () => {
+  const skill = 'dsh-spec-ci-test-reliability'
+  const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-24-pr126', skill)
+  const readme = readFileSync(join(evidenceRoot, 'README.md'), 'utf8')
+  assert.match(readme, /^> \*\*Historical status:\*\* this 8\/8 matrix ran against the pre-#144 description/m)
+
+  const historicalInputs = readHashManifest(join(evidenceRoot, 'trigger-input.sha256'), skill + ' trigger inputs')
+  assert.equal(
+    historicalInputs.get(`tests/skill-evals/${skill}/trigger-evals.json`),
+    'e459b0811b911121423f0a4f6d1578842f187679e483dafc36cce4d3c3a19d70',
+  )
+  assert.equal(
+    historicalInputs.get(`tests/skill-evals/${skill}/trigger-fixtures/AGENTS.md`),
+    '0d20c0998086b650f634d062cb535c8437b81de1b0da47fa9f71d8bda8bf388a',
+  )
+  assert.equal(
+    historicalInputs.get(triggerSurfacePath(skill)),
+    '184680a812e8952c7c66bced4d1ee42bdc242ca9c2ed63f071aea7ae319bf3ad',
+  )
+  assert.notEqual(
+    historicalInputs.get(`tests/skill-evals/${skill}/trigger-evals.json`),
+    createHash('sha256')
+      .update(readFileSync(join(REPO_ROOT, `tests/skill-evals/${skill}/trigger-evals.json`)))
+      .digest('hex'),
+    'historical trigger corpus matches the current corpus',
+  )
+  assert.notEqual(
+    historicalInputs.get(triggerSurfacePath(skill)),
+    triggerSurfaceHash(skill),
+    'historical trigger surface matches the current skill',
+  )
+
+  const corpus = JSON.parse(readFileSync(join(EVAL_SOURCE_ROOT, skill, 'trigger-evals.json'), 'utf8')) as {
+    queries: Array<{ id: string; query: string; should_trigger: boolean }>
   }
+  assertTriggerCorpusIdentity(skill)
+  assert.deepEqual(
+    corpus.queries.map((query) => [query.id, query.should_trigger]),
+    [
+      ['parallel-port-collision', true],
+      ['test-order-global-leak', true],
+      ['teardown-child-leak', true],
+      ['slow-repeated-fixture', true],
+      ['production-latency', false],
+      ['coverage-percentage', false],
+      ['test-plan-document', false],
+      ['ui-visual-review', false],
+    ],
+  )
+  assert.match(corpus.queries.find((query) => query.id === 'slow-repeated-fixture')?.query ?? '', /test lane/)
+
+  const matrix = readFileSync(join(evidenceRoot, 'trigger-matrix.tsv'), 'utf8').trim().split('\n')
+  assert.equal(matrix[0], 'id\tshould_trigger\tselected\tresult')
+  assert.equal(matrix.length, corpus.queries.length + 1)
+  for (const line of matrix.slice(1)) {
+    const [id, shouldTrigger, selected, result] = line.split('\t')
+    assert.ok(id && shouldTrigger && selected && result, 'historical trigger row is malformed')
+    assert.equal(shouldTrigger, selected, id + ' historical trigger decision changed')
+    assert.equal(result, 'pass', id + ' historical trigger run did not pass')
+  }
+})
+
+test('CI test reliability binds current typed trigger and slow-suite evidence', () => {
+  const skill = 'dsh-spec-ci-test-reliability'
+  assertCurrentTypedTriggerEvidence(skill)
+  assertCurrentTypedBehaviorEvidence(skill, 'redesign-slow-repeated-suite')
 })
 
 test('performance investigation binds current trigger evidence', () => {
@@ -4641,6 +4910,7 @@ test('committed evidence text contains no local home or build-toolchain paths', 
   const root = join(REPO_ROOT, 'tests/skill-evals/evidence')
   for (const relative of readdirSync(root, { recursive: true })) {
     if (typeof relative !== 'string' || !/\.(?:md|txt|json|jsonl|log|yaml|yml)$/.test(relative)) continue
+    if (relative.startsWith('2099-') || relative.split(/[\\/]/).some((part) => part.startsWith('.run-'))) continue
     const file = join(root, relative)
     assertRegularEvidenceFile(file, relative)
     const text = readFileSync(file, 'utf8')
@@ -4653,6 +4923,56 @@ test('committed evidence text contains no local home or build-toolchain paths', 
       assert.doesNotMatch(text, /\/tmp\/|\/mnt\/c\//i, relative + ' contains local temporary or host paths')
     }
   }
+})
+
+test('every typed evidence leaf passes full retained policy under a different HOME', () => {
+  const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence')
+  let checked = 0
+  for (const relativePath of readdirSync(evidenceRoot, { recursive: true })) {
+    if (typeof relativePath !== 'string' || !relativePath.endsWith('evidence.json')) continue
+    if (relativePath.startsWith('2099-') || relativePath.split(/[\\/]/).some((part) => part.startsWith('.run-')))
+      continue
+    const root = dirname(join(evidenceRoot, relativePath))
+    const metadata = evidencePolicy.readEvidenceMetadata(root)
+    const [skill, scenarioId] = metadata.claim.subject.split(':')
+    const canaries = evidencePolicy.privacyCanariesFor(skill, scenarioId, {
+      includeCurrentHome: true,
+      currentHome: '/home/privacy-verifier',
+    })
+    let observed: Record<string, string | null>
+    let provenance: RetainedEvidenceObservation['provenance'] | undefined
+    if (metadata.claim.type === 'trigger') {
+      observed = evidencePolicy.inspectRetainedTriggerRun(root, metadata, canaries).currentness
+    } else {
+      const observation = evidencePolicy.inspectRetainedRun(root, metadata)
+      observed = observation.currentness
+      provenance = observation.provenance
+      evidencePolicy.assertRetainedRunPolicy({
+        root,
+        metadata,
+        observed,
+        provenance,
+        canaries,
+      })
+    }
+    assert.throws(
+      () =>
+        evidencePolicy.assertRetainedRunPolicy({
+          root,
+          metadata: {
+            ...metadata,
+            privacy: { ...metadata.privacy, scope_sha256: 'e'.repeat(64) },
+          },
+          observed,
+          provenance,
+          canaries,
+        }),
+      /supplied canaries/,
+      relativePath + ' accepted a forged privacy scope',
+    )
+    checked += 1
+  }
+  assert.equal(checked, 13, 'typed evidence leaf count changed')
 })
 
 test('the model runner refuses to replace the repository or evidence root', () => {

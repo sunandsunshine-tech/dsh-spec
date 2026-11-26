@@ -12,7 +12,7 @@ Status: implemented
 
 ## Decision
 
-本包交付 `dsh-spec-ci-test-reliability`，作为面向通用软件工程的技能。它拥有测试隔离、执行拓扑建模、资源分配、进程全局状态约束、平台语义、确定性测试耗时的设计、timeout 预算、状态同步、静止清理、回归证明、不稳定掩盖拒绝规则和只读 flaky 诊断。
+本包交付 `dsh-spec-ci-test-reliability`，作为面向 CI 或等效测试执行通道中测试的通用化技能。它拥有测试隔离、执行拓扑建模、资源分配、进程全局状态约束、平台语义、确定性测试执行通道耗时的设计、timeout 预算、状态同步、静止清理、回归证明、不稳定掩盖拒绝规则和只读 flaky 诊断。生产环境中的延迟、吞吐、内存和响应性不属于该技能。
 
 快速契约／共享真实资源场景的默认规则位于 `Design the smallest sufficient test`。仅诊断请求只读的规则位于 `Diagnose existing flakes`。执行拓扑章节不再点名任一默认规则，因此每条规则只有一个使用点。
 
@@ -50,7 +50,7 @@ Status: implemented
 
 | # | 决定 | 理由 | 回退方式 |
 |---|---|---|---|
-| R1 | 目标是任何带自动化测试的软件项目，而不是单一仓库或语言。 | 本包存在的目的就是避免另一个项目的生态和工具链。 | 恢复为单一项目或语言。 |
+| R1 | 目标是任何其自动化测试在 CI 或等效测试执行通道中运行的软件项目，而不是单一仓库或语言。 | 本包存在的目的就是避免另一个项目的生态和工具链，同时保留上游技能的 CI 可靠性范围。 | 恢复为单一项目或语言，或移除测试执行通道边界。 |
 | R2 | 测试策略、架构和生命周期规则从采用项目的常驻指令（standing instructions）及其点名的文档读取。 | 这些文档才拥有实际约束测试的事实。 | 再次写死来源路径。 |
 | R3 | 测试运行器配置、CI workflow、worker 数、job 拓扑和 runner 在影响用例时从项目读取。 | 来源中的 Vitest 和 GitHub Actions 只是实例，不是通用机制。 | 恢复单一测试运行器和 CI 提供方。 |
 | R4 | 命令选择与测试设计保持分离。 | 可靠的测试可能搭配不足的出站检查集，而命令选择无法修复不稳定 fixture（测试前置数据）。 | 将命令选择并入本技能。 |
@@ -64,8 +64,8 @@ Status: implemented
 | R12 | retry 和全局串行化不是默认修复。 | 它们掩盖所有权和拓扑缺陷，并让整套测试承担成本。 | 默认允许掩盖。 |
 | R13 | 仅诊断请求保持只读，只分类证据，不改变代码、workflow 或重跑状态。 | 调查权限不包含修复权限。 | 允许诊断触发无关修改。 |
 | R14 | 评估清单和 fixture 仅作为开发侧资产。 | 采用者需要运行时指令，而不是本仓库的开发提示和样本失败。 | 把 eval 放入技能交付树。 |
-| R15 | 确定性测试耗时是设计反馈：默认采用快速契约用例加上一个共享的昂贵场景，只在结果可能不同的 lane 重复外部工作。 | 更长的 timeout 会保留重复 setup 和过宽覆盖，只会让套件更慢、信息更少。 | 把更大的 timeout 或完整的外部工作矩阵当作默认。 |
-| R16 | 交付名称是 `dsh-spec-ci-test-reliability`，在本包命名空间下保留上游 `dsh-ci-test-reliability` 名称。 | 来源与安装后的技能保持可识别，不需要第二套命名词汇。 | 改回偏离上游来源的名称。 |
+| R15 | 确定性测试执行通道耗时是设计反馈：默认采用快速契约用例加上一个共享的昂贵场景，只在结果可能不同的执行通道重复外部工作。它不是生产性能声明。 | 更长的 timeout 会保留重复 setup 和过宽覆盖，只会让套件更慢、信息更少。 | 把更大的 timeout、生产性能分析或完整的外部工作矩阵当作默认。 |
+| R16 | 交付名称是 `dsh-spec-ci-test-reliability`，在本包命名空间下保留上游 `dsh-ci-test-reliability` 名称。 | 来源与安装后的技能保持可识别，不需要第二套命名词汇，且 #131 要求单来源通用化移植保留上游语义词干。 | 改回偏离上游来源的名称。 |
 
 ## Constraint dispositions
 
@@ -73,14 +73,14 @@ Status: implemented
 
 | # | 来源 | 约束 | 处理 | 目标位置 | 依据 |
 |---|---|---|---|---|---|
-| S0 | `SK:1–8` | 名称、description、标题与范围：真实 CI 拓扑下的可靠测试；隔离属于本技能，命令选择不属于。 | Adapt | 元数据与开头 | 删除来源产品并通用化测试模型。 |
+| S0 | `SK:1–8` | 名称、description、标题与范围：真实 CI 拓扑下的可靠测试；隔离属于本技能，命令选择不属于。 | Adapt | 元数据、标题与开头 | 删除来源产品，保留 CI 语义词干，并把拓扑通用化到 CI 或等效测试执行通道。 |
 | S1 | `SK:10–16` | 阅读测试层级、生命周期和 CI 拓扑规则；命令选择分开处理。 | Re-bind | Read the owning rules | 绑定到采用项目的声明和检查选择实践。 |
 | S2 | `SK:18–29` | 建模文件、worker、进程和共享 runner；识别资源所有者、分配、就绪、清理和完成；不要串行化整套测试。 | Keep | Model the execution topology | 产品名无需修改，规则本身与框架无关。 |
 | S3 | `SK:31–41` | 原子分配端口、临时根目录、命名空间和独占路径；区分稳定标识与临时资源。 | Adapt | Allocate resources atomically | 用可移植的分配行为替代来源 API 示例。 |
 | S4 | `SK:43–54` | 把进程全局状态视为独占资源；捕获不存在状态，立即恢复，使用有界作用域和 fallback 拦截。 | Adapt | Contain process-global state | 把仅 JavaScript 的标识替换为跨语言等价物，同时保留示例。 |
 | S5 | `SK:56–65` | 尊重平台拥有的精度、环境变量名大小写、句柄释放、权限和信号。 | Keep | Respect platform-owned semantics | 通用平台规则可保留。 |
 | S6 | `SK:67–73` | 根据 lane 预算 timeout；同时提高 setup 与 teardown；外层等待大于被测 timeout。 | Keep | Budget timeouts against the lane | 通用测试运行器规则。 |
-| S6a | 目标要求 | 过长的确定性测试耗时属于测试设计问题，而不是 timeout 预算问题；区分慢工作与快速契约，并运行一个共享的代表性昂贵场景。 | Adapt | Design the smallest sufficient test | 防止延长 timeout 掩盖重复 setup 或过宽矩阵。 |
+| S6a | 目标要求 | 过长的确定性测试执行通道耗时属于测试设计问题，而不是 timeout 预算问题；区分慢工作与快速契约，并运行一个共享的代表性昂贵场景。 | Adapt | Design the smallest sufficient test | 防止延长 timeout 掩盖重复 setup 或过宽矩阵，同时保持与生产性能的边界。 |
 | S7 | `SK:75–83` | 以 readiness、状态转换、拥有的 promise 和 barrier 同步；timeout 只限制等待；恢复真实时间。 | Adapt | Synchronize on state | 删除 Node/Vitest 词汇，保留规则。 |
 | S8 | `SK:85–89` | 获取后立即登记清理，分离所有拥有的资源，并等待静止。 | Keep | Dispose to quiescence | 通用生命周期约定。 |
 | S9 | `SK:91–100` | 用失败控制证明目标回归；在相关处证明重叠或跨进程隔离。 | Keep | Prove the intended regression | 通用证据规则。 |
@@ -97,19 +97,19 @@ Status: implemented
 
 | # | 要求 | 锚点 | 证据 |
 |---|---|---|---|
-| A0 | 技能符合 Agent Skills 格式，引用只深一层，description 符合包的目录预算。 | Mechanical | skill-spec gate 通过 14 项检查；`SKILL.md` 为 146 行，description 为 434 字符，正文估计 2,781 tokens。 |
+| A0 | 技能符合 Agent Skills 格式，引用只深一层，description 符合包的目录预算。 | Mechanical | skill-spec gate 通过 14 项检查；`SKILL.md` 为 148 行，description 为 498 字符，正文估计保持在仓库预算内。 |
 | A1 | 来源的拓扑、资源、全局状态、平台、timeout、同步、清理、回归和掩盖规则都在。 | Judged | 对照 S0–S12 检查 `SKILL.md` |
 | A2 | 诊断保留证据、分类、拓扑限制、所有权和只读权限。 | Judged | 对照 F0–F4 检查 `references/ci-flake-diagnosis.md` |
 | A3 | 技能不把框架、CI 提供方、来源产品路径或命令写成要求。 | Judged + Mechanical | 人工评审未发现来源产品指称对象；语料的 sibling-reference 门禁通过。 |
 | A4 | 推送前关系是可选项，并且只点名机制。 | Mechanical | 语料的 sibling-reference 门禁通过。 |
 | A5 | 可运行 fixture 覆盖确定性端口失败、精确全局状态恢复、只读诊断，以及重新设计一个缓慢且重复执行昂贵 setup 的套件。 | Mechanical | 仓库测试运行 fixture 的正向与负向控制，并暂存所有声明输入；四个直接 fixture 入口合计不到一秒。 |
-| A6 | 场景上的运行时模型行为。 | 判断 + 机械 | `tests/skill-evals/evidence/2026-11-20-pr116/`、`2026-11-23-pr116/` 与 `2026-11-23-pr121/dsh-spec-test-reliability/` 下的运行均为历史记录修订。隔离诊断与慢套件运行以原名身份通过 10/10 项断言。当前改名改变的是触发面，不是行为指令。 |
-| A6a | description 能路由可靠性工作与测试耗时工作，同时不捕获相邻的产品性能、覆盖率、文档或视觉评审任务。 | 判断 + 机械 | 当前对齐名称下，四个正例和四个近邻反例通过稳定 `SELECT:` 标记达到 8/8，证据在 `tests/skill-evals/evidence/2026-11-24-pr126/dsh-spec-ci-test-reliability/trigger-matrix.tsv`。较早探针只作为原 frontmatter 身份的历史证据。 |
+| A6 | 场景上的运行时模型行为。 | 判断 + 机械 | 当前 target-present `redesign-slow-repeated-suite` 运行位于 `tests/skill-evals/evidence/2026-11-26-issue-144/dsh-spec-ci-test-reliability/redesign-slow-repeated-suite/`，通过 5/5 项断言。其类型化元数据绑定了当前场景、输入清单、提示词和执行身份。较早的 PR116 与 PR121 运行仍是历史记录修订。 |
+| A6a | description 能路由 CI 与等效测试执行通道的可靠性和测试耗时工作，同时不捕获生产性能、覆盖率、文档或视觉评审任务。 | 判断 + 机械 | 当前类型化触发证据位于 `tests/skill-evals/evidence/2026-11-26-issue-144/dsh-spec-ci-test-reliability/trigger/`，通过 8/8：四个预期选中项和四个预期未选中项。每次运行都绑定 surface `72328dc29f5bc516aff27b3f36d8b44c360d18b393bf5f62f39457e5887bb479`、完整触发语料身份 `3c7f5e2f149066d13093d5d3b557c6972f9e45a6b17059c43811b0a2d0fc4ba3` 以及同一个执行身份。#144 之前的 PR126 矩阵仍为历史证据。 |
 | A7 | 安装副本、notices、活跃记录树和翻译配对一致。 | Mechanical | 最终功能套件用桩化语料验证编排约定；真实语料由 `pnpm run check:corpus` 步骤拥有。决策记录、配对、notices、格式、静态与 bundle 检查均通过，此处不再复制进程计数。 |
 
 ## Pages read
 
-读取于 2026-11-20：
+读取于 2026-11-26：
 
 - `https://agentskills.io/llms.txt`
 - `https://agentskills.io/specification.md`
@@ -137,8 +137,9 @@ Status: implemented
 
 ## Consequences
 
-- 本包新增一个通用测试设计、评审和 flaky 诊断技能，不依赖测试框架或 CI 提供方。
+- 本包新增一个面向 CI 或等效测试执行通道的测试设计、评审和 flaky 诊断技能，不依赖测试框架或 CI 提供方。
 - 主入口携带运行规则；诊断参考只在已有概率性失败时加载。
 - 四个可运行开发场景覆盖核心行为。PR116 与记录的 PR121 重跑保留其原技能身份和历史来源。
+- 当前类型化触发证据通过 8/8，受影响的慢套件行为运行通过 5/5。历史运行保留其记录时的输入和 hash。
 - 来源许可证和关系随安装副本一起交付。
 - 回退方式是反转实现提交；抽取 submodule 保持不变。

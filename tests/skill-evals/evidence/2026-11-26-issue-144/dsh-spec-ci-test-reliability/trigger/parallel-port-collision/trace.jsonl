@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a21795-8eb1-74f1-a110-663e8e1dc6ca"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The intermittent `EADDRINUSE` in parallel CI processes is a listener and test-reliability problem affected by concurrency and shared hosts, so the `dsh-spec-ci-test-reliability` skill clearly applies.\n\nSELECT: dsh-spec-ci-test-reliability"}}
+{"type":"turn.completed","usage":{"input_tokens":12421,"cached_input_tokens":12287,"cache_write_input_tokens":0,"output_tokens":156,"reasoning_output_tokens":97}}

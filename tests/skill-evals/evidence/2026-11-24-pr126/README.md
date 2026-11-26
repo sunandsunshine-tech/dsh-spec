@@ -13,7 +13,10 @@ was `deepseek-flash`.
 
 The CI test-reliability corpus contains four positive examples and four near misses. The browser
 GIF corpus contains three positive examples and five near misses. All 16 probes ended with the
-stable selection marker and matched the expected decision.
+stable selection marker and matched the expected decision at the recorded inputs.
 
 `trigger-input.sha256` binds the trigger corpus, fixture and current `SKILL.md` name/description
-surface. The earlier trigger runs remain historical records under the former skill identities.
+surface. The CI test-reliability matrix is historical after #144 changed its trigger surface; its
+[per-skill note](dsh-spec-ci-test-reliability/README.md) links the current evidence. The browser-GIF
+matrix remains current for that unchanged skill. The earlier trigger runs remain historical records
+under the former skill identities.

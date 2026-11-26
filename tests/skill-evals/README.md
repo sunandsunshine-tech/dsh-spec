@@ -23,6 +23,14 @@ read-only or editable project behavior; Codex runs without a second sandbox beca
 already the boundary. The host needs `bubblewrap` (`bwrap`) with `--size` support; `flock` supplies
 crash-released output locking.
 
+Use `--trigger-id <id>` instead of `--scenario` for one selection probe from
+`trigger-evals.json`. Trigger mode requires `--sandbox read-only`, stages only the target skill,
+the corpus's `trigger-fixtures/AGENTS.md` at the project root and the selected query's declared
+fixtures, then requires an unchanged workspace and the expected stable `SELECT:` marker before
+promotion. Its output uses `evidence/<date>/<skill>/trigger/<query-id>`. Trigger currentness binds
+the name/description surface and a canonical corpus identity covering `trigger-evals.json`, the
+agent fixture and every query fixture's path, content and executable mode.
+
 A comparative scenario declares `comparison` with exactly `baseline: "target-absent"`,
 `candidate: "target-present"` and a non-empty `conditions` string array.
 
@@ -170,12 +178,14 @@ bounded chunks, catches matches across chunk boundaries, rejects links and speci
 only the canary set plus a relative surface when that surface does not itself contain the match. The
 checked-in evidence tree receives the same whole-tree scan in routine tests. A canary is a leak
 tripwire; semantic review still decides whether transformed, compressed, rendered or encoded content
-exposes private data. `evidence.json` hashes the ordered canary scope, including the current-home
-canary, without retaining canary values. Validation reconstructs that hash from the supplied
-canaries, requires the exact subject-selected set names and current-home value, and scans only the
-validated scope. The current home comes from the running process; committed tooling keeps only the
-generic WSL user and Conda home prefixes in the local-environment set. Path preflight diagnostics
-state the required relative shape without echoing an absolute output or counterpart path.
+exposes private data. `evidence.json` hashes a portable canary scope rather than the live host
+values: stable canary sets include their values, while `current-home` contributes only its set
+identity. Live execution still scans the actual current-home path. Retained validation requires the
+exact subject-selected sets and stable values and scans the supplied live current-home path, without
+comparing that path with a path recorded during authoring. The current home comes from the running
+process; committed tooling keeps only the generic WSL user and Conda home prefixes in the
+local-environment set. Path preflight diagnostics state the required relative shape without echoing
+an absolute output or counterpart path.
 
 ## Coverage
 

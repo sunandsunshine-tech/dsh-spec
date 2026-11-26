@@ -65,6 +65,15 @@ const policy = (await import('./skill-evals/evidence-policy.mjs' as string)) as 
     execution: ExecutionProfile
     deadlineMs?: number
   }): EvidenceMetadata
+  createTriggerEvidenceMetadata(options: {
+    skill: string
+    triggerSurfaceSha256: string
+    triggerCorpusSha256: string
+    currentHome?: string
+    privacyCanaries?: Array<{ set: string; value: string }>
+    execution: ExecutionProfile
+    deadlineMs?: number
+  }): EvidenceMetadata
   privacyScopeSha256(canaries: Array<{ set: string; value: string }>): string
   privacyCanariesFor(
     skill: string,
@@ -85,6 +94,21 @@ const policy = (await import('./skill-evals/evidence-policy.mjs' as string)) as 
     currentness: Record<string, string | null>
     provenance: { target_skill_tree_sha256: string | null; dependency_skill_tree_sha256: string }
   }
+  inspectRetainedTriggerRun(
+    root: string,
+    metadata: EvidenceMetadata,
+    canaries: Array<{ set: string; value: string }>,
+  ): {
+    query: {
+      id: string
+      query: string
+      should_trigger: boolean
+      agent_file: string
+      currentness: { trigger_surface_sha256: string; trigger_corpus_sha256: string }
+    }
+    currentness: Record<string, string | null>
+  }
+  finalAgentMessageFromTrace(trace: string): string | undefined
   modelPromptComponents(
     skill: string,
     scenario: { id: string; prompt: string; comparison?: Comparison; allow_subagents?: boolean },
@@ -110,6 +134,13 @@ const policy = (await import('./skill-evals/evidence-policy.mjs' as string)) as 
   ): { files: number }
   sha256(value: string): string
   terminalTurnEvent(trace: string): { type: string }
+  triggerCorpusSha256(options: {
+    corpus: string | Buffer
+    agentFile: string
+    agent: string | Buffer
+    files?: Array<{ path: string; bytes: string | Buffer; mode: string }>
+  }): string
+  triggerSurfaceSha256(skillText: string): string
   validateEvidenceMetadata(metadata: EvidenceMetadata): EvidenceMetadata
   validateModelArm(claim: Claim, arm: string): string
   validateScenarioClaim(skill: string, scenario: { id: string; comparison?: unknown }): Claim
@@ -255,6 +286,148 @@ test('claim typing distinguishes behavior, trigger and comparative evidence', ()
   )
 })
 
+test('trigger evidence binds the catalog surface and complete trigger corpus resources', () => {
+  const skill = [
+    '---',
+    'name: dsh-spec-example',
+    'description: "Select the example trigger. 用于示例。"',
+    '---',
+    '# Example',
+    'First body.',
+    '',
+  ].join('\n')
+  const surface = policy.triggerSurfaceSha256(skill)
+  assert.equal(policy.triggerSurfaceSha256(skill.replace('First body.', 'Different body.')), surface)
+  assert.notEqual(
+    policy.triggerSurfaceSha256(skill.replace('Select the example trigger.', 'Select changed work.')),
+    surface,
+  )
+
+  const corpus = '{"queries":[]}\n'
+  const agent = 'Select only from the installed catalog.\n'
+  const corpusIdentity = policy.triggerCorpusSha256({
+    corpus,
+    agentFile: 'trigger-fixtures/AGENTS.md',
+    agent,
+    files: [{ path: 'trigger-fixtures/case/input.txt', bytes: 'input\n', mode: '0644' }],
+  })
+  assert.equal(
+    policy.triggerCorpusSha256({
+      corpus,
+      agentFile: 'trigger-fixtures/AGENTS.md',
+      agent,
+      files: [{ path: 'trigger-fixtures/case/input.txt', bytes: 'input\n', mode: '0644' }],
+    }),
+    corpusIdentity,
+  )
+  assert.notEqual(
+    policy.triggerCorpusSha256({
+      corpus,
+      agentFile: 'trigger-fixtures/AGENTS.md',
+      agent: `${agent}Changed instruction.\n`,
+      files: [{ path: 'trigger-fixtures/case/input.txt', bytes: 'input\n', mode: '0644' }],
+    }),
+    corpusIdentity,
+  )
+  assert.notEqual(
+    policy.triggerCorpusSha256({
+      corpus,
+      agentFile: 'trigger-fixtures/AGENTS.md',
+      agent,
+      files: [{ path: 'trigger-fixtures/case/input.txt', bytes: 'changed\n', mode: '0644' }],
+    }),
+    corpusIdentity,
+  )
+  assert.notEqual(
+    policy.triggerCorpusSha256({
+      corpus,
+      agentFile: 'trigger-fixtures/AGENTS.md',
+      agent,
+      files: [{ path: 'trigger-fixtures/case/input.txt', bytes: 'input\n', mode: '0755' }],
+    }),
+    corpusIdentity,
+  )
+  assert.equal(
+    policy.triggerCorpusSha256({
+      corpus,
+      agentFile: 'trigger-fixtures/AGENTS.md',
+      agent,
+      files: [
+        { path: 'trigger-fixtures/z.txt', bytes: 'z\n', mode: '0644' },
+        { path: 'trigger-fixtures/a.txt', bytes: 'a\n', mode: '0644' },
+      ],
+    }),
+    policy.triggerCorpusSha256({
+      corpus,
+      agentFile: 'trigger-fixtures/AGENTS.md',
+      agent,
+      files: [
+        { path: 'trigger-fixtures/a.txt', bytes: 'a\n', mode: '0644' },
+        { path: 'trigger-fixtures/z.txt', bytes: 'z\n', mode: '0644' },
+      ],
+    }),
+  )
+
+  const triggerExecution = { ...execution, sandbox: 'read-only' }
+  const canaries = policy.privacyCanariesFor('dsh-spec-example', 'trigger', {
+    includeCurrentHome: true,
+    currentHome: '/home/test',
+  })
+  const metadata = policy.createTriggerEvidenceMetadata({
+    skill: 'dsh-spec-example',
+    triggerSurfaceSha256: surface,
+    triggerCorpusSha256: corpusIdentity,
+    currentHome: '/home/test',
+    privacyCanaries: canaries,
+    execution: triggerExecution,
+  })
+  assert.deepEqual(metadata.claim, { type: 'trigger', subject: 'dsh-spec-example:trigger' })
+  assert.equal(metadata.arm, null)
+  assert.equal(metadata.comparison, null)
+  assert.deepEqual(metadata.evidence.currentness, {
+    trigger_surface_sha256: surface,
+    trigger_corpus_sha256: corpusIdentity,
+  })
+  assert.deepEqual(policy.compareEvidenceCurrentness(metadata, metadata.evidence.currentness), {
+    current: true,
+    reasons: [],
+  })
+  for (const executionProfile of [
+    { ...triggerExecution, sandbox: 'workspace-write' },
+    { ...triggerExecution, subagents: true },
+    { ...triggerExecution, browser: true },
+    { ...triggerExecution, media: true },
+  ]) {
+    assert.throws(
+      () =>
+        policy.createTriggerEvidenceMetadata({
+          skill: 'dsh-spec-example',
+          triggerSurfaceSha256: surface,
+          triggerCorpusSha256: corpusIdentity,
+          currentHome: '/home/test',
+          privacyCanaries: canaries,
+          execution: executionProfile,
+        }),
+      /read-only execution without browser, media or subagents/,
+    )
+  }
+  for (const executionProfile of [
+    { ...metadata.execution, sandbox: 'workspace-write' },
+    { ...metadata.execution, subagents: true },
+    { ...metadata.execution, browser: true },
+    { ...metadata.execution, media: true },
+  ]) {
+    assert.throws(
+      () =>
+        policy.validateEvidenceMetadata({
+          ...metadata,
+          execution: executionProfile,
+        }),
+      /read-only execution without browser, media or subagents/,
+    )
+  }
+})
+
 test('scenario comparison typing rejects missing roles, empty conditions and unknown fields', () => {
   const valid = {
     baseline: 'target-absent',
@@ -385,7 +558,7 @@ test('currentness is selective by claim inputs', () => {
         trigger_corpus_sha256: hashB,
       },
     },
-    execution,
+    execution: { ...execution, sandbox: 'read-only' },
     deadline_ms: policy.DEFAULT_MODEL_DEADLINE_MS,
     privacy: {
       canary_sets: ['current-home', 'local-environment'],
@@ -591,11 +764,18 @@ test('comparison arms must share prompt, inputs, execution, deadline and privacy
     execution,
     deadlineMs: 60_000,
   })
+  assert.doesNotThrow(() =>
+    policy.assertComparableEvidenceArms(candidatePrivacyScope, differentPrivacyScope, comparisonLinkOptions(scenario)),
+  )
+  const unrelatedPrivacyScope = {
+    ...differentPrivacyScope,
+    privacy: { ...differentPrivacyScope.privacy, scope_sha256: 'e'.repeat(64) },
+  }
   assert.throws(
     () =>
       policy.assertComparableEvidenceArms(
         candidatePrivacyScope,
-        differentPrivacyScope,
+        unrelatedPrivacyScope,
         comparisonLinkOptions(scenario),
       ),
     /disagree on privacy scope/,
@@ -1136,17 +1316,15 @@ test('common retained-run validation rejects stale evidence and leaked canaries'
         }),
       /provenance differs/,
     )
-    assert.throws(
-      () =>
-        policy.assertRetainedRunPolicy({
-          root,
-          metadata,
-          observed,
-          provenance,
-          canaries: scopeCanaries('/home/other'),
-          currentHome: '/home/test',
-        }),
-      /subject-required values|supplied scope/,
+    assert.equal(
+      policy.assertRetainedRunPolicy({
+        root,
+        metadata,
+        observed,
+        provenance,
+        canaries: scopeCanaries('/home/other'),
+      }),
+      metadata,
     )
     assert.throws(
       () =>
@@ -1186,7 +1364,7 @@ test('common retained-run validation rejects stale evidence and leaked canaries'
   }
 })
 
-test('model evidence requires every subject-selected privacy set and the current home', () => {
+test('model evidence requires every subject-selected privacy set and a portable current-home identity', () => {
   const create = (privacyCanaries: Array<{ set: string; value: string }>, currentHome = '/home/test') =>
     policy.createModelEvidenceMetadata({
       skill: 'dsh-spec-performance-investigation',
@@ -1214,11 +1392,68 @@ test('model evidence requires every subject-selected privacy set and the current
   assert.throws(() => create(valid.filter((canary) => canary.set !== 'current-home')), /subject-required/)
   assert.throws(() => create(valid.filter((canary) => canary.set !== 'private-performance-corpus')), /subject-required/)
   assert.throws(() => create([...valid, { set: 'extra', value: 'extra' }]), /subject-required/)
-  assert.throws(
-    () => create(valid.map((canary) => (canary.set === 'current-home' ? { ...canary, value: '/home/other' } : canary))),
-    /subject-required values/,
+  assert.doesNotThrow(() =>
+    create(valid.map((canary) => (canary.set === 'current-home' ? { ...canary, value: '/home/other' } : canary))),
   )
   assert.throws(() => create([...valid, { set: 'local-environment', value: '/extra' }]), /subject-required values/)
+})
+
+test('recorded privacy scope is location-independent while live scanning uses the verifier home', () => {
+  const root = mkdtempSync(join(tmpdir(), 'evidence-policy-portable-privacy-'))
+  try {
+    const authorHome = '/home/author'
+    const verifierHome = '/home/verifier'
+    const authorCanaries = policy.privacyCanariesFor('dsh-spec-example', 'example-behavior', {
+      includeCurrentHome: true,
+      currentHome: authorHome,
+    })
+    const verifierCanaries = policy.privacyCanariesFor('dsh-spec-example', 'example-behavior', {
+      includeCurrentHome: true,
+      currentHome: verifierHome,
+    })
+    assert.equal(policy.privacyScopeSha256(authorCanaries), policy.privacyScopeSha256(verifierCanaries))
+    const metadata = behaviorMetadata(authorCanaries, authorHome)
+    const observed = {
+      scenario_sha256: hashA,
+      input_manifest_sha256: hashB,
+      scenario_prompt_sha256: sha256('Behavior scenario prompt.'),
+      arm_instruction_sha256: sha256('Use the installed skill. '),
+      prompt_guard_sha256: sha256('Work only inside the current project.'),
+      rendered_prompt_sha256: sha256(
+        'Behavior scenario prompt.\n\nUse the installed skill. Work only inside the current project.',
+      ),
+      execution_sha256: metadata.evidence.currentness.execution_sha256,
+    }
+    const provenance = {
+      target_skill_tree_sha256: hashC,
+      dependency_skill_tree_sha256: sha256(''),
+    }
+    writeFileSync(join(root, 'trace.jsonl'), `${JSON.stringify({ type: 'turn.completed', usage: {} })}\n`)
+    writeFileSync(join(root, 'final.md'), `safe\n${verifierHome}\n`)
+    assert.throws(
+      () =>
+        policy.assertRetainedRunPolicy({
+          root,
+          metadata,
+          observed,
+          provenance,
+          canaries: verifierCanaries,
+        }),
+      /canary/,
+    )
+    writeFileSync(join(root, 'final.md'), 'safe\n')
+    assert.doesNotThrow(() =>
+      policy.assertRetainedRunPolicy({
+        root,
+        metadata,
+        observed,
+        provenance,
+        canaries: verifierCanaries,
+      }),
+    )
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
 })
 
 test('privacy canaries derive current-home and do not embed a contributor home', () => {

@@ -27,7 +27,7 @@ Status: proposed
 - 有意的行为差异被点名、获授权并验证，同时普通行为与资源所有权保持不变。
 - 证据限制随结果报告，不能藏在一个通用 threshold 后面。
 
-当前[性能调查记录](../../implemented/feature/2026-11-24-forging-dsh-spec-performance-investigation.zh.md)在实现前仍是已发布技能的 owner。本提案准备其重构，并采用[直接移植保留上游语义词干](../architecture/2026-11-25-direct-ports-retain-upstream-semantic-stem.zh.md)中的命名规则。
+当前[性能调查记录](../../implemented/feature/2026-11-24-forging-dsh-spec-performance-investigation.zh.md)在实现前仍是已发布技能的 owner。本提案准备其重构，并采用[单来源移植保留上游语义词干](../architecture/2026-11-25-single-source-ports-retain-upstream-semantic-stem.zh.md)中的命名规则。
 
 跟踪：#135。#123 记录较早的评估，并通过 #129 合入。
 

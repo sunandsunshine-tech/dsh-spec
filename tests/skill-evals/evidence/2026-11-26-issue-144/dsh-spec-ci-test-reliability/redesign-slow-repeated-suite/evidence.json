@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "claim": {
+    "type": "behavior",
+    "subject": "dsh-spec-ci-test-reliability:redesign-slow-repeated-suite"
+  },
+  "arm": "target-present",
+  "comparison": null,
+  "evidence": {
+    "kind": "model",
+    "currentness": {
+      "scenario_sha256": "83c629376a183462231e26b02e83dcf68b3d14d942707f1da4ad4487113f673e",
+      "input_manifest_sha256": "9494419840943d5c22f26faf0cb61226dbb84b6514ebfce7bba37bbd55ab6d07",
+      "scenario_prompt_sha256": "c9c3c598057b4f98019285a6d0b0842075b7b38bf4384b21ca6060c44a8818ad",
+      "arm_instruction_sha256": "944e818183cc69f6fd3b6e85a57a3c6bc9a08b6bebaeb789fcee72d9f8605df2",
+      "prompt_guard_sha256": "e587246af427c697477e3f5e361192ebb5316c5f17540449cf6de853ec64af30",
+      "rendered_prompt_sha256": "b3d65e2fafbe9db59492cc261eded1c028cdc9dc0589e1fe7b1eda12bd64d364",
+      "execution_sha256": "df0d14c0a241265515e09d97e5b796c7a07f4e04e2b1e49e7bc971557340c54a"
+    }
+  },
+  "execution": {
+    "auth": "host-proxy",
+    "browser": false,
+    "media": false,
+    "model_config_sha256": "81fe0a5e2d45e2a687f9ff2d811dd45cca60b986eeb96b994e9255e9eda70e1c",
+    "model_runtime_sha256": "63279cf1860a285495fa0bad3c40f5eb38c3487f7425adb603bcbd49175fcaf8",
+    "sandbox": "workspace-write",
+    "subagents": false
+  },
+  "provenance": {
+    "target_skill_tree_sha256": "829c25ce726d4783e5ca3fc15fce518394f33ff4b8f1444c01d09bd74052500d",
+    "dependency_skill_tree_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "deadline_ms": 1800000,
+  "privacy": {
+    "canary_sets": [
+      "current-home",
+      "local-environment"
+    ],
+    "scope_sha256": "2b910be53fbe40382a58ac7b2d82bffe01809fb589a28caca231ac26a8090db2",
+    "surfaces": "all-retained-files"
+  }
+}

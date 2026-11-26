@@ -1,0 +1,6 @@
+{
+  "id": "teardown-child-leak",
+  "should_trigger": true,
+  "selected": true,
+  "result": "pass"
+}

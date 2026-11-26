@@ -37,7 +37,7 @@
       "current-home",
       "local-environment"
     ],
-    "scope_sha256": "3726314447cc88cca5b194aabe75121fc9362ed77f4b385e3fe0020453d1d94c",
+    "scope_sha256": "2b910be53fbe40382a58ac7b2d82bffe01809fb589a28caca231ac26a8090db2",
     "surfaces": "all-retained-files"
   }
 }

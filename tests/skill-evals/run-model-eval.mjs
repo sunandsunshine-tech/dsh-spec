@@ -2,6 +2,7 @@ import { spawn, spawnSync } from 'node:child_process'
 import { randomBytes } from 'node:crypto'
 import { once } from 'node:events'
 import {
+  chmodSync,
   cpSync,
   existsSync,
   lstatSync,
@@ -28,6 +29,7 @@ import {
   assertNoSymlinkComponents,
   assertProjectPath,
   assertRegularNonEmptyFile,
+  assertTriggerEvidenceRunPath,
   acquireFileLock,
   browserExecutablePaths,
   capabilityMaskPaths,
@@ -64,6 +66,7 @@ import {
   claimForScenario,
   canonicalJson,
   createModelEvidenceMetadata,
+  createTriggerEvidenceMetadata,
   hashEvidenceMetadata,
   inspectRetainedRun,
   modelPromptComponents,
@@ -75,6 +78,8 @@ import {
   scenarioDefinitionHash,
   sha256,
   terminalTurnEvent,
+  triggerCorpusSha256,
+  triggerSurfaceSha256,
   validateScenarioClaim,
   validateModelArm,
 } from './evidence-policy.mjs'
@@ -88,6 +93,7 @@ function parseOptions() {
     options: {
       skill: { type: 'string' },
       scenario: { type: 'string' },
+      'trigger-id': { type: 'string' },
       output: { type: 'string' },
       sandbox: { type: 'string', default: 'workspace-write' },
       replace: { type: 'boolean', default: false },
@@ -97,8 +103,11 @@ function parseOptions() {
     },
     strict: true,
   })
-  for (const name of ['skill', 'scenario', 'output']) {
+  for (const name of ['skill', 'output']) {
     if (!values[name]) throw new Error(`missing --${name}`)
+  }
+  if (Boolean(values.scenario) === Boolean(values['trigger-id'])) {
+    throw new Error('provide exactly one of --scenario or --trigger-id')
   }
   if (!['read-only', 'workspace-write'].includes(values.sandbox)) {
     throw new Error('--sandbox must be read-only or workspace-write')
@@ -108,6 +117,11 @@ function parseOptions() {
   values.deadlineMs = Number(values['deadline-ms'])
   if (!Number.isSafeInteger(values.deadlineMs) || values.deadlineMs <= 0 || values.deadlineMs > MAX_MODEL_DEADLINE_MS) {
     throw new Error(`--deadline-ms must be an integer from 1 to ${MAX_MODEL_DEADLINE_MS}`)
+  }
+  if (values['trigger-id']) {
+    if (values.arm !== 'target-present') throw new Error('--trigger-id does not accept a target-absent arm')
+    if (values.counterpart) throw new Error('--trigger-id does not accept --counterpart')
+    if (values.sandbox !== 'read-only') throw new Error('--trigger-id requires --sandbox read-only')
   }
   return values
 }
@@ -134,12 +148,25 @@ function copyFile(source, destination) {
 }
 
 function assertEvidenceOutput(output) {
-  assertEvidencePathPreflight(output, options.skill)
+  assertEvidencePathPreflight(
+    output,
+    options.skill,
+    'evidence output',
+    Boolean(options['trigger-id']),
+    options['trigger-id'],
+  )
 }
 
-function assertEvidencePathPreflight(path, expectedSkill, label = 'evidence output') {
+function assertEvidencePathPreflight(
+  path,
+  expectedSkill,
+  label = 'evidence output',
+  trigger = false,
+  expectedTriggerId,
+) {
   try {
-    assertEvidenceRunPath(EVIDENCE_ROOT, path, expectedSkill, label)
+    if (trigger) assertTriggerEvidenceRunPath(EVIDENCE_ROOT, path, expectedSkill, expectedTriggerId, label)
+    else assertEvidenceRunPath(EVIDENCE_ROOT, path, expectedSkill, label)
   } catch (error) {
     console.error(error instanceof Error ? error.message : `${label} is invalid`)
     process.exit(1)
@@ -850,6 +877,18 @@ function skillTreeDigest(project, installedSkills) {
   return sha256(skillTreeHashes(project, installedSkills).join('\n'))
 }
 
+function sourceSkillTreeDigest(skill) {
+  const root = join(REPO_ROOT, 'skills', skill)
+  return sha256(
+    listFiles(root)
+      .map((file) => {
+        const path = join(root, file)
+        return `${hashFile(path)}  skills/${skill}/${file}  mode=${modeBits(path)}`
+      })
+      .join('\n'),
+  )
+}
+
 function changedPaths(project, base, environment, gitDirectory) {
   return parseNulSeparatedPaths(
     git(project, ['diff', '--cached', '--name-only', '-z', base], false, environment, gitDirectory).stdout,
@@ -960,6 +999,128 @@ function readScenario(skill, scenarioId) {
   return validateScenario(skill, scenario)
 }
 
+function readTrigger(skill, triggerId) {
+  assertSkillName(skill)
+  assertNonEmptyString(triggerId, 'trigger id')
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(triggerId)) throw new Error(`invalid trigger id: ${triggerId}`)
+  const corpusRoot = join(EVAL_ROOT, skill)
+  const corpusPath = join(corpusRoot, 'trigger-evals.json')
+  const corpusBytes = readFileSync(corpusPath)
+  let corpus
+  try {
+    corpus = JSON.parse(corpusBytes.toString('utf8'))
+  } catch {
+    throw new Error('trigger corpus is not valid JSON')
+  }
+  if (corpus.skill_name !== skill) throw new Error(`trigger corpus names ${corpus.skill_name}, expected ${skill}`)
+  if (corpus.agent_file !== 'trigger-fixtures/AGENTS.md') {
+    throw new Error('trigger corpus agent_file must be trigger-fixtures/AGENTS.md')
+  }
+  if (!Array.isArray(corpus.queries) || corpus.queries.length === 0) {
+    throw new Error('trigger corpus must contain queries')
+  }
+  const ids = new Set()
+  const resources = new Map()
+  const triggerFixturesRoot = join(corpusRoot, 'trigger-fixtures')
+  const fixtureRootStat = lstatSync(triggerFixturesRoot, { throwIfNoEntry: false })
+  if (!fixtureRootStat || fixtureRootStat.isSymbolicLink() || !fixtureRootStat.isDirectory()) {
+    throw new Error('trigger-fixtures must be a regular directory')
+  }
+  const readResource = (path) => {
+    if (typeof path !== 'string' || !path.startsWith('trigger-fixtures/')) {
+      throw new Error(`trigger resource escapes trigger-fixtures: ${String(path)}`)
+    }
+    const resourcePath = path.slice('trigger-fixtures/'.length)
+    const parts = resourcePath.split('/')
+    if (
+      isAbsolute(path) ||
+      resourcePath === '' ||
+      resourcePath.includes('\\') ||
+      parts.some((part) => part === '' || part === '.' || part === '..' || part === '.git' || part === '.agents')
+    ) {
+      throw new Error(`trigger resource uses a forbidden path: ${path}`)
+    }
+    let cached = resources.get(path)
+    if (cached) return cached
+    const absolute = resolve(triggerFixturesRoot, ...parts)
+    assertContained(triggerFixturesRoot, absolute, 'trigger resource')
+    assertNoSymlinkComponents(triggerFixturesRoot, absolute, 'trigger resource')
+    assertRegularNonEmptyFile(absolute, 'trigger resource')
+    cached = {
+      bytes: readFileSync(absolute),
+      mode: modeBits(absolute),
+      destination: parts.join('/'),
+    }
+    resources.set(path, cached)
+    return cached
+  }
+  for (const query of corpus.queries) {
+    assertNonEmptyString(query?.id, 'trigger id')
+    assertNonEmptyString(query?.query, `trigger ${query.id} prompt`)
+    if (typeof query.should_trigger !== 'boolean') {
+      throw new Error(`trigger ${query.id} should_trigger must be boolean`)
+    }
+    if (ids.has(query.id)) throw new Error(`duplicate trigger id: ${query.id}`)
+    ids.add(query.id)
+    if (query.files !== undefined) {
+      if (!Array.isArray(query.files)) throw new Error(`trigger ${query.id} files must be an array`)
+      for (const file of query.files) {
+        if (file === corpus.agent_file) {
+          throw new Error(`trigger ${query.id} fixture may not overwrite the root agent file`)
+        }
+        readResource(file)
+      }
+    }
+  }
+  const selected = corpus.queries.find((query) => query.id === triggerId)
+  if (!selected) throw new Error(`missing trigger ${skill}:${triggerId}`)
+  const agentResource = readResource(corpus.agent_file)
+  const corpusSha256 = triggerCorpusSha256({
+    corpus: corpusBytes,
+    agentFile: corpus.agent_file,
+    agent: agentResource.bytes,
+    files: [...resources]
+      .filter(([path]) => path !== corpus.agent_file)
+      .map(([path, resource]) => ({ path, ...resource })),
+  })
+  const surfaceSha256 = triggerSurfaceSha256(readFileSync(join(REPO_ROOT, 'skills', skill, 'SKILL.md'), 'utf8'))
+  return {
+    id: selected.id,
+    query: selected.query,
+    shouldTrigger: selected.should_trigger,
+    agentFile: corpus.agent_file,
+    agent: agentResource.bytes,
+    files: (selected.files ?? []).map((path) => ({ path, ...resources.get(path) })),
+    corpusSha256,
+    surfaceSha256,
+  }
+}
+
+function stageTrigger(skill, trigger, project) {
+  assertSkillName(skill)
+  const skillRoot = join(REPO_ROOT, 'skills', skill)
+  const intendedSkillTreeSha256 = sourceSkillTreeDigest(skill)
+  const targetSkill = assertProjectPath(project, `.agents/skills/${skill}`, 'installed trigger skill')
+  copyFile(skillRoot, targetSkill)
+  writeFileSync(assertProjectPath(project, 'AGENTS.md', 'trigger agent file'), trigger.agent)
+  const destinations = new Set()
+  for (const file of trigger.files) {
+    const destination = file.destination
+    if (destination === 'AGENTS.md' || destinations.has(destination)) {
+      throw new Error(`trigger fixture would overwrite another staged input: ${file.path}`)
+    }
+    destinations.add(destination)
+    const target = assertProjectPath(project, destination, 'trigger fixture')
+    mkdirSync(dirname(target), { recursive: true })
+    writeFileSync(target, file.bytes)
+    chmodSync(target, Number.parseInt(file.mode, 8))
+  }
+  if (skillTreeDigest(project, [skill]) !== intendedSkillTreeSha256) {
+    throw new Error('trigger fixtures changed the staged skill tree')
+  }
+  return new Set([skill])
+}
+
 function recoverPreviousOutput(output, backup) {
   if (!existsSync(backup)) return
   if (existsSync(output)) {
@@ -1017,15 +1178,20 @@ function assertCounterpartIdentity(metadata, scenarioClaim, options) {
 }
 
 const options = parseOptions()
-const scenario = readScenario(options.skill, options.scenario)
-const scenarioClaim = claimForScenario(options.skill, scenario)
-validateModelArm(scenarioClaim, options.arm)
-const privacyCanaries = privacyCanariesFor(options.skill, options.scenario, { includeCurrentHome: true })
+const trigger = options['trigger-id'] ? readTrigger(options.skill, options['trigger-id']) : undefined
+const scenario = trigger ? undefined : readScenario(options.skill, options.scenario)
+const scenarioClaim = scenario ? claimForScenario(options.skill, scenario) : undefined
+if (scenarioClaim) validateModelArm(scenarioClaim, options.arm)
+const privacyCanaries = privacyCanariesFor(options.skill, trigger ? 'trigger' : options.scenario, {
+  includeCurrentHome: true,
+})
 const output = resolve(REPO_ROOT, options.output)
 assertEvidenceOutput(output)
 let counterpart
 if (options.counterpart) {
-  if (scenarioClaim.type !== 'comparison') throw new Error('--counterpart is valid only for a comparison scenario')
+  if (!scenarioClaim || scenarioClaim.type !== 'comparison') {
+    throw new Error('--counterpart is valid only for a comparison scenario')
+  }
   const root = resolve(REPO_ROOT, options.counterpart)
   assertEvidencePathPreflight(root, options.skill, 'counterpart evidence path')
   if (root === output) throw new Error('--counterpart must name a different evidence run')
@@ -1038,7 +1204,7 @@ if (options.counterpart) {
     ...observedCounterpart,
     extraPaths,
   }
-} else if (scenarioClaim.type === 'comparison' && options.arm === 'target-absent') {
+} else if (scenarioClaim?.type === 'comparison' && options.arm === 'target-absent') {
   throw new Error('a target-absent comparison arm requires --counterpart')
 }
 const outputParent = dirname(output)
@@ -1065,16 +1231,18 @@ try {
   const sandboxOutput = join(temporaryParent, 'sandbox-output')
   mkdirSync(workspaceSeed, { recursive: true })
   mkdirSync(sandboxOutput, { recursive: true })
-  const installedSkills = stageScenario(options.skill, scenario, workspaceSeed, options.arm)
+  const installedSkills = trigger
+    ? stageTrigger(options.skill, trigger, workspaceSeed)
+    : stageScenario(options.skill, scenario, workspaceSeed, options.arm)
   git(workspaceSeed, ['init', '-q'])
   git(workspaceSeed, ['config', 'user.name', 'Skill evaluation'])
   git(workspaceSeed, ['config', 'user.email', 'skill-evaluation@example.invalid'])
-  const changeRoot = scenario.change_root ? ['--directory', scenario.change_root] : []
-  if (scenario.change_patch)
+  const changeRoot = scenario?.change_root ? ['--directory', scenario.change_root] : []
+  if (scenario?.change_patch)
     git(workspaceSeed, ['apply', '--binary', '--reverse', ...changeRoot, scenario.change_patch])
   git(workspaceSeed, ['add', '-A'])
   git(workspaceSeed, ['commit', '-qm', 'fixture: base state'])
-  if (scenario.change_patch) {
+  if (scenario?.change_patch) {
     git(workspaceSeed, ['apply', '--binary', ...changeRoot, scenario.change_patch])
     git(workspaceSeed, ['add', '-A'])
     git(workspaceSeed, ['commit', '-qm', 'fixture: candidate state'])
@@ -1082,34 +1250,56 @@ try {
   const trustedHead = git(workspaceSeed, ['rev-parse', 'HEAD']).stdout.trim()
   const trustedGit = join(temporaryParent, 'trusted-git')
   copyTrustedGit(workspaceSeed, trustedGit)
-  removeModelTree(join(workspaceSeed, '.git'))
+  if (options.sandbox === 'workspace-write') removeModelTree(join(workspaceSeed, '.git'))
 
-  const inputManifest = (scenario.files ?? []).map((path) => {
-    const absolute = assertProjectPath(workspaceSeed, path, 'scenario input')
-    assertRegularNonEmptyFile(absolute, 'scenario input')
-    return `${hashFile(absolute)}  ${path}  mode=${modeBits(absolute)}`
-  })
-  writeFileSync(join(stagedOutput, 'input-manifest.sha256'), `${inputManifest.join('\n')}\n`)
-  writeFileSync(
-    join(stagedOutput, 'scenario-definition.sha256'),
-    `${scenarioDefinitionHash(scenario)}  ${options.skill}:${options.scenario}\n`,
-  )
-  writeFileSync(join(stagedOutput, 'scenario-definition.json'), `${JSON.stringify(scenario, null, 2)}\n`)
+  if (trigger) {
+    writeFileSync(
+      join(stagedOutput, 'trigger-query.json'),
+      `${JSON.stringify(
+        {
+          id: trigger.id,
+          query: trigger.query,
+          should_trigger: trigger.shouldTrigger,
+          agent_file: trigger.agentFile,
+          currentness: {
+            trigger_surface_sha256: trigger.surfaceSha256,
+            trigger_corpus_sha256: trigger.corpusSha256,
+          },
+        },
+        null,
+        2,
+      )}\n`,
+    )
+  } else {
+    const inputManifest = (scenario.files ?? []).map((path) => {
+      const absolute = assertProjectPath(workspaceSeed, path, 'scenario input')
+      assertRegularNonEmptyFile(absolute, 'scenario input')
+      return `${hashFile(absolute)}  ${path}  mode=${modeBits(absolute)}`
+    })
+    writeFileSync(join(stagedOutput, 'input-manifest.sha256'), `${inputManifest.join('\n')}\n`)
+    writeFileSync(
+      join(stagedOutput, 'scenario-definition.sha256'),
+      `${scenarioDefinitionHash(scenario)}  ${options.skill}:${options.scenario}\n`,
+    )
+    writeFileSync(join(stagedOutput, 'scenario-definition.json'), `${JSON.stringify(scenario, null, 2)}\n`)
+  }
   const installedBefore = skillTreeHashes(workspaceSeed, installedSkills)
   writeFileSync(join(stagedOutput, 'skill-hashes.txt'), `${installedBefore.join('\n')}\n`)
-  writeFileSync(
-    join(stagedOutput, 'assertions.expected.txt'),
-    `${scenario.assertions.map((assertion) => `PASS ${assertion}`).join('\n')}\n`,
-  )
+  if (scenario) {
+    writeFileSync(
+      join(stagedOutput, 'assertions.expected.txt'),
+      `${scenario.assertions.map((assertion) => `PASS ${assertion}`).join('\n')}\n`,
+    )
+  }
 
   const started = performance.now()
-  const imageArguments = (scenario.files ?? [])
+  const imageArguments = (scenario?.files ?? [])
     .filter((file) => /\.(?:png|jpe?g|webp)$/i.test(file))
     .flatMap((file) => ['--image', `/workspace/${file}`])
-  const promptComponents = modelPromptComponents(options.skill, scenario, options.arm)
-  const skillInstruction = promptComponents.armInstruction
-  const promptGuard = promptComponents.promptGuard
-  const prompt = promptComponents.renderedPrompt
+  const promptComponents = scenario ? modelPromptComponents(options.skill, scenario, options.arm) : undefined
+  const skillInstruction = promptComponents?.armInstruction ?? ''
+  const promptGuard = promptComponents?.promptGuard ?? ''
+  const prompt = trigger ? trigger.query : promptComponents.renderedPrompt
   sandboxControl = await startSandboxControl()
   const invocation = isolatedCodexCommand(
     codexHome,
@@ -1118,8 +1308,8 @@ try {
     sandboxControl.root,
     options.sandbox,
     isolatedHome.credentialMode,
-    scenario.capabilities,
-    scenario.allow_subagents ?? false,
+    scenario?.capabilities,
+    scenario?.allow_subagents ?? false,
     [
       'exec',
       '--ephemeral',
@@ -1188,6 +1378,9 @@ try {
     if (paths.length > MODEL_EVIDENCE_LIMITS.workspaceEntries) {
       throw new Error(`the model produced more than ${MODEL_EVIDENCE_LIMITS.workspaceEntries} changed paths`)
     }
+    if (trigger && paths.length > 0) {
+      throw new Error('the model changed the trigger selection workspace')
+    }
     writeFileSync(join(stagedOutput, 'changed-paths.json'), `${JSON.stringify(paths, null, 2)}\n`)
     writeFileSync(join(stagedOutput, 'changed-paths.txt'), paths.length ? `${paths.join('\n')}\n` : '')
     writeFileSync(
@@ -1203,7 +1396,7 @@ try {
     if (paths.some((path) => path.startsWith('.agents/skills/'))) {
       throw new Error('the model changed an installed skill tree')
     }
-    retainArtifacts(project, stagedOutput, paths, scenario.outputs ?? [])
+    if (scenario) retainArtifacts(project, stagedOutput, paths, scenario.outputs ?? [])
 
     const installedAfter = skillTreeHashes(project, installedSkills)
     if (installedBefore.join('\n') !== installedAfter.join('\n')) {
@@ -1215,25 +1408,59 @@ try {
       `status: pending\nrun_exit_code: ${result.status ?? 'unknown'}\nassertions: pending\n`,
     )
 
-    const evidenceMetadata = createModelEvidenceMetadata({
-      skill: options.skill,
-      scenario,
-      arm: options.arm,
-      scenarioSha256: scenarioDefinitionHash(scenario),
-      inputManifestSha256: hashFile(join(stagedOutput, 'input-manifest.sha256')),
-      targetSkillTreeSha256: options.arm === 'target-present' ? skillTreeDigest(workspaceSeed, [options.skill]) : null,
-      dependencySkillTreeSha256: skillTreeDigest(workspaceSeed, scenario.install ?? []),
-      prompt,
-      armInstruction: skillInstruction,
-      promptGuard,
-      privacyCanaries,
-      counterpartEvidenceSha256: counterpart?.evidenceSha256 ?? null,
-      execution: executionProfile,
-      deadlineMs: options.deadlineMs,
-    })
+    let evidenceMetadata
+    if (trigger) {
+      const marker = finalText.trim().split('\n').at(-1)
+      const selected = marker === `SELECT: ${options.skill}`
+      if (!selected && marker !== 'SELECT: none') {
+        throw new Error('trigger response has no stable selection marker')
+      }
+      if (selected !== trigger.shouldTrigger) {
+        throw new Error('trigger response selected the wrong skill')
+      }
+      writeFileSync(
+        join(stagedOutput, 'selection.json'),
+        `${JSON.stringify(
+          {
+            id: trigger.id,
+            should_trigger: trigger.shouldTrigger,
+            selected,
+            result: 'pass',
+          },
+          null,
+          2,
+        )}\n`,
+      )
+      evidenceMetadata = createTriggerEvidenceMetadata({
+        skill: options.skill,
+        triggerSurfaceSha256: trigger.surfaceSha256,
+        triggerCorpusSha256: trigger.corpusSha256,
+        privacyCanaries,
+        execution: executionProfile,
+        deadlineMs: options.deadlineMs,
+      })
+    } else {
+      evidenceMetadata = createModelEvidenceMetadata({
+        skill: options.skill,
+        scenario,
+        arm: options.arm,
+        scenarioSha256: scenarioDefinitionHash(scenario),
+        inputManifestSha256: hashFile(join(stagedOutput, 'input-manifest.sha256')),
+        targetSkillTreeSha256:
+          options.arm === 'target-present' ? skillTreeDigest(workspaceSeed, [options.skill]) : null,
+        dependencySkillTreeSha256: skillTreeDigest(workspaceSeed, scenario.install ?? []),
+        prompt,
+        armInstruction: skillInstruction,
+        promptGuard,
+        privacyCanaries,
+        counterpartEvidenceSha256: counterpart?.evidenceSha256 ?? null,
+        execution: executionProfile,
+        deadlineMs: options.deadlineMs,
+      })
+    }
     const evidenceMetadataPath = join(stagedOutput, 'evidence.json')
     writeFileSync(evidenceMetadataPath, `${JSON.stringify(evidenceMetadata, null, 2)}\n`)
-    if (counterpart) {
+    if (counterpart && scenarioClaim) {
       const currentCounterpart = observeCounterpartRun(counterpart.root, privacyCanaries, counterpart.extraPaths)
       if (currentCounterpart.snapshotSha256 !== counterpart.snapshotSha256) {
         throw new Error('counterpart evidence changed after its initial validation')
@@ -1267,23 +1494,30 @@ try {
     assertRetainedRunPolicy({
       root: stagedOutput,
       metadata: evidenceMetadata,
-      observed: {
-        scenario_sha256: scenarioDefinitionHash(scenario),
-        input_manifest_sha256: hashFile(join(stagedOutput, 'input-manifest.sha256')),
-        scenario_prompt_sha256: sha256(scenario.prompt),
-        arm_instruction_sha256: sha256(skillInstruction),
-        prompt_guard_sha256: sha256(promptGuard),
-        rendered_prompt_sha256: sha256(prompt),
-        execution_sha256: sha256(canonicalJson(executionProfile)),
-        ...(scenarioClaim.type === 'comparison'
-          ? { comparison_conditions_sha256: scenarioClaim.comparison.conditionsSha256 }
-          : {}),
-      },
-      provenance: {
-        target_skill_tree_sha256:
-          options.arm === 'target-present' ? skillTreeDigest(workspaceSeed, [options.skill]) : null,
-        dependency_skill_tree_sha256: skillTreeDigest(workspaceSeed, scenario.install ?? []),
-      },
+      observed: trigger
+        ? {
+            trigger_surface_sha256: trigger.surfaceSha256,
+            trigger_corpus_sha256: trigger.corpusSha256,
+          }
+        : {
+            scenario_sha256: scenarioDefinitionHash(scenario),
+            input_manifest_sha256: hashFile(join(stagedOutput, 'input-manifest.sha256')),
+            scenario_prompt_sha256: sha256(scenario.prompt),
+            arm_instruction_sha256: sha256(skillInstruction),
+            prompt_guard_sha256: sha256(promptGuard),
+            rendered_prompt_sha256: sha256(prompt),
+            execution_sha256: sha256(canonicalJson(executionProfile)),
+            ...(scenarioClaim.type === 'comparison'
+              ? { comparison_conditions_sha256: scenarioClaim.comparison.conditionsSha256 }
+              : {}),
+          },
+      provenance: trigger
+        ? undefined
+        : {
+            target_skill_tree_sha256:
+              options.arm === 'target-present' ? skillTreeDigest(workspaceSeed, [options.skill]) : null,
+            dependency_skill_tree_sha256: skillTreeDigest(workspaceSeed, scenario.install ?? []),
+          },
       canaries: privacyCanaries,
       extraPaths: [relative(EVIDENCE_ROOT, output).split(sep).join('/')],
     })

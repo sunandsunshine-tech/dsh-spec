@@ -1,0 +1,6 @@
+{
+  "id": "slow-repeated-fixture",
+  "should_trigger": true,
+  "selected": true,
+  "result": "pass"
+}
