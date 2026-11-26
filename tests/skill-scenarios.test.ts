@@ -936,6 +936,68 @@ const GENERAL_REQUIRED: GeneralProfile[] = [
         assertions: [/missing browser and media capabilities/i, /resumable next step/i, /does not claim completion/i],
       },
       {
+        id: 'no-pr-keeps-verified-evidence-local',
+        signature: [/explicit publication-fixture task/i, /does not ask to create or update a pull request/i],
+        expectedOutput: [/keeps the verified GIF local/i, /no review-platform edit or attachment/i],
+        assertions: [
+          /leaves the verified GIF in local evidence/i,
+          /no review-platform edit or attachment/i,
+          /without claiming it was published/i,
+          /fixture origin and local-only publication boundary/i,
+        ],
+      },
+      {
+        id: 'moved-live-head-stops-attachment',
+        signature: [/attach the pre-verified GIF to pull request 151/i, /moved-head/i],
+        expectedOutput: [/live head.*differs from the demonstrated commit/i, /performs no attachment/i],
+        assertions: [
+          /reads the simulated pull request's live head before attachment/i,
+          /differs from the demonstrated commit/i,
+          /performs no review-platform edit or attachment/i,
+          /preserves local evidence and requests a correct-head recording/i,
+        ],
+      },
+      {
+        id: 'partial-attach-failure-reports-exact-state',
+        signature: [/two ordered GIF parts/i, /precise failure state/i, /Do not retry/i],
+        expectedOutput: [/part 1 uploaded and part 2 failed/i, /does not claim complete publication/i],
+        assertions: [
+          /reads the live head before attachment/i,
+          /submits both ordered parts in one attachment invocation/i,
+          /part 1 uploaded and part 2 failed exactly/i,
+          /preserves both local parts.*does not claim complete publication/i,
+        ],
+      },
+      {
+        id: 'unreferenced-upload-fails-closed',
+        signature: [/perform the requested publication/i, /verify the live head and resulting body/i],
+        expectedOutput: [/successfully but the re-read body leaves part 2/i, /publication as failed/i],
+        assertions: [
+          /re-reads the live head and body/i,
+          /unresolved local reference after upload/i,
+          /failure despite the successful attachment command/i,
+          /uploaded but not represented by the body/i,
+        ],
+      },
+      {
+        id: 'oversized-evidence-splits-in-order',
+        signature: [
+          /generated full GIF above the 5 MiB limit/i,
+          /independently verify both candidate parts/i,
+          /one ordered invocation/i,
+        ],
+        expectedOutput: [
+          /temporary over-limit GIF without retaining it/i,
+          /consecutive non-overlapping parts.*at most 5 MiB/i,
+        ],
+        assertions: [
+          /full GIF as above 5 MiB.*temporary storage.*does not attach or copy/i,
+          /consecutive non-overlapping source intervals.*independent byte bound/i,
+          /one ordered invocation without duplicates/i,
+          /live head and resulting body.*preserve part order/i,
+        ],
+      },
+      {
         id: 'explicit-fixture-recording-is-disclosed',
         signature: [/explicitly requests a fixture-only GIF/i, /real external provider is unavailable/i],
         assertions: [/fixture request authorizes/i, /fixture-based/i, /does not prove/i],
@@ -4326,6 +4388,133 @@ test('browser GIF model evidence binds inputs, scores, artifacts and trigger dec
   }
 })
 
+test('browser GIF publication evidence preserves local, moved-head, split and fail-closed state', () => {
+  const skill = 'dsh-spec-record-browser-gif'
+  const root = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-26-issue151', skill)
+  const currentReadme = readFileSync(join(root, 'README.md'), 'utf8')
+  assert.match(currentReadme, /five current behavior runs/i)
+  assert.match(currentReadme, /explicit-fixture-recording-is-disclosed.*historical provenance/is)
+  const artifactRoot = (run: string) => join(root, run, 'artifact/evals/files/publication-project/publication/cases')
+  const readJson = <T>(run: string, relative: string): T =>
+    JSON.parse(readFileSync(join(artifactRoot(run), relative), 'utf8')) as T
+
+  const noPr = join(artifactRoot('no-pr-keeps-verified-evidence-local'), 'no-pr')
+  assert.equal(existsSync(join(noPr, 'invocations.jsonl')), false, 'the no-PR run invoked the review platform')
+  assert.equal(existsSync(join(noPr, 'remote.json')), false, 'the no-PR run changed remote state')
+  assert.equal(statSync(join(noPr, 'evidence/demo.gif')).isFile(), true, 'the no-PR GIF is missing')
+  assert.match(
+    readFileSync(join(root, 'no-pr-keeps-verified-evidence-local/final.md'), 'utf8'),
+    /No pull request|not performed/i,
+  )
+
+  const moved = artifactRoot('moved-live-head-stops-attachment')
+  assert.deepEqual(
+    readFileSync(join(moved, 'moved-head/invocations.jsonl'), 'utf8')
+      .trim()
+      .split('\n')
+      .map((line) => (JSON.parse(line) as { event: string }).event),
+    ['pr-view'],
+    'the moved-head run performed a write',
+  )
+  assert.equal(existsSync(join(moved, 'moved-head/remote.json')), false, 'the moved-head run attached evidence')
+  assert.match(
+    readFileSync(join(root, 'moved-live-head-stops-attachment/final.md'), 'utf8'),
+    /(?:pr edit.*not (?:run|invoked)|No `pr edit` or (?:upload|attachment) (?:occurred|was executed))/i,
+  )
+
+  const partial = readJson<{
+    body: string
+    operations: Array<{ attachments: Array<{ path: string }> }>
+    uploads: Array<{ order: number; path: string }>
+  }>('partial-attach-failure-reports-exact-state', 'partial/remote.json')
+  assert.deepEqual(
+    partial.operations[0]?.attachments.map((attachment) => attachment.path),
+    ['publication/cases/partial/evidence/part-01.gif', 'publication/cases/partial/evidence/part-02.gif'],
+  )
+  assert.deepEqual(
+    partial.uploads.map((upload) => [upload.order, upload.path]),
+    [[1, 'publication/cases/partial/evidence/part-01.gif']],
+  )
+  assert.match(partial.body, /part-02\.gif\)/)
+  assert.match(
+    readFileSync(join(root, 'partial-attach-failure-reports-exact-state/final.md'), 'utf8'),
+    /Attachment did not complete|Publication (?:failed|is incomplete)/i,
+  )
+
+  const unreferenced = readJson<{
+    body: string
+    uploads: Array<{ order: number; path: string; url: string }>
+  }>('unreferenced-upload-fails-closed', 'unreferenced/remote.json')
+  assert.deepEqual(
+    unreferenced.uploads.map((upload) => [upload.order, upload.path]),
+    [
+      [1, 'publication/cases/unreferenced/evidence/part-01.gif'],
+      [2, 'publication/cases/unreferenced/evidence/part-02.gif'],
+    ],
+  )
+  assert.match(unreferenced.body, /assets\/151\/1-part-01\.gif/)
+  assert.match(unreferenced.body, /\]\(publication\/cases\/unreferenced\/evidence\/part-02\.gif\)/)
+  assert.doesNotMatch(unreferenced.body, /assets\/151\/2-part-02\.gif/)
+  assert.match(
+    readFileSync(join(root, 'unreferenced-upload-fails-closed/final.md'), 'utf8'),
+    /not fully published|did not (?:complete|pass verification)|publication failed/i,
+  )
+
+  const manifest = readJson<{
+    full: { bytes: number; temporary: boolean }
+    maxBytes: number
+    parts: Array<{ order: number; path: string; range: string }>
+  }>('oversized-evidence-splits-in-order', 'split/evidence/split-manifest.json')
+  assert.ok(manifest.full.bytes > manifest.maxBytes)
+  assert.equal(manifest.full.temporary, true)
+  assert.equal(
+    existsSync(join(artifactRoot('oversized-evidence-splits-in-order'), 'split/evidence/overlimit.gif')),
+    false,
+    'the retained split evidence copied the temporary over-limit GIF',
+  )
+  assert.deepEqual(
+    listFiles(root).filter((path) => statSync(join(root, path)).size > 1024 * 1024),
+    [],
+    'the retained publication evidence contains a large media file',
+  )
+  assert.deepEqual(
+    manifest.parts.map((part) => [part.order, part.range]),
+    [
+      [1, '0.000-1.600s'],
+      [2, '1.600-3.200s'],
+    ],
+  )
+  const split = readJson<{
+    body: string
+    headAtEdit: string
+    liveHead: string
+    operations: Array<{ attachments: Array<{ path: string }> }>
+    uploads: Array<{ order: number; path: string }>
+  }>('oversized-evidence-splits-in-order', 'split/remote.json')
+  assert.equal(split.headAtEdit, split.liveHead)
+  assert.equal(split.operations.length, 1)
+  assert.deepEqual(
+    split.operations[0]?.attachments.map((attachment) => attachment.path),
+    manifest.parts.map((part) => part.path),
+  )
+  assert.deepEqual(
+    split.uploads.map((upload) => [upload.order, upload.path]),
+    manifest.parts.map((part) => [part.order, part.path]),
+  )
+  assert.ok(split.body.indexOf('/1-part-01.gif') < split.body.indexOf('/2-part-02.gif'))
+  assert.doesNotMatch(split.body, /\]\(publication\/cases\/split\/evidence\//)
+  assert.match(
+    readFileSync(join(root, 'oversized-evidence-splits-in-order/final.md'), 'utf8'),
+    /exactly one uploaded reference per part in source order.*no unresolved local GIF references|exactly two ordered uploaded-image references.*no local references|exactly two remote image references.*no unresolved local references/i,
+  )
+
+  const historicalReadme = readFileSync(
+    join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-20-pr115/README.md'),
+    'utf8',
+  )
+  assert.match(historicalReadme, /^> \*\*Historical status:\*\*/m)
+})
+
 test('PR121, PR122 and PR141 targeted model evidence binds current inputs and recorded provenance', () => {
   const historicalEvidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-23-pr121')
   const historicalBrowserReadmePath = join(historicalEvidenceRoot, 'dsh-spec-browser-gif-evidence/README.md')
@@ -4559,6 +4748,36 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
       evidenceRoot: pr122EvidenceRoot,
     },
     {
+      skill: 'dsh-spec-record-browser-gif',
+      run: 'no-pr-keeps-verified-evidence-local',
+      evidenceRoot: join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-26-issue151'),
+      current: true,
+    },
+    {
+      skill: 'dsh-spec-record-browser-gif',
+      run: 'moved-live-head-stops-attachment',
+      evidenceRoot: join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-26-issue151'),
+      current: true,
+    },
+    {
+      skill: 'dsh-spec-record-browser-gif',
+      run: 'partial-attach-failure-reports-exact-state',
+      evidenceRoot: join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-26-issue151'),
+      current: true,
+    },
+    {
+      skill: 'dsh-spec-record-browser-gif',
+      run: 'unreferenced-upload-fails-closed',
+      evidenceRoot: join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-26-issue151'),
+      current: true,
+    },
+    {
+      skill: 'dsh-spec-record-browser-gif',
+      run: 'oversized-evidence-splits-in-order',
+      evidenceRoot: join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-26-issue151'),
+      current: true,
+    },
+    {
       skill: 'dsh-spec-merging-stacked-prs',
       run: 'refresh-stack-with-rerere',
       evidenceRoot: pr122EvidenceRoot,
@@ -4637,6 +4856,12 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
     'dsh-spec-client-ui-ux:spacing-grouping-and-overlay-fit': 'spacing-grouping-and-overlay-fit',
     'dsh-spec-record-browser-gif:missing-capture-capability-hands-off': 'missing-capture-capability-hands-off',
     'dsh-spec-record-browser-gif:real-ui-change-uses-one-isolated-run': 'real-ui-change-uses-one-isolated-run',
+    'dsh-spec-record-browser-gif:no-pr-keeps-verified-evidence-local': 'no-pr-keeps-verified-evidence-local',
+    'dsh-spec-record-browser-gif:moved-live-head-stops-attachment': 'moved-live-head-stops-attachment',
+    'dsh-spec-record-browser-gif:partial-attach-failure-reports-exact-state':
+      'partial-attach-failure-reports-exact-state',
+    'dsh-spec-record-browser-gif:unreferenced-upload-fails-closed': 'unreferenced-upload-fails-closed',
+    'dsh-spec-record-browser-gif:oversized-evidence-splits-in-order': 'oversized-evidence-splits-in-order',
     'dsh-spec-merging-stacked-prs:refresh-stack-with-rerere': 'refresh-stack-with-rerere',
     'dsh-spec-merging-stacked-prs:dependency-only-blocked-stack-can-land': 'dependency-only-blocked-stack-can-land',
     'dsh-spec-translate-docs:source-rename-keeps-pair': 'source-rename-keeps-pair',
@@ -4655,6 +4880,30 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
       /npm run evidence(?:\s|$|['"])/,
       /encode-browser-gif\.mjs/,
     ],
+    'dsh-spec-record-browser-gif:no-pr-keeps-verified-evidence-local': [
+      /prepare-publication-fixture\.mjs no-pr(?:\s|$|['"])/,
+    ],
+    'dsh-spec-record-browser-gif:moved-live-head-stops-attachment': [
+      /dsh-spec-record-browser-gif\/references\/publication\.md/,
+      /bin\/gh pr view 151(?:\s|$|['"])/,
+    ],
+    'dsh-spec-record-browser-gif:partial-attach-failure-reports-exact-state': [
+      /dsh-spec-record-browser-gif\/references\/publication\.md/,
+      /prepare-publication-fixture\.mjs partial(?:\s|$|['"])/,
+      /bin\/gh pr view 151(?:\s|$|['"])/,
+    ],
+    'dsh-spec-record-browser-gif:unreferenced-upload-fails-closed': [
+      /dsh-spec-record-browser-gif\/references\/publication\.md/,
+      /prepare-publication-fixture\.mjs unreferenced(?:\s|$|['"])/,
+      /bin\/gh pr view 151(?:\s|$|['"])/,
+      /bin\/gh pr edit 151.*part-01\.gif.*part-02\.gif/,
+    ],
+    'dsh-spec-record-browser-gif:oversized-evidence-splits-in-order': [
+      /dsh-spec-record-browser-gif\/references\/publication\.md/,
+      /prepare-publication-fixture\.mjs split(?:\s|$|['"])/,
+      /ffprobe(?:\s|$|['"])/,
+      /bin\/gh pr edit 151.*part-01\.gif.*part-02\.gif/,
+    ],
     'dsh-spec-ci-test-reliability:redesign-slow-repeated-suite': [
       /npm test(?:\s|$|['"])/,
       /npm run test:contract(?:\s|$|['"])/,
@@ -4665,6 +4914,11 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
       /docs\/style\.md(?:\s|$|['"])/,
       /\.agents\/dsh-spec-translate-docs\/terminology\.md(?:\s|$|['"])/,
       /references\/translation-rules\.md(?:\s|$|['"])/,
+    ],
+  }
+  const expectedFailureCommands: Record<string, RegExp[]> = {
+    'dsh-spec-record-browser-gif:partial-attach-failure-reports-exact-state': [
+      /bin\/gh pr edit 151.*part-01\.gif.*part-02\.gif/,
     ],
   }
 
@@ -4906,6 +5160,14 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
       assert.ok(
         commands.some((entry) => entry.exit_code === 0 && pattern.test(entry.command ?? '')),
         item.skill + '/' + item.run + ' trace context did not record required command ' + pattern,
+      )
+    }
+    for (const pattern of expectedFailureCommands[`${item.skill}:${item.run}`] ?? []) {
+      assert.ok(
+        commands.some(
+          (entry) => entry.exit_code !== null && entry.exit_code !== 0 && pattern.test(entry.command ?? ''),
+        ),
+        item.skill + '/' + item.run + ' trace context did not record expected failing command ' + pattern,
       )
     }
     for (const [path, expectedHash] of skillRevisions) {

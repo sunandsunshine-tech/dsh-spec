@@ -1,0 +1,4 @@
+PASS The run reads the live head before attachment.
+PASS The run submits both ordered parts in one attachment invocation.
+PASS The run reports part 1 uploaded and part 2 failed exactly.
+PASS The run preserves both local parts and does not claim complete publication.

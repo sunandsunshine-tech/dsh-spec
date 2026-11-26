@@ -1,0 +1,4 @@
+0b474b6c03d0adc5e01a25677a56b552a9e3ee00e01df82605860342fbda8aef  skills/dsh-spec-record-browser-gif/SKILL.md  mode=0644
+b777acefdcab633b8bf6750fccff904ed4685f2710f7e12aca69ab8a37b9c9be  skills/dsh-spec-record-browser-gif/THIRD_PARTY_NOTICES  mode=0644
+52dc024c796a3f3296f4d47ac9f3f4fc63e6f5f2fdacf666baf561fce460b7cc  skills/dsh-spec-record-browser-gif/references/publication.md  mode=0644
+6712fee9230e65b375b5a26096f5076c27cc37724fb4711c7b624a8e02b9b1e6  skills/dsh-spec-record-browser-gif/scripts/encode-browser-gif.mjs  mode=0755

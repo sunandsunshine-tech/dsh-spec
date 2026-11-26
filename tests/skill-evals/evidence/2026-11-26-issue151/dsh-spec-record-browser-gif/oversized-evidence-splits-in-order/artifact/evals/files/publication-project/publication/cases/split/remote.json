@@ -1,0 +1,38 @@
+{
+  "body": "![Settings save flow, part 1 of 2](https://github.com/example/dsh-spec-fixture/assets/151/1-part-01.gif)\n\nPart 1/2, source interval `0.000-1.600s`.\n\n![Settings save flow, part 2 of 2](https://github.com/example/dsh-spec-fixture/assets/151/2-part-02.gif)\n\nPart 2/2, source interval `1.600-3.200s`.\n\nDemonstrated commit: `5555555555555555555555555555555555555555`.\n",
+  "headAtEdit": "5555555555555555555555555555555555555555",
+  "liveHead": "5555555555555555555555555555555555555555",
+  "operations": [
+    {
+      "event": "pr-edit",
+      "attachments": [
+        {
+          "bytes": 46,
+          "path": "publication/cases/split/evidence/part-01.gif",
+          "sha256": "e9c8aa3e3afbe0461c6121bb19ef4cef928e89b3899cedbfa863cc2b82b5e1fc"
+        },
+        {
+          "bytes": 46,
+          "path": "publication/cases/split/evidence/part-02.gif",
+          "sha256": "2a250dcc8751421056fcb0ad9755a05d54f3ed1d807ab5da72cdc0241cca5a82"
+        }
+      ],
+      "bodyFile": "body.md",
+      "liveHead": "5555555555555555555555555555555555555555"
+    }
+  ],
+  "uploads": [
+    {
+      "bytes": 46,
+      "order": 1,
+      "path": "publication/cases/split/evidence/part-01.gif",
+      "url": "https://github.com/example/dsh-spec-fixture/assets/151/1-part-01.gif"
+    },
+    {
+      "bytes": 46,
+      "order": 2,
+      "path": "publication/cases/split/evidence/part-02.gif",
+      "url": "https://github.com/example/dsh-spec-fixture/assets/151/2-part-02.gif"
+    }
+  ]
+}

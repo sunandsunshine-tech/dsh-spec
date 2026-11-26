@@ -1,0 +1,8 @@
+6928a23807dc3a22e6330b996eaca984b02b7359462c7b2b48c1abc61b72612a  evals/files/publication-project/AGENTS.md  mode=0644
+3b8969bbccee6c7166c1a6f746e05213d88f42bc278ce01b9f0ba8aaf01a2916  evals/files/publication-project/.gitignore  mode=0644
+b113ae963903a3b8fe38d8392c79d65f9e99c4e7d39c24b6aaa8cb277dfe9067  evals/files/publication-project/README.md  mode=0644
+26a3b48fbef2a166de760a72e21c3814a87132c816bae3e08ad1349902f29377  evals/files/publication-project/prepare-publication-fixture.mjs  mode=0644
+d779765e84765e8cab4c49aa2c44f043681dc2ca4730ea57097d42e17470d8e0  evals/files/publication-project/bin/gh  mode=0755
+f4bb878f98806dfe2dd281ed21fca61709dff382899b32e57e0d9b081b98efb7  evals/files/publication-project/bin/gh-fixture.mjs  mode=0644
+f5940033a1f172aaa81b4adc5a505eefcc9303bf8c321c3bd55f944f4173ae42  evals/files/publication-project/publication/cases/moved-head/state.json  mode=0644
+64e8f082299fafd24941b50d27b686459428c157046168f89580a764ac598fe0  evals/files/publication-project/publication/cases/moved-head/body.md  mode=0644

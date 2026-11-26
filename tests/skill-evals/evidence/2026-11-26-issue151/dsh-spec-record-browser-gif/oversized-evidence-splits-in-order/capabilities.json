@@ -1,0 +1,7 @@
+{
+  "auth": "host-proxy",
+  "browser": false,
+  "media": true,
+  "sandbox": "workspace-write",
+  "subagents": false
+}

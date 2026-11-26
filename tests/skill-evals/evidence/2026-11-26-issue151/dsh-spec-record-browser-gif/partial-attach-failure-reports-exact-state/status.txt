@@ -1,0 +1,3 @@
+status: pass
+run_exit_code: 0
+assertions: 4/4

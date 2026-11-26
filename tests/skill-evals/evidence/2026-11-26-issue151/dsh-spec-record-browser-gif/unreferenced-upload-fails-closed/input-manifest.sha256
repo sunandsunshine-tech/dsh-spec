@@ -1,0 +1,8 @@
+6928a23807dc3a22e6330b996eaca984b02b7359462c7b2b48c1abc61b72612a  evals/files/publication-project/AGENTS.md  mode=0644
+3b8969bbccee6c7166c1a6f746e05213d88f42bc278ce01b9f0ba8aaf01a2916  evals/files/publication-project/.gitignore  mode=0644
+b113ae963903a3b8fe38d8392c79d65f9e99c4e7d39c24b6aaa8cb277dfe9067  evals/files/publication-project/README.md  mode=0644
+26a3b48fbef2a166de760a72e21c3814a87132c816bae3e08ad1349902f29377  evals/files/publication-project/prepare-publication-fixture.mjs  mode=0644
+d779765e84765e8cab4c49aa2c44f043681dc2ca4730ea57097d42e17470d8e0  evals/files/publication-project/bin/gh  mode=0755
+f4bb878f98806dfe2dd281ed21fca61709dff382899b32e57e0d9b081b98efb7  evals/files/publication-project/bin/gh-fixture.mjs  mode=0644
+7ba5bc9ca505685b07bcf2856e4d9bc9b1d8a78b6241ca53a51e787879417dfa  evals/files/publication-project/publication/cases/unreferenced/state.json  mode=0644
+f7dfc8cb53ab4a5032f4569139b8ea8199f46d39c86c6b1fb39b073bec2f7aab  evals/files/publication-project/publication/cases/unreferenced/body.md  mode=0644

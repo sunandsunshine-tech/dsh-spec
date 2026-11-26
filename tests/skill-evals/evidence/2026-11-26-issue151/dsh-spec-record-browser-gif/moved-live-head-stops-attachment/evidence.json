@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "claim": {
+    "type": "behavior",
+    "subject": "dsh-spec-record-browser-gif:moved-live-head-stops-attachment"
+  },
+  "arm": "target-present",
+  "comparison": null,
+  "evidence": {
+    "kind": "model",
+    "currentness": {
+      "scenario_sha256": "9f6cb4f321911a888572782e0c26428b7508fe25180d5bdfd7e69148541e0a0f",
+      "input_manifest_sha256": "29c2d94c6423b72fdbdf6ae1d8072167a0ecb78416c00db973c665d9f8def314",
+      "scenario_prompt_sha256": "702ad6004a1af2177a8d2454394c6e6921bc602b9af015bb35f297bf5a673291",
+      "arm_instruction_sha256": "2307f593502e7665fef3364b039b256310b8c56177fdc457aad50beaf097758b",
+      "prompt_guard_sha256": "e587246af427c697477e3f5e361192ebb5316c5f17540449cf6de853ec64af30",
+      "rendered_prompt_sha256": "414412812b9cd41006478f8801a15464e02524d02242b62614a8194cdbf37bcf",
+      "execution_sha256": "df0d14c0a241265515e09d97e5b796c7a07f4e04e2b1e49e7bc971557340c54a"
+    }
+  },
+  "execution": {
+    "auth": "host-proxy",
+    "browser": false,
+    "media": false,
+    "model_config_sha256": "81fe0a5e2d45e2a687f9ff2d811dd45cca60b986eeb96b994e9255e9eda70e1c",
+    "model_runtime_sha256": "63279cf1860a285495fa0bad3c40f5eb38c3487f7425adb603bcbd49175fcaf8",
+    "sandbox": "workspace-write",
+    "subagents": false
+  },
+  "provenance": {
+    "target_skill_tree_sha256": "915295d9f09f14b48b88ed7eefd10822520bb0f79a39f6eeda79c7c23fb47a79",
+    "dependency_skill_tree_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "deadline_ms": 600000,
+  "privacy": {
+    "canary_sets": [
+      "current-home",
+      "local-environment"
+    ],
+    "scope_sha256": "3726314447cc88cca5b194aabe75121fc9362ed77f4b385e3fe0020453d1d94c",
+    "surfaces": "all-retained-files"
+  }
+}

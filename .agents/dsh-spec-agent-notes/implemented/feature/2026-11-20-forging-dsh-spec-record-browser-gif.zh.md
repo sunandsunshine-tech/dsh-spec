@@ -99,6 +99,7 @@ PR115 的真实运行叶节点所报告的 origin 和 GIF 字节数与保留的�
 | 安装副本与语料门禁 | Mechanical | `skill:refresh`、`check:corpus`、repository-shape tests |
 | 既有媒体分支 | Dissolved | 不分发 DSH 资产分支政策 |
 | 在真实浏览器中捕获真实 UI | Judged | 以原身份记录的 PR122 证据构建 fixture，通过一个 headless Chrome 会话捕获三个状态，使用随附编码器编码，保留同轮 GIF、报告与帧并目视检查代表帧，然后清理服务器与浏览器 |
+| 发布行为与分片完整性 | Judged + Mechanical | Issue #151 在 `tests/skill-evals/evidence/2026-11-26-issue151/` 下的五次当前模型运行通过全部 20 项评审者认证的断言：无 PR 时保留本地证据、被演示 head 移动后停止附件、准确报告部分上传失败、上传文件未进入正文时按失败处理，以及拒绝临时生成的 5,263,479 字节完整 GIF 且不保留其内容，并按顺序使用两个独立验证的分片。`tests/browser-gif-publication.test.ts` 在临时目录生成超限 fixture，在每次暂存使用前清除先前的忽略输出，拒绝单次调用中的重复附件，并固定 fake client 的字节、顺序与远端状态转换。PR115 的显式 fixture 运行仍只是历史来源，不是当前发布行为的证明。 |
 | 模型行为与发现质量 | Judged + Mechanical | 当前对齐名称下三个正例和五个近邻反例在 `tests/skill-evals/evidence/2026-11-24-pr126/dsh-spec-record-browser-gif/trigger-matrix.tsv` 全部通过。PR122 以原身份保留 8/8 行为证据，其当前修订由仅替换名称的哈希归一化证明；历史 PR115 提供三次较早的行为运行。 |
 
 ## Alternatives considered

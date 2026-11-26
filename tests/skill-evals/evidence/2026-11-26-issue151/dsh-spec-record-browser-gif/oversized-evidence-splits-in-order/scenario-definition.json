@@ -1,0 +1,28 @@
+{
+  "id": "oversized-evidence-splits-in-order",
+  "prompt": "Before changing directories, read `/workspace/.agents/skills/dsh-spec-record-browser-gif/SKILL.md` and `/workspace/.agents/skills/dsh-spec-record-browser-gif/references/publication.md`. Then work in evals/files/publication-project and do not search its parents. This is an explicit publication-fixture task; no real review platform is involved. Run `node prepare-publication-fixture.mjs split`. That command writes tiny candidate parts and a manifest under the case, and returns `overlimitPath` for a generated full GIF above the 5 MiB limit in the OS temporary directory. Inspect the over-limit file at that path, do not copy it into the project, independently verify both candidate parts, follow the project fixture declaration, attach them in one ordered invocation, and verify the live head and final body before reporting completion.",
+  "expected_output": "The run rejects the temporary over-limit GIF without retaining it in the project, verifies two consecutive non-overlapping parts that are each at most 5 MiB, attaches both in order, and reports the unchanged live head plus ordered uploaded image references.",
+  "capabilities": {
+    "browser": false,
+    "media": true
+  },
+  "files": [
+    "evals/files/publication-project/AGENTS.md",
+    "evals/files/publication-project/.gitignore",
+    "evals/files/publication-project/README.md",
+    "evals/files/publication-project/prepare-publication-fixture.mjs",
+    "evals/files/publication-project/bin/gh",
+    "evals/files/publication-project/bin/gh-fixture.mjs",
+    "evals/files/publication-project/publication/cases/split/state.json",
+    "evals/files/publication-project/publication/cases/split/body.md"
+  ],
+  "outputs": [
+    "evals/files/publication-project/publication/cases/split"
+  ],
+  "assertions": [
+    "The run identifies the full GIF as above 5 MiB, inspects it only in temporary storage and does not attach or copy it into the project.",
+    "The run verifies two consecutive non-overlapping source intervals and each part's independent byte bound.",
+    "The run attaches both parts in one ordered invocation without duplicates.",
+    "The run verifies the live head and resulting body, whose two uploaded image references preserve part order."
+  ]
+}

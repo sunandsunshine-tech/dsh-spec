@@ -39,6 +39,11 @@ gh pr edit <pull-request> --body-file <body.md> --attach <part-1.gif> --attach <
 
 The command is repeatable, but the same file cannot be attached twice.
 
+A successful attachment command is not publication proof by itself. When an invocation fails
+after uploading any part, report every uploaded part, every failed part, whether the body changed
+and the exact remaining step. Keep every local artifact and do not describe the evidence as
+published.
+
 ## Verify publication
 
 After attachment:
@@ -49,4 +54,8 @@ After attachment:
 4. Fetch every uploaded URL and confirm a successful response and a GIF media type.
 5. Report the pull request, demonstrated commit and artifact order beside the published embed.
 
-When any publication check fails, leave the verified local artifacts intact and report the failed operation and remaining step. Do not substitute a committed branch asset.
+Every uploaded part must have exactly one image reference in the body, in the same order as the
+attachment paths. An uploaded part with no matching image reference fails publication even when the
+attachment command exited successfully. When any publication check fails, leave the verified local
+artifacts intact and report the failed operation and remaining step. Do not substitute a committed
+branch asset.

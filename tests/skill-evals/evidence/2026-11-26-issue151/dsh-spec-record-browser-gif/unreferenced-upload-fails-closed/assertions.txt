@@ -1,0 +1,4 @@
+PASS The run performs the requested edit and then re-reads the live head and body.
+PASS The run detects that part 2 remains an unresolved local reference after upload.
+PASS The run reports publication failure despite the successful attachment command.
+PASS The run identifies part 2 as uploaded but not represented by the body and preserves both local parts.

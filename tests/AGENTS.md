@@ -53,6 +53,7 @@ line, and the test fails rather than skipping when either binary is absent.
 | `skill-evals/evidence-policy.mjs` | Shared claim, comparison, currentness/provenance, safe retained-file, terminal-event and privacy-scope validation used by the model runner and repository tests. |
 | `browser-gif-encoder.test.ts` | Fast browser GIF encoder command, preflight and missing-media contracts; every case finishes before media encoding. |
 | `browser-gif-encoder.media.ts` | One real-media scenario covering video timing, screenshot frame order, per-frame duration, loop metadata and safe output replacement. The CI media step runs it once on Node 26. |
+| `browser-gif-publication.test.ts` | The project-local review-platform fixture: split byte bounds and order, unchanged live head, partial upload state, an uploaded part left unreferenced, repeated staging after local use and duplicate-attachment rejection. |
 | `repository-shape.test.ts` | The tree invariants the tooling relies on: every package script is one command, every landed skill has an identical installed copy, the split note modules carry SPDX/provenance headers, and active record test sections do not name removed commands. |
 | `change-scope.test.ts` | The bundled change-scope report: built from `package/dsh-spec-pre-push-checks/change-scope.ts`, run from the work draft or the landed `skills/dsh-spec-pre-push-checks/scripts/change-scope.mjs`; covers the committed, staged, unstaged and untracked path sets, base/head/merge-base resolution, the `--help` and usage-error contract, and the failure exits. |
 
