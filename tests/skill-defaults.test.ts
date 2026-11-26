@@ -57,7 +57,7 @@ const USE_SITE_PINS = [
   {
     skill: 'dsh-spec-translate-docs',
     file: 'SKILL.md',
-    text: 'when the workflow responsible for a document scope authorizes a pair',
+    text: 'when a persistent project instruction, the user or the responsible workflow selects an existing or new pair for creating, updating or checking',
   },
   {
     skill: 'dsh-spec-pr-description',
@@ -204,7 +204,8 @@ test('companion defaults follow project state and fail closed', () => {
   assert.doesNotMatch(notes, /\.agents\/skills/)
 
   const translate = read('dsh-spec-translate-docs')
-  assert.match(translate, /Once selected, translation and pairing are required, and failure is handed off unfinished/)
+  assert.match(translate, /once selected, translation and pairing are required, and failure is handed off unfinished/i)
+  assert.match(translate, /does not activate for ordinary one-off translation/i)
   assert.doesNotMatch(translate, /\.agents\/skills/)
   assert.match(
     translate,
@@ -214,7 +215,7 @@ test('companion defaults follow project state and fail closed', () => {
     translate,
     /beyond the documents selected by the project instructions, the user or the responsible workflow/,
   )
-  assert.match(translate, /add in-scope counterparts/)
+  assert.match(translate, /add multiple declared target languages/)
   assert.doesNotMatch(translate, /workflow owner's bounded default/)
   assert.doesNotMatch(translate, /dsh-spec-agent-notes/)
 

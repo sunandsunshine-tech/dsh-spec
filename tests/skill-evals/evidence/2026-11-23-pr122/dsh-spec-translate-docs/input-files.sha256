@@ -1,0 +1,13 @@
+0473f76d473b5e78d7524537b1a45345eb88400bd9f0e89bf8d7a511d4b327d1  tests/skill-evals/dsh-spec-translate-docs/evals/files/locale-pages/.agents/dsh-spec-translate-docs/terminology.md
+0987af59b2715eb047b51417fc7e49720fd3304bbd7fdd80d3b9a4366224543b  tests/skill-evals/dsh-spec-translate-docs/evals/files/locale-pages/AGENTS.md
+a2f0ad3f7df7a8c9fd15ad7d91fd61ed4edac0561dcd5ed4bc8552b82dc17893  tests/skill-evals/dsh-spec-translate-docs/evals/files/locale-pages/docs/detail.md
+e8e3c47748212438c91d87d56eff8bdfe52649e69b724cd9f76f871c0ecb7e5c  tests/skill-evals/dsh-spec-translate-docs/evals/files/locale-pages/docs/detail.zh.md
+3416094f6e2cf34ab5e655a427a496a8dce6a1cc6d5af07aa81b963633c06c01  tests/skill-evals/dsh-spec-translate-docs/evals/files/locale-pages/docs/guide.i18n.yaml
+fcccb759fa4a93aaf82c6f47682dfb3e4064baa5a84c2d75d90fd3aa2046b604  tests/skill-evals/dsh-spec-translate-docs/evals/files/locale-pages/docs/guide.md
+853087c22277b511ff067c4ba82cbbb448ac226ab5e3ccf9b0627b7024322683  tests/skill-evals/dsh-spec-translate-docs/evals/files/locale-pages/docs/guide.zh.md
+3e4fd7641662e329518cf3b81563884588fba860cddb110a12de086ea9b9fafa  tests/skill-evals/dsh-spec-translate-docs/evals/files/source-rename/.agents/dsh-spec-translate-docs/terminology.md
+75d0bdaf02ce63e21f88d7491fbd762f8f4f31d28834228dea2776522a68435c  tests/skill-evals/dsh-spec-translate-docs/evals/files/source-rename/AGENTS.md
+1d48b6bdeae8d8f6fbd6dfa910ce8b84e4f4bd608e6fa7394ea98a1e40665f3c  tests/skill-evals/dsh-spec-translate-docs/evals/files/source-rename/docs/index.md
+5583b333b753cfca9b85920f497c7a099d13d9fdae9b5cbd548e0b965272ab89  tests/skill-evals/dsh-spec-translate-docs/evals/files/source-rename/docs/old-guide.i18n.yaml
+7b151d73990b96d25cf5eeabab5b1fa7aff7f15ef60a20f702be7e3eb5bb3be9  tests/skill-evals/dsh-spec-translate-docs/evals/files/source-rename/docs/old-guide.md
+8f078bd78de665aa512bdc9e17fb320b296a92ebcc558e1ea628772262a59156  tests/skill-evals/dsh-spec-translate-docs/evals/files/source-rename/docs/old-guide.zh.md

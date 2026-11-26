@@ -25,6 +25,9 @@ that boundary explicitly.
 | `dsh-spec-translate-docs` | `source-rename-keeps-pair` | 4/4 |
 | `dsh-spec-translate-docs` | `locale-selected-pages-are-unpaired` | 4/4 |
 
+The two translate-docs runs are historical after issue #142 changed that skill's activation and
+briefing rules. The other twelve remain current for their recorded skill revisions.
+
 The fourteen scenarios record 60/60 assertions covering the generic responsibility and dependency-edge
 report, manifest-backed review, numbered-rule citation, rebase-with-rerere selection, selective and
 truly empty catch handlers, wrapper preservation of cancellation and denial, the shared icon

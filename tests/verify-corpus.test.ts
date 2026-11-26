@@ -50,7 +50,8 @@ if (process.argv[2] === 'archive') {
   write(
     root,
     'skills/dsh-spec-translate-docs/scripts/translate-pair.mjs',
-    "if (!process.argv.includes('tests/skill-evals/**') || !process.argv.includes('tests/skill-evals/**/.*/**')) process.exit(4)\n" +
+    "const required = ['tests/skill-evals/**', 'tests/skill-evals/**/.*/**', '.agents/dsh-spec-agent-notes/archived/**', 'submodules/**', 'submodules/**/.*/**']\n" +
+      'if (!required.every((flag) => process.argv.includes(flag))) process.exit(4)\n' +
       "if (process.argv[2] === 'list') console.log('ok sample.zh.md')\n",
   )
   write(root, 'scripts/submit-vendored.ts', 'process.exit(0)\n')
@@ -129,7 +130,7 @@ test('the corpus gate runs and reports a passing sibling-reference gate', (t) =>
   assert.match(result.stdout, /ok {3}sibling skill references/)
 })
 
-test('translation discovery excludes the development eval corpus', (t) => {
+test('the corpus gate forwards every maintained-corpus skip', (t) => {
   const result = runScript('scripts/verify-corpus.ts', [], stubSiblingCorpus(t, false))
   assert.equal(result.status, 0, result.output)
   assert.match(result.stdout, /ok {3}translation pairs/)

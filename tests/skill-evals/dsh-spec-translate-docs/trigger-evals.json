@@ -1,0 +1,51 @@
+{
+  "skill_name": "dsh-spec-translate-docs",
+  "agent_file": "trigger-fixtures/AGENTS.md",
+  "queries": [
+    {
+      "id": "explicit-pair-update",
+      "query": "Create the Chinese counterpart and consistency record for docs/guide.md as a declared translation pair.",
+      "should_trigger": true
+    },
+    {
+      "id": "explicit-pair-check",
+      "query": "Check whether docs/guide.md and docs/guide.zh.md are still in sync, including their consistency record.",
+      "should_trigger": true
+    },
+    {
+      "id": "declared-pair-document-change",
+      "query": "I edited the source of our maintained English-Chinese guide pair docs/guide.md. Bring its Chinese counterpart and record back in sync.",
+      "should_trigger": true
+    },
+    {
+      "id": "workflow-authorized-new-pair",
+      "query": "The documentation workflow assigns docs/new-guide.md to our maintained Chinese translation set. Create its counterpart and aggregate consistency record.",
+      "should_trigger": true
+    },
+    {
+      "id": "standing-policy-new-pair",
+      "query": "Apply the repository's standing translation policy to the documentation it designates.",
+      "should_trigger": true
+    },
+    {
+      "id": "ordinary-standalone-translation",
+      "query": "Translate this sentence into Chinese in your response: Build the project before running the tests.",
+      "should_trigger": false
+    },
+    {
+      "id": "ordinary-documentation-edit",
+      "query": "Fix the missing period in docs/contributing.md.",
+      "should_trigger": false
+    },
+    {
+      "id": "adjacent-documentation-review",
+      "query": "Review the README's onboarding links and grammar.",
+      "should_trigger": false
+    },
+    {
+      "id": "inferred-translation-without-pair-scope",
+      "query": "The Chinese support team cannot use docs/api-guide.md because it exists only in English.",
+      "should_trigger": false
+    }
+  ]
+}

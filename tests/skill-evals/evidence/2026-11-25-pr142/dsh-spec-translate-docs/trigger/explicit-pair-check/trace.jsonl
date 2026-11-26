@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a2177c-8d17-77c2-9d3d-d9c0172771d3"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The request concerns checking a declared English–Chinese Markdown translation pair and its consistency record, which directly matches the skill’s scope.\n\nSELECT: dsh-spec-translate-docs"}}
+{"type":"turn.completed","usage":{"input_tokens":12507,"cached_input_tokens":9600,"cache_write_input_tokens":0,"output_tokens":482,"reasoning_output_tokens":444}}

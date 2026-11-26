@@ -1,6 +1,6 @@
 ---
 name: dsh-spec-translate-docs
-description: "Use when translating documentation, updating a counterpart, or checking a pair — maintain paired Markdown documents in declared target languages: keep pairs in step, update small changes directly, add in-scope counterparts, brief or isolate larger ones, and record and verify consistency. 用于翻译文档、更新对侧文件或检查配对：维护声明目标语言的配对 Markdown 文档——编辑后保持既有配对一致、直接更新小型局部改动、在授权范围内新增对侧、运行最小更新简报或隔离整篇翻译，并记录与校验配对一致性。"
+description: "Use when maintaining an existing or explicitly authorized Markdown translation pair: bring a counterpart along after either side changes, add multiple declared target languages, brief or isolate larger translations, and record and check consistency. Not for ordinary one-off translation, editing an unpaired document, or an inferred translation need without pair scope. 用于维护已有或明确授权的 Markdown 配对：任一侧变化后同步对侧，新增多个声明的目标语言，为较大改动生成简报或隔离翻译，并记录和检查一致性；普通一次性翻译、只编辑未配对文档，或没有配对范围的推断翻译需求不加载。"
 license: "MIT; upstream and repository notices in THIRD_PARTY_NOTICES"
 compatibility: "Requires Node.js 24.11+ on the 24 line or 26+ and Git for the briefing. No install and no network access."
 ---
@@ -9,7 +9,7 @@ compatibility: "Requires Node.js 24.11+ on the 24 line or 26+ and Git for the br
 
 ## Invocation boundary
 
-This skill runs when the user asks for translation or pair maintenance, when the project's standing instructions say an existing pair is maintained, when a documented change touches a side of an existing pair, or when the workflow responsible for a document scope authorizes a pair in that scope. Those same sources authorize creating or updating a pair; an explicit `--require-target` may apply the project's declared completeness policy to a selected source set. Once selected, translation and pairing are required, and failure is handed off unfinished. The [pairing contract](references/pairing-contract.md) owns path scope, target-selection rules and failure details.
+This skill runs when a persistent project instruction, the user or the responsible workflow selects an existing or new pair for creating, updating or checking, or when a documented change touches either side of an existing pair. An explicit `--require-target` may apply the project's declared completeness policy to a selected source set. It does not activate for ordinary one-off translation, an unpaired document's edit, or an inferred translation need that supplies no pair scope. Those sources authorize creating or updating a pair; once selected, translation and pairing are required, and failure is handed off unfinished. Installation alone is not activation. The [pairing contract](references/pairing-contract.md) owns path scope, target-selection rules and failure details.
 
 ## Defaults
 
@@ -70,7 +70,7 @@ When more than one target exists and the wording of each is more than a local pa
 
 1. **Brief the change.** `node <skill-dir>/scripts/translate-pair.mjs brief <pair path> --target <lang>` prints the authored side's change since the last confirmed state at the narrowest aligned unit, with three-way text, matching terminology rows and first-occurrence notes. Generated regions never enter the briefing: aligned regeneration says nothing to brief; disagreeing current regions are a precondition failure. The pair must be committed.
 2. **Apply a mechanical-only change directly.** When the brief maps every change inside fenced code, add `--apply`; the script splices and structure-validates the counterpart. On prose changes `--apply` exits 2 and writes nothing.
-3. **Brief the prose translator.** Pass the briefing, or the command to print it, through the working separation in § Preserve working separation. The brief is the translator's whole working set; it escalates to the whole-document sources only when a decision is genuinely unanswerable. The briefing rules name the project's declared style file or the default references/style-examples.md; read it before editing.
+3. **Brief the prose translator.** Pass the briefing, or the command to print it, through the working separation in § Preserve working separation. The brief is the translator's change-local work set: it carries the diff, touched terminology and rules digest, but it does not replace the binding rules. Before editing, the translator reads the project's declared style file or the default references/style-examples.md; it also loads the target terminology table under the [translation rules](references/translation-rules.md). Escalate to the whole-document sources only when a decision is genuinely unanswerable.
 4. Make the smallest edit that covers the change, then verify the changed spans against the source.
 
 ## The whole-document path

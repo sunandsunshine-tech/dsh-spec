@@ -1,5 +1,9 @@
 # Translate Docs completion-path evidence
 
+> **Historical status:** these runs bind the pre-#142 translation skill and are not current evidence
+> for its activation or briefing semantics. Current trigger and briefing evidence is recorded under
+> `tests/skill-evals/evidence/2026-11-25-pr142/dsh-spec-translate-docs/`.
+
 PR121 skill file SHA-256: `5ec35a6f798b9916460c6dc6ad424765bee4fbde1dedc5966108b1653eadf8bd`.
 Run date: 2026-11-23.
 Model: host-configured Codex model; Codex CLI 0.171.0-alpha.13.

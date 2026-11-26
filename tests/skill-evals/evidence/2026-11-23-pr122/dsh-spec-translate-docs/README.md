@@ -1,6 +1,10 @@
 # PR #122 translation evidence
 
-These runs exercise the current `dsh-spec-translate-docs` mechanism:
+> **Historical status:** these runs bind the pre-#142 translation skill. Their named behaviors remain
+> useful history, but issue #142 changed the activation and briefing rules; current evidence is under
+> `tests/skill-evals/evidence/2026-11-25-pr142/dsh-spec-translate-docs/`.
+
+These runs exercised the `dsh-spec-translate-docs` mechanism at the PR #122 revision:
 
 | Scenario | Assertions | Result |
 |---|---:|---|
