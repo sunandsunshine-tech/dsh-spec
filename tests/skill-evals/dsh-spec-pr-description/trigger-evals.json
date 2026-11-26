@@ -29,7 +29,7 @@
     },
     {
       "id": "unfinished-review-comment-near-miss",
-      "query": "The review thread has a posted answer, but its fix has not been published. Classify the round as handled or unfinished; do not create or update a pull-request description or AI Usage section.",
+      "query": "One review thread has a posted answer, but its fix has not been published. Does this unfinished review round require a pull-request description update? Return only yes or no.",
       "should_trigger": false
     }
   ]

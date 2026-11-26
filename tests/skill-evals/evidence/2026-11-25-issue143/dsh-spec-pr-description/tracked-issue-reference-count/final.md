@@ -1,7 +1,6 @@
-Updated [motivation.md](/workspace/evals/files/tracked-issues/motivation.md:4) to:
+Updated [motivation.md](/workspace/evals/files/tracked-issues/motivation.md) by retaining the one-sentence problem statement and adding visible GitHub issue references:
 
-- Use `Fixes #17` because the change resolves Issue #17.
-- Add `Refs #18` and its lower-stack-layer telemetry context.
-- Omit Issue #19, change request #20, cross-project links, and hidden/code references.
+- `Fixes #17` — the issue resolved by this change.
+- `Refs #18` — lower-stack retry telemetry context.
 
-`git diff --check` passes, and this is the only modified file.
+Excluded unrelated issue #19 and change request #20. The section passes read-back and `git diff --check`.

@@ -1,3 +1,3 @@
-The request is specifically for a commit message and explicitly excludes pull-request descriptions and test design, so the change-request-description skill does not apply.
+This request is for a commit message, while the available specification skill is limited to change-request descriptions and explicitly excludes commit messages. It also should not be used to draft test design or pull-request content.
 
 SELECT: none

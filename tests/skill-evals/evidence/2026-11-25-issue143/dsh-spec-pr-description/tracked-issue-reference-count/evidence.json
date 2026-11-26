@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "claim": {
+    "type": "behavior",
+    "subject": "dsh-spec-pr-description:tracked-issue-reference-count"
+  },
+  "arm": "target-present",
+  "comparison": null,
+  "evidence": {
+    "kind": "model",
+    "currentness": {
+      "scenario_sha256": "853ad7941733b38b55d05b29bb5f5154c6dd1ca155ef724a09391ae9c2501d5f",
+      "input_manifest_sha256": "5e22480faedce5b815618759af61d8b2c79f197bf3c034331ad8401b7a61072d",
+      "scenario_prompt_sha256": "9695961e97aff87e899b661cdd74ba25d1268cc044cfa858b9be7561362e01c5",
+      "arm_instruction_sha256": "a8dbffe0501a05a00e9f43f00bf5c2c2d563a9eaf4ae0f2bfa98abd2ee47b52c",
+      "prompt_guard_sha256": "e587246af427c697477e3f5e361192ebb5316c5f17540449cf6de853ec64af30",
+      "rendered_prompt_sha256": "99b2ac8ff6de230ba98a17014236caf8826e722d7b6e94b9d0d2d8664a8506b9",
+      "execution_sha256": "df0d14c0a241265515e09d97e5b796c7a07f4e04e2b1e49e7bc971557340c54a"
+    }
+  },
+  "execution": {
+    "auth": "host-proxy",
+    "browser": false,
+    "media": false,
+    "model_config_sha256": "81fe0a5e2d45e2a687f9ff2d811dd45cca60b986eeb96b994e9255e9eda70e1c",
+    "model_runtime_sha256": "63279cf1860a285495fa0bad3c40f5eb38c3487f7425adb603bcbd49175fcaf8",
+    "sandbox": "workspace-write",
+    "subagents": false
+  },
+  "provenance": {
+    "target_skill_tree_sha256": "444a8ea351db993bd85ef4b232cfa865ea981f7cfa02f68a21a75d84043f36ac",
+    "dependency_skill_tree_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "deadline_ms": 1800000,
+  "privacy": {
+    "canary_sets": [
+      "current-home",
+      "local-environment"
+    ],
+    "scope_sha256": "3726314447cc88cca5b194aabe75121fc9362ed77f4b385e3fe0020453d1d94c",
+    "surfaces": "all-retained-files"
+  }
+}

@@ -1,3 +1,3 @@
-This is an ordinary documentation edit about workspace runtime dependencies; it does not request or update a change-request description, review round, test evidence, or AI-usage disclosure.
+This is an ordinary developer-guide documentation update and does not require creating or updating a change-request description, so the PR-description skill does not apply.
 
 SELECT: none

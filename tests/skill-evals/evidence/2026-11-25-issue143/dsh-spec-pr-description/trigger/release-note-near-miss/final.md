@@ -1,3 +1,3 @@
-The request is for a user-facing release note, which is explicitly outside the pull-request description skill’s scope. No changelist or PR write-up was requested, so the specialized skill should not be selected.
+This request is for a user-facing release note, while the available description skill is specifically limited to change-request descriptions and excludes release notes. Therefore, no listed skill applies.
 
 SELECT: none

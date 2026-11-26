@@ -24,7 +24,7 @@ Status: implemented
 
 ## Verification
 
-`tests/skill-scenarios.test.ts` 区分触发证据与行为证据：触发清单使用 frontmatter 表面；当前输入、技能模式与 `assertions.expected.txt` 仍匹配；历史输入与技能哈希匹配其已提交清单。场景输入保持当前而技能修订为历史时，测试用命名的已保留树校验记录哈希；目标哈希缺失时失败关闭。PR-description 当前的 AI Usage 与产物检查读取 Issue #143 证据根，PR #121 则明确保留为历史来源。`tests/skill-evals/README.md` 说明证据模型；相关证据 README 说明各次运行的范围。
+`tests/skill-scenarios.test.ts` 区分触发证据与行为证据：触发清单使用 frontmatter 表面；当前输入、技能模式与 `assertions.expected.txt` 仍匹配；历史输入与技能哈希匹配其已提交清单。带类型元数据的运行还通过证据策略的保留运行检查；无元数据的历史运行继续使用兼容检查。负控制拒绝缺失或不匹配的预期断言文件。场景输入保持当前而技能修订为历史时，测试用命名的已保留树校验完整记录文件集；目标树缺失或不完整时失败关闭。PR-description 当前的 AI Usage 与产物检查读取 Issue #143 证据根，PR #121 则明确保留为历史来源。`tests/skill-evals/README.md` 说明证据模型；相关证据 README 说明各次运行的范围。
 
 ## Alternatives considered
 

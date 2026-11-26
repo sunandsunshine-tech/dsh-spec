@@ -40,6 +40,11 @@ const safety = (await import('./skill-evals/runner-safety.mjs' as string)) as {
 }
 const evidencePolicy = (await import('./skill-evals/evidence-policy.mjs' as string)) as {
   validateScenarioClaim(skill: string, scenario: Scenario): unknown
+  readEvidenceMetadataRecord(root: string): {
+    metadata: { claim: { subject: string } }
+    sha256: string
+  }
+  inspectRetainedRun(root: string, metadata: { claim: { subject: string } }): { scenario: Scenario }
 }
 
 interface Scenario {
@@ -1532,6 +1537,17 @@ function assertHistoricalSkillRevision(
   }
 }
 
+function assertExpectedAssertions(root: string, assertions: string[], label: string): void {
+  const path = join(root, 'assertions.expected.txt')
+  assertEvidencePath(root, path, label + ' expected assertions', 'file')
+  assertRegularEvidenceFile(path, label + ' expected assertions')
+  assert.equal(
+    readFileSync(path, 'utf8').trim(),
+    assertions.map((assertion) => `PASS ${assertion}`).join('\n'),
+    label + ' expected assertions differ',
+  )
+}
+
 test('historical evidence Git helpers ignore inherited redirection variables', () => {
   const root = mkdtempSync(join(tmpdir(), 'evidence-git-environment-'))
   try {
@@ -1556,7 +1572,7 @@ test('historical evidence Git helpers ignore inherited redirection variables', (
   }
 })
 
-test('historical skill revision validation requires the target skill hash', () => {
+test('evidence validation rejects incomplete historical revisions and expected assertions', () => {
   const root = join(
     REPO_ROOT,
     'tests/skill-evals/evidence/2026-11-23-pr122/dsh-spec-pr-description/workspace-boundaries-expose-reverse-edge',
@@ -1565,6 +1581,34 @@ test('historical skill revision validation requires the target skill hash', () =
     () => assertHistoricalSkillRevision(root, 'dsh-spec-pr-description', [], new Map()),
     /has no retained historical revision/,
   )
+  const manifest = readSkillTreeManifest(
+    join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-23-pr122/dsh-spec-pr-description/skills-tree.sha256'),
+  )
+  assert.throws(
+    () =>
+      assertHistoricalSkillRevision(
+        root,
+        'dsh-spec-pr-description',
+        [],
+        new Map([...manifest].filter(([path]) => path === 'skills/dsh-spec-pr-description/SKILL.md')),
+      ),
+    /historical skill file set differs/,
+  )
+
+  const assertionsRoot = mkdtempSync(join(tmpdir(), 'expected-assertions-'))
+  try {
+    assert.throws(
+      () => assertExpectedAssertions(assertionsRoot, ['The expected behavior holds.'], 'missing'),
+      /is missing/,
+    )
+    writeFileSync(join(assertionsRoot, 'assertions.expected.txt'), 'PASS A different behavior holds.\n')
+    assert.throws(
+      () => assertExpectedAssertions(assertionsRoot, ['The expected behavior holds.'], 'mismatched'),
+      /expected assertions differ/,
+    )
+  } finally {
+    rmSync(assertionsRoot, { recursive: true, force: true })
+  }
 })
 
 function stageScenarioProject(skill: string, scenario: Scenario, root: string): void {
@@ -1838,13 +1882,22 @@ test('pr-description eval covers issue exceptions and review update boundaries',
   assert.match(dependencies.assertions.join('\n'), /core → app runtime edge/)
   const tracked = corpus.evals.find((entry) => entry.id === 'tracked-issue-reference-count')
   assert.ok(tracked)
-  assert.match(tracked.prompt, /both same-project issues must be visible/i)
-  assert.match(tracked.prompt, /hidden, code-fenced, inline-code, and cross-project forms/i)
+  assert.match(tracked.prompt, /project conventions, tracker state, change record, and supplied reference fixture/i)
+  assert.doesNotMatch(
+    tracked.prompt,
+    /precedence|preserve both|both same-project|must be visible|optional|mandatory|hidden|code-fenced|inline-code|cross-project|#1[789]|#20/i,
+  )
   assert.match(
     tracked.expected_output,
     /visible same-project references for both Issue #17 with a resolving keyword and Issue #18/i,
   )
+  assert.match(tracked.expected_output, /project convention does not make the tracked issue references optional/i)
+  assert.match(tracked.assertions.join('\n'), /project convention does not make the tracked issue references optional/)
   assert.match(tracked.assertions.join('\n'), /Hidden, code-fenced, inline-code, and cross-project references/)
+  assert.match(
+    readFileSync(join(EVAL_SOURCE_ROOT, 'dsh-spec-pr-description', 'evals/files/tracked-issues/AGENTS.md'), 'utf8'),
+    /Issue references are optional/,
+  )
   const nonCountingReferences = readFileSync(
     join(EVAL_SOURCE_ROOT, 'dsh-spec-pr-description', 'evals/files/tracked-issues/non-counting-references.md'),
     'utf8',
@@ -1904,8 +1957,9 @@ test('pr-description trigger corpus separates descriptions from adjacent work', 
   assert.match(corpus.queries[0]?.query ?? '', /dependency-edge/i)
   assert.match(corpus.queries[1]?.query ?? '', /handled round/i)
   assert.match(corpus.queries.at(-1)?.query ?? '', /fix has not been published/i)
-  assert.match(corpus.queries.at(-1)?.query ?? '', /classify the round as handled or unfinished/i)
-  assert.match(corpus.queries.at(-1)?.query ?? '', /do not create or update a pull-request description/i)
+  assert.match(corpus.queries.at(-1)?.query ?? '', /unfinished review round/i)
+  assert.match(corpus.queries.at(-1)?.query ?? '', /require a pull-request description update/i)
+  assert.doesNotMatch(corpus.queries.at(-1)?.query ?? '', /do not (?:create|update)/i)
   assert.doesNotMatch(corpus.queries.at(-1)?.query ?? '', /draft a reply/i)
   for (const entry of corpus.queries) {
     assertNonEmptyString(entry.id, 'pr-description trigger eval id')
@@ -4005,6 +4059,28 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
       `${scenarioDefinitionHash(recordedScenario)}  ${evidenceSkill}:${scenarioId}`,
       item.skill + '/' + item.run + ' scenario definition differs',
     )
+    const evidenceMetadataPath = join(root, 'evidence.json')
+    const executionProfilePath = join(root, 'execution.json')
+    assert.equal(
+      existsSync(evidenceMetadataPath),
+      existsSync(executionProfilePath),
+      item.skill + '/' + item.run + ' has an incomplete evidence metadata pair',
+    )
+    if (existsSync(evidenceMetadataPath)) {
+      assertRegularEvidenceFile(evidenceMetadataPath, item.skill + '/' + item.run + ' evidence metadata')
+      assertRegularEvidenceFile(executionProfilePath, item.skill + '/' + item.run + ' execution profile')
+      const metadataRecord = evidencePolicy.readEvidenceMetadataRecord(root)
+      assert.equal(
+        metadataRecord.metadata.claim.subject,
+        `${item.skill}:${scenarioId}`,
+        item.skill + '/' + item.run + ' evidence metadata names another subject',
+      )
+      assert.deepEqual(
+        evidencePolicy.inspectRetainedRun(root, metadataRecord.metadata).scenario,
+        recordedScenario,
+        item.skill + '/' + item.run + ' evidence metadata differs from its scenario',
+      )
+    }
     if (current) assert.deepEqual(recordedScenario, scenario, item.skill + '/' + item.run + ' is not current')
     const effectiveScenario = current ? scenario : recordedScenario
     const renamedEvidence = evidenceSkill !== item.skill
@@ -4072,13 +4148,7 @@ test('PR121, PR122 and PR141 targeted model evidence binds current inputs and re
       true,
       item.skill + '/' + item.run + ' has a failed assertion',
     )
-    if (current) {
-      assert.equal(
-        readFileSync(join(root, 'assertions.expected.txt'), 'utf8').trim(),
-        expectedAssertions.map((assertion) => `PASS ${assertion}`).join('\n'),
-        item.skill + '/' + item.run + ' expected assertions differ',
-      )
-    }
+    if (current) assertExpectedAssertions(root, expectedAssertions, item.skill + '/' + item.run)
     const finalText = readFileSync(join(root, 'final.md'), 'utf8')
     assert.ok(finalText.trim().length > 0)
 
