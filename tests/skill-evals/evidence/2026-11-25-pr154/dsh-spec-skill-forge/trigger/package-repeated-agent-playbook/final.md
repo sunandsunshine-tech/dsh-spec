@@ -1,3 +1,3 @@
-The request is to shape an existing escalation playbook into a discoverable Agent Skill with explicit scope, stopping boundaries, and detailed steps deferred to a loaded reference—exactly the skill-forging workflow.
+The request calls for creating a discoverable, reusable Agent Skill with clear scope, stopping conditions, and on-demand detailed guidance, which directly matches the skill-forge’s stated purpose.
 
 SELECT: dsh-spec-skill-forge

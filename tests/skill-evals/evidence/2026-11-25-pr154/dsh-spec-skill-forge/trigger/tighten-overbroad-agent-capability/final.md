@@ -1,3 +1,3 @@
-The request changes an existing Agent Skill’s discovery text and trigger boundary, including excluding incident-handling work. That squarely fits the skill-forge skill’s scope for rewriting an Agent Skill’s role, structure, triggers, and boundaries.
+The saved capability needs its trigger and scope rules revised so it activates for the intended skill-related work and excludes incidents. That matches `dsh-spec-skill-forge`, which explicitly covers triggers, boundaries, and specification conformance for existing skills.
 
 SELECT: dsh-spec-skill-forge

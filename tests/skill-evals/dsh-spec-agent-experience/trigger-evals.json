@@ -18,6 +18,11 @@
       "should_trigger": true
     },
     {
+      "id": "reduce-context-loading-overhead",
+      "query": "Revise the context-loading instructions for our coding agent so it first reads only the purpose, active task, and critical constraints, then discovers deeper references through exact paths. Keep the agent's role and surrounding workflow steps unchanged.",
+      "should_trigger": true
+    },
+    {
       "id": "shorten-multi-step-workflow-context",
       "query": "The steps of our checkout recovery workflow all receive a long checklist. Rewrite the workflow steps so each one sees the context it needs, defers rare details to named resources, and returns a bounded result with a way to retrieve more.",
       "should_trigger": true
@@ -25,6 +30,11 @@
     {
       "id": "create-whole-agent-skill",
       "query": "Turn this incident runbook into a new Agent Skill. Choose the skill's role, description, structure, scripts, references, eval plan, and lifecycle, then forge the complete package.",
+      "should_trigger": false
+    },
+    {
+      "id": "rewrite-whole-agent-skill",
+      "query": "Rewrite this complete Agent Skill so its role, description, body structure, references, scripts, and evaluation plan form one coherent package. Preserve supported behavior, but re-evaluate the whole skill.",
       "should_trigger": false
     },
     {

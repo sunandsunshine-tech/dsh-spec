@@ -1,3 +1,3 @@
-The request requires authoring the new skill’s instructions, context-loading structure, and multi-step workflow so its information is discoverable and efficiently used, which clearly matches the `dsh-spec-agent-experience` skill.
+The request is to create an entirely new Agent Skill package, which is explicitly outside the scope of `dsh-spec-agent-experience`; that skill covers instruction, tool-definition, and workflow text rather than whole-skill creation.
 
-SELECT: dsh-spec-agent-experience
+SELECT: none

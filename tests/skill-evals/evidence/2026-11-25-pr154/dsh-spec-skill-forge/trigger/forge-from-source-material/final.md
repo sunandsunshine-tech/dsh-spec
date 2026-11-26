@@ -1,3 +1,3 @@
-This is a request to create an Agent Skill, define its role and selection boundaries, and place operational detail in the body—the exact scope of `dsh-spec-skill-forge`.
+The `dsh-spec-skill-forge` skill clearly applies because the task is to create a reusable Agent Skill and define its role, selection triggers, exclusions, and detailed procedural body.
 
 SELECT: dsh-spec-skill-forge

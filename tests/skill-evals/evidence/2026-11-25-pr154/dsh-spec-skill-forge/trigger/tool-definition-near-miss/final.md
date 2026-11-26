@@ -1,3 +1,3 @@
-The request concerns an MCP tool description, not creating, rewriting, or migrating an Agent Skill, and the user explicitly states that no skill package is involved. Therefore, the skill-forging capability does not apply.
+No installed skill clearly applies: updating an MCP server tool description is ordinary source-code work, not creating, restructuring, or migrating an Agent Skill.
 
 SELECT: none

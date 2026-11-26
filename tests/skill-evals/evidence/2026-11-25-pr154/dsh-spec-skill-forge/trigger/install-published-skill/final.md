@@ -1,3 +1,3 @@
-Installing a published skill is an installation task, not creating, rewriting, or migrating one; the obvious match would be the installer skill rather than `dsh-spec-skill-forge`.
+This is purely an installation request, while `dsh-spec-skill-forge` handles creating, rewriting, or migrating skills rather than installing them, so it does not clearly apply.
 
 SELECT: none

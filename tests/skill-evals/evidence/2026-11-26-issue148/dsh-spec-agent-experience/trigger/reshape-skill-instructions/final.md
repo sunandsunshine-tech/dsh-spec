@@ -1,3 +1,3 @@
-The request directly matches the skill’s purpose: revising an existing Agent Skill’s instructions so purpose, actions, and constraints appear first while deferred references remain discoverable, without changing its metadata or supporting files.
+The task changes an existing Agent Skill’s instruction text, which clearly matches `dsh-spec-agent-experience`; no execution or inspection is needed for this selection-only probe.
 
 SELECT: dsh-spec-agent-experience

@@ -2,7 +2,6 @@
   "name": "schedule_release",
   "description": "Schedules one release and returns its identifier.",
   "parameters": {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
     "properties": {
       "environment": {
@@ -15,10 +14,10 @@
       },
       "replicas": {
         "type": "integer",
+        "description": "Number of replicas.",
         "default": 2,
         "minimum": 1,
-        "maximum": 10,
-        "description": "Number of replicas."
+        "maximum": 10
       },
       "start_at": {
         "type": "string",
@@ -27,7 +26,7 @@
       },
       "timezone": {
         "type": "string",
-        "description": "IANA timezone for the release schedule."
+        "description": "IANA timezone for the release start instant."
       },
       "rollout_strategy": {
         "type": "string",
@@ -35,48 +34,47 @@
           "all-at-once",
           "canary"
         ],
-        "default": "all-at-once",
-        "description": "How traffic moves to the new release."
+        "description": "How traffic moves to the new release.",
+        "default": "all-at-once"
       },
       "canary_percentage": {
         "type": "integer",
+        "description": "Traffic percentage for a canary release.",
         "default": 10,
         "minimum": 1,
-        "maximum": 100,
-        "description": "Traffic percentage for a canary release."
+        "maximum": 100
       },
       "approval_ticket": {
         "type": "string",
-        "description": "Approval ticket identifier for production."
+        "description": "Approval ticket identifier."
       }
     },
     "required": [
       "environment"
     ],
     "additionalProperties": false,
-    "dependentRequired": {
-      "start_at": [
-        "timezone"
-      ],
-      "timezone": [
-        "start_at"
-      ]
-    },
     "allOf": [
       {
         "if": {
-          "properties": {
-            "environment": {
-              "const": "production"
-            }
-          },
           "required": [
-            "environment"
+            "start_at"
           ]
         },
         "then": {
           "required": [
-            "approval_ticket"
+            "timezone"
+          ]
+        }
+      },
+      {
+        "if": {
+          "required": [
+            "timezone"
+          ]
+        },
+        "then": {
+          "required": [
+            "start_at"
           ]
         }
       },
@@ -102,6 +100,23 @@
               "canary_percentage"
             ]
           }
+        }
+      },
+      {
+        "if": {
+          "properties": {
+            "environment": {
+              "const": "production"
+            }
+          },
+          "required": [
+            "environment"
+          ]
+        },
+        "then": {
+          "required": [
+            "approval_ticket"
+          ]
         }
       }
     ]

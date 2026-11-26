@@ -1,8 +1,9 @@
-Created [agent-instructions.md](/workspace/agent-instructions.md) with:
+Created [agent-instructions.md](/workspace/agent-instructions.md) with guidance for:
 
-- Bounded, source-anchored findings and adjacent context
-- Explicit omission reporting and exact continuation calls
-- Rules preventing repeated broad searches
-- Completion checks for traceability, evidence, and retrieval accuracy
+- Bounded, source-traceable findings and sufficient adjacent context.
+- Explicit search omission reporting.
+- Exact range/page continuation requests using real IDs or cursors.
+- Avoiding repeated broad searches and whole-thread dumps.
+- A completion checklist for judging answer quality.
 
-Verified as valid non-trailing-whitespace Markdown. The installed agent-experience skill informed its locality and completion structure.
+Validated as ordinary Markdown with no trailing whitespace.

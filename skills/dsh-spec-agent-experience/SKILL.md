@@ -1,10 +1,12 @@
 ---
 name: dsh-spec-agent-experience
-description: "Use when writing or changing a prompt — a system prompt, a tool definition (name, description, parameter schema, or its system-prompt section), a skill's instructions, context-loading instructions, or the steps of a multi-step workflow — to make the prompt's information discoverable and use context efficiently. 用于编写或修改提示词——system prompt、工具定义（名称、描述、参数 schema 或 system-prompt 段落）、技能指令、上下文加载指令或多步工作流的步骤——使提示词的信息可发现并高效使用上下文。"
+description: "Use when writing or changing a system prompt, tool definition (name, description, parameter schema, or system-prompt section), an existing Agent Skill's instruction text, context-loading instructions, or multi-step workflow steps, so the text is discoverable and context is used efficiently. Not for creating, rewriting, or migrating a whole Agent Skill. 用于编写或修改 system prompt、工具定义（名称、描述、参数 schema 或 system-prompt 段落）、现有 Agent Skill 的指令文本、上下文加载指令或多步工作流步骤，使文本可发现并高效使用上下文；不用于创建、改写或迁移整个 Agent Skill。"
 license: "MIT; upstream and repository notices in THIRD_PARTY_NOTICES"
 ---
 
 # Writing prompts
+
+**Own prompt text, not whole-skill design.** This skill shapes prompt and instruction text. For an existing Agent Skill, it applies once the skill's role and structure are settled. Creating, rewriting or migrating a whole Agent Skill — including its role, description, structure, resources, lifecycle and evaluation — is outside this skill and belongs to the skill-authoring process (when available, consider using the `dsh-spec-skill-forge` skill).
 
 **Shape context, not control.** A prompt supplies the purpose, facts, constraints, examples and evidence that make a good decision likely, and leaves the route to the model; control is reserved for authorization, irreversible actions, safety and required validation.
 

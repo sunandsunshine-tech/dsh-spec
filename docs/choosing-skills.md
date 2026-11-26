@@ -36,7 +36,7 @@ Install all five skills when the project starts using coding agents. They cover 
 
 | Skill | What it adds | Recommended companions |
 |---|---|---|
-| `dsh-spec-agent-experience` | Writes or revises prompts, tool definitions, skill entries and multi-step workflows so their information is discoverable and context is used efficiently | `dsh-spec-agents-md`, `dsh-spec-prose-standard` |
+| `dsh-spec-agent-experience` | Writes or revises prompt text — system prompts, tool definitions, existing Agent Skill instructions, context-loading instructions and multi-step workflows — so its information is discoverable and context is used efficiently | `dsh-spec-agents-md`, `dsh-spec-prose-standard` |
 | `dsh-spec-agents-md` | Places standing instructions in `AGENTS.md`, with pointers and update boundaries that keep the file current | `dsh-spec-agent-experience`, `dsh-spec-prose-standard` |
 | `dsh-spec-agent-notes` | Decides when a non-trivial change needs a durable decision record and maintains its lifecycle | `dsh-spec-prose-standard`, `dsh-spec-translate-docs` |
 | `dsh-spec-prose-standard` | Keeps durable documentation, comments, instructions and visible strings complete without transcripts or decoration | `dsh-spec-translate-docs` |
@@ -97,7 +97,7 @@ Install this skill when the project creates, rewrites, migrates or checks Agent 
 |---|---|---|
 | `dsh-spec-skill-forge` | Forges or revises an Agent Skill from an idea, source or existing skill and records the decisions behind it | `dsh-spec-agent-experience`, `dsh-spec-prose-standard`, `dsh-spec-agent-notes`, `dsh-spec-translate-docs` |
 
-`dsh-spec-agent-experience` shapes the prompt surface; `dsh-spec-prose-standard` controls durable text; `dsh-spec-agent-notes` records the forging decisions; `dsh-spec-translate-docs` keeps any paired documentation in step. The forge owns the authoring procedure that coordinates them.
+The forge owns creating, rewriting and migrating a whole Agent Skill. Once that skill's role and structure are settled, `dsh-spec-agent-experience` shapes its prompt or instruction text; `dsh-spec-prose-standard` controls durable text; `dsh-spec-agent-notes` records the forging decisions; `dsh-spec-translate-docs` keeps any paired documentation in step.
 
 `dsh-spec-skill-forge` is forged for this package.
 

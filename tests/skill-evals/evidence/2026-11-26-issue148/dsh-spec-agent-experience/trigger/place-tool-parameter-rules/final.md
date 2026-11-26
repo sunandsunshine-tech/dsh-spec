@@ -1,3 +1,3 @@
-The installed `dsh-spec-agent-experience` skill clearly applies because the request changes a tool definition’s parameter documentation so callers can discover defaults, constraints, pairings, and conditional requirements without changing behavior.
+The request changes a tool definition’s parameter schema and descriptions, which is exactly the scope of `dsh-spec-agent-experience`; the skill would help expose defaults, ranges, field relationships, and conditional requirements clearly to callers.
 
 SELECT: dsh-spec-agent-experience

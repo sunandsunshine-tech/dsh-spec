@@ -1,3 +1,3 @@
-The request directly matches `dsh-spec-skill-forge`: it involves correcting an existing Agent Skill’s frontmatter, structure, and reference paths for specification conformance, without unrelated application changes.
+The request concerns an existing Agent Skill’s frontmatter, body structure, and reference-path conformance, which is squarely within the skill-forge’s scope for structural and specification-conformance work.
 
 SELECT: dsh-spec-skill-forge
