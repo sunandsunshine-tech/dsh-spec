@@ -1,0 +1,5 @@
+PASS The revision removes repeated expensive fixture setup instead of increasing all group timeouts.
+PASS Fast contract cases remain separate from the one shared expensive scenario.
+PASS The fast contract cases exercise the real production behavior rather than hardcoded expectations.
+PASS The expensive check is not duplicated across lanes where its result cannot differ.
+PASS The edited project's test entry passes.

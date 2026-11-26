@@ -66,7 +66,7 @@ Each skill is self-contained and installed on its own. Recommended companions ar
 | Adopter need | Skills | Provenance |
 |---|---|---|
 | **Universal collaboration — start here** | `dsh-spec-agent-experience`, `dsh-spec-agents-md`, `dsh-spec-agent-notes`, `dsh-spec-prose-standard`, `dsh-spec-translate-docs` | DeepSeek Harness; `dsh-spec-agents-md` is forged here |
-| **Software change and quality** | `dsh-spec-find-simplifications`, `dsh-spec-code-review`, `dsh-spec-pre-push-checks`, `dsh-spec-error-handling`, `dsh-spec-ci-test-reliability`, `dsh-spec-performance-investigation` | DeepSeek Harness; `dsh-spec-performance-investigation` is generalized here |
+| **Software change and quality** | `dsh-spec-find-simplifications`, `dsh-spec-code-review`, `dsh-spec-pre-push-checks`, `dsh-spec-error-handling`, `dsh-spec-ci-test-reliability`, `dsh-spec-performance-investigation` | DeepSeek Harness; `dsh-spec-ci-test-reliability` is generalized for CI or an equivalent test lane, and `dsh-spec-performance-investigation` is generalized here |
 | **Change descriptions and landing** | `dsh-spec-pr-description`, `dsh-spec-merging-stacked-prs` | DeepSeek Harness |
 | **Browser UI evidence** | `dsh-spec-client-ui-ux`, `dsh-spec-record-browser-gif` | DeepSeek Harness |
 | **Agent skill authoring** | `dsh-spec-skill-forge` | forged here |

@@ -415,6 +415,36 @@ export function assertEvidenceRunPath(evidenceRoot, output, expectedSkill, label
   }
 }
 
+export function assertTriggerEvidenceRunPath(
+  evidenceRoot,
+  output,
+  expectedSkill,
+  expectedTriggerId,
+  label = 'trigger evidence output',
+) {
+  const local = relative(evidenceRoot, output)
+  const parts = local.split(sep)
+  if (
+    parts.length !== 4 ||
+    parts.some((part) => !part || part === '..') ||
+    !/^\d{4}-\d{2}-\d{2}(?:-[a-z0-9][a-z0-9-]*)?$/.test(parts[0] ?? '') ||
+    !/^dsh-spec-[a-z0-9-]+$/.test(parts[1] ?? '') ||
+    parts[2] !== 'trigger' ||
+    !/^[a-z0-9][a-z0-9-]*$/.test(parts[3] ?? '')
+  )
+    throw new Error(`${label} must use evidence/<date>/<skill>/trigger/<query-id>`)
+  if (expectedSkill !== undefined && parts[1] !== expectedSkill)
+    throw new Error(`${label} skill must match expected ${expectedSkill}`)
+  if (expectedTriggerId !== undefined && parts[3] !== expectedTriggerId)
+    throw new Error(`${label} query id must match expected ${expectedTriggerId}`)
+  try {
+    assertRealContained(evidenceRoot, output, label)
+    assertNoSymlinkComponents(evidenceRoot, output, label)
+  } catch {
+    throw new Error(`${label} must stay inside its evidence root and may not follow symbolic links`)
+  }
+}
+
 export function parseNulSeparatedPaths(output) {
   return output.split('\0').filter(Boolean)
 }

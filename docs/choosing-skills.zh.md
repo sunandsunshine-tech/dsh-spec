@@ -56,12 +56,12 @@ gh skill install sunandsunshine-tech/dsh-spec "<skill>" \
 | `dsh-spec-code-review` | 按项目声明的标准和仅看代码无法获得的证据评审一个改动 | `dsh-spec-pre-push-checks`、`dsh-spec-agent-notes` |
 | `dsh-spec-pre-push-checks` | 在推送或评审前，为待推送 diff 选出最小充分的检查 | `dsh-spec-code-review`、`dsh-spec-ci-test-reliability` |
 | `dsh-spec-error-handling` | 为跨越机器边界的失败、恢复、重试、后台任务和用户可见报告设计错误处理 | `dsh-spec-ci-test-reliability`、`dsh-spec-code-review` |
-| `dsh-spec-ci-test-reliability` | 围绕隔离、共享资源、进程和清理，设计、评审、诊断并重新设计过慢、范围过大或不稳定的测试 | `dsh-spec-pre-push-checks`、`dsh-spec-error-handling` |
+| `dsh-spec-ci-test-reliability` | 围绕隔离、共享资源、进程、清理和确定性耗时，设计、评审、诊断并重新设计 CI 或等效测试执行通道中过慢、范围过大或不稳定的测试 | `dsh-spec-pre-push-checks`、`dsh-spec-error-handling` |
 | `dsh-spec-performance-investigation` | 把生产用户路径上的性能问题转化为可比测量、已定位的瓶颈、保持行为的改动和负控制 | `dsh-spec-pre-push-checks`、`dsh-spec-code-review` |
 
-`dsh-spec-code-review` 判断改动；`dsh-spec-pre-push-checks` 证明本地检查能够证明的范围；`dsh-spec-ci-test-reliability` 负责过慢或不稳定测试背后的执行拓扑。`dsh-spec-performance-investigation` 负责生产用户路径上经测量的延迟、吞吐、内存和响应性；单纯的测试套件变慢仍归测试可靠性。`dsh-spec-error-handling` 覆盖这些检查所经过的失败路径。`dsh-spec-find-simplifications` 提出简化方案，`dsh-spec-agent-notes` 保存需要超出 diff 范围的决定。
+`dsh-spec-code-review` 判断改动；`dsh-spec-pre-push-checks` 证明本地检查能够证明的范围；`dsh-spec-ci-test-reliability` 负责 CI 或等效测试执行通道中过慢或不稳定测试背后的执行拓扑和确定性耗时。`dsh-spec-performance-investigation` 负责生产用户路径上经测量的延迟、吞吐、内存和响应性；单纯的测试套件变慢仍归测试执行通道可靠性。`dsh-spec-error-handling` 覆盖这些检查所经过的失败路径。`dsh-spec-find-simplifications` 提出简化方案，`dsh-spec-agent-notes` 保存需要超出 diff 范围的决定。
 
-这六个技能都移植自 dsh；`dsh-spec-performance-investigation` 由 `dsh-speed-up-perf` 通用化而来。
+这六个技能都移植自 dsh；`dsh-spec-ci-test-reliability` 在本包通用化到 CI 或等效测试执行通道，`dsh-spec-performance-investigation` 由 `dsh-speed-up-perf` 通用化而来。
 
 ## 变更说明与落地
 

@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"01a21795-c3bb-7343-a86e-57e8f6d11c07"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The request is for a general release test plan covering manual product-feature verification. The installed test-reliability skill targets unstable, slow, or over-broad CI tests and fixtures, and explicitly excludes general test plans and QA checklists, so no installed skill clearly applies.\n\nSELECT: none"}}
+{"type":"turn.completed","usage":{"input_tokens":12414,"cached_input_tokens":12160,"cache_write_input_tokens":0,"output_tokens":191,"reasoning_output_tokens":132}}

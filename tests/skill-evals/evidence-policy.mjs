@@ -106,6 +106,41 @@ export function scenarioDefinitionHash(scenario) {
   return sha256(canonicalJson(scenario))
 }
 
+export function triggerSurfaceSha256(skillText) {
+  assertNonEmptyString(skillText, 'trigger skill text')
+  const name = /^name:\s*(.+)$/m.exec(skillText)?.[1]
+  const description = /^description:\s*"(.*)"$/m.exec(skillText)?.[1]
+  if (!name) throw new Error('trigger skill text has no name')
+  if (!description) throw new Error('trigger skill text has no description')
+  return sha256(JSON.stringify({ name, description }))
+}
+
+export function triggerCorpusSha256({ corpus, agentFile, agent, files = [] }) {
+  assertNonEmptyString(agentFile, 'trigger agent file')
+  if (!Array.isArray(files)) throw new Error('trigger corpus files must be an array')
+  const resources = files.map((entry) => {
+    assertNonEmptyString(entry?.path, 'trigger corpus file path')
+    if (!entry?.bytes) throw new Error(`trigger corpus file has no contents: ${entry.path}`)
+    if (typeof entry.mode !== 'string' || !/^[0-7]{4}$/.test(entry.mode)) {
+      throw new Error(`trigger corpus file has no valid mode: ${entry.path}`)
+    }
+    return {
+      path: entry.path,
+      sha256: sha256(entry.bytes),
+      mode: entry.mode,
+    }
+  })
+  resources.sort((left, right) => (left.path < right.path ? -1 : left.path > right.path ? 1 : 0))
+  return sha256(
+    canonicalJson({
+      corpus_sha256: sha256(corpus),
+      agent_file: agentFile,
+      agent_file_sha256: sha256(agent),
+      files: resources,
+    }),
+  )
+}
+
 export function remainingRunDeadline(deadlineAt, now = performance.now()) {
   if (!Number.isFinite(deadlineAt) || !Number.isFinite(now)) throw new Error('run deadline must be finite')
   const remaining = Math.ceil(deadlineAt - now)
@@ -243,14 +278,25 @@ function canonicalPrivacyScope(canaries) {
     })
 }
 
-export function privacyScopeSha256(canaries) {
-  return sha256(canonicalJson(canonicalPrivacyScope(canaries)))
+function portablePrivacyScope(canaries) {
+  const scope = canonicalPrivacyScope(canaries)
+  if (scope.filter((canary) => canary.set === 'current-home').length !== 1) {
+    throw new Error('privacy canaries must contain exactly one current-home entry')
+  }
+  return scope.map((canary) => ({
+    set: canary.set,
+    ...(canary.set === 'current-home' ? {} : { value: canary.value }),
+  }))
 }
 
-export function assertPrivacyScope(privacy, canaries, { skill, scenarioId, currentHome = homedir() } = {}) {
+export function privacyScopeSha256(canaries) {
+  return sha256(canonicalJson(portablePrivacyScope(canaries)))
+}
+
+export function assertPrivacyScope(privacy, canaries, { skill, scenarioId } = {}) {
   assertNonEmptyString(skill, 'privacy scope skill')
   assertNonEmptyString(scenarioId, 'privacy scope scenario id')
-  const scope = canonicalPrivacyScope(canaries)
+  const scope = portablePrivacyScope(canaries)
   const canarySets = [...new Set(scope.map((canary) => canary.set))].sort((left, right) =>
     left < right ? -1 : left > right ? 1 : 0,
   )
@@ -258,8 +304,8 @@ export function assertPrivacyScope(privacy, canaries, { skill, scenarioId, curre
   if (canarySets.join('\0') !== requiredSets.join('\0')) {
     throw new Error('privacy canary scope differs from the subject-required sets')
   }
-  const expected = canonicalPrivacyScope(
-    privacyCanariesFor(skill, scenarioId, { includeCurrentHome: true, currentHome }),
+  const expected = portablePrivacyScope(
+    privacyCanariesFor(skill, scenarioId, { includeCurrentHome: true, currentHome: '/current-home' }),
   )
   if (canonicalJson(scope) !== canonicalJson(expected)) {
     throw new Error('privacy canary scope differs from the subject-required values')
@@ -269,7 +315,7 @@ export function assertPrivacyScope(privacy, canaries, { skill, scenarioId, curre
     throw new Error('recorded privacy canary sets differ from the supplied scope')
   }
   assertHash(privacy.scope_sha256, 'privacy scope sha256')
-  if (privacy.scope_sha256 !== privacyScopeSha256(scope)) {
+  if (privacy.scope_sha256 !== sha256(canonicalJson(scope))) {
     throw new Error('recorded privacy scope differs from the supplied canaries')
   }
   return privacy
@@ -326,10 +372,10 @@ export function createModelEvidenceMetadata({
   if (canarySets.join('\0') !== requiredSets.join('\0')) {
     throw new Error('privacy canary sets differ from the subject-required sets')
   }
-  const expectedCanaries = canonicalPrivacyScope(
+  const expectedCanaries = portablePrivacyScope(
     privacyCanariesFor(skill, scenario.id, { includeCurrentHome: true, currentHome }),
   )
-  if (canonicalJson(canonicalPrivacyScope(privacyCanaries)) !== canonicalJson(expectedCanaries)) {
+  if (canonicalJson(portablePrivacyScope(privacyCanaries)) !== canonicalJson(expectedCanaries)) {
     throw new Error('privacy canary scan differs from the subject-required values')
   }
   const privacyScopeHash = privacyScopeSha256(privacyCanaries)
@@ -391,6 +437,79 @@ export function createModelEvidenceMetadata({
   }
 }
 
+export function createTriggerEvidenceMetadata({
+  skill,
+  triggerSurfaceSha256,
+  triggerCorpusSha256,
+  currentHome = homedir(),
+  privacyCanaries = privacyCanariesFor(skill, 'trigger', { includeCurrentHome: true, currentHome }),
+  execution,
+  deadlineMs = DEFAULT_MODEL_DEADLINE_MS,
+}) {
+  assertNonEmptyString(skill, 'trigger skill')
+  if (!/^dsh-spec-[a-z0-9-]+$/.test(skill)) throw new Error('trigger skill is malformed')
+  assertHash(triggerSurfaceSha256, 'trigger surface sha256')
+  assertHash(triggerCorpusSha256, 'trigger corpus sha256')
+  if (!Number.isSafeInteger(deadlineMs) || deadlineMs <= 0 || deadlineMs > MAX_MODEL_DEADLINE_MS) {
+    throw new Error(`deadline_ms must be an integer from 1 to ${MAX_MODEL_DEADLINE_MS}`)
+  }
+  validateExecutionProfile(execution)
+  if (
+    execution.sandbox !== 'read-only' ||
+    execution.subagents !== false ||
+    execution.browser !== false ||
+    execution.media !== false
+  ) {
+    throw new Error('trigger evidence requires read-only execution without browser, media or subagents')
+  }
+  assertCanaryList(privacyCanaries)
+  const canarySets = [...new Set(privacyCanaries.map((canary) => canary.set))].sort((left, right) =>
+    left < right ? -1 : left > right ? 1 : 0,
+  )
+  const requiredSets = requiredPrivacyCanarySetsFor(skill, 'trigger')
+  if (canarySets.join('\0') !== requiredSets.join('\0')) {
+    throw new Error('privacy canary sets differ from the trigger-required sets')
+  }
+  const expectedCanaries = portablePrivacyScope(
+    privacyCanariesFor(skill, 'trigger', { includeCurrentHome: true, currentHome }),
+  )
+  if (canonicalJson(portablePrivacyScope(privacyCanaries)) !== canonicalJson(expectedCanaries)) {
+    throw new Error('privacy canary scan differs from the trigger-required values')
+  }
+  const normalizedExecution = {
+    auth: execution.auth,
+    browser: execution.browser,
+    media: execution.media,
+    model_config_sha256: execution.model_config_sha256,
+    model_runtime_sha256: execution.model_runtime_sha256,
+    sandbox: execution.sandbox,
+    subagents: execution.subagents,
+  }
+  return {
+    schema_version: 1,
+    claim: {
+      type: 'trigger',
+      subject: `${skill}:trigger`,
+    },
+    arm: null,
+    comparison: null,
+    evidence: {
+      kind: 'model',
+      currentness: {
+        trigger_surface_sha256: triggerSurfaceSha256,
+        trigger_corpus_sha256: triggerCorpusSha256,
+      },
+    },
+    execution: normalizedExecution,
+    deadline_ms: deadlineMs,
+    privacy: {
+      canary_sets: canarySets,
+      scope_sha256: privacyScopeSha256(privacyCanaries),
+      surfaces: 'all-retained-files',
+    },
+  }
+}
+
 function validateExecutionProfile(execution) {
   if (!execution || typeof execution !== 'object' || Array.isArray(execution)) {
     throw new Error('evidence execution profile must be an object')
@@ -430,6 +549,15 @@ export function validateEvidenceMetadata(metadata) {
   }
   if (metadata.evidence?.kind !== 'model') throw new Error('evidence metadata kind must be model')
   validateExecutionProfile(metadata.execution)
+  if (
+    metadata.claim.type === 'trigger' &&
+    (metadata.execution.sandbox !== 'read-only' ||
+      metadata.execution.subagents !== false ||
+      metadata.execution.browser !== false ||
+      metadata.execution.media !== false)
+  ) {
+    throw new Error('trigger evidence requires read-only execution without browser, media or subagents')
+  }
   if (metadata.claim.type === 'mechanical')
     throw new Error('mechanical claims use deterministic tests, not model evidence')
   if (metadata.arm === 'target-absent' && metadata.claim.type !== 'comparison') {
@@ -691,6 +819,19 @@ export function terminalTurnEvent(traceText) {
   if (events.at(-1) !== terminal) throw new Error('the terminal turn event must be the final model trace event')
   if (terminal.type !== 'turn.completed') throw new Error('model trace reports a failed turn')
   return terminal
+}
+
+export function finalAgentMessageFromTrace(traceText) {
+  terminalTurnEvent(traceText)
+  const events = traceText
+    .trim()
+    .split('\n')
+    .filter(Boolean)
+    .map((line) => JSON.parse(line))
+  return [...events]
+    .reverse()
+    .find((event) => event?.type === 'item.completed' && event.item?.type === 'agent_message' && event.item.text)?.item
+    .text
 }
 
 const MAX_RETAINED_IDENTITY_BYTES = 16 * 1024 * 1024
@@ -990,6 +1131,108 @@ export function inspectRetainedRun(root, metadata) {
   return { scenario, claim, prompt, currentness, provenance }
 }
 
+export function inspectRetainedTriggerRun(root, metadata, canaries) {
+  validateEvidenceMetadata(metadata)
+  if (metadata.claim.type !== 'trigger') throw new Error('retained evidence is not a trigger claim')
+  const [skill, subject] = metadata.claim.subject.split(':')
+  if (subject !== 'trigger') throw new Error('retained trigger subject is malformed')
+  const queryContents = readRetainedFile(
+    root,
+    'trigger-query.json',
+    MAX_RETAINED_IDENTITY_BYTES,
+    'retained trigger query',
+  ).toString('utf8')
+  let query
+  try {
+    query = JSON.parse(queryContents)
+  } catch {
+    throw new Error('retained trigger query is not valid JSON')
+  }
+  if (!query || typeof query !== 'object' || Array.isArray(query)) {
+    throw new Error('retained trigger query must be an object')
+  }
+  const known = new Set(['id', 'query', 'should_trigger', 'agent_file', 'currentness'])
+  for (const key of Object.keys(query)) {
+    if (!known.has(key)) throw new Error(`retained trigger query has unknown field ${key}`)
+  }
+  assertNonEmptyString(query.id, 'retained trigger id')
+  assertNonEmptyString(query.query, 'retained trigger prompt')
+  assertNonEmptyString(query.agent_file, 'retained trigger agent file')
+  if (typeof query.should_trigger !== 'boolean') throw new Error('retained trigger decision must be boolean')
+  const queryCurrentness = query.currentness
+  if (!queryCurrentness || typeof queryCurrentness !== 'object' || Array.isArray(queryCurrentness)) {
+    throw new Error('retained trigger query currentness must be an object')
+  }
+  const currentness = {
+    trigger_surface_sha256: queryCurrentness.trigger_surface_sha256,
+    trigger_corpus_sha256: queryCurrentness.trigger_corpus_sha256,
+  }
+  assertHash(currentness.trigger_surface_sha256, 'retained trigger surface sha256')
+  assertHash(currentness.trigger_corpus_sha256, 'retained trigger corpus sha256')
+  const currentnessComparison = compareEvidenceCurrentness(metadata, currentness)
+  if (!currentnessComparison.current) {
+    throw new Error(
+      `retained trigger evidence differs from metadata currentness: ${currentnessComparison.reasons.join(', ')}`,
+    )
+  }
+  const capabilityContents = readRetainedFile(
+    root,
+    'capabilities.json',
+    MAX_RETAINED_IDENTITY_BYTES,
+    'retained trigger capabilities',
+  )
+  parseCapabilities(capabilityContents, metadata)
+  const executionContents = readRetainedFile(
+    root,
+    'execution.json',
+    MAX_RETAINED_IDENTITY_BYTES,
+    'retained trigger execution profile',
+  )
+  parseExecutionProfile(executionContents, metadata)
+  readRetainedFile(root, 'skill-hashes.txt', MAX_RETAINED_IDENTITY_BYTES, 'retained trigger skill hashes')
+  assertRetainedRunPolicy({
+    root,
+    metadata,
+    observed: currentness,
+    canaries,
+  })
+  const trace = readRetainedTrace(root, canaries)
+  const finalText = readRetainedFile(
+    root,
+    'final.md',
+    MODEL_EVIDENCE_LIMITS.finalResponseBytes,
+    'retained trigger final response',
+  ).toString('utf8')
+  if (finalAgentMessageFromTrace(trace)?.trim() !== finalText.trim()) {
+    throw new Error('retained trigger final response differs from the trace')
+  }
+  const marker = finalText.trim().split('\n').at(-1)
+  const selected = marker === `SELECT: ${skill}`
+  if (!selected && marker !== 'SELECT: none') throw new Error('retained trigger response has no stable marker')
+  if (selected !== query.should_trigger) throw new Error('retained trigger response selected the wrong skill')
+  const selectionContents = readRetainedFile(
+    root,
+    'selection.json',
+    MAX_RETAINED_IDENTITY_BYTES,
+    'retained trigger selection',
+  ).toString('utf8')
+  let selection
+  try {
+    selection = JSON.parse(selectionContents)
+  } catch {
+    throw new Error('retained trigger selection is not valid JSON')
+  }
+  if (
+    selection?.id !== query.id ||
+    selection?.should_trigger !== query.should_trigger ||
+    selection?.selected !== selected ||
+    selection?.result !== 'pass'
+  ) {
+    throw new Error('retained trigger selection disagrees with the response')
+  }
+  return { query, currentness, execution: metadata.execution }
+}
+
 function assertCanaryList(canaries) {
   if (!Array.isArray(canaries) || canaries.length === 0) {
     throw new Error('privacy canaries must be a non-empty array')
@@ -1095,18 +1338,10 @@ export function retainedSurfacesSnapshot(root, canaries, options = {}) {
   return inspectRetainedSurfaces(root, canaries, options)
 }
 
-export function assertRetainedRunPolicy({
-  root,
-  metadata,
-  observed,
-  provenance,
-  canaries,
-  extraPaths = [],
-  currentHome = homedir(),
-}) {
+export function assertRetainedRunPolicy({ root, metadata, observed, provenance, canaries, extraPaths = [] }) {
   validateEvidenceMetadata(metadata)
   const [skill, scenarioId] = metadata.claim.subject.split(':')
-  assertPrivacyScope(metadata.privacy, canaries, { skill, scenarioId, currentHome })
+  assertPrivacyScope(metadata.privacy, canaries, { skill, scenarioId })
   const currentness = compareEvidenceCurrentness(metadata, observed)
   if (!currentness.current) {
     throw new Error(`evidence is historical because currentness differs: ${currentness.reasons.join(', ')}`)

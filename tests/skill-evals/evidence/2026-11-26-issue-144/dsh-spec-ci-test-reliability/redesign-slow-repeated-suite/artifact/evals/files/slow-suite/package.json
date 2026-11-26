@@ -1,0 +1,10 @@
+{
+  "name": "slow-suite-fixture",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "npm run test:contract && npm run test:integration",
+    "test:contract": "node --test tests/report.contract.test.mjs",
+    "test:integration": "node --test tests/report.integration.test.mjs"
+  }
+}

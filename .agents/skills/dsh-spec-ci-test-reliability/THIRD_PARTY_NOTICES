@@ -1,12 +1,12 @@
 # Third-party notices
 
-The text of this skill is adapted from the DeepSeek Harness skill `dsh-ci-test-reliability` and generalized to reliable tests in a software project.
+The text of this skill is adapted from the DeepSeek Harness skill `dsh-ci-test-reliability` and generalized to reliable tests in CI or an equivalent test lane.
 
 - Upstream: <https://github.com/deepseek-ai/deepseek-harness>, pinned at `dsh-v0.2.3-alpha.2` (`4b399c39a6d1479cd84ca591b4d7c88e24d38a96`).
 - Upstream paths:
   - `.agents/skills/dsh-ci-test-reliability/SKILL.md` — the reliability procedure.
   - `.agents/skills/dsh-ci-test-reliability/references/ci-flake-diagnosis.md` — the diagnosis workflow.
-- Relation: adapted. The execution-topology, resource-allocation, global-state, platform, timeout, synchronization, teardown, regression-proof and flake-masking rules are carried. Product names, framework and CI-provider assumptions, repository paths and command names are replaced by the adopting project's declared test configuration, CI topology and check-selection practice. The target also treats deterministic test duration as design feedback: it separates fast contracts from one shared expensive scenario and restricts repeated external work to lanes where the result can differ. The description is generalized and Chinese trigger terms are added. The skill ships no script and depends on no other skill.
+- Relation: adapted. The execution-topology, resource-allocation, global-state, platform, timeout, synchronization, teardown, regression-proof and flake-masking rules are carried. Product names, framework and CI-provider assumptions, repository paths and command names are replaced by the adopting project's declared test configuration, CI or equivalent test-lane topology and check-selection practice. The target also treats deterministic test-lane duration as design feedback: it separates fast contracts from one shared expensive scenario and restricts repeated external work to lanes where the result can differ; it does not claim production performance. The description is generalized and Chinese trigger terms are added. The skill ships no script and depends on no other skill.
 
 This skill is distributed under the MIT licence. The upstream and repository notices follow so that an installed copy carries them. This file is not part of the skill's instructions.
 

@@ -1,0 +1,131 @@
+diff --git a/evals/files/slow-suite/.github/workflows/ci.yml b/evals/files/slow-suite/.github/workflows/ci.yml
+index 94de77b..561bfa6 100644
+--- a/evals/files/slow-suite/.github/workflows/ci.yml
++++ b/evals/files/slow-suite/.github/workflows/ci.yml
+@@ -3,7 +3,8 @@ name: test
+ on: [push]
+ 
+ jobs:
+-  test:
++  contract:
++    name: contract (Node ${{ matrix.node }})
+     strategy:
+       matrix:
+         node: [24, 26]
+@@ -13,4 +14,15 @@ jobs:
+       - uses: actions/setup-node@v4
+         with:
+           node-version: ${{ matrix.node }}
+-      - run: npm test
++      - run: npm run test:contract
++
++  integration:
++    name: integration
++    needs: contract
++    runs-on: ubuntu-latest
++    steps:
++      - uses: actions/checkout@v4
++      - uses: actions/setup-node@v4
++        with:
++          node-version: 24
++      - run: npm run test:integration
+diff --git a/evals/files/slow-suite/README.md b/evals/files/slow-suite/README.md
+index 7a9e3e8..09043f8 100644
+--- a/evals/files/slow-suite/README.md
++++ b/evals/files/slow-suite/README.md
+@@ -1,8 +1,6 @@
+-# Repeated expensive fixture
++# Split test lanes
+ 
+-The CI matrix runs this suite twice, and every case rebuilds the same expensive fixture even though
+-all cases check one contract. A proposed change multiplies every group's timeout by three.
++`npm run test:contract` checks the production row contract directly and runs in both CI Node lanes.
++`npm run test:integration` owns the one delayed fixture execution and runs once in CI.
+ 
+-Redesign the tests so fast contract cases do not repeat the expensive work and one shared
+-representative scenario owns it. Keep compatibility that can change the result; remove duplicate
+-external work that cannot.
++`npm test` runs both suites locally.
+diff --git a/evals/files/slow-suite/package.json b/evals/files/slow-suite/package.json
+index 9101103..4c73870 100644
+--- a/evals/files/slow-suite/package.json
++++ b/evals/files/slow-suite/package.json
+@@ -3,6 +3,8 @@
+   "private": true,
+   "type": "module",
+   "scripts": {
+-    "test": "node --test tests/report.test.mjs"
++    "test": "npm run test:contract && npm run test:integration",
++    "test:contract": "node --test tests/report.contract.test.mjs",
++    "test:integration": "node --test tests/report.integration.test.mjs"
+   }
+ }
+diff --git a/evals/files/slow-suite/tests/report.contract.test.mjs b/evals/files/slow-suite/tests/report.contract.test.mjs
+new file mode 100644
+index 0000000..b5cb455
+--- /dev/null
++++ b/evals/files/slow-suite/tests/report.contract.test.mjs
+@@ -0,0 +1,12 @@
++import assert from 'node:assert/strict'
++import { test } from 'node:test'
++import { reportRows } from '../src/report.mjs'
++
++test('reportRows exposes every expected row', () => {
++  const rows = reportRows()
++
++  assert.equal(rows.length, 3)
++  for (const expected of [1, 2, 3]) {
++    assert.ok(rows.includes(expected))
++  }
++})
+diff --git a/evals/files/slow-suite/tests/report.integration.test.mjs b/evals/files/slow-suite/tests/report.integration.test.mjs
+new file mode 100644
+index 0000000..d527382
+--- /dev/null
++++ b/evals/files/slow-suite/tests/report.integration.test.mjs
+@@ -0,0 +1,18 @@
++import assert from 'node:assert/strict'
++import { test } from 'node:test'
++import { setTimeout as delay } from 'node:timers/promises'
++import { reportRows } from '../src/report.mjs'
++
++async function buildReport() {
++  await delay(80)
++  return { rows: reportRows() }
++}
++
++test('builds a representative report', async () => {
++  const report = await buildReport()
++
++  assert.equal(report.rows.length, 3)
++  for (const expected of [1, 2, 3]) {
++    assert.ok(report.rows.includes(expected))
++  }
++})
+diff --git a/evals/files/slow-suite/tests/report.test.mjs b/evals/files/slow-suite/tests/report.test.mjs
+deleted file mode 100644
+index 92c0415..0000000
+--- a/evals/files/slow-suite/tests/report.test.mjs
++++ /dev/null
+@@ -1,21 +0,0 @@
+-import assert from 'node:assert/strict'
+-import { test } from 'node:test'
+-import { setTimeout as delay } from 'node:timers/promises'
+-import { reportRows } from '../src/report.mjs'
+-
+-async function expensiveFixture() {
+-  await delay(80)
+-  return { rows: reportRows() }
+-}
+-
+-for (const [name, expected] of [
+-  ['renders the first row', 1],
+-  ['renders the second row', 2],
+-  ['renders the third row', 3],
+-]) {
+-  test(name, async () => {
+-    const fixture = await expensiveFixture()
+-    assert.equal(fixture.rows.length, 3)
+-    assert.ok(fixture.rows.includes(expected))
+-  })
+-}

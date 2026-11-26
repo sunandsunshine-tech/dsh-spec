@@ -1,0 +1,6 @@
+{
+  "id": "parallel-port-collision",
+  "should_trigger": true,
+  "selected": true,
+  "result": "pass"
+}

@@ -1,0 +1,10 @@
+{
+  "id": "teardown-child-leak",
+  "query": "The test server returns from teardown but a child process keeps running and mutates the next test.",
+  "should_trigger": true,
+  "agent_file": "trigger-fixtures/AGENTS.md",
+  "currentness": {
+    "trigger_surface_sha256": "72328dc29f5bc516aff27b3f36d8b44c360d18b393bf5f62f39457e5887bb479",
+    "trigger_corpus_sha256": "3c7f5e2f149066d13093d5d3b557c6972f9e45a6b17059c43811b0a2d0fc4ba3"
+  }
+}

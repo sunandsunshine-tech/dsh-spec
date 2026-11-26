@@ -1,0 +1,31 @@
+# Pairing consistency record for 2026-11-25-single-source-ports-retain-upstream-semantic-stem.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/proposed/architecture/2026-11-25-single-source-ports-retain-upstream-semantic-stem.md --target <lang>
+/agent-note-single-source-ports-retain-their-upstream-semantic-stem:
+  en: 1a3363c06e39f6e9
+  zh: 951acd1def11b85e
+/agent-note-single-source-ports-retain-their-upstream-semantic-stem/problem:
+  en: 0cf53b5ebe840f93
+  zh: 24675af8ea2003c3
+/agent-note-single-source-ports-retain-their-upstream-semantic-stem/proposal:
+  en: f29b68dc97b1a32d
+  zh: 13d9352c66976046
+/agent-note-single-source-ports-retain-their-upstream-semantic-stem/proposal/shipped-naming-choices:
+  en: 218029929b17b036
+  zh: 3f94f4342f8c2916
+/agent-note-single-source-ports-retain-their-upstream-semantic-stem/proposal/unresolved-decisions:
+  en: bf0b82ca58a478ba
+  zh: 72e1899a42288cb9
+/agent-note-single-source-ports-retain-their-upstream-semantic-stem/proposal/migration-boundary:
+  en: afd5ee3c5e74fe51
+  zh: 7a52197e25763c30
+/agent-note-single-source-ports-retain-their-upstream-semantic-stem/alternatives-considered:
+  en: da249f99a9400e36
+  zh: c9c42189dcb16c96
+/agent-note-single-source-ports-retain-their-upstream-semantic-stem/acceptance-criteria:
+  en: 3159460c0e4db48f
+  zh: 8682322b83e84253
+/agent-note-single-source-ports-retain-their-upstream-semantic-stem/risks:
+  en: 0e307a285f4f77c9
+  zh: 5585b70cf2fba110

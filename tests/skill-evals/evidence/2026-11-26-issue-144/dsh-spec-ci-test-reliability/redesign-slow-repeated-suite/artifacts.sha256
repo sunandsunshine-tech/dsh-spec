@@ -1,0 +1,5 @@
+8b62e499cc53b8cedc2d4f6f6f55f3702bc937ef233730c1da81467c0d801f37  artifact/evals/files/slow-suite/.github/workflows/ci.yml
+c7859b9575dc4a6a2b4282c57ba902f9844ec0d55cd7eeb44c09ae2c7bb4275a  artifact/evals/files/slow-suite/README.md
+451e752b51d74c90065702e0413f87e6b37c820872899a3d7f4a837ee5344fcc  artifact/evals/files/slow-suite/package.json
+d065bad189b18c19c50a65450554e0b11c92e8f502c1853166ba35e3b0ca59c3  artifact/evals/files/slow-suite/tests/report.contract.test.mjs
+fd0ee33412749b37968bbe29837bc8973621388d10c9d0f935b7a8f9284b40c9  artifact/evals/files/slow-suite/tests/report.integration.test.mjs

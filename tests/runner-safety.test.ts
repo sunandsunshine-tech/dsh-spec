@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict'
 import {
   chmodSync,
+  cpSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
@@ -34,6 +35,13 @@ const safety = (await import('./skill-evals/runner-safety.mjs' as string)) as {
   assertEvidenceRunPath(root: string, output: string, expectedSkill?: string, label?: string): void
   assertInputFile(root: string, file: string, label: string): string
   assertProjectPath(project: string, path: string, label: string): string
+  assertTriggerEvidenceRunPath(
+    root: string,
+    output: string,
+    expectedSkill?: string,
+    expectedTriggerId?: string,
+    label?: string,
+  ): void
   capabilityMaskPaths(browserEnabled: boolean, mediaEnabled: boolean): string[]
   collectArtifactSources(
     project: string,
@@ -141,6 +149,73 @@ function runFakeModelRunner(
     maxBuffer: 8 * 1024 * 1024,
     timeout: 15_000,
   })
+}
+
+function createNeverRunCodex(root: string) {
+  const codexHome = join(root, 'isolated-codex-home')
+  const bin = join(root, 'never-run-bin')
+  const marker = join(root, 'codex-invoked')
+  mkdirSync(codexHome, { recursive: true })
+  mkdirSync(bin, { recursive: true })
+  const codex = join(bin, 'codex')
+  writeFakeCodex(codex, [
+    "const fs = require('node:fs')",
+    `fs.writeFileSync(${JSON.stringify(marker)}, 'invoked\\n')`,
+    'process.exit(90)',
+  ])
+  return {
+    marker,
+    run(repository: string, args: string[]) {
+      return spawnSync(process.execPath, [join(repository, 'tests/skill-evals/run-model-eval.mjs'), ...args], {
+        cwd: repository,
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          CODEX_BIN: codex,
+          CODEX_HOME: codexHome,
+        },
+        maxBuffer: 8 * 1024 * 1024,
+        timeout: 5_000,
+      })
+    },
+  }
+}
+
+function createTriggerRunnerRepository(root: string, sourceRepository: string): string {
+  const repository = join(root, 'repository')
+  for (const file of [
+    'tests/skill-evals/run-model-eval.mjs',
+    'tests/skill-evals/evidence-policy.mjs',
+    'tests/skill-evals/runner-safety.mjs',
+    'tests/skill-evals/model-auth-proxy.mjs',
+    'tests/skill-evals/model-sandbox-entrypoint.mjs',
+  ]) {
+    mkdirSync(dirname(join(repository, file)), { recursive: true })
+    cpSync(join(sourceRepository, file), join(repository, file))
+  }
+  cpSync(
+    join(sourceRepository, 'skills/dsh-spec-ci-test-reliability'),
+    join(repository, 'skills/dsh-spec-ci-test-reliability'),
+    { recursive: true },
+  )
+  const corpusRoot = join(repository, 'tests/skill-evals/dsh-spec-ci-test-reliability')
+  mkdirSync(join(corpusRoot, 'trigger-fixtures/executable-probe'), { recursive: true })
+  cpSync(
+    join(sourceRepository, 'tests/skill-evals/dsh-spec-ci-test-reliability/trigger-fixtures/AGENTS.md'),
+    join(corpusRoot, 'trigger-fixtures/AGENTS.md'),
+  )
+  const probe = join(corpusRoot, 'trigger-fixtures/executable-probe/probe.sh')
+  writeFileSync(probe, '#!/bin/sh\nexit 0\n')
+  chmodSync(probe, 0o755)
+  const corpus = JSON.parse(
+    readFileSync(join(sourceRepository, 'tests/skill-evals/dsh-spec-ci-test-reliability/trigger-evals.json'), 'utf8'),
+  ) as { queries: Array<{ id: string; files?: string[] }> }
+  const selected = corpus.queries.find((query) => query.id === 'parallel-port-collision')
+  assert.ok(selected)
+  selected.files = ['trigger-fixtures/executable-probe/probe.sh']
+  writeFileSync(join(corpusRoot, 'trigger-evals.json'), `${JSON.stringify(corpus, null, 2)}\n`)
+  mkdirSync(join(repository, 'tests/skill-evals/evidence'), { recursive: true })
+  return repository
 }
 
 function bwrapAvailable(): boolean {
@@ -260,6 +335,132 @@ test('evidence output replacement requires a date, skill and run leaf', async ()
         ),
       /escapes|symbolic link/,
     )
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('trigger evidence requires a date, skill, trigger directory and query leaf', () => {
+  const root = mkdtempSync(join(tmpdir(), 'runner-trigger-path-'))
+  try {
+    const evidence = join(root, 'evidence')
+    const valid = join(evidence, '2026-11-26-issue-144', 'dsh-spec-example', 'trigger', 'positive-case')
+    mkdirSync(valid, { recursive: true })
+    assert.doesNotThrow(() => safety.assertTriggerEvidenceRunPath(evidence, valid, 'dsh-spec-example', 'positive-case'))
+    assert.throws(
+      () =>
+        safety.assertTriggerEvidenceRunPath(
+          evidence,
+          join(evidence, '2026-11-26-issue-144', 'dsh-spec-example', 'positive-case'),
+          'dsh-spec-example',
+          'positive-case',
+        ),
+      /date.*skill.*trigger.*query-id/,
+    )
+    assert.throws(
+      () =>
+        safety.assertTriggerEvidenceRunPath(
+          evidence,
+          join(evidence, '2026-11-26-issue-144', 'dsh-spec-other', 'trigger', 'positive-case'),
+          'dsh-spec-example',
+          'positive-case',
+        ),
+      /expected dsh-spec-example/,
+    )
+    assert.throws(
+      () =>
+        safety.assertTriggerEvidenceRunPath(
+          evidence,
+          join(evidence, '2026-11-26-issue-144', 'dsh-spec-example', 'trigger', '.old-case'),
+          'dsh-spec-example',
+          '.old-case',
+        ),
+      /date.*skill.*trigger.*query-id/,
+    )
+    assert.throws(
+      () =>
+        safety.assertTriggerEvidenceRunPath(
+          evidence,
+          join(evidence, '2026-11-26-issue-144', 'dsh-spec-example', 'trigger', 'other-case'),
+          'dsh-spec-example',
+          'positive-case',
+        ),
+      /must match expected positive-case/,
+    )
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('trigger runner rejects scenario mode, comparison options and writable workspaces', () => {
+  const repository = dirname(import.meta.dirname)
+  const root = mkdtempSync(join(tmpdir(), 'runner-trigger-negative-'))
+  const neverRun = createNeverRunCodex(root)
+  const output = join(
+    repository,
+    'tests/skill-evals/evidence/2099-12-31-trigger-options/dsh-spec-ci-test-reliability/trigger/parallel-port-collision',
+  )
+  try {
+    const bothModes = neverRun.run(repository, [
+      '--skill',
+      'dsh-spec-ci-test-reliability',
+      '--scenario',
+      'redesign-slow-repeated-suite',
+      '--trigger-id',
+      'parallel-port-collision',
+      '--output',
+      output,
+      '--sandbox',
+      'read-only',
+    ])
+    assert.notEqual(bothModes.status, 0)
+    assert.match(String(bothModes.stderr), /exactly one of --scenario or --trigger-id/)
+
+    const counterpart = neverRun.run(repository, [
+      '--skill',
+      'dsh-spec-ci-test-reliability',
+      '--trigger-id',
+      'parallel-port-collision',
+      '--counterpart',
+      output,
+      '--output',
+      output,
+      '--sandbox',
+      'read-only',
+    ])
+    assert.notEqual(counterpart.status, 0)
+    assert.match(String(counterpart.stderr), /does not accept --counterpart/)
+
+    const writable = neverRun.run(repository, [
+      '--skill',
+      'dsh-spec-ci-test-reliability',
+      '--trigger-id',
+      'parallel-port-collision',
+      '--output',
+      output,
+      '--sandbox',
+      'workspace-write',
+    ])
+    assert.notEqual(writable.status, 0)
+    assert.match(String(writable.stderr), /requires --sandbox read-only/)
+
+    const mismatched = neverRun.run(repository, [
+      '--skill',
+      'dsh-spec-ci-test-reliability',
+      '--trigger-id',
+      'parallel-port-collision',
+      '--output',
+      join(
+        repository,
+        'tests/skill-evals/evidence/2099-12-31-trigger-options/dsh-spec-ci-test-reliability/trigger/other-case',
+      ),
+      '--sandbox',
+      'read-only',
+      '--replace',
+    ])
+    assert.notEqual(mismatched.status, 0)
+    assert.match(String(mismatched.stderr), /query id must match expected parallel-port-collision/)
+    assert.equal(existsSync(neverRun.marker), false, 'a rejected invocation started the Codex executable')
   } finally {
     rmSync(root, { recursive: true, force: true })
   }
@@ -1046,6 +1247,187 @@ test('the real model runner seeds tmpfs mounts and collects outputs after model 
     assert.match(readFileSync(join(output, 'changed-paths.json'), 'utf8'), /evidence\/result\.txt/)
   } finally {
     rmSync(cleanupRoot, { recursive: true, force: true })
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('the real model runner retains typed trigger evidence only for the expected selection', (t) => {
+  if (!bwrapAvailable()) {
+    t.skip('bubblewrap namespaces and --size are unavailable on this host')
+    return
+  }
+  const repository = dirname(import.meta.dirname)
+  const root = mkdtempSync(join(tmpdir(), 'runner-trigger-smoke-'))
+  const evidenceDate = '2099-12-31-runner-trigger-smoke'
+  const evidenceRoot = join(repository, 'tests', 'skill-evals', 'evidence')
+  const cleanupRoot = join(evidenceRoot, evidenceDate)
+  const wrongEvidenceDate = '2099-12-31-runner-trigger-wrong-marker'
+  const wrongCleanupRoot = join(evidenceRoot, wrongEvidenceDate)
+  const output = join(cleanupRoot, 'dsh-spec-ci-test-reliability', 'trigger', 'parallel-port-collision')
+  try {
+    const { codexHome, bin } = createFakeCodexHarness(root)
+    const fakeCodex = join(bin, 'fake-codex')
+    writeFakeCodex(fakeCodex, [
+      "const fs = require('node:fs')",
+      "if (!fs.existsSync('/workspace/AGENTS.md')) process.exit(42)",
+      "if (!fs.readFileSync('/workspace/AGENTS.md', 'utf8').includes('SELECT: dsh-spec-ci-test-reliability')) process.exit(43)",
+      "if (!fs.existsSync('/workspace/.agents/skills/dsh-spec-ci-test-reliability/SKILL.md')) process.exit(44)",
+      "fs.writeFileSync('/response/final.md', 'The CI test lane matches the installed skill.\\n\\nSELECT: dsh-spec-ci-test-reliability')",
+      `process.stdout.write(JSON.stringify({ type: 'item.completed', item: { type: 'agent_message', text: 'The CI test lane matches the installed skill.\\n\\nSELECT: dsh-spec-ci-test-reliability' } }) + '\\n')`,
+      "process.stdout.write(JSON.stringify({ type: 'turn.completed', usage: { input_tokens: 1, output_tokens: 1 } }) + '\\n')",
+    ])
+    const args = [
+      '--skill',
+      'dsh-spec-ci-test-reliability',
+      '--trigger-id',
+      'parallel-port-collision',
+      '--output',
+      output,
+      '--sandbox',
+      'read-only',
+      '--deadline-ms',
+      '30000',
+    ]
+    const result = runFakeModelRunner(repository, codexHome, fakeCodex, args)
+    assert.equal(result.status, 0, String(result.stderr))
+    const metadata = JSON.parse(readFileSync(join(output, 'evidence.json'), 'utf8')) as {
+      claim: { type: string; subject: string }
+      arm: null
+      execution: { sandbox: string }
+      evidence: { currentness: Record<string, string> }
+    }
+    assert.deepEqual(metadata.claim, {
+      type: 'trigger',
+      subject: 'dsh-spec-ci-test-reliability:trigger',
+    })
+    assert.equal(metadata.arm, null)
+    assert.equal(metadata.execution.sandbox, 'read-only')
+    assert.match(metadata.evidence.currentness.trigger_surface_sha256, /^[0-9a-f]{64}$/)
+    assert.match(metadata.evidence.currentness.trigger_corpus_sha256, /^[0-9a-f]{64}$/)
+    assert.deepEqual(JSON.parse(readFileSync(join(output, 'selection.json'), 'utf8')), {
+      id: 'parallel-port-collision',
+      should_trigger: true,
+      selected: true,
+      result: 'pass',
+    })
+    assert.equal(readFileSync(join(output, 'changed-paths.txt'), 'utf8'), '')
+
+    const wrongOutput = join(wrongCleanupRoot, 'dsh-spec-ci-test-reliability', 'trigger', 'parallel-port-collision')
+    writeFakeCodex(fakeCodex, [
+      "const fs = require('node:fs')",
+      "fs.writeFileSync('/response/final.md', 'No installed skill applies.\\n\\nSELECT: none')",
+      "process.stdout.write(JSON.stringify({ type: 'item.completed', item: { type: 'agent_message', text: 'No installed skill applies.\\n\\nSELECT: none' } }) + '\\n')",
+      "process.stdout.write(JSON.stringify({ type: 'turn.completed', usage: { input_tokens: 1, output_tokens: 1 } }) + '\\n')",
+    ])
+    const wrong = runFakeModelRunner(repository, codexHome, fakeCodex, [
+      ...args.slice(0, 5),
+      wrongOutput,
+      ...args.slice(6),
+    ])
+    assert.notEqual(wrong.status, 0)
+    assert.match(String(wrong.stderr), /trigger response selected the wrong skill/)
+    assert.equal(existsSync(wrongOutput), false)
+  } finally {
+    rmSync(cleanupRoot, { recursive: true, force: true })
+    rmSync(wrongCleanupRoot, { recursive: true, force: true })
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('the real trigger runner preserves declared fixture modes', (t) => {
+  if (!bwrapAvailable()) {
+    t.skip('bubblewrap namespaces and --size are unavailable on this host')
+    return
+  }
+  const sourceRepository = dirname(import.meta.dirname)
+  const root = mkdtempSync(join(tmpdir(), 'runner-trigger-mode-'))
+  try {
+    const repository = createTriggerRunnerRepository(root, sourceRepository)
+    const { codexHome, bin } = createFakeCodexHarness(root)
+    const fakeCodex = join(bin, 'fake-codex')
+    writeFakeCodex(fakeCodex, [
+      "const fs = require('node:fs')",
+      "const probe = '/workspace/executable-probe/probe.sh'",
+      'if (!fs.existsSync(probe)) process.exit(42)',
+      'if ((fs.statSync(probe).mode & 0o111) === 0) process.exit(43)',
+      "fs.writeFileSync('/response/final.md', 'The executable fixture is a relevant input.\\n\\nSELECT: dsh-spec-ci-test-reliability')",
+      "process.stdout.write(JSON.stringify({ type: 'item.completed', item: { type: 'agent_message', text: 'The executable fixture is a relevant input.\\n\\nSELECT: dsh-spec-ci-test-reliability' } }) + '\\n')",
+      "process.stdout.write(JSON.stringify({ type: 'turn.completed', usage: { input_tokens: 1, output_tokens: 1 } }) + '\\n')",
+    ])
+    const output = join(
+      repository,
+      'tests/skill-evals/evidence/2099-12-31-trigger-mode/dsh-spec-ci-test-reliability/trigger/parallel-port-collision',
+    )
+    const result = runFakeModelRunner(repository, codexHome, fakeCodex, [
+      '--skill',
+      'dsh-spec-ci-test-reliability',
+      '--trigger-id',
+      'parallel-port-collision',
+      '--output',
+      output,
+      '--sandbox',
+      'read-only',
+      '--deadline-ms',
+      '30000',
+    ])
+    assert.equal(result.status, 0, String(result.stderr))
+    assert.match(readFileSync(join(output, 'evidence.json'), 'utf8'), /"trigger_corpus_sha256": "[0-9a-f]{64}"/)
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('trigger staging rejects traversal, metadata directories, symlinks and overwrite targets', () => {
+  const sourceRepository = dirname(import.meta.dirname)
+  const root = mkdtempSync(join(tmpdir(), 'runner-trigger-paths-'))
+  try {
+    const repository = createTriggerRunnerRepository(root, sourceRepository)
+    const neverRun = createNeverRunCodex(root)
+    const corpusRoot = join(repository, 'tests/skill-evals/dsh-spec-ci-test-reliability')
+    const corpusPath = join(corpusRoot, 'trigger-evals.json')
+    const corpus = JSON.parse(readFileSync(corpusPath, 'utf8')) as {
+      queries: Array<{ id: string; files?: string[] }>
+    }
+    const selected = corpus.queries.find((query) => query.id === 'parallel-port-collision')
+    assert.ok(selected)
+    const symlink = join(corpusRoot, 'trigger-fixtures/symlinked.txt')
+    symlinkSync(join(root, 'outside.txt'), symlink)
+    writeFileSync(join(root, 'outside.txt'), 'outside\n')
+    const cases = [
+      ['/absolute.txt', /escapes trigger-fixtures/],
+      ['trigger-fixtures/../outside.txt', /forbidden path/],
+      ['trigger-fixtures/.git/config', /forbidden path/],
+      ['trigger-fixtures/.agents/skills/dsh-spec-ci-test-reliability/SKILL.md', /forbidden path/],
+      ['trigger-fixtures/AGENTS.md', /may not overwrite the root agent/],
+      ['trigger-fixtures/symlinked.txt', /symbolic link/],
+    ] as const
+    for (const [index, [file, expected]] of cases.entries()) {
+      selected.files = [file]
+      writeFileSync(corpusPath, `${JSON.stringify(corpus, null, 2)}\n`)
+      const output = join(
+        repository,
+        'tests/skill-evals/evidence',
+        `2099-12-31-trigger-invalid-${index}`,
+        'dsh-spec-ci-test-reliability',
+        'trigger',
+        'parallel-port-collision',
+      )
+      const result = neverRun.run(repository, [
+        '--skill',
+        'dsh-spec-ci-test-reliability',
+        '--trigger-id',
+        'parallel-port-collision',
+        '--output',
+        output,
+        '--sandbox',
+        'read-only',
+      ])
+      assert.notEqual(result.status, 0, file)
+      assert.match(String(result.stderr), expected, file)
+      assert.equal(existsSync(output), false, file)
+      assert.equal(existsSync(neverRun.marker), false, file + ' started the Codex executable')
+    }
+  } finally {
     rmSync(root, { recursive: true, force: true })
   }
 })

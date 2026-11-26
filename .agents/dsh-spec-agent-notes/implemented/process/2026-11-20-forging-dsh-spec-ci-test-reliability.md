@@ -12,7 +12,7 @@ Upstream `dsh-ci-test-reliability` contains the missing procedure and a diagnosi
 
 ## Decision
 
-The package ships `dsh-spec-ci-test-reliability` as a general software-engineering skill. It owns test isolation, execution-topology modeling, resource allocation, process-global containment, platform semantics, deterministic test-duration design, timeout budgets, state synchronization, quiescent disposal, regression proof, flake-masking rejection, and read-only flake diagnosis.
+The package ships `dsh-spec-ci-test-reliability` as a generalized skill for tests in CI or an equivalent test lane. It owns test isolation, execution-topology modeling, resource allocation, process-global containment, platform semantics, deterministic test-lane duration design, timeout budgets, state synchronization, quiescent disposal, regression proof, flake-masking rejection, and read-only flake diagnosis. Production latency, throughput, memory, and responsiveness remain outside it.
 
 The fast-contract/shared-real-resource default lives in `Design the smallest sufficient test`. The diagnosis-only read-only rule lives in `Diagnose existing flakes`. The execution-topology section names neither default, so each rule has one use site.
 
@@ -50,7 +50,7 @@ Upstream source baseline read on 2026-11-23:
 
 | # | Ruling | Why | Reversible by |
 |---|---|---|---|
-| R1 | The target is any software project with automated tests, not one repository or language. | The package exists to avoid another project's ecosystem and toolchain. | Restore a named project or language. |
+| R1 | The target is any software project whose automated tests run in CI or an equivalent test lane, not one repository or language. | The package exists to avoid another project's ecosystem and toolchain while retaining the upstream skill's CI reliability scope. | Restore a named project or language, or drop the test-lane boundary. |
 | R2 | Test policy, architecture and lifecycle rules are read from the adopting project's standing instructions and the documents they name. | These are the documents whose constraints actually govern the test. | Name fixed source paths again. |
 | R3 | Test-runner configuration, CI workflows, worker counts, job topology and runners are read from the project when they affect the case. | Vitest and GitHub Actions in the source are instances, not universal mechanisms. | Restore one test runner and CI provider. |
 | R4 | Command selection remains separate from test design. | A sound test can still be paired with an insufficient outgoing check set, while command selection cannot repair an unstable fixture. | Merge command selection into this skill. |
@@ -64,8 +64,8 @@ Upstream source baseline read on 2026-11-23:
 | R12 | Retries and global serialization are not default fixes. | They hide ownership and topology defects and impose suite-wide cost. | Permit masking by default. |
 | R13 | A diagnosis-only request is read-only and classifies evidence without changing code, workflow, or rerun state. | Investigation authority does not imply repair authority. | Authorize unrelated mutations from diagnosis. |
 | R14 | Evaluation manifests and fixtures remain development-only assets. | Adopters need runtime instructions, not the repository's development prompts and sample failures. | Ship evals inside the skill. |
-| R15 | Deterministic test duration is design feedback: default to fast contract cases plus one shared expensive scenario, and repeat external work only in lanes where the result can differ. | More timeout preserves duplicate setup and over-broad coverage while making the suite slower and less informative. | Treat larger timeouts or a full external-work matrix as the default. |
-| R16 | The delivered name is `dsh-spec-ci-test-reliability`, preserving the upstream `dsh-ci-test-reliability` name under this package's namespace. | The source and installed skill stay recognizable without a second naming vocabulary. | Return to a name that diverges from the upstream source. |
+| R15 | Deterministic test-lane duration is design feedback: default to fast contract cases plus one shared expensive scenario, and repeat external work only in lanes where the result can differ. It is not a production-performance claim. | More timeout preserves duplicate setup and over-broad coverage while making the suite slower and less informative. | Treat larger timeouts, production performance, or a full external-work matrix as the default. |
+| R16 | The delivered name is `dsh-spec-ci-test-reliability`, preserving the upstream `dsh-ci-test-reliability` name under this package's namespace. | The source and installed skill stay recognizable without a second naming vocabulary, and #131 requires a generalized single-source port to retain the upstream semantic stem. | Return to a name that diverges from the upstream source. |
 
 ## Constraint dispositions
 
@@ -73,14 +73,14 @@ Upstream source baseline read on 2026-11-23:
 
 | # | Source | Constraint | Disposition | Target home | Basis |
 |---|---|---|---|---|---|
-| S0 | `SK:1–8` | Name, description, title and scope: reliable tests under real CI topology; isolation belongs here, command selection does not. | Adapt | Frontmatter and intro | Remove the source product and generalize the test model. |
+| S0 | `SK:1–8` | Name, description, title and scope: reliable tests under real CI topology; isolation belongs here, command selection does not. | Adapt | Frontmatter, title and intro | Remove the source product, retain the CI semantic stem, and generalize the topology to CI or an equivalent test lane. |
 | S1 | `SK:10–16` | Read test-tier, lifecycle and CI topology rules; use pre-push separately. | Re-bind | Read the owning rules | Bind to the adopting project's declarations and check-selection practice. |
 | S2 | `SK:18–29` | Model file, worker, process and shared-runner layers; identify resource owner, allocation, readiness, cleanup and completion; do not serialize the suite. | Keep | Model the execution topology | Product names are generic and framework-neutral. |
 | S3 | `SK:31–41` | Allocate ports, temporary roots, namespaces and exclusive paths atomically; separate stable identifiers from ephemeral resources. | Adapt | Allocate resources atomically | Replace source API examples with portable allocator behavior. |
 | S4 | `SK:43–54` | Treat process-global state as exclusive; capture absence, restore immediately, use a bounded scope and fallback interception. | Adapt | Contain process-global state | Replace JavaScript-only identifiers with cross-language equivalents while retaining examples. |
 | S5 | `SK:56–65` | Respect platform-owned precision, environment-name case, handle release, permissions and signals. | Keep | Respect platform-owned semantics | Generic platform rules survive. |
 | S6 | `SK:67–73` | Budget timeouts against the lane; raise setup and teardown together; keep outer waits larger than the subject timeout. | Keep | Budget timeouts against the lane | Generic test-runner rule. |
-| S6a | Target requirement | Excessive deterministic test time is a test-design problem rather than a timeout budget; distinct slow work from fast contracts and run one shared representative expensive scenario. | Adapt | Design the smallest sufficient test | Prevents a timeout increase from masking repeated setup or an over-broad matrix. |
+| S6a | Target requirement | Excessive deterministic test-lane time is a test-design problem rather than a timeout budget; distinct slow work from fast contracts and run one shared representative expensive scenario. | Adapt | Design the smallest sufficient test | Prevents a timeout increase from masking repeated setup or an over-broad matrix while preserving the boundary from production performance. |
 | S7 | `SK:75–83` | Synchronize on readiness, state transitions, owned promises and barriers; timeouts bound waits; restore real time. | Adapt | Synchronize on state | Remove Node/Vitest vocabulary while preserving the rules. |
 | S8 | `SK:85–89` | Register cleanup immediately, detach everything owned, and wait for quiescence. | Keep | Dispose to quiescence | Generic lifecycle contract. |
 | S9 | `SK:91–100` | Prove the intended regression with a failing control; prove overlap or concurrent-process isolation where relevant. | Keep | Prove the intended regression | Generic evidence rule. |
@@ -97,19 +97,19 @@ Upstream source baseline read on 2026-11-23:
 
 | # | Requirement | Anchor | Evidence |
 |---|---|---|---|
-| A0 | The skill conforms to the Agent Skills format, references stay one level deep, and the description remains under the package catalogue budget. | Mechanical | The skill-spec gate passed 14 checks; `SKILL.md` is 146 lines, its description is 434 characters, and the estimated body is 2,781 tokens. |
+| A0 | The skill conforms to the Agent Skills format, references stay one level deep, and the description remains under the package catalogue budget. | Mechanical | The skill-spec gate passed 14 checks; `SKILL.md` is 148 lines, its description is 498 characters, and the estimated body remains within the repository budget. |
 | A1 | The source's topology, resource, global-state, platform, timeout, synchronization, disposal, regression and masking rules are present. | Judged | `SKILL.md` sections against S0–S12 |
 | A2 | Diagnosis preserves evidence, classification, topology limits, ownership and read-only authority. | Judged | `references/ci-flake-diagnosis.md` against F0–F4 |
 | A3 | The skill names no framework, CI provider, source product path or command as a requirement. | Judged + Mechanical | Review found no source-product referent; the corpus sibling-reference gate passed. |
 | A4 | The pre-push relationship is optional and names only the mechanism. | Mechanical | The corpus sibling-reference gate passed. |
 | A5 | Runnable fixtures cover deterministic port failure, exact global restoration, read-only diagnosis and a slow repeated-suite redesign. | Mechanical | Repository tests run the fixtures' positive and negative controls and stage all declared inputs; the four direct fixture entries take under one second in aggregate. |
-| A6 | Runtime model behavior against the scenarios. | Judged + Mechanical | The runs under `tests/skill-evals/evidence/2026-11-20-pr116/`, `2026-11-23-pr116/` and `2026-11-23-pr121/dsh-spec-test-reliability/` are historical recorded revisions. The isolated diagnosis and slow-suite runs passed 10/10 assertions under the former skill identity. The current name changes the trigger surface, not the behavior instructions. |
-| A6a | The description routes reliability and test-duration work without capturing adjacent product-performance, coverage, documentation, or visual-review tasks. | Judged + Mechanical | Under the current aligned name, four positive and four near-miss probes passed 8/8 through the stable `SELECT:` marker in `tests/skill-evals/evidence/2026-11-24-pr126/dsh-spec-ci-test-reliability/trigger-matrix.tsv`. Earlier probes remain historical evidence for the former frontmatter identity. |
+| A6 | Runtime model behavior against the scenarios. | Judged + Mechanical | The current target-present `redesign-slow-repeated-suite` run under `tests/skill-evals/evidence/2026-11-26-issue-144/dsh-spec-ci-test-reliability/redesign-slow-repeated-suite/` passed 5/5 assertions. Its typed metadata binds the current scenario, input manifest, prompt and execution identity. The earlier PR116 and PR121 runs remain historical recorded revisions. |
+| A6a | The description routes CI and equivalent test-lane reliability and test-duration work without capturing production performance, coverage, documentation, or visual-review tasks. | Judged + Mechanical | The current typed trigger evidence under `tests/skill-evals/evidence/2026-11-26-issue-144/dsh-spec-ci-test-reliability/trigger/` passed 8/8: four expected selections and four expected near misses. Every run binds surface `72328dc29f5bc516aff27b3f36d8b44c360d18b393bf5f62f39457e5887bb479`, complete trigger-corpus identity `3c7f5e2f149066d13093d5d3b557c6972f9e45a6b17059c43811b0a2d0fc4ba3`, and one execution identity. The pre-#144 PR126 matrix remains historical. |
 | A7 | The installed copy, notices, active note tree and translation pairs are consistent. | Mechanical | The final functional suite uses a stubbed corpus contract; the real corpus is owned by the `pnpm run check:corpus` step. Notes, pairing, notices, format, static and bundle checks pass, without duplicating process counts here. |
 
 ## Pages read
 
-Read on 2026-11-20:
+Read on 2026-11-26:
 
 - `https://agentskills.io/llms.txt`
 - `https://agentskills.io/specification.md`
@@ -137,8 +137,9 @@ Read on 2026-11-20:
 
 ## Consequences
 
-- The package gains a general skill for test design, review and flaky diagnosis without a framework or CI-provider dependency.
+- The package gains a CI or equivalent test-lane skill for test design, review and flaky diagnosis without a framework or CI-provider dependency.
 - The main entry carries the operating rules; the diagnosis reference loads only for an existing probabilistic failure.
 - Four runnable development scenarios cover the central behaviours. PR116 and the recorded PR121 reruns retain their former skill identity and historical provenance.
+- Current typed trigger evidence passes 8/8, and the affected slow-suite behavior run passes 5/5. Historical runs retain their recorded inputs and hashes.
 - The source licence and relation travel with installed copies.
 - Rollback is a revert of the implementing commit; the extraction submodule remains untouched.
