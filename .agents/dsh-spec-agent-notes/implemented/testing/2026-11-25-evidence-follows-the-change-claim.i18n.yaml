@@ -1,22 +1,22 @@
 # Pairing consistency record for 2026-11-25-evidence-follows-the-change-claim.md (references/pairing-contract.md): per heading
 # source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
 # After editing either side, bring the other along and re-record with:
-#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/proposed/testing/2026-11-25-evidence-follows-the-change-claim.md --target <lang>
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/testing/2026-11-25-evidence-follows-the-change-claim.md --target <lang>
 /agent-note-evidence-follows-the-change-claim:
-  en: 0a5c40c8e9571d0d
-  zh: 307ee93b67c557c9
+  en: eb65bd3592641dab
+  zh: 113d2bba288ef7ba
 /agent-note-evidence-follows-the-change-claim/problem:
   en: ecdbc78d6656b259
-  zh: c99acb575bddcbe1
-/agent-note-evidence-follows-the-change-claim/proposal:
-  en: 653f9e043203a82a
-  zh: 9968833f0c9421d9
+  zh: e0aa7872c40c9344
+/agent-note-evidence-follows-the-change-claim/decision:
+  en: a20999f799b853ce
+  zh: c4f65d1bfe14e351
+/agent-note-evidence-follows-the-change-claim/verification:
+  en: 5fe1e0f8ed5bc17b
+  zh: a04eea12c6689a53
 /agent-note-evidence-follows-the-change-claim/alternatives-considered:
-  en: f58d33bad44213fb
-  zh: fe2481cc283db6a6
-/agent-note-evidence-follows-the-change-claim/acceptance-criteria:
-  en: eb3a24b3c405bdb4
-  zh: 704c420b424b9870
-/agent-note-evidence-follows-the-change-claim/risks:
-  en: 15091180634f3f44
-  zh: 6d437dd3e058845b
+  en: aa18469521806098
+  zh: 507720444733a721
+/agent-note-evidence-follows-the-change-claim/consequences:
+  en: 4ebc7127d966ec4d
+  zh: 7b6fba6c5ab7336c

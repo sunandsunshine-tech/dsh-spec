@@ -3,6 +3,15 @@
   "evals": [
     {
       "id": "backend-budgetless-latency",
+      "comparison": {
+        "baseline": "target-absent",
+        "candidate": "target-present",
+        "conditions": [
+          "The baseline and candidate use the same scenario prompt, fixture, sandbox profile, capability profile and deadline.",
+          "The candidate installs the target skill and appends its target-use instruction; the baseline does neither.",
+          "The measured path, workload and reported samples remain comparable."
+        ]
+      },
       "prompt": "The runnable project in evals/files/backend-budgetless exposes its real inventory HTTP endpoint. The project has no benchmark framework or p95 budget. Measure the current /report path, find the dominant cost, and make the smallest behavior-preserving optimization. Keep filtered output and ordering unchanged, then report raw before/after samples and the ratio.",
       "expected_output": "The response measures the real HTTP path before changing code, identifies the repeated all-item scanning as the dominant cause, preserves duplicate removal, report fields and ordering, and reports comparable raw samples, aggregates and a behavior check.",
       "files": [
