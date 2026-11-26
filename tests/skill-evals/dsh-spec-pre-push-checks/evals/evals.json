@@ -89,6 +89,48 @@
         "The selection does not require an author request that does not exist.",
         "The selection revalidates every replayed layer after publication."
       ]
+    },
+    {
+      "id": "route-test-reliability-with-sibling",
+      "prompt": "Select the smallest local evidence for the outgoing change at HEAD against HEAD^ in evals/files/reliability-routing. The change adds the asynchronous subprocess test. Read and apply the installed dsh-spec-pre-push-checks skill. The dsh-spec-ci-test-reliability sibling is installed and available. Do not modify files or Git state.",
+      "expected_output": "The selection runs the owning worker test, first determines the project's applicable test-reliability requirements, and identifies that the un-awaited child-process termination requires quiescent-teardown evidence. It uses the test-reliability sibling only as optional guidance and does not run the full suite.",
+      "files": [
+        "evals/files/reliability-routing/AGENTS.md",
+        "evals/files/reliability-routing/package.json",
+        "evals/files/reliability-routing/tests/worker.test.mjs",
+        "evals/files/reliability-routing/change.patch"
+      ],
+      "change_patch": "evals/files/reliability-routing/change.patch",
+      "change_root": "evals/files/reliability-routing",
+      "install": [
+        "dsh-spec-ci-test-reliability"
+      ],
+      "assertions": [
+        "The selection runs the owning worker test rather than the full suite.",
+        "The selection determines the project's applicable test-reliability requirements before selecting evidence.",
+        "The selection identifies the un-awaited child-process termination and requires quiescent-teardown evidence.",
+        "The selection uses the sibling only as availability-qualified guidance.",
+        "The selection does not copy the sibling's commands or internal procedure."
+      ]
+    },
+    {
+      "id": "route-test-reliability-without-sibling",
+      "prompt": "Select the smallest local evidence for the outgoing change at HEAD against HEAD^ in evals/files/reliability-routing. The change adds the asynchronous subprocess test. Read and apply the installed dsh-spec-pre-push-checks skill. The dsh-spec-ci-test-reliability sibling is not installed. Do not modify files or Git state.",
+      "expected_output": "The selection still runs the owning worker test, first determines the project's applicable test-reliability requirements, and identifies that the un-awaited child-process termination requires quiescent-teardown evidence without treating the missing sibling as a blocker.",
+      "files": [
+        "evals/files/reliability-routing/AGENTS.md",
+        "evals/files/reliability-routing/package.json",
+        "evals/files/reliability-routing/tests/worker.test.mjs",
+        "evals/files/reliability-routing/change.patch"
+      ],
+      "change_patch": "evals/files/reliability-routing/change.patch",
+      "change_root": "evals/files/reliability-routing",
+      "assertions": [
+        "The selection runs the owning worker test rather than the full suite.",
+        "The selection determines the project's applicable test-reliability requirements before selecting evidence.",
+        "The selection identifies the un-awaited child-process termination and requires quiescent-teardown evidence.",
+        "The selection does not treat the missing sibling as a blocker or copy a sibling procedure."
+      ]
     }
   ]
 }
