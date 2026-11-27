@@ -1,0 +1,11 @@
+{
+  "id": "trim-readme-prose-near-miss",
+  "query": "Tighten the getting-started README prose and remove repetition while preserving every prerequisite and failure mode.",
+  "query_sha256": "a098ed76b09efcde8e387ff4a360b9813a861de530f16014795d199bea6dc5e7",
+  "should_trigger": false,
+  "agent_file": "trigger-fixtures/AGENTS.md",
+  "currentness": {
+    "trigger_surface_sha256": "ad2df2663ca6ab46d98abccaa33fdabfdb3a3d6824f02cb6518919f267441f8c",
+    "trigger_corpus_sha256": "c939b15cb288634f6ea38410dc43444b4b76c45e35a45d4daf6904c64df1cb71"
+  }
+}

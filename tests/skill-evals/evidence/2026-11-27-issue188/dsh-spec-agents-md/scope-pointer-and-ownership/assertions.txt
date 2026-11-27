@@ -1,0 +1,5 @@
+PASS The root AGENTS.md states the repository-wide `pnpm test` and `pnpm build` commands.
+PASS The root AGENTS.md removes the README product description, current release number, and generic coding advice.
+PASS The root AGENTS.md gives release work a pointer to `docs/releasing.md` that states the target, what it contains, and when to read it.
+PASS packages/worker/AGENTS.md contains `pnpm --filter @acme/worker test` and the condition for running it, and restates the repository-wide `pnpm build` and `pnpm test` completion conditions.
+PASS The root and worker AGENTS.md files do not duplicate or contradict the worker-only command.

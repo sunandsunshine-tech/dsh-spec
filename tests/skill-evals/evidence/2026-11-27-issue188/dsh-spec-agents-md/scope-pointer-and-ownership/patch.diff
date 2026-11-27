@@ -1,0 +1,35 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index 61c713a..5bfe837 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -1,15 +1,9 @@
+ # Agent notes
+ 
+-Queue Kit is a TypeScript job queue for small services. It provides durable
+-enqueue, retry, and worker lifecycle APIs.
++From the repository root, install dependencies with `pnpm install`.
+ 
+-The latest published release is 2.4.0.
+-
+-Be careful and write clean, maintainable code.
+-
+-Run `pnpm build` and `pnpm test` from the repository root before finishing a
++Run `pnpm build` and `pnpm test` from the repository root before finishing any
+ change.
+ 
+-For release work, read [the release guide](docs/releasing.md).
+-
+-When editing `packages/worker`, run `pnpm --filter @acme/worker test`.
++When preparing a release, read [the release guide](docs/releasing.md) for the
++maintainer release procedure and follow it.
+diff --git a/packages/worker/AGENTS.md b/packages/worker/AGENTS.md
+index d765f09..b55ba7b 100644
+--- a/packages/worker/AGENTS.md
++++ b/packages/worker/AGENTS.md
+@@ -1,3 +1,5 @@
+ # Worker package agent notes
+ 
+-Use the repository's shared formatting rules for this package.
++From the repository root, install dependencies with `pnpm install`. Before
++finishing a change in this package, run `pnpm build`, `pnpm test`, and
++`pnpm --filter @acme/worker test` from the repository root.

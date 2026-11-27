@@ -1,0 +1,11 @@
+{
+  "id": "write-repository-agents-md",
+  "query": "Write the repository AGENTS.md for this TypeScript workspace. Include the build and test commands, the package-scope rules, and pointers to the release procedure that an agent should read only for release work.",
+  "query_sha256": "c45bef705bc51d13cda073db6a2ff9a8f16c1e7bde81313b87e148fe8219ebb2",
+  "should_trigger": true,
+  "agent_file": "trigger-fixtures/AGENTS.md",
+  "currentness": {
+    "trigger_surface_sha256": "ad2df2663ca6ab46d98abccaa33fdabfdb3a3d6824f02cb6518919f267441f8c",
+    "trigger_corpus_sha256": "c939b15cb288634f6ea38410dc43444b4b76c45e35a45d4daf6904c64df1cb71"
+  }
+}

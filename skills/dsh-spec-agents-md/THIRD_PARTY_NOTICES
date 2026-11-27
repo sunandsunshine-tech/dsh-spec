@@ -3,7 +3,7 @@
 The content of this skill is adapted from the AGENTS.md format description published at <https://agents.md> and its repository.
 
 - Upstream: AGENTS.md, a Series of LF Projects, LLC, stewarded by the Agentic AI Foundation under the Linux Foundation; repository <https://github.com/agentsmd/agents.md>.
-- Upstream revision: the repository's `main` branch at commit `d001185d792eb6402a58e4cbef1c228b309ec25d`, read on 2026-10-30. The adapted page copy is `pages/index.tsx`; the repository's `README.md`, `AGENTS.md`, `LICENSE` and `Technical_Charter.pdf` were read as corroborating text on that revision, and the page itself was read at <https://agents.md>.
+- Upstream revision: the repository's `main` branch at commit `d001185d792eb6402a58e4cbef1c228b309ec25d`, read on 2026-10-30. The adapted page content is composed by `pages/index.tsx` and the section components under `components/*.tsx`; the repository's `README.md`, `AGENTS.md`, `LICENSE` and `Technical_Charter.pdf` were read as corroborating text on that revision, and the page itself was read at <https://agents.md>.
 - Relation: adapted into a content-governance skill for AGENTS.md files. The format's statements about purpose, placement, precedence and content classes are restated; the belonging test, pointer and link rules, inline form, scope placement, update boundary and cross-agent writing practice are derived from that purpose. No source sentence is carried as a verbatim instruction.
 - Upstream licence: MIT, copyright (c) 2025 OpenAI, reproduced below. The repository's `LICENSE` is that text.
 

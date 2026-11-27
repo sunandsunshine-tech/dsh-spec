@@ -59,9 +59,9 @@ Status: implemented
 
 ### 描述
 
-该技能的 frontmatter description，逐字如下（776 个字符，低于规范的 1024 字符上限）：
+该技能的 frontmatter description，逐字如下（451 个字符，低于规范的 1024 字符上限）：
 
-> Use when writing, reviewing, or updating an AGENTS.md file — the standing instructions a repository gives coding agents — including when migrating an existing agent-instruction file to that name, to decide which content belongs in it, which content becomes a pointer or link to its owning document, how inline instructions are written, and how scope and updates are settled. Not for writing README or documentation prose, not for general prompt engineering, not for another agent-instruction format's own content, and not for applying an existing AGENTS.md during a code review. 用于编写、评审或更新 AGENTS.md——仓库给编码 agent 的常驻指令，包括把已有的 agent 指令文件迁移为该名称：决定哪些内容应写入、哪些应抽成指向拥有该内容的文档的指针或链接、内联指令怎么写，以及适用范围与更新边界如何裁决。不用于撰写 README 或其他文档行文，不用于通用提示词工程，不用于其他 agent 指令格式的内容，也不用于在代码评审中执行既有 AGENTS.md。
+> Use when writing, reviewing, updating, or migrating AGENTS.md — a repository's standing instructions for coding agents. Covers content selection, pointers, inline instructions, and scope and update rules. Not for README or documentation prose, general prompt engineering, other instruction formats, or AGENTS.md in code review. 用于编写、评审、更新或迁移 AGENTS.md——仓库给编码 agent 的常驻指令。涵盖内容取舍、指针与内联指令，以及适用范围与更新边界。不用于 README 或文档行文、通用提示词工程、其他指令格式，或代码评审中的 AGENTS.md 执行。
 
 英文句子是交付语言，承载该技能裁决的五项决定、迁移情形，以及被排除的相邻任务：行文写作、提示词工程、其他 agent 指令格式的内容，以及在代码评审中应用既有指令。中文句子是附加触发语言。
 
@@ -83,7 +83,7 @@ Status: implemented
 
 ### 要求锚点
 
-每一条处置行都锚定它承载的要求，被锻造技能的每项要求，都在可获得的最精确层级上有对应的锚点。技能门禁是名称与目录、frontmatter 形态、大小预算与链接规则的机械锚点：`node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs .agents/dsh-spec-skill-forge/dsh-spec-agents-md`。§ Deciding a draft 是内容、放置与更新要求的判断锚点，§ 来源缺失与派生裁定把每条派生规则锚定到它的依据；每条处置行与每条派生裁定各有一个结论。仓库的形态测试与 `skills/dsh-spec-agents-md/` 到 `.agents/skills/dsh-spec-agents-md/` 的目录比较，是安装副本的机械锚点。记录门禁与翻译配对门禁是本记录及其伴随文件的机械锚点。技能的触发行为及其对执行者决策的影响在这里没有精确锚点，在后果（Consequences）一节记为未验证。
+每一条处置行都锚定它承载的要求，被锻造技能的每项要求，都在可获得的最精确层级上有对应的锚点。技能门禁是名称与目录、frontmatter 形态、大小预算与链接规则的机械锚点：`node skills/dsh-spec-skill-forge/scripts/verify-skill-spec.mjs .agents/skills/dsh-spec-agents-md`。§ Deciding a draft 是内容、放置与更新要求的判断锚点，§ 来源缺失与派生裁定把每条派生规则锚定到它的依据；每条处置行与每条派生裁定各有一个结论。仓库的形态测试与 `skills/dsh-spec-agents-md/` 到 `.agents/skills/dsh-spec-agents-md/` 的目录比较，是安装副本的机械锚点。记录门禁与翻译配对门禁是本记录及其伴随文件的机械锚点。当前范围内的触发与执行者决策证据记录在 [Issue #188 行为与触发证据](../../../../tests/skill-evals/evidence/2026-11-27-issue188/dsh-spec-agents-md/README.md)及其保留运行中；它不证明技能在每个采用项目或真实 `AGENTS.md` 上的行为。
 
 ## 备选方案
 
@@ -113,4 +113,4 @@ Status: implemented
 
 **换来了什么。** 本技能集合有了 `AGENTS.md` 内容的负责者：五个问题有了明确陈述的答案，指针规则与抽取内容存放规则让该文件及其链接的细节不会变成第二套文档系统，而行文与提示词手艺仍留在已经拥有它们的技能里。落地后的树通过技能门禁、仓库套件、格式检查、笔记检查、记录配对、安装副本比较与 DCO 检查；技能回答了 <https://agents.md> 提出的五个问题；它既不重复 `dsh-spec-agent-experience` 的提示词形态规则，也不重复 `dsh-spec-prose-standard` 的编辑规则；它不含任何仓库专用的路径、规则或流程；其出处通知与中文配对都完整。
 
-**放弃了什么。** 格式没有陈述归属、指针、内联形式、加载模型、存放或更新规则，因此 D1–D7 是起草者对其目的的解读；没有来源陈述确认它们。默认的抽取内容存放位置是 `.agents/dsh-spec-agents-md/`，选择它是为避免与项目的其他目录发生命名空间冲突；它只是默认值，改动它只需重命名目录并修改一处链接，项目若无视这条界限，它可能变成第二个文档存储。范围兜底在客户端可能加载祖先文件的子树里重述仓库级规则，而总是加载祖先文件的客户端使这种重复变得不必要。触发行为与技能对执行者决策的影响仍未验证，这些规则也没有在真实项目的 `AGENTS.md` 上演练过（包括默认的抽取内容存放位置及其提交要求），防重复的防线是边界引用加评审。落地在同一变更中改动了共享文件——根 `THIRD_PARTY_NOTICES.md` 与各安装副本。
+**放弃了什么。** 格式没有陈述归属、指针、内联形式、加载模型、存放或更新规则，因此 D1–D7 是起草者对其目的的解读；没有来源陈述确认它们。默认的抽取内容存放位置是 `.agents/dsh-spec-agents-md/`，选择它是为避免与项目的其他目录发生命名空间冲突；它只是默认值，改动它只需重命名目录并修改一处链接，项目若无视这条界限，它可能变成第二个文档存储。范围兜底在客户端可能加载祖先文件的子树里重述仓库级规则，而总是加载祖先文件的客户端使这种重复变得不必要。两个范围内的行为场景通过了 10/10 条评审确认的断言，七个触发探针在单次运行中符合预期决定。这些运行没有覆盖真实项目 `AGENTS.md` 在所有客户端上的行为（包括默认的抽取内容存放位置及其提交要求），防重复的防线仍是边界引用加评审。落地在同一变更中改动了共享文件——根 `THIRD_PARTY_NOTICES.md` 与各安装副本。

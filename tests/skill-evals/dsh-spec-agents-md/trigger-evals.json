@@ -1,0 +1,41 @@
+{
+  "skill_name": "dsh-spec-agents-md",
+  "agent_file": "trigger-fixtures/AGENTS.md",
+  "queries": [
+    {
+      "id": "write-repository-agents-md",
+      "query": "Write the repository AGENTS.md for this TypeScript workspace. Include the build and test commands, the package-scope rules, and pointers to the release procedure that an agent should read only for release work.",
+      "should_trigger": true
+    },
+    {
+      "id": "audit-agents-md-content-and-pointer",
+      "query": "Review this AGENTS.md and tell me which facts belong inline, which should link to their owning documentation, and which generic or human-only material should be removed. Update the file without inventing new sections.",
+      "should_trigger": true
+    },
+    {
+      "id": "migrate-and-split-agents-md",
+      "query": "Migrate the existing AGENT.md to AGENTS.md and split the root and package instructions so each rule lives at the nearest scope that needs it. Keep commands current and leave a compatibility symlink.",
+      "should_trigger": true
+    },
+    {
+      "id": "trim-readme-prose-near-miss",
+      "query": "Tighten the getting-started README prose and remove repetition while preserving every prerequisite and failure mode.",
+      "should_trigger": false
+    },
+    {
+      "id": "rewrite-system-prompt-near-miss",
+      "query": "Rewrite the support assistant's system prompt so it keeps the purpose and payment constraints visible and retrieves the refund policy only when needed.",
+      "should_trigger": false
+    },
+    {
+      "id": "ordinary-code-review-near-miss",
+      "query": "Review this TypeScript patch only for correctness, concurrency, and missing test coverage before merge.",
+      "should_trigger": false
+    },
+    {
+      "id": "create-whole-agent-skill-near-miss",
+      "query": "Turn this operations runbook into a new Agent Skill with a role, description, scripts, references, eval plan, and complete lifecycle.",
+      "should_trigger": false
+    }
+  ]
+}

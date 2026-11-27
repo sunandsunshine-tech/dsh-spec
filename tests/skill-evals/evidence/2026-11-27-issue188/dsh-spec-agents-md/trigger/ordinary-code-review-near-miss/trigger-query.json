@@ -1,0 +1,11 @@
+{
+  "id": "ordinary-code-review-near-miss",
+  "query": "Review this TypeScript patch only for correctness, concurrency, and missing test coverage before merge.",
+  "query_sha256": "2c61fa9d0af58c82ffe9fd9e1edb49ad146721ccb115263e2bff61403c4536a1",
+  "should_trigger": false,
+  "agent_file": "trigger-fixtures/AGENTS.md",
+  "currentness": {
+    "trigger_surface_sha256": "ad2df2663ca6ab46d98abccaa33fdabfdb3a3d6824f02cb6518919f267441f8c",
+    "trigger_corpus_sha256": "c939b15cb288634f6ea38410dc43444b4b76c45e35a45d4daf6904c64df1cb71"
+  }
+}

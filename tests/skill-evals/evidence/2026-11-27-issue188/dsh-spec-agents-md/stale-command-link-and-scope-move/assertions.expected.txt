@@ -1,0 +1,5 @@
+PASS The root AGENTS.md retains the repository-wide `pnpm build` instruction.
+PASS Neither AGENTS.md file contains `@acme/old-api`, `docs/deploy-old.md`, the current release value, or migration history.
+PASS services/api/AGENTS.md contains `pnpm --filter @acme/api test` and the condition for running it, and restates the repository-wide `pnpm build` completion condition.
+PASS services/api/AGENTS.md points to `../../docs/deploy.md`, names what the guide owns, and says when deployment work must read it.
+PASS The API-only test and deployment instructions do not remain duplicated in the root AGENTS.md.

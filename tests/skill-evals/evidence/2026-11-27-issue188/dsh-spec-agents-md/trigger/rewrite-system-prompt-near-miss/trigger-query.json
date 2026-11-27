@@ -1,0 +1,11 @@
+{
+  "id": "rewrite-system-prompt-near-miss",
+  "query": "Rewrite the support assistant's system prompt so it keeps the purpose and payment constraints visible and retrieves the refund policy only when needed.",
+  "query_sha256": "6b8983cf413042ff89c7279292500f11a23c2ea33db01625a6ad41032ed4545a",
+  "should_trigger": false,
+  "agent_file": "trigger-fixtures/AGENTS.md",
+  "currentness": {
+    "trigger_surface_sha256": "ad2df2663ca6ab46d98abccaa33fdabfdb3a3d6824f02cb6518919f267441f8c",
+    "trigger_corpus_sha256": "c939b15cb288634f6ea38410dc43444b4b76c45e35a45d4daf6904c64df1cb71"
+  }
+}
