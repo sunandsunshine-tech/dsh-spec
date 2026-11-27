@@ -1,0 +1,21 @@
+{
+  "id": "stable-identity-subscription-order",
+  "prompt": "Diagnose why editing one row in evals/files/stable-identity-subscription re-renders every row. Do not change code. State the smallest design that narrows the subscription while keeping row identity for unchanged rows, preserving update order and retaining the immediate initial event. Each scoped subscription must return an equivalent unsubscribe that removes its own listener without affecting the others. Include a falsifiable before/after check.",
+  "expected_output": "The response keeps the diagnosis read-only, identifies the whole-collection snapshot and cloned rows as the cause, proposes per-row subscription or equivalent selective delivery, and preserves stable identity for unchanged rows, ordered updates and the synchronous immediate initial event with a negative control. The scoped subscription returns teardown and the check proves that a removed listener receives no later update.",
+  "files": [
+    "evals/files/stable-identity-subscription/README.md",
+    "evals/files/stable-identity-subscription/package.json",
+    "evals/files/stable-identity-subscription/diagnose.mjs",
+    "evals/files/stable-identity-subscription/src/store.mjs",
+    "evals/files/stable-identity-subscription/tests/store.test.mjs"
+  ],
+  "assertions": [
+    "The response makes no production code change.",
+    "The response identifies whole-collection snapshots and cloned rows as the invalidation source.",
+    "The response narrows delivery without changing row identity for unchanged rows.",
+    "The response preserves update order and the immediate initial event.",
+    "The proposed scoped subscription returns teardown that removes only its own listener.",
+    "The response includes a negative control that fails with the original subscription behavior.",
+    "The response keeps collection order and subscriber behavior explicit."
+  ]
+}

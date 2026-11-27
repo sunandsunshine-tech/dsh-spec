@@ -99,6 +99,22 @@ export function isolatedGitEnvironment(extra = {}, inherited = process.env) {
   }
 }
 
+export function sanitizeHostAccountText(text, username) {
+  if (!username) return text
+  const escaped = username.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  return text
+    .replace(/([bcdlps-][rwxStTs-]{9}[+@.]?\s+\d+\s+)([^:\s]+):([^:\s]+)/g, (match, prefix, owner, group) => {
+      if (owner !== username && group !== username) return match
+      return `${prefix}${owner === username ? 'eval' : owner}:${group === username ? 'eval' : group}`
+    })
+    .replace(/([bcdlps-][rwxStTs-]{9}[+@.]?\s+\d+\s+)(\S+)(\s+)(\S+)/g, (match, prefix, owner, separator, group) => {
+      if (owner !== username && group !== username) return match
+      return `${prefix}${owner === username ? 'eval' : owner}${separator}${group === username ? 'eval' : group}`
+    })
+    .replace(new RegExp(`((?:uid|gid)=\\d+\\()${escaped}(\\))`, 'g'), '$1eval$2')
+    .replace(new RegExp(`(^|\\\\n|\\n)${escaped}(?=\\s+\\d+\\s+\\d+\\s+)`, 'gm'), '$1eval')
+}
+
 export function assertContained(root, path, label) {
   const local = relative(root, path)
   if (isAbsolute(local) || local === '..' || local.startsWith(`..${sep}`)) {

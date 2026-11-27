@@ -6,7 +6,7 @@ English | [中文](2026-11-25-single-source-ports-retain-upstream-semantic-stem.
 
 ## Problem
 
-The skill set contains single-source direct ports, single-source generalized ports and composites built from several upstream workflows. When every port receives an intent-based new name, an adopter cannot recognize its upstream source from the catalog, and historical evidence becomes difficult to map to the skill that now carries the same task family. The current performance skill is a concrete example: its behavior descends from `dsh-speed-up-perf`, but its name no longer preserves that semantic stem.
+The skill set contains single-source direct ports, single-source generalized ports and composites built from several upstream workflows. When every port receives an intent-based new name, an adopter cannot recognize its upstream source from the catalog, and historical evidence becomes difficult to map to the skill that now carries the same task family. The former performance skill was a concrete example before #135: its behavior descended from `dsh-speed-up-perf`, but its name did not preserve that semantic stem.
 
 ## Proposal
 
@@ -18,11 +18,13 @@ The direct-port renames in #126 ship two applications of the proposal: `dsh-ci-t
 
 Issue #144 implemented the proposal for a generalized single-source port. `dsh-ci-test-reliability` keeps its semantic stem as `dsh-spec-ci-test-reliability`, and the skill scopes the generalized behavior to CI or an equivalent test lane. Production performance remains outside it.
 
+Issue #135 applies the rule to the generalized performance port: `dsh-speed-up-perf` is installed as `dsh-spec-speed-up-perf`.
+
 `dsh-spec-agent-notes`, `dsh-spec-client-ui-ux` and `dsh-spec-prose-standard` retain composite names. Their forge records name the upstream workflows they incorporate. [README.md](../../../../README.md) exposes those merged inputs in the adopter-facing catalog.
 
 ### Unresolved decisions
 
-The current `dsh-spec-performance-investigation` skill is a single-source generalized port and does not yet satisfy the naming rule. Its substantive reforge remains proposed in [Reforge performance from dsh-speed-up-perf](../feature/2026-11-25-reforge-performance-as-dsh-speed-up-perf.md) and is tracked by #135. The implemented [performance investigation record](../../implemented/feature/2026-11-24-forging-dsh-spec-performance-investigation.md) remains the owner of the shipped skill until that reforge lands. A name-only alias is not the migration path.
+No mapping from #135 or #144 remains unresolved. The proposal stays open only while future single-source ports are reviewed against the rule.
 
 ### Migration boundary
 
@@ -41,7 +43,7 @@ A rename updates current skill directories, frontmatter, installed copies, packa
 - Every single-source direct or generalized port is named `dsh-spec-<upstream-semantic-stem>`.
 - Every composite or merged-scope name has a recorded upstream set and an explicit naming reason.
 - Current references use the proposed name consistently; historical evidence keeps its recorded names and hashes.
-- The performance reforge in #135 settles the remaining direct-port mapping without a name-only alias.
+- The #135 and #144 renames settle the known single-source mappings without name-only aliases.
 - The bilingual record and corpus checks pass when this proposal is implemented.
 
 ## Risks

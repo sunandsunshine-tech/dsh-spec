@@ -15,7 +15,7 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs'
-import { homedir, tmpdir } from 'node:os'
+import { homedir, tmpdir, userInfo } from 'node:os'
 import { createServer } from 'node:net'
 import { basename, dirname, isAbsolute, join, normalize, relative, resolve, sep } from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
@@ -50,6 +50,7 @@ import {
   resolveExecutableFile,
   resolveMiseMediaRoot,
   runInterruptible,
+  sanitizeHostAccountText,
   sandboxTmpfsArgs,
   singleTomlStringField,
   tomlField,
@@ -478,12 +479,15 @@ function capabilityMaskArgs(root, browserEnabled, mediaEnabled) {
 }
 
 function sanitizeEvidenceText(text) {
-  return text
-    .split(homedir())
-    .join('/home/eval')
-    .replace(/\/home\/(?!eval(?:\/|$))[^/\s"'`]+\/feedstock_root\/build_artifacts/g, '/opt/build')
-    .replace(/\/mnt\/c\//g, '/host/c/')
-    .replace(/\/tmp\//g, '/workspace/.runtime/')
+  return sanitizeHostAccountText(
+    text
+      .split(homedir())
+      .join('/home/eval')
+      .replace(/\/home\/(?!eval(?:\/|$))[^/\s"'`]+\/feedstock_root\/build_artifacts/g, '/opt/build')
+      .replace(/\/mnt\/c\//g, '/host/c/')
+      .replace(/\/tmp\//g, '/workspace/.runtime/'),
+    userInfo().username,
+  )
 }
 
 function configuredCodexHome() {
@@ -1375,6 +1379,7 @@ try {
   assertNoPrivacyCanariesInText('model stdout', result.stdout, privacyCanaries)
   assertNoPrivacyCanariesInText('model stderr', result.stderr, privacyCanaries)
   const modelTrace = sanitizeEvidenceText(result.stdout)
+  const sanitizedStderr = sanitizeEvidenceText(result.stderr)
   const tracePrefix = scenario
     ? {
         type: 'scenario',
@@ -1385,7 +1390,7 @@ try {
     : { type: 'query', id: trigger.id, query_sha256: sha256(trigger.query) }
   const trace = `${JSON.stringify(tracePrefix)}\n${modelTrace}`
   writeFileSync(join(stagedOutput, 'trace.jsonl'), trace)
-  writeFileSync(join(stagedOutput, 'stderr.log'), sanitizeEvidenceText(result.stderr))
+  writeFileSync(join(stagedOutput, 'stderr.log'), sanitizedStderr)
   writeFileSync(join(stagedOutput, 'time.txt'), `time_seconds: ${elapsed.toFixed(2)}\n`)
   assertAnswerManifestWasNotRead(trace)
   if (!collected || result.status !== 0) {

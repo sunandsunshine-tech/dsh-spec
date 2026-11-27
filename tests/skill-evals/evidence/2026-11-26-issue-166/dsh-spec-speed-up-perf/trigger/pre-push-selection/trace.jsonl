@@ -1,0 +1,5 @@
+{"type":"query","id":"pre-push-selection","query_sha256":"2250fe82326398a458df83efbe9a1ce3090b496304cd118c30505bb5681bf894"}
+{"type":"thread.started","thread_id":"01a21af9-13d8-7a90-8dbb-8b3fee53ccf3"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"No installed skill clearly applies: choosing pre-push tests is generic verification, not investigation or improvement of a production performance path. The dsh-spec-speed-up-perf skill would only fit if the diff concerned latency, throughput, CPU, memory, or responsiveness.\n\nSELECT: none"}}
+{"type":"turn.completed","usage":{"input_tokens":12405,"cached_input_tokens":12160,"cache_write_input_tokens":0,"output_tokens":158,"reasoning_output_tokens":101}}

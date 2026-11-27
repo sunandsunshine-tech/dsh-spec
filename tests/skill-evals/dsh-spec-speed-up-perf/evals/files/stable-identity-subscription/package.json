@@ -1,0 +1,9 @@
+{
+  "name": "performance-stable-identity-subscription",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "diagnose": "node diagnose.mjs",
+    "test": "node --test tests/store.test.mjs"
+  }
+}

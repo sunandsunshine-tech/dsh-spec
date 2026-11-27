@@ -1,0 +1,224 @@
+diff --git a/evals/files/frontend-input-to-paint/measure.mjs b/evals/files/frontend-input-to-paint/measure.mjs
+index f7dbcab..bb1016e 100644
+--- a/evals/files/frontend-input-to-paint/measure.mjs
++++ b/evals/files/frontend-input-to-paint/measure.mjs
+@@ -82,13 +82,42 @@ async function waitForMeasurement(connection) {
+   throw new Error('visible search update did not complete')
+ }
+ 
++function metricsByName(metrics) {
++  return Object.fromEntries(metrics.map(({ name, value }) => [name, value]))
++}
++
++function metricDelta(before, after, name) {
++  return Number((((after[name] ?? 0) - (before[name] ?? 0)) * 1_000).toFixed(3))
++}
++
++function summarizeProfile(profile) {
++  const nodes = new Map(profile.nodes.map((node) => [node.id, node]))
++  const selfTimeByNode = new Map()
++  for (let index = 0; index < profile.samples.length; index += 1) {
++    const nodeId = profile.samples[index]
++    selfTimeByNode.set(nodeId, (selfTimeByNode.get(nodeId) ?? 0) + profile.timeDeltas[index])
++  }
++
++  return [...selfTimeByNode]
++    .map(([nodeId, microseconds]) => {
++      const frame = nodes.get(nodeId).callFrame
++      return {
++        functionName: frame.functionName || '(anonymous)',
++        source: frame.url ? `${frame.url.split('/').at(-1)}:${frame.lineNumber + 1}` : '(native)',
++        selfMs: Number((microseconds / 1_000).toFixed(3)),
++      }
++    })
++    .sort((left, right) => right.selfMs - left.selfMs)
++    .slice(0, 8)
++}
++
+ const chrome = findChrome()
+ if (!chrome) {
+   console.error('MISSING_BROWSER: set CHROME_PATH to a Chrome or Chromium executable')
+   process.exit(1)
+ }
+ 
+-const profile = mkdtempSync(join(tmpdir(), 'performance-browser-profile-'))
++const browserProfile = mkdtempSync(join(tmpdir(), 'performance-browser-profile-'))
+ const { server, url } = await startStaticServer()
+ let browser
+ let connection
+@@ -101,13 +130,13 @@ try {
+       '--no-first-run',
+       '--no-sandbox',
+       '--remote-debugging-port=0',
+-      `--user-data-dir=${profile}`,
++      `--user-data-dir=${browserProfile}`,
+       `${url}/`,
+     ],
+     { stdio: 'ignore' },
+   )
+ 
+-  const activePort = await waitForFile(join(profile, 'DevToolsActivePort'))
++  const activePort = await waitForFile(join(browserProfile, 'DevToolsActivePort'))
+   const [port] = activePort.trim().split('\n')
+   const targets = await fetch(`http://127.0.0.1:${port}/json/list`).then((response) => response.json())
+   const page = targets.find((target) => target.type === 'page')
+@@ -116,6 +145,8 @@ try {
+   await connection.open()
+   await connection.call('Runtime.enable')
+   await connection.call('Page.enable')
++  await connection.call('Performance.enable')
++  await connection.call('Profiler.enable')
+   await connection.call('Page.navigate', { url: `${url}/` })
+   let ready = false
+   for (let attempt = 0; attempt < 100; attempt += 1) {
+@@ -128,22 +159,99 @@ try {
+   }
+   if (!ready) throw new Error('search page did not load')
+ 
++  const resources = await evaluate(
++    connection,
++    `performance.getEntriesByType('resource').map(({ name, duration, transferSize }) => ({
++      name: new URL(name).pathname,
++      durationMs: Number(duration.toFixed(3)),
++      transferBytes: transferSize,
++    }))`,
++  )
++  await evaluate(
++    connection,
++    "document.querySelector('#query').focus(); window.__lastMeasurement = null",
++  )
++  await connection.call('Input.insertText', { text: 'light' })
++  await waitForMeasurement(connection)
++
+   const samples = []
+   for (let index = 0; index < 5; index += 1) {
+     await evaluate(
+       connection,
+-      "document.querySelector('#query').value = ''; document.querySelector('#query').focus(); window.__lastMeasurement = null",
++      `(() => {
++        const query = document.querySelector('#query');
++        query.value = '';
++        query.focus();
++        window.__lastInputStart = null;
++        window.__lastMeasurement = null;
++        query.addEventListener('input', () => {
++          window.__lastInputStart = performance.now();
++        }, { capture: true, once: true });
++      })()`,
+     )
++    const beforeMetrics = metricsByName((await connection.call('Performance.getMetrics')).metrics)
+     await connection.call('Input.insertText', { text: 'light' })
+     const measurement = await waitForMeasurement(connection)
+-    samples.push(Number((measurement.finish - measurement.start).toFixed(3)))
++    const inputStart = await evaluate(connection, 'window.__lastInputStart')
++    const visible = await evaluate(
++      connection,
++      `({
++        rows: document.querySelector('#results').children.length,
++        summary: document.querySelector('#summary').textContent,
++        first: document.querySelector('#results').firstElementChild?.textContent ?? '',
++      })`,
++    )
++    if (
++      visible.rows !== measurement.count
++      || visible.summary !== `${measurement.count} visible results`
++      || !visible.first
++    ) {
++      throw new Error('filtered result was not visible at measurement completion')
++    }
++    const afterMetrics = metricsByName((await connection.call('Performance.getMetrics')).metrics)
++    samples.push({
++      inputToVisibleMs: Number((measurement.finish - inputStart).toFixed(3)),
++      handlerMs: Number((measurement.finish - measurement.start).toFixed(3)),
++      scriptMs: metricDelta(beforeMetrics, afterMetrics, 'ScriptDuration'),
++      styleMs: metricDelta(beforeMetrics, afterMetrics, 'RecalcStyleDuration'),
++      layoutMs: metricDelta(beforeMetrics, afterMetrics, 'LayoutDuration'),
++      taskMs: metricDelta(beforeMetrics, afterMetrics, 'TaskDuration'),
++      count: measurement.count,
++      rows: visible.rows,
++    })
+   }
+ 
+-  const ordered = [...samples].sort((left, right) => left - right)
+-  console.log(JSON.stringify({ samplesMs: samples, medianMs: ordered[Math.floor(ordered.length / 2)] }))
++  const summarize = (name) => {
++    const ordered = samples.map((sample) => sample[name]).sort((left, right) => left - right)
++    return {
++      medianMs: ordered[Math.floor(ordered.length / 2)],
++      rangeMs: [ordered[0], ordered.at(-1)],
++    }
++  }
++  await evaluate(
++    connection,
++    "document.querySelector('#query').value = ''; document.querySelector('#query').focus(); window.__lastMeasurement = null",
++  )
++  await connection.call('Profiler.setSamplingInterval', { interval: 100 })
++  await connection.call('Profiler.start')
++  await connection.call('Input.insertText', { text: 'light' })
++  await waitForMeasurement(connection)
++  const { profile: cpuProfile } = await connection.call('Profiler.stop')
++  console.log(JSON.stringify({
++    samples,
++    summary: Object.fromEntries(
++      ['inputToVisibleMs', 'handlerMs', 'scriptMs', 'styleMs', 'layoutMs', 'taskMs']
++        .map((name) => [name, summarize(name)]),
++    ),
++    profile: {
++      totalMs: Number(((cpuProfile.endTime - cpuProfile.startTime) / 1_000).toFixed(3)),
++      topSelfTime: summarizeProfile(cpuProfile),
++    },
++    initialLoadResources: resources,
++  }))
+ } finally {
+   connection?.close()
+   browser?.kill('SIGKILL')
+   await new Promise((resolve) => server.close(resolve))
+-  rmSync(profile, { recursive: true, force: true })
++  rmSync(browserProfile, { recursive: true, force: true })
+ }
+diff --git a/evals/files/frontend-input-to-paint/src/filter.mjs b/evals/files/frontend-input-to-paint/src/filter.mjs
+index 54cafe0..2137bf1 100644
+--- a/evals/files/frontend-input-to-paint/src/filter.mjs
++++ b/evals/files/frontend-input-to-paint/src/filter.mjs
+@@ -16,6 +16,12 @@ export function filterProducts(items, rawQuery) {
+   if (!query) return []
+   const tokens = query.split(/\s+/)
+   const matches = []
++  const scoreBoosts = new Map()
++
++  for (const item of items) {
++    scoreBoosts.set(item.category, (scoreBoosts.get(item.category) ?? 0) + 1)
++    scoreBoosts.set(item.color, (scoreBoosts.get(item.color) ?? 0) + 1)
++  }
+ 
+   for (const item of items) {
+     const search = `${item.name} ${item.category} ${item.color}`.toLowerCase()
+@@ -23,10 +29,7 @@ export function filterProducts(items, rawQuery) {
+ 
+     let score = item.rank
+     for (const token of tokens) {
+-      for (const candidate of items) {
+-        if (candidate.category === token) score += 1
+-        if (candidate.color === token) score += 1
+-      }
++      score += scoreBoosts.get(token) ?? 0
+     }
+     matches.push({ ...item, score })
+   }
+diff --git a/evals/files/frontend-input-to-paint/tests/input-behavior.test.mjs b/evals/files/frontend-input-to-paint/tests/input-behavior.test.mjs
+index 488b30a..25942c7 100644
+--- a/evals/files/frontend-input-to-paint/tests/input-behavior.test.mjs
++++ b/evals/files/frontend-input-to-paint/tests/input-behavior.test.mjs
+@@ -13,5 +13,12 @@ test('visible filtering keeps all matching product identities in ranked order',
+       .sort((left, right) => right.score - left.score || left.id.localeCompare(right.id))
+       .map((product) => product.id),
+   )
++  const lightCount = products.filter((product) => product.category === 'light').length
++  const redCount = products.filter((product) => product.color === 'red').length
++  assert.ok(
++    matches.every(
++      (product) => product.score === product.rank + lightCount + redCount,
++    ),
++  )
+   assert.equal(filterProducts(products, '').length, 0)
+ })

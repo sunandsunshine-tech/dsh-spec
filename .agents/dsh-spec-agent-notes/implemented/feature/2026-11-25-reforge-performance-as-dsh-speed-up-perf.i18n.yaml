@@ -1,0 +1,46 @@
+# Pairing consistency record for 2026-11-25-reforge-performance-as-dsh-speed-up-perf.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/feature/2026-11-25-reforge-performance-as-dsh-speed-up-perf.md --target <lang>
+/agent-note-reforge-performance-as-dsh-spec-speed-up-perf:
+  en: 9b3af65b0efd75af
+  zh: 87e9fb2942f5a5b8
+/agent-note-reforge-performance-as-dsh-spec-speed-up-perf/problem:
+  en: 9a7121ffd005fd4e
+  zh: bcf3ab93a5c20f04
+/agent-note-reforge-performance-as-dsh-spec-speed-up-perf/decision:
+  en: 850e9d236da69de7
+  zh: 88c7cd5f49a77d0f
+/agent-note-reforge-performance-as-dsh-spec-speed-up-perf/decision/settings:
+  en: ef1cfaf35cedcd98
+  zh: c9de17f44b10c6bc
+/agent-note-reforge-performance-as-dsh-spec-speed-up-perf/decision/source-constraints:
+  en: de906f221fdc3505
+  zh: 68a2459ac6740ebb
+/agent-note-reforge-performance-as-dsh-spec-speed-up-perf/decision/dispositions:
+  en: 00160ebdf4d7032b
+  zh: 8b9fc6a21a4e21dc
+/agent-note-reforge-performance-as-dsh-spec-speed-up-perf/decision/rulings:
+  en: cd6c9965996d5174
+  zh: 9667225120ff1590
+/agent-note-reforge-performance-as-dsh-spec-speed-up-perf/decision/verification:
+  en: 04365fcba7d5f849
+  zh: b6032d99947ac7a0
+/agent-note-reforge-performance-as-dsh-spec-speed-up-perf/decision/capability-conclusions:
+  en: 381514b2f6377fc6
+  zh: fa9f9af61bf7d66b
+/agent-note-reforge-performance-as-dsh-spec-speed-up-perf/decision/pages-read:
+  en: cf7285d553772c67
+  zh: 01c9614f2c1b61fa
+/agent-note-reforge-performance-as-dsh-spec-speed-up-perf/decision/risks-and-rollback:
+  en: e252e7fe3eb78223
+  zh: 356979324c6d4837
+/agent-note-reforge-performance-as-dsh-spec-speed-up-perf/alternatives-considered:
+  en: 7f4b6ad1a4492f25
+  zh: efccc4e3badb28a7
+/agent-note-reforge-performance-as-dsh-spec-speed-up-perf/consequences:
+  en: ea3a2ef967bfd1c9
+  zh: a15fe3e3b95b51c1
+/agent-note-reforge-performance-as-dsh-spec-speed-up-perf/consequences/publish-state:
+  en: 975535c4e3f7839c
+  zh: 83ab4b7e100269f7

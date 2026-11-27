@@ -274,8 +274,8 @@ test('claim typing distinguishes behavior, trigger and comparative evidence', ()
   assert.equal(comparison.type, 'comparison')
   assert.match(comparison.comparison?.conditionsSha256 ?? '', /^[0-9a-f]{64}$/)
   assert.equal(
-    policy.claimForScenario('dsh-spec-performance-investigation', {
-      id: 'backend-budgetless-latency',
+    policy.claimForScenario('dsh-spec-speed-up-perf', {
+      id: 'measurement-decisions',
       comparison: {
         baseline: 'target-absent',
         candidate: 'target-present',
@@ -1367,7 +1367,7 @@ test('common retained-run validation rejects stale evidence and leaked canaries'
 test('model evidence requires every subject-selected privacy set and a portable current-home identity', () => {
   const create = (privacyCanaries: Array<{ set: string; value: string }>, currentHome = '/home/test') =>
     policy.createModelEvidenceMetadata({
-      skill: 'dsh-spec-performance-investigation',
+      skill: 'dsh-spec-speed-up-perf',
       scenario: {
         id: 'private-corpus-remains-aggregate',
         prompt: 'Private corpus prompt.',
@@ -1384,7 +1384,7 @@ test('model evidence requires every subject-selected privacy set and a portable 
       currentHome,
       execution,
     })
-  const valid = policy.privacyCanariesFor('dsh-spec-performance-investigation', 'private-corpus-remains-aggregate', {
+  const valid = policy.privacyCanariesFor('dsh-spec-speed-up-perf', 'private-corpus-remains-aggregate', {
     includeCurrentHome: true,
     currentHome: '/home/test',
   })
@@ -1497,7 +1497,7 @@ test('the privacy canary set covers every high-confidence value in the private f
     join(
       import.meta.dirname,
       'skill-evals',
-      'dsh-spec-performance-investigation',
+      'dsh-spec-speed-up-perf',
       'evals',
       'files',
       'private-corpus',

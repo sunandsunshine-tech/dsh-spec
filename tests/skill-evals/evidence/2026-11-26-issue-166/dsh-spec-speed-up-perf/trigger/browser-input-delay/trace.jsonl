@@ -1,0 +1,5 @@
+{"type":"query","id":"browser-input-delay","query_sha256":"c45709200a41871e5028413f7fb5e36649082d23f2722ba255b2e3420e0cd570"}
+{"type":"thread.started","thread_id":"01a21af9-02cc-7022-b294-2cfc2a3a133f"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The request is a production UI responsiveness investigation involving input latency and root-cause profiling, which directly matches the performance-analysis scope of the installed skill.\n\nSELECT: dsh-spec-speed-up-perf"}}
+{"type":"turn.completed","usage":{"input_tokens":12413,"cached_input_tokens":12160,"cache_write_input_tokens":0,"output_tokens":136,"reasoning_output_tokens":97}}

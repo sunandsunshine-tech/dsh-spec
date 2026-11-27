@@ -1,0 +1,11 @@
+{
+  "id": "cli-startup",
+  "query": "Our CLI takes four seconds to start. Measure the built executable and reduce the startup work.",
+  "query_sha256": "4b5fcdc4f6357bd16f5554bc8c8af15219e8b8221715cb99ed0b19c134f0cb4e",
+  "should_trigger": true,
+  "agent_file": "trigger-fixtures/AGENTS.md",
+  "currentness": {
+    "trigger_surface_sha256": "15d0a9d6d97d9b595dad1fbad81d03d9171422840ebf6a0f4b5f448d200395b6",
+    "trigger_corpus_sha256": "99b6ac75a489f57a9bce0000dae8a8328242d3d55542a9e185e97e221e1e93de"
+  }
+}

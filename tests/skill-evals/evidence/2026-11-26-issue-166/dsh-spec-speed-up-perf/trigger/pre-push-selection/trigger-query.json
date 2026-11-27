@@ -1,0 +1,11 @@
+{
+  "id": "pre-push-selection",
+  "query": "Choose the smallest tests and checks I should run before pushing this diff.",
+  "query_sha256": "2250fe82326398a458df83efbe9a1ce3090b496304cd118c30505bb5681bf894",
+  "should_trigger": false,
+  "agent_file": "trigger-fixtures/AGENTS.md",
+  "currentness": {
+    "trigger_surface_sha256": "15d0a9d6d97d9b595dad1fbad81d03d9171422840ebf6a0f4b5f448d200395b6",
+    "trigger_corpus_sha256": "99b6ac75a489f57a9bce0000dae8a8328242d3d55542a9e185e97e221e1e93de"
+  }
+}

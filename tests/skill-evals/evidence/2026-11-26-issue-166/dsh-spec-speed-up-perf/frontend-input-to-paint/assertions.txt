@@ -1,0 +1,5 @@
+PASS The response uses the built application and real browser input.
+PASS The response measures through the visible filtered result rather than a function benchmark alone.
+PASS The response identifies work repeated on each input as the dominant browser-side cost.
+PASS The candidate preserves the matching products and ordering.
+PASS The report keeps the browser boundary and raw sample values visible.

@@ -1,0 +1,6 @@
+{
+  "id": "cli-startup",
+  "should_trigger": true,
+  "selected": true,
+  "result": "pass"
+}

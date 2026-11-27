@@ -1,0 +1,5 @@
+PASS The response names one decimal place as the authorized visible difference.
+PASS The candidate preserves row order and totals.
+PASS The owning check verifies the authorized one-decimal output.
+PASS The response does not claim an unmeasured performance gain from the output-precision change.
+PASS The response reports the behavior-only scope and its remaining limits.

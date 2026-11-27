@@ -1,0 +1,7 @@
+PASS The response makes no production code change.
+PASS The response identifies whole-collection snapshots and cloned rows as the invalidation source.
+PASS The response narrows delivery without changing row identity for unchanged rows.
+PASS The response preserves update order and the immediate initial event.
+PASS The proposed scoped subscription returns teardown that removes only its own listener.
+PASS The response includes a negative control that fails with the original subscription behavior.
+PASS The response keeps collection order and subscriber behavior explicit.

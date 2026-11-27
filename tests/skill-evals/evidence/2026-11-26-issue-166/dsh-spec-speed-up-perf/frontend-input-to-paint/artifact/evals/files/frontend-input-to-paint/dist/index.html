@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Search performance fixture</title>
+    <style>
+      body { font: 16px/1.5 system-ui, sans-serif; margin: 2rem; }
+      input { box-sizing: border-box; font: inherit; padding: .6rem; width: min(32rem, 100%); }
+      ol { padding-left: 1.5rem; }
+      .meta { color: #555; }
+    </style>
+  </head>
+  <body>
+    <h1>Inventory search</h1>
+    <label for="query">Search</label>
+    <input id="query" autocomplete="off" />
+    <p class="meta" id="summary">No results</p>
+    <ol id="results"></ol>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

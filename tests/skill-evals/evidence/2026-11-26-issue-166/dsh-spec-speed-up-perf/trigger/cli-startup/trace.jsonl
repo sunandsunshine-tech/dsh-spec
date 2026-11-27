@@ -1,0 +1,5 @@
+{"type":"query","id":"cli-startup","query_sha256":"4b5fcdc4f6357bd16f5554bc8c8af15219e8b8221715cb99ed0b19c134f0cb4e"}
+{"type":"thread.started","thread_id":"01a21af8-cc1c-7101-bb13-990d45fe399e"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The request targets startup latency in a built CLI executable, including measurement and behavior-preserving reduction, which is squarely covered by the performance optimization skill.\n\nSELECT: dsh-spec-speed-up-perf"}}
+{"type":"turn.completed","usage":{"input_tokens":12409,"cached_input_tokens":12160,"cache_write_input_tokens":0,"output_tokens":200,"reasoning_output_tokens":160}}

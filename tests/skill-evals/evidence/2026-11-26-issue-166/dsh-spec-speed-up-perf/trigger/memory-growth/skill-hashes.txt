@@ -1,0 +1,2 @@
+9e5f67bf04461b19b0c7bd7caf8033dea52c15150c0e9a3e11c14d99bcdf4d5d  skills/dsh-spec-speed-up-perf/SKILL.md  mode=0644
+02a3de767329bcc44c06fcdaa9d396e4a6c249eb4849a95da829783f62ea57d8  skills/dsh-spec-speed-up-perf/THIRD_PARTY_NOTICES  mode=0644

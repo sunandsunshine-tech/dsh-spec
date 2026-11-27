@@ -74,6 +74,7 @@ const safety = (await import('./skill-evals/runner-safety.mjs' as string)) as {
   resolveCapability(name: string, requested: boolean | undefined, available: boolean): boolean
   resolveExecutableFile(path: string): string | undefined
   resolveMiseMediaRoot(miseInstalls: string): string | undefined
+  sanitizeHostAccountText(text: string, username: string): string
   sandboxTmpfsArgs(limits?: Record<string, number>, options?: { includeWorkspace?: boolean }): string[]
   singleTomlStringField(lines: string[], key: string, label: string): string | undefined
   tomlField(lines: string[], key: string): string | undefined
@@ -469,8 +470,8 @@ test('trigger runner rejects scenario mode, comparison options and writable work
 test('runner path preflight diagnostics redact configured canaries', () => {
   const repository = dirname(import.meta.dirname)
   const runner = join(repository, 'tests/skill-evals/run-model-eval.mjs')
-  const skill = 'dsh-spec-performance-investigation'
-  const scenario = 'backend-budgetless-latency'
+  const skill = 'dsh-spec-speed-up-perf'
+  const scenario = 'measurement-decisions'
   const canaries = policy.privacyCanariesFor(skill, scenario, {
     includeCurrentHome: true,
     currentHome: homedir(),
@@ -542,16 +543,15 @@ test('the runner rejects a target-absent arm before starting a behavior scenario
 
 test('the runner rejects a target-absent comparison arm without a counterpart before model start', () => {
   const repository = dirname(import.meta.dirname)
-  const output =
-    'tests/skill-evals/evidence/2099-12-31-target-absent-comparison/dsh-spec-performance-investigation/baseline'
+  const output = 'tests/skill-evals/evidence/2099-12-31-target-absent-comparison/dsh-spec-speed-up-perf/baseline'
   const result = spawnSync(
     process.execPath,
     [
       join(repository, 'tests/skill-evals/run-model-eval.mjs'),
       '--skill',
-      'dsh-spec-performance-investigation',
+      'dsh-spec-speed-up-perf',
       '--scenario',
-      'backend-budgetless-latency',
+      'measurement-decisions',
       '--output',
       output,
       '--arm',
@@ -635,6 +635,29 @@ test('capability defaults follow host state and explicit requirements fail close
   assert.ok(safety.capabilityMaskPaths(false, false).includes('/usr/bin/ffmpeg'))
   assert.ok(safety.capabilityMaskPaths(false, false).includes('/usr/bin/chromium'))
   assert.deepEqual(safety.capabilityMaskPaths(true, true), [])
+})
+
+test('host account sanitization targets ownership fields without rewriting technical words', () => {
+  const raw = [
+    'drwxr-xr-x 2 node node 4096 Nov 26 12:00 project',
+    '-rwxr-xr-x 755 node:node /opt/tool',
+    'node --version',
+    'uid=1000(node) gid=1000(node) groups=1000(node)',
+    'node 123 1 0 Nov26 ? 00:00:00 worker',
+  ].join('\n')
+  const sanitized = safety.sanitizeHostAccountText(raw, 'node')
+  assert.match(sanitized, /^drwxr-xr-x 2 eval eval /m)
+  assert.match(sanitized, /^-rwxr-xr-x 755 eval:eval /m)
+  assert.match(sanitized, /^node --version$/m)
+  assert.match(sanitized, /uid=1000\(eval\) gid=1000\(eval\)/)
+  assert.match(sanitized, /^eval 123 1 0 /m)
+
+  const encoded = safety.sanitizeHostAccountText(JSON.stringify({ output: raw }), 'node')
+  assert.match(encoded, /drwxr-xr-x 2 eval eval /)
+  assert.match(encoded, /-rwxr-xr-x 755 eval:eval /)
+  assert.match(encoded, /node --version/)
+  assert.match(encoded, /uid=1000\(eval\) gid=1000\(eval\)/)
+  assert.match(encoded, /\\neval 123 1 0 /)
 })
 
 test('media capability resolves executables that can be mounted into the sandbox', async () => {
@@ -1595,7 +1618,7 @@ test('the real model runner binds comparison linkage and rejects stale counterpa
   const root = mkdtempSync(join(tmpdir(), 'runner-target-absent-'))
   const evidenceDate = '2099-12-31-runner-target-absent'
   const cleanupRoot = join(repository, 'tests', 'skill-evals', 'evidence', evidenceDate)
-  const skill = 'dsh-spec-performance-investigation'
+  const skill = 'dsh-spec-speed-up-perf'
   const candidateOutput = join(cleanupRoot, skill, 'candidate')
   const baselineOutput = join(cleanupRoot, skill, 'baseline')
   try {
@@ -1616,7 +1639,7 @@ test('the real model runner binds comparison linkage and rejects stale counterpa
       '--skill',
       skill,
       '--scenario',
-      'backend-budgetless-latency',
+      'measurement-decisions',
       '--output',
       candidateOutput,
       '--sandbox',
@@ -1636,7 +1659,7 @@ test('the real model runner binds comparison linkage and rejects stale counterpa
       '--skill',
       skill,
       '--scenario',
-      'backend-budgetless-latency',
+      'measurement-decisions',
       '--output',
       baselineOutput,
       '--counterpart',
@@ -1678,7 +1701,7 @@ test('the real model runner binds comparison linkage and rejects stale counterpa
       '--skill',
       skill,
       '--scenario',
-      'backend-budgetless-latency',
+      'measurement-decisions',
       '--output',
       forgedCurrentnessOutput,
       '--counterpart',
@@ -1713,7 +1736,7 @@ test('the real model runner binds comparison linkage and rejects stale counterpa
       '--skill',
       skill,
       '--scenario',
-      'backend-budgetless-latency',
+      'measurement-decisions',
       '--output',
       forgedProvenanceOutput,
       '--counterpart',
@@ -1733,7 +1756,7 @@ test('the real model runner binds comparison linkage and rejects stale counterpa
       '--skill',
       skill,
       '--scenario',
-      'backend-budgetless-latency',
+      'measurement-decisions',
       '--output',
       baselineOutput,
       '--counterpart',
@@ -1805,7 +1828,7 @@ test('the real model runner binds comparison linkage and rejects stale counterpa
       '--skill',
       skill,
       '--scenario',
-      'backend-budgetless-latency',
+      'measurement-decisions',
       '--output',
       arbitraryBaselineOutput,
       '--counterpart',
@@ -1826,7 +1849,7 @@ test('the real model runner binds comparison linkage and rejects stale counterpa
       '--skill',
       skill,
       '--scenario',
-      'backend-budgetless-latency',
+      'measurement-decisions',
       '--output',
       staleBaselineOutput,
       '--counterpart',
@@ -1848,7 +1871,7 @@ test('the real model runner binds comparison linkage and rejects stale counterpa
     const corpus = JSON.parse(
       readFileSync(join(repository, 'tests', 'skill-evals', skill, 'evals', 'evals.json'), 'utf8'),
     ) as { evals: Array<{ id: string; prompt: string; comparison: Record<string, unknown> }> }
-    const scenario = corpus.evals.find((entry) => entry.id === 'backend-budgetless-latency')
+    const scenario = corpus.evals.find((entry) => entry.id === 'measurement-decisions')
     assert.ok(scenario)
     const candidateEvidenceHash = policy.hashEvidenceMetadata(candidateOutput)
     const baselineEvidenceHash = policy.hashEvidenceMetadata(baselineOutput)
@@ -1874,7 +1897,7 @@ test('the real model runner rejects a privacy canary in model output before prom
   const root = mkdtempSync(join(tmpdir(), 'runner-privacy-canary-'))
   const evidenceDate = '2099-12-31-runner-privacy-canary'
   const cleanupRoot = join(repository, 'tests', 'skill-evals', 'evidence', evidenceDate)
-  const skill = 'dsh-spec-performance-investigation'
+  const skill = 'dsh-spec-speed-up-perf'
   const output = join(cleanupRoot, skill, 'private-corpus-remains-aggregate')
   try {
     const { codexHome, bin } = createFakeCodexHarness(root)
@@ -1898,6 +1921,46 @@ test('the real model runner rejects a privacy canary in model output before prom
     ])
     assert.notEqual(result.status, 0)
     assert.match(String(result.stderr), /model stdout.*private-performance-corpus/)
+    assert.equal(existsSync(output), false)
+  } finally {
+    rmSync(cleanupRoot, { recursive: true, force: true })
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('the real model runner rejects the raw host home path before sanitization', (t) => {
+  if (!bwrapAvailable()) {
+    t.skip('bubblewrap namespaces and --size are unavailable on this host')
+    return
+  }
+  const repository = dirname(import.meta.dirname)
+  const root = mkdtempSync(join(tmpdir(), 'runner-home-canary-'))
+  const evidenceDate = '2099-12-31-runner-home-canary'
+  const cleanupRoot = join(repository, 'tests', 'skill-evals', 'evidence', evidenceDate)
+  const skill = 'dsh-spec-speed-up-perf'
+  const output = join(cleanupRoot, skill, 'private-corpus-remains-aggregate')
+  try {
+    const { codexHome, bin } = createFakeCodexHarness(root)
+    const fakeCodex = join(bin, 'fake-codex')
+    writeFakeCodex(fakeCodex, [
+      "const fs = require('node:fs')",
+      `const leaked = ${JSON.stringify(homedir())}`,
+      "fs.writeFileSync('/response/final.md', 'clean answer\\n')",
+      `process.stdout.write(JSON.stringify({ type: 'item.completed', item: { type: 'agent_message', text: 'clean answer\\n', aggregated_output: leaked } }) + '\\n')`,
+      `process.stdout.write(JSON.stringify({ type: 'turn.completed', usage: { input_tokens: 1, output_tokens: 1 } }) + '\\n')`,
+    ])
+    const result = runFakeModelRunner(repository, codexHome, fakeCodex, [
+      '--skill',
+      skill,
+      '--scenario',
+      'private-corpus-remains-aggregate',
+      '--output',
+      output,
+      '--sandbox',
+      'workspace-write',
+    ])
+    assert.notEqual(result.status, 0)
+    assert.match(String(result.stderr), /model stdout.*current-home/)
     assert.equal(existsSync(output), false)
   } finally {
     rmSync(cleanupRoot, { recursive: true, force: true })

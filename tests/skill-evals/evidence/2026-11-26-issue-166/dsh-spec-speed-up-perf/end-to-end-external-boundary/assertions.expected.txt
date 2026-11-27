@@ -1,0 +1,5 @@
+PASS The response makes no production code change.
+PASS The complete checkout path and local server work are measured separately.
+PASS The external shipping-quote delay is identified as the dominant boundary.
+PASS The controlled zero-delay run distinguishes the external cost from local processing.
+PASS The report labels the remaining external-service and environment limits.

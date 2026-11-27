@@ -1,0 +1,9 @@
+{
+  "name": "performance-authorized-deliberate-difference",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "measure": "node measure.mjs",
+    "test": "node --test tests/report.test.mjs"
+  }
+}
