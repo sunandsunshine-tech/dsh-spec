@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "claim": {
+    "type": "trigger",
+    "subject": "dsh-spec-find-simplifications:trigger"
+  },
+  "arm": null,
+  "comparison": null,
+  "evidence": {
+    "kind": "model",
+    "currentness": {
+      "trigger_surface_sha256": "6a98ba64dd7d24a02494d508784682c2eeb185d622671a6488c336ecf9fbf30f",
+      "trigger_corpus_sha256": "a082f02209257f89507edf2da8b6ac30cd7272537b23a9de15dbe52cdc15476a"
+    }
+  },
+  "execution": {
+    "auth": "host-proxy",
+    "browser": false,
+    "media": false,
+    "model_config_sha256": "81fe0a5e2d45e2a687f9ff2d811dd45cca60b986eeb96b994e9255e9eda70e1c",
+    "model_runtime_sha256": "63279cf1860a285495fa0bad3c40f5eb38c3487f7425adb603bcbd49175fcaf8",
+    "sandbox": "read-only",
+    "subagents": false
+  },
+  "deadline_ms": 1800000,
+  "privacy": {
+    "canary_sets": [
+      "current-home",
+      "local-environment"
+    ],
+    "scope_sha256": "2b910be53fbe40382a58ac7b2d82bffe01809fb589a28caca231ac26a8090db2",
+    "surfaces": "all-retained-files"
+  }
+}

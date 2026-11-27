@@ -1,0 +1,6 @@
+{
+  "id": "dead-code-simplification",
+  "should_trigger": true,
+  "selected": true,
+  "result": "pass"
+}

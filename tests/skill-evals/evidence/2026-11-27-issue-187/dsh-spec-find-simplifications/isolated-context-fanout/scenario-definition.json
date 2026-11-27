@@ -1,0 +1,19 @@
+{
+  "id": "isolated-context-fanout",
+  "prompt": "The host provides isolated subagents. Survey the runtime, documentation, and tests in the provided evals/files/vendor/project/ fixture for evidence-backed simplifications and report each domain's consumer evidence and rejected alternatives.",
+  "expected_output": "The domains are assigned to isolated contexts when available, and the combined report preserves each domain's evidence and rejects unsupported deletions.",
+  "allow_subagents": true,
+  "files": [
+    "evals/files/vendor/project/README.md",
+    "evals/files/vendor/project/src/runtime.ts",
+    "evals/files/vendor/project/src/dead.ts",
+    "evals/files/vendor/project/docs/guide.md",
+    "evals/files/vendor/project/tests/runtime.check.ts"
+  ],
+  "assertions": [
+    "The work uses isolated contexts for the independent domains when available.",
+    "Each domain reports consumer evidence and rejected alternatives.",
+    "The combined report does not stop after the first promising deletion.",
+    "The run does not require a particular subagent count, depth, or tool name."
+  ]
+}

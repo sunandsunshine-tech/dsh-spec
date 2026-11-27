@@ -1,0 +1,3 @@
+e2e4b173f070b709bfbc6bda2059d0d5d92901ed645185b6fd7c078723fe7b60  skills/dsh-spec-find-simplifications/SKILL.md  mode=0644
+becfb86c9cc7480922f52af3b4ceddf53b46291f401fb32f56d8894e0629e262  skills/dsh-spec-find-simplifications/THIRD_PARTY_NOTICES  mode=0644
+bf54a061c6e1a3997979ddff6153b6fc4057808829944f526b8b0be56d647d73  skills/dsh-spec-find-simplifications/references/historical-patterns.md  mode=0644

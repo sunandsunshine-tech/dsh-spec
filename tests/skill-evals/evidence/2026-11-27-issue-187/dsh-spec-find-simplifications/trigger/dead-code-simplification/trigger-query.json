@@ -1,0 +1,11 @@
+{
+  "id": "dead-code-simplification",
+  "query": "Audit this module for dead or duplicated code and propose evidence-backed deletions that remove maintained obligations.",
+  "query_sha256": "e7dc2cb776dd277dcf1b0164de17e67577cf1e7550bf3aef865c5419b23cc169",
+  "should_trigger": true,
+  "agent_file": "trigger-fixtures/AGENTS.md",
+  "currentness": {
+    "trigger_surface_sha256": "6a98ba64dd7d24a02494d508784682c2eeb185d622671a6488c336ecf9fbf30f",
+    "trigger_corpus_sha256": "a082f02209257f89507edf2da8b6ac30cd7272537b23a9de15dbe52cdc15476a"
+  }
+}

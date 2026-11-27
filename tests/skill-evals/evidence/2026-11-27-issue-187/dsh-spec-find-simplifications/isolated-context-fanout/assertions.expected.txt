@@ -1,0 +1,4 @@
+PASS The work uses isolated contexts for the independent domains when available.
+PASS Each domain reports consumer evidence and rejected alternatives.
+PASS The combined report does not stop after the first promising deletion.
+PASS The run does not require a particular subagent count, depth, or tool name.

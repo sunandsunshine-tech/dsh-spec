@@ -1,0 +1,11 @@
+{
+  "id": "ordinary-code-review-near-miss",
+  "query": "Review this pull request only for correctness and security. Do not search for removable behavior or propose a simplification survey.",
+  "query_sha256": "2fa19ba3dedb826a94032bc44602ce337296bec8d4acc5e94729d6137ba1d7bd",
+  "should_trigger": false,
+  "agent_file": "trigger-fixtures/AGENTS.md",
+  "currentness": {
+    "trigger_surface_sha256": "6a98ba64dd7d24a02494d508784682c2eeb185d622671a6488c336ecf9fbf30f",
+    "trigger_corpus_sha256": "a082f02209257f89507edf2da8b6ac30cd7272537b23a9de15dbe52cdc15476a"
+  }
+}

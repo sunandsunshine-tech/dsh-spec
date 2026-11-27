@@ -1,0 +1,3 @@
+status: fail
+run_exit_code: 0
+assertions: 3/4

@@ -1,0 +1,5 @@
+d087acaecf6f43225b1b62d17bdcb3119f58e735efcdc6c5d7a466bc1a4b2257  evals/files/vendor/project/README.md  mode=0644
+022d3a37f48df37bc894315490d92b8549b515b8555b9972050d50773fb21749  evals/files/vendor/project/src/runtime.ts  mode=0644
+031ffc7eab906ea481993e63ab90f356b82b6a7370e86cb031a38133274a9615  evals/files/vendor/project/src/dead.ts  mode=0644
+b48e14677e96d32aea27623401594935734ca81a508f9656d71f1035ffee642d  evals/files/vendor/project/docs/guide.md  mode=0644
+497b4f7d31cd9010130e736634ebde2db6e4b8d433f478c3d899eef970508bc0  evals/files/vendor/project/tests/runtime.check.ts  mode=0644

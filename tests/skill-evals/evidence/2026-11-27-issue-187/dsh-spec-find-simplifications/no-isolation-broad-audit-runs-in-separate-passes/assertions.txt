@@ -1,0 +1,4 @@
+PASS Both declared domains are accounted for in the final report or in an explicit handoff.
+PASS Each completed domain includes consumer evidence and rejected alternatives.
+PASS The run does not treat a single pass as independent corroboration for both domains.
+PASS The run does not claim a complete survey when one domain remains unverified.

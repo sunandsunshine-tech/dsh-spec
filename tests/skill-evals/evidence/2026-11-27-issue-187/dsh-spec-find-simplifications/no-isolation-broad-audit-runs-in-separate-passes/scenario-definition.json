@@ -1,0 +1,18 @@
+{
+  "id": "no-isolation-broad-audit-runs-in-separate-passes",
+  "prompt": "The host provides no subagents, isolated contexts, or parallel execution. Survey both the runtime and the documentation in the provided evals/files/vendor/project/ fixture for evidence-backed simplifications, and do not propose deletion without consumer evidence.",
+  "expected_output": "The two domains are surveyed in separate passes, each with consumer evidence and rejected alternatives, and the final report either covers both domains or explicitly hands off the uncovered one.",
+  "files": [
+    "evals/files/vendor/project/README.md",
+    "evals/files/vendor/project/src/runtime.ts",
+    "evals/files/vendor/project/src/dead.ts",
+    "evals/files/vendor/project/docs/guide.md",
+    "evals/files/vendor/project/tests/runtime.check.ts"
+  ],
+  "assertions": [
+    "Both declared domains are accounted for in the final report or in an explicit handoff.",
+    "Each completed domain includes consumer evidence and rejected alternatives.",
+    "The run does not treat a single pass as independent corroboration for both domains.",
+    "The run does not claim a complete survey when one domain remains unverified."
+  ]
+}
