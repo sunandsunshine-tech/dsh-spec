@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "claim": {
+    "type": "behavior",
+    "subject": "dsh-spec-agents-md:scope-pointer-and-ownership"
+  },
+  "arm": "target-present",
+  "comparison": null,
+  "evidence": {
+    "kind": "model",
+    "currentness": {
+      "scenario_sha256": "7a6d97ad7b9be7abfcd8ac84359f1ab8190a13f0e99d470ba20cf663edb5c328",
+      "input_manifest_sha256": "908622574f08f2d61f5f02368feda4670838a28b1ce6c9b0d39bb8b29d703b5d",
+      "scenario_prompt_sha256": "709c042eb7b3e8039d9c8e8f6ee039624c84fff4ea65da1fe95d395d8d46d857",
+      "arm_instruction_sha256": "f8c24fbbf4b8e0637a7fca9dd4404e64b423421565ce7c49cb524c836c24d29d",
+      "prompt_guard_sha256": "e587246af427c697477e3f5e361192ebb5316c5f17540449cf6de853ec64af30",
+      "rendered_prompt_sha256": "6c271cb859226e778802253d55b0b46d209ecba50b30119832208b63adf3a294",
+      "execution_sha256": "df0d14c0a241265515e09d97e5b796c7a07f4e04e2b1e49e7bc971557340c54a"
+    }
+  },
+  "execution": {
+    "auth": "host-proxy",
+    "browser": false,
+    "media": false,
+    "model_config_sha256": "81fe0a5e2d45e2a687f9ff2d811dd45cca60b986eeb96b994e9255e9eda70e1c",
+    "model_runtime_sha256": "63279cf1860a285495fa0bad3c40f5eb38c3487f7425adb603bcbd49175fcaf8",
+    "sandbox": "workspace-write",
+    "subagents": false
+  },
+  "provenance": {
+    "target_skill_tree_sha256": "0ae8dc4f37e881bb4aed949a0cbf00383441599a9d6d914ba22aac220eb2066a",
+    "dependency_skill_tree_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "deadline_ms": 1800000,
+  "privacy": {
+    "canary_sets": [
+      "current-home",
+      "local-environment"
+    ],
+    "scope_sha256": "2b910be53fbe40382a58ac7b2d82bffe01809fb589a28caca231ac26a8090db2",
+    "surfaces": "all-retained-files"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "scope-pointer-and-ownership",
+  "prompt": "Audit and update the repository `AGENTS.md` and `packages/worker/AGENTS.md` using `README.md`, both package manifests, and `docs/releasing.md`. Keep the README and release guide unchanged. Decide which facts belong in each AGENTS.md, remove content that is only for human readers or merely generic advice, keep volatile project values out, place subtree-only commands in the worker file, make each instruction file complete for its own scope without assuming the other file is loaded, and make the release pointer actionable without copying the release guide. Do not invent commands, paths, sections, or policy.",
+  "expected_output": "The root AGENTS.md carries the repository-wide pnpm build and test facts and gives release work a complete pointer to docs/releasing.md. It omits the README's product description, the current release number, and generic coding advice. packages/worker/AGENTS.md repeats the repository-wide build and test completion conditions because the root is not assumed to be loaded, carries the exact worker test command and when to run it, and the root does not repeat or contradict that subtree-only rule.",
+  "project_root": "evals/files/scope-pointer",
+  "files": [
+    "evals/files/scope-pointer/README.md",
+    "evals/files/scope-pointer/AGENTS.md",
+    "evals/files/scope-pointer/package.json",
+    "evals/files/scope-pointer/pnpm-workspace.yaml",
+    "evals/files/scope-pointer/docs/releasing.md",
+    "evals/files/scope-pointer/packages/worker/AGENTS.md",
+    "evals/files/scope-pointer/packages/worker/package.json"
+  ],
+  "assertions": [
+    "The root AGENTS.md states the repository-wide `pnpm test` and `pnpm build` commands.",
+    "The root AGENTS.md removes the README product description, current release number, and generic coding advice.",
+    "The root AGENTS.md gives release work a pointer to `docs/releasing.md` that states the target, what it contains, and when to read it.",
+    "packages/worker/AGENTS.md contains `pnpm --filter @acme/worker test` and the condition for running it, and restates the repository-wide `pnpm build` and `pnpm test` completion conditions.",
+    "The root and worker AGENTS.md files do not duplicate or contradict the worker-only command."
+  ]
+}

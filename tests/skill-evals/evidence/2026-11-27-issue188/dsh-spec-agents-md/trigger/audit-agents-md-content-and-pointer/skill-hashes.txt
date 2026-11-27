@@ -1,0 +1,2 @@
+808546ccc122c68da7dd2dc156b4d2e7add264b7d85c53b72ad0d4faef18f0ce  skills/dsh-spec-agents-md/SKILL.md  mode=0644
+4a1d06e4c5f4959eb8a86ca061f083637d834aa31636e29ba715035a8f40035f  skills/dsh-spec-agents-md/THIRD_PARTY_NOTICES  mode=0644

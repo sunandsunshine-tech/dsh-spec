@@ -253,6 +253,57 @@ interface GeneralProfile {
 
 const GENERAL_REQUIRED: GeneralProfile[] = [
   {
+    skill: 'dsh-spec-agents-md',
+    scenarios: [
+      {
+        id: 'scope-pointer-and-ownership',
+        signature: [
+          /repository `AGENTS\.md` and `packages\/worker\/AGENTS\.md`/i,
+          /human readers or merely generic advice/i,
+          /subtree-only commands in the worker file/i,
+          /each instruction file complete for its own scope/i,
+          /release pointer actionable/i,
+        ],
+        expectedOutput: [
+          /root AGENTS\.md carries the repository-wide pnpm build and test facts/i,
+          /docs\/releasing\.md/,
+          /current release number/i,
+          /repeats the repository-wide build and test completion conditions/i,
+          /worker test command and when to run it/i,
+        ],
+        assertions: [
+          /repository-wide `pnpm test` and `pnpm build`/i,
+          /removes the README product description, current release number, and generic coding advice/i,
+          /pointer to `docs\/releasing\.md`.*target.*what it contains.*when to read it/i,
+          /`pnpm --filter @acme\/worker test`.*restates the repository-wide `pnpm build` and `pnpm test`/i,
+          /do not duplicate or contradict the worker-only command/i,
+        ],
+      },
+      {
+        id: 'stale-command-link-and-scope-move',
+        signature: [
+          /services\/api.*renamed.*deployment guide moved/i,
+          /remove stale commands, links, release values, and migration history/i,
+          /move API-only instructions to the package file/i,
+          /each instruction file complete for its own scope/i,
+        ],
+        expectedOutput: [
+          /root AGENTS\.md keeps the repository-wide pnpm build instruction/i,
+          /pnpm --filter @acme\/api test/,
+          /repeats the repository-wide pnpm build completion condition/i,
+          /\.\.\/\.\.\/docs\/deploy\.md/,
+        ],
+        assertions: [
+          /root AGENTS\.md retains the repository-wide `pnpm build` instruction/i,
+          /Neither AGENTS\.md file contains `@acme\/old-api`, `docs\/deploy-old\.md`/i,
+          /services\/api\/AGENTS\.md contains `pnpm --filter @acme\/api test`.*restates the repository-wide `pnpm build`/i,
+          /points to `\.\.\/\.\.\/docs\/deploy\.md`.*what the guide owns.*when/i,
+          /API-only test and deployment instructions do not remain duplicated in the root/i,
+        ],
+      },
+    ],
+  },
+  {
     skill: 'dsh-spec-agent-experience',
     scenarios: [
       {
@@ -1269,6 +1320,7 @@ function assertCurrentTriggerEvidence(
   }
   assertTriggerCorpusIdentity(skill)
   const expected = {
+    'dsh-spec-agents-md': { positive: 3, negative: 4 },
     'dsh-spec-agent-experience': { positive: 5, negative: 4 },
     'dsh-spec-ci-test-reliability': { positive: 4, negative: 4 },
     'dsh-spec-code-review': { positive: 4, negative: 4 },
@@ -3736,6 +3788,79 @@ test('forge description evidence binds the behavior scenario and trigger corpus'
   assert.ok(traceCommandsFor(root).some((command) => commandPrintsSkill(command, skill)))
   assert.equal(replayEvidencePatch(root, skill, scenario), true)
   assertCurrentTriggerEvidence(skill, evidenceRoot, true)
+})
+
+test('agents-md evidence covers scope, pointers, and stale updates', () => {
+  const skill = 'dsh-spec-agents-md'
+  const corpus = readCorpus(skill)
+  assert.deepEqual(
+    corpus.evals.map((scenario) => scenario.id),
+    ['scope-pointer-and-ownership', 'stale-command-link-and-scope-move'],
+  )
+  const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-27-issue188', skill)
+  for (const scenario of corpus.evals) {
+    const root = join(evidenceRoot, scenario.id)
+    assertEvidencePath(evidenceRoot, root, scenario.id, 'directory')
+    const status = readFileSync(join(root, 'status.txt'), 'utf8')
+    assert.match(status, /^status: pass$/m)
+    assert.match(status, /^run_exit_code: 0$/m)
+    assert.match(status, /^assertions: 5\/5$/m)
+    assertExpectedAssertions(root, scenario.assertions, scenario.id)
+    assert.equal(
+      readFileSync(join(root, 'assertions.txt'), 'utf8'),
+      readFileSync(join(root, 'assertions.expected.txt'), 'utf8'),
+      scenario.id + ' graded assertions differ from the expected set',
+    )
+    assertEvidenceArtifactManifest(root, scenario.id)
+    assertCurrentBehaviorEvidence(root, skill, scenario)
+    assertBehaviorSkillProvenance(root, skill)
+    assert.equal(
+      readSkillHashes(root).get(`skills/${skill}/SKILL.md`),
+      fileHash(join(REPO_ROOT, 'skills', skill, 'SKILL.md')),
+      scenario.id + ' SKILL.md hash is stale',
+    )
+    assertAnswerBlindTraceWithSkillOutput(root, skill)
+    assertBehaviorScenarioTraceBinding(root, skill, scenario)
+    assert.ok(traceCommandsFor(root).some((command) => commandPrintsSkill(command, skill)))
+    assert.equal(replayEvidencePatch(root, skill, scenario), true, scenario.id + ' inputs changed')
+  }
+  assertCurrentTriggerEvidence(skill, evidenceRoot, true, 'selected', new Set(), true, true, true)
+  const readme = readFileSync(join(evidenceRoot, 'README.md'), 'utf8')
+  assert.match(readme, /passed 10 of 10 reviewer-certified assertions/)
+  assert.match(readme, /All\s+seven decisions matched the expected outcome/)
+  stageSkillWithEvals(skill)
+})
+
+test('agents-md trigger corpus separates standing instructions from adjacent work', () => {
+  const skill = 'dsh-spec-agents-md'
+  assertTriggerCorpusIdentity(skill)
+  const corpus = JSON.parse(readFileSync(join(EVAL_SOURCE_ROOT, skill, 'trigger-evals.json'), 'utf8')) as {
+    queries: Array<{ id: string; query: string; should_trigger: boolean }>
+  }
+  assert.deepEqual(
+    corpus.queries.map((query) => [query.id, query.should_trigger]),
+    [
+      ['write-repository-agents-md', true],
+      ['audit-agents-md-content-and-pointer', true],
+      ['migrate-and-split-agents-md', true],
+      ['trim-readme-prose-near-miss', false],
+      ['rewrite-system-prompt-near-miss', false],
+      ['ordinary-code-review-near-miss', false],
+      ['create-whole-agent-skill-near-miss', false],
+    ],
+  )
+  assert.match(corpus.queries[0]?.query ?? '', /repository AGENTS\.md/i)
+  assert.match(corpus.queries[1]?.query ?? '', /generic or human-only material/i)
+  assert.match(corpus.queries[2]?.query ?? '', /nearest scope/i)
+  assert.match(corpus.queries[3]?.query ?? '', /README prose/i)
+  assert.match(corpus.queries[4]?.query ?? '', /system prompt/i)
+  assert.match(corpus.queries[5]?.query ?? '', /correctness, concurrency/i)
+  assert.match(corpus.queries[6]?.query ?? '', /new Agent Skill/i)
+  for (const query of corpus.queries) {
+    assertNonEmptyString(query.id, 'agents-md trigger id')
+    assertNonEmptyString(query.query, query.id + ' trigger query')
+  }
+  stageSkillWithEvals(skill)
 })
 
 test('agent-experience evidence binds prompt behavior and the forge selection boundary', () => {
@@ -6880,7 +7005,7 @@ test('every typed evidence leaf passes full retained policy under a different HO
     )
     checked += 1
   }
-  assert.equal(checked, 57, 'typed evidence leaf count changed')
+  assert.equal(checked, 66, 'typed evidence leaf count changed')
 })
 
 test('the model runner refuses to replace the repository or evidence root', () => {

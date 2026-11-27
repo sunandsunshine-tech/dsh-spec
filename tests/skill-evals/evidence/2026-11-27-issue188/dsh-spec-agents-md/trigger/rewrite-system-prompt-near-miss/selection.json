@@ -1,0 +1,6 @@
+{
+  "id": "rewrite-system-prompt-near-miss",
+  "should_trigger": false,
+  "selected": false,
+  "result": "pass"
+}
