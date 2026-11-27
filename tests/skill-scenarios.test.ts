@@ -6722,11 +6722,65 @@ test('a non-reading mention of a skill path is not skill evidence', () => {
   }
 })
 
+type DirectoryReader = (directory: string) => Array<{ name: string; isDirectory(): boolean }>
+
+function stableEvidenceEntries(
+  root: string,
+  readDirectory: DirectoryReader = (directory) => readdirSync(directory, { withFileTypes: true }),
+): string[] {
+  const entries: string[] = []
+  const visit = (directory: string, relativeDirectory: string): void => {
+    for (const entry of readDirectory(directory)) {
+      if (entry.name.startsWith('.run-')) continue
+      if (relativeDirectory === '' && entry.name.startsWith('2099-')) continue
+      const relativePath = relativeDirectory ? join(relativeDirectory, entry.name) : entry.name
+      entries.push(relativePath)
+      if (entry.isDirectory()) {
+        visit(join(directory, entry.name), relativePath)
+      }
+    }
+  }
+  visit(root, '')
+  return entries.sort()
+}
+
+test('stable evidence traversal prunes ephemeral directories before descent', () => {
+  const root = mkdtempSync(join(tmpdir(), 'skill-evidence-stable-'))
+  const stableDate = join(root, '2026-11-20-pr113')
+  const ephemeralDate = join(root, '2099-12-31-runner-privacy-canary')
+  const topLevelRun = join(root, '.run-top-level')
+  const nestedRun = join(stableDate, '.run-recursive')
+  try {
+    mkdirSync(stableDate, { recursive: true })
+    mkdirSync(ephemeralDate, { recursive: true })
+    mkdirSync(topLevelRun, { recursive: true })
+    mkdirSync(nestedRun, { recursive: true })
+    writeFileSync(join(stableDate, 'evidence.txt'), 'safe\n')
+    writeFileSync(join(ephemeralDate, 'scratch.txt'), 'scratch\n')
+    writeFileSync(join(topLevelRun, 'scratch.txt'), 'scratch\n')
+    writeFileSync(join(nestedRun, 'scratch.txt'), 'scratch\n')
+
+    const entries = stableEvidenceEntries(root, (directory) => {
+      const listing = readdirSync(directory, { withFileTypes: true })
+      if (directory === root) {
+        rmSync(ephemeralDate, { recursive: true, force: true })
+        rmSync(topLevelRun, { recursive: true, force: true })
+      } else if (directory === stableDate) {
+        rmSync(nestedRun, { recursive: true, force: true })
+      }
+      return listing
+    })
+
+    assert.deepEqual(entries, ['2026-11-20-pr113', join('2026-11-20-pr113', 'evidence.txt')])
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
 test('committed evidence text contains no local home or build-toolchain paths', () => {
   const root = join(REPO_ROOT, 'tests/skill-evals/evidence')
-  for (const relative of readdirSync(root, { recursive: true })) {
+  for (const relative of stableEvidenceEntries(root)) {
     if (typeof relative !== 'string' || !/\.(?:md|txt|json|jsonl|log|yaml|yml)$/.test(relative)) continue
-    if (relative.startsWith('2099-') || relative.split(/[\\/]/).some((part) => part.startsWith('.run-'))) continue
     const file = join(root, relative)
     assertRegularEvidenceFile(file, relative)
     const text = readFileSync(file, 'utf8')
@@ -6744,10 +6798,8 @@ test('committed evidence text contains no local home or build-toolchain paths', 
 test('every typed evidence leaf passes full retained policy under a different HOME', () => {
   const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence')
   let checked = 0
-  for (const relativePath of readdirSync(evidenceRoot, { recursive: true })) {
-    if (typeof relativePath !== 'string' || !relativePath.endsWith('evidence.json')) continue
-    if (relativePath.startsWith('2099-') || relativePath.split(/[\\/]/).some((part) => part.startsWith('.run-')))
-      continue
+  for (const relativePath of stableEvidenceEntries(evidenceRoot)) {
+    if (!relativePath.endsWith('evidence.json')) continue
     const root = dirname(join(evidenceRoot, relativePath))
     const metadata = evidencePolicy.readEvidenceMetadata(root)
     const [skill, scenarioId] = metadata.claim.subject.split(':')
@@ -6795,7 +6847,8 @@ test('the model runner refuses to replace the repository or evidence root', () =
   const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence')
   // Real-runner tests create 2099-* scratch leaves under this directory; their isolated lifecycle
   // is outside this rejection check's stable committed corpus.
-  const stableEntries = () => readdirSync(evidenceRoot).filter((entry) => !entry.startsWith('2099-'))
+  const stableEntries = () =>
+    readdirSync(evidenceRoot).filter((entry) => !entry.startsWith('2099-') && !entry.startsWith('.run-'))
   const before = stableEntries()
   for (const output of ['.', 'tests/skill-evals/evidence', 'tests/skill-evals/evidence/2026-11-20-pr113']) {
     const result = spawnSync(
