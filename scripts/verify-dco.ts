@@ -9,6 +9,8 @@
  *
  * The same commit-admission step enforces the mechanical tracker-suffix boundary. Before a squash,
  * neither the pull-request title nor a branch commit subject may carry the suffix GitHub supplies.
+ * If a commit declares AI assistance, every `Assisted-by:` header must also be in the final trailer
+ * block; a blank line starts a new paragraph and makes an earlier header invisible to Git trailers.
  * The prospective subject comes from the commit subject for a pull request with one non-merge
  * commit and from the pull-request title otherwise. An already-landed squash commit is checked only
  * in the explicit `squash-commit` mode, which requires one commit with one parent. Subject checks
@@ -36,7 +38,8 @@ import { execFileSync } from 'node:child_process'
 
 const USAGE = `usage: verify-dco.ts [--root=<dir>] [--base=<ref>] [--head=<ref>] [--pr-title=<text>] [--mode=<mode>]
 
-Check final-block sign-offs and the mechanical prospective or landed squash-subject boundary.
+Check final-block sign-offs and AI-assistance trailers, plus the mechanical prospective or landed
+squash-subject boundary.
 Environment: DCO_ROOT, DCO_BASE, DCO_HEAD, DCO_PR_TITLE and DCO_MODE are fallbacks for the options.
 DCO_PR_TITLE is required in PR mode when GITHUB_EVENT_NAME is pull_request.
 
@@ -334,6 +337,7 @@ if (mode === 'squash-commit') {
 }
 
 const signoffFailures = new Map<string, string[]>()
+const assistedByFailures = new Map<string, string[]>()
 const botVerificationFailures = new Map<string, string[]>()
 let claims = 0
 function recordFailure(failures: Map<string, string[]>, sha: string, message: string): void {
@@ -351,6 +355,18 @@ for (const { sha, authorName, authorEmail, committerName, committerEmail, messag
     const detail = error instanceof Error ? error.message.split('\n')[0] : String(error)
     recordFailure(signoffFailures, sha, `could not parse the final trailer block: ${detail}`)
     continue
+  }
+  const rawAssistedBy = message
+    .replace(/\r\n?/g, '\n')
+    .split('\n')
+    .filter((line) => /^Assisted-by:\s+/i.test(line))
+  const parsedAssistedBy = trailers.filter((line) => /^Assisted-by:\s+/i.test(line))
+  if (rawAssistedBy.length !== parsedAssistedBy.length) {
+    recordFailure(
+      assistedByFailures,
+      sha,
+      `${sha.slice(0, 12)}  Assisted-by must be in the same final trailer block as Signed-off-by; a blank line makes an earlier header invisible to Git trailers`,
+    )
   }
   const signoffs = trailers
     .filter((line) => /^Signed-off-by:\s+/i.test(line))
@@ -456,6 +472,14 @@ if (signoffFailures.size > 0) {
   console.error('verify-dco: amend the final trailer block so every Signed-off-by names the author or committer')
 }
 
+if (assistedByFailures.size > 0) {
+  console.error(
+    `verify-dco: final-trailer Assisted-by checks failed for ${assistedByFailures.size} of ${commits.length} commit(s):`,
+  )
+  for (const lines of assistedByFailures.values()) for (const line of lines) console.error(`  ${line}`)
+  console.error('verify-dco: move every Assisted-by header into the contiguous final trailer block')
+}
+
 if (botVerificationFailures.size > 0) {
   console.error(
     `verify-dco: GitHub verification failed for ${botVerificationFailures.size} of ${commits.length} commit(s) with allowlisted bot identity claims:`,
@@ -466,7 +490,12 @@ if (botVerificationFailures.size > 0) {
   )
 }
 
-if (metadataFailures.length > 0 || signoffFailures.size > 0 || botVerificationFailures.size > 0) {
+if (
+  metadataFailures.length > 0 ||
+  signoffFailures.size > 0 ||
+  assistedByFailures.size > 0 ||
+  botVerificationFailures.size > 0
+) {
   process.exit(1)
 }
 

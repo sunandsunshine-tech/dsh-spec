@@ -46,7 +46,7 @@ AI involvement is allowed. Every AI-assisted commit carries an `Assisted-by:` tr
 Assisted-by: DeepSeek Harness (dsh)
 ```
 
-The trailers sit alongside the DCO. `Assisted-by:` records machine participation; `Signed-off-by:` still names the human author or committer who submits the work.
+The trailers sit together in the final trailer block; a blank line starts a new paragraph and makes an earlier `Assisted-by:` invisible to Git's trailer parser. `Assisted-by:` records machine participation; `Signed-off-by:` still names the human author or committer who submits the work.
 
 ## Developer Certificate of Origin
 
