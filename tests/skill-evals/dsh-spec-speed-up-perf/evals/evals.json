@@ -1,0 +1,197 @@
+{
+  "skill_name": "dsh-spec-speed-up-perf",
+  "evals": [
+    {
+      "id": "measurement-decisions",
+      "comparison": {
+        "baseline": "target-absent",
+        "candidate": "target-present",
+        "conditions": [
+          "The baseline and candidate use the same scenario prompt, fixture, sandbox profile, capability profile and deadline.",
+          "The candidate installs the target skill and appends its target-use instruction; the baseline does neither.",
+          "The measured path, workload, project gate and reported samples remain comparable."
+        ]
+      },
+      "prompt": "The runnable project in evals/files/measurement-decisions exposes its real inventory HTTP endpoint and has a project-owned median latency gate but no universal performance target. Run the benchmark, gate and profiler, keep those decisions separate, find the dominant cost and make the smallest behavior-preserving optimization. Keep filtered output, ordering and the gate value unchanged. Report raw before/after samples and the ratio.",
+      "expected_output": "The response measures the real HTTP path before changing code, reports the benchmark samples separately from the project gate and profiler attribution, identifies repeated all-item scanning and profile work as the dominant cause, preserves duplicate removal, report fields, ordering and the project gate constant, and reports comparable raw samples, aggregates and a negative control.",
+      "files": [
+        "evals/files/measurement-decisions/README.md",
+        "evals/files/measurement-decisions/package.json",
+        "evals/files/measurement-decisions/src/report.mjs",
+        "evals/files/measurement-decisions/server.mjs",
+        "evals/files/measurement-decisions/measure.mjs",
+        "evals/files/measurement-decisions/bench.mjs",
+        "evals/files/measurement-decisions/gate.mjs",
+        "evals/files/measurement-decisions/profile.mjs",
+        "evals/files/measurement-decisions/tests/report.test.mjs"
+      ],
+      "assertions": [
+        "The response measures the production HTTP endpoint rather than a copied benchmark algorithm.",
+        "The response reports benchmark samples, the project gate decision and profiler attribution as separate decisions.",
+        "The response identifies repeated all-item scanning and per-item profile work as the dominant cost.",
+        "The candidate preserves duplicate removal, report fields, ordering and the unchanged gate value.",
+        "The response reports raw before/after samples, an aggregate, a negative control and the ratio.",
+        "The edited project's focused test passes."
+      ]
+    },
+    {
+      "id": "frontend-input-to-paint",
+      "prompt": "The browser project in evals/files/frontend-input-to-paint has a visible search field that feels slow after input. Build it, measure real browser input through the visible result update, diagnose the dominant phase and make the smallest behavior-preserving optimization. Report the browser measurement and the remaining network or rendering boundary.",
+      "expected_output": "The response uses the built application and real browser input, measures input through at least the next visible update, identifies work repeated on each input, preserves the filtered result, and reports raw samples with the browser boundary.",
+      "capabilities": {
+        "browser": true,
+        "media": false
+      },
+      "files": [
+        "evals/files/frontend-input-to-paint/README.md",
+        "evals/files/frontend-input-to-paint/.gitignore",
+        "evals/files/frontend-input-to-paint/package.json",
+        "evals/files/frontend-input-to-paint/build.mjs",
+        "evals/files/frontend-input-to-paint/server.mjs",
+        "evals/files/frontend-input-to-paint/measure.mjs",
+        "evals/files/frontend-input-to-paint/src/index.html",
+        "evals/files/frontend-input-to-paint/src/app.js",
+        "evals/files/frontend-input-to-paint/src/filter.mjs",
+        "evals/files/frontend-input-to-paint/tests/input-behavior.test.mjs"
+      ],
+      "outputs": [
+        "evals/files/frontend-input-to-paint/dist"
+      ],
+      "assertions": [
+        "The response uses the built application and real browser input.",
+        "The response measures through the visible filtered result rather than a function benchmark alone.",
+        "The response identifies work repeated on each input as the dominant browser-side cost.",
+        "The candidate preserves the matching products and ordering.",
+        "The report keeps the browser boundary and raw sample values visible."
+      ]
+    },
+    {
+      "id": "browser-measurement-unavailable",
+      "prompt": "Measure the input-to-paint latency of evals/files/frontend-input-to-paint in this environment and give me the final optimization decision today. Do not download or install a browser or another measurement substitute.",
+      "expected_output": "The response reports that browser measurement is unavailable, preserves the source diagnosis or measurement plan completed so far, does not download or install a substitute, and hands off a resumable browser run instead of claiming a measured optimization.",
+      "capabilities": {
+        "browser": false,
+        "media": false
+      },
+      "files": [
+        "evals/files/frontend-input-to-paint/README.md",
+        "evals/files/frontend-input-to-paint/.gitignore",
+        "evals/files/frontend-input-to-paint/package.json",
+        "evals/files/frontend-input-to-paint/build.mjs",
+        "evals/files/frontend-input-to-paint/server.mjs",
+        "evals/files/frontend-input-to-paint/measure.mjs",
+        "evals/files/frontend-input-to-paint/src/index.html",
+        "evals/files/frontend-input-to-paint/src/app.js",
+        "evals/files/frontend-input-to-paint/src/filter.mjs",
+        "evals/files/frontend-input-to-paint/tests/input-behavior.test.mjs"
+      ],
+      "assertions": [
+        "The response identifies the missing browser measurement capability.",
+        "The response does not present source inspection as measured input-to-paint evidence.",
+        "The response does not download or install a browser or measurement substitute.",
+        "The response preserves the completed diagnosis or measurement plan.",
+        "The handoff names the browser run and evidence needed to resume."
+      ]
+    },
+    {
+      "id": "end-to-end-external-boundary",
+      "prompt": "The checkout route in evals/files/end-to-end-boundary is slow. Diagnose it without changing code. Separate the complete client result from local processing and the external shipping-quote service, and show what can be controlled or excluded. Run the fixture and report the evidence and remaining limits.",
+      "expected_output": "The response keeps the task read-only, measures the complete checkout path, separates local processing from the external quote delay, uses a controlled external delay as a negative check, and does not call the local transform the complete product latency.",
+      "files": [
+        "evals/files/end-to-end-boundary/README.md",
+        "evals/files/end-to-end-boundary/package.json",
+        "evals/files/end-to-end-boundary/src/order.mjs",
+        "evals/files/end-to-end-boundary/src/external.mjs",
+        "evals/files/end-to-end-boundary/server.mjs",
+        "evals/files/end-to-end-boundary/client.mjs",
+        "evals/files/end-to-end-boundary/diagnose.mjs",
+        "evals/files/end-to-end-boundary/tests/path.test.mjs"
+      ],
+      "assertions": [
+        "The response makes no production code change.",
+        "The complete checkout path and local server work are measured separately.",
+        "The external shipping-quote delay is identified as the dominant boundary.",
+        "The controlled zero-delay run distinguishes the external cost from local processing.",
+        "The report labels the remaining external-service and environment limits."
+      ]
+    },
+    {
+      "id": "private-corpus-remains-aggregate",
+      "prompt": "I authorize inspection of the local performance corpus in evals/files/private-corpus. Do not change the project. The required profiler and benchmark packages are not installed, and you must not download or install them or use a network service. Derive only the aggregate workload characteristics needed to plan a reproducible performance investigation, and keep the resulting plan/evidence free of raw prompts, outputs, paths, identities, credentials, recordings and recognizable user snippets.",
+      "expected_output": "The response reports aggregate dimensions such as record count, payload size and latency distribution, proposes fixed synthetic inputs from reviewed constants, does not reproduce raw user text, identifiers, paths or credentials, and hands off any unavailable measurement capability without an ambient download or dependency.",
+      "files": [
+        "evals/files/private-corpus/README.md",
+        "evals/files/private-corpus/telemetry.jsonl"
+      ],
+      "assertions": [
+        "The response uses the authorized corpus only for aggregate performance characteristics.",
+        "The response does not reproduce raw prompts, outputs, paths, identities, credentials or recognizable snippets.",
+        "The proposed workload uses fixed synthetic inputs derived from reviewed constants.",
+        "The response does not download, install or assume unavailable profiling or benchmark tooling.",
+        "The response makes no project change.",
+        "The evidence plan covers latency and payload dimensions without exposing record contents."
+      ]
+    },
+    {
+      "id": "cold-start-process-memory",
+      "prompt": "The CLI in evals/files/cold-start-process-memory feels slow on first use and its worker appears to grow after batches run. Do not change code. Run the fixture, separate fresh-process cold start from warm execution, and distinguish transient allocation from memory still reachable after the batch. Report the sampling method, evidence and limits.",
+      "expected_output": "The response runs cold-start samples through fresh child processes, identifies module and fixture setup included in startup, states the sampling method, distinguishes transient allocation from the worker's retained batch state, and reports the samples and retained-versus-transient limit without changing code.",
+      "files": [
+        "evals/files/cold-start-process-memory/README.md",
+        "evals/files/cold-start-process-memory/package.json",
+        "evals/files/cold-start-process-memory/probe.mjs",
+        "evals/files/cold-start-process-memory/worker.mjs",
+        "evals/files/cold-start-process-memory/src/session.mjs",
+        "evals/files/cold-start-process-memory/tests/session.test.mjs"
+      ],
+      "assertions": [
+        "The response uses fresh child processes for cold-start samples.",
+        "The response states which module and setup costs the cold measurement includes.",
+        "The response distinguishes transient batch allocation from reachable retained state.",
+        "The response reports the garbage-collection or sampling policy and its limit.",
+        "The response makes no production code change.",
+        "The reported result keeps cold-start and process-memory evidence separate."
+      ]
+    },
+    {
+      "id": "stable-identity-subscription-order",
+      "prompt": "Diagnose why editing one row in evals/files/stable-identity-subscription re-renders every row. Do not change code. State the smallest design that narrows the subscription while keeping row identity for unchanged rows, preserving update order and retaining the immediate initial event. Each scoped subscription must return an equivalent unsubscribe that removes its own listener without affecting the others. Include a falsifiable before/after check.",
+      "expected_output": "The response keeps the diagnosis read-only, identifies the whole-collection snapshot and cloned rows as the cause, proposes per-row subscription or equivalent selective delivery, and preserves stable identity for unchanged rows, ordered updates and the synchronous immediate initial event with a negative control. The scoped subscription returns teardown and the check proves that a removed listener receives no later update.",
+      "files": [
+        "evals/files/stable-identity-subscription/README.md",
+        "evals/files/stable-identity-subscription/package.json",
+        "evals/files/stable-identity-subscription/diagnose.mjs",
+        "evals/files/stable-identity-subscription/src/store.mjs",
+        "evals/files/stable-identity-subscription/tests/store.test.mjs"
+      ],
+      "assertions": [
+        "The response makes no production code change.",
+        "The response identifies whole-collection snapshots and cloned rows as the invalidation source.",
+        "The response narrows delivery without changing row identity for unchanged rows.",
+        "The response preserves update order and the immediate initial event.",
+        "The proposed scoped subscription returns teardown that removes only its own listener.",
+        "The response includes a negative control that fails with the original subscription behavior.",
+        "The response keeps collection order and subscriber behavior explicit."
+      ]
+    },
+    {
+      "id": "authorized-deliberate-difference",
+      "prompt": "The owner authorizes the exported duration label in evals/files/authorized-deliberate-difference to change from three decimal places to one. This is a behavior-only authorization. Preserve row order and the source duration total, update the owning check, and report the visible difference as deliberate without claiming an unmeasured performance gain.",
+      "expected_output": "The response names one decimal place as an authorized visible difference, updates the owning output check, preserves row order and totals, and reports behavior evidence without attributing a performance gain to the changed output precision.",
+      "files": [
+        "evals/files/authorized-deliberate-difference/README.md",
+        "evals/files/authorized-deliberate-difference/package.json",
+        "evals/files/authorized-deliberate-difference/measure.mjs",
+        "evals/files/authorized-deliberate-difference/src/report.mjs",
+        "evals/files/authorized-deliberate-difference/tests/report.test.mjs"
+      ],
+      "assertions": [
+        "The response names one decimal place as the authorized visible difference.",
+        "The candidate preserves row order and totals.",
+        "The owning check verifies the authorized one-decimal output.",
+        "The response does not claim an unmeasured performance gain from the output-precision change.",
+        "The response reports the behavior-only scope and its remaining limits."
+      ]
+    }
+  ]
+}

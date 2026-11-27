@@ -1,0 +1,11 @@
+{
+  "name": "performance-measurement-decisions",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "bench": "node bench.mjs",
+    "gate": "node gate.mjs",
+    "profile": "node profile.mjs",
+    "test": "node --test tests/report.test.mjs"
+  }
+}

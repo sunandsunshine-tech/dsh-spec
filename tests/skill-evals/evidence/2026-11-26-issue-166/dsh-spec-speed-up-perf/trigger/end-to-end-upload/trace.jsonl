@@ -1,0 +1,5 @@
+{"type":"query","id":"end-to-end-upload","query_sha256":"b3a8dc804c85fbbc25e3edc15ee1bf24e79f6d3018d2fe4985f31c4008df2cd1"}
+{"type":"thread.started","thread_id":"01a21af9-054e-7603-8865-5c6b82951269"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The request is a latency investigation that would break down an end-to-end upload into measurable local and external phases, which clearly matches the performance-profiling scope of `dsh-spec-speed-up-perf`.\n\nSELECT: dsh-spec-speed-up-perf"}}
+{"type":"turn.completed","usage":{"input_tokens":12411,"cached_input_tokens":12160,"cache_write_input_tokens":0,"output_tokens":149,"reasoning_output_tokens":97}}

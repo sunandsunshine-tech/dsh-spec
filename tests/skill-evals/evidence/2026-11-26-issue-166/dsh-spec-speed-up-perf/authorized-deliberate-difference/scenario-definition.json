@@ -1,0 +1,19 @@
+{
+  "id": "authorized-deliberate-difference",
+  "prompt": "The owner authorizes the exported duration label in evals/files/authorized-deliberate-difference to change from three decimal places to one. This is a behavior-only authorization. Preserve row order and the source duration total, update the owning check, and report the visible difference as deliberate without claiming an unmeasured performance gain.",
+  "expected_output": "The response names one decimal place as an authorized visible difference, updates the owning output check, preserves row order and totals, and reports behavior evidence without attributing a performance gain to the changed output precision.",
+  "files": [
+    "evals/files/authorized-deliberate-difference/README.md",
+    "evals/files/authorized-deliberate-difference/package.json",
+    "evals/files/authorized-deliberate-difference/measure.mjs",
+    "evals/files/authorized-deliberate-difference/src/report.mjs",
+    "evals/files/authorized-deliberate-difference/tests/report.test.mjs"
+  ],
+  "assertions": [
+    "The response names one decimal place as the authorized visible difference.",
+    "The candidate preserves row order and totals.",
+    "The owning check verifies the authorized one-decimal output.",
+    "The response does not claim an unmeasured performance gain from the output-precision change.",
+    "The response reports the behavior-only scope and its remaining limits."
+  ]
+}

@@ -1,0 +1,31 @@
+diff --git a/evals/files/measurement-decisions/src/report.mjs b/evals/files/measurement-decisions/src/report.mjs
+index 81e068d..1d54bc2 100644
+--- a/evals/files/measurement-decisions/src/report.mjs
++++ b/evals/files/measurement-decisions/src/report.mjs
+@@ -12,6 +12,7 @@ export function createInventory(count = 5_000) {
+ 
+ export function buildReport(items, hooks = {}) {
+   const seen = []
++  const regionalUnitsByRegion = new Map()
+   const report = []
+ 
+   for (const item of items) {
+@@ -20,10 +21,14 @@ export function buildReport(items, hooks = {}) {
+     if (seen.includes(key)) continue
+     seen.push(key)
+ 
+-    hooks.onRegionFilter?.()
+-    const regionalItems = items.filter((candidate) => candidate.region === item.region)
+-    hooks.onRegionReduce?.(regionalItems.length)
+-    const regionalUnits = regionalItems.reduce((sum, candidate) => sum + candidate.units, 0)
++    let regionalUnits = regionalUnitsByRegion.get(item.region)
++    if (regionalUnits === undefined) {
++      hooks.onRegionFilter?.()
++      const regionalItems = items.filter((candidate) => candidate.region === item.region)
++      hooks.onRegionReduce?.(regionalItems.length)
++      regionalUnits = regionalItems.reduce((sum, candidate) => sum + candidate.units, 0)
++      regionalUnitsByRegion.set(item.region, regionalUnits)
++    }
+     hooks.onProfile?.()
+     report.push({
+       productId: item.productId,

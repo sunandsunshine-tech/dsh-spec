@@ -1,0 +1,6 @@
+{
+  "id": "benchmark-gate-profile",
+  "should_trigger": true,
+  "selected": true,
+  "result": "pass"
+}

@@ -1,0 +1,6 @@
+PASS The response uses fresh child processes for cold-start samples.
+PASS The response states which module and setup costs the cold measurement includes.
+PASS The response distinguishes transient batch allocation from reachable retained state.
+PASS The response reports the garbage-collection or sampling policy and its limit.
+PASS The response makes no production code change.
+PASS The reported result keeps cold-start and process-memory evidence separate.

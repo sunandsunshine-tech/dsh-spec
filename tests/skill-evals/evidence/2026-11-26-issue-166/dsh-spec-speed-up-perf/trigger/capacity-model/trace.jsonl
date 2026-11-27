@@ -1,0 +1,5 @@
+{"type":"query","id":"capacity-model","query_sha256":"358760c17dc948a17feab32376544cd67ae49b6ff7ddec01c7a9669e21386019"}
+{"type":"thread.started","thread_id":"01a21af9-0a3c-7153-b075-ca1492db30d6"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The request is a capacity-planning estimate, which the performance skill explicitly excludes; no installed skill clearly applies.\n\nSELECT: none"}}
+{"type":"turn.completed","usage":{"input_tokens":12409,"cached_input_tokens":12160,"cache_write_input_tokens":0,"output_tokens":130,"reasoning_output_tokens":104}}

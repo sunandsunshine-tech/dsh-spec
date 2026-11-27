@@ -1,0 +1,5 @@
+1efd2f20967fd0739fbbcdb4ff8ec999132cbb7054cccf071a0cfef6b68e6673  evals/files/authorized-deliberate-difference/README.md  mode=0644
+e4da8802efe7950bb77f7e4f6b0c5885fd3022a32d7a8a4775845a1cbe329401  evals/files/authorized-deliberate-difference/package.json  mode=0644
+8a5cee333f723d4d596f396bb6d9b19345b8031cbf0f825f9447054ecefe308f  evals/files/authorized-deliberate-difference/measure.mjs  mode=0644
+a2f6433b4b27e92fc07fab4cd8dd6f19f1edf8e62eb57506c65a89a396d13e63  evals/files/authorized-deliberate-difference/src/report.mjs  mode=0644
+55dae2ed7cb5bc30e718901456765dd5e1c6099777f52045bf009e5faf76c826  evals/files/authorized-deliberate-difference/tests/report.test.mjs  mode=0644

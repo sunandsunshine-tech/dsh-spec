@@ -1,0 +1,71 @@
+{
+  "skill_name": "dsh-spec-speed-up-perf",
+  "agent_file": "trigger-fixtures/AGENTS.md",
+  "queries": [
+    {
+      "id": "backend-p95",
+      "query": "Optimize the production API so its p95 latency drops from 300 ms to 150 ms without changing the response.",
+      "should_trigger": true
+    },
+    {
+      "id": "browser-input-delay",
+      "query": "Typing in our search box makes the page stutter; measure input-to-paint and find the cause.",
+      "should_trigger": true
+    },
+    {
+      "id": "cli-startup",
+      "query": "Our CLI takes four seconds to start. Measure the built executable and reduce the startup work.",
+      "should_trigger": true
+    },
+    {
+      "id": "end-to-end-upload",
+      "query": "An upload takes ten seconds end to end. Show which local and external phases account for that time.",
+      "should_trigger": true
+    },
+    {
+      "id": "memory-growth",
+      "query": "The service retains steadily more memory after each batch. Diagnose transient allocation versus reachable retention and propose a measured fix.",
+      "should_trigger": true
+    },
+    {
+      "id": "benchmark-gate-profile",
+      "query": "Design a reproducible benchmark, a project-owned regression gate and a profiling plan for checkout latency, then use them to decide whether a cache change is safe.",
+      "should_trigger": true
+    },
+    {
+      "id": "ci-port-flake",
+      "query": "Fix the CI test that intermittently fails with EADDRINUSE when jobs run in parallel.",
+      "should_trigger": false
+    },
+    {
+      "id": "slow-test-fixtures",
+      "query": "Every test rebuilds the same expensive fixture. Redesign the test suite so it runs less duplicated setup.",
+      "should_trigger": false
+    },
+    {
+      "id": "coverage-only",
+      "query": "Raise unit-test coverage from 80 to 90 percent by covering the remaining branches.",
+      "should_trigger": false
+    },
+    {
+      "id": "pre-push-selection",
+      "query": "Choose the smallest tests and checks I should run before pushing this diff.",
+      "should_trigger": false
+    },
+    {
+      "id": "visual-review",
+      "query": "Review these screenshots for spacing, hierarchy and color consistency.",
+      "should_trigger": false
+    },
+    {
+      "id": "general-code-review",
+      "query": "Review this patch for naming, error handling and API compatibility.",
+      "should_trigger": false
+    },
+    {
+      "id": "capacity-model",
+      "query": "Estimate how many tenants one server can support when each one sends 50 concurrent requests.",
+      "should_trigger": false
+    }
+  ]
+}

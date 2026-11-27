@@ -8,7 +8,7 @@ Status: implemented
 
 在使用位置声明默认值，能让该值紧邻使用它的行为。一个技能即使还会读取项目的常驻指令（standing instructions），仍可能让没有指令的状态含糊不清：执行者可能把沉默视为缺少配置、让用户选择默认值、新增 `AGENTS.md` 来记录默认值，或再建一张默认值表。这些应对方式会让临时项目依赖它并不需要的配置，并重新引入就地声明本可避免的漂移。
 
-当有效调用未指定某个默认值、且现有项目指令未作规定时，有十二个技能会依据该具体默认值选择行为。它们是 `dsh-spec-agent-notes`、`dsh-spec-ci-test-reliability`、`dsh-spec-client-ui-ux`、`dsh-spec-error-handling`、`dsh-spec-merging-stacked-prs`、`dsh-spec-performance-investigation`、`dsh-spec-pr-description`、`dsh-spec-pre-push-checks`、`dsh-spec-prose-standard`、`dsh-spec-record-browser-gif`、`dsh-spec-skill-forge` 和 `dsh-spec-translate-docs`。它们的具体值早已位于各自的使用位置，但共享的执行规则并非如此。
+当有效调用未指定某个默认值、且现有项目指令未作规定时，有十二个技能会依据该具体默认值选择行为。它们是 `dsh-spec-agent-notes`、`dsh-spec-ci-test-reliability`、`dsh-spec-client-ui-ux`、`dsh-spec-error-handling`、`dsh-spec-merging-stacked-prs`、`dsh-spec-speed-up-perf`、`dsh-spec-pr-description`、`dsh-spec-pre-push-checks`、`dsh-spec-prose-standard`、`dsh-spec-record-browser-gif`、`dsh-spec-skill-forge` 和 `dsh-spec-translate-docs`。它们的具体值早已位于各自的使用位置，但共享的执行规则并非如此。
 
 ## 决策
 

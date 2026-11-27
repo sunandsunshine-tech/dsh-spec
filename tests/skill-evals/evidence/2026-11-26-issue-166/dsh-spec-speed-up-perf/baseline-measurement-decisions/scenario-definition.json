@@ -1,0 +1,33 @@
+{
+  "id": "measurement-decisions",
+  "comparison": {
+    "baseline": "target-absent",
+    "candidate": "target-present",
+    "conditions": [
+      "The baseline and candidate use the same scenario prompt, fixture, sandbox profile, capability profile and deadline.",
+      "The candidate installs the target skill and appends its target-use instruction; the baseline does neither.",
+      "The measured path, workload, project gate and reported samples remain comparable."
+    ]
+  },
+  "prompt": "The runnable project in evals/files/measurement-decisions exposes its real inventory HTTP endpoint and has a project-owned median latency gate but no universal performance target. Run the benchmark, gate and profiler, keep those decisions separate, find the dominant cost and make the smallest behavior-preserving optimization. Keep filtered output, ordering and the gate value unchanged. Report raw before/after samples and the ratio.",
+  "expected_output": "The response measures the real HTTP path before changing code, reports the benchmark samples separately from the project gate and profiler attribution, identifies repeated all-item scanning and profile work as the dominant cause, preserves duplicate removal, report fields, ordering and the project gate constant, and reports comparable raw samples, aggregates and a negative control.",
+  "files": [
+    "evals/files/measurement-decisions/README.md",
+    "evals/files/measurement-decisions/package.json",
+    "evals/files/measurement-decisions/src/report.mjs",
+    "evals/files/measurement-decisions/server.mjs",
+    "evals/files/measurement-decisions/measure.mjs",
+    "evals/files/measurement-decisions/bench.mjs",
+    "evals/files/measurement-decisions/gate.mjs",
+    "evals/files/measurement-decisions/profile.mjs",
+    "evals/files/measurement-decisions/tests/report.test.mjs"
+  ],
+  "assertions": [
+    "The response measures the production HTTP endpoint rather than a copied benchmark algorithm.",
+    "The response reports benchmark samples, the project gate decision and profiler attribution as separate decisions.",
+    "The response identifies repeated all-item scanning and per-item profile work as the dominant cost.",
+    "The candidate preserves duplicate removal, report fields, ordering and the unchanged gate value.",
+    "The response reports raw before/after samples, an aggregate, a negative control and the ratio.",
+    "The edited project's focused test passes."
+  ]
+}

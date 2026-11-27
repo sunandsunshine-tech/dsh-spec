@@ -26,7 +26,7 @@ import {
   symlinkSync,
   writeFileSync,
 } from 'node:fs'
-import { tmpdir } from 'node:os'
+import { tmpdir, userInfo } from 'node:os'
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
 import { test } from 'node:test'
 
@@ -40,6 +40,12 @@ const safety = (await import('./skill-evals/runner-safety.mjs' as string)) as {
   ): Record<string, string>
 }
 const evidencePolicy = (await import('./skill-evals/evidence-policy.mjs' as string)) as {
+  assertComparableEvidenceArms(
+    candidate: unknown,
+    baseline: unknown,
+    options: { scenario: Scenario; candidateEvidenceSha256: string; baselineEvidenceSha256: string },
+  ): void
+  hashEvidenceMetadata(root: string): string
   assertRetainedRunPolicy(options: {
     root: string
     metadata: EvidenceMetadata
@@ -48,7 +54,7 @@ const evidencePolicy = (await import('./skill-evals/evidence-policy.mjs' as stri
     canaries: Array<{ set: string; value: string }>
   }): EvidenceMetadata
   readEvidenceMetadata(root: string): EvidenceMetadata
-  inspectRetainedRun(root: string, metadata: EvidenceMetadata): RetainedEvidenceObservation
+  inspectRetainedRun(root: string, metadata: unknown): RetainedEvidenceObservation
   inspectRetainedTriggerRun(
     root: string,
     metadata: EvidenceMetadata,
@@ -71,6 +77,8 @@ const evidencePolicy = (await import('./skill-evals/evidence-policy.mjs' as stri
     sha256: string
   }
   validateScenarioClaim(skill: string, scenario: Scenario): unknown
+  finalAgentMessageFromTrace(traceText: string): string | undefined
+  readRetainedTrace(root: string): string
   modelPromptComponents(
     skill: string,
     scenario: Scenario,
@@ -995,21 +1003,26 @@ const GENERAL_REQUIRED: GeneralProfile[] = [
     ],
   },
   {
-    skill: 'dsh-spec-performance-investigation',
+    skill: 'dsh-spec-speed-up-perf',
     scenarios: [
       {
-        id: 'backend-budgetless-latency',
-        signature: [/inventory HTTP endpoint/i, /no benchmark framework or p95 budget/i, /raw before\/after samples/i],
+        id: 'measurement-decisions',
+        signature: [
+          /project-owned median latency gate/i,
+          /benchmark, gate and profiler/i,
+          /raw before\/after samples/i,
+        ],
         expectedOutput: [
           /real HTTP path/i,
-          /preserves duplicate removal.*ordering/i,
-          /raw samples.*aggregates.*behavior check/i,
+          /benchmark samples separately.*project gate.*profiler/i,
+          /raw samples.*negative control/i,
         ],
         assertions: [
           /production HTTP endpoint/i,
-          /repeated all-item scanning/i,
-          /duplicate removal.*ordering/i,
-          /raw before\/after samples.*ratio/i,
+          /benchmark samples.*project gate decision.*profiler attribution/i,
+          /repeated all-item scanning.*per-item profile work/i,
+          /duplicate removal.*ordering.*unchanged gate value/i,
+          /raw before\/after samples.*negative control.*ratio/i,
           /focused test passes/i,
         ],
       },
@@ -1032,6 +1045,7 @@ const GENERAL_REQUIRED: GeneralProfile[] = [
         assertions: [
           /missing browser measurement capability/i,
           /does not present source inspection as measured/i,
+          /does not download or install/i,
           /completed diagnosis or measurement plan/i,
           /browser run and evidence.*resume/i,
         ],
@@ -1056,8 +1070,66 @@ const GENERAL_REQUIRED: GeneralProfile[] = [
           /authorized corpus only for aggregate/i,
           /does not reproduce raw prompts.*identities.*credentials/i,
           /fixed synthetic inputs.*reviewed constants/i,
+          /does not download, install or assume/i,
           /no project change/i,
           /latency and payload dimensions.*without exposing/i,
+        ],
+      },
+      {
+        id: 'cold-start-process-memory',
+        signature: [/fresh-process cold start/i, /transient allocation.*memory still reachable/i],
+        expectedOutput: [/fresh child processes/i, /transient allocation.*retained batch state/i, /sampling method/i],
+        assertions: [
+          /fresh child processes/i,
+          /module and setup costs/i,
+          /transient batch allocation.*reachable retained state/i,
+          /garbage-collection or sampling policy/i,
+          /no production code change/i,
+          /cold-start and process-memory evidence separate/i,
+        ],
+      },
+      {
+        id: 'stable-identity-subscription-order',
+        signature: [
+          /editing one row/i,
+          /row identity/i,
+          /update order.*immediate initial event/i,
+          /equivalent unsubscribe/i,
+        ],
+        expectedOutput: [
+          /whole-collection snapshot.*cloned rows/i,
+          /selective delivery/i,
+          /scoped subscription returns teardown/i,
+          /negative control/i,
+        ],
+        assertions: [
+          /no production code change/i,
+          /whole-collection snapshots and cloned rows/i,
+          /row identity.*unchanged rows/i,
+          /update order.*immediate initial event/i,
+          /scoped subscription returns teardown.*removes only its own listener/i,
+          /negative control/i,
+          /collection order.*subscriber behavior/i,
+        ],
+      },
+      {
+        id: 'authorized-deliberate-difference',
+        signature: [
+          /authorizes.*three decimal places to one/i,
+          /behavior-only authorization/i,
+          /preserve row order and (?:the )?source duration total/i,
+        ],
+        expectedOutput: [
+          /one decimal place.*authorized visible difference/i,
+          /preserves row order and totals/i,
+          /without attributing a performance gain/i,
+        ],
+        assertions: [
+          /one decimal place.*authorized visible difference/i,
+          /preserves row order and totals/i,
+          /owning check.*one-decimal output/i,
+          /does not claim an unmeasured performance gain/i,
+          /behavior-only scope.*remaining limits/i,
         ],
       },
     ],
@@ -1187,6 +1259,8 @@ function assertCurrentTriggerEvidence(
   matrixMode: 'selected' | 'read-skill' = 'selected',
   knownMismatches = new Set<string>(),
   requireQueryBinding = false,
+  requireTypedBinding = false,
+  requireRunStatus = false,
 ): void {
   const corpusRoot = join(EVAL_SOURCE_ROOT, skill)
   const corpus = JSON.parse(readFileSync(join(corpusRoot, 'trigger-evals.json'), 'utf8')) as {
@@ -1203,7 +1277,7 @@ function assertCurrentTriggerEvidence(
     'dsh-spec-pr-description': { positive: 2, negative: 4 },
     'dsh-spec-merging-stacked-prs': { positive: 4, negative: 5 },
     'dsh-spec-record-browser-gif': { positive: 3, negative: 5 },
-    'dsh-spec-performance-investigation': { positive: 5, negative: 6 },
+    'dsh-spec-speed-up-perf': { positive: 6, negative: 7 },
     'dsh-spec-translate-docs': { positive: 5, negative: 4 },
   }[skill]
   assert.ok(expected, skill + ' has no expected trigger distribution')
@@ -1257,7 +1331,15 @@ function assertCurrentTriggerEvidence(
     const row = matrix.get(query.id)
     assert.ok(row, skill + ' trigger matrix is missing ' + query.id)
     const runRoot = join(evidenceRoot, 'trigger', query.id)
-    if (requireQueryBinding) assertTriggerQueryBinding(runRoot, skill, query)
+    if (requireQueryBinding) {
+      assertTriggerQueryBinding(runRoot, skill, query, readTriggerCorpus(skill), requireTypedBinding)
+    }
+    if (requireRunStatus) {
+      const runStatus = readFileSync(join(runRoot, 'status.txt'), 'utf8')
+      assert.match(runStatus, /^status: pass$/m, skill + '/' + query.id + ' trigger status')
+      assert.match(runStatus, /^run_exit_code: 0$/m, skill + '/' + query.id + ' trigger exit')
+      assert.match(runStatus, /^assertions: 1\/1$/m, skill + '/' + query.id + ' trigger count')
+    }
     const final = readFileSync(join(runRoot, 'final.md'), 'utf8')
     const marker = final.trim().split('\n').at(-1)
     assert.ok(
@@ -1314,7 +1396,13 @@ function assertCurrentTriggerEvidence(
   }
 }
 
-function assertTriggerQueryBinding(root: string, skill: string, query: { id: string; query: string }): void {
+function assertTriggerQueryBinding(
+  root: string,
+  skill: string,
+  query: { id: string; query: string; should_trigger: boolean },
+  corpus: TriggerCorpus,
+  requireTyped = false,
+): void {
   const bindingPath = join(root, 'trigger-query.json')
   assertEvidencePath(root, bindingPath, skill + '/' + query.id + ' trigger query', 'file')
   assertRegularEvidenceFile(bindingPath, skill + '/' + query.id + ' trigger query')
@@ -1322,10 +1410,33 @@ function assertTriggerQueryBinding(root: string, skill: string, query: { id: str
     id?: string
     query?: string
     query_sha256?: string
+    should_trigger?: boolean
+    agent_file?: string
+    currentness?: {
+      trigger_surface_sha256?: string
+      trigger_corpus_sha256?: string
+    }
   }
-  assert.deepEqual(Object.keys(binding).sort(), ['id', 'query', 'query_sha256'])
+  assert.deepEqual(
+    Object.keys(binding).sort(),
+    requireTyped
+      ? ['agent_file', 'currentness', 'id', 'query', 'query_sha256', 'should_trigger']
+      : ['id', 'query', 'query_sha256'],
+  )
   assert.equal(binding.id, query.id, skill + '/' + query.id + ' trigger query id')
   assert.equal(binding.query, query.query, skill + '/' + query.id + ' trigger query text')
+  if (requireTyped) {
+    assert.equal(binding.should_trigger, query.should_trigger, skill + '/' + query.id + ' trigger decision')
+    assert.equal(binding.agent_file, corpus.agent_file, skill + '/' + query.id + ' trigger agent file')
+    assert.deepEqual(
+      binding.currentness,
+      {
+        trigger_surface_sha256: triggerSurfaceHash(skill),
+        trigger_corpus_sha256: currentTriggerCorpusSha256(skill, corpus),
+      },
+      skill + '/' + query.id + ' trigger currentness',
+    )
+  }
   const querySha256 = createHash('sha256').update(query.query).digest('hex')
   assert.equal(binding.query_sha256, querySha256, skill + '/' + query.id + ' trigger query hash')
 
@@ -1356,6 +1467,12 @@ function assertBehaviorScenarioTraceBinding(root: string, skill: string, scenari
   assert.equal(events[0]?.subject, `${skill}:${scenario.id}`, skill + '/' + scenario.id + ' trace subject')
   assert.equal(events[0]?.path, 'scenario-definition.json', skill + '/' + scenario.id + ' trace path')
   assert.equal(events[0]?.sha256, scenarioSha256, skill + '/' + scenario.id + ' trace scenario hash')
+  const traceText = evidencePolicy.readRetainedTrace(root)
+  assert.equal(
+    readFileSync(join(root, 'final.md'), 'utf8'),
+    evidencePolicy.finalAgentMessageFromTrace(traceText),
+    skill + '/' + scenario.id + ' final differs from the trace',
+  )
 }
 
 function assertBehaviorRunSkillHashes(root: string, skill: string, behaviorFiles: ReadonlyMap<string, string>): void {
@@ -1827,6 +1944,27 @@ function assertRegularEvidenceFile(path: string, label: string): void {
   assert.ok(stat, label + ' is missing')
   assert.equal(stat.isSymbolicLink(), false, label + ' is a symbolic link')
   assert.equal(stat.isFile(), true, label + ' is not a regular file')
+}
+
+function assertEvidenceArtifactManifest(root: string, label: string): void {
+  const manifestPath = join(root, 'artifacts.sha256')
+  assertEvidencePath(root, manifestPath, label + ' artifact manifest', 'file')
+  assertRegularEvidenceFile(manifestPath, label + ' artifact manifest')
+  const listed = readOrderedHashManifest(manifestPath).map(({ hash, path }) => {
+    assert.match(path, /^artifact\//, label + ' artifact path')
+    const artifactPath = join(root, path)
+    assertEvidencePath(root, artifactPath, label + ' artifact', 'file')
+    assertRegularEvidenceFile(artifactPath, label + ' artifact')
+    assert.equal(fileHash(artifactPath), hash, label + ' artifact differs: ' + path)
+    return path
+  })
+  const artifactRoot = join(root, 'artifact')
+  let actual: string[] = []
+  if (existsSync(artifactRoot)) {
+    assertEvidencePath(root, artifactRoot, label + ' artifact root', 'directory')
+    actual = listFiles(artifactRoot).map((path) => `artifact/${path}`)
+  }
+  assert.deepEqual(listed.sort(), actual.sort(), label + ' artifact directory differs from its manifest')
 }
 
 function assertEvidencePath(root: string, path: string, label: string, kind: 'file' | 'directory'): void {
@@ -2491,11 +2629,63 @@ test('CI test reliability binds current typed trigger and slow-suite evidence', 
   assertCurrentTypedBehaviorEvidence(skill, 'redesign-slow-repeated-suite')
 })
 
-test('performance investigation binds current trigger evidence', () => {
+test('speed-up-perf binds current trigger evidence', () => {
   assertCurrentTriggerEvidence(
-    'dsh-spec-performance-investigation',
-    join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-24-pr129/dsh-spec-performance-investigation'),
+    'dsh-spec-speed-up-perf',
+    join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-26-issue-166/dsh-spec-speed-up-perf'),
+    true,
+    'selected',
+    new Set(),
+    true,
+    true,
+    true,
   )
+})
+
+test('speed-up-perf keeps measurement, memory, identity and evidence boundaries explicit', () => {
+  const body = readFileSync(join(REPO_ROOT, 'skills/dsh-spec-speed-up-perf/SKILL.md'), 'utf8')
+  for (const requirement of [
+    /Not for test flakiness.*capacity planning/i,
+    /benchmark.*gate.*profile.*separate decisions/i,
+    /do not download, install or start a substitute/i,
+    /one warm-up and at least five measured samples/i,
+    /Cold-start measurements use fresh processes or child processes/i,
+    /memory still reachable.*transient allocation or peak pressure/i,
+    /Stabilize identities and narrow subscriptions/i,
+    /Preserve update ordering, the immediate initial event and an equivalent teardown/i,
+    /A deliberate visible difference states what changes/i,
+    /Treat a gate as source configuration or a project-owned threshold/i,
+    /Separate historical claims, fresh local measurements, production telemetry, gate results and CI evidence/i,
+    /Delegate independent measurement domains/i,
+    /decision-record mechanism/i,
+    /official stack mechanism/i,
+    /separate worktrees/i,
+    /review findings, including bot reports/i,
+    /standing instructions, architecture and testing policies, relevant package guidance, defensive patterns/i,
+    /Do not add a production export solely for measurement/i,
+    /For process, clock, browser-test or asynchronous cleanup mechanics/i,
+    /Command, revision, runtime, platform and workload/i,
+    /Survey applicable lifecycle moments/i,
+    /internal speed does not prove transport, paint, scrolling or input response/i,
+    /Vary independent cost drivers separately/i,
+    /add a matrix cell only when it can change/i,
+    /Keep package-local diagnostics beside the owning module/i,
+    /do not scale bytes, counts or dimensionless ratios by processor speed/i,
+    /explicit lane decision and repeated measurements.*each supported browser/i,
+    /Serialize measured work against other owned CPU-heavy jobs/i,
+    /Reduce a failing scenario until it still exercises the real bottleneck/i,
+    /Remove duplicate parsing, copying, freezing.*durable or wire parsing/i,
+    /retaining every generation.*writable-readiness/i,
+    /Do not cache expanded representations/i,
+    /do not silently truncate or omit nested or large results/i,
+    /functional expectations independent of benchmark internals/i,
+    /Reusable procedure.*scenario-specific truth/i,
+    /Fix a finding in its owning layer/i,
+    /local timing as local evidence, not proof.*CI or gate runner is stable/i,
+  ]) {
+    assert.match(body, requirement)
+  }
+  assert.doesNotMatch(body, /\bDeepSeek\b|\bSession\b|benchmarks\/|machine calibration|fixed budget/i)
 })
 
 test('translate docs binds current trigger evidence', () => {
@@ -2898,7 +3088,7 @@ test('prose-standard evidence rejects stale, swapped and cross-query provenance'
     const documentationQuery = triggerCorpus.queries.find((query) => query.id === 'write-documentation-page')
     assert.ok(documentationQuery)
     assert.throws(
-      () => assertTriggerQueryBinding(queryRoot, skill, documentationQuery),
+      () => assertTriggerQueryBinding(queryRoot, skill, documentationQuery, readTriggerCorpus(skill)),
       /trace query id|trace query hash/,
     )
   } finally {
@@ -3741,11 +3931,11 @@ test('error handling current behavior evidence binds the affected scenarios', ()
   }
 })
 
-test('performance trigger corpus routes runtime paths and excludes adjacent work', () => {
-  const skill = 'dsh-spec-performance-investigation'
+test('speed-up-perf trigger corpus routes runtime paths and excludes adjacent work', () => {
+  const skill = 'dsh-spec-speed-up-perf'
   assertTriggerCorpusIdentity(skill)
   const corpus = JSON.parse(readFileSync(join(EVAL_SOURCE_ROOT, skill, 'trigger-evals.json'), 'utf8')) as {
-    queries: Array<{ id: string; should_trigger: boolean }>
+    queries: Array<{ id: string; query: string; should_trigger: boolean }>
   }
   assert.deepEqual(
     corpus.queries.map((query) => query.id),
@@ -3755,16 +3945,23 @@ test('performance trigger corpus routes runtime paths and excludes adjacent work
       'cli-startup',
       'end-to-end-upload',
       'memory-growth',
+      'benchmark-gate-profile',
       'ci-port-flake',
       'slow-test-fixtures',
       'coverage-only',
       'pre-push-selection',
       'visual-review',
       'general-code-review',
+      'capacity-model',
     ],
   )
-  assert.equal(corpus.queries.filter((query) => query.should_trigger).length, 5)
-  assert.equal(corpus.queries.filter((query) => !query.should_trigger).length, 6)
+  assert.equal(corpus.queries.filter((query) => query.should_trigger).length, 6)
+  assert.equal(corpus.queries.filter((query) => !query.should_trigger).length, 7)
+  assert.match(
+    corpus.queries.find((query) => query.id === 'benchmark-gate-profile')?.query ?? '',
+    /benchmark.*gate.*profiling plan/i,
+  )
+  assert.match(corpus.queries.find((query) => query.id === 'capacity-model')?.query ?? '', /how many tenants/i)
 })
 
 test('error handling historical evidence retains candidate, baseline and trigger traces', () => {
@@ -4395,12 +4592,15 @@ test('test reliability fixtures run with the intended positive and negative cont
   assert.match(globalPositive, /assert\.deepEqual\(captureGlobals\(\), snapshot\)/)
 })
 
-test('performance fixtures expose runnable production paths and boundaries', () => {
-  const root = join(EVAL_SOURCE_ROOT, 'dsh-spec-performance-investigation', 'evals', 'files')
+test('speed-up-perf fixtures expose runnable production paths and measurement boundaries', () => {
+  const root = join(EVAL_SOURCE_ROOT, 'dsh-spec-speed-up-perf', 'evals', 'files')
   for (const [project, testFile] of [
-    ['backend-budgetless', 'tests/report.test.mjs'],
+    ['measurement-decisions', 'tests/report.test.mjs'],
     ['frontend-input-to-paint', 'tests/input-behavior.test.mjs'],
     ['end-to-end-boundary', 'tests/path.test.mjs'],
+    ['cold-start-process-memory', 'tests/session.test.mjs'],
+    ['stable-identity-subscription', 'tests/store.test.mjs'],
+    ['authorized-deliberate-difference', 'tests/report.test.mjs'],
   ] as const) {
     const result = spawnSync(process.execPath, ['--test', testFile], {
       cwd: join(root, project),
@@ -4410,16 +4610,75 @@ test('performance fixtures expose runnable production paths and boundaries', () 
     assert.equal(result.status, 0, project + ': ' + (result.stdout ?? '') + (result.stderr ?? ''))
   }
 
-  const backend = spawnSync(process.execPath, ['bench.mjs'], {
-    cwd: join(root, 'backend-budgetless'),
+  const measurement = join(root, 'measurement-decisions')
+  const benchmark = spawnSync(process.execPath, ['bench.mjs'], {
+    cwd: measurement,
     encoding: 'utf8',
-    timeout: 10_000,
+    timeout: 30_000,
   })
-  assert.equal(backend.status, 0, (backend.stdout ?? '') + (backend.stderr ?? ''))
-  const backendResult = JSON.parse(backend.stdout) as { samplesMs: number[]; medianMs: number }
-  assert.equal(backendResult.samplesMs.length, 7)
-  assert.ok(backendResult.samplesMs.every((sample) => Number.isFinite(sample) && sample > 0))
-  assert.ok(Number.isFinite(backendResult.medianMs) && backendResult.medianMs > 0)
+  assert.equal(benchmark.status, 0, (benchmark.stdout ?? '') + (benchmark.stderr ?? ''))
+  const benchmarkResult = JSON.parse(benchmark.stdout) as {
+    warmupSamplesMs: number[]
+    samplesMs: number[]
+    medianMs: number
+    p95Ms: number
+  }
+  assert.equal(benchmarkResult.warmupSamplesMs.length, 2)
+  assert.equal(benchmarkResult.samplesMs.length, 7)
+  assert.ok(benchmarkResult.samplesMs.every((sample) => Number.isFinite(sample) && sample > 0))
+  assert.ok(Number.isFinite(benchmarkResult.medianMs) && benchmarkResult.medianMs > 0)
+  assert.ok(Number.isFinite(benchmarkResult.p95Ms) && benchmarkResult.p95Ms > 0)
+
+  const gate = spawnSync(
+    process.execPath,
+    [
+      '--input-type=module',
+      '-e',
+      "import { gateDecision } from './gate.mjs'; console.log(JSON.stringify([gateDecision(59), gateDecision(61)]))",
+    ],
+    {
+      cwd: measurement,
+      encoding: 'utf8',
+      timeout: 10_000,
+    },
+  )
+  assert.equal(gate.status, 0, (gate.stdout ?? '') + (gate.stderr ?? ''))
+  const [passingGate, failingGate] = JSON.parse(gate.stdout) as Array<{
+    passed: boolean
+    limitMs: number
+  }>
+  assert.equal(passingGate?.passed, true)
+  assert.equal(failingGate?.passed, false)
+  assert.equal(passingGate?.limitMs, 60)
+  assert.equal(failingGate?.limitMs, 60)
+
+  const gateRun = spawnSync(process.execPath, ['gate.mjs'], {
+    cwd: measurement,
+    encoding: 'utf8',
+    timeout: 30_000,
+  })
+  assert.ok([0, 1].includes(gateRun.status ?? -1), (gateRun.stdout ?? '') + (gateRun.stderr ?? ''))
+  const gateResult = JSON.parse(gateRun.stdout) as { passed: boolean; limitMs: number }
+  assert.equal(gateResult.passed, gateRun.status === 0)
+  assert.equal(gateResult.limitMs, 60)
+
+  const profile = spawnSync(process.execPath, ['profile.mjs'], {
+    cwd: measurement,
+    encoding: 'utf8',
+    timeout: 30_000,
+  })
+  assert.equal(profile.status, 0, (profile.stdout ?? '') + (profile.stderr ?? ''))
+  const profileResult = JSON.parse(profile.stdout) as {
+    inventoryRows: number
+    seenScans: number
+    regionFilters: number
+    regionCandidates: number
+    profileEntries: number
+  }
+  assert.ok(profileResult.inventoryRows > 5_000)
+  assert.ok(profileResult.seenScans >= profileResult.inventoryRows)
+  assert.equal(profileResult.regionFilters, profileResult.profileEntries)
+  assert.ok(profileResult.regionCandidates > profileResult.inventoryRows)
 
   const frontend = join(root, 'frontend-input-to-paint')
   const build = spawnSync(process.execPath, ['build.mjs'], { cwd: frontend, encoding: 'utf8' })
@@ -4449,17 +4708,88 @@ test('performance fixtures expose runnable production paths and boundaries', () 
     assert.ok(sample.localMs > 0)
     assert.ok(sample.itemCount > 0)
   }
+
+  const coldStart = join(root, 'cold-start-process-memory')
+  const probe = spawnSync(process.execPath, ['probe.mjs'], {
+    cwd: coldStart,
+    encoding: 'utf8',
+    timeout: 30_000,
+  })
+  assert.equal(probe.status, 0, (probe.stdout ?? '') + (probe.stderr ?? ''))
+  const coldResult = JSON.parse(probe.stdout) as {
+    samples: Array<{
+      wallMs: number
+      heapDeltaBytes: number
+      retainedArrayBufferDeltaBytes: number
+      gc: string
+      retainedBatches: number
+      negativeControl: { retainedBatches: number; arrayBufferDeltaBytes: number }
+    }>
+  }
+  assert.equal(coldResult.samples.length, 5)
+  for (const sample of coldResult.samples) {
+    assert.ok(Number.isFinite(sample.wallMs))
+    assert.ok(sample.wallMs > 0)
+    assert.ok(Number.isFinite(sample.heapDeltaBytes))
+    assert.ok(Number.isFinite(sample.retainedArrayBufferDeltaBytes))
+    assert.ok(Number.isFinite(sample.negativeControl.arrayBufferDeltaBytes))
+    assert.match(sample.gc, /explicit synchronous major global\.gc/)
+    assert.equal(sample.retainedBatches, 30)
+    assert.equal(sample.negativeControl.retainedBatches, 0)
+  }
+
+  const identity = join(root, 'stable-identity-subscription')
+  const diagnosis = spawnSync(process.execPath, ['diagnose.mjs'], {
+    cwd: identity,
+    encoding: 'utf8',
+    timeout: 10_000,
+  })
+  assert.equal(diagnosis.status, 0, (diagnosis.stdout ?? '') + (diagnosis.stderr ?? ''))
+  const identityResult = JSON.parse(diagnosis.stdout) as {
+    events: Array<{ order: string[] }>
+    retainedIdentityByRow: Record<string, boolean>
+  }
+  assert.deepEqual(
+    identityResult.events.map((event) => event.order),
+    [
+      ['north', 'south', 'west'],
+      ['north', 'south', 'west'],
+    ],
+  )
+  assert.deepEqual(identityResult.retainedIdentityByRow, {
+    north: false,
+    south: false,
+    west: false,
+  })
+
+  const authorized = join(root, 'authorized-deliberate-difference')
+  const visibleChange = spawnSync(process.execPath, ['measure.mjs'], {
+    cwd: authorized,
+    encoding: 'utf8',
+    timeout: 30_000,
+  })
+  assert.equal(visibleChange.status, 0, (visibleChange.stdout ?? '') + (visibleChange.stderr ?? ''))
+  const visibleResult = JSON.parse(visibleChange.stdout) as { samplesMs: number[]; medianMs: number }
+  assert.equal(visibleResult.samplesMs.length, 7)
+  assert.ok(visibleResult.medianMs > 0)
 })
 
-test('performance investigation model evidence binds scenarios, capabilities and provenance', () => {
-  const skill = 'dsh-spec-performance-investigation'
-  const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-24-pr129', skill)
-  assert.match(
-    readFileSync(join(evidenceRoot, 'README.md'), 'utf8'),
-    /^> \*\*Historical status:\*\* `backend-budgetless-latency`/m,
-  )
+test('speed-up-perf model evidence binds scenarios, capabilities and provenance', () => {
+  const skill = 'dsh-spec-speed-up-perf'
+  const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-26-issue-166', skill)
+  const currentUsername = userInfo().username.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const hostAccountPatterns = [
+    new RegExp(`[bcdlps-][rwxStTs-]{9}[+@.]?\\s+\\d+\\s+${currentUsername}(?=\\s|:)`, 'i'),
+    new RegExp(`(?:uid|gid)=\\d+\\(${currentUsername}\\)`, 'i'),
+    new RegExp(`(?:^|\\\\n)${currentUsername}(?=\\s+\\d+\\s+\\d+\\s+)`, 'im'),
+  ]
+  for (const file of listFiles(evidenceRoot)) {
+    const text = readFileSync(join(evidenceRoot, file), 'utf8')
+    for (const pattern of hostAccountPatterns) {
+      assert.doesNotMatch(text, pattern, file + ' exposes the current host account')
+    }
+  }
   for (const scenario of readCorpus(skill).evals) {
-    const evolvedComparisonScenario = scenario.id === 'backend-budgetless-latency'
     const root = join(evidenceRoot, scenario.id)
     assertEvidencePath(evidenceRoot, root, scenario.id, 'directory')
     const status = readFileSync(join(root, 'status.txt'), 'utf8')
@@ -4470,25 +4800,21 @@ test('performance investigation model evidence binds scenarios, capabilities and
       new RegExp(`^assertions: ${scenario.assertions.length}/${scenario.assertions.length}$`, 'm'),
       scenario.id,
     )
+    const assertionLines = readFileSync(join(root, 'assertions.txt'), 'utf8').trim().split('\n')
     assert.deepEqual(
-      readFileSync(join(root, 'assertions.txt'), 'utf8')
-        .trim()
-        .split('\n')
-        .map((line) => line.replace(/^PASS /, '')),
+      assertionLines.map((line) => line.replace(/^(?:PASS|FAIL) /, '')),
       scenario.assertions,
       scenario.id + ' assertion text differs',
     )
+    assertionLines.forEach((line) => assert.match(line, /^PASS /, scenario.id))
     const recorded = validateRecordedScenario(
       skill,
       JSON.parse(readFileSync(join(root, 'scenario-definition.json'), 'utf8')),
       scenario.id,
     )
-    if (evolvedComparisonScenario) {
-      assert.equal(recorded.comparison, undefined, scenario.id + ' already recorded typed comparison metadata')
-      assert.ok(scenario.comparison, scenario.id + ' no longer declares a comparison')
-    } else {
-      assert.deepEqual(recorded, scenario, scenario.id + ' scenario definition differs')
-    }
+    assert.deepEqual(recorded, scenario, scenario.id + ' scenario definition differs')
+    assertBehaviorScenarioTraceBinding(root, skill, scenario)
+    assertEvidenceArtifactManifest(root, scenario.id)
     assert.equal(
       readFileSync(join(root, 'scenario-definition.sha256'), 'utf8').trim(),
       `${scenarioDefinitionHash(recorded)}  ${skill}:${scenario.id}`,
@@ -4506,6 +4832,36 @@ test('performance investigation model evidence binds scenarios, capabilities and
       scenario.id + ' capability profile differs',
     )
     assertBehaviorSkillProvenance(root, skill, scenario.install ?? [])
+    const skillRoot = join(REPO_ROOT, 'skills', skill)
+    const currentSkillHashes = listFiles(skillRoot).map(
+      (file) => `${fileHash(join(skillRoot, file))}  skills/${skill}/${file}  mode=${fileMode(join(skillRoot, file))}`,
+    )
+    for (const [entryPath, entry] of readSkillHashEntries(root)) {
+      const currentPath = join(REPO_ROOT, entryPath)
+      assert.equal(entry.hash, fileHash(currentPath), scenario.id + ' stale skill hash: ' + entryPath)
+      assert.equal(entry.mode, fileMode(currentPath), scenario.id + ' stale skill mode: ' + entryPath)
+    }
+    const metadata = JSON.parse(readFileSync(join(root, 'evidence.json'), 'utf8')) as {
+      arm: string
+      claim: { subject: string; type: string }
+      evidence: { currentness: { input_manifest_sha256: string; scenario_sha256: string } }
+      provenance: { target_skill_tree_sha256: string | null }
+    }
+    evidencePolicy.inspectRetainedRun(root, metadata)
+    assert.equal(metadata.arm, 'target-present', scenario.id)
+    assert.equal(metadata.claim.subject, `${skill}:${scenario.id}`, scenario.id)
+    assert.equal(metadata.evidence.currentness.scenario_sha256, scenarioDefinitionHash(scenario), scenario.id)
+    assert.equal(
+      metadata.evidence.currentness.input_manifest_sha256,
+      fileHash(join(root, 'input-manifest.sha256')),
+      scenario.id,
+    )
+    assert.equal(
+      metadata.provenance.target_skill_tree_sha256,
+      createHash('sha256').update(currentSkillHashes.join('\n')).digest('hex'),
+      scenario.id + ' skill tree differs',
+    )
+    assert.equal(replayEvidencePatch(root, skill, scenario), true, scenario.id + ' inputs changed')
     assertAnswerBlindTrace(root)
     assert.ok(
       traceCommandsFor(root).some((command) => commandPrintsSkill(command, skill)),
@@ -4530,18 +4886,101 @@ test('performance investigation model evidence binds scenarios, capabilities and
     '',
   )
 
-  const baseline = join(evidenceRoot, 'baseline-backend-budgetless-latency')
+  const baseline = join(evidenceRoot, 'baseline-measurement-decisions')
   const baselineStatus = readFileSync(join(baseline, 'status.txt'), 'utf8')
   assert.match(baselineStatus, /^role: no-skill baseline$/m)
-  assert.match(baselineStatus, /^status: pass$/m)
-  assert.match(baselineStatus, /^assertions: 5\/5$/m)
+  assert.match(baselineStatus, /^status: fail$/m)
+  assert.match(baselineStatus, /^assertions: 5\/6$/m)
   assert.match(baselineStatus, /^answer_blind: false$/m)
-  assert.doesNotMatch(
-    readFileSync(join(baseline, 'trace.jsonl'), 'utf8'),
-    /dsh-spec-performance-investigation/,
+  assert.equal(
+    traceCommandsFor(baseline).some((command) => commandPrintsSkill(command, skill)),
+    false,
     'the baseline used the target skill',
   )
-  assert.match(readFileSync(join(baseline, 'patch.diff'), 'utf8'), /unitsByRegion/)
+  assert.match(readFileSync(join(baseline, 'patch.diff'), 'utf8'), /report\.mjs|unitsByRegion|regionalUnits|Map/)
+  const comparisonScenario = readCorpus(skill).evals.find((scenario) => scenario.id === 'measurement-decisions')
+  assert.ok(comparisonScenario)
+  assert.equal(replayEvidencePatch(baseline, skill, comparisonScenario), true, 'baseline inputs changed')
+  assertBehaviorScenarioTraceBinding(baseline, skill, comparisonScenario)
+  assertEvidenceArtifactManifest(baseline, 'baseline-measurement-decisions')
+  const baselineEvidence = JSON.parse(readFileSync(join(baseline, 'evidence.json'), 'utf8')) as {
+    comparison: { counterpart_evidence_sha256: string | null; pair_status: string }
+  }
+  const candidateEvidence = JSON.parse(readFileSync(join(evidenceRoot, 'measurement-decisions/evidence.json'), 'utf8'))
+  evidencePolicy.inspectRetainedRun(baseline, baselineEvidence)
+  evidencePolicy.inspectRetainedRun(join(evidenceRoot, 'measurement-decisions'), candidateEvidence)
+  evidencePolicy.assertComparableEvidenceArms(candidateEvidence, baselineEvidence, {
+    scenario: comparisonScenario,
+    candidateEvidenceSha256: evidencePolicy.hashEvidenceMetadata(join(evidenceRoot, 'measurement-decisions')),
+    baselineEvidenceSha256: evidencePolicy.hashEvidenceMetadata(baseline),
+  })
+  assert.equal(baselineEvidence.comparison.pair_status, 'paired')
+  assert.equal(
+    baselineEvidence.comparison.counterpart_evidence_sha256,
+    evidencePolicy.hashEvidenceMetadata(join(evidenceRoot, 'measurement-decisions')),
+  )
+})
+
+test('speed-up-perf evidence rejects cross-scenario and artifact swaps', () => {
+  const skill = 'dsh-spec-speed-up-perf'
+  const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-26-issue-166', skill)
+  const scenario = readCorpus(skill).evals.find((entry) => entry.id === 'measurement-decisions')
+  assert.ok(scenario)
+  const temporaryRoot = mkdtempSync(join(tmpdir(), 'speed-up-perf-evidence-swap-'))
+  try {
+    const copied = join(temporaryRoot, scenario.id)
+    cpSync(join(evidenceRoot, scenario.id), copied, { recursive: true })
+
+    cpSync(join(evidenceRoot, 'frontend-input-to-paint/trace.jsonl'), join(copied, 'trace.jsonl'))
+    assert.throws(
+      () => assertBehaviorScenarioTraceBinding(copied, skill, scenario),
+      /trace subject|trace scenario hash/,
+    )
+
+    cpSync(join(evidenceRoot, scenario.id, 'trace.jsonl'), join(copied, 'trace.jsonl'))
+    cpSync(join(evidenceRoot, 'frontend-input-to-paint/final.md'), join(copied, 'final.md'))
+    assert.throws(() => assertBehaviorScenarioTraceBinding(copied, skill, scenario), /final differs from the trace/)
+
+    cpSync(join(evidenceRoot, scenario.id, 'final.md'), join(copied, 'final.md'))
+    writeFileSync(
+      join(copied, 'artifact/evals/files/measurement-decisions/src/report.mjs'),
+      'unexpected artifact contents\n',
+    )
+    assert.throws(() => assertEvidenceArtifactManifest(copied, 'speed-up-perf swap control'), /artifact differs/)
+
+    cpSync(
+      join(evidenceRoot, scenario.id, 'artifact/evals/files/measurement-decisions/src/report.mjs'),
+      join(copied, 'artifact/evals/files/measurement-decisions/src/report.mjs'),
+    )
+    writeFileSync(join(copied, 'artifact/evals/files/measurement-decisions/extra.txt'), 'unexpected artifact\n')
+    assert.throws(
+      () => assertEvidenceArtifactManifest(copied, 'speed-up-perf swap control'),
+      /artifact directory differs from its manifest/,
+    )
+  } finally {
+    rmSync(temporaryRoot, { recursive: true, force: true })
+  }
+})
+
+test('PR #129 performance traces remain historical after the reforge', () => {
+  const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-24-pr129/dsh-spec-performance-investigation')
+  assert.match(readFileSync(join(evidenceRoot, 'README.md'), 'utf8'), /^> \*\*Historical status:\*\*/m)
+  for (const scenario of [
+    'backend-budgetless-latency',
+    'browser-measurement-unavailable',
+    'end-to-end-external-boundary',
+    'frontend-input-to-paint',
+    'private-corpus-remains-aggregate',
+  ]) {
+    const root = join(evidenceRoot, scenario)
+    assert.ok(readFileSync(join(root, 'final.md'), 'utf8').trim().length > 0, scenario)
+    assert.ok(readFileSync(join(root, 'trace.jsonl'), 'utf8').trim().length > 0, scenario)
+    assert.doesNotMatch(
+      readFileSync(join(root, 'skill-hashes.txt'), 'utf8'),
+      /dsh-spec-speed-up-perf/,
+      scenario + ' incorrectly claims the renamed skill',
+    )
+  }
 })
 
 test('find-simplifications authority evidence binds scenario, inputs and skill provenance', () => {
@@ -6349,7 +6788,7 @@ test('every typed evidence leaf passes full retained policy under a different HO
     )
     checked += 1
   }
-  assert.equal(checked, 27, 'typed evidence leaf count changed')
+  assert.equal(checked, 49, 'typed evidence leaf count changed')
 })
 
 test('the model runner refuses to replace the repository or evidence root', () => {

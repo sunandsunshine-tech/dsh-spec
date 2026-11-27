@@ -1,13 +1,12 @@
-# Performance investigation model evidence
+# Historical performance investigation evidence
 
-The five candidate scenarios ran through `tests/skill-evals/run-model-eval.mjs` with the recorded
+The five candidate scenarios ran through `tests/skill-evals/run-model-eval.mjs` with the former
 `dsh-spec-performance-investigation` skill installed in an otherwise minimal project.
 
-> **Historical status:** `backend-budgetless-latency` predates the scenario's typed comparison
-> declaration. Its run remains auditable at the bytes it recorded, but it is not current proof of
-> the target-absent comparison workflow. The other four candidate scenarios keep their recorded
-> behavior currentness; their complete skill hash remains provenance rather than a global
-> invalidation test.
+> **Historical status:** #166 replaced this skill with `dsh-spec-speed-up-perf` and changed its
+> trigger, behavior and evaluation identity. These traces remain auditable at the names, inputs and
+> skill hashes they actually exercised, but they are not current trigger or behavior evidence for
+> the renamed skill. Current evidence is under `2026-11-26-issue-166/dsh-spec-speed-up-perf/`.
 
 - `backend-budgetless-latency`: real HTTP benchmark, profiling, a behavior-preserving optimization,
   interleaved control runs and a byte-identical response.

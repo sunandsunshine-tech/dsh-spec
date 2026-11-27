@@ -1,0 +1,5 @@
+569bad004a04246046008b99d75be14a8b1185822eb21181546b409d0267c33a  evals/files/stable-identity-subscription/README.md  mode=0644
+0cad7f2c47ec7fc28ce27b19ef333cd383df922ea461279d3542004a55c5b005  evals/files/stable-identity-subscription/package.json  mode=0644
+44c24b78ab097ce0b2b7aab16510905714f10cc2eb1af779e84db18dd9e82286  evals/files/stable-identity-subscription/diagnose.mjs  mode=0644
+e2a7233493f54d92422f5e963be5eec51c4572b23947ad5eb0181771c97188b2  evals/files/stable-identity-subscription/src/store.mjs  mode=0644
+fbfd4b822df66ba3b5205be2260a5b1d3084b5945898b58e067b43187d19f47e  evals/files/stable-identity-subscription/tests/store.test.mjs  mode=0644

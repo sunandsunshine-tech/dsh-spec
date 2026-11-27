@@ -1,0 +1,5 @@
+{"type":"query","id":"ci-port-flake","query_sha256":"0ee035f6c4a3e2601b8890933f0d45317078f5a816747f8f9b08747cef3f777b"}
+{"type":"thread.started","thread_id":"01a21af9-0cf8-7ee0-bb09-34d155e04854"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"The intermittent `EADDRINUSE` failure is test flakiness rather than a production performance issue; the `dsh-spec-speed-up-perf` skill explicitly excludes test flakiness and general code review.\n\nSELECT: none"}}
+{"type":"turn.completed","usage":{"input_tokens":12411,"cached_input_tokens":12160,"cache_write_input_tokens":0,"output_tokens":121,"reasoning_output_tokens":72}}

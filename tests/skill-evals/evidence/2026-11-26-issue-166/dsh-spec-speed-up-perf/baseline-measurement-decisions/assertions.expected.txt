@@ -1,0 +1,6 @@
+PASS The response measures the production HTTP endpoint rather than a copied benchmark algorithm.
+PASS The response reports benchmark samples, the project gate decision and profiler attribution as separate decisions.
+PASS The response identifies repeated all-item scanning and per-item profile work as the dominant cost.
+PASS The candidate preserves duplicate removal, report fields, ordering and the unchanged gate value.
+FAIL The response reports raw before/after samples, an aggregate, a negative control and the ratio.
+PASS The edited project's focused test passes.

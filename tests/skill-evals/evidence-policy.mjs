@@ -65,10 +65,7 @@ const privacyCanarySets = new Map([
 ])
 
 const scenarioPrivacyCanarySets = new Map([
-  [
-    'dsh-spec-performance-investigation:private-corpus-remains-aggregate',
-    Object.freeze(['private-performance-corpus']),
-  ],
+  ['dsh-spec-speed-up-perf:private-corpus-remains-aggregate', Object.freeze(['private-performance-corpus'])],
 ])
 
 const hashPattern = /^[0-9a-f]{64}$/

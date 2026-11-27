@@ -1,0 +1,5 @@
+role: no-skill baseline
+status: fail
+run_exit_code: 0
+assertions: 5/6
+answer_blind: false

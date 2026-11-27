@@ -24,12 +24,12 @@ const DEFAULT_BEARING = [
   'dsh-spec-client-ui-ux',
   'dsh-spec-error-handling',
   'dsh-spec-merging-stacked-prs',
-  'dsh-spec-performance-investigation',
   'dsh-spec-pr-description',
   'dsh-spec-pre-push-checks',
   'dsh-spec-prose-standard',
   'dsh-spec-record-browser-gif',
   'dsh-spec-skill-forge',
+  'dsh-spec-speed-up-perf',
   'dsh-spec-translate-docs',
 ]
 
@@ -110,12 +110,12 @@ const USE_SITE_PINS = [
     text: "Do not multiply every test group's timeout because one group is slow.",
   },
   {
-    skill: 'dsh-spec-performance-investigation',
+    skill: 'dsh-spec-speed-up-perf',
     file: 'SKILL.md',
     text: 'run one warm-up and at least five measured samples for each side',
   },
   {
-    skill: 'dsh-spec-performance-investigation',
+    skill: 'dsh-spec-speed-up-perf',
     file: 'SKILL.md',
     text: 'Without a project budget, report absolute before and after values and their ratio.',
   },

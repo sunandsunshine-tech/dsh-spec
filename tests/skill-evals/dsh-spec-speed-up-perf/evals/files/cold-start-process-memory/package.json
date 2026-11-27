@@ -1,0 +1,9 @@
+{
+  "name": "performance-cold-start-process-memory",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "probe": "node probe.mjs",
+    "test": "node --test tests/session.test.mjs"
+  }
+}

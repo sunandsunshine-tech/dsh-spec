@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "claim": {
+    "type": "comparison",
+    "subject": "dsh-spec-speed-up-perf:measurement-decisions"
+  },
+  "arm": "target-absent",
+  "comparison": {
+    "baseline": "target-absent",
+    "candidate": "target-present",
+    "conditions_sha256": "18936424c226bcd2280fb8f9ad4972ba8aac15a4fbbca4622d43227615b64352",
+    "counterpart_evidence_sha256": "206ae653c1e345275b56cb7d32d0c5c7ec4a42335b9992836bee85ec9bbf90ce",
+    "pair_status": "paired"
+  },
+  "evidence": {
+    "kind": "model",
+    "currentness": {
+      "scenario_sha256": "df843f8ad111324844accc5267dc207a0d131faa7b58ec78022e45780a80eb9f",
+      "input_manifest_sha256": "4d1ea86b40bd07f84905fa532a0b5c843586bd720e185bda05ef4b5e8e27365e",
+      "scenario_prompt_sha256": "392e445ed9b9ddae114204481c9089c6cac67daa46c7ff211e1a61b554041480",
+      "arm_instruction_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "prompt_guard_sha256": "e587246af427c697477e3f5e361192ebb5316c5f17540449cf6de853ec64af30",
+      "rendered_prompt_sha256": "bc99aae60a070a16ee245a127d79e2cde2add51f33a5726b149bf5aa6ab76fc6",
+      "execution_sha256": "df0d14c0a241265515e09d97e5b796c7a07f4e04e2b1e49e7bc971557340c54a",
+      "comparison_conditions_sha256": "18936424c226bcd2280fb8f9ad4972ba8aac15a4fbbca4622d43227615b64352"
+    }
+  },
+  "execution": {
+    "auth": "host-proxy",
+    "browser": false,
+    "media": false,
+    "model_config_sha256": "81fe0a5e2d45e2a687f9ff2d811dd45cca60b986eeb96b994e9255e9eda70e1c",
+    "model_runtime_sha256": "63279cf1860a285495fa0bad3c40f5eb38c3487f7425adb603bcbd49175fcaf8",
+    "sandbox": "workspace-write",
+    "subagents": false
+  },
+  "provenance": {
+    "target_skill_tree_sha256": null,
+    "dependency_skill_tree_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "deadline_ms": 600000,
+  "privacy": {
+    "canary_sets": [
+      "current-home",
+      "local-environment"
+    ],
+    "scope_sha256": "2b910be53fbe40382a58ac7b2d82bffe01809fb589a28caca231ac26a8090db2",
+    "surfaces": "all-retained-files"
+  }
+}

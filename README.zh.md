@@ -66,7 +66,7 @@ GitHub CLI 自己也带一个 agent 技能，去[它的仓库](https://github.co
 | 采用者需求 | 技能 | 来源 |
 |---|---|---|
 | **通用协作——从这里开始** | `dsh-spec-agent-experience`、`dsh-spec-agents-md`、`dsh-spec-agent-notes`、`dsh-spec-prose-standard`、`dsh-spec-translate-docs` | DeepSeek Harness；`dsh-spec-agents-md` 在本包锻造 |
-| **软件变更与质量** | `dsh-spec-find-simplifications`、`dsh-spec-code-review`、`dsh-spec-pre-push-checks`、`dsh-spec-error-handling`、`dsh-spec-ci-test-reliability`、`dsh-spec-performance-investigation` | DeepSeek Harness；`dsh-spec-ci-test-reliability` 在本包通用化到 CI 或等效测试执行通道，`dsh-spec-performance-investigation` 也在本包通用化 |
+| **软件变更与质量** | `dsh-spec-find-simplifications`、`dsh-spec-code-review`、`dsh-spec-pre-push-checks`、`dsh-spec-error-handling`、`dsh-spec-ci-test-reliability`、`dsh-spec-speed-up-perf` | DeepSeek Harness；`dsh-spec-ci-test-reliability` 在本包通用化到 CI 或等效测试执行通道，`dsh-spec-speed-up-perf` 也在本包通用化 |
 | **变更说明与落地** | `dsh-spec-pr-description`、`dsh-spec-merging-stacked-prs` | DeepSeek Harness |
 | **浏览器 UI 证据** | `dsh-spec-client-ui-ux`、`dsh-spec-record-browser-gif` | DeepSeek Harness |
 | **Agent 技能制作** | `dsh-spec-skill-forge` | 在本包锻造 |

@@ -1,0 +1,11 @@
+{
+  "id": "backend-p95",
+  "query": "Optimize the production API so its p95 latency drops from 300 ms to 150 ms without changing the response.",
+  "query_sha256": "8c4944217ffe7d47aa7d0517a677566baad9cec2f7f05230a8243591dff070f6",
+  "should_trigger": true,
+  "agent_file": "trigger-fixtures/AGENTS.md",
+  "currentness": {
+    "trigger_surface_sha256": "15d0a9d6d97d9b595dad1fbad81d03d9171422840ebf6a0f4b5f448d200395b6",
+    "trigger_corpus_sha256": "99b6ac75a489f57a9bce0000dae8a8328242d3d55542a9e185e97e221e1e93de"
+  }
+}

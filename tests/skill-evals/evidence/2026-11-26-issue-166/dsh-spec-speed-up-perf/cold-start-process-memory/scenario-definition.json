@@ -1,0 +1,21 @@
+{
+  "id": "cold-start-process-memory",
+  "prompt": "The CLI in evals/files/cold-start-process-memory feels slow on first use and its worker appears to grow after batches run. Do not change code. Run the fixture, separate fresh-process cold start from warm execution, and distinguish transient allocation from memory still reachable after the batch. Report the sampling method, evidence and limits.",
+  "expected_output": "The response runs cold-start samples through fresh child processes, identifies module and fixture setup included in startup, states the sampling method, distinguishes transient allocation from the worker's retained batch state, and reports the samples and retained-versus-transient limit without changing code.",
+  "files": [
+    "evals/files/cold-start-process-memory/README.md",
+    "evals/files/cold-start-process-memory/package.json",
+    "evals/files/cold-start-process-memory/probe.mjs",
+    "evals/files/cold-start-process-memory/worker.mjs",
+    "evals/files/cold-start-process-memory/src/session.mjs",
+    "evals/files/cold-start-process-memory/tests/session.test.mjs"
+  ],
+  "assertions": [
+    "The response uses fresh child processes for cold-start samples.",
+    "The response states which module and setup costs the cold measurement includes.",
+    "The response distinguishes transient batch allocation from reachable retained state.",
+    "The response reports the garbage-collection or sampling policy and its limit.",
+    "The response makes no production code change.",
+    "The reported result keeps cold-start and process-memory evidence separate."
+  ]
+}

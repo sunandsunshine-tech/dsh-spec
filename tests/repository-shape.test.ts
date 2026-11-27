@@ -455,6 +455,7 @@ test('directly ported skills keep their upstream-aligned names', () => {
   for (const [delivered, upstream] of [
     ['dsh-spec-ci-test-reliability', 'dsh-ci-test-reliability'],
     ['dsh-spec-record-browser-gif', 'record-browser-gif'],
+    ['dsh-spec-speed-up-perf', 'dsh-speed-up-perf'],
   ] as const) {
     const entry = readFileSync(join(REPO_ROOT, 'skills', delivered, 'SKILL.md'), 'utf8')
     assert.match(entry, new RegExp(`^name: ${delivered}$`, 'm'))
@@ -465,4 +466,42 @@ test('directly ported skills keep their upstream-aligned names', () => {
       delivered + ' names another upstream skill',
     )
   }
+})
+
+test('speed-up-perf has one current owner and no legacy alias', () => {
+  const former = 'dsh-spec-performance-investigation'
+  const current = 'dsh-spec-speed-up-perf'
+  assert.equal(existsSync(join(REPO_ROOT, 'skills', former)), false)
+  assert.equal(existsSync(join(REPO_ROOT, '.agents', 'skills', former)), false)
+  assert.equal(existsSync(join(REPO_ROOT, 'tests', 'skill-evals', former)), false)
+  assert.equal(
+    existsSync(
+      join(
+        REPO_ROOT,
+        '.agents/dsh-spec-agent-notes/proposed/feature/2026-11-25-reforge-performance-as-dsh-speed-up-perf.md',
+      ),
+    ),
+    false,
+  )
+  assert.equal(
+    existsSync(
+      join(
+        REPO_ROOT,
+        '.agents/dsh-spec-agent-notes/implemented/feature/2026-11-24-forging-dsh-spec-performance-investigation.md',
+      ),
+    ),
+    false,
+  )
+  for (const name of [
+    '2026-11-25-reforge-performance-as-dsh-speed-up-perf.md',
+    '2026-11-25-reforge-performance-as-dsh-speed-up-perf.zh.md',
+    '2026-11-25-reforge-performance-as-dsh-speed-up-perf.i18n.yaml',
+  ]) {
+    assert.equal(existsSync(join(REPO_ROOT, '.agents/dsh-spec-agent-notes/implemented/feature', name)), true, name)
+  }
+  assert.ok(
+    repoFile(
+      '.agents/dsh-spec-agent-notes/implemented/feature/2026-11-25-reforge-performance-as-dsh-speed-up-perf.md',
+    ).includes(`| Name | \`${current}\` |`),
+  )
 })

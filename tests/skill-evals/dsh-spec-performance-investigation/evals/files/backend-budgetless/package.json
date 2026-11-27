@@ -1,9 +1,0 @@
-{
-  "name": "performance-backend-budgetless",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "bench": "node bench.mjs",
-    "test": "node --test tests/report.test.mjs"
-  }
-}

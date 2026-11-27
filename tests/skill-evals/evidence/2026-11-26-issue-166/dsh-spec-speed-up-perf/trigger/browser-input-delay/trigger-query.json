@@ -1,0 +1,11 @@
+{
+  "id": "browser-input-delay",
+  "query": "Typing in our search box makes the page stutter; measure input-to-paint and find the cause.",
+  "query_sha256": "c45709200a41871e5028413f7fb5e36649082d23f2722ba255b2e3420e0cd570",
+  "should_trigger": true,
+  "agent_file": "trigger-fixtures/AGENTS.md",
+  "currentness": {
+    "trigger_surface_sha256": "15d0a9d6d97d9b595dad1fbad81d03d9171422840ebf6a0f4b5f448d200395b6",
+    "trigger_corpus_sha256": "99b6ac75a489f57a9bce0000dae8a8328242d3d55542a9e185e97e221e1e93de"
+  }
+}

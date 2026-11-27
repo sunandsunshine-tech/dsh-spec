@@ -1,0 +1,38 @@
+diff --git a/evals/files/authorized-deliberate-difference/src/report.mjs b/evals/files/authorized-deliberate-difference/src/report.mjs
+index d20d1f3..ffaf723 100644
+--- a/evals/files/authorized-deliberate-difference/src/report.mjs
++++ b/evals/files/authorized-deliberate-difference/src/report.mjs
+@@ -5,8 +5,8 @@ const rows = Array.from({ length: 2_500 }, (_, index) => ({
+ }))
+ 
+ const durationFormatter = new Intl.NumberFormat('en-US', {
+-  minimumFractionDigits: 3,
+-  maximumFractionDigits: 3,
++  minimumFractionDigits: 1,
++  maximumFractionDigits: 1,
+ })
+ 
+ export function sourceRows() {
+diff --git a/evals/files/authorized-deliberate-difference/tests/report.test.mjs b/evals/files/authorized-deliberate-difference/tests/report.test.mjs
+index 6d63fc0..17a978f 100644
+--- a/evals/files/authorized-deliberate-difference/tests/report.test.mjs
++++ b/evals/files/authorized-deliberate-difference/tests/report.test.mjs
+@@ -2,14 +2,14 @@ import assert from 'node:assert/strict'
+ import { test } from 'node:test'
+ import { renderRows, sourceRows, totalDurationMs } from '../src/report.mjs'
+ 
+-test('duration labels and row order match the reviewed export', () => {
++test('one-decimal duration labels and row order match the reviewed export', () => {
+   const source = sourceRows()
+   const total = totalDurationMs()
+   const rendered = renderRows()
+   assert.equal(rendered.length, source.length)
+-  assert.equal(rendered[0].label, 'Activity 0: 0.900 s')
+-  assert.equal(rendered[1].label, 'Activity 1: 0.937 s')
+-  assert.equal(rendered.at(-1).label, 'Activity 19: 2.363 s')
++  assert.equal(rendered[0].label, 'Activity 0: 0.9 s')
++  assert.equal(rendered[1].label, 'Activity 1: 0.9 s')
++  assert.equal(rendered.at(-1).label, 'Activity 19: 2.4 s')
+   assert.deepEqual(
+     rendered.map((row) => row.id),
+     source.map((row) => row.id),

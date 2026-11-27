@@ -1,0 +1,44 @@
+diff --git a/evals/files/measurement-decisions/src/report.mjs b/evals/files/measurement-decisions/src/report.mjs
+index 81e068d..eae945a 100644
+--- a/evals/files/measurement-decisions/src/report.mjs
++++ b/evals/files/measurement-decisions/src/report.mjs
+@@ -11,19 +11,32 @@ export function createInventory(count = 5_000) {
+ }
+ 
+ export function buildReport(items, hooks = {}) {
+-  const seen = []
++  const regionalTotals = new Map()
++  for (const item of items) {
++    const totals = regionalTotals.get(item.region)
++    if (totals === undefined) {
++      regionalTotals.set(item.region, { units: item.units, count: 1 })
++    } else {
++      totals.units += item.units
++      totals.count += 1
++    }
++  }
++
++  for (const totals of regionalTotals.values()) {
++    hooks.onRegionFilter?.()
++    hooks.onRegionReduce?.(totals.count)
++  }
++
++  const seen = new Set()
+   const report = []
+ 
+   for (const item of items) {
+     const key = `${item.productId}:${item.region}`
+     hooks.onSeenScan?.()
+-    if (seen.includes(key)) continue
+-    seen.push(key)
++    if (seen.has(key)) continue
++    seen.add(key)
+ 
+-    hooks.onRegionFilter?.()
+-    const regionalItems = items.filter((candidate) => candidate.region === item.region)
+-    hooks.onRegionReduce?.(regionalItems.length)
+-    const regionalUnits = regionalItems.reduce((sum, candidate) => sum + candidate.units, 0)
++    const regionalUnits = regionalTotals.get(item.region).units
+     hooks.onProfile?.()
+     report.push({
+       productId: item.productId,
