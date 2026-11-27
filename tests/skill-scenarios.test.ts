@@ -2772,10 +2772,11 @@ test('merging stacked PRs trigger corpus separates official landing from adjacen
 
 test('pr-description eval covers issue exceptions and review update boundaries', () => {
   const corpus = readCorpus('dsh-spec-pr-description')
-  assert.equal(corpus.evals.length, 6)
+  assert.equal(corpus.evals.length, 7)
   assert.deepEqual(
     corpus.evals.map((entry) => entry.id),
     [
+      'ai-generated-issue-is-not-human-evidence',
       'stack-layer-replaces-legacy-ai-section',
       'workspace-boundaries-expose-reverse-edge',
       'tracked-issue-reference-count',
@@ -2796,6 +2797,32 @@ test('pr-description eval covers issue exceptions and review update boundaries',
   assert.match(skillText, /If the project has no issue tracker, state that no tracker applies/i)
   assert.match(skillText, /cannot turn an existing tracked issue into an optional reference/i)
   assert.match(skillText, /explicit no-tracker or no-matching-issue exception/i)
+  const aiUsage = readFileSync(join(REPO_ROOT, 'skills/dsh-spec-pr-description/references/ai-usage.md'), 'utf8')
+  assert.match(aiUsage, /Account authorship is not evidence of human participation/i)
+  assert.match(aiUsage, /issue, task card, comment, review, or reply written by an AI/i)
+  assert.match(aiUsage, /AI reviewer's findings and the AI-selected dispositions are `auto` review work/i)
+  const provenance = corpus.evals.find((entry) => entry.id === 'ai-generated-issue-is-not-human-evidence')
+  assert.ok(provenance)
+  assert.doesNotMatch(
+    provenance.prompt,
+    /auto|human participation|AI-generated|AI-created|no author decision/i,
+    'the provenance scenario prompt exposes its graded outcome',
+  )
+  assert.match(provenance.expected_output, /uses auto for every stage/i)
+  assert.match(provenance.expected_output, /maintainer account shown as issue author adds no human participation/i)
+  assert.match(
+    provenance.assertions.join('\n'),
+    /breakdown, design, testing, implementation, and review rows all use the auto level/,
+  )
+  assert.match(provenance.assertions.join('\n'), /No decision record says the author supplied/)
+  assert.match(
+    readFileSync(join(EVAL_SOURCE_ROOT, 'dsh-spec-pr-description', 'evals/files/ai-provenance/issue.md'), 'utf8'),
+    /GitHub displays the maintainer account.*automation opened it through that account/s,
+  )
+  assert.match(
+    readFileSync(join(EVAL_SOURCE_ROOT, 'dsh-spec-pr-description', 'evals/files/ai-provenance/session.md'), 'utf8'),
+    /Human messages: none/,
+  )
   const scenario = corpus.evals.find((entry) => entry.id === 'stack-layer-replaces-legacy-ai-section')
   assert.ok(scenario)
   assert.equal(scenario.id, 'stack-layer-replaces-legacy-ai-section')
@@ -5716,6 +5743,7 @@ test('targeted model evidence binds current scenarios, inputs and recorded prove
   )
   const pr142EvidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-25-pr142')
   const pr143EvidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-25-issue143')
+  const pr181EvidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-27-issue181')
   const issue147EvidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-26-issue-147')
   const proseEvidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-26-issue149')
   type EvidenceRun = {
@@ -5730,6 +5758,12 @@ test('targeted model evidence binds current scenarios, inputs and recorded prove
   }
   const runs: EvidenceRun[] = [
     { skill: 'dsh-spec-pr-description', run: 'stack-layer-replaces-legacy-ai-section' },
+    {
+      skill: 'dsh-spec-pr-description',
+      run: 'ai-generated-issue-is-not-human-evidence',
+      evidenceRoot: pr181EvidenceRoot,
+      current: true,
+    },
     { skill: 'dsh-spec-agent-notes', run: 'no-peer-uses-user-language' },
     { skill: 'dsh-spec-agent-notes', run: 'archive-readiness' },
     { skill: 'dsh-spec-agent-notes', run: 'external-companion-mechanism' },
@@ -5996,6 +6030,7 @@ test('targeted model evidence binds current scenarios, inputs and recorded prove
     },
   ]
   const scenarioIds: Record<string, string> = {
+    'dsh-spec-pr-description:ai-generated-issue-is-not-human-evidence': 'ai-generated-issue-is-not-human-evidence',
     'dsh-spec-pr-description:stack-layer-replaces-legacy-ai-section': 'stack-layer-replaces-legacy-ai-section',
     'dsh-spec-agent-notes:no-peer-uses-user-language': 'no-peer-uses-user-language',
     'dsh-spec-agent-notes:archive-readiness': 'archive-readiness-required',
@@ -6880,7 +6915,7 @@ test('every typed evidence leaf passes full retained policy under a different HO
     )
     checked += 1
   }
-  assert.equal(checked, 57, 'typed evidence leaf count changed')
+  assert.equal(checked, 58, 'typed evidence leaf count changed')
 })
 
 test('the model runner refuses to replace the repository or evidence root', () => {

@@ -1,0 +1,27 @@
+diff --git a/evals/files/ai-provenance/pr-body.md b/evals/files/ai-provenance/pr-body.md
+index aa9aa7a..6fb91b0 100644
+--- a/evals/files/ai-provenance/pr-body.md
++++ b/evals/files/ai-provenance/pr-body.md
+@@ -31,15 +31,15 @@ transient failure.
+ ## AI Usage
+ 
+ <!-- ai-declaration:start -->
+-[![AI-DECLARATION: pair](https://img.shields.io/badge/䷼%20AI--DECLARATION-pair-ffedd5?labelColor=ffedd5)](https://ai-declaration.md)
++[![AI-DECLARATION: auto](https://img.shields.io/badge/䷼%20AI--DECLARATION-auto-ede9fe?labelColor=ede9fe)](https://ai-declaration.md)
+ 
+-**AI declaration** ([v0.1.2](https://ai-declaration.md/en/0.1.2)): `pair`
++**AI declaration** ([v0.1.2](https://ai-declaration.md/en/0.1.2)): `auto`
+ <!-- ai-declaration:end -->
+ 
+ | Stage | Level | AI involvement | Decision record |
+ |:--|:--|--:|:--|
+-| breakdown | assist | 20% | The author selected the retry-cap problem and scope; the AI traced the affected paths. |
+-| design | pair | 40% | The author supplied the retry limit and committed-failure boundary; the AI wrote the mechanism. |
+-| testing | pair | 40% | The author required the cap and committed-failure scenarios; the AI wrote the cases. |
+-| implementation | pair | 40% | The AI wrote the implementation and tests; the author reviewed the change. |
+-| review | pair | 40% | The author decided the reviewer's committed-failure finding; the AI fixed it. |
++| breakdown | auto | 100% | The AI derived the issue scope and selected the bounded retry-cap problem. |
++| design | auto | 100% | The AI selected the bounded retry-cap implementation; no human supplied design structure. |
++| testing | auto | 100% | The AI chose the test matrix covering each retry cap and committed versus transient failures. |
++| implementation | auto | 100% | The AI wrote the implementation and tests without human diff review. |
++| review | auto | 100% | A review AI required no retry after a failed write; the authoring AI accepted the finding and added the regression test. |

@@ -1,0 +1,6 @@
+PASS The changed issue is treated as AI-generated rather than as a human instruction because the maintainer account is displayed as its author.
+PASS The breakdown, design, testing, implementation, and review rows all use the auto level.
+PASS The review row records AI-selected dispositions of AI reviewer findings.
+PASS No decision record says the author supplied, required, reviewed, or decided the work.
+PASS Exactly one AI-DECLARATION block remains, with an auto badge and declaration.
+PASS The Motivation, Changes, and Testing sections preserve the supplied technical facts.

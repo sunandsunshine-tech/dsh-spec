@@ -2,6 +2,26 @@
   "skill_name": "dsh-spec-pr-description",
   "evals": [
     {
+      "id": "ai-generated-issue-is-not-human-evidence",
+      "prompt": "Update evals/files/ai-provenance/pr-body.md for the change described in evals/files/ai-provenance/change-summary.md. Reconcile its AI Usage section with evals/files/ai-provenance/issue.md and evals/files/ai-provenance/session.md, preserving the technical sections. Write the complete updated file back, validate it, and report the result.",
+      "expected_output": "The AI Usage section uses auto for every stage. It records that an AI created Issue #41 and all of its decisions, that the maintainer account shown as issue author adds no human participation, and that AI reviewer findings and their AI-selected dispositions are auto review work. No row credits the author with supplying, requiring, reviewing, or deciding the work. The AI-DECLARATION badge and declaration are auto, and the technical sections remain intact.",
+      "files": [
+        "evals/files/ai-provenance/AGENTS.md",
+        "evals/files/ai-provenance/issue.md",
+        "evals/files/ai-provenance/session.md",
+        "evals/files/ai-provenance/change-summary.md",
+        "evals/files/ai-provenance/pr-body.md"
+      ],
+      "assertions": [
+        "The changed issue is treated as AI-generated rather than as a human instruction because the maintainer account is displayed as its author.",
+        "The breakdown, design, testing, implementation, and review rows all use the auto level.",
+        "The review row records AI-selected dispositions of AI reviewer findings.",
+        "No decision record says the author supplied, required, reviewed, or decided the work.",
+        "Exactly one AI-DECLARATION block remains, with an auto badge and declaration.",
+        "The Motivation, Changes, and Testing sections preserve the supplied technical facts."
+      ]
+    },
+    {
       "id": "stack-layer-replaces-legacy-ai-section",
       "prompt": "Update evals/files/project/pr-body.md for the top layer of a two-layer stack. The project declares no issue tracker, description template, or contributing guide. Work only on this layer: it caps idempotent HTTP retries at three attempts; the lower layer's retry telemetry is context, not part of this change. The current draft contains an old `## Human and Agent Roles` section copied from another layer. Use the supplied change summary and AI notes, produce the complete final description, write it back, validate it, and report the result.",
       "expected_output": "The updated body uses the default four-section structure, states that no issue tracker applies rather than silently omitting the tracker exception, removes the old Human and Agent Roles section, carries exactly one valid AI Usage section for the retry cap only, leaves the unhandled review row at n/a with an empty decision-record cell and puts the no-comments statement after the table, and does not add tracker labels, Project fields, or dates.",
