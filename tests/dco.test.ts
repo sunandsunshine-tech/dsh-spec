@@ -260,6 +260,44 @@ test('a human author who signs with their own address passes', () => {
   }
 })
 
+test('an Assisted-by in the same final trailer block passes', () => {
+  const fixture = signed(`Someone <${HUMAN}>`, `Assisted-by: OpenAI Codex\nSigned-off-by: Someone <${HUMAN}>`)
+  try {
+    const result = gate(fixture)
+
+    assert.equal(result.status, 0, result.output)
+  } finally {
+    fixture.dispose()
+  }
+})
+
+test('a blank line before Signed-off-by leaves Assisted-by outside the final trailer block', () => {
+  const fixture = signed(`Someone <${HUMAN}>`, `Assisted-by: OpenAI Codex\n\nSigned-off-by: Someone <${HUMAN}>`)
+  try {
+    const result = gate(fixture)
+
+    assert.equal(result.status, 1, result.output)
+    assert.match(result.stderr, /Assisted-by must be in the same final trailer block/)
+  } finally {
+    fixture.dispose()
+  }
+})
+
+test('an Assisted-by before prose cannot masquerade as a final trailer', () => {
+  const fixture = signed(
+    `Someone <${HUMAN}>`,
+    `Assisted-by: OpenAI Codex\n\nimplementation notes\n\nSigned-off-by: Someone <${HUMAN}>`,
+  )
+  try {
+    const result = gate(fixture)
+
+    assert.equal(result.status, 1, result.output)
+    assert.match(result.stderr, /Assisted-by must be in the same final trailer block/)
+  } finally {
+    fixture.dispose()
+  }
+})
+
 test('control characters in an author identity cannot shift metadata fields', () => {
   const hostile = `Evil\u001fName\u001eField <${HUMAN}>`
   const fixture = signed(hostile, `Signed-off-by: ${hostile}`)
