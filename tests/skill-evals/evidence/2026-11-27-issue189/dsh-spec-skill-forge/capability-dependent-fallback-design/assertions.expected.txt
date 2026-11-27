@@ -1,0 +1,4 @@
+PASS The required audit result and its independence boundary are stated before any execution mechanism.
+PASS An isolated subagent is preferred when available but is not an installation or completion prerequisite.
+PASS A capability-absent path either completes through an equivalent verifiable mechanism or stops with completed work, pending work, the missing capability, and a resumable next step.
+PASS The revision does not prescribe a fixed subagent count, depth, or tool name.

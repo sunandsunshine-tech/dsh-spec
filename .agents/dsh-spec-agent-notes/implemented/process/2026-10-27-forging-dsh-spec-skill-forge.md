@@ -55,7 +55,7 @@ The prompt boundary is independent of the review-draft mechanism. Whole-skill cr
 | An existing decision record | Re-bind | `SKILL.md § Source` | Only the request, the current contract and the declaration decide; the record supplies a requirement only where one of them keeps that requirement in force |
 | Adopter declaration: forging record location | Keep | `.agents/dsh-spec-agent-notes/implemented/process/2026-10-27-forging-dsh-spec-skill-forge.md` | The notes mechanism's default root and the repository's `forging-<skill-name>` record convention |
 
-Unchanged: the guiding principle, tool names, Stop/Intent/Source/Disposition sections, the verification anchor table, and the gate mechanics. The Verification section's Complete condition adds the default-completion acceptance above. The Record and Review sections carry the optional sibling references. [The description-trigger record](2026-11-25-description-is-derived-from-real-triggers.md) owns the later selection-projection rule.
+Unchanged in that decision: the guiding principle, tool names, Stop/Source/Disposition sections, the verification anchor table, and the gate mechanics. The Verification section's Complete condition adds the default-completion acceptance above. The Record and Review sections carry the optional sibling references. A later capability-dependent clause refines Intent and its completion evidence; [the capability-choice record](2026-11-17-delegation-is-a-capability-choice-not-a-skill-dependency.md) owns that portability rule. [The description-trigger record](2026-11-25-description-is-derived-from-real-triggers.md) owns the later selection-projection rule.
 
 ## Alternatives considered
 
