@@ -1,0 +1,19 @@
+# Pairing consistency record for 2026-11-27-draft-ci-skips-until-ready.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-11-27-draft-ci-skips-until-ready.md --target <lang>
+/agent-note-draft-ci-skips-until-the-head-is-ready:
+  en: 44e38a5aa3c79039
+  zh: b079e6e3f9d9f6b3
+/agent-note-draft-ci-skips-until-the-head-is-ready/problem:
+  en: cfa1c1d181a519e8
+  zh: 52fd8b61ebf230eb
+/agent-note-draft-ci-skips-until-the-head-is-ready/decision:
+  en: 394bdb84ea25243f
+  zh: 9410c07ecf9f358e
+/agent-note-draft-ci-skips-until-the-head-is-ready/alternatives-considered:
+  en: d8b03b0d325a4f7f
+  zh: 93c7072e0d8284a2
+/agent-note-draft-ci-skips-until-the-head-is-ready/consequences:
+  en: 6686f4e808468c65
+  zh: c20c0e7b21bd407e

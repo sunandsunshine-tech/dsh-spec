@@ -1,0 +1,19 @@
+# Pairing consistency record for 2026-11-27-human-language-follows-current-user-preference.md (references/pairing-contract.md): per heading
+# source hash plus one target signature per target outside fenced code blocks and generated regions; a target signature binds the source hash, so a source change invalidates every target until re-recorded.
+# After editing either side, bring the other along and re-record with:
+#   node <skill-dir>/scripts/translate-pair.mjs write .agents/dsh-spec-agent-notes/implemented/process/2026-11-27-human-language-follows-current-user-preference.md --target <lang>
+/agent-note-human-language-follows-the-current-user-s-preference:
+  en: 856db1b90886675b
+  zh: 2a244e9cb0588f4a
+/agent-note-human-language-follows-the-current-user-s-preference/problem:
+  en: fedffacabb703350
+  zh: 163de4f7bbf950b2
+/agent-note-human-language-follows-the-current-user-s-preference/decision:
+  en: 944b5e402d4f4e6e
+  zh: 27f2148e412a78db
+/agent-note-human-language-follows-the-current-user-s-preference/alternatives-considered:
+  en: c796517337f949ea
+  zh: 963383543dbcb3a9
+/agent-note-human-language-follows-the-current-user-s-preference/consequences:
+  en: 6ec2ca0c32feaa5c
+  zh: e9b78ebbc300a615

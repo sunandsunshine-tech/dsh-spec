@@ -10,7 +10,7 @@ Status: implemented
 
 ## 决策
 
-GitHub 当前生效的 squash 标题设置为 `COMMIT_OR_PR_TITLE`。恰好包含一个非合并提交的 PR 从该提交取得预期的 squash 主题；其他任何 PR 都从 PR 标题取得。合并提交不决定来源。两种来源都采用 `type(scope): imperative summary`：约定的 `type` 和 `scope` 标记保持不变，摘要则用本次改动的工作语言陈述最终产生的改动。仓库不要求使用英语，这种形式也不强制摘要使用英语。
+GitHub 当前生效的 squash 标题设置为 `COMMIT_OR_PR_TITLE`。恰好包含一个非合并提交的 PR 从该提交取得预期的 squash 主题；其他任何 PR 都从 PR 标题取得。合并提交不决定来源。两种来源都采用 `type(scope): imperative summary`：约定的 `type` 和 `scope` 标记保持不变，摘要则用本次改动的工作语言陈述最终产生的改动。仓库不要求使用英语，这种形式也不强制摘要使用英语。[当前用户语言选择](2026-11-27-human-language-follows-current-user-preference.zh.md)的决策取代本记录关于语言的结论；本记录的主题与 trailer 规则仍然有效。
 
 跟踪器和评审引用应放在 PR 正文中。标题和每条分支提交主题都不得包含手工 `(#N)` 后缀，包括一条后缀，以及前面没有空白的后缀。GitHub 在创建 squash 提交时会用 PR 编号提供恰好一个后缀。主题检查读取 Git 的 `%s` 呈现结果，而不是提交消息的第一条物理行，因此开头的空行无法隐藏后缀。规范后缀还必须位于主题的真正末尾：其编号是一个正整数，采用不补零的十进制写法，而且末尾空白，包括不换行空格，不会被裁掉。
 
