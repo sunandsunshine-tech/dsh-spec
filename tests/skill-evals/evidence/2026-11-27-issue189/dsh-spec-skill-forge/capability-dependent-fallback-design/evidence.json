@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "claim": {
+    "type": "behavior",
+    "subject": "dsh-spec-skill-forge:capability-dependent-fallback-design"
+  },
+  "arm": "target-present",
+  "comparison": null,
+  "evidence": {
+    "kind": "model",
+    "currentness": {
+      "scenario_sha256": "98e5f9ff11fd8e2c4b97c4d595e402f889b246d219a54ba7d1e4d5ee0a9310e0",
+      "input_manifest_sha256": "d5de566d543d01420bf3be359b1f1cbc825cbbf1bc4a040e1324f03b6b964b8b",
+      "scenario_prompt_sha256": "0aef42594aef99a7076ccfe17afeff675309ca375ff287b4b942c0fc24e7bca9",
+      "arm_instruction_sha256": "173a225390a85c7e8dcf47db0e203badb26ce543518aeca454a03e031be26776",
+      "prompt_guard_sha256": "e587246af427c697477e3f5e361192ebb5316c5f17540449cf6de853ec64af30",
+      "rendered_prompt_sha256": "c45cf5ff1b64c1a9399efe45f27b2321e416c45e350d0210c8a3e9bf5c799eb2",
+      "execution_sha256": "df0d14c0a241265515e09d97e5b796c7a07f4e04e2b1e49e7bc971557340c54a"
+    }
+  },
+  "execution": {
+    "auth": "host-proxy",
+    "browser": false,
+    "media": false,
+    "model_config_sha256": "81fe0a5e2d45e2a687f9ff2d811dd45cca60b986eeb96b994e9255e9eda70e1c",
+    "model_runtime_sha256": "63279cf1860a285495fa0bad3c40f5eb38c3487f7425adb603bcbd49175fcaf8",
+    "sandbox": "workspace-write",
+    "subagents": false
+  },
+  "provenance": {
+    "target_skill_tree_sha256": "87cc95c5ff754789fb750ee2e180138247855592058d474622e6ffd1dff18534",
+    "dependency_skill_tree_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "deadline_ms": 1800000,
+  "privacy": {
+    "canary_sets": [
+      "current-home",
+      "local-environment"
+    ],
+    "scope_sha256": "2b910be53fbe40382a58ac7b2d82bffe01809fb589a28caca231ac26a8090db2",
+    "surfaces": "all-retained-files"
+  }
+}

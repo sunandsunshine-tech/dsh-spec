@@ -1,0 +1,86 @@
+diff --git a/.agents/dsh-spec-skill-forge/record/isolated-audit.md b/.agents/dsh-spec-skill-forge/record/isolated-audit.md
+new file mode 100644
+index 0000000..554f244
+--- /dev/null
++++ b/.agents/dsh-spec-skill-forge/record/isolated-audit.md
+@@ -0,0 +1,70 @@
++# isolated-audit forge record
++
++## Goal
++
++Audit a repository for unsafe data flows and produce a one-pass final report from execution independent of the implementation. Use isolated execution when the host supports it. If isolated execution is unavailable, complete through another independent mechanism when one exists; otherwise stop before producing the report and give an explicit, resumable handoff.
++
++## Source revision
++
++- Repository: current project
++- Revision: `dda9af2`
++- Read: 2026-11-27
++- Delivery language: English
++- Review drafts: none declared; `pair` reported no drafts or possible companions
++- Adopter constraints: work only inside the project; do not use subagents
++
++## Dispositions
++
++| Source unit | Disposition | Target | Basis |
++| --- | --- | --- | --- |
++| Description selects repository unsafe-data-flow audits (lines 2-3) | Keep | Frontmatter description | Source wording remains an accurate selection projection |
++| License is MIT (line 4) | Keep | Frontmatter license | Source constraint remains true |
++| Skill title (line 6) | Keep | Body title | Source role is unchanged |
++| Spawn a subagent for every audit (line 8) | Adapt | Body sentence that uses isolated execution when the host supports it, preferably a subagent | The source mechanism becomes a host-dependent optional mechanism; the request keeps it available when supported |
++| The subagent provides an execution boundary independent of the implementation (line 8) | Re-bind | Body requirement for execution independent of the implementation | Independence is the boundary the mechanism serves and remains required when the mechanism changes |
++| Produce the final report in one pass (line 8) | Keep | Body first sentence | Source result and cadence remain unchanged |
++| Complete or explicitly hand off when no independent mechanism exists (request) | Adapt | Body's equivalent-independent-mechanism route and explicit handoff branch | Preserves the required result while preventing an unisolated self-audit from being presented as independent |
++
++## Rulings
++
++- Isolated execution is an optional mechanism; execution independent of the implementation is the required boundary.
++- A different independent mechanism is equivalent only when it preserves that boundary.
++- The explicit handoff names completed work, remaining work, missing capability, and a resumable next step.
++- The online Agent Skills index and linked best-practices page were not read because the adopter limited reads to the current project. The bundled offline fallback was used instead.
++- A live model-evaluation harness is not present in the project, so capability conclusions are judged from the instructed branches and recorded in the scenarios below.
++
++## Requirement anchors and evidence
++
++| Requirement | Anchor | Evidence or conclusion |
++| --- | --- | --- |
++| The skill still selects repository unsafe-data-flow audits | Mechanical and judged | The description is unchanged; the specification gate recognizes it, and it names the audit object and purpose. |
++| Capability-present: use isolated execution and produce the final report in one pass | Judged development scenario E1 | For a repository audit on a host that supports isolated execution, the body requires isolated execution, preferably a subagent, and one-pass report production. |
++| Capability-partial: complete through another independent mechanism when isolated execution is unavailable | Judged development scenario E2 | For a host without isolated execution but with another mechanism independent of the implementation, the body allows completion through that mechanism. |
++| Capability-absent: do not issue the report and hand off explicitly with a resumable next step | Judged development scenario E3 | For a host with no independent mechanism, the body prohibits producing the report and requires all four handoff fields. |
++| No report is represented as independent when only implementation-context execution is available | Judged development scenario E3 | The no-mechanism branch stops before report production, so it cannot mislabel self-audit as an independent result. |
++| The forged skill conforms to the Agent Skills format and budgets | Mechanical | `verify-skill-spec.mjs` passed 13 of 13 checks: valid name, description, license, links and references, 9 lines, about 153 tokens. |
++| Review-draft pairing is clean | Mechanical | `forge.mjs pair isolated-audit` reported no review drafts or possible companions and passed. |
++
++## Pages read
++
++| Page | Date | Result |
++| --- | --- | --- |
++| Agent Skills index | 2026-11-27 | Not read; the adopter required project-only access |
++| Linked Agent Skills best-practices page | 2026-11-27 | Not read; the adopter required project-only access |
++| Bundled offline skill-authoring fallback | 2026-11-27 | Read; distilled from the online guides on 2026-10-26 |
++
++## Unverified
++
++- No real repository audit was executed because this change forges the audit instruction rather than running it.
++- The capability-present branch was not exercised with a real subagent because the adopter prohibited subagents. The branch is verified by instruction review.
++- Trigger-rate testing and semantic model evaluation were not run because the project contains no model-evaluation harness; both capability scenarios are recorded as development evals.
++
++## Risks and rollback
++
++- "Independent of the implementation" remains a qualitative boundary. The explicit no-mechanism stop prevents a local audit from being misreported when the boundary cannot be established.
++- The source skill changes only its execution sentence and preserves its name, trigger, license, audit object, and one-pass report result.
++- Rollback point: revision `dda9af2`.
++
++## Publish authorization
++
++The request authorizes this revision of the supplied source skill. It was published into the supplied same-name landing target, and the work directory was removed. The version-control rollback point covers replacement.
+diff --git a/evals/files/vendor/isolated-audit/SKILL.md b/evals/files/vendor/isolated-audit/SKILL.md
+index 398d22b..6e56089 100644
+--- a/evals/files/vendor/isolated-audit/SKILL.md
++++ b/evals/files/vendor/isolated-audit/SKILL.md
+@@ -6,4 +6,4 @@ license: "MIT"
+ 
+ # Isolated audit
+ 
+-Spawn a subagent for every audit and have it produce the final report in one pass.
++Audit the repository for unsafe data flows and produce the final report in one pass from an execution context independent of the implementation. When the host supports isolated execution, use it (preferably a subagent). When isolated execution is unavailable, complete through another independent mechanism if one is available. If neither exists, do not produce the report; hand off explicitly, naming the completed work, remaining work, missing capability, and a resumable next step.

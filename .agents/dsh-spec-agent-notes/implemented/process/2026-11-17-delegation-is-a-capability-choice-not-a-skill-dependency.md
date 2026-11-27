@@ -10,7 +10,7 @@ Two shipped skills made a subagent the sole route for whole-document translation
 
 ## Decision
 
-A skill states the result and the separation or coverage property it needs. A subagent, parallel execution, and an isolated context are optional mechanisms, not installation requirements. When the host exposes a suitable mechanism, the skill may use it. Without one, use an available equivalent that preserves the property: bounded sequential passes, a clean-context handoff, staged independent review, or another verifiable route. If no equivalent preserves a required quality boundary, stop and hand over with the missing capability, completed work, and remaining work named. Do not silently present lower-quality work as complete.
+A skill states the result and the separation or coverage property it needs before naming an execution mechanism. A subagent, parallel execution, and an isolated context are optional mechanisms, not installation requirements. When the host exposes a suitable mechanism, the skill may use it. Without one, use an available equivalent that preserves the property: bounded sequential passes, a clean-context handoff, staged independent review, or another verifiable route. If no equivalent preserves a required quality boundary, stop before presenting the result and hand over with the missing capability, completed work, remaining work, and a resumable next step named. Do not silently present lower-quality work as complete.
 
 This note owns portability of a skill's required result. [Delegation follows the harness and the prompt](2026-09-23-delegation-follows-the-harness-and-the-prompt.md) continues to own the repository-level rule that a skill does not prescribe a carrier ladder. A capability preference with a stated fallback is not a carrier-selection protocol.
 
@@ -20,7 +20,7 @@ Eval coverage follows falsifiable behavior rather than skill count. A central na
 
 ## Verification
 
-Seven clean-context agent runs on 2026-11-18 exercised the capability profiles and the forge rule against the development corpus.
+Seven clean-context agent runs on 2026-11-18 exercised the capability profiles. The current 2026-11-27 `dsh-spec-skill-forge` scenario reran the forge rule.
 
 | Scenario | Observed evidence |
 |---|---|
@@ -30,7 +30,7 @@ Seven clean-context agent runs on 2026-11-18 exercised the capability profiles a
 | Simplification survey without isolation but with separable evidence | Runtime and documentation were surveyed in separate passes with consumer evidence and rejected alternatives |
 | Simplification survey when domain separation is required | The run preserved runtime evidence and handed off the unverified module reachability work with a resumable next step |
 | Simplification survey with isolated contexts | Three clean contexts surveyed runtime, documentation and tests, and the combined result retained each domain's evidence |
-| Skill forge capability fallback | The run kept the audit result and independence boundary, classified isolated execution as an optional preferred mechanism, defined a verifiable fallback or resumable handoff, and required no fixed subagent count or tool name |
+| Skill forge capability fallback | The 2026-11-27 run passed 4/4: the forged skill stated the audit result and independence boundary before a carrier, kept isolation optional, defined a verifiable fallback or complete resumable handoff, and required no fixed subagent count, depth or tool name. [Current evidence](../../../../tests/skill-evals/evidence/2026-11-27-issue189/dsh-spec-skill-forge/README.md) |
 
 [The capability scenario test](../../../../tests/skill-scenarios.test.ts) validates the corpus, containment and temporary staging. [The repository shape test](../../../../tests/repository-shape.test.ts) rejects an `evals/` directory in the distribution tree. The corpus gate also skips `tests/skill-evals/**` from translation discovery, so the repository check continues to report only its 39 maintained pairs.
 
