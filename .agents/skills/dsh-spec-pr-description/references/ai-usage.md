@@ -71,6 +71,8 @@ Who decides whether each handled review comment is fixed or declined. Comments f
 ## Grading rules
 
 - Grade from the change's session records and task records. A human message sent to a delegated agent session counts; an instruction an agent writes to a delegate is not a human message.
+- Account authorship is not evidence of human participation. An issue, task card, comment, review, or reply written by an AI through the current account is AI work, even when the hosting service displays the human account as its author.
+- An AI reviewer's findings and the AI-selected dispositions are `auto` review work. They become human participation only when a human makes or decides the disposition.
 - Count only work that ends up in this change, including work from earlier sessions that ends up in it. A human's request to revert or redo work counts even when the reverted work does not remain in the change.
 - In `breakdown`, `design`, `testing`, and `implementation`, the human is the author working with the AI; reviewers' approvals and comments count only in `review`.
 - Process and ordering instructions, such as branching, working order, staging, and when to commit, push, or open the change request, do not count as human involvement in any stage.

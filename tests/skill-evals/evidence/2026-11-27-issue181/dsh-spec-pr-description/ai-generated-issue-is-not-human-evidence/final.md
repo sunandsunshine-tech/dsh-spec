@@ -1,0 +1,3 @@
+Updated the complete [pr-body.md](/workspace/evals/files/ai-provenance/pr-body.md). The AI Usage section now consistently declares `auto` at 100% across breakdown, design, testing, implementation, and review, reflecting that the AI made all recorded decisions and handled the review finding. The technical sections remain byte-for-byte unchanged.
+
+Validation passed for section order, declaration markers, five-stage ordering, valid levels and percentages, 40-word decision-record limits, badge/declaration consistency, and `git diff --check`.

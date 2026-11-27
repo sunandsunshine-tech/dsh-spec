@@ -1,0 +1,4 @@
+554462665f63333fef909b6be319669d67194b3eb2841b1e6f5a8a0b7174a8c3  skills/dsh-spec-pr-description/SKILL.md  mode=0644
+ca2eb8b691b2a704e3358f6e7648b37211e2a8c660f58c56c8cc6fcd0d147ec1  skills/dsh-spec-pr-description/THIRD_PARTY_NOTICES  mode=0644
+7417231c52af8340babc3b2d0da6ff535b40571713904e71bf5478136999d2f7  skills/dsh-spec-pr-description/references/ai-usage.md  mode=0644
+755e9c20fa084a634b3a008ceca59d70609a35c73396450993a44bb64d537512  skills/dsh-spec-pr-description/references/default-conventions.md  mode=0644
