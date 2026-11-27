@@ -1,0 +1,7 @@
+{
+  "auth": "host-proxy",
+  "browser": false,
+  "media": false,
+  "sandbox": "read-only",
+  "subagents": false
+}

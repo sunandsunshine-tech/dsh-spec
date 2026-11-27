@@ -1,0 +1,6 @@
+{
+  "id": "review-working-tree",
+  "should_trigger": true,
+  "selected": true,
+  "result": "pass"
+}
