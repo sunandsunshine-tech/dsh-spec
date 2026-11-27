@@ -58,7 +58,7 @@
     },
     {
       "id": "isolated-context-fanout",
-      "prompt": "The host provides isolated subagents. Survey the runtime, documentation, and tests in the provided evals/files/vendor/project/ fixture for evidence-backed simplifications and report each domain's consumer evidence and rejected alternatives.",
+      "prompt": "The host provides isolated subagents that start without the parent conversation. Use separate child contexts for the runtime, documentation, and tests in the provided evals/files/vendor/project/ fixture, supplying each host-required child task identity and waiting for its returned result. Survey each domain for evidence-backed simplifications and report its consumer evidence and rejected alternatives.",
       "expected_output": "The domains are assigned to isolated contexts when available, and the combined report preserves each domain's evidence and rejects unsupported deletions.",
       "allow_subagents": true,
       "files": [

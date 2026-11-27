@@ -3332,9 +3332,16 @@ test('find-simplifications binds AGENTS.md authority and trigger near misses', (
   const skill = 'dsh-spec-find-simplifications'
   const skillBody = readFileSync(join(REPO_ROOT, 'skills', skill, 'SKILL.md'), 'utf8')
   assert.match(skillBody, /standing instructions: `AGENTS\.md` and any file it cites/)
+  assert.match(skillBody, /An isolated context is a child that starts without the parent conversation/)
+  assert.match(skillBody, /A requested spawn, empty wait, or failed spawn is not evidence/)
+  assert.match(skillBody, /Observe a completed child result/)
   assert.doesNotMatch(skillBody, /CLAUDE\.md/)
 
   const corpus = readCorpus(skill)
+  const isolated = corpus.evals.find((scenario) => scenario.id === 'isolated-context-fanout')
+  assert.ok(isolated)
+  assert.match(isolated.prompt, /start without the parent conversation/i)
+  assert.match(isolated.prompt, /returned result/i)
   const authority = corpus.evals.find((scenario) => scenario.id === 'agents-md-owns-conflicting-instructions')
   assert.ok(authority)
   const recorded = validateRecordedScenario(skill, authority, authority.id)
