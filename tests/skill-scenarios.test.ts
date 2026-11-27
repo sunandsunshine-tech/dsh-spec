@@ -1271,6 +1271,7 @@ function assertCurrentTriggerEvidence(
   const expected = {
     'dsh-spec-agent-experience': { positive: 5, negative: 4 },
     'dsh-spec-ci-test-reliability': { positive: 4, negative: 4 },
+    'dsh-spec-code-review': { positive: 4, negative: 4 },
     'dsh-spec-error-handling': { positive: 7, negative: 6 },
     'dsh-spec-skill-forge': { positive: 7, negative: 7 },
     'dsh-spec-prose-standard': { positive: 8, negative: 4 },
@@ -3363,6 +3364,45 @@ test('find-simplifications binds AGENTS.md authority and trigger near misses', (
   )
   assert.match(trigger.queries[1]?.query ?? '', /only for correctness and security/)
   assert.match(trigger.queries[2]?.query ?? '', /不要审查代码/)
+})
+
+test('code-review trigger corpus separates change review from adjacent work', () => {
+  const skill = 'dsh-spec-code-review'
+  assertTriggerCorpusIdentity(skill)
+  const corpus = JSON.parse(readFileSync(join(EVAL_SOURCE_ROOT, skill, 'trigger-evals.json'), 'utf8')) as {
+    queries: Array<{ id: string; query: string; should_trigger: boolean }>
+  }
+  assert.deepEqual(
+    corpus.queries.map((entry) => [entry.id, entry.should_trigger]),
+    [
+      ['review-pull-request', true],
+      ['review-patch-set', true],
+      ['review-working-tree', true],
+      ['review-project-standards', true],
+      ['implement-pagination-near-miss', false],
+      ['select-pre-push-near-miss', false],
+      ['design-error-contract-near-miss', false],
+      ['visual-review-near-miss', false],
+    ],
+  )
+  assert.equal(new Set(corpus.queries.map((entry) => entry.id)).size, corpus.queries.length)
+  assert.equal(corpus.queries.filter((entry) => entry.should_trigger).length, 4)
+  assert.equal(corpus.queries.filter((entry) => !entry.should_trigger).length, 4)
+  assert.match(corpus.queries[0]?.query ?? '', /pull request 42/i)
+  assert.match(corpus.queries[1]?.query ?? '', /patch set/i)
+  assert.match(corpus.queries[2]?.query ?? '', /staged and unstaged/i)
+  assert.match(corpus.queries[3]?.query ?? '', /standing instructions|AGENTS\.md/i)
+  assert.match(corpus.queries[4]?.query ?? '', /Add cursor pagination/i)
+  assert.match(corpus.queries[5]?.query ?? '', /Only select the commands/i)
+  assert.match(corpus.queries[5]?.query ?? '', /Do not inspect or review the diff/i)
+  assert.match(corpus.queries[6]?.query ?? '', /stable failure contract/i)
+  assert.match(corpus.queries[7]?.query ?? '', /Do not inspect a code change/i)
+})
+
+test('code-review trigger evidence binds the current description', () => {
+  const skill = 'dsh-spec-code-review'
+  const evidenceRoot = join(REPO_ROOT, 'tests/skill-evals/evidence/2026-11-27-issue-186/dsh-spec-code-review')
+  assertCurrentTriggerEvidence(skill, evidenceRoot, true, 'selected', new Set(), true, true, true)
 })
 
 test('the companion scenario corpus covers the default ladder and bounded authorization', () => {
@@ -6840,7 +6880,7 @@ test('every typed evidence leaf passes full retained policy under a different HO
     )
     checked += 1
   }
-  assert.equal(checked, 49, 'typed evidence leaf count changed')
+  assert.equal(checked, 57, 'typed evidence leaf count changed')
 })
 
 test('the model runner refuses to replace the repository or evidence root', () => {

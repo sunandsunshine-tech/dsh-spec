@@ -1,0 +1,11 @@
+{
+  "id": "visual-review-near-miss",
+  "query": "Review the attached Settings screenshot only for spacing, overlay fit and narrow-viewport layout. Do not inspect a code change.",
+  "query_sha256": "47230fa8c0e6d5ba3db76af97b66de15f1244f676ab9ff2297467855ec46c305",
+  "should_trigger": false,
+  "agent_file": "trigger-fixtures/AGENTS.md",
+  "currentness": {
+    "trigger_surface_sha256": "9048731a814371ac4b80d30549a5598c24c2acd8471d4938e3f33c8d6d2315b0",
+    "trigger_corpus_sha256": "866a48bcdca1eb98ca8cd7407a14abbab551c46deeb509d59522bc7b9672b42f"
+  }
+}

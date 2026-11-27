@@ -1,0 +1,46 @@
+{
+  "skill_name": "dsh-spec-code-review",
+  "agent_file": "trigger-fixtures/AGENTS.md",
+  "queries": [
+    {
+      "id": "review-pull-request",
+      "query": "Review pull request 42 against the repository's standing instructions and the exact proposed diff. Report only defects the diff can establish.",
+      "should_trigger": true
+    },
+    {
+      "id": "review-patch-set",
+      "query": "Review this three-commit patch set for correctness, lifecycle, security and missing required evidence before it is submitted.",
+      "should_trigger": true
+    },
+    {
+      "id": "review-working-tree",
+      "query": "Review the staged and unstaged changes in my working tree before I commit them. Check the project rules that own the changed files as well as the code itself.",
+      "should_trigger": true
+    },
+    {
+      "id": "review-project-standards",
+      "query": "Audit this proposed configuration change against AGENTS.md, the cited architecture records and the repository's quality gates, then identify blocking violations.",
+      "should_trigger": true
+    },
+    {
+      "id": "implement-pagination-near-miss",
+      "query": "Add cursor pagination to the orders endpoint, update its tests and document the new query parameters.",
+      "should_trigger": false
+    },
+    {
+      "id": "select-pre-push-near-miss",
+      "query": "Only select the commands to run before pushing this branch. Do not inspect or review the diff, and do not report correctness or security findings.",
+      "should_trigger": false
+    },
+    {
+      "id": "design-error-contract-near-miss",
+      "query": "Design a stable failure contract for a batch import that can partially succeed, including the machine identity and the report shown to operators.",
+      "should_trigger": false
+    },
+    {
+      "id": "visual-review-near-miss",
+      "query": "Review the attached Settings screenshot only for spacing, overlay fit and narrow-viewport layout. Do not inspect a code change.",
+      "should_trigger": false
+    }
+  ]
+}
